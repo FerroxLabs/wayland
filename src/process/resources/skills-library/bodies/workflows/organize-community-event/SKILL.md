@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning step-by-step guide"
-  category: "cross-domain"
-  depends: "family-reunion-planning project-budget-tracker vendor-evaluation professional-email campaign-planning milestone-planning"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning step-by-step guide'
+  category: 'cross-domain'
+  depends: 'family-reunion-planning project-budget-tracker vendor-evaluation professional-email campaign-planning milestone-planning'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Organize a Community Event

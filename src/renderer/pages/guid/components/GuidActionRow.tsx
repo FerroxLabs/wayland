@@ -6,7 +6,9 @@
 
 import { ArrowUp, Brain, FolderOpen, Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
-import ComposerAddMenu, { type ComposerUploadItem } from '@/renderer/pages/conversation/components/composerMenu/ComposerAddMenu';
+import ComposerAddMenu, {
+  type ComposerUploadItem,
+} from '@/renderer/pages/conversation/components/composerMenu/ComposerAddMenu';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import AcpConfigSelector from '@/renderer/components/agent/AcpConfigSelector';
 import { supportsModeSwitch, type AgentModeOption } from '@/renderer/utils/model/agentModes';

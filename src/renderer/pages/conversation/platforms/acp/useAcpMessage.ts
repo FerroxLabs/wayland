@@ -321,7 +321,18 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
           break;
       }
     },
-    [conversation_id, addOrUpdateMessage, throttledSetThought, setThought, setRunning, setAiProcessing, setAcpStatus, setRouting, setFluxTurnError, t]
+    [
+      conversation_id,
+      addOrUpdateMessage,
+      throttledSetThought,
+      setThought,
+      setRunning,
+      setAiProcessing,
+      setAcpStatus,
+      setRouting,
+      setFluxTurnError,
+      t,
+    ]
   );
 
   useEffect(() => {

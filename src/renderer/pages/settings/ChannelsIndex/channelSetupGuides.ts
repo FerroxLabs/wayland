@@ -61,8 +61,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
     steps: [
       {
         textKey: 'settings.channelGuide.slack.step1',
-        textDefault:
-          'Click "Create New App" then "From scratch". Name it and pick your workspace.',
+        textDefault: 'Click "Create New App" then "From scratch". Name it and pick your workspace.',
         links: [
           {
             labelKey: 'settings.channelGuide.slack.step1.link',
@@ -122,8 +121,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.telegram.step3',
-        textDefault:
-          'BotFather replies with an HTTP API token (looks like 123456:ABC-DEF...). Copy it.',
+        textDefault: 'BotFather replies with an HTTP API token (looks like 123456:ABC-DEF...). Copy it.',
       },
       {
         textKey: 'settings.channelGuide.telegram.step4',
@@ -246,7 +244,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       {
         textKey: 'settings.channelGuide.whatsapp.step2',
         textDefault:
-          'For the Meta Business backend (official WhatsApp Cloud API): in the Meta for Developers console create an app, add the WhatsApp product, then under WhatsApp then API Setup copy the temporary Access Token and the Phone Number ID. The form requires only Access Token and Phone Number ID; Business Account ID, Verify Token, and App Secret are optional (needed only if you wire Meta\'s webhook back).',
+          "For the Meta Business backend (official WhatsApp Cloud API): in the Meta for Developers console create an app, add the WhatsApp product, then under WhatsApp then API Setup copy the temporary Access Token and the Phone Number ID. The form requires only Access Token and Phone Number ID; Business Account ID, Verify Token, and App Secret are optional (needed only if you wire Meta's webhook back).",
         links: [
           {
             labelKey: 'settings.channelGuide.whatsapp.step2.link',
@@ -279,8 +277,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.smsTwilio.step3',
-        textDefault:
-          'Paste Account SID, Auth Token, and the From number (or Messaging Service SID) here.',
+        textDefault: 'Paste Account SID, Auth Token, and the From number (or Messaging Service SID) here.',
       },
       {
         textKey: 'settings.channelGuide.smsTwilio.step4',
@@ -517,8 +514,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.dingtalk.step4',
-        textDefault:
-          'Paste Client ID and Client Secret here (Webhook Secret is optional) and Test & Enable.',
+        textDefault: 'Paste Client ID and Client Secret here (Webhook Secret is optional) and Test & Enable.',
       },
     ],
   },
@@ -631,8 +627,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.nextcloudTalk.step4',
-        textDefault:
-          'Test & Enable, then add that account to a Talk conversation to chat with it.',
+        textDefault: 'Test & Enable, then add that account to a Talk conversation to chat with it.',
       },
     ],
   },
@@ -682,8 +677,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.nostr.step2',
-        textDefault:
-          'Paste the Private Key (nsec1... or 64-char hex) into the Private Key field.',
+        textDefault: 'Paste the Private Key (nsec1... or 64-char hex) into the Private Key field.',
       },
       {
         textKey: 'settings.channelGuide.nostr.step3',
@@ -715,8 +709,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.twitch.step3',
-        textDefault:
-          'Enter the Channels to join (your channel names, comma-separated). Then Test & Enable.',
+        textDefault: 'Enter the Channels to join (your channel names, comma-separated). Then Test & Enable.',
       },
       {
         textKey: 'settings.channelGuide.twitch.step4',
@@ -788,8 +781,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       },
       {
         textKey: 'settings.channelGuide.bluebubbles.step3',
-        textDefault:
-          'Paste the Server URL and Server Password here and Test & Enable.',
+        textDefault: 'Paste the Server URL and Server Password here and Test & Enable.',
       },
     ],
   },
@@ -800,7 +792,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       {
         textKey: 'settings.channelGuide.webhook.step1',
         textDefault:
-          'This is a generic HTTP channel. Enter the Outbound URL: the https endpoint of your own service that should receive the agent\'s replies (Wayland POSTs each reply there as JSON).',
+          "This is a generic HTTP channel. Enter the Outbound URL: the https endpoint of your own service that should receive the agent's replies (Wayland POSTs each reply there as JSON).",
       },
       {
         textKey: 'settings.channelGuide.webhook.step2',
@@ -838,7 +830,7 @@ export const CHANNEL_SETUP_GUIDES: Readonly<Record<string, ChannelSetupGuideCont
       {
         textKey: 'settings.channelGuide.emailAgentMail.step3',
         textDefault:
-          'Test & Enable. Then copy the Inbound Webhook URL shown here into the AgentMail dashboard\'s Webhook URL field so new mail reaches Wayland. Optionally paste AgentMail\'s signing secret (whsec_...) into Webhook Secret to verify deliveries.',
+          "Test & Enable. Then copy the Inbound Webhook URL shown here into the AgentMail dashboard's Webhook URL field so new mail reaches Wayland. Optionally paste AgentMail's signing secret (whsec_...) into Webhook Secret to verify deliveries.",
       },
     ],
   },

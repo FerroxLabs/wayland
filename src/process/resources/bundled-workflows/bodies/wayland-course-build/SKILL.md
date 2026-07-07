@@ -12,14 +12,15 @@ description: >-
   content skill can produce without the full course build.
 license: Apache-2.0
 type: workflow
-skills: "sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook"
+skills: 'sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook'
 metadata:
   author: wayland
   version: 1.0.0
   tags: education content course curriculum step-by-step planning
   category: education
-  depends: "sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook"
+  depends: 'sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook'
 ---
+
 # Complete Course Builder
 
 **Estimated time:** 60-90 minutes
@@ -45,7 +46,7 @@ into one course package.
 **Step 1: Define the Transformation** (uses: content-course-outline)
 
 Ask the user for the course transformation in one sentence: "By the end, the
-student can ___." Do not proceed without a clear end-state, since it anchors the
+student can \_\_\_." Do not proceed without a clear end-state, since it anchors the
 outline, decks, and workbook.
 
 - Input: user's one-sentence transformation

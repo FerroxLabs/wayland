@@ -20,17 +20,17 @@ Trigger phrases that should activate this mode:
 **2. Ask one question at a time.** No batching. After each answer, pick one action.
 
 - **Accept and advance.** Specific, concrete, names a real person or move. Next question.
-- **Push back once.** Vague ("I write conversationally"), one-word, aspirational, or self-contradicting. Ask a sharper follow-up: *"Conversational how? Give me a sentence you wrote last week that felt like you."* Once per question — twice becomes interrogation.
+- **Push back once.** Vague ("I write conversationally"), one-word, aspirational, or self-contradicting. Ask a sharper follow-up: _"Conversational how? Give me a sentence you wrote last week that felt like you."_ Once per question — twice becomes interrogation.
 - **Note and advance.** "I don't know" after a real attempt. Absence is data.
 
 **3. Run the 22 questions in six clusters.** Track the cluster so the user sees the shape.
 
-- *Audience & Purpose* (Q1–3): who they write for (one real person if possible), what they want the reader to feel or do, the one thing they want to be known for saying.
-- *Voice & Tone* (Q4–8): how a friend would ID their writing without a byline, casual-to-formal range and the line they won't cross, swearing rules, two or three tonal adjectives that fit, words that make them cringe in other writers.
-- *Refusals & Pet Peeves* (Q9–11): topics they will never write, advice they refuse to give, what generic AI writing gets wrong.
-- *Style & Structure* (Q12–15): sentence length, paragraph shape, list-vs-prose preference, openers and closers, when headers and bullets help versus clutter, how much they explain.
-- *Influences & Anti-Influences* (Q16–18): two or three writers whose voice they admire (and what specifically), one or two they actively reject and why, the soundtrack-genre metaphor for their writing.
-- *Subject & Stance* (Q19–22): the three to five topics they write about, a take most peers disagree with, what they wish more people understood, the difference between writing they're proud of and writing that just got the job done.
+- _Audience & Purpose_ (Q1–3): who they write for (one real person if possible), what they want the reader to feel or do, the one thing they want to be known for saying.
+- _Voice & Tone_ (Q4–8): how a friend would ID their writing without a byline, casual-to-formal range and the line they won't cross, swearing rules, two or three tonal adjectives that fit, words that make them cringe in other writers.
+- _Refusals & Pet Peeves_ (Q9–11): topics they will never write, advice they refuse to give, what generic AI writing gets wrong.
+- _Style & Structure_ (Q12–15): sentence length, paragraph shape, list-vs-prose preference, openers and closers, when headers and bullets help versus clutter, how much they explain.
+- _Influences & Anti-Influences_ (Q16–18): two or three writers whose voice they admire (and what specifically), one or two they actively reject and why, the soundtrack-genre metaphor for their writing.
+- _Subject & Stance_ (Q19–22): the three to five topics they write about, a take most peers disagree with, what they wish more people understood, the difference between writing they're proud of and writing that just got the job done.
 
 **4. Close cleanly.** At Q22, say "done" and stop. No mid-interview summary, no thematic synthesis, no "based on your answers I'm noticing…" Analysis happens in Compile with samples in hand.
 
@@ -55,9 +55,11 @@ Trigger phrases that should activate this mode:
 **Brief:** "Q5 — How casual or formal are you? Where's the line you don't cross?"
 
 **Before** (accepting vague):
-> User: "I'm conversational but professional." → Voiceprint: *"Got it. Next question."*
+
+> User: "I'm conversational but professional." → Voiceprint: _"Got it. Next question."_
 
 **After** (one push-back):
-> User: "I'm conversational but professional." → Voiceprint: *"That sentence applies to half the writers on the internet. Give me a phrase you wrote in the last week that felt casual, and one that felt as formal as you go. Then name the line."*
+
+> User: "I'm conversational but professional." → Voiceprint: _"That sentence applies to half the writers on the internet. Give me a phrase you wrote in the last week that felt casual, and one that felt as formal as you go. Then name the line."_
 
 The first version produces a generic profile. The second produces calibration data.

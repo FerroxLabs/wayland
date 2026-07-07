@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing checklist template guide analysis research networking"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance investing checklist template guide analysis research networking'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Stock Analysis Guide
@@ -24,15 +24,16 @@ You are a fundamental equity research analyst who helps users develop a structur
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about stock analysis guide techniques or best practices
 - User needs guidance on stock analysis guide concepts
 - User wants to implement or improve their approach to stock analysis guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of stock analysis guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,32 +76,32 @@ Use these filters to narrow the universe of thousands of stocks to a manageable 
 
 ### Value Screen
 
-| Metric | Threshold | Why It Matters |
-|--------|-----------|---------------|
-| P/E Ratio | Below sector median | Relative cheapness |
-| P/B Ratio | Below 3.0 | Not overpaying for assets |
-| Debt/Equity | Below 1.0 | Manageable leverage |
-| Free Cash Flow Yield | Above 5% | Cash generation relative to price |
-| Dividend Yield | Above 2% (if applicable) | Shareholder return |
+| Metric               | Threshold                | Why It Matters                    |
+| -------------------- | ------------------------ | --------------------------------- |
+| P/E Ratio            | Below sector median      | Relative cheapness                |
+| P/B Ratio            | Below 3.0                | Not overpaying for assets         |
+| Debt/Equity          | Below 1.0                | Manageable leverage               |
+| Free Cash Flow Yield | Above 5%                 | Cash generation relative to price |
+| Dividend Yield       | Above 2% (if applicable) | Shareholder return                |
 
 ### Quality Screen
 
-| Metric | Threshold | Why It Matters |
-|--------|-----------|---------------|
-| ROE | Above 15% | Efficient use of equity |
-| Revenue Growth (5yr) | Above 5% CAGR | Growing business |
-| Operating Margin | Above sector median | Pricing power |
-| Current Ratio | Above 1.5 | Short-term solvency |
-| Interest Coverage | Above 5x | Can service debt easily |
+| Metric               | Threshold           | Why It Matters          |
+| -------------------- | ------------------- | ----------------------- |
+| ROE                  | Above 15%           | Efficient use of equity |
+| Revenue Growth (5yr) | Above 5% CAGR       | Growing business        |
+| Operating Margin     | Above sector median | Pricing power           |
+| Current Ratio        | Above 1.5           | Short-term solvency     |
+| Interest Coverage    | Above 5x            | Can service debt easily |
 
 ### Growth Screen
 
-| Metric | Threshold | Why It Matters |
-|--------|-----------|---------------|
-| Revenue Growth (3yr) | Above 15% CAGR | Rapid expansion |
-| EPS Growth (3yr) | Above 20% CAGR | Earnings acceleration |
-| R&D as % of Revenue | Investing in future | Innovation pipeline |
-| TAM Expansion | Growing addressable market | Runway for growth |
+| Metric               | Threshold                  | Why It Matters        |
+| -------------------- | -------------------------- | --------------------- |
+| Revenue Growth (3yr) | Above 15% CAGR             | Rapid expansion       |
+| EPS Growth (3yr)     | Above 20% CAGR             | Earnings acceleration |
+| R&D as % of Revenue  | Investing in future        | Innovation pipeline   |
+| TAM Expansion        | Growing addressable market | Runway for growth     |
 
 ---
 
@@ -210,35 +211,35 @@ Cash Allocation:
 
 ### Profitability Ratios
 
-| Ratio | Formula | Good Threshold | What It Tells You |
-|-------|---------|---------------|-------------------|
-| Gross Margin | Gross Profit / Revenue | Industry dependent | Pricing power |
-| Operating Margin | Operating Income / Revenue | >15% | Operational efficiency |
-| Net Margin | Net Income / Revenue | >10% | Bottom-line profitability |
-| ROE | Net Income / Shareholders' Equity | >15% | Return on equity invested |
-| ROA | Net Income / Total Assets | >5% | Asset utilization efficiency |
-| ROIC | NOPAT / Invested Capital | >WACC | True return on all capital |
+| Ratio            | Formula                           | Good Threshold     | What It Tells You            |
+| ---------------- | --------------------------------- | ------------------ | ---------------------------- |
+| Gross Margin     | Gross Profit / Revenue            | Industry dependent | Pricing power                |
+| Operating Margin | Operating Income / Revenue        | >15%               | Operational efficiency       |
+| Net Margin       | Net Income / Revenue              | >10%               | Bottom-line profitability    |
+| ROE              | Net Income / Shareholders' Equity | >15%               | Return on equity invested    |
+| ROA              | Net Income / Total Assets         | >5%                | Asset utilization efficiency |
+| ROIC             | NOPAT / Invested Capital          | >WACC              | True return on all capital   |
 
 ### Valuation Ratios
 
-| Ratio | Formula | Context | Caution |
-|-------|---------|---------|---------|
-| P/E | Price / EPS | Compare to sector and history | Can be distorted by one-time items |
-| Forward P/E | Price / Next Year's EPS estimate | Growth expectations | Relies on analyst estimates |
-| P/FCF | Price / Free Cash Flow per Share | Cash-based valuation | More reliable than P/E |
-| EV/EBITDA | Enterprise Value / EBITDA | Capital-structure neutral | Good for comparing across debt levels |
-| P/B | Price / Book Value per Share | Asset-heavy businesses | Less useful for tech/services |
-| PEG | P/E / EPS Growth Rate | Growth-adjusted valuation | <1.0 may indicate undervaluation |
+| Ratio       | Formula                          | Context                       | Caution                               |
+| ----------- | -------------------------------- | ----------------------------- | ------------------------------------- |
+| P/E         | Price / EPS                      | Compare to sector and history | Can be distorted by one-time items    |
+| Forward P/E | Price / Next Year's EPS estimate | Growth expectations           | Relies on analyst estimates           |
+| P/FCF       | Price / Free Cash Flow per Share | Cash-based valuation          | More reliable than P/E                |
+| EV/EBITDA   | Enterprise Value / EBITDA        | Capital-structure neutral     | Good for comparing across debt levels |
+| P/B         | Price / Book Value per Share     | Asset-heavy businesses        | Less useful for tech/services         |
+| PEG         | P/E / EPS Growth Rate            | Growth-adjusted valuation     | <1.0 may indicate undervaluation      |
 
 ### Health Ratios
 
-| Ratio | Formula | Healthy Range | Red Flag |
-|-------|---------|--------------|----------|
-| Current Ratio | Current Assets / Current Liabilities | 1.5-3.0 | Below 1.0 |
-| Quick Ratio | (Current Assets - Inventory) / Current Liabilities | >1.0 | Below 0.5 |
-| Debt/Equity | Total Debt / Shareholders' Equity | <1.0 | Above 2.0 |
-| Interest Coverage | EBIT / Interest Expense | >5x | Below 2x |
-| FCF/Debt | Free Cash Flow / Total Debt | >20% | Below 5% |
+| Ratio             | Formula                                            | Healthy Range | Red Flag  |
+| ----------------- | -------------------------------------------------- | ------------- | --------- |
+| Current Ratio     | Current Assets / Current Liabilities               | 1.5-3.0       | Below 1.0 |
+| Quick Ratio       | (Current Assets - Inventory) / Current Liabilities | >1.0          | Below 0.5 |
+| Debt/Equity       | Total Debt / Shareholders' Equity                  | <1.0          | Above 2.0 |
+| Interest Coverage | EBIT / Interest Expense                            | >5x           | Below 2x  |
+| FCF/Debt          | Free Cash Flow / Total Debt                        | >20%          | Below 5%  |
 
 ---
 
@@ -330,13 +331,13 @@ PRESENT VALUE CALCULATION:
 
 ### Margin of Safety Guidelines
 
-| Margin of Safety | Interpretation |
-|-----------------|----------------|
-| >40% undervalued | Strong buy candidate (verify assumptions) |
-| 20-40% undervalued | Attractive entry point |
-| 0-20% undervalued | Fairly valued, wait for dip |
-| 0-20% overvalued | Fully valued, no margin of safety |
-| >20% overvalued | Overvalued, avoid or consider selling |
+| Margin of Safety   | Interpretation                            |
+| ------------------ | ----------------------------------------- |
+| >40% undervalued   | Strong buy candidate (verify assumptions) |
+| 20-40% undervalued | Attractive entry point                    |
+| 0-20% undervalued  | Fairly valued, wait for dip               |
+| 0-20% overvalued   | Fully valued, no margin of safety         |
+| >20% overvalued    | Overvalued, avoid or consider selling     |
 
 ### Sensitivity Analysis
 
@@ -431,7 +432,6 @@ Watch for these warning signs in financial statements:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -453,7 +453,6 @@ When presenting a stock analysis, structure your output as:
 7. **Decision** -- Buy, watchlist, or pass with reasoning
 8. **Disclaimer** -- Reiterate this is educational analysis, not a buy/sell recommendation
 
-
 ```template
 ## Stock Analysis Guide -- Structured Output
 
@@ -468,14 +467,12 @@ When presenting a stock analysis, structure your output as:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

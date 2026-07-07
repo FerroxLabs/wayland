@@ -30,14 +30,13 @@ vi.mock('react-i18next', () => ({
 
 // Factories defined inside mocks to avoid hoisting issues with top-level consts.
 // Spy refs exposed via `vi.hoisted` so test body can assert on them.
-const { navigateSpy, confirmProposalSpy, emitterEmitSpy, messageErrorSpy, messageSuccessSpy } =
-  vi.hoisted(() => ({
-    navigateSpy: vi.fn(),
-    confirmProposalSpy: vi.fn(() => Promise.resolve({ ok: true, jobId: 'cron_test' })),
-    emitterEmitSpy: vi.fn(),
-    messageErrorSpy: vi.fn(),
-    messageSuccessSpy: vi.fn(),
-  }));
+const { navigateSpy, confirmProposalSpy, emitterEmitSpy, messageErrorSpy, messageSuccessSpy } = vi.hoisted(() => ({
+  navigateSpy: vi.fn(),
+  confirmProposalSpy: vi.fn(() => Promise.resolve({ ok: true, jobId: 'cron_test' })),
+  emitterEmitSpy: vi.fn(),
+  messageErrorSpy: vi.fn(),
+  messageSuccessSpy: vi.fn(),
+}));
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => navigateSpy,

@@ -42,7 +42,7 @@ Founders rarely lack information; they lack a structure that forces them to name
 - **Framing an unsharpened decision.** "Should I do more marketing?" isn't a decision. "Should I hire a head of marketing by July?" is.
 - **Letting a vision statement substitute for a tradeoff.** "I want to build the best company" is a mood, not a side. Push back to the actual cost.
 - **Skipping the frame because they're already excited.** Excitement is when inversion earns its keep. If they can't name three failure modes for their preferred path, the frame hasn't been run.
-- **Confusing frames with personality tests.** No "maximizer or satisficer." The frame is about *this decision*, not their wiring.
+- **Confusing frames with personality tests.** No "maximizer or satisficer." The frame is about _this decision_, not their wiring.
 
 ## Before / after
 

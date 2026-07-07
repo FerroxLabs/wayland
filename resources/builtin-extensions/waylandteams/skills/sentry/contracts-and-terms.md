@@ -42,8 +42,8 @@ Six common contract types. For each, what it does and what to watch for.
 
 ## Before / after
 
-**Before:** *A solo consultant lands a $30k engagement. The client sends their standard MSA — 22 pages, unlimited liability on the consultant's side, unlimited indemnification, IP assignment of all "related work" forever. The consultant signs without redlining.*
+**Before:** _A solo consultant lands a $30k engagement. The client sends their standard MSA — 22 pages, unlimited liability on the consultant's side, unlimited indemnification, IP assignment of all "related work" forever. The consultant signs without redlining._
 
-**After:** *Same engagement. The consultant flags the unlimited-liability clause (asks for a cap at the engagement fee), the indemnification (asks for mutual indemnification with a cap), and the "related work" IP language (asks for it scoped to deliverables actually produced under this MSA). The client's lawyer pushes back on one of three; the other two accepted. Cost: one $400 lawyer hour for the redline.*
+**After:** _Same engagement. The consultant flags the unlimited-liability clause (asks for a cap at the engagement fee), the indemnification (asks for mutual indemnification with a cap), and the "related work" IP language (asks for it scoped to deliverables actually produced under this MSA). The client's lawyer pushes back on one of three; the other two accepted. Cost: one $400 lawyer hour for the redline._
 
 **Disclaimer:** I am not your lawyer. This is a framework, not legal advice. For redlining a specific contract, drafting your privacy policy on real data flows, or any agreement over $25k, you need actual counsel.

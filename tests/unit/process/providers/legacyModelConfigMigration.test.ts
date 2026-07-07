@@ -524,7 +524,7 @@ describe('runLegacyModelConfigMigration - grouping (Fix 1)', () => {
     expect(result.secondaryKeysLost).toBe(1);
     // Both rows' models appear in the final catalog, no duplicates.
     const catalog = repo.catalogs.get('openai');
-    expect(catalog?.map((m) => m.id).sort()).toEqual(['gpt-4o', 'gpt-4o-mini', 'o1']);
+    expect(catalog?.map((m) => m.id).toSorted()).toEqual(['gpt-4o', 'gpt-4o-mini', 'o1']);
   });
 
   it('picks the most-recent-by-updatedAt row as the primary creds source', async () => {

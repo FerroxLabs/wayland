@@ -63,7 +63,19 @@ describe('Migration v43 - projects table (bun:sqlite)', () => {
         `INSERT INTO projects (id, user_id, name, description, workspace, icon, icon_color, pinned, pinned_at, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .run('p-1', 'u-1', 'Launch', 'desc', '/ws', 'Folder', '#f60', 1, 1_700_000_000_000, 1_700_000_000_000, 1_700_000_000_001);
+      .run(
+        'p-1',
+        'u-1',
+        'Launch',
+        'desc',
+        '/ws',
+        'Folder',
+        '#f60',
+        1,
+        1_700_000_000_000,
+        1_700_000_000_000,
+        1_700_000_000_001
+      );
     const row = driver.prepare('SELECT * FROM projects WHERE id = ?').get('p-1') as Record<string, unknown>;
     expect(row.name).toBe('Launch');
     expect(row.pinned).toBe(1);
@@ -71,24 +83,16 @@ describe('Migration v43 - projects table (bun:sqlite)', () => {
   });
 
   it('json_extract filters conversations by extra.projectId', () => {
-    driver.exec(
-      `CREATE TABLE conversations (id TEXT PRIMARY KEY, extra TEXT NOT NULL, updated_at INTEGER NOT NULL)`
-    );
-    driver.prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)').run(
-      'c-1',
-      JSON.stringify({ projectId: 'p-1', backend: 'claude' }),
-      2
-    );
-    driver.prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)').run(
-      'c-2',
-      JSON.stringify({ projectId: 'p-2' }),
-      1
-    );
-    driver.prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)').run(
-      'c-3',
-      JSON.stringify({ backend: 'gemini' }),
-      3
-    );
+    driver.exec(`CREATE TABLE conversations (id TEXT PRIMARY KEY, extra TEXT NOT NULL, updated_at INTEGER NOT NULL)`);
+    driver
+      .prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)')
+      .run('c-1', JSON.stringify({ projectId: 'p-1', backend: 'claude' }), 2);
+    driver
+      .prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)')
+      .run('c-2', JSON.stringify({ projectId: 'p-2' }), 1);
+    driver
+      .prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)')
+      .run('c-3', JSON.stringify({ backend: 'gemini' }), 3);
     const rows = driver
       .prepare(`SELECT id FROM conversations WHERE json_extract(extra, '$.projectId') = ? ORDER BY updated_at DESC`)
       .all('p-1') as Array<{ id: string }>;
@@ -97,13 +101,13 @@ describe('Migration v43 - projects table (bun:sqlite)', () => {
 
   it('json_remove detaches conversations from a project without deleting them', () => {
     driver.exec(`CREATE TABLE conversations (id TEXT PRIMARY KEY, extra TEXT NOT NULL, updated_at INTEGER NOT NULL)`);
-    driver.prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)').run(
-      'c-1',
-      JSON.stringify({ projectId: 'p-1', backend: 'claude' }),
-      1
-    );
     driver
-      .prepare(`UPDATE conversations SET extra = json_remove(extra, '$.projectId') WHERE json_extract(extra, '$.projectId') = ?`)
+      .prepare('INSERT INTO conversations (id, extra, updated_at) VALUES (?, ?, ?)')
+      .run('c-1', JSON.stringify({ projectId: 'p-1', backend: 'claude' }), 1);
+    driver
+      .prepare(
+        `UPDATE conversations SET extra = json_remove(extra, '$.projectId') WHERE json_extract(extra, '$.projectId') = ?`
+      )
       .run('p-1');
     const row = driver.prepare('SELECT extra FROM conversations WHERE id = ?').get('c-1') as { extra: string };
     const extra = JSON.parse(row.extra);

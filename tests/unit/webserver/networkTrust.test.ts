@@ -1,16 +1,28 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { classifyClientTrust, isPrivateNetworkIp } from '@process/webserver/middleware/networkTrust';
+import os from 'os';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  classifyClientTrust,
+  isPrivateNetworkIp,
+  __resetTailscaleIfaceCacheForTests,
+} from '@process/webserver/middleware/networkTrust';
+
+vi.mock('os');
 
 describe('classifyClientTrust (narrow default operator set)', () => {
   const originalCidrs = process.env.WAYLAND_OPERATOR_CIDRS;
 
   beforeEach(() => {
     delete process.env.WAYLAND_OPERATOR_CIDRS;
+    // Default: no Tailscale interface on this host.
+    vi.mocked(os.networkInterfaces).mockReturnValue({});
+    __resetTailscaleIfaceCacheForTests();
   });
 
   afterEach(() => {
     if (originalCidrs === undefined) delete process.env.WAYLAND_OPERATOR_CIDRS;
     else process.env.WAYLAND_OPERATOR_CIDRS = originalCidrs;
+    vi.clearAllMocks();
+    __resetTailscaleIfaceCacheForTests();
   });
 
   it('treats loopback as operator (IPv4 + IPv6)', () => {
@@ -20,7 +32,20 @@ describe('classifyClientTrust (narrow default operator set)', () => {
     expect(classifyClientTrust('::ffff:127.0.0.1')).toBe('operator');
   });
 
-  it('treats Tailscale CGNAT (100.64/10) as operator', () => {
+  it('does NOT treat a CGNAT peer (100.64/10) as operator without a Tailscale interface (#529, RFC6598 CGNAT)', () => {
+    // No tailscale* interface configured in beforeEach - a carrier-grade-NAT'd
+    // ISP customer must not be escalated to operator.
+    expect(classifyClientTrust('100.64.0.1')).toBe('restricted');
+    expect(classifyClientTrust('100.100.50.2')).toBe('restricted');
+    expect(classifyClientTrust('100.127.255.254')).toBe('restricted');
+  });
+
+  it('treats Tailscale CGNAT (100.64/10) as operator when a tailscale interface is present', () => {
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      tailscale0: [{ address: '100.100.50.2', family: 'IPv4' } as os.NetworkInterfaceInfo],
+    });
+    __resetTailscaleIfaceCacheForTests();
+
     expect(classifyClientTrust('100.64.0.1')).toBe('operator');
     expect(classifyClientTrust('100.100.50.2')).toBe('operator');
     expect(classifyClientTrust('100.127.255.254')).toBe('operator');
@@ -74,14 +99,24 @@ describe('XFF cannot flip the decision (trust reads the socket peer)', () => {
   // passes req.socket.remoteAddress (never req.ip). This proves that a forged XFF
   // value, if it ever reached the classifier, is judged on its merits: a public
   // socket peer is restricted regardless of any header an attacker controls.
+  afterEach(() => {
+    vi.clearAllMocks();
+    __resetTailscaleIfaceCacheForTests();
+  });
+
   it('a public peer is restricted even if a private IP is forged elsewhere', () => {
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      tailscale0: [{ address: '100.100.50.2', family: 'IPv4' } as os.NetworkInterfaceInfo],
+    });
+    __resetTailscaleIfaceCacheForTests();
+
     const forgedXffValue = '100.64.0.1'; // attacker-chosen "operator" IP
     const realSocketPeer = '203.0.113.7'; // the actual public peer
 
     // The guard classifies the REAL socket peer, not the forged value.
     expect(classifyClientTrust(realSocketPeer)).toBe('restricted');
-    // (The forged value alone would look like operator - which is exactly why we
-    // must never classify it.)
+    // (The forged value alone would look like operator on a host with a Tailscale
+    // interface - which is exactly why we must never classify it.)
     expect(classifyClientTrust(forgedXffValue)).toBe('operator');
   });
 });

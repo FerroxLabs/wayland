@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tax-planning personal-finance freelancing budgeting"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tax-planning personal-finance freelancing budgeting'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Self-Employment Tax Guide
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about self-employment taxes or how taxes work for freelancers
 - User wants to understand the components of SE tax (income tax + self-employment tax)
 - User asks about deductible business expenses for self-employed individuals
@@ -36,6 +37,7 @@ metadata:
 - User is new to freelancing and wants to understand their tax obligations
 
 **Do NOT use this skill when:**
+
 - User needs to calculate quarterly estimated payments (use `quarterly-tax-estimator`)
 - User wants to set up a deduction tracking system (use `tax-deduction-tracker`)
 - User wants to understand retirement account options for self-employed (use `tax-advantaged-optimizer`)
@@ -255,6 +257,7 @@ Home office measurements:
 ## Self-Employment Tax Overview
 
 ### Your Self-Employment Profile
+
 - Business type: Freelance web developer
 - Estimated annual gross income: $45,000
 - Estimated business expenses: $8,000
@@ -262,14 +265,14 @@ Home office measurements:
 
 ### SE Tax Calculation Framework
 
-| Step | Calculation | Amount |
-|------|-----------|-------:|
-| Gross SE income | | $45,000 |
-| Business deductions | Software, equipment, coworking | -$8,000 |
-| **Net SE income** | | **$37,000** |
-| SE tax adjustment | $37,000 * [JURISDICTION: verify adjustment factor] | $[verify] |
-| SE tax | Adjusted amount * [JURISDICTION: verify SE tax rate] | $[verify] |
-| Deductible SE portion | SE tax * [JURISDICTION: verify deductible %] | $[verify] |
+| Step                  | Calculation                                           |      Amount |
+| --------------------- | ----------------------------------------------------- | ----------: |
+| Gross SE income       |                                                       |     $45,000 |
+| Business deductions   | Software, equipment, coworking                        |     -$8,000 |
+| **Net SE income**     |                                                       | **$37,000** |
+| SE tax adjustment     | $37,000 \* [JURISDICTION: verify adjustment factor]   |   $[verify] |
+| SE tax                | Adjusted amount \* [JURISDICTION: verify SE tax rate] |   $[verify] |
+| Deductible SE portion | SE tax \* [JURISDICTION: verify deductible %]         |   $[verify] |
 
 For income tax:
 | Step | Calculation | Amount |
@@ -277,31 +280,31 @@ For income tax:
 | Net SE income | | $37,000 |
 | Less deductible SE portion | | -$[verify] |
 | Less standard deduction | [JURISDICTION: verify for your filing status] | -$[verify] |
-| **Taxable income** | | **$[verify]** |
+| **Taxable income** | | **$[verify]\*\* |
 | Income tax | Apply [JURISDICTION: verify brackets] | $[verify] |
 
 **Total: SE tax + Income tax = Your total tax obligation**
 
 ### Your Business Deductions
 
-| Category | Description | Amount | Documentation |
-|----------|------------|-------:|---------------|
-| Software | Development tools, subscriptions | $[subtotal] | Subscription records, receipts |
-| Equipment | Computer, peripherals | $[subtotal] | Purchase receipts |
-| Coworking space | Workspace rental | $[subtotal] | Monthly invoices |
-| **Total deductions** | | **$8,000** | |
+| Category             | Description                      |      Amount | Documentation                  |
+| -------------------- | -------------------------------- | ----------: | ------------------------------ |
+| Software             | Development tools, subscriptions | $[subtotal] | Subscription records, receipts |
+| Equipment            | Computer, peripherals            | $[subtotal] | Purchase receipts              |
+| Coworking space      | Workspace rental                 | $[subtotal] | Monthly invoices               |
+| **Total deductions** |                                  |  **$8,000** |                                |
 
 ### Additional Deductions to Explore
 
 You may have additional deductible expenses you have not listed:
 
-| Category | Potentially Applicable? | Action |
-|----------|------------------------|--------|
-| Home office | Do you also work from home? | [JURISDICTION: verify exclusive use rules] |
-| Mileage | Drive to meet clients? | Start tracking business miles now |
-| Professional development | Courses, books, conferences? | Keep receipts |
-| Phone/internet | Business portion of personal plans? | Calculate business use percentage |
-| Health insurance | Pay your own premiums? | [JURISDICTION: verify SE health insurance deduction] |
+| Category                 | Potentially Applicable?             | Action                                               |
+| ------------------------ | ----------------------------------- | ---------------------------------------------------- |
+| Home office              | Do you also work from home?         | [JURISDICTION: verify exclusive use rules]           |
+| Mileage                  | Drive to meet clients?              | Start tracking business miles now                    |
+| Professional development | Courses, books, conferences?        | Keep receipts                                        |
+| Phone/internet           | Business portion of personal plans? | Calculate business use percentage                    |
+| Health insurance         | Pay your own premiums?              | [JURISDICTION: verify SE health insurance deduction] |
 
 ### Estimated Tax Payments
 
@@ -310,6 +313,7 @@ Since no employer withholds taxes from your freelance income, you likely need to
 Monthly set-aside: Calculate your total tax obligation and divide by 12. Transfer this amount to a dedicated tax savings account each month.
 
 ### Action Items
+
 - [ ] Calculate your exact SE tax using verified rates from your tax authority
 - [ ] Set up quarterly estimated tax payments (use `quarterly-tax-estimator`)
 - [ ] Open a separate business bank account

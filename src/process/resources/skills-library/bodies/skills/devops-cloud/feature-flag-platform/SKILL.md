@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud checklist template guide advanced typescript sql"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud checklist template guide advanced typescript sql'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Feature Flag Platform
 
 You are a feature flag platform specialist who helps engineering teams implement progressive delivery through feature flags. You guide through flag architecture, targeting strategies, experiment tracking, and lifecycle management for controlled, safe releases.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about feature flag platform techniques or best practices
 - User needs guidance on feature flag platform concepts
 - User wants to implement or improve their approach to feature flag platform
 
 **Do NOT use when:**
+
 - The request falls outside the scope of feature flag platform
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,13 +50,13 @@ With flags:
 
 ### Flag Types
 
-| Type | Purpose | Lifespan | Example |
-|------|---------|----------|---------|
-| Release Flag | Control feature rollout | Days to weeks | `enable-new-checkout` |
-| Experiment Flag | A/B testing | Weeks to months | `experiment-pricing-page` |
-| Ops Flag | Operational control | Permanent | `enable-rate-limiting` |
-| Permission Flag | Entitlement control | Permanent | `premium-feature-access` |
-| Kill Switch | Emergency disable | Permanent | `disable-external-calls` |
+| Type            | Purpose                 | Lifespan        | Example                   |
+| --------------- | ----------------------- | --------------- | ------------------------- |
+| Release Flag    | Control feature rollout | Days to weeks   | `enable-new-checkout`     |
+| Experiment Flag | A/B testing             | Weeks to months | `experiment-pricing-page` |
+| Ops Flag        | Operational control     | Permanent       | `enable-rate-limiting`    |
+| Permission Flag | Entitlement control     | Permanent       | `premium-feature-access`  |
+| Kill Switch     | Emergency disable       | Permanent       | `disable-external-calls`  |
 
 ### Flag Lifecycle
 
@@ -116,9 +117,12 @@ async function handleCheckout(request, user) {
 async function getSearchResults(query, user) {
   const variant = flags.getVariant('search-algorithm', { userId: user.id, plan: user.plan });
   switch (variant) {
-    case 'v2-semantic': return semanticSearch(query);
-    case 'v2-hybrid': return hybridSearch(query);
-    default: return legacySearch(query);
+    case 'v2-semantic':
+      return semanticSearch(query);
+    case 'v2-hybrid':
+      return hybridSearch(query);
+    default:
+      return legacySearch(query);
   }
 }
 ```
@@ -150,7 +154,7 @@ targeting:
     conditions:
       - attribute: userId
         operator: in
-        value: ["user-123", "user-456"]
+        value: ['user-123', 'user-456']
     serve: true
 
   - name: internal-users
@@ -158,7 +162,7 @@ targeting:
     conditions:
       - attribute: email
         operator: ends_with
-        value: "@ourcompany.com"
+        value: '@ourcompany.com'
     serve: true
 
   - name: beta-program
@@ -174,7 +178,7 @@ targeting:
     conditions:
       - attribute: country
         operator: in
-        value: ["US", "CA", "GB"]
+        value: ['US', 'CA', 'GB']
     serve:
       percentage: 25
       sticky: true
@@ -220,7 +224,7 @@ function isInRolloutPercentage(flagKey: string, userId: string, percentage: numb
 ```yaml
 experiment:
   name: checkout-redesign
-  hypothesis: "New checkout will improve conversion rate by 10%"
+  hypothesis: 'New checkout will improve conversion rate by 10%'
   primary_metric: checkout_completion_rate
   secondary_metrics: [average_order_value, time_to_complete_checkout]
 
@@ -238,7 +242,7 @@ experiment:
 
   sample_size:
     minimum_per_variant: 5000
-    estimated_duration: "14 days"
+    estimated_duration: '14 days'
 
   analysis:
     statistical_method: bayesian
@@ -360,7 +364,6 @@ DO NOT:
 - Create a flag per customer (use targeting rules instead)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -368,7 +371,6 @@ DO NOT:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -389,14 +391,12 @@ DO NOT:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

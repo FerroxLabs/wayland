@@ -103,10 +103,16 @@ describe('runClaudeMemImport', () => {
     fs.mkdirSync(projMemDir, { recursive: true });
     fs.writeFileSync(
       path.join(projMemDir, 'a-fact.md'),
-      ['---', 'name: a-fact', 'description: A real thing worth remembering', 'type: project', '---', '', 'The body of the fact.'].join(
-        '\n',
-      ),
-      'utf8',
+      [
+        '---',
+        'name: a-fact',
+        'description: A real thing worth remembering',
+        'type: project',
+        '---',
+        '',
+        'The body of the fact.',
+      ].join('\n'),
+      'utf8'
     );
     // MEMORY.md index must be skipped (no frontmatter blocks).
     fs.writeFileSync(path.join(projMemDir, 'MEMORY.md'), '- [a-fact](a-fact.md) - hook\n', 'utf8');
@@ -130,7 +136,7 @@ describe('runClaudeMemImport', () => {
     fs.writeFileSync(
       path.join(projMemDir, 'a-fact.md'),
       ['---', 'description: A real thing', '---', '', 'Body.'].join('\n'),
-      'utf8',
+      'utf8'
     );
 
     const first = await runClaudeMemImport({ ijfwMemoryDir: memDir });

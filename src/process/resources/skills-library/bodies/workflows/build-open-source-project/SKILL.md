@@ -34,6 +34,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Build Open Source Project
 
 **Estimated time:** 4-8 weeks
@@ -138,7 +139,7 @@ evaluate sustainability options. Set up GitHub Sponsors or Open Collective for d
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Pivot the concept or contribute to existing project
   - If **After Step 4**: Revise documentation until a newcomer can self-serve
   - If **After Step 7**: Increase outreach effort, improve "good first issues"
@@ -192,6 +193,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis data-science"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'statistics analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Regression Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to predict a continuous outcome variable from one or more input variables -- e.g., "predict next quarter's revenue from headcount and ad spend," "model customer lifetime value from tenure and product tier," or "explain what drives employee attrition scores"
 - User asks "what drives [outcome]?" and the outcome is a measurable quantity (not a category), such as revenue, churn rate, NPS score, time-to-close, defect rate, or unit cost
 - User wants to quantify the marginal impact of one factor while holding others constant -- e.g., "how much does each additional support ticket affect satisfaction, controlling for product tier?"
@@ -30,6 +32,7 @@ metadata:
 - User has run a regression in Excel, Python (statsmodels or scikit-learn), R (lm()), or SPSS and needs help reading the output table
 
 **Do NOT use when:**
+
 - User only wants to know whether two variables move together -- use `correlation-analysis` instead; regression implies directionality and causation framing that is inappropriate for a pure correlation question
 - User is interpreting an A/B test, randomized experiment, or comparing two group means -- use `hypothesis-testing`; regression of a binary treatment variable is technically equivalent but the framing and interpretation conventions are different
 - User's outcome variable is binary (churned/not churned, purchased/not purchased, approved/denied) -- flag that logistic regression is needed and describe the difference; do not proceed with OLS on a 0/1 outcome because predicted probabilities will fall outside 0-1 and residuals will be non-normal by construction
@@ -57,10 +60,10 @@ Clarify whether the user already has regression output to interpret, or whether 
 
 Choose the regression type based on the outcome variable type and the complexity of the relationship. Present the selection logic explicitly to the user.
 
-- **Simple linear regression (OLS):** One continuous Y, one continuous or binary X. Use when the user has a single hypothesized driver and wants a clean, interpretable relationship. The output is a slope and intercept, and the model is Y = b0 + b1*X.
+- **Simple linear regression (OLS):** One continuous Y, one continuous or binary X. Use when the user has a single hypothesized driver and wants a clean, interpretable relationship. The output is a slope and intercept, and the model is Y = b0 + b1\*X.
 - **Multiple linear regression (OLS):** One continuous Y, two or more Xs. The workhorse for most business questions -- "what drives revenue?" almost always involves multiple factors. Enables controlling for confounders: the coefficient on marketing spend means "the effect of spend holding sales rep count constant."
 - **Polynomial regression:** When a scatterplot or residual plot shows a curve -- revenue first increases then decreases with price, efficiency peaks at a certain temperature. Add a squared term (X^2) to the regression. The model becomes Y = b0 + b1*X + b2*X^2. Warn the user that squared terms increase multicollinearity and make coefficients harder to interpret directly.
-- **Interaction terms:** When the effect of X1 on Y depends on the level of X2 -- for example, marketing spend has a larger effect on revenue in high-traffic months than in low-traffic months. Add X1*X2 as a variable. Interpreting interaction coefficients requires holding the moderating variable at specific values (typically its mean and mean ± 1 SD).
+- **Interaction terms:** When the effect of X1 on Y depends on the level of X2 -- for example, marketing spend has a larger effect on revenue in high-traffic months than in low-traffic months. Add X1\*X2 as a variable. Interpreting interaction coefficients requires holding the moderating variable at specific values (typically its mean and mean ± 1 SD).
 - **Weighted least squares (WLS):** When some observations are more reliable than others (a store with 10,000 transactions should influence the model more than a store with 50 transactions), or when the variance of residuals increases with a specific variable (heteroscedasticity with a known structure). Weight each observation by 1/variance or by the number of transactions.
 - **Ridge and LASSO regression:** When the number of predictors is large relative to sample size, or when multicollinearity is severe. Ridge shrinks all coefficients toward zero without eliminating them -- useful when all predictors likely contribute. LASSO performs variable selection by shrinking some coefficients exactly to zero. These require tuning a regularization parameter (lambda/alpha) and are beyond Excel -- they require Python (sklearn.linear_model.Ridge, Lasso) or R (glmnet). Flag this scope clearly.
 - **Flag for logistic regression:** If Y is binary, immediately stop OLS and describe logistic regression: instead of predicting Y directly, it predicts log-odds of Y = 1, which can be converted to probability. Coefficients are log-odds ratios; exponentiated they become odds ratios. This is beyond the scope of this skill but must be named.
@@ -104,7 +107,7 @@ Assumption violations do not just produce warnings -- they produce WRONG answers
 - **Homoscedasticity (constant variance of residuals):** The spread of residuals should be consistent across all fitted values. Look at the residual vs. fitted plot: if the residuals form a fan shape (widening as fitted values increase), variance is heteroscedastic. Common causes: revenue data (variance naturally grows with the outcome), proportion data, models missing an important variable. Consequences: coefficient estimates are unbiased but standard errors are wrong, making p-values unreliable. Remedies: transform Y (log(Y) often stabilizes variance for skewed positive data), use weighted least squares, or compute heteroscedasticity-robust standard errors (White standard errors) in R or Python.
 - **Normality of residuals:** Residuals should be approximately normally distributed. Check using a Q-Q plot (points should fall on the diagonal reference line) or a histogram of residuals. Minor departures are acceptable, especially with N > 100. Severe departures (heavy tails, strong skew) suggest a transformation of Y is needed or that outliers are present. Note: OLS coefficient estimates are unbiased even with non-normal residuals; the normality assumption primarily affects the validity of p-values and confidence intervals, especially in small samples.
 - **No multicollinearity (multiple regression only):** Independent variables should not be highly linearly correlated with each other. Check with pairwise correlation matrix first -- any pair with |r| > 0.80 is a warning sign. The definitive diagnostic is the Variance Inflation Factor (VIF), available in R (vif() in car package), Python (statsmodels variance_inflation_factor), but not natively in Excel. VIF = 1 / (1 - R2_j) where R2_j is the R-squared from regressing predictor j on all other predictors. VIF < 5: acceptable. VIF 5-10: moderate concern. VIF > 10: severe multicollinearity. Consequences: coefficients become unstable (small data changes produce large coefficient swings), standard errors inflate, and p-values become unreliable even though R-squared may be high. Remedies: drop one of the correlated predictors, combine them into an index or ratio, or use Ridge regression.
-- **No influential outliers:** Check Cook's distance (> 4/N flags influential points), leverage (hat values > 2*(k+1)/N), and DFFITS. A single observation with extreme values on X (high leverage) and a large residual (high influence) can fundamentally alter every coefficient. Always re-run the regression with and without suspected influential points and report whether conclusions change.
+- **No influential outliers:** Check Cook's distance (> 4/N flags influential points), leverage (hat values > 2\*(k+1)/N), and DFFITS. A single observation with extreme values on X (high leverage) and a large residual (high influence) can fundamentally alter every coefficient. Always re-run the regression with and without suspected influential points and report whether conclusions change.
 
 ### Step 7: Translate to Business Recommendations
 
@@ -297,6 +300,7 @@ Remediation steps in order of preference: First, apply a log transformation to Y
 ## Regression Analysis Report
 
 ### Question
+
 Predicting: Annual Contract Value -- ACV ($)
 Using: Seats purchased, Industry (3 dummies vs. "Other" reference), Account age (months), Support tickets (year 1)
 Observations: 200 (0 dropped -- no missing data detected)
@@ -307,10 +311,11 @@ Goal: Explanation -- identify which factors drive ACV to inform pricing and cust
 ### Data Preparation Notes
 
 The Industry variable has 4 categories (Tech, Finance, Healthcare, Other). Three dummy variables were created:
+
 - Is_Tech: 1 if Tech, 0 otherwise
 - Is_Finance: 1 if Finance, 0 otherwise
 - Is_Healthcare: 1 if Healthcare, 0 otherwise
-Reference category: Other. All Industry coefficients are interpreted as "difference vs. Other industry customers."
+  Reference category: Other. All Industry coefficients are interpreted as "difference vs. Other industry customers."
 
 Total independent variables in model: 6 (Seats, Is_Tech, Is_Finance, Is_Healthcare, Account Age, Support Tickets)
 Minimum recommended observations: 60 (10 per predictor). Actual: 200. Sample size is adequate.
@@ -319,13 +324,13 @@ Minimum recommended observations: 60 (10 per predictor). Actual: 200. Sample siz
 
 ### Model Summary
 
-| Metric                   | Value          | Interpretation                                                    |
-|--------------------------|----------------|-------------------------------------------------------------------|
-| R-squared                | 0.81           | Model explains 81% of variation in ACV                          |
-| Adjusted R-squared       | 0.80           | Strong fit after penalizing for 6 predictors                     |
-| RMSE (Std Error of Reg.) | $52,400        | Average prediction error: ±$52,400                              |
-| F-statistic (p-value)    | 138.4 (p < 0.001) | Overall model is highly significant                           |
-| Observations used        | 200            | No rows dropped                                                  |
+| Metric                   | Value             | Interpretation                               |
+| ------------------------ | ----------------- | -------------------------------------------- |
+| R-squared                | 0.81              | Model explains 81% of variation in ACV       |
+| Adjusted R-squared       | 0.80              | Strong fit after penalizing for 6 predictors |
+| RMSE (Std Error of Reg.) | $52,400           | Average prediction error: ±$52,400           |
+| F-statistic (p-value)    | 138.4 (p < 0.001) | Overall model is highly significant          |
+| Observations used        | 200               | No rows dropped                              |
 
 Model fit assessment: Strong. R-squared of 0.81 is high for a B2B SaaS ACV model, where seat count and industry segment typically do explain a large share of contract value. RMSE of $52,400 is approximately 11% of mean ACV (estimated ~$480,000), indicating predictions are accurate within about ±11% on average -- acceptable for strategic planning but not for individual deal pricing.
 
@@ -333,28 +338,28 @@ Model fit assessment: Strong. R-squared of 0.81 is high for a B2B SaaS ACV model
 
 ### Coefficient Table
 
-| Variable       | Coeff (b)  | Std Error | 95% CI                   | t-stat | p-value  | Sig? | Std Beta | Interpretation                                                                 |
-|----------------|------------|-----------|--------------------------|--------|----------|------|----------|--------------------------------------------------------------------------------|
-| Intercept      | $42,000    | $18,500   | [$5,700, $78,300]        | 2.27   | 0.024    | Yes  | --       | Baseline ACV for "Other" industry, 0 seats, 0 months, 0 tickets (not meaningful on its own) |
-| Seats          | $1,380     | $95       | [$1,193, $1,567]         | 14.5   | < 0.001  | Yes  | 0.72     | Each additional seat is associated with $1,380 more ACV, controlling for other variables |
-| Is_Tech        | $85,000    | $22,000   | [$41,700, $128,300]      | 3.86   | < 0.001  | Yes  | 0.18     | Tech industry customers have $85,000 higher ACV than "Other" customers, controlling for seats and tenure |
-| Is_Finance     | $110,000   | $25,500   | [$59,800, $160,200]      | 4.31   | < 0.001  | Yes  | 0.21     | Finance industry customers have $110,000 higher ACV than "Other" customers |
-| Is_Healthcare  | $38,000    | $27,000   | [$−15,100, $91,100]      | 1.41   | 0.161    | No   | 0.07     | Healthcare vs. Other difference is not statistically significant at 95% confidence |
-| Account Age    | $3,200     | $680      | [$1,865, $4,535]         | 4.71   | < 0.001  | Yes  | 0.22     | Each additional month of account tenure is associated with $3,200 higher ACV |
-| Support Tickets| −$4,800    | $1,100    | [−$6,960, −$2,640]       | −4.36  | < 0.001  | Yes  | −0.19    | Each additional support ticket in year 1 is associated with $4,800 lower ACV |
+| Variable        | Coeff (b) | Std Error | 95% CI              | t-stat | p-value | Sig? | Std Beta | Interpretation                                                                                           |
+| --------------- | --------- | --------- | ------------------- | ------ | ------- | ---- | -------- | -------------------------------------------------------------------------------------------------------- |
+| Intercept       | $42,000   | $18,500   | [$5,700, $78,300]   | 2.27   | 0.024   | Yes  | --       | Baseline ACV for "Other" industry, 0 seats, 0 months, 0 tickets (not meaningful on its own)              |
+| Seats           | $1,380    | $95       | [$1,193, $1,567]    | 14.5   | < 0.001 | Yes  | 0.72     | Each additional seat is associated with $1,380 more ACV, controlling for other variables                 |
+| Is_Tech         | $85,000   | $22,000   | [$41,700, $128,300] | 3.86   | < 0.001 | Yes  | 0.18     | Tech industry customers have $85,000 higher ACV than "Other" customers, controlling for seats and tenure |
+| Is_Finance      | $110,000  | $25,500   | [$59,800, $160,200] | 4.31   | < 0.001 | Yes  | 0.21     | Finance industry customers have $110,000 higher ACV than "Other" customers                               |
+| Is_Healthcare   | $38,000   | $27,000   | [$−15,100, $91,100] | 1.41   | 0.161   | No   | 0.07     | Healthcare vs. Other difference is not statistically significant at 95% confidence                       |
+| Account Age     | $3,200    | $680      | [$1,865, $4,535]    | 4.71   | < 0.001 | Yes  | 0.22     | Each additional month of account tenure is associated with $3,200 higher ACV                             |
+| Support Tickets | −$4,800   | $1,100    | [−$6,960, −$2,640]  | −4.36  | < 0.001 | Yes  | −0.19    | Each additional support ticket in year 1 is associated with $4,800 lower ACV                             |
 
 ---
 
 ### Driver Ranking (by Practical Impact -- IQR Effect on ACV)
 
-| Rank | Variable        | IQR (P25 to P75)    | IQR Effect on ACV                               | Std Beta | Significant? |
-|------|-----------------|---------------------|-------------------------------------------------|----------|-------------|
-| 1    | Seats           | 30 to 180 seats     | Moving from 30 to 180 seats is associated with $207,000 more ACV | 0.72 | Yes |
-| 2    | Account Age     | 8 to 36 months      | Moving from 8 to 36 months is associated with $89,600 more ACV  | 0.22 | Yes |
-| 3    | Is_Finance      | n/a (binary)        | Finance customers average $110,000 more ACV than "Other"         | 0.21 | Yes |
-| 4    | Support Tickets | 3 to 22 tickets     | Moving from 3 to 22 tickets is associated with $91,200 less ACV  | −0.19 | Yes |
-| 5    | Is_Tech         | n/a (binary)        | Tech customers average $85,000 more ACV than "Other"             | 0.18 | Yes |
-| 6    | Is_Healthcare   | n/a (binary)        | $38,000 difference vs. "Other" -- not statistically significant  | 0.07 | No |
+| Rank | Variable        | IQR (P25 to P75) | IQR Effect on ACV                                                | Std Beta | Significant? |
+| ---- | --------------- | ---------------- | ---------------------------------------------------------------- | -------- | ------------ |
+| 1    | Seats           | 30 to 180 seats  | Moving from 30 to 180 seats is associated with $207,000 more ACV | 0.72     | Yes          |
+| 2    | Account Age     | 8 to 36 months   | Moving from 8 to 36 months is associated with $89,600 more ACV   | 0.22     | Yes          |
+| 3    | Is_Finance      | n/a (binary)     | Finance customers average $110,000 more ACV than "Other"         | 0.21     | Yes          |
+| 4    | Support Tickets | 3 to 22 tickets  | Moving from 3 to 22 tickets is associated with $91,200 less ACV  | −0.19    | Yes          |
+| 5    | Is_Tech         | n/a (binary)     | Tech customers average $85,000 more ACV than "Other"             | 0.18     | Yes          |
+| 6    | Is_Healthcare   | n/a (binary)     | $38,000 difference vs. "Other" -- not statistically significant  | 0.07     | No           |
 
 ---
 
@@ -363,6 +368,7 @@ Model fit assessment: Strong. R-squared of 0.81 is high for a B2B SaaS ACV model
 ACV = $42,000 + ($1,380 × Seats) + ($85,000 × Is_Tech) + ($110,000 × Is_Finance) + ($38,000 × Is_Healthcare) + ($3,200 × Account Age) + (−$4,800 × Support Tickets)
 
 **Valid input ranges (do not extrapolate beyond these):**
+
 - Seats: 5 to 500
 - Account Age: 1 to 48 months
 - Support Tickets: 0 to 45
@@ -381,14 +387,14 @@ Note: The prediction interval is wide relative to the point estimate, reflecting
 
 ### Assumption Checks
 
-| Assumption            | Status            | Diagnostic Used                      | Action Required                                                         |
-|-----------------------|-------------------|--------------------------------------|-------------------------------------------------------------------------|
-| Linearity             | Uncertain         | Residual vs. fitted plot             | Check whether ACV vs. Seats shows curvature -- very large seat counts may have a nonlinear premium. Consider adding Seats^2 if residuals fan out for high-seat accounts. |
-| Independence          | Met               | Durbin-Watson = 1.94                 | No autocorrelation detected. Observations are independent customer contracts. |
-| Homoscedasticity      | Likely violated   | Residual vs. fitted plot -- possible fan shape at high ACV values | High-ACV contracts tend to have more variable pricing. Recommended: re-run with log(ACV) as the outcome or compute HC3 robust standard errors. Monitor whether significance conclusions change. |
-| Normal residuals      | Approximately met | Q-Q plot shows mild right-skew in tails | With N=200, mild non-normality has minimal impact on p-values. If homoscedasticity is addressed via log transformation, residuals will also normalize. |
-| No multicollinearity  | Acceptable        | Seats VIF=2.1, Age VIF=1.8, Tickets VIF=1.9, Industry dummies VIF=1.4-1.6 | All VIFs below 5. No multicollinearity concern. |
-| No influential outliers | Flag for review | Cook's D > 0.02 (threshold: 4/200): 4 observations flagged (rows 17, 89, 134, 178) | Re-run model excluding these 4 rows and verify that conclusions remain stable before acting on findings. |
+| Assumption              | Status            | Diagnostic Used                                                                    | Action Required                                                                                                                                                                                 |
+| ----------------------- | ----------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Linearity               | Uncertain         | Residual vs. fitted plot                                                           | Check whether ACV vs. Seats shows curvature -- very large seat counts may have a nonlinear premium. Consider adding Seats^2 if residuals fan out for high-seat accounts.                        |
+| Independence            | Met               | Durbin-Watson = 1.94                                                               | No autocorrelation detected. Observations are independent customer contracts.                                                                                                                   |
+| Homoscedasticity        | Likely violated   | Residual vs. fitted plot -- possible fan shape at high ACV values                  | High-ACV contracts tend to have more variable pricing. Recommended: re-run with log(ACV) as the outcome or compute HC3 robust standard errors. Monitor whether significance conclusions change. |
+| Normal residuals        | Approximately met | Q-Q plot shows mild right-skew in tails                                            | With N=200, mild non-normality has minimal impact on p-values. If homoscedasticity is addressed via log transformation, residuals will also normalize.                                          |
+| No multicollinearity    | Acceptable        | Seats VIF=2.1, Age VIF=1.8, Tickets VIF=1.9, Industry dummies VIF=1.4-1.6          | All VIFs below 5. No multicollinearity concern.                                                                                                                                                 |
+| No influential outliers | Flag for review   | Cook's D > 0.02 (threshold: 4/200): 4 observations flagged (rows 17, 89, 134, 178) | Re-run model excluding these 4 rows and verify that conclusions remain stable before acting on findings.                                                                                        |
 
 ---
 

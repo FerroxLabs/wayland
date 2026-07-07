@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "newsletter email marketing-copy"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'newsletter email marketing-copy'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Newsletter Subject Lines
 
 ## When to Use
@@ -88,12 +89,14 @@ Allocate the 10 slots based on what the email content genuinely supports. A data
 Apply the following craft standards to every line written:
 
 **Length and display:**
+
 - Target 35-50 characters as the mobile-safe primary range. Gmail on iOS shows 37-45 characters before cutting on the lock screen; Gmail on Android shows 30-40 characters in the notification tray; Apple Mail on iPhone shows 40-50 characters in the inbox list. The first 40 characters must carry the full hook.
 - Lines 51-60 characters can work on desktop-first audiences but require the key hook in the first 40 characters. Label these "desktop-optimized."
 - Lines over 60 characters should be used sparingly (one or two variants maximum) and only when the truncation creates a natural cliffhanger, not an awkward cut.
 - Always count characters manually. Spaces count. Punctuation counts. Emoji count as 2 characters in most email client rendering.
 
 **Word-level craft:**
+
 - Front-load the highest-information or highest-tension word. Compare: "The most overlooked SEO metric" versus "Overlooked: the SEO metric costing you traffic." The second version surfaces the tension word immediately.
 - Use second-person "you/your" in at least 3 of the 10 variants -- it increases perceived personal relevance.
 - Avoid the word "newsletter" in the subject line -- it signals "low urgency bulk email" to the reader's pattern-matching brain.
@@ -102,6 +105,7 @@ Apply the following craft standards to every line written:
 - Numbers should be specific and odd when possible -- "7 frameworks" feels more credible and less rounded than "10 tips." Exception: when the content is literally a top-10 list.
 
 **Spam filter craft:**
+
 - Avoid these specific constructions regardless of context: "FREE," "WIN," "GUARANTEED," "RISK-FREE," "ACT NOW," "LIMITED TIME OFFER," "CLICK HERE," "EARN MONEY," "MAKE MONEY," "#1," "100%," and excessive punctuation (multiple exclamation points, multiple question marks, ellipsis overuse).
 - Avoid ALL CAPS on individual words within a subject line, not just the full subject. "This WORKS" reads as shouting and triggers Bayesian spam classifiers trained on promotional email.
 - Avoid Re: and Fwd: prefixes intended to simulate a reply thread -- this tactic was effective in 2016 and is now heavily penalized by major inbox providers.
@@ -122,6 +126,7 @@ For every one of the 10 options, provide a structured micro-analysis covering:
 The preheader is the text email clients display after the subject line in inbox view. It is not part of the email body the reader sees after opening -- it is a second subject line displayed at 60-70% visual prominence beside the subject line.
 
 Rules for preheader text:
+
 - Length: 40-90 characters. Under 40 and the email client will pull body text (usually unformatted and unhelpful). Over 90 and it truncates before value is delivered.
 - Never repeat the subject line -- the preheader extends the subject line's argument or adds a different angle. Repetition wastes the slot.
 - The subject line + preheader is a two-part pitch. Structure them as: subject = the hook, preheader = the supporting evidence, specific detail, or the closing of a loop the subject opens.
@@ -129,6 +134,7 @@ Rules for preheader text:
 - Avoid starting preheader with "Hi [name]" or "In this issue" -- these waste the visible characters on structural filler.
 
 For each of the top 3 options, write:
+
 - The preheader text (labeled with character count)
 - One sentence explaining how it pairs with the subject line and what gap it fills
 
@@ -272,78 +278,88 @@ Provide a clear recommendation hierarchy:
 
 ### Option Table
 
-| # | Subject Line | Chars | Trigger Type | Mobile (first 40 chars) |
-|---|-------------|-------|--------------|--------------------------|
-| 1 | She raised prices 60%. Almost no one left | 42 | Social proof + contrarian | "She raised prices 60%. Almost no" |
-| 2 | The pricing email that made her $40k braver | 45 | Curiosity gap + specific | "The pricing email that made her $4" |
-| 3 | Why your SaaS is underpriced (with proof) | 42 | Contrarian + evidence | "Why your SaaS is underpriced (with" |
-| 4 | The exact email she used to raise prices 60% | 46 | Specific benefit + direct | "The exact email she used to raise" |
-| 5 | Most founders charge less than they should | 43 | Social proof + contrarian | "Most founders charge less than they" |
-| 6 | Raise prices. Lose almost no one. Here's how | 46 | Specific benefit + directive | "Raise prices. Lose almost no one." |
-| 7 | She tested a 60% price increase. The results | 46 | Story + curiosity gap | "She tested a 60% price increase. T" |
-| 8 | The pricing mistake 80% of indie founders make | 48 | Social proof + contrarian | "The pricing mistake 80% of indie fo" |
-| 9 | I copied her pricing email. Open rate: 67% | 44 | Story + self-interest hybrid | "I copied her pricing email. Open ra" |
-| 10 | Underpriced: a case study on charging more | 44 | Direct + framing word | "Underpriced: a case study on chargi" |
+| #   | Subject Line                                   | Chars | Trigger Type                 | Mobile (first 40 chars)               |
+| --- | ---------------------------------------------- | ----- | ---------------------------- | ------------------------------------- |
+| 1   | She raised prices 60%. Almost no one left      | 42    | Social proof + contrarian    | "She raised prices 60%. Almost no"    |
+| 2   | The pricing email that made her $40k braver    | 45    | Curiosity gap + specific     | "The pricing email that made her $4"  |
+| 3   | Why your SaaS is underpriced (with proof)      | 42    | Contrarian + evidence        | "Why your SaaS is underpriced (with"  |
+| 4   | The exact email she used to raise prices 60%   | 46    | Specific benefit + direct    | "The exact email she used to raise"   |
+| 5   | Most founders charge less than they should     | 43    | Social proof + contrarian    | "Most founders charge less than they" |
+| 6   | Raise prices. Lose almost no one. Here's how   | 46    | Specific benefit + directive | "Raise prices. Lose almost no one."   |
+| 7   | She tested a 60% price increase. The results   | 46    | Story + curiosity gap        | "She tested a 60% price increase. T"  |
+| 8   | The pricing mistake 80% of indie founders make | 48    | Social proof + contrarian    | "The pricing mistake 80% of indie fo" |
+| 9   | I copied her pricing email. Open rate: 67%     | 44    | Story + self-interest hybrid | "I copied her pricing email. Open ra" |
+| 10  | Underpriced: a case study on charging more     | 44    | Direct + framing word        | "Underpriced: a case study on chargi" |
 
 ---
 
 ### Individual Analysis
 
 **Option 1 -- "She raised prices 60%. Almost no one left"**
+
 - Trigger: Social proof + contrarian
 - Character count: 42 -- mobile-safe, full display on most clients
 - Primary strength: The two-sentence structure creates a natural beat -- the first clause delivers a data point (60%), the second clause delivers the surprise that violates the expected outcome (attrition). The gap between expectation and result is what compels opening. Candid voice aligns with stated brand register.
 - Primary risk: "Almost no one left" is imprecise -- readers who are analytically oriented may want a number ("3% churn") and may find the vague qualifier slightly hand-wavy. If the case study provides actual churn numbers, consider replacing with specifics.
 
 **Option 2 -- "The pricing email that made her $40k braver"**
+
 - Trigger: Curiosity gap + emotional hook
 - Character count: 45 -- mobile-safe
 - Primary strength: "$40k braver" is a compressed, unexpected phrase that fuses a financial outcome with a psychological state -- it creates genuine curiosity about what the phrase means, which can only be resolved by opening. Rewards the brand's smart, non-clichéd voice.
 - Primary risk: Slightly opaque -- readers who skim fast may not parse the metaphor quickly enough to feel compelled. Works better for subscribers who already trust the newsletter's voice. May underperform with newer subscribers unfamiliar with the brand's tone.
 
 **Option 3 -- "Why your SaaS is underpriced (with proof)"**
+
 - Trigger: Contrarian + evidence signal
 - Character count: 42 -- mobile-safe
 - Primary strength: "Your SaaS" creates direct personal relevance. The parenthetical "(with proof)" addresses the skepticism the contrarian claim immediately generates -- it preemptively defends against "prove it." This is a sophisticated double-move that works well on a founder audience trained to question unsupported claims.
 - Primary risk: Founders with confidence in their pricing model may read this as condescending. The contrarian trigger works on those who secretly suspect they are underpriced (a large portion of this audience) but alienates those who have done deliberate pricing research.
 
 **Option 4 -- "The exact email she used to raise prices 60%"**
+
 - Trigger: Specific benefit + direct (template promise)
 - Character count: 46 -- mobile-safe
 - Primary strength: "Exact" and the percentage together create a high-specificity promise. The word "exact" signals that this is not a theoretical framework but a concrete artifact the reader can copy or adapt. Template promises consistently outperform strategy promises in B2C and indie-business audiences.
 - Primary risk: Sets a high delivery expectation -- the email must include the literal script, not a paraphrase. If the user is including the full email in the issue, this is the strongest alignment between subject line and content. If the script is excerpted or summarized, this subject line oversells.
 
 **Option 5 -- "Most founders charge less than they should"**
+
 - Trigger: Social proof + contrarian (group norm violation)
 - Character count: 43 -- mobile-safe
 - Primary strength: Frames underpricing as a systemic group behavior rather than a personal accusation, which lowers resistance compared to "you're underpriced." The reader thinks "yes, I've noticed that about other founders" and then silently asks "am I one of them?" -- which triggers self-audit and opens.
 - Primary risk: Least specific option in the set. Contains no number, no story hook, and no artifact promise. Strong enough for a general editorial newsletter but undersells the concrete case study content inside.
 
 **Option 6 -- "Raise prices. Lose almost no one. Here's how"**
+
 - Trigger: Specific benefit + directive cadence
 - Character count: 46 -- mobile-safe; the three-beat structure is readable at 40 characters ("Raise prices. Lose almost no one.")
 - Primary strength: The three-clause staccato structure ("Raise. Lose. Here's how") creates a punchy rhythm that feels more like a peer talking than a newsletter subject line. The "Here's how" at the end is a classic action-bridge construction that guarantees the email has a method, not just a thesis.
 - Primary risk: "Almost no one" appears twice across options 1 and 6 -- if using both in the same A/B test or showing them together, the repeated qualifier will be noticed. Choose one of the two options to use; retire the other.
 
 **Option 7 -- "She tested a 60% price increase. The results"**
+
 - Trigger: Story opener + curiosity gap (deferred resolution)
 - Character count: 46 -- mobile-safe; truncates naturally after the first sentence on tightest mobile views
 - Primary strength: "The results" as a sentence fragment creates a deliberate open loop -- the subject line starts a story and refuses to finish it, which is the purest curiosity-gap mechanic. The past tense "tested" implies real data, not speculation. Works well when the results are genuinely surprising (which in this case they are).
 - Primary risk: The open loop could feel too transparent as a clickbait mechanism for sophisticated readers who have seen this construction hundreds of times. The audience of SaaS founders is likely more skeptical of open-loop tricks than a general consumer audience.
 
 **Option 8 -- "The pricing mistake 80% of indie founders make"**
+
 - Trigger: Social proof + contrarian (statistical framing)
 - Character count: 48 -- mobile-safe
 - Primary strength: The "80%" figure creates credibility and makes the mistake feel epidemic rather than niche. "Indie founders" as a specific identity label is a precision targeting signal -- readers who identify with that label feel immediately addressed. Loss-aversion framing (mistake) typically outperforms gain framing (opportunity) in professionally-oriented audiences.
 - Primary risk: The 80% must be supported by something in the email -- if the case study does not reference group-level data, this reads as a fabricated statistic. Verify with the user that there is data to support the percentage before using this option. If there is no supporting data, retire this option.
 
 **Option 9 -- "I copied her pricing email. Open rate: 67%"**
+
 - Trigger: First-person story + self-interest (result reveal)
 - Character count: 44 -- mobile-safe
 - Primary strength: First-person frame creates the highest personal intimacy of all 10 options. The colon construction "I did X. Result: Y" is a proven copywriting pattern for results-oriented audiences. The "67% open rate" is a concrete outcome that makes the reader think "if that's the open rate on a pricing email, the pricing change must have worked." Chains curiosity across two levels.
 - Primary risk: This line implies the newsletter author personally ran the script themselves -- if that is not true (i.e., this is purely a case study of someone else's experience), this line would be misleading. Only use if the sender actually tested the method. Also, "open rate" in the subject line may trigger spam classifiers on some ESPs -- test deliverability before committing to this option.
 
 **Option 10 -- "Underpriced: a case study on charging more"**
+
 - Trigger: Direct + framing word
 - Character count: 44 -- mobile-safe
 - Primary strength: The colon construction "Concept: what this issue is about" is a clean editorial framing device. "Underpriced" as the lead word is punchy and surprising. This option sets the clearest content expectations and will produce the most highly qualified opens -- readers who open this know exactly what they are getting.
@@ -369,8 +385,8 @@ This line is the strongest fit for the brand's stated "candid and smart" voice b
 
 ### Preview Text (Preheader) for Top 3
 
-| # | Subject Line | Preview Text | Preheader Chars | Pairing Logic |
-|---|-------------|-------------|-----------------|---------------|
-| 4 | The exact email she used to raise prices 60% | She went from $49/mo to $79/mo. Churn barely moved. | 51 | Subject delivers the artifact promise; preheader delivers the specific numbers that make the promise credible without giving away the script itself |
-| 1 | She raised prices 60%. Almost no one left | The email script, the churn data, and what she'd do differently | 61 | Subject delivers the surprising outcome; preheader reveals there are three deliverables inside (script, data, reflection), upgrading a curiosity open into an intent-driven open |
-| 3 | Why your SaaS is underpriced (with proof) | One founder's 60% experiment -- and the exact message she sent | 63 | Subject makes the contrarian claim; preheader introduces the proof format (a specific case study) and hints at the artifact, resolving the "what kind of proof?" question without closing the curiosity loop |
+| #   | Subject Line                                 | Preview Text                                                    | Preheader Chars | Pairing Logic                                                                                                                                                                                                |
+| --- | -------------------------------------------- | --------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 4   | The exact email she used to raise prices 60% | She went from $49/mo to $79/mo. Churn barely moved.             | 51              | Subject delivers the artifact promise; preheader delivers the specific numbers that make the promise credible without giving away the script itself                                                          |
+| 1   | She raised prices 60%. Almost no one left    | The email script, the churn data, and what she'd do differently | 61              | Subject delivers the surprising outcome; preheader reveals there are three deliverables inside (script, data, reflection), upgrading a curiosity open into an intent-driven open                             |
+| 3   | Why your SaaS is underpriced (with proof)    | One founder's 60% experiment -- and the exact message she sent  | 63              | Subject makes the contrarian claim; preheader introduces the proof format (a specific case study) and hints at the artifact, resolving the "what kind of proof?" question without closing the curiosity loop |

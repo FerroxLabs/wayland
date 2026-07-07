@@ -12,7 +12,7 @@ steps:
   - id: authorize
     title: Sign in with Sentry
     estSeconds: 30
-    primaryAction: { label: "Sign in with Sentry", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Sentry', action: 'oauth-flow' }
     body: |
       Click **Sign in with Sentry** below. A browser tab opens at
       `mcp.sentry.dev` and redirects to Sentry's OAuth consent screen.

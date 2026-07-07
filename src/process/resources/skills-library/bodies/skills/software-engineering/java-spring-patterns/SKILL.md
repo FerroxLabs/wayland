@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "java backend frameworks"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'java backend frameworks'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Java Spring Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to wire dependencies in a Spring Boot 3.x application -- choosing between constructor injection, field injection, or `@Autowired` setter injection
 - The user is designing or refactoring a Spring Boot service layer and needs guidance on `@Service`, `@Component`, `@Repository`, `@Controller`, or `@RestController` semantics
 - The user needs to create or understand custom auto-configuration, condition annotations (`@ConditionalOnProperty`, `@ConditionalOnMissingBean`, `@ConditionalOnClass`), or Spring Boot starters
@@ -31,6 +33,7 @@ metadata:
 - The user asks about Spring Boot 3.x migration from 2.x -- namespace changes, Jakarta EE migration, or AOT compilation
 
 **Do NOT use this skill when:**
+
 - The user is setting up a new Java project from scratch, selecting build tools, or configuring Maven/Gradle (use `java-project-setup`)
 - The user is writing Spring Boot tests with `@SpringBootTest`, `@WebMvcTest`, `@DataJpaTest`, or MockMvc (use `java-testing-patterns`)
 - The user is asking about virtual threads, `CompletableFuture`, `synchronized`, or reactive programming concurrency patterns (use `java-concurrency-patterns`)
@@ -164,7 +167,7 @@ Before declaring the implementation complete, verify correctness:
 
 When responding to a Spring patterns question, structure the output as follows:
 
-```
+````
 ## Spring Pattern Analysis
 
 ### Context
@@ -186,27 +189,31 @@ app:
     enabled: true
     max-retries: 3
     api-url: https://api.example.com
-```
+````
 
 #### Java Code
+
 ```java
 // Annotated, production-ready code with explanatory comments
 ```
 
 ### Trade-off Matrix
 
-| Approach | Pros | Cons | Use When |
-|---|---|---|---|
+| Approach     | Pros            | Cons            | Use When  |
+| ------------ | --------------- | --------------- | --------- |
 | [approach 1] | [specific pros] | [specific cons] | [context] |
 | [approach 2] | [specific pros] | [specific cons] | [context] |
 
 ### Common Mistakes to Avoid
+
 - [mistake 1 specific to this pattern]
 - [mistake 2 specific to this pattern]
 
 ### Related Patterns
+
 - [pattern name]: relevant when [condition]
-```
+
+````
 
 ---
 
@@ -329,7 +336,8 @@ app:
             include: db,redis,diskSpace
           liveness:
             include: livenessState
-  ```
+````
+
 - Set a dedicated management thread pool or use a separate management port to prevent health check timeouts during high application load.
 - Set Kubernetes probe timeouts (`timeoutSeconds: 5`, `periodSeconds: 10`, `failureThreshold: 3`) to be tolerant of transient slowness rather than marking pods unhealthy on a single slow response.
 
@@ -344,6 +352,7 @@ app:
 ## Spring Pattern Analysis
 
 ### Context
+
 - Spring Boot version: 3.2
 - Pattern category: Configuration Properties + Dependency Injection + Service Layer
 - Problem being solved: Externalize payment gateway configuration and build a correctly layered service that consumes it
@@ -362,7 +371,7 @@ app:
   payment:
     gateway:
       base-url: https://api.paymentgateway.example.com
-      api-key: ${PAYMENT_GATEWAY_API_KEY}   # injected from environment variable
+      api-key: ${PAYMENT_GATEWAY_API_KEY} # injected from environment variable
       connection-timeout-ms: 3000
       read-timeout-ms: 10000
       max-retries: 3
@@ -676,7 +685,7 @@ public class PaymentGatewayHealthIndicator implements HealthIndicator {
 # application.yml (management section)
 management:
   server:
-    port: 8081  # isolate management traffic from application traffic
+    port: 8081 # isolate management traffic from application traffic
   endpoints:
     web:
       exposure:
@@ -698,15 +707,16 @@ management:
 
 ### Trade-off Matrix
 
-| Approach | Pros | Cons | Use When |
-|---|---|---|---|
+| Approach                          | Pros                                                         | Cons                                                   | Use When                           |
+| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ | ---------------------------------- |
 | `@ConfigurationProperties` record | Immutable, validated at startup, IDE autocompletion, grouped | Requires `@EnableConfigurationProperties` registration | Any group of 3+ related properties |
-| Scattered `@Value` annotations | Simple for single properties | No grouping, no startup validation, hard to test | Exactly one isolated property |
-| Environment-only config (no YAML) | Secrets never near code | No defaults, harder to document | Secrets only (API keys, passwords) |
-| `RestClient` (Spring 6.1+) | Fluent API, non-blocking compatible, replaces RestTemplate | Newer API, less StackOverflow coverage | New Spring Boot 3.2+ projects |
-| `RestTemplate` | Mature, well-documented | Deprecated for new code in Spring 6, synchronous only | Maintaining legacy 2.x code |
+| Scattered `@Value` annotations    | Simple for single properties                                 | No grouping, no startup validation, hard to test       | Exactly one isolated property      |
+| Environment-only config (no YAML) | Secrets never near code                                      | No defaults, harder to document                        | Secrets only (API keys, passwords) |
+| `RestClient` (Spring 6.1+)        | Fluent API, non-blocking compatible, replaces RestTemplate   | Newer API, less StackOverflow coverage                 | New Spring Boot 3.2+ projects      |
+| `RestTemplate`                    | Mature, well-documented                                      | Deprecated for new code in Spring 6, synchronous only  | Maintaining legacy 2.x code        |
 
 ### Common Mistakes to Avoid
+
 - Injecting `PaymentGatewayProperties` into `PaymentGatewayHealthIndicator` separately from `PaymentGatewayService` -- both share the same singleton bean, no duplication occurs
 - Storing the API key directly in `application.yml` under version control -- always use `${ENV_VAR}` syntax and document the required environment variable in the project README
 - Adding complex retry logic inline instead of using Spring Retry (`@Retryable`) or Resilience4j `RetryRegistry` with exponential backoff and jitter for production retry behavior
@@ -714,5 +724,6 @@ management:
 - Registering `Counter` and `Timer` metrics inside request-handling methods (`new Counter(...)` per call) -- always register metrics once at bean creation time and reuse the `Counter`/`Timer` instance
 
 ### Related Patterns
+
 - `java-testing-patterns`: Writing `@WebMvcTest` for `PaymentController` and unit tests for `PaymentGatewayService` using a constructor-injected mock `RestClient`
 - `java-concurrency-patterns`: If payment calls need to be made in parallel or with a timeout using `CompletableFuture` or virtual threads

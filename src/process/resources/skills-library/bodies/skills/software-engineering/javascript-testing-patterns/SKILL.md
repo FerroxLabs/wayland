@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # JavaScript Testing Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Choosing between Vitest and Jest for a new or existing JavaScript/TypeScript project
 - Mocking ES modules (ESM) -- `import` statements, dynamic `import()`, or packages that only ship ESM
 - Configuring test coverage thresholds, Istanbul/V8 providers, and coverage exclusion patterns
@@ -32,6 +34,7 @@ metadata:
 - Writing parameterized/data-driven tests for multiple input/output scenarios
 
 **Do NOT use this skill when:**
+
 - The user needs to initialize a Node.js project from scratch -- use `nodejs-project-setup` instead
 - The user is asking about general testing vocabulary (unit vs. integration vs. contract) without a JavaScript-specific angle -- use `unit-testing-patterns`
 - The user needs Playwright, Cypress, Puppeteer, or any browser-driven E2E testing -- use `e2e-testing-patterns`
@@ -84,20 +87,21 @@ This is the highest-leverage decision. It is difficult to reverse without migrat
 A correct configuration prevents hours of debugging mysterious test failures.
 
 **Vitest configuration (`vitest.config.ts`):**
+
 ```typescript
-import { defineConfig } from 'vitest/config'
-import tsconfigPaths from 'vite-plugin-tsconfig-paths'
+import { defineConfig } from 'vitest/config';
+import tsconfigPaths from 'vite-plugin-tsconfig-paths';
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
-    globals: true,                    // expose describe/it/expect globally
-    environment: 'node',             // or 'jsdom', 'happy-dom', 'edge-runtime'
+    globals: true, // expose describe/it/expect globally
+    environment: 'node', // or 'jsdom', 'happy-dom', 'edge-runtime'
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist', 'e2e/**'],
     setupFiles: ['./src/test/setup.ts'],
     coverage: {
-      provider: 'v8',                // faster; use 'istanbul' for branch accuracy
+      provider: 'v8', // faster; use 'istanbul' for branch accuracy
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.d.ts', 'src/**/*.test.ts', 'src/test/**'],
@@ -108,45 +112,42 @@ export default defineConfig({
         statements: 80,
       },
     },
-    pool: 'threads',                 // 'forks' for Node.js child processes; use for native modules
+    pool: 'threads', // 'forks' for Node.js child processes; use for native modules
     poolOptions: {
       threads: { singleThread: false },
     },
   },
-})
+});
 ```
 
 **Jest configuration (`jest.config.ts`):**
+
 ```typescript
-import type { Config } from 'jest'
+import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest/presets/default-esm',  // for ESM TypeScript
+  preset: 'ts-jest/presets/default-esm', // for ESM TypeScript
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',  // rewrite .js imports to resolve .ts files
+    '^(\\.{1,2}/.*)\\.js$': '$1', // rewrite .js imports to resolve .ts files
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { useESM: true }],
   },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.{ts,tsx}',
-    '!src/test/**',
-  ],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/*.test.{ts,tsx}', '!src/test/**'],
   coverageThreshold: {
     global: { lines: 80, branches: 75, functions: 80, statements: 80 },
   },
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
-}
+};
 
-export default config
+export default config;
 ```
 
 **Key settings with rationale:**
+
 - `pool: 'threads'` in Vitest uses `worker_threads` -- fast but cannot load native `.node` addons. Use `pool: 'forks'` for projects with native modules (e.g., `sharp`, `bcrypt`, `sqlite3`).
 - `environment: 'happy-dom'` is 10-15x faster than `jsdom` for pure DOM manipulation tests. Use `jsdom` when tests rely on specific CSS layout behavior or `MutationObserver` edge cases.
 - `setupFiles` runs before each test file in isolation. `globalSetup` runs once before all tests and cannot access `vi`/`jest` globals -- use for starting database servers or mock HTTP servers.
@@ -156,13 +157,14 @@ export default config
 ESM mocking is the most common source of confusion and broken tests. Apply these patterns precisely.
 
 **Static ESM mock with `vi.mock()` / `jest.mock()` (hoisted):**
+
 ```typescript
 // Module mocking is HOISTED to the top of the file by the test runner,
 // even if written later in the source. This is not normal JS execution order.
 vi.mock('../services/emailService', () => ({
   sendEmail: vi.fn().mockResolvedValue({ messageId: 'test-123' }),
   validateAddress: vi.fn().mockReturnValue(true),
-}))
+}));
 
 // For modules with a default export:
 vi.mock('../utils/logger', () => ({
@@ -171,47 +173,51 @@ vi.mock('../utils/logger', () => ({
     error: vi.fn(),
     warn: vi.fn(),
   },
-}))
+}));
 ```
 
 **The ESM interop problem and solution:**
+
 - Packages distributed as pure ESM (e.g., `node-fetch` v3, `chalk` v5, `nanoid` v4, `execa` v7) cannot be mocked with synchronous `jest.mock()` in standard Jest + Node.js because Jest's module registry uses CommonJS `require()` internally.
 - **Solution 1 (preferred for Jest):** Use `jest-mock-extended` or add `"transformIgnorePatterns": []` and transform the ESM package through Babel. In `jest.config.ts`: `transformIgnorePatterns: ['node_modules/(?!(node-fetch|chalk|nanoid)/)']`.
 - **Solution 2:** Wrap the ESM dependency in a thin adapter module you own. Mock the adapter, not the package. This also decouples your code from the vendor API.
 - **Solution 3 (Vitest):** Vitest handles ESM natively -- `vi.mock('node-fetch')` works without transforms because Vitest operates on the same ESM graph as Vite.
 
 **Spying without replacing (non-destructive mocking):**
-```typescript
-import * as fs from 'node:fs/promises'
 
-const readFileSpy = vi.spyOn(fs, 'readFile').mockResolvedValue('file content' as any)
+```typescript
+import * as fs from 'node:fs/promises';
+
+const readFileSpy = vi.spyOn(fs, 'readFile').mockResolvedValue('file content' as any);
 
 afterEach(() => {
-  vi.restoreAllMocks()  // resets ALL spies created with spyOn
-})
+  vi.restoreAllMocks(); // resets ALL spies created with spyOn
+});
 ```
 
 **Manual mocks (`__mocks__` directory):**
+
 - Place a file at `src/__mocks__/nodemailer.ts` to auto-mock the `nodemailer` package for all tests in the project.
 - For relative imports, the `__mocks__` directory must be adjacent to the module being mocked.
 - Call `vi.mock('nodemailer')` or `jest.mock('nodemailer')` in the test file to activate the manual mock -- it does not activate automatically for non-node_modules packages.
 
 **Timer mocking:**
+
 ```typescript
 beforeEach(() => {
-  vi.useFakeTimers()
-  vi.setSystemTime(new Date('2024-01-15T10:00:00Z'))  // deterministic "now"
-})
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-01-15T10:00:00Z')); // deterministic "now"
+});
 
 afterEach(() => {
-  vi.useRealTimers()
-})
+  vi.useRealTimers();
+});
 
 it('retries after 5 seconds', async () => {
-  const promise = retryWithDelay(operation, { delayMs: 5000, maxAttempts: 3 })
-  await vi.advanceTimersByTimeAsync(5000)  // advances fake clock AND flushes promises
-  expect(operation).toHaveBeenCalledTimes(2)
-})
+  const promise = retryWithDelay(operation, { delayMs: 5000, maxAttempts: 3 });
+  await vi.advanceTimersByTimeAsync(5000); // advances fake clock AND flushes promises
+  expect(operation).toHaveBeenCalledTimes(2);
+});
 ```
 
 ### 5. Design Fixtures and Test Data Factories
@@ -219,11 +225,12 @@ it('retries after 5 seconds', async () => {
 Poor data setup is the second most common source of flaky or hard-to-read tests.
 
 **Object Mother / Factory function pattern:**
+
 ```typescript
 // src/test/factories/user.factory.ts
-import { User } from '../domain/user'
+import { User } from '../domain/user';
 
-let idCounter = 0
+let idCounter = 0;
 
 export function createUser(overrides: Partial<User> = {}): User {
   return {
@@ -234,20 +241,22 @@ export function createUser(overrides: Partial<User> = {}): User {
     createdAt: new Date('2024-01-01T00:00:00Z'),
     isActive: true,
     ...overrides,
-  }
+  };
 }
 
 // Usage in tests -- explicit only what matters:
-const adminUser = createUser({ role: 'admin' })
-const inactiveUser = createUser({ isActive: false, email: 'inactive@example.com' })
+const adminUser = createUser({ role: 'admin' });
+const inactiveUser = createUser({ isActive: false, email: 'inactive@example.com' });
 ```
 
 **Reset state between tests:**
+
 - Reset the `idCounter` in `beforeEach` or use a closure that resets on module load per test
 - In Vitest, use `vi.isolateModules()` to get a fresh module instance including its internal state
 - Never share mutable fixtures between `describe` blocks across different test files
 
 **Database fixture seeding:**
+
 - For integration tests with a real database, use a transaction-per-test strategy: begin a transaction in `beforeEach`, run the test, rollback in `afterEach` -- no cleanup queries needed
 - For read-heavy integration tests, seed once in `beforeAll` and use read-only fixtures
 - Use a dedicated test database with a name suffix (`_test`) -- never the development or staging database
@@ -260,33 +269,35 @@ const inactiveUser = createUser({ isActive: false, email: 'inactive@example.com'
 describe('validateEmail', () => {
   it.each([
     // [input, expected, description]
-    ['user@example.com',     true,  'standard email'],
-    ['user+tag@example.com', true,  'plus-addressed email'],
-    ['user@sub.domain.co',   true,  'subdomain email'],
-    ['',                     false, 'empty string'],
-    ['notanemail',           false, 'missing @ symbol'],
-    ['@nodomain.com',        false, 'missing local part'],
-    ['user@',                false, 'missing domain'],
-    ['user @example.com',    false, 'space in local part'],
+    ['user@example.com', true, 'standard email'],
+    ['user+tag@example.com', true, 'plus-addressed email'],
+    ['user@sub.domain.co', true, 'subdomain email'],
+    ['', false, 'empty string'],
+    ['notanemail', false, 'missing @ symbol'],
+    ['@nodomain.com', false, 'missing local part'],
+    ['user@', false, 'missing domain'],
+    ['user @example.com', false, 'space in local part'],
   ])('returns %s for "%s" (%s)', (input, expected, _description) => {
-    expect(validateEmail(input)).toBe(expected)
-  })
-})
+    expect(validateEmail(input)).toBe(expected);
+  });
+});
 ```
 
 **Template literal version for readability:**
+
 ```typescript
 it.each`
-  price    | qty  | expected
-  ${10}    | ${3} | ${30}
-  ${25.50} | ${2} | ${51}
-  ${0}     | ${5} | ${0}
+  price   | qty  | expected
+  ${10}   | ${3} | ${30}
+  ${25.5} | ${2} | ${51}
+  ${0}    | ${5} | ${0}
 `('price=$price qty=$qty -> total=$expected', ({ price, qty, expected }) => {
-  expect(calculateTotal(price, qty)).toBeCloseTo(expected, 2)
-})
+  expect(calculateTotal(price, qty)).toBeCloseTo(expected, 2);
+});
 ```
 
 **When NOT to use `it.each`:**
+
 - When each case requires substantially different setup or teardown logic -- write separate named tests
 - When the parameterized table obscures the business intent -- a test named "should reject negative prices" is more scannable than a row in a table
 
@@ -295,9 +306,10 @@ it.each`
 Snapshots are useful for large output objects but become a liability when overused.
 
 **Inline snapshots (preferred for small outputs):**
+
 ```typescript
 it('formats a user profile card', () => {
-  const result = formatProfileCard({ name: 'Alice', role: 'admin', joinYear: 2022 })
+  const result = formatProfileCard({ name: 'Alice', role: 'admin', joinYear: 2022 });
   expect(result).toMatchInlineSnapshot(`
     {
       "badge": "Admin",
@@ -305,26 +317,29 @@ it('formats a user profile card', () => {
       "memberSince": "2022",
       "subtitle": "Administrator since 2022",
     }
-  `)
-})
+  `);
+});
 ```
 
 **File snapshots (for large outputs like HTML, SQL, or serialized ASTs):**
+
 - Snapshots live in `__snapshots__/filename.test.ts.snap`
 - Run `vitest --update-snapshots` or `jest --updateSnapshot` to regenerate
 - Always review snapshot diffs in PRs -- a snapshot change is a behavior change
 - Exclude dynamic values before snapshotting: strip timestamps, random IDs, and environment-specific paths using `expect.any(Date)` or a custom serializer
 
 **Custom snapshot serializer example:**
+
 ```typescript
 // Strips UUIDs from snapshot output
 expect.addSnapshotSerializer({
   test: (val) => typeof val === 'string' && /[0-9a-f-]{36}/.test(val),
   print: () => '"[UUID]"',
-})
+});
 ```
 
 **When to avoid snapshots:**
+
 - Do not snapshot primitive values (`expect(count).toBe(5)` is clearer than a snapshot)
 - Do not snapshot error messages that change frequently
 - Do not snapshot entire API responses -- assert on specific fields that represent the contract
@@ -488,6 +503,7 @@ describe('[ModuleUnderTest]', () => {
 Packages like `nanoid` v4, `chalk` v5, `execa` v7, `node-fetch` v3, and `p-queue` v7 ship only ESM. In Jest + CommonJS environments, `jest.mock()` fails because Jest's module registry cannot intercept ESM static imports without full ESM experimental mode.
 
 **Handling approach:**
+
 - For each pure-ESM package your code depends on, create a thin adapter: `src/lib/idGenerator.ts` wraps `nanoid`, exports `generateId`. Mock `../lib/idGenerator` instead of `nanoid`.
 - Alternatively, configure `transformIgnorePatterns` in Jest to compile the specific ESM package: `transformIgnorePatterns: ['node_modules/(?!(nanoid|chalk)/)']`. Add `@babel/plugin-transform-modules-commonjs` to the Babel config used by Jest.
 - In Vitest, no workaround is needed -- `vi.mock('nanoid')` works as expected because Vitest operates on the native ESM graph.
@@ -497,6 +513,7 @@ Packages like `nanoid` v4, `chalk` v5, `execa` v7, `node-fetch` v3, and `p-queue
 Projects using `"paths"` in `tsconfig.json` (e.g., `@/*` mapping to `src/*`) frequently fail because the test runner does not read `tsconfig.json` paths automatically.
 
 **Handling approach:**
+
 - In Vitest: Add `vite-plugin-tsconfig-paths` to `vitest.config.ts` plugins. This reads `tsconfig.json` and configures Vite's resolver automatically.
 - In Jest: Add `moduleNameMapper` entries in `jest.config.ts` that mirror each `paths` entry: `'^@/(.*)$': '<rootDir>/src/$1'`. Use `jest-resolve-tsconfig-paths` to automate this mapping from `tsconfig.json`.
 - Validate the resolution by running a single test that imports a path-aliased module: `vitest run src/test/alias-resolution.test.ts`.
@@ -506,6 +523,7 @@ Projects using `"paths"` in `tsconfig.json` (e.g., `@/*` mapping to `src/*`) fre
 Tests involving timestamp generation, UUID creation, or randomized behavior are non-deterministic by default, causing flaky assertions.
 
 **Handling approach:**
+
 - Use `vi.setSystemTime(new Date('2024-06-01T12:00:00Z'))` inside `beforeEach` after calling `vi.useFakeTimers()`. `new Date()` and `Date.now()` return deterministic values.
 - Mock `Math.random` with `vi.spyOn(Math, 'random').mockReturnValue(0.5)` for tests that depend on random behavior.
 - For UUID generation: mock the `crypto.randomUUID` method directly: `vi.spyOn(crypto, 'randomUUID').mockReturnValue('00000000-0000-0000-0000-000000000001')`.
@@ -518,6 +536,7 @@ This is caused by shared mutable state: module-level variables, uncleaned DOM st
 **Diagnosis:** Run `vitest --reporter verbose` and look for tests that pass when run with `vitest run src/specific.test.ts` but fail in the full suite. The failing test runs after a test that corrupts shared state.
 
 **Handling approach:**
+
 - Add `vi.isolateModules()` wrapping the import of modules that maintain module-level state (e.g., a singleton registry or a connection pool stored in module scope).
 - For DOM tests, call `document.body.innerHTML = ''` in `afterEach` or use `@testing-library/react`'s `cleanup()` which is called automatically when imported.
 - Enable `--sequence.shuffle` in CI: `vitest run --sequence.shuffle --sequence.seed 42`. If tests fail with shuffle that pass without it, there is state pollution. The seed makes the failure reproducible.
@@ -528,6 +547,7 @@ This is caused by shared mutable state: module-level variables, uncleaned DOM st
 Dynamic `import()` calls and code paths that only execute in specific environments (e.g., `if (process.env.NODE_ENV === 'production')`) frequently appear as uncovered branches.
 
 **Handling approach:**
+
 - For dynamic imports, write a test that exercises the code path and `await`s the import: `const module = await import('../heavyFeature'); module.run()`.
 - For environment-conditional code, use `vi.stubEnv('NODE_ENV', 'production')` (Vitest ≥ 0.28) or `process.env.NODE_ENV = 'production'` with a restore in `afterEach`. Never hardcode `process.env` changes without restoring them.
 - For code that is genuinely not testable (platform-specific native bindings, catastrophic error paths), use Istanbul/V8 ignore comments sparingly: `/* v8 ignore next 3 */` or `/* istanbul ignore next */`. Document why the ignore is justified in the same comment.
@@ -537,6 +557,7 @@ Dynamic `import()` calls and code paths that only execute in specific environmen
 Unit test suites taking over 3 minutes indicate incorrect configuration, not a fundamental performance limit.
 
 **Diagnosis checklist:**
+
 - `--coverage` enabled during unit test runs adds 30-60% overhead. Run coverage only on scheduled CI runs or pre-merge checks, not on every push.
 - `environment: 'jsdom'` initialized for every test file adds ~100ms per file. Use `environment: 'node'` as the default and scope JSDOM to specific globs: `environmentMatchGlobs: [['src/components/**', 'jsdom']]`.
 - Watch for `globalSetup` that starts real servers or databases synchronously -- these serialize all test file startup. Use in-memory alternatives (SQLite, `msw` mock server) for unit/integration tests.
@@ -548,6 +569,7 @@ Unit test suites taking over 3 minutes indicate incorrect configuration, not a f
 Node.js 18+ includes `fetch`, `ReadableStream`, `AbortController`, and `Blob` globally, but older Node.js versions and some Jest environments do not. Tests referencing these globals fail with "ReferenceError: fetch is not defined".
 
 **Handling approach:**
+
 - For Node.js 16-17: polyfill in `setupFiles`: `import 'whatwg-fetch'` or `import { fetch } from 'undici'` and assign to `globalThis.fetch`.
 - For `AbortController` tests: exercise the signal's `abort()` method directly in tests -- do not rely on timeout behavior. `const controller = new AbortController(); controller.abort(); expect(controller.signal.aborted).toBe(true)`.
 - For streams: use Node.js `stream.Readable.from([...data])` to create test streams without file I/O.
@@ -579,8 +601,8 @@ Node.js 18+ includes `fetch`, `ReadableStream`, `AbortController`, and `Blob` gl
 
 ```typescript
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import tsconfigPaths from 'vite-plugin-tsconfig-paths'
+import { defineConfig } from 'vitest/config';
+import tsconfigPaths from 'vite-plugin-tsconfig-paths';
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -594,13 +616,7 @@ export default defineConfig({
       provider: 'istanbul',
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.ts'],
-      exclude: [
-        'src/**/*.d.ts',
-        'src/**/*.test.ts',
-        'src/test/**',
-        'src/**/index.ts',
-        'src/generated/**',
-      ],
+      exclude: ['src/**/*.d.ts', 'src/**/*.test.ts', 'src/test/**', 'src/**/index.ts', 'src/generated/**'],
       thresholds: {
         lines: 80,
         branches: 75,
@@ -609,17 +625,17 @@ export default defineConfig({
       },
     },
   },
-})
+});
 ```
 
 ```typescript
 // src/test/setup.ts
-import { vi, afterEach } from 'vitest'
+import { vi, afterEach } from 'vitest';
 
 afterEach(() => {
-  vi.restoreAllMocks()
-  vi.useRealTimers()
-})
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 ```
 
 ---
@@ -629,24 +645,24 @@ afterEach(() => {
 ```typescript
 // src/domain/user.ts
 export interface User {
-  id: string
-  email: string
-  name: string
-  role: 'member' | 'admin'
-  createdAt: Date
-  isActive: boolean
+  id: string;
+  email: string;
+  name: string;
+  role: 'member' | 'admin';
+  createdAt: Date;
+  isActive: boolean;
 }
 
 // src/repositories/userRepository.ts
 export interface UserRepository {
-  findById(id: string): Promise<User | null>
-  findByEmail(email: string): Promise<User | null>
-  save(user: Omit<User, 'id' | 'createdAt'>): Promise<User>
+  findById(id: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
+  save(user: Omit<User, 'id' | 'createdAt'>): Promise<User>;
 }
 
 // src/services/emailService.ts
 export interface EmailService {
-  sendWelcomeEmail(to: string, name: string): Promise<{ messageId: string }>
+  sendWelcomeEmail(to: string, name: string): Promise<{ messageId: string }>;
 }
 ```
 
@@ -656,17 +672,17 @@ export interface EmailService {
 
 ```typescript
 // src/services/userService.test.ts
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { UserService } from './userService'
-import type { UserRepository } from '../repositories/userRepository'
-import type { EmailService } from './emailService'
-import type { User } from '../domain/user'
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { UserService } from './userService';
+import type { UserRepository } from '../repositories/userRepository';
+import type { EmailService } from './emailService';
+import type { User } from '../domain/user';
 
 // ── Test Data Factory ──────────────────────────────────────────────────────
-let userIdCounter = 0
+let userIdCounter = 0;
 
 function createUser(overrides: Partial<User> = {}): User {
-  const id = `user-${++userIdCounter}`
+  const id = `user-${++userIdCounter}`;
   return {
     id,
     email: `${id}@example.com`,
@@ -675,7 +691,7 @@ function createUser(overrides: Partial<User> = {}): User {
     createdAt: new Date('2024-01-15T10:00:00Z'),
     isActive: true,
     ...overrides,
-  }
+  };
 }
 
 // ── Mocks ─────────────────────────────────────────────────────────────────
@@ -684,139 +700,136 @@ function createMockUserRepository(): UserRepository {
     findById: vi.fn(),
     findByEmail: vi.fn(),
     save: vi.fn(),
-  }
+  };
 }
 
 function createMockEmailService(): EmailService {
   return {
     sendWelcomeEmail: vi.fn(),
-  }
+  };
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────
 describe('UserService', () => {
-  let userRepository: UserRepository
-  let emailService: EmailService
-  let userService: UserService
+  let userRepository: UserRepository;
+  let emailService: EmailService;
+  let userService: UserService;
 
   beforeEach(() => {
-    userIdCounter = 0  // reset counter for deterministic IDs
-    userRepository = createMockUserRepository()
-    emailService = createMockEmailService()
-    userService = new UserService({ userRepository, emailService })
+    userIdCounter = 0; // reset counter for deterministic IDs
+    userRepository = createMockUserRepository();
+    emailService = createMockEmailService();
+    userService = new UserService({ userRepository, emailService });
 
     // Deterministic timestamps for all tests in this suite
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2024-01-15T10:00:00Z'))
-  })
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T10:00:00Z'));
+  });
 
   // ── registerUser ─────────────────────────────────────────────────────────
   describe('registerUser', () => {
     it('creates a new user and sends a welcome email when the email is not taken', async () => {
       // Arrange
-      const input = { email: 'alice@example.com', name: 'Alice', role: 'member' as const }
-      const savedUser = createUser({ email: input.email, name: input.name })
+      const input = { email: 'alice@example.com', name: 'Alice', role: 'member' as const };
+      const savedUser = createUser({ email: input.email, name: input.name });
 
-      vi.mocked(userRepository.findByEmail).mockResolvedValue(null)
-      vi.mocked(userRepository.save).mockResolvedValue(savedUser)
-      vi.mocked(emailService.sendWelcomeEmail).mockResolvedValue({ messageId: 'msg-001' })
+      vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
+      vi.mocked(userRepository.save).mockResolvedValue(savedUser);
+      vi.mocked(emailService.sendWelcomeEmail).mockResolvedValue({ messageId: 'msg-001' });
 
       // Act
-      const result = await userService.registerUser(input)
+      const result = await userService.registerUser(input);
 
       // Assert -- returned value
-      expect(result).toEqual(savedUser)
+      expect(result).toEqual(savedUser);
 
       // Assert -- repository was called with correct args
-      expect(userRepository.findByEmail).toHaveBeenCalledOnce()
-      expect(userRepository.findByEmail).toHaveBeenCalledWith('alice@example.com')
-      expect(userRepository.save).toHaveBeenCalledOnce()
+      expect(userRepository.findByEmail).toHaveBeenCalledOnce();
+      expect(userRepository.findByEmail).toHaveBeenCalledWith('alice@example.com');
+      expect(userRepository.save).toHaveBeenCalledOnce();
       expect(userRepository.save).toHaveBeenCalledWith({
         email: 'alice@example.com',
         name: 'Alice',
         role: 'member',
         isActive: true,
-      })
+      });
 
       // Assert -- email was sent after successful save
-      expect(emailService.sendWelcomeEmail).toHaveBeenCalledOnce()
-      expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith('alice@example.com', 'Alice')
-    })
+      expect(emailService.sendWelcomeEmail).toHaveBeenCalledOnce();
+      expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith('alice@example.com', 'Alice');
+    });
 
     it('throws ConflictError when the email is already registered', async () => {
       // Arrange
-      const existingUser = createUser({ email: 'taken@example.com' })
-      vi.mocked(userRepository.findByEmail).mockResolvedValue(existingUser)
+      const existingUser = createUser({ email: 'taken@example.com' });
+      vi.mocked(userRepository.findByEmail).mockResolvedValue(existingUser);
 
       // Act & Assert
       await expect(
         userService.registerUser({ email: 'taken@example.com', name: 'Bob', role: 'member' })
-      ).rejects.toThrow('Email already registered: taken@example.com')
+      ).rejects.toThrow('Email already registered: taken@example.com');
 
       // Assert -- no save or email when conflict detected
-      expect(userRepository.save).not.toHaveBeenCalled()
-      expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled()
-    })
+      expect(userRepository.save).not.toHaveBeenCalled();
+      expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled();
+    });
 
     it('does not send welcome email when repository save fails', async () => {
       // Arrange
-      vi.mocked(userRepository.findByEmail).mockResolvedValue(null)
-      vi.mocked(userRepository.save).mockRejectedValue(new Error('Database connection lost'))
+      vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
+      vi.mocked(userRepository.save).mockRejectedValue(new Error('Database connection lost'));
 
       // Act & Assert
       await expect(
         userService.registerUser({ email: 'new@example.com', name: 'Carol', role: 'member' })
-      ).rejects.toThrow('Database connection lost')
+      ).rejects.toThrow('Database connection lost');
 
-      expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled()
-    })
-  })
+      expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled();
+    });
+  });
 
   // ── getUserById ──────────────────────────────────────────────────────────
   describe('getUserById', () => {
     it('returns the user when found', async () => {
-      const user = createUser({ id: 'user-99' })
-      vi.mocked(userRepository.findById).mockResolvedValue(user)
+      const user = createUser({ id: 'user-99' });
+      vi.mocked(userRepository.findById).mockResolvedValue(user);
 
-      const result = await userService.getUserById('user-99')
+      const result = await userService.getUserById('user-99');
 
-      expect(result).toEqual(user)
-      expect(userRepository.findById).toHaveBeenCalledWith('user-99')
-    })
+      expect(result).toEqual(user);
+      expect(userRepository.findById).toHaveBeenCalledWith('user-99');
+    });
 
     it('throws NotFoundError when user does not exist', async () => {
-      vi.mocked(userRepository.findById).mockResolvedValue(null)
+      vi.mocked(userRepository.findById).mockResolvedValue(null);
 
-      await expect(userService.getUserById('missing-id')).rejects.toThrow(
-        'User not found: missing-id'
-      )
-    })
-  })
+      await expect(userService.getUserById('missing-id')).rejects.toThrow('User not found: missing-id');
+    });
+  });
 
   // ── Role validation -- parameterized ─────────────────────────────────────
   describe('registerUser role validation', () => {
     it.each([
-      ['member',  true,  'standard member role is valid'],
-      ['admin',   true,  'admin role is valid'],
-      ['guest',   false, 'guest is not a permitted role'],
-      ['',        false, 'empty string is not a permitted role'],
-      ['ADMIN',   false, 'roles are case-sensitive'],
+      ['member', true, 'standard member role is valid'],
+      ['admin', true, 'admin role is valid'],
+      ['guest', false, 'guest is not a permitted role'],
+      ['', false, 'empty string is not a permitted role'],
+      ['ADMIN', false, 'roles are case-sensitive'],
     ] as const)('role="%s" isValid=%s (%s)', async (role, isValid, _description) => {
-      vi.mocked(userRepository.findByEmail).mockResolvedValue(null)
+      vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
 
-      const action = () =>
-        userService.registerUser({ email: 'x@example.com', name: 'X', role: role as any })
+      const action = () => userService.registerUser({ email: 'x@example.com', name: 'X', role: role as any });
 
       if (isValid) {
-        vi.mocked(userRepository.save).mockResolvedValue(createUser({ role: role as any }))
-        vi.mocked(emailService.sendWelcomeEmail).mockResolvedValue({ messageId: 'ok' })
-        await expect(action()).resolves.toBeDefined()
+        vi.mocked(userRepository.save).mockResolvedValue(createUser({ role: role as any }));
+        vi.mocked(emailService.sendWelcomeEmail).mockResolvedValue({ messageId: 'ok' });
+        await expect(action()).resolves.toBeDefined();
       } else {
-        await expect(action()).rejects.toThrow('Invalid role')
+        await expect(action()).rejects.toThrow('Invalid role');
       }
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ---
@@ -824,7 +837,7 @@ describe('UserService', () => {
 ## Coverage Thresholds
 
 | Metric     | Threshold | Rationale                                          |
-|------------|-----------|----------------------------------------------------|
+| ---------- | --------- | -------------------------------------------------- |
 | Lines      | 80%       | Baseline for production services                   |
 | Branches   | 75%       | Lower -- some error branches require complex setup |
 | Functions  | 80%       | Every public method on UserService must be called  |
@@ -834,17 +847,18 @@ describe('UserService', () => {
 
 ## Mock Strategy Summary
 
-| Dependency        | Strategy                                | Tool                        |
-|-------------------|-----------------------------------------|-----------------------------|
-| UserRepository    | Interface-based mock factory            | `vi.fn()` per method        |
-| EmailService      | Interface-based mock factory            | `vi.fn()` per method        |
-| `Date.now()` / `new Date()` | Fake timers + setSystemTime  | `vi.useFakeTimers()`        |
-| Database (future) | Transaction rollback per test           | Real DB in `beforeEach`     |
-| HTTP email API    | MSW `setupServer` with node integration | `@mswjs/msw` v2             |
+| Dependency                  | Strategy                                | Tool                    |
+| --------------------------- | --------------------------------------- | ----------------------- |
+| UserRepository              | Interface-based mock factory            | `vi.fn()` per method    |
+| EmailService                | Interface-based mock factory            | `vi.fn()` per method    |
+| `Date.now()` / `new Date()` | Fake timers + setSystemTime             | `vi.useFakeTimers()`    |
+| Database (future)           | Transaction rollback per test           | Real DB in `beforeEach` |
+| HTTP email API              | MSW `setupServer` with node integration | `@mswjs/msw` v2         |
 
 ---
 
 **Running the tests:**
+
 ```bash
 # Run once
 npx vitest run

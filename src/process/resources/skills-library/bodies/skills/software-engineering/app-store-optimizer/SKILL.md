@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices app-store-optimization"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices app-store-optimization'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # App Store Optimizer
@@ -26,31 +26,31 @@ This skill provides comprehensive expertise in App Store Optimization (ASO) for 
 
 ### Ranking Factor Weights
 
-| Factor | App Store (iOS) | Google Play |
-|--------|----------------|-------------|
-| App name / title | Very High | Very High |
-| Subtitle | High | N/A |
-| Keyword field | Very High | N/A |
-| Short description | N/A | High |
-| Long description | Low (not indexed) | High (indexed) |
-| Downloads velocity | High | High |
-| Ratings and reviews | High | High |
-| Update frequency | Medium | Medium |
-| Retention / engagement | Medium | High |
-| Crash rate | Medium | High |
-| Backlinks | N/A | Medium |
+| Factor                 | App Store (iOS)   | Google Play    |
+| ---------------------- | ----------------- | -------------- |
+| App name / title       | Very High         | Very High      |
+| Subtitle               | High              | N/A            |
+| Keyword field          | Very High         | N/A            |
+| Short description      | N/A               | High           |
+| Long description       | Low (not indexed) | High (indexed) |
+| Downloads velocity     | High              | High           |
+| Ratings and reviews    | High              | High           |
+| Update frequency       | Medium            | Medium         |
+| Retention / engagement | Medium            | High           |
+| Crash rate             | Medium            | High           |
+| Backlinks              | N/A               | Medium         |
 
 ### Metadata Character Limits
 
-| Field | App Store | Google Play |
-|-------|-----------|-------------|
-| App name / title | 30 chars | 30 chars |
-| Subtitle | 30 chars | N/A |
-| Short description | N/A | 80 chars |
-| Keyword field | 100 chars | N/A |
-| Description | 4000 chars | 4000 chars |
-| What's New | 4000 chars | 500 chars |
-| Promotional text | 170 chars | N/A |
+| Field             | App Store  | Google Play |
+| ----------------- | ---------- | ----------- |
+| App name / title  | 30 chars   | 30 chars    |
+| Subtitle          | 30 chars   | N/A         |
+| Short description | N/A        | 80 chars    |
+| Keyword field     | 100 chars  | N/A         |
+| Description       | 4000 chars | 4000 chars  |
+| What's New        | 4000 chars | 500 chars   |
+| Promotional text  | 170 chars  | N/A         |
 
 ## Keyword Research Methodology
 
@@ -132,16 +132,16 @@ Example Short Description (80 chars):
 
 ### Best Practices
 
-| Guideline | Details |
-|-----------|---------|
-| First 2 screenshots | Most critical; visible without scrolling in search results |
-| Orientation | Portrait for phones; landscape acceptable for tablets/games |
-| Text overlay | Short, benefit-driven headlines (not feature descriptions) |
-| Font size | Large enough to read on search results (not just detail page) |
-| Device frames | Optional; Apple no longer requires them |
-| Consistency | Uniform style, color scheme, and typography across all screenshots |
-| Count | Use all available slots (10 on iOS, 8 on Google Play) |
-| Localization | Translate text overlays for each market |
+| Guideline           | Details                                                            |
+| ------------------- | ------------------------------------------------------------------ |
+| First 2 screenshots | Most critical; visible without scrolling in search results         |
+| Orientation         | Portrait for phones; landscape acceptable for tablets/games        |
+| Text overlay        | Short, benefit-driven headlines (not feature descriptions)         |
+| Font size           | Large enough to read on search results (not just detail page)      |
+| Device frames       | Optional; Apple no longer requires them                            |
+| Consistency         | Uniform style, color scheme, and typography across all screenshots |
+| Count               | Use all available slots (10 on iOS, 8 on Google Play)              |
+| Localization        | Translate text overlays for each market                            |
 
 ### Screenshot Sequence Strategy
 
@@ -306,17 +306,17 @@ Minimum viable localization:
 
 ### Video Best Practices
 
-| Aspect | Recommendation |
-|--------|---------------|
-| Length | 15-30 seconds (attention drops sharply after 15s) |
-| First 3 seconds | Hook with the most impressive feature |
-| Narration | Optional; use captions for accessibility |
-| Music | Upbeat, non-distracting background music |
-| Content | Show real app usage, not promotional motion graphics |
-| Resolution | Record at device native resolution |
-| Orientation | Match primary app orientation |
-| Call to action | End with download prompt or key value proposition |
-| Autoplay | Videos autoplay on mute in App Store - visual clarity is critical |
+| Aspect          | Recommendation                                                    |
+| --------------- | ----------------------------------------------------------------- |
+| Length          | 15-30 seconds (attention drops sharply after 15s)                 |
+| First 3 seconds | Hook with the most impressive feature                             |
+| Narration       | Optional; use captions for accessibility                          |
+| Music           | Upbeat, non-distracting background music                          |
+| Content         | Show real app usage, not promotional motion graphics              |
+| Resolution      | Record at device native resolution                                |
+| Orientation     | Match primary app orientation                                     |
+| Call to action  | End with download prompt or key value proposition                 |
+| Autoplay        | Videos autoplay on mute in App Store - visual clarity is critical |
 
 ## Category Selection
 
@@ -376,29 +376,29 @@ For each top 5 competitor, analyze:
 
 ## ASO Tools Comparison
 
-| Tool | Strengths | Best For |
-|------|-----------|----------|
-| Sensor Tower | Market intelligence, ad intelligence | Enterprise, competitor research |
-| App Radar | Keyword tracking, ASO workflow | SMB, hands-on optimization |
-| AppTweak | Keyword research, market analysis | Data-driven keyword strategy |
-| AppFollow | Review management, competitor monitoring | Review ops, sentiment analysis |
-| SplitMetrics | A/B testing store pages | Conversion rate optimization |
-| Mobile Action | Keyword intelligence, visibility score | Keyword-focused ASO |
-| data.ai (App Annie) | Market estimates, download data | Market sizing, trend analysis |
+| Tool                | Strengths                                | Best For                        |
+| ------------------- | ---------------------------------------- | ------------------------------- |
+| Sensor Tower        | Market intelligence, ad intelligence     | Enterprise, competitor research |
+| App Radar           | Keyword tracking, ASO workflow           | SMB, hands-on optimization      |
+| AppTweak            | Keyword research, market analysis        | Data-driven keyword strategy    |
+| AppFollow           | Review management, competitor monitoring | Review ops, sentiment analysis  |
+| SplitMetrics        | A/B testing store pages                  | Conversion rate optimization    |
+| Mobile Action       | Keyword intelligence, visibility score   | Keyword-focused ASO             |
+| data.ai (App Annie) | Market estimates, download data          | Market sizing, trend analysis   |
 
 ## Measurement and KPIs
 
 ### Key Metrics to Track
 
-| Metric | Target | Source |
-|--------|--------|--------|
-| Impressions | Growing month-over-month | App Store Connect / Play Console |
-| Conversion rate (impression to install) | >30% (varies by category) | App Store Connect / Play Console |
-| Keyword rankings | Top 10 for primary keywords | ASO tool |
-| Average rating | >4.5 | Store dashboard |
-| Review response rate | 100% for 1-3 star reviews | Store dashboard |
-| Organic vs. paid split | >60% organic | Attribution tool |
-| Day 1 retention | >40% | Analytics tool |
+| Metric                                  | Target                      | Source                           |
+| --------------------------------------- | --------------------------- | -------------------------------- |
+| Impressions                             | Growing month-over-month    | App Store Connect / Play Console |
+| Conversion rate (impression to install) | >30% (varies by category)   | App Store Connect / Play Console |
+| Keyword rankings                        | Top 10 for primary keywords | ASO tool                         |
+| Average rating                          | >4.5                        | Store dashboard                  |
+| Review response rate                    | 100% for 1-3 star reviews   | Store dashboard                  |
+| Organic vs. paid split                  | >60% organic                | Attribution tool                 |
+| Day 1 retention                         | >40%                        | Analytics tool                   |
 
 ## Production Checklist
 
@@ -421,6 +421,7 @@ For each top 5 competitor, analyze:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing app store optimizer solutions
 - Reviewing or improving existing app store optimizer approaches
 - Making architectural or implementation decisions about app store optimizer
@@ -428,6 +429,7 @@ For each top 5 competitor, analyze:
 - Troubleshooting app store optimizer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -438,21 +440,26 @@ For each top 5 competitor, analyze:
 # App Store Optimizer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

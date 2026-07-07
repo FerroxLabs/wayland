@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Subscription Model Designer
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a subscription business model with pricing tiers, retention mechanics, and billing systems
 - The user needs help with MRR/ARR metrics, churn reduction strategies, or cohort analysis
 - The user wants guidance on free trial optimization, expansion revenue, or subscription financial modeling
 - The user is building recurring revenue across SaaS, media, services, or physical product subscriptions
 
 **Do NOT use this skill when:**
+
 - The user needs general pricing strategy for non-subscription products (use pricing-strategist instead)
 - The user is designing a membership program for an organization (use membership-manager instead)
 - The user wants broader startup strategy beyond the subscription model (use startup-advisor instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on subscription model designer
 - User asks about subscription model designer best practices or techniques
 - User wants a structured approach to subscription model designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of subscription model designer
 
@@ -70,31 +74,31 @@ Before designing or optimizing a subscription model, understand the context:
 
 ### The Essential Metrics Dashboard
 
-| Metric | Formula | Why It Matters |
-|--------|---------|----------------|
-| MRR (Monthly Recurring Revenue) | Sum of all monthly subscription revenue | The heartbeat of the business |
-| ARR (Annual Recurring Revenue) | MRR x 12 | Annual planning and valuation |
-| Net New MRR | New MRR + Expansion MRR - Churned MRR - Contraction MRR | Real growth rate |
-| Gross Churn Rate | Lost MRR / Starting MRR | How fast you lose revenue |
-| Net Revenue Retention (NRR) | (Starting MRR - Churn - Contraction + Expansion) / Starting MRR | Growth from existing customers |
-| LTV (Lifetime Value) | ARPU / Monthly Churn Rate | Revenue per customer over their lifetime |
-| CAC (Customer Acquisition Cost) | Sales & Marketing Spend / New Customers | Cost to acquire one customer |
-| LTV:CAC Ratio | LTV / CAC | Unit economics health check |
-| Payback Period | CAC / (ARPU x Gross Margin) | Months to recover acquisition cost |
-| ARPU (Avg Revenue Per User) | Total MRR / Total Subscribers | Revenue efficiency per customer |
+| Metric                          | Formula                                                         | Why It Matters                           |
+| ------------------------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| MRR (Monthly Recurring Revenue) | Sum of all monthly subscription revenue                         | The heartbeat of the business            |
+| ARR (Annual Recurring Revenue)  | MRR x 12                                                        | Annual planning and valuation            |
+| Net New MRR                     | New MRR + Expansion MRR - Churned MRR - Contraction MRR         | Real growth rate                         |
+| Gross Churn Rate                | Lost MRR / Starting MRR                                         | How fast you lose revenue                |
+| Net Revenue Retention (NRR)     | (Starting MRR - Churn - Contraction + Expansion) / Starting MRR | Growth from existing customers           |
+| LTV (Lifetime Value)            | ARPU / Monthly Churn Rate                                       | Revenue per customer over their lifetime |
+| CAC (Customer Acquisition Cost) | Sales & Marketing Spend / New Customers                         | Cost to acquire one customer             |
+| LTV:CAC Ratio                   | LTV / CAC                                                       | Unit economics health check              |
+| Payback Period                  | CAC / (ARPU x Gross Margin)                                     | Months to recover acquisition cost       |
+| ARPU (Avg Revenue Per User)     | Total MRR / Total Subscribers                                   | Revenue efficiency per customer          |
 
 ### Healthy Benchmarks
 
-| Metric | Healthy Range | Warning Zone |
-|--------|--------------|--------------|
-| Monthly gross churn (B2C) | <5% | >8% |
-| Monthly gross churn (B2B SMB) | <3% | >5% |
-| Monthly gross churn (B2B Enterprise) | <1% | >2% |
-| Net Revenue Retention (B2B) | >110% | <100% |
-| Net Revenue Retention (B2C) | >100% | <90% |
-| LTV:CAC ratio | >3:1 | <1.5:1 |
-| CAC payback period | <12 months | >18 months |
-| Gross margin | >70% (SaaS), >40% (physical) | Below these thresholds |
+| Metric                               | Healthy Range                | Warning Zone           |
+| ------------------------------------ | ---------------------------- | ---------------------- |
+| Monthly gross churn (B2C)            | <5%                          | >8%                    |
+| Monthly gross churn (B2B SMB)        | <3%                          | >5%                    |
+| Monthly gross churn (B2B Enterprise) | <1%                          | >2%                    |
+| Net Revenue Retention (B2B)          | >110%                        | <100%                  |
+| Net Revenue Retention (B2C)          | >100%                        | <90%                   |
+| LTV:CAC ratio                        | >3:1                         | <1.5:1                 |
+| CAC payback period                   | <12 months                   | >18 months             |
+| Gross margin                         | >70% (SaaS), >40% (physical) | Below these thresholds |
 
 ### MRR Decomposition
 
@@ -124,12 +128,12 @@ If you track nothing else, track this decomposition monthly.
 **The Goldilocks Structure:**
 Most subscription businesses should have three to four tiers:
 
-| Tier | Purpose | Pricing Position |
-|------|---------|-----------------|
-| Free / Freemium | Acquisition, product-led growth | $0 |
-| Starter / Basic | Entry paid tier, prove value | Low anchor |
-| Professional / Growth | The primary revenue tier (most users should land here) | Mid-range |
-| Enterprise / Premium | High-value segment, custom needs | Premium or custom |
+| Tier                  | Purpose                                                | Pricing Position  |
+| --------------------- | ------------------------------------------------------ | ----------------- |
+| Free / Freemium       | Acquisition, product-led growth                        | $0                |
+| Starter / Basic       | Entry paid tier, prove value                           | Low anchor        |
+| Professional / Growth | The primary revenue tier (most users should land here) | Mid-range         |
+| Enterprise / Premium  | High-value segment, custom needs                       | Premium or custom |
 
 **The decoy effect:** The middle tier should look like the best value compared to both the low and high tiers. This is by design - it is where you want most customers.
 
@@ -138,6 +142,7 @@ Most subscription businesses should have three to four tiers:
 The most critical pricing decision is: what do you charge based on?
 
 **Common value metrics:**
+
 - Per user / per seat (Slack, Notion)
 - Per usage volume (API calls, storage, emails sent)
 - Per feature tier (basic features vs. advanced features)
@@ -146,23 +151,25 @@ The most critical pricing decision is: what do you charge based on?
 
 **Choosing the right value metric:**
 
-| Criterion | Good Metric | Bad Metric |
-|-----------|------------|------------|
-| Scales with value | More usage = more value received | Usage unrelated to value |
-| Easy to understand | Customer immediately gets it | Requires explanation |
-| Predictable for customer | They can estimate their cost | Unpredictable bills create anxiety |
-| Grows with customer | Metric increases as customer succeeds | Metric stays flat regardless of growth |
+| Criterion                | Good Metric                           | Bad Metric                             |
+| ------------------------ | ------------------------------------- | -------------------------------------- |
+| Scales with value        | More usage = more value received      | Usage unrelated to value               |
+| Easy to understand       | Customer immediately gets it          | Requires explanation                   |
+| Predictable for customer | They can estimate their cost          | Unpredictable bills create anxiety     |
+| Grows with customer      | Metric increases as customer succeeds | Metric stays flat regardless of growth |
 
 ### Feature Gating Strategy
 
 Deciding what goes in each tier:
 
 **Free tier should include:**
+
 - Core value proposition (enough to experience the product's worth)
 - Limitations that naturally push power users to upgrade (not artificial frustrations)
 - No time limit (time-limited free trials are a different strategy)
 
 **Paid tiers should differentiate on:**
+
 - Usage limits (volume, seats, storage)
 - Advanced features (automation, integrations, analytics)
 - Support level (community, email, priority, dedicated)
@@ -170,6 +177,7 @@ Deciding what goes in each tier:
 - Administrative and security features (SSO, audit logs, roles)
 
 **Never gate behind payment:**
+
 - The core experience that proves value
 - Basic security features
 - Data export (this creates hostage situations, not loyalty)
@@ -187,12 +195,12 @@ Deciding what goes in each tier:
 
 ### Trial Design Decisions
 
-| Decision | Option A | Option B | Recommendation |
-|----------|----------|----------|----------------|
-| Trial length | 7 days | 14 or 30 days | 14 days for most SaaS; 7 if activation is fast |
-| Credit card required | Yes (higher intent) | No (higher volume) | Test both; no-card generally wins for volume |
-| Feature access | Full access | Limited access | Full access - let them experience the real product |
-| Trial communication | Automated only | Automated + human touch | Human touch for B2B; automated for low-ACV B2C |
+| Decision             | Option A            | Option B                | Recommendation                                     |
+| -------------------- | ------------------- | ----------------------- | -------------------------------------------------- |
+| Trial length         | 7 days              | 14 or 30 days           | 14 days for most SaaS; 7 if activation is fast     |
+| Credit card required | Yes (higher intent) | No (higher volume)      | Test both; no-card generally wins for volume       |
+| Feature access       | Full access         | Limited access          | Full access - let them experience the real product |
+| Trial communication  | Automated only      | Automated + human touch | Human touch for B2B; automated for low-ACV B2C     |
 
 ### The Trial Activation Framework
 
@@ -211,12 +219,12 @@ Day 14: Trial ends → convert or lose
 
 ### Trial-to-Paid Conversion Benchmarks
 
-| Business Type | Good Conversion Rate | Great Conversion Rate |
-|---------------|---------------------|----------------------|
-| B2B SaaS (no card required) | 10-15% | >20% |
-| B2B SaaS (card required) | 40-60% | >60% |
-| B2C SaaS (no card required) | 2-5% | >8% |
-| B2C SaaS (card required) | 25-40% | >50% |
+| Business Type               | Good Conversion Rate | Great Conversion Rate |
+| --------------------------- | -------------------- | --------------------- |
+| B2B SaaS (no card required) | 10-15%               | >20%                  |
+| B2B SaaS (card required)    | 40-60%               | >60%                  |
+| B2C SaaS (no card required) | 2-5%                 | >8%                   |
+| B2C SaaS (card required)    | 25-40%               | >50%                  |
 
 ## Churn Reduction
 
@@ -226,19 +234,20 @@ Churn is not a single problem - it is a category of problems with different caus
 
 ### Churn Taxonomy
 
-| Churn Type | Cause | Solution |
-|------------|-------|----------|
-| Involuntary | Failed payment, expired card | Dunning management, card updaters, retry logic |
-| Value gap | Product doesn't deliver expected value | Improve onboarding, enhance product, better targeting |
-| Competitive | Customer switches to alternative | Competitive intelligence, switching costs, differentiation |
-| Budget | Customer can't afford to continue | Annual discounts, downgrade options, pausing |
-| Seasonal | Customer doesn't need year-round | Annual plans, off-season value adds |
-| Champion loss | The internal advocate leaves the company | Multi-user adoption, reduce single-point-of-failure |
-| Integration depth | Product is easily replaceable | Deep integrations, data lock-in, workflow embedding |
+| Churn Type        | Cause                                    | Solution                                                   |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| Involuntary       | Failed payment, expired card             | Dunning management, card updaters, retry logic             |
+| Value gap         | Product doesn't deliver expected value   | Improve onboarding, enhance product, better targeting      |
+| Competitive       | Customer switches to alternative         | Competitive intelligence, switching costs, differentiation |
+| Budget            | Customer can't afford to continue        | Annual discounts, downgrade options, pausing               |
+| Seasonal          | Customer doesn't need year-round         | Annual plans, off-season value adds                        |
+| Champion loss     | The internal advocate leaves the company | Multi-user adoption, reduce single-point-of-failure        |
+| Integration depth | Product is easily replaceable            | Deep integrations, data lock-in, workflow embedding        |
 
 ### The Churn Prevention Stack
 
 **Layer 1: Involuntary Churn Prevention (recover 20-40% of potential churn)**
+
 - Smart retry logic (retry failed payments at optimal times)
 - Pre-dunning emails ("Your card expires next month - please update")
 - Account updater services (automatically update expired cards)
@@ -246,6 +255,7 @@ Churn is not a single problem - it is a category of problems with different caus
 - Multiple payment methods on file
 
 **Layer 2: Value Delivery (prevent the root cause)**
+
 - Onboarding optimization (fast time-to-value)
 - Health scoring (identify at-risk accounts before they churn)
 - Proactive outreach to declining-usage accounts
@@ -253,6 +263,7 @@ Churn is not a single problem - it is a category of problems with different caus
 - Customer success programs for high-value accounts
 
 **Layer 3: Friction and Incentives (last line of defense)**
+
 - Cancellation flow with save offers (discount, pause, downgrade)
 - Exit survey to capture reasons (this data is gold)
 - Win-back campaigns for recently churned customers (30, 60, 90 days)
@@ -290,13 +301,13 @@ In the best subscription businesses, existing customers generate more revenue ov
 
 ### Expansion Levers
 
-| Lever | Mechanism | Example |
-|-------|-----------|---------|
-| Seat growth | More users added to the account | Team grows, adds licenses |
+| Lever        | Mechanism                                | Example                           |
+| ------------ | ---------------------------------------- | --------------------------------- |
+| Seat growth  | More users added to the account          | Team grows, adds licenses         |
 | Usage growth | Customer uses more of usage-based metric | More API calls, storage, contacts |
-| Tier upgrade | Customer moves to higher plan | Starter → Professional |
-| Add-ons | Customer purchases additional modules | Analytics add-on, premium support |
-| Cross-sell | Customer buys a related product | Main product + complementary tool |
+| Tier upgrade | Customer moves to higher plan            | Starter → Professional            |
+| Add-ons      | Customer purchases additional modules    | Analytics add-on, premium support |
+| Cross-sell   | Customer buys a related product          | Main product + complementary tool |
 
 ### Designing for Expansion
 
@@ -310,6 +321,7 @@ In the best subscription businesses, existing customers generate more revenue ov
 ### Why Cohorts Matter
 
 Aggregate churn numbers lie. A 5% monthly churn rate could mean:
+
 - Every cohort churns uniformly at 5% (bad but stable)
 - Recent cohorts churn at 15% while old cohorts churn at 1% (product/market fit is declining)
 - Recent cohorts churn at 2% while old cohorts churn at 8% (you are improving)
@@ -329,6 +341,7 @@ Apr '25:  100%     92%      87%      --       --       --
 ```
 
 **What to look for:**
+
 - Are newer cohorts retaining better? (Your product/onboarding is improving)
 - Is there a specific month where retention drops sharply? (There is a value cliff)
 - Do cohorts stabilize eventually? (You have a core of loyal users)
@@ -374,26 +387,26 @@ For scaling subscription businesses, the Rule of 40 is a health benchmark:
 
 ### Billing System Considerations
 
-| Feature | Why It Matters |
-|---------|---------------|
-| Prorated billing | Customers who upgrade mid-cycle should pay only the difference |
-| Dunning management | Automated retry and communication for failed payments |
-| Multiple currencies | Essential for international customers |
-| Invoice generation | Required for B2B customers |
-| Tax compliance | Sales tax, VAT collection and remittance |
-| Subscription pausing | Reduces cancellation by offering a pause alternative |
-| Plan changes | Easy self-serve upgrade, downgrade, and add-on management |
-| Revenue recognition | Proper accounting for annual prepaid subscriptions |
+| Feature              | Why It Matters                                                 |
+| -------------------- | -------------------------------------------------------------- |
+| Prorated billing     | Customers who upgrade mid-cycle should pay only the difference |
+| Dunning management   | Automated retry and communication for failed payments          |
+| Multiple currencies  | Essential for international customers                          |
+| Invoice generation   | Required for B2B customers                                     |
+| Tax compliance       | Sales tax, VAT collection and remittance                       |
+| Subscription pausing | Reduces cancellation by offering a pause alternative           |
+| Plan changes         | Easy self-serve upgrade, downgrade, and add-on management      |
+| Revenue recognition  | Proper accounting for annual prepaid subscriptions             |
 
 ### Payment Platform Options
 
-| Platform | Best For | Considerations |
-|----------|----------|----------------|
-| Stripe Billing | Developer-friendly, flexible | Requires development work for UI |
-| Paddle | International tax compliance | Acts as merchant of record |
-| Chargebee | Complex B2B billing | Robust but complex setup |
-| Recurly | Enterprise subscription management | Proven at scale |
-| LemonSqueezy | Simple digital products | Easy setup, limited customization |
+| Platform       | Best For                           | Considerations                    |
+| -------------- | ---------------------------------- | --------------------------------- |
+| Stripe Billing | Developer-friendly, flexible       | Requires development work for UI  |
+| Paddle         | International tax compliance       | Acts as merchant of record        |
+| Chargebee      | Complex B2B billing                | Robust but complex setup          |
+| Recurly        | Enterprise subscription management | Proven at scale                   |
+| LemonSqueezy   | Simple digital products            | Easy setup, limited customization |
 
 ## Response Guidelines
 
@@ -408,7 +421,6 @@ When advising on subscription models:
 - Address involuntary churn first - it is the easiest churn to fix and often the most overlooked
 - Help them build a cohort analysis if they don't have one - it is the single most revealing exercise for a subscription business
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -421,13 +433,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with subscription model designer for a mid-size project."
 
 **Output:** A complete subscription model designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

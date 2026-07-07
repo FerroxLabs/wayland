@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud best-practices"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud best-practices'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kubernetes Configuration
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to write or review Kubernetes manifests (Deployments, StatefulSets, DaemonSets, Jobs, CronJobs) for production workloads
 - User wants guidance on resource requests/limits, pod disruption budgets, horizontal pod autoscaling, or vertical pod autoscaling configuration
 - User needs to configure namespaces, RBAC, NetworkPolicies, PodSecurityAdmission, or ServiceAccounts for a Kubernetes cluster
@@ -31,6 +33,7 @@ metadata:
 - User wants to implement pod topology spread constraints, node affinity, taints/tolerations, or pod anti-affinity for high availability
 
 **Do NOT use this skill when:**
+
 - User needs CI/CD pipeline configuration that only incidentally deploys to Kubernetes -- use a dedicated CI/CD pipeline skill
 - User is asking about Terraform or Pulumi infrastructure provisioning of the cluster itself (node groups, VPCs, IAM) -- use infrastructure-as-code skills
 - User needs Dockerfile optimization or container image build advice -- use a container image skill
@@ -72,13 +75,13 @@ Resource misconfiguration is the #1 cause of production Kubernetes incidents. Ap
     namespace: production
   spec:
     limits:
-    - type: Container
-      default:
-        cpu: 500m
-        memory: 256Mi
-      defaultRequest:
-        cpu: 100m
-        memory: 128Mi
+      - type: Container
+        default:
+          cpu: 500m
+          memory: 256Mi
+        defaultRequest:
+          cpu: 100m
+          memory: 128Mi
   ```
 - **ResourceQuota per namespace** caps total consumption: set `requests.cpu`, `limits.cpu`, `requests.memory`, `limits.memory`, and `count/pods` for production namespaces.
 
@@ -105,7 +108,7 @@ A single misconfigured field can cause 100% downtime during routine node mainten
   metadata:
     name: api-pdb
   spec:
-    minAvailable: 2   # or use maxUnavailable: 1
+    minAvailable: 2 # or use maxUnavailable: 1
     selector:
       matchLabels:
         app: api
@@ -116,12 +119,12 @@ A single misconfigured field can cause 100% downtime during routine node mainten
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: app
-            operator: In
-            values: ["api"]
-        topologyKey: "topology.kubernetes.io/zone"
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values: ['api']
+          topologyKey: 'topology.kubernetes.io/zone'
   ```
 - **Topology Spread Constraints** (preferred over podAntiAffinity for even distribution): Use `maxSkew: 1`, `topologyKey: topology.kubernetes.io/zone`, `whenUnsatisfiable: DoNotSchedule` to enforce even zone distribution.
 - **Rolling update strategy:** Set `maxUnavailable: 0` and `maxSurge: 1` for zero-downtime deployments. This temporarily uses one extra pod slot during the update. Requires that resource quota accommodates the surge.
@@ -149,7 +152,7 @@ Apply the Kubernetes security hierarchy: cluster > namespace > pod > container:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
-      drop: ["ALL"]
+      drop: ['ALL']
   ```
 - **Secrets management:** Never store plaintext secrets in ConfigMaps. Never mount Secrets as environment variables for sensitive values (they appear in `kubectl describe` output). Mount secrets as files at `/run/secrets/` with mode `0400`. Use External Secrets Operator with AWS Secrets Manager or HashiCorp Vault for production secret lifecycle management.
 - **RBAC:** Create dedicated ServiceAccounts per application (never use the `default` ServiceAccount). Grant only the exact API verbs and resources needed. Use `ClusterRole` only for cluster-wide resources; use `Role` + `RoleBinding` for namespace-scoped permissions. Audit with `kubectl auth can-i --list --as=system:serviceaccount:production:api-service`.
@@ -158,7 +161,7 @@ Apply the Kubernetes security hierarchy: cluster > namespace > pod > container:
   # Default deny all ingress
   spec:
     podSelector: {}
-    policyTypes: ["Ingress", "Egress"]
+    policyTypes: ['Ingress', 'Egress']
   ```
   Then add explicit allow rules for each required traffic path.
 - **Image security:** Set `imagePullPolicy: Always` for `latest` tags (though avoid `latest` in production -- use digest-pinned or semver tags). Enforce via OPA/Gatekeeper policy that images must come from approved registries.
@@ -212,7 +215,7 @@ A Kubernetes manifest that does not expose metrics and logs is not production-re
   lifecycle:
     preStop:
       exec:
-        command: ["/bin/sleep", "5"]
+        command: ['/bin/sleep', '5']
   ```
 
 ---
@@ -237,34 +240,34 @@ metadata:
   namespace: production
   labels:
     app: payment-api
-    version: "1.4.2"
+    version: '1.4.2'
     team: payments
     component: api
   annotations:
-    kubernetes.io/change-cause: "Bumped to v1.4.2 -- adds idempotency keys"
+    kubernetes.io/change-cause: 'Bumped to v1.4.2 -- adds idempotency keys'
 spec:
   replicas: 3
-  revisionHistoryLimit: 5       # keep 5 ReplicaSet revisions for rollback
+  revisionHistoryLimit: 5 # keep 5 ReplicaSet revisions for rollback
   selector:
     matchLabels:
       app: payment-api
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0          # never reduce capacity during update
-      maxSurge: 1                # allow one extra pod during rollover
+      maxUnavailable: 0 # never reduce capacity during update
+      maxSurge: 1 # allow one extra pod during rollover
   template:
     metadata:
       labels:
         app: payment-api
-        version: "1.4.2"
+        version: '1.4.2'
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8080'
+        prometheus.io/path: '/metrics'
     spec:
-      serviceAccountName: payment-api-sa   # dedicated SA, not default
-      terminationGracePeriodSeconds: 60    # matches max request timeout
+      serviceAccountName: payment-api-sa # dedicated SA, not default
+      terminationGracePeriodSeconds: 60 # matches max request timeout
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -272,94 +275,94 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: payment-api
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: payment-api
       containers:
-      - name: payment-api
-        image: registry.company.com/payment-api:1.4.2
-        imagePullPolicy: IfNotPresent      # digest-pinned tag, no need for Always
-        ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-        resources:
-          requests:
-            cpu: 200m
-            memory: 256Mi
-          limits:
-            # No CPU limit -- avoids throttling on bursty workloads
-            # Total CPU governed by namespace ResourceQuota
-            memory: 384Mi              # 50% headroom above request
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: ["ALL"]
-        startupProbe:                    # handles slow cold-start (JVM, etc.)
-          httpGet:
-            path: /healthz/startup
-            port: http
-          failureThreshold: 24          # 24 * 5s = 120s max startup time
-          periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /healthz/live
-            port: http
-          initialDelaySeconds: 0        # startupProbe handles initial delay
-          periodSeconds: 10
-          failureThreshold: 3
-          timeoutSeconds: 3
-        readinessProbe:
-          httpGet:
-            path: /healthz/ready
-            port: http
-          periodSeconds: 10
-          failureThreshold: 3
-          successThreshold: 1
-          timeoutSeconds: 3
-        env:
-        - name: LOG_FORMAT
-          value: json
-        - name: LOG_LEVEL
-          valueFrom:
-            configMapKeyRef:
-              name: payment-api-config
-              key: log_level
-        - name: DB_PASSWORD                    # mounted from Secret as env var only for non-sensitive
-          valueFrom:                           # for truly sensitive: mount as file instead
-            secretKeyRef:
-              name: payment-api-db-secret
-              key: password
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp                      # readOnlyRootFilesystem needs writable /tmp
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/bin/sleep", "5"]    # drain iptables before shutdown
+        - name: payment-api
+          image: registry.company.com/payment-api:1.4.2
+          imagePullPolicy: IfNotPresent # digest-pinned tag, no need for Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              # No CPU limit -- avoids throttling on bursty workloads
+              # Total CPU governed by namespace ResourceQuota
+              memory: 384Mi # 50% headroom above request
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          startupProbe: # handles slow cold-start (JVM, etc.)
+            httpGet:
+              path: /healthz/startup
+              port: http
+            failureThreshold: 24 # 24 * 5s = 120s max startup time
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+            initialDelaySeconds: 0 # startupProbe handles initial delay
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 3
+          env:
+            - name: LOG_FORMAT
+              value: json
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-api-config
+                  key: log_level
+            - name: DB_PASSWORD # mounted from Secret as env var only for non-sensitive
+              valueFrom: # for truly sensitive: mount as file instead
+                secretKeyRef:
+                  name: payment-api-db-secret
+                  key: password
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp # readOnlyRootFilesystem needs writable /tmp
+          lifecycle:
+            preStop:
+              exec:
+                command: ['/bin/sleep', '5'] # drain iptables before shutdown
       volumes:
-      - name: tmp
-        emptyDir: {}
+        - name: tmp
+          emptyDir: {}
 ```
 
 **2. Decision matrix for key configuration choices:**
 
-| Decision Point | Option | When to Choose | Trade-off |
-|---|---|---|---|
-| CPU limits | Set to 2x request | Batch jobs, best-effort workloads | Predictable cost; may throttle latency-sensitive paths |
-| CPU limits | Omit, use quota only | Latency-sensitive APIs | No throttling; requires namespace quota guardrail |
-| Replicas | 2 | Dev/staging or very low traffic | Cost savings; single AZ failure causes degraded capacity |
-| Replicas | 3+ | Production with HA requirement | Survives one zone failure at minAvailable:2 |
-| Secret delivery | Environment variable | Non-sensitive config (log levels) | Visible in kubectl describe; acceptable for non-secrets |
-| Secret delivery | Mounted file | Passwords, tokens, certs | Not visible in pod spec; requires readOnlyRootFilesystem exception for mount path |
-| Image tag | semver digest-pinned | Production | Immutable; reproducible; `imagePullPolicy: IfNotPresent` works |
-| Image tag | `latest` | Never in production | Non-deterministic; breaks rollback |
-| Update strategy | RollingUpdate maxUnavailable:0 | Zero-downtime services | Requires one extra pod slot; slower rollout |
-| Update strategy | Recreate | Dev environments, stateful singletons | Fast; causes downtime; not for production |
+| Decision Point  | Option                         | When to Choose                        | Trade-off                                                                         |
+| --------------- | ------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------- |
+| CPU limits      | Set to 2x request              | Batch jobs, best-effort workloads     | Predictable cost; may throttle latency-sensitive paths                            |
+| CPU limits      | Omit, use quota only           | Latency-sensitive APIs                | No throttling; requires namespace quota guardrail                                 |
+| Replicas        | 2                              | Dev/staging or very low traffic       | Cost savings; single AZ failure causes degraded capacity                          |
+| Replicas        | 3+                             | Production with HA requirement        | Survives one zone failure at minAvailable:2                                       |
+| Secret delivery | Environment variable           | Non-sensitive config (log levels)     | Visible in kubectl describe; acceptable for non-secrets                           |
+| Secret delivery | Mounted file                   | Passwords, tokens, certs              | Not visible in pod spec; requires readOnlyRootFilesystem exception for mount path |
+| Image tag       | semver digest-pinned           | Production                            | Immutable; reproducible; `imagePullPolicy: IfNotPresent` works                    |
+| Image tag       | `latest`                       | Never in production                   | Non-deterministic; breaks rollback                                                |
+| Update strategy | RollingUpdate maxUnavailable:0 | Zero-downtime services                | Requires one extra pod slot; slower rollout                                       |
+| Update strategy | Recreate                       | Dev environments, stateful singletons | Fast; causes downtime; not for production                                         |
 
 **3. Checklist for production readiness review:**
 
@@ -504,12 +507,12 @@ metadata:
   namespace: payments
 spec:
   hard:
-    requests.cpu: "8"
+    requests.cpu: '8'
     requests.memory: 8Gi
     limits.memory: 16Gi
-    count/pods: "50"
-    count/services: "20"
-    count/persistentvolumeclaims: "10"
+    count/pods: '50'
+    count/services: '20'
+    count/persistentvolumeclaims: '10'
 ```
 
 ```yaml
@@ -521,14 +524,14 @@ metadata:
   namespace: payments
 spec:
   limits:
-  - type: Container
-    default:
-      memory: 256Mi
-    defaultRequest:
-      cpu: 100m
-      memory: 128Mi
-    max:
-      memory: 4Gi
+    - type: Container
+      default:
+        memory: 256Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      max:
+        memory: 4Gi
 ```
 
 ---
@@ -547,7 +550,7 @@ metadata:
   annotations:
     # If using IRSA (AWS EKS) to access Secrets Manager:
     # eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/webhook-api-role
-automountServiceAccountToken: false  # no Kubernetes API access needed
+automountServiceAccountToken: false # no Kubernetes API access needed
 ```
 
 ---
@@ -562,14 +565,14 @@ metadata:
   name: webhook-api-config
   namespace: payments
 data:
-  LOG_LEVEL: "info"
-  LOG_FORMAT: "json"
-  PORT: "8080"
-  WORKERS: "4"           # uvicorn workers = 2*CPU_cores+1, here 200m*4 pods = ~1 core per pod
-  DB_HOST: "postgres-service.data.svc.cluster.local"
-  DB_PORT: "5432"
-  DB_NAME: "payments"
-  MODEL_PATH: "/models/fraud_v3.pkl"
+  LOG_LEVEL: 'info'
+  LOG_FORMAT: 'json'
+  PORT: '8080'
+  WORKERS: '4' # uvicorn workers = 2*CPU_cores+1, here 200m*4 pods = ~1 core per pod
+  DB_HOST: 'postgres-service.data.svc.cluster.local'
+  DB_PORT: '5432'
+  DB_NAME: 'payments'
+  MODEL_PATH: '/models/fraud_v3.pkl'
 ```
 
 ```yaml
@@ -599,13 +602,13 @@ metadata:
   namespace: payments
   labels:
     app: webhook-api
-    version: "2.1.0"
+    version: '2.1.0'
     team: payments
     component: api
   annotations:
-    kubernetes.io/change-cause: "v2.1.0 -- upgraded fraud model to v3"
+    kubernetes.io/change-cause: 'v2.1.0 -- upgraded fraud model to v3'
 spec:
-  replicas: 3                          # 3 replicas across 3 zones: survives 1 zone failure
+  replicas: 3 # 3 replicas across 3 zones: survives 1 zone failure
   revisionHistoryLimit: 5
   selector:
     matchLabels:
@@ -613,24 +616,24 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0                # zero-downtime requirement: never reduce capacity
-      maxSurge: 1                      # one extra pod during rollout (4 pods briefly)
+      maxUnavailable: 0 # zero-downtime requirement: never reduce capacity
+      maxSurge: 1 # one extra pod during rollout (4 pods briefly)
   template:
     metadata:
       labels:
         app: webhook-api
-        version: "2.1.0"
+        version: '2.1.0'
         team: payments
         component: api
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8080'
+        prometheus.io/path: '/metrics'
     spec:
       serviceAccountName: webhook-api-sa
       automountServiceAccountToken: false
-      terminationGracePeriodSeconds: 60    # 60s > max request timeout (30s) + preStop (5s)
-      
+      terminationGracePeriodSeconds: 60 # 60s > max request timeout (30s) + preStop (5s)
+
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -638,138 +641,138 @@ spec:
         fsGroup: 2000
         seccompProfile:
           type: RuntimeDefault
-      
+
       # Spread evenly across all 3 AZs -- hard requirement for zone failure tolerance
       topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: topology.kubernetes.io/zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: webhook-api
-      # Also spread across nodes within a zone to prevent same-node colocation
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: ScheduleAnyway   # prefer, don't require -- allows scheduling if few nodes
-        labelSelector:
-          matchLabels:
-            app: webhook-api
-      
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: webhook-api
+        # Also spread across nodes within a zone to prevent same-node colocation
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway # prefer, don't require -- allows scheduling if few nodes
+          labelSelector:
+            matchLabels:
+              app: webhook-api
+
       # Ensure ML model file is available before pod starts
       initContainers:
-      - name: model-downloader
-        image: registry.company.com/model-sync:1.2.0
-        command: ["/bin/sh", "-c", "cp /source/fraud_v3.pkl /models/fraud_v3.pkl"]
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            memory: 128Mi
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: ["ALL"]
-        volumeMounts:
-        - name: model-volume
-          mountPath: /models
-        - name: model-source
-          mountPath: /source
-          readOnly: true
-      
+        - name: model-downloader
+          image: registry.company.com/model-sync:1.2.0
+          command: ['/bin/sh', '-c', 'cp /source/fraud_v3.pkl /models/fraud_v3.pkl']
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+            - name: model-source
+              mountPath: /source
+              readOnly: true
+
       containers:
-      - name: webhook-api
-        image: registry.company.com/webhook-api:2.1.0
-        imagePullPolicy: IfNotPresent       # semver tag, deterministic
-        ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-        
-        resources:
-          requests:
-            cpu: 250m                       # empirically measured: ~200m at 200 req/s
-            memory: 512Mi                   # FastAPI + uvicorn + ML model in memory
-          limits:
-            # CPU limit intentionally omitted: webhook processing is latency-sensitive
-            # Total CPU bounded by namespace ResourceQuota (8 cores for namespace)
-            memory: 768Mi                   # 50% headroom for request-time allocations
-        
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: ["ALL"]
-        
-        # startupProbe: 8s startup * 1.5 safety = 12s, use 24 * 1s = 24s max
-        startupProbe:
-          httpGet:
-            path: /healthz/startup          # returns 200 only after model is loaded
-            port: http
-          failureThreshold: 30              # 30 * 1s = 30s max startup time (buffer above 8s)
-          periodSeconds: 1                  # check frequently to minimize startup latency
-          timeoutSeconds: 2
-        
-        livenessProbe:
-          httpGet:
-            path: /healthz/live             # checks: uvicorn running, no deadlock
-            port: http
-          periodSeconds: 15                 # don't over-poll the liveness endpoint
-          failureThreshold: 3
-          timeoutSeconds: 3
-          # NO initialDelaySeconds -- startupProbe handles the initial delay
-        
-        readinessProbe:
-          httpGet:
-            path: /healthz/ready            # checks: DB connection pool healthy, model loaded
-            port: http
-          periodSeconds: 10
-          failureThreshold: 3
-          successThreshold: 1
-          timeoutSeconds: 3
-        
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/bin/sleep", "5"]  # wait for iptables to drain before shutdown begins
-        
-        envFrom:
-        - configMapRef:
-            name: webhook-api-config
-        
-        env:
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: webhook-api-db-secret
-              key: password
-        - name: POD_NAME                    # useful for structured log correlation
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp                   # uvicorn needs writable /tmp for unix sockets
-        - name: model-volume
-          mountPath: /models
-          readOnly: true                    # model is read-only after init container writes it
-      
+        - name: webhook-api
+          image: registry.company.com/webhook-api:2.1.0
+          imagePullPolicy: IfNotPresent # semver tag, deterministic
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: 250m # empirically measured: ~200m at 200 req/s
+              memory: 512Mi # FastAPI + uvicorn + ML model in memory
+            limits:
+              # CPU limit intentionally omitted: webhook processing is latency-sensitive
+              # Total CPU bounded by namespace ResourceQuota (8 cores for namespace)
+              memory: 768Mi # 50% headroom for request-time allocations
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+
+          # startupProbe: 8s startup * 1.5 safety = 12s, use 24 * 1s = 24s max
+          startupProbe:
+            httpGet:
+              path: /healthz/startup # returns 200 only after model is loaded
+              port: http
+            failureThreshold: 30 # 30 * 1s = 30s max startup time (buffer above 8s)
+            periodSeconds: 1 # check frequently to minimize startup latency
+            timeoutSeconds: 2
+
+          livenessProbe:
+            httpGet:
+              path: /healthz/live # checks: uvicorn running, no deadlock
+              port: http
+            periodSeconds: 15 # don't over-poll the liveness endpoint
+            failureThreshold: 3
+            timeoutSeconds: 3
+            # NO initialDelaySeconds -- startupProbe handles the initial delay
+
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready # checks: DB connection pool healthy, model loaded
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 3
+
+          lifecycle:
+            preStop:
+              exec:
+                command: ['/bin/sleep', '5'] # wait for iptables to drain before shutdown begins
+
+          envFrom:
+            - configMapRef:
+                name: webhook-api-config
+
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: webhook-api-db-secret
+                  key: password
+            - name: POD_NAME # useful for structured log correlation
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp # uvicorn needs writable /tmp for unix sockets
+            - name: model-volume
+              mountPath: /models
+              readOnly: true # model is read-only after init container writes it
+
       volumes:
-      - name: tmp
-        emptyDir: {}
-      - name: model-volume
-        emptyDir: {}                        # shared between initContainer and main container
-      - name: model-source
-        configMap:                          # or use an NFS/S3 CSI driver for large models
-          name: model-source-config
+        - name: tmp
+          emptyDir: {}
+        - name: model-volume
+          emptyDir: {} # shared between initContainer and main container
+        - name: model-source
+          configMap: # or use an NFS/S3 CSI driver for large models
+            name: model-source-config
 ```
 
 ---
@@ -808,34 +811,34 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: webhook-api
-  minReplicas: 3       # matches PDB minAvailable + 1, never scale below zone-spread minimum
-  maxReplicas: 12      # 12 * 250m = 3 cores, well within quota of 8 cores for requests
+  minReplicas: 3 # matches PDB minAvailable + 1, never scale below zone-spread minimum
+  maxReplicas: 12 # 12 * 250m = 3 cores, well within quota of 8 cores for requests
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 60   # scale up before hitting 100%; leave headroom for spikes
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: AverageValue
-        averageValue: 600Mi      # scale out before hitting 768Mi limit
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60 # scale up before hitting 100%; leave headroom for spikes
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: AverageValue
+          averageValue: 600Mi # scale out before hitting 768Mi limit
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300   # wait 5 minutes before scaling down -- avoids flapping
+      stabilizationWindowSeconds: 300 # wait 5 minutes before scaling down -- avoids flapping
       policies:
-      - type: Pods
-        value: 1
-        periodSeconds: 60              # scale down max 1 pod per minute
+        - type: Pods
+          value: 1
+          periodSeconds: 60 # scale down max 1 pod per minute
     scaleUp:
-      stabilizationWindowSeconds: 30   # react quickly to traffic spikes
+      stabilizationWindowSeconds: 30 # react quickly to traffic spikes
       policies:
-      - type: Pods
-        value: 3
-        periodSeconds: 60              # scale up max 3 pods per minute
+        - type: Pods
+          value: 3
+          periodSeconds: 60 # scale up max 3 pods per minute
 ```
 
 ---
@@ -855,11 +858,11 @@ spec:
   selector:
     app: webhook-api
   ports:
-  - name: http
-    port: 80
-    targetPort: http
-    protocol: TCP
-  type: ClusterIP                        # expose via Ingress, not directly as LoadBalancer
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  type: ClusterIP # expose via Ingress, not directly as LoadBalancer
 ```
 
 ```yaml
@@ -872,7 +875,7 @@ metadata:
   namespace: payments
 spec:
   podSelector: {}
-  policyTypes: ["Ingress", "Egress"]
+  policyTypes: ['Ingress', 'Egress']
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -884,51 +887,51 @@ spec:
   podSelector:
     matchLabels:
       app: webhook-api
-  policyTypes: ["Ingress", "Egress"]
+  policyTypes: ['Ingress', 'Egress']
   ingress:
-  # Only allow traffic from the ingress controller namespace
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8080
+    # Only allow traffic from the ingress controller namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
   egress:
-  # Allow DNS resolution
-  - ports:
-    - port: 53
-      protocol: UDP
-    - port: 53
-      protocol: TCP
-  # Allow PostgreSQL in the data namespace
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: data
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Allow calling internal fraud-detection API
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: fraud
-      podSelector:
-        matchLabels:
-          app: fraud-detection-api
-    ports:
-    - protocol: TCP
-      port: 8080
+    # Allow DNS resolution
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow PostgreSQL in the data namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: data
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow calling internal fraud-detection API
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: fraud
+          podSelector:
+            matchLabels:
+              app: fraud-detection-api
+      ports:
+        - protocol: TCP
+          port: 8080
 ```
 
 ---
 
 ### Key Configuration Decisions Summary
 
-| Requirement | Solution | Rationale |
-|---|---|---|
-| 8-second startup | `startupProbe` failureThreshold:30 periodSeconds:1 | Gives 30s headroom; disables after first success; avoids false liveness kills |
-| Zero downtime deploys | maxUnavailable:0 + maxSurge:1 + PDB minAvailable:2 | Zero capacity reduction during rollout; node drain blocked until safe |
-| 3 AZ spread | topologySpreadConstraints zone + hostname | Zone failure loses 1 of 3 pods; PDB ensures min 2 remain during voluntary disruption |
-| ML model loading | initContainer copies model to
+| Requirement           | Solution                                           | Rationale                                                                            |
+| --------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 8-second startup      | `startupProbe` failureThreshold:30 periodSeconds:1 | Gives 30s headroom; disables after first success; avoids false liveness kills        |
+| Zero downtime deploys | maxUnavailable:0 + maxSurge:1 + PDB minAvailable:2 | Zero capacity reduction during rollout; node drain blocked until safe                |
+| 3 AZ spread           | topologySpreadConstraints zone + hostname          | Zone failure loses 1 of 3 pods; PDB ensures min 2 remain during voluntary disruption |
+| ML model loading      | initContainer copies model to                      |

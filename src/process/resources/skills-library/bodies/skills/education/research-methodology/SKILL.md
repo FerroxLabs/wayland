@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Research Methodology
 
 ## When to Use
@@ -76,6 +77,7 @@ For the identified question type(s), generate a shortlist of two to four candida
 - If applicable, a mixed-methods design that integrates both
 
 For each candidate methodology, identify:
+
 - **Paradigm:** positivist/post-positivist, interpretivist/constructivist, pragmatist, or critical/transformative
 - **Typical sample size range:** not as a rule but as a benchmark -- e.g., phenomenological interviews typically involve 6-25 participants; survey studies typically require 100+ for adequate statistical power; ethnography involves extended presence with a community rather than a defined n
 - **Data form:** numerical/structured, textual/narrative, observational/artifact-based, or mixed
@@ -89,12 +91,14 @@ Walk the learner through a structured decision process using three filters:
 **Filter 1 -- Ontological/Epistemological fit:** Does the methodology assume a single objective reality that can be measured (post-positivist), or multiple constructed realities that must be interpreted (constructivist), or both? The research question's nature reveals which assumption is appropriate. A question asking "how many students experience anxiety" assumes a measurable phenomenon; a question asking "what does anxiety feel like for first-generation students" assumes a lived, constructed experience.
 
 **Filter 2 -- Feasibility fit:** Apply these thresholds --
+
 - Sample access below 30 participants: eliminate large-scale survey designs; lean toward qualitative or small-N mixed methods
 - Timeline under 3 months: eliminate ethnography (minimum 6-12 months of fieldwork for credible ethnographic work), longitudinal designs, and multi-phase mixed methods
 - No control over participant assignment: eliminate true experimental designs; quasi-experimental or observational designs become the ceiling
 - Sensitive populations or sensitive topics: qualitative designs with purposive sampling are often more ethical than large anonymous surveys; IRB/ethics board considerations apply
 
 **Filter 3 -- Disciplinary convention fit:** Methodologies carry prestige and legitimacy differently across fields:
+
 - In psychology and medicine, experimental > quasi-experimental > survey > qualitative in perceived rigor
 - In education, mixed methods and action research are increasingly central; qualitative designs carry full methodological legitimacy
 - In sociology and anthropology, ethnography and grounded theory are prestige methods
@@ -306,20 +310,21 @@ A common source of confusion: learners say "my methodology is surveys" or "I'm u
 
 ### Candidate Methodology Comparison
 
-| Criterion | Qualitative Phenomenology (IPA) | Cross-Sectional Survey | Multiple-Case Case Study |
-|-----------|--------------------------------|----------------------|--------------------------|
-| **Paradigm** | Interpretivist/constructivist -- reality is subjective and constructed through lived experience | Post-positivist -- attitudes and perceptions can be measured and aggregated | Pragmatist -- understanding a bounded phenomenon in context through multiple evidence types |
-| **Fit with this research question** | Excellent -- "experience" is the central construct; IPA is designed to explore how specific individuals make meaning of a phenomenon | Poor -- surveys measure prevalence and frequency of attitudes but cannot capture the texture of lived experience; "how do teachers experience X" cannot be answered with Likert scales | Good -- captures implementation processes and context across two real school sites; less focused on individual experience, more on organizational and contextual patterns |
-| **Typical scope/sample for this context** | 6-12 participants is ideal for IPA; homogeneous purposive sample (secondary teachers at urban schools) supports depth | 100+ participants needed for meaningful statistical analysis; 10-12 is far below the threshold for any reliable inferential or even descriptive statistics | 2-3 cases (schools) with multiple embedded units (teachers); 10-12 teachers spread across 2 schools fits a multiple embedded-case design |
-| **Data collection approach** | Semi-structured individual interviews (60-90 minutes each); possibly a brief reflective journal or member checking session | Self-administered questionnaire with validated scales (e.g., burnout, attitudes toward RJ); online or paper distribution | Document analysis (school policy, meeting minutes), observations, and semi-structured interviews -- triangulated |
-| **Analytic approach** | IPA analytic process: close reading of transcripts, developing experiential themes, clustering into superordinate themes, cross-case analysis across participants | Descriptive statistics (means, frequencies), possibly correlation or regression if scales are compared; requires SPSS or similar | Cross-case pattern analysis; analytic generalization to theory; within-case narrative analysis followed by cross-case synthesis |
-| **Key strength for this study** | Directly answers the "how do teachers experience" question; richness of 10-12 in-depth interviews will yield deep, credible findings appropriate for master's-level thesis | None specific to this question -- quantifying experience would distort it; a survey cannot capture what implementation "feels like" to these teachers | Preserves real-world context of two distinct school sites; could capture how school culture shapes experience differently across sites |
-| **Key limitation for this study** | Findings are not statistically generalizable; researcher is an insider, which requires careful reflexivity management | Sample of 10-12 is methodologically indefensible for survey research; the question type is incompatible with survey methodology; produces numerically precise but meaninglessly thin data | More complex to execute than a single-methodology qualitative study; requires document access and potentially observation time that may strain the 6-month timeline |
-| **Feasibility for this learner** | High -- 10-12 interviews is ideal, timeline of 6 months is sufficient, no special equipment needed beyond a recorder and transcription tool | Low -- sample size is far too small for survey validity; the research question is fundamentally incompatible with this method | Medium -- the two-school structure is a natural fit, but triangulating documents and observations alongside interviews adds complexity in 6 months |
+| Criterion                                 | Qualitative Phenomenology (IPA)                                                                                                                                            | Cross-Sectional Survey                                                                                                                                                                    | Multiple-Case Case Study                                                                                                                                                  |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Paradigm**                              | Interpretivist/constructivist -- reality is subjective and constructed through lived experience                                                                            | Post-positivist -- attitudes and perceptions can be measured and aggregated                                                                                                               | Pragmatist -- understanding a bounded phenomenon in context through multiple evidence types                                                                               |
+| **Fit with this research question**       | Excellent -- "experience" is the central construct; IPA is designed to explore how specific individuals make meaning of a phenomenon                                       | Poor -- surveys measure prevalence and frequency of attitudes but cannot capture the texture of lived experience; "how do teachers experience X" cannot be answered with Likert scales    | Good -- captures implementation processes and context across two real school sites; less focused on individual experience, more on organizational and contextual patterns |
+| **Typical scope/sample for this context** | 6-12 participants is ideal for IPA; homogeneous purposive sample (secondary teachers at urban schools) supports depth                                                      | 100+ participants needed for meaningful statistical analysis; 10-12 is far below the threshold for any reliable inferential or even descriptive statistics                                | 2-3 cases (schools) with multiple embedded units (teachers); 10-12 teachers spread across 2 schools fits a multiple embedded-case design                                  |
+| **Data collection approach**              | Semi-structured individual interviews (60-90 minutes each); possibly a brief reflective journal or member checking session                                                 | Self-administered questionnaire with validated scales (e.g., burnout, attitudes toward RJ); online or paper distribution                                                                  | Document analysis (school policy, meeting minutes), observations, and semi-structured interviews -- triangulated                                                          |
+| **Analytic approach**                     | IPA analytic process: close reading of transcripts, developing experiential themes, clustering into superordinate themes, cross-case analysis across participants          | Descriptive statistics (means, frequencies), possibly correlation or regression if scales are compared; requires SPSS or similar                                                          | Cross-case pattern analysis; analytic generalization to theory; within-case narrative analysis followed by cross-case synthesis                                           |
+| **Key strength for this study**           | Directly answers the "how do teachers experience" question; richness of 10-12 in-depth interviews will yield deep, credible findings appropriate for master's-level thesis | None specific to this question -- quantifying experience would distort it; a survey cannot capture what implementation "feels like" to these teachers                                     | Preserves real-world context of two distinct school sites; could capture how school culture shapes experience differently across sites                                    |
+| **Key limitation for this study**         | Findings are not statistically generalizable; researcher is an insider, which requires careful reflexivity management                                                      | Sample of 10-12 is methodologically indefensible for survey research; the question type is incompatible with survey methodology; produces numerically precise but meaninglessly thin data | More complex to execute than a single-methodology qualitative study; requires document access and potentially observation time that may strain the 6-month timeline       |
+| **Feasibility for this learner**          | High -- 10-12 interviews is ideal, timeline of 6 months is sufficient, no special equipment needed beyond a recorder and transcription tool                                | Low -- sample size is far too small for survey validity; the research question is fundamentally incompatible with this method                                                             | Medium -- the two-school structure is a natural fit, but triangulating documents and observations alongside interviews adds complexity in 6 months                        |
 
 ---
 
 ### Recommended Methodology: Qualitative -- Interpretive Phenomenological Analysis (IPA)
+
 **Design variant:** Multiple-participant IPA (as opposed to single-case idiographic IPA), using purposive homogeneous sampling
 
 #### Rationale
@@ -339,28 +344,32 @@ IPA is well-established in educational research and is a recognized and respecte
 ---
 
 ### Alternative Considered: Cross-Sectional Survey Design
+
 **Why not selected:** The research question asks "how do teachers experience" -- a question that is epistemologically incompatible with survey methodology. Surveys measure the distribution of attributes or attitudes across a sample; they cannot capture the texture, meaning, or process of lived experience. More critically, a sample of 10-12 participants produces no defensible statistical output -- even descriptive statistics from a sample this small cannot be interpreted without a power analysis showing sufficient precision. The result would be data that is neither statistically meaningful (too few participants) nor experientially meaningful (the wrong instrument). Any supervisor or examiner reviewing this methodology chapter would flag the mismatch between the research question and the method as a fundamental design error. Survey methodology should be considered only if the question were reframed as "What are secondary school teachers' attitudes toward restorative justice?" with a representative sample of 100+ teachers.
 
 ---
 
 ### Anticipated Methodology Challenges
 
-| Challenge | Pre-emptive Defense |
-|-----------|---------------------|
-| "Your findings are not generalizable -- how can 10 teachers tell us anything useful about all urban schools?" | IPA does not claim statistical generalizability; it claims analytical transferability. The goal is to generate rich, theoretically grounded insights about the experience of RJ implementation that readers and practitioners in similar contexts can assess for relevance to their own situations -- this is Lincoln and Guba's concept of transferability, which is the appropriate generalizability criterion for interpretive research. |
-| "As an insider researcher, your findings are biased by your own experience of RJ implementation" | Insider status is addressed through systematic reflexivity: a reflexivity statement in the methodology chapter documenting my prior assumptions and experiences, bracketing notes written before and after each interview, and member-checking transcripts with participants to confirm accuracy of interpretation. These are standard IPA rigor practices recommended by Smith, Flowers, and Larkin and do not disqualify insider research -- they make it transparent. |
+| Challenge                                                                                                                       | Pre-emptive Defense                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Your findings are not generalizable -- how can 10 teachers tell us anything useful about all urban schools?"                   | IPA does not claim statistical generalizability; it claims analytical transferability. The goal is to generate rich, theoretically grounded insights about the experience of RJ implementation that readers and practitioners in similar contexts can assess for relevance to their own situations -- this is Lincoln and Guba's concept of transferability, which is the appropriate generalizability criterion for interpretive research.                                                                                               |
+| "As an insider researcher, your findings are biased by your own experience of RJ implementation"                                | Insider status is addressed through systematic reflexivity: a reflexivity statement in the methodology chapter documenting my prior assumptions and experiences, bracketing notes written before and after each interview, and member-checking transcripts with participants to confirm accuracy of interpretation. These are standard IPA rigor practices recommended by Smith, Flowers, and Larkin and do not disqualify insider research -- they make it transparent.                                                                  |
 | "With only 6 months and no separate observation protocol, how do you know the data will be sufficient to address the question?" | IPA studies at master's level routinely achieve theoretical depth from 60-90 minute semi-structured interviews alone. With 10-12 interviews producing approximately 10-15 hours of data, there is ample material for the iterative close-reading analysis IPA requires. Sufficiency will be addressed by designing interview questions that elicit rich narrative accounts (critical incident technique, temporal prompts like "walk me through the first time you used a restorative circle") rather than opinion or attitude questions. |
 
 ---
 
 ### Quality Criteria for Selected Methodology
+
 For IPA and qualitative research broadly, the applicable quality criteria are Lincoln and Guba's trustworthiness framework:
+
 - **Credibility** (analogous to internal validity) -- achieved through prolonged engagement, member-checking, and audit trail
 - **Transferability** (analogous to external validity) -- achieved through thick description of context so readers can assess applicability
 - **Dependability** (analogous to reliability) -- achieved through a detailed methods audit trail and reflexivity documentation
 - **Confirmability** (analogous to objectivity) -- achieved through reflexivity statement and transparent analytic decisions
 
 ### Foundational Citations to Establish Methodological Legitimacy
+
 - **Smith, J.A., Flowers, P., and Larkin, M. -- Interpretative Phenomenological Analysis: Theory, Method and Research (2009):** This is the canonical IPA methodology text; citing it establishes that your IPA design follows a recognized, coherent tradition rather than ad hoc qualitative inquiry.
 - **Lincoln, Y.S., and Guba, E.G. -- Naturalistic Inquiry (1985):** Establishes the trustworthiness criteria (credibility, transferability, dependability, confirmability) that replace validity and reliability for qualitative research -- essential for defending your quality standards.
 - **Creswell, J.W., and Poth, C.N. -- Qualitative Inquiry and Research Design: Choosing Among Five Approaches (4th ed., 2018):** Provides a comparative framework across qualitative traditions (narrative, phenomenology, grounded theory, ethnography, case study) that will help you justify why phenomenology fits better than the alternatives.
@@ -368,6 +377,7 @@ For IPA and qualitative research broadly, the applicable quality criteria are Li
 ---
 
 ### Next Steps
+
 1. **Immediate:** Write a 150-200 word reflexivity statement documenting your prior experience with restorative justice at these schools -- this statement should appear early in your methodology chapter and demonstrates epistemological self-awareness
 2. **Within one week:** Read Chapters 3 and 4 of Smith, Flowers, and Larkin (2009) to understand IPA's analytic process before designing your interview guide; your interview questions must elicit accounts of experience, not opinions or factual descriptions
 3. **Next skill:** Use the `data-collection-plan` skill to design your semi-structured interview protocol -- focus on open, experience-eliciting questions and plan for 60-90 minute interviews with each of your 10-12 participants

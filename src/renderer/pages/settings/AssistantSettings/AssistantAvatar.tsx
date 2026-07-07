@@ -33,10 +33,7 @@ const AssistantAvatar: React.FC<AssistantAvatarProps> = ({ assistant, size = 32,
   const glyphSize = Math.floor(size * 0.6);
 
   return (
-    <div
-      className='flex shrink-0 items-center justify-center'
-      style={{ width: size, height: size }}
-    >
+    <div className='flex shrink-0 items-center justify-center' style={{ width: size, height: size }}>
       {LucideIconComponent ? (
         // Built-in assistants reference their glyph as 'lucide:IconName' -
         // render the matching component with inherited theme color so it

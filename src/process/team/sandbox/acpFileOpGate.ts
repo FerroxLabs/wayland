@@ -27,10 +27,7 @@
  * stays oblivious to AcpConnection's plumbing.
  */
 
-import {
-  getTeamContextForConversation,
-  type AcpTeamContext,
-} from './acpTeamContextRegistry';
+import { getTeamContextForConversation, type AcpTeamContext } from './acpTeamContextRegistry';
 import { assertCapGranted, type TeamCapability } from './capabilityCheck';
 import { TeamSandboxedError } from '@process/team/importExport/errors';
 import { withOpenInsideWorkspace } from './workspaceFs';
@@ -44,9 +41,7 @@ export type AcpFileOpRequest = {
   content?: string;
 };
 
-export type AcpFileOpResult =
-  | { kind: 'read'; content: string }
-  | { kind: 'write'; result: null };
+export type AcpFileOpResult = { kind: 'read'; content: string } | { kind: 'write'; result: null };
 
 /**
  * Run an ACP file op behind the imported-team sandbox gate.
@@ -72,18 +67,14 @@ export async function gateAcpFileOp(
 
   const team = await ctx.getTeam();
   if (!team) {
-    throw new TeamSandboxedError(
-      `Team ${ctx.teamId} not found; refusing ACP file op for sandboxed conversation.`
-    );
+    throw new TeamSandboxedError(`Team ${ctx.teamId} not found; refusing ACP file op for sandboxed conversation.`);
   }
 
   const cap: TeamCapability = mode === 'read' ? 'canReadFiles' : 'canWriteFiles';
   assertCapGranted(team, cap);
 
   if (!team.workspace) {
-    throw new TeamSandboxedError(
-      `Team "${team.name}" has no workspace configured; refusing sandboxed ACP file op.`
-    );
+    throw new TeamSandboxedError(`Team "${team.name}" has no workspace configured; refusing sandboxed ACP file op.`);
   }
 
   if (mode === 'read') {

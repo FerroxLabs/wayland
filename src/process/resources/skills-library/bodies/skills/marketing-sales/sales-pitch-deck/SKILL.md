@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales presentation strategy planning"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales presentation strategy planning'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Sales Pitch Deck
 
 ## When to Use
@@ -449,21 +450,21 @@ When this is the final presentation in a competitive evaluation where the prospe
 
 ### Narrative Map
 
-| Slide | Title | Narrative Purpose | Timing |
-|-------|-------|-------------------|--------|
-| 1 | ShiftSync + Coastal Kitchen | Credibility + Agenda | 1 min |
-| 2 | What We Will Cover | Agenda + Credibility | 1 min |
-| 3 | How Scheduling Actually Gets Done at Fast Casual Chains | Problem -- Pain | 4 min |
-| 4 | What Spreadsheet Scheduling Costs a 12-Location Chain | Problem -- Cost of Inaction | 3 min |
-| 5 | ShiftSync: Labor-Compliant Schedules in 20 Minutes, Not 5 Hours | Solution | 3 min |
-| 6 | Demo: Building a Week of Schedules Across 3 Locations | Demo | 10 min |
-| 7 | Surf's Up Grill (10 Locations): 75% Scheduling Time Reduction | Proof -- Case Study | 3 min |
-| 8 | Results Across 180 Fast Casual Locations | Proof -- Aggregate | 2 min |
-| 9 | From Contract to Live in 21 Days | Implementation | 3 min |
-| 10 | Your Investment | Pricing + ROI | 4 min |
-| 11 | Next Steps | CTA | 2 min |
-| Q&A | Summary (stays on screen) | Q&A Reference | Remainder |
-| **Total** | | | **36 min + 9 min buffer** |
+| Slide     | Title                                                           | Narrative Purpose           | Timing                    |
+| --------- | --------------------------------------------------------------- | --------------------------- | ------------------------- |
+| 1         | ShiftSync + Coastal Kitchen                                     | Credibility + Agenda        | 1 min                     |
+| 2         | What We Will Cover                                              | Agenda + Credibility        | 1 min                     |
+| 3         | How Scheduling Actually Gets Done at Fast Casual Chains         | Problem -- Pain             | 4 min                     |
+| 4         | What Spreadsheet Scheduling Costs a 12-Location Chain           | Problem -- Cost of Inaction | 3 min                     |
+| 5         | ShiftSync: Labor-Compliant Schedules in 20 Minutes, Not 5 Hours | Solution                    | 3 min                     |
+| 6         | Demo: Building a Week of Schedules Across 3 Locations           | Demo                        | 10 min                    |
+| 7         | Surf's Up Grill (10 Locations): 75% Scheduling Time Reduction   | Proof -- Case Study         | 3 min                     |
+| 8         | Results Across 180 Fast Casual Locations                        | Proof -- Aggregate          | 2 min                     |
+| 9         | From Contract to Live in 21 Days                                | Implementation              | 3 min                     |
+| 10        | Your Investment                                                 | Pricing + ROI               | 4 min                     |
+| 11        | Next Steps                                                      | CTA                         | 2 min                     |
+| Q&A       | Summary (stays on screen)                                       | Q&A Reference               | Remainder                 |
+| **Total** |                                                                 |                             | **36 min + 9 min buffer** |
 
 ---
 
@@ -484,13 +485,14 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** What We Will Cover Today
 **Headline:** Trusted by 180 fast casual and quick service locations across North America
 **Content:**
+
 - The scheduling problem your GMs face every week
 - How ShiftSync auto-generates compliant schedules in 20 minutes
 - Live demo using a Coastal Kitchen-style location setup
 - Results from a 10-location chain just like yours
 - Investment and how to get started
-**Presenter Notes:** "Before I dive in -- on our intro call you mentioned overtime compliance was a specific concern after a DOL audit last year. I have built today's demo specifically around that. Is that still the priority, or has anything shifted?"
-**Timing:** 1-2 minutes
+  **Presenter Notes:** "Before I dive in -- on our intro call you mentioned overtime compliance was a specific concern after a DOL audit last year. I have built today's demo specifically around that. Is that still the priority, or has anything shifted?"
+  **Timing:** 1-2 minutes
 
 ---
 
@@ -498,12 +500,13 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** Your GMs Are Spending 5 Hours a Week on a 20-Minute Problem
 **Headline:** For a 12-location chain, manual scheduling consumes over 3,000 GM hours per year
 **Content:**
+
 - GMs collect availability by text, email, and paper -- then manually reconcile conflicts in a spreadsheet
 - Last-minute call-outs trigger 20-30 minute phone trees with no visibility into who is available
 - Labor law compliance (minor restrictions, overtime thresholds, predictive scheduling rules) tracked manually in notes or not at all
-**Discovery Questions (ask before presenting):** "Walk me through how your GMs build the schedule right now -- what does Sunday night look like for them?" and "When you have a call-out on Saturday morning, what happens in the next 30 minutes?"
-**Presenter Notes:** Let the VP answer before showing this slide. If they describe a process that matches, advance. If they describe something different, adjust the bullets verbally. The goal is for them to say "yes, that is exactly right" before moving to the cost slide.
-**Timing:** 4 minutes
+  **Discovery Questions (ask before presenting):** "Walk me through how your GMs build the schedule right now -- what does Sunday night look like for them?" and "When you have a call-out on Saturday morning, what happens in the next 30 minutes?"
+  **Presenter Notes:** Let the VP answer before showing this slide. If they describe a process that matches, advance. If they describe something different, adjust the bullets verbally. The goal is for them to say "yes, that is exactly right" before moving to the cost slide.
+  **Timing:** 4 minutes
 
 ---
 
@@ -512,12 +515,12 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Headline:** For a chain your size, this problem costs approximately $220,000 per year in recoverable losses
 **Content:**
 
-| Cost Category | Per Location/Year | 12 Locations/Year |
-|---------------|-------------------|-------------------|
-| GM time on scheduling (5 hrs/wk × $25/hr × 52 wks) | $6,500 | $78,000 |
-| Overtime from last-minute fill-ins (avg. 3 incidents/wk × $45 overage) | $7,020 | $84,240 |
-| DOL compliance penalties (avg. per violation, fast casual segment) | $4,800 | $57,600 |
-| **Total Annual Cost** | **$18,320** | **$219,840** |
+| Cost Category                                                          | Per Location/Year | 12 Locations/Year |
+| ---------------------------------------------------------------------- | ----------------- | ----------------- |
+| GM time on scheduling (5 hrs/wk × $25/hr × 52 wks)                     | $6,500            | $78,000           |
+| Overtime from last-minute fill-ins (avg. 3 incidents/wk × $45 overage) | $7,020            | $84,240           |
+| DOL compliance penalties (avg. per violation, fast casual segment)     | $4,800            | $57,600           |
+| **Total Annual Cost**                                                  | **$18,320**       | **$219,840**      |
 
 **Presenter Notes:** "These numbers come from what our customers reported before switching to ShiftSync -- I am happy to show you the underlying data. How does this compare to what you see at Coastal Kitchen? The overtime line in particular -- does $84K feel right for your operation?" Pause and let them respond. If they push back on a number, say: "Tell me what it looks like for you -- I want to use your actual numbers." Adjust the math accordingly.
 **Timing:** 3 minutes
@@ -528,11 +531,12 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** ShiftSync Auto-Generates the Optimal Schedule -- You Just Approve It
 **Headline:** Our scheduling engine applies your labor rules, forecasted traffic, and staff availability simultaneously -- something a spreadsheet cannot do
 **Content:**
+
 - **Auto-Generation Engine** → Builds a draft schedule for a 25-person location in under 2 minutes based on forecasted covers, availability, and labor rules
 - **Compliance Guard** → Automatically flags minor hour limits, overtime thresholds, and predictive scheduling notice requirements before the schedule is published
 - **Mobile Availability + Shift Swap** → Staff submit availability and swap shifts in the app -- no more group texts, no more GM playing coordinator
-**Presenter Notes:** "Notice I connected each of these to the three pains from the previous slide. The auto-generation solves the 5 hours of manual work. The compliance guard eliminates the audit risk you mentioned. The mobile availability kills the Saturday morning phone tree. I will show all three of these live in the demo. Ready to see it?"
-**Timing:** 3 minutes
+  **Presenter Notes:** "Notice I connected each of these to the three pains from the previous slide. The auto-generation solves the 5 hours of manual work. The compliance guard eliminates the audit risk you mentioned. The mobile availability kills the Saturday morning phone tree. I will show all three of these live in the demo. Ready to see it?"
+  **Timing:** 3 minutes
 
 ---
 
@@ -540,14 +544,15 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** Watch the Schedule Build Itself
 **Headline:** [Live demo -- no slide content needed]
 **Demo Outline:**
+
 1. Log in as a GM at Coastal Kitchen Location 1 -- show the dashboard (2 min)
 2. Import forecasted covers for the week -- auto-generation runs (2 min)
 3. Show the compliance flags catching an overtime breach and a minor's hour limit (2 min)
 4. Publish the schedule -- staff receive mobile notification (1 min)
 5. Simulate a Saturday morning call-out -- show the available replacement list and one-tap fill notification (2 min)
 6. Switch to the regional VP view -- show all 12 locations' labor cost vs. budget in one dashboard (1 min)
-**Presenter Notes:** "I have configured this demo environment with Coastal Kitchen's location names and a real week of cover data from your busiest season -- the week before Memorial Day. I want you to drive this -- I will tell you where to click." Hand over the mouse or screen control. Ask during the demo: "Is this how your GM would expect it to work?" and "What else would you want to see?"
-**Timing:** 10 minutes
+   **Presenter Notes:** "I have configured this demo environment with Coastal Kitchen's location names and a real week of cover data from your busiest season -- the week before Memorial Day. I want you to drive this -- I will tell you where to click." Hand over the mouse or screen control. Ask during the demo: "Is this how your GM would expect it to work?" and "What else would you want to see?"
+   **Timing:** 10 minutes
 
 ---
 
@@ -555,6 +560,7 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** Surf's Up Grill Eliminated DOL Compliance Risk Across 10 Locations in 30 Days
 **Headline:** From 4.5 hours per GM per week to 45 minutes -- and zero compliance violations since launch
 **Content:**
+
 - **Company Profile:** 10-location fast casual chain, Pacific Coast, avg. 22 employees per location -- similar size and profile to Coastal Kitchen
 - **Challenge:** Same spreadsheet + group text system. Had received 2 DOL violations for minor labor law infractions totaling $9,200 in penalties. GMs spending 4.5 hours per week on scheduling.
 - **Solution:** Deployed ShiftSync across all 10 locations over 3 weeks. GM training completed in one 90-minute session per location.
@@ -564,8 +570,8 @@ When this is the final presentation in a competitive evaluation where the prospe
   - GM satisfaction scores increased 22 points (exit survey data)
   - GM overtime hours for administrative work: down 31%
 - **Quote:** "I used to spend my Sunday night building the schedule and half my Monday fixing it. Now I approve the draft in 20 minutes and spend the rest of the morning on the floor. That is the job I actually wanted." -- General Manager, Surf's Up Grill Huntington Beach
-**Presenter Notes:** "Surf's Up Grill is probably the closest comparison to Coastal Kitchen in our customer base -- similar footprint, similar menu format, and they came from the exact same spreadsheet process you described. The GM I quoted has the same title as your GMs. Does this outcome seem achievable for your team?"
-**Timing:** 3-4 minutes
+  **Presenter Notes:** "Surf's Up Grill is probably the closest comparison to Coastal Kitchen in our customer base -- similar footprint, similar menu format, and they came from the exact same spreadsheet process you described. The GM I quoted has the same title as your GMs. Does this outcome seem achievable for your team?"
+  **Timing:** 3-4 minutes
 
 ---
 
@@ -573,13 +579,14 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Slide Title:** These Results Are Consistent Across Our Customer Base
 **Headline:** Customers in the fast casual segment average a 74% reduction in scheduling time and zero compliance violations within 60 days
 **Content:**
+
 - 74% average reduction in time spent scheduling across 180+ fast casual locations
 - $187,000 average annual savings per 10-location chain (labor, overtime, compliance)
 - 94% of customers report zero scheduling-related compliance violations post-launch
 - 4.7/5 average GM satisfaction rating for the scheduling experience
 - Customers include brands in QSR, fast casual, and full-service dining segments
-**Presenter Notes:** "These are aggregate numbers from our full customer base in food service -- not cherry-picked. The $187K savings figure for a 10-location chain aligns closely with the $220K cost we calculated for Coastal Kitchen's 12 locations. I am happy to share the methodology behind these numbers."
-**Timing:** 2 minutes
+  **Presenter Notes:** "These are aggregate numbers from our full customer base in food service -- not cherry-picked. The $187K savings figure for a 10-location chain aligns closely with the $220K cost we calculated for Coastal Kitchen's 12 locations. I am happy to share the methodology behind these numbers."
+  **Timing:** 2 minutes
 
 ---
 
@@ -588,13 +595,13 @@ When this is the final presentation in a competitive evaluation where the prospe
 **Headline:** Our implementation team owns 80% of the setup work -- your GMs spend less than 3 hours total before go-live
 **Content:**
 
-| Phase | What Happens | Timeline | Who Does It |
-|-------|-------------|----------|-------------|
-| Account Setup | Location configuration, labor rules import, POS integration | Days 1-7 | ShiftSync implementation team |
-| Data Migration | Employee profiles, availability, historical schedules | Days 5-10 | ShiftSync team + one HR contact |
-| GM Training | 90-minute session per location, in-app guided setup | Days 10-14 | ShiftSync trainer (virtual or on-site) |
-| Parallel Run | GMs build schedules in ShiftSync alongside existing process | Days 14-18 | GMs (15 min/day) |
-| Go-Live | Spreadsheets retired, ShiftSync live at all 12 locations | Day 21 | ShiftSync CSM monitors first week |
+| Phase          | What Happens                                                | Timeline   | Who Does It                            |
+| -------------- | ----------------------------------------------------------- | ---------- | -------------------------------------- |
+| Account Setup  | Location configuration, labor rules import, POS integration | Days 1-7   | ShiftSync implementation team          |
+| Data Migration | Employee profiles, availability, historical schedules       | Days 5-10  | ShiftSync team + one HR contact        |
+| GM Training    | 90-minute session per location, in-app guided setup         | Days 10-14 | ShiftSync trainer (virtual or on-site) |
+| Parallel Run   | GMs build schedules in ShiftSync alongside existing process | Days 14-18 | GMs (15 min/day)                       |
+| Go-Live        | Spreadsheets retired, ShiftSync live at all 12 locations    | Day 21     | ShiftSync CSM monitors first week      |
 
 **Time commitment from Coastal Kitchen:** 1 HR contact for 4 hours during data migration + 90 minutes per GM for training. That is it.
 **Presenter Notes:** "The biggest question we hear at this stage is 'how much work is this going to be for my team?' The answer is: almost none. We have done this 180 times. Your GMs will spend one 90-minute training session. By week 3, they are live. If you signed this week, you could be live before your summer season. Is the summer rush a factor in your decision timing?"
@@ -614,4 +621,4 @@ When this is the final presentation in a competitive evaluation where the prospe
 | Compliance penalties (conservative estimate) | $57,600 |
 | **Total Annual Cost of Status Quo** | **$219,840** |
 
-**Your Shift
+\*\*Your Shift

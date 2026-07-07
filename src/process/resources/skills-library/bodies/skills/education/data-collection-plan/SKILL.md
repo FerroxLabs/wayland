@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research academic-writing study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research academic-writing study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Data Collection Plan
 
 ## When to Use
@@ -78,7 +79,7 @@ Write explicit inclusion and exclusion criteria before recruiting anyone. Ambigu
 
 **Sample size determination by design:**
 
-- **Quantitative survey/correlational**: Use G*Power (free software) to conduct an a priori power analysis. For detecting a medium effect size (Cohen's f² = 0.15) in multiple regression with 80% power and α = 0.05 with 5 predictors, the required N is approximately 92. For a small effect (f² = 0.02), N approaches 395. Always report the software used, effect size assumption, power level, and alpha
+- **Quantitative survey/correlational**: Use G\*Power (free software) to conduct an a priori power analysis. For detecting a medium effect size (Cohen's f² = 0.15) in multiple regression with 80% power and α = 0.05 with 5 predictors, the required N is approximately 92. For a small effect (f² = 0.02), N approaches 395. Always report the software used, effect size assumption, power level, and alpha
 - **Experimental/quasi-experimental**: Power analysis using expected effect size from prior literature or a conservative estimate (d = 0.5 for medium). For a two-group comparison with d = 0.5, 80% power, α = 0.05, N ≈ 128 total (64 per group)
 - **Qualitative phenomenological**: Aim for 8-25 participants with rich experience of the phenomenon. Saturation -- the point at which no new themes emerge -- is the actual stopping criterion, typically reached by 12-15 interviews in homogeneous samples, later in heterogeneous samples
 - **Grounded theory**: Theoretical saturation typically requires 20-30 participants with active theoretical sampling (selecting new participants to test emerging theory)
@@ -92,6 +93,7 @@ Always add 10-20% to quantitative target N to account for attrition, incomplete 
 For each instrument identified in Step 2, produce either a complete instrument or a detailed specification:
 
 **Survey/questionnaire instrument design:**
+
 - Open with demographic items (age, gender, years of experience, etc.) unless there is a theoretical reason to place them last (e.g., if demographic questions might prime responses)
 - Group items by construct, using clear section headers
 - Include reverse-coded items to detect satisficing (participants checking the same response box throughout); plan to reverse-score these before analysis
@@ -100,6 +102,7 @@ For each instrument identified in Step 2, produce either a complete instrument o
 - Plan for a pilot test with 5-10 participants from the target population before full deployment; use pilot data to compute preliminary reliability and revise confusing items
 
 **Interview guide design:**
+
 - Begin with rapport-building questions (low-stakes, descriptive: "Can you describe your role and how long you've been in it?")
 - Move to substantive questions aligned to research sub-questions, ordered from broad/descriptive to specific/interpretive
 - Write probes as follow-up prompts: "Can you say more about that?", "What did that feel like?", "Can you give me an example?", "How did others respond?"
@@ -108,12 +111,14 @@ For each instrument identified in Step 2, produce either a complete instrument o
 - Specify recording method (audio with transcription, video if nonverbal data is needed) and transcription approach (verbatim vs. clean copy)
 
 **Observation protocol design:**
+
 - Define the unit of observation (an individual, a classroom interaction, a transaction)
 - Specify the observation window (time-sampled: observe for 10 minutes every hour; event-sampled: record every occurrence of a defined behavior)
 - Include a structured section (a checklist of pre-defined observable indicators) and an unstructured section (running field notes)
 - Establish inter-rater reliability if more than one observer: code the same 10-20% of data independently and compute Cohen's kappa (κ ≥ 0.70 is acceptable; κ ≥ 0.80 is strong)
 
 **Document/archival analysis protocol:**
+
 - Define the corpus precisely (which documents, date range, source)
 - Specify the unit of analysis (sentence, paragraph, document, artifact)
 - Create a coding guide before analysis begins
@@ -124,6 +129,7 @@ For each instrument identified in Step 2, produce either a complete instrument o
 Walk the learner through each ethical obligation rather than treating it as a checklist afterthought. Ethics permeates design, not just paperwork:
 
 **IRB/ethics review determination:**
+
 - In the United States, research involving human subjects at an institution that receives federal funding requires IRB review. The Common Rule (45 CFR 46) defines categories: exempt, expedited, and full board review
 - Exempt categories include most educational research using standard educational practices, surveys/interviews when disclosure of responses cannot reasonably place participants at risk, and secondary data analysis of existing datasets with no identifiers
 - Expedited review applies to minimal-risk research that doesn't qualify as exempt (e.g., focus groups, research involving vulnerable populations with minimal risk)
@@ -131,12 +137,14 @@ Walk the learner through each ethical obligation rather than treating it as a ch
 - Outside the US, learners should identify the equivalent body (Research Ethics Committee in the UK, Institutional Ethics Committee in India, etc.)
 
 **Informed consent design:**
+
 - Consent documents must include: purpose of the study in plain language, procedures and time commitment, risks (including breach of confidentiality), benefits (direct and indirect), voluntary participation statement, right to withdraw without penalty, how data will be stored and for how long, who to contact with questions (researcher and IRB contact)
 - For online surveys, consent is typically obtained via a "I agree to participate" button after presenting the consent information on the first page
 - For minors, parental consent plus child assent (for children 7 and older) is required
 - Waiver of written consent may be granted by IRB when the only record linking the participant to the study is the consent form itself (i.e., the form is the risk)
 
 **Confidentiality and data security:**
+
 - Distinguish confidentiality (researcher knows identity but protects it) from anonymity (researcher does not know identity)
 - Survey data: use coded participant IDs; store the ID-name key separately from data, or design for anonymity from the start
 - Interview data: use pseudonyms in transcripts; store audio files encrypted and password-protected; specify destruction timeline (typically 3-5 years post-publication per institutional policy)
@@ -144,6 +152,7 @@ Walk the learner through each ethical obligation rather than treating it as a ch
 - Qualitative data with thin populations: aggregate or alter identifying details in reports when a participant's unique characteristics could identify them even with a pseudonym
 
 **Special populations and additional protections:**
+
 - Participants under 18: parental consent + child assent; consider whether school or program administrator permission is also required
 - Participants who are employees or students of the researcher: address the coercive power dynamic explicitly; consider using a third-party recruiter or ensuring non-participation has no consequences
 - Participants discussing sensitive topics (trauma, illegal activity, stigmatized identities): provide referral resources; plan for distress protocols; consider whether identifiable data is necessary at all
@@ -186,6 +195,7 @@ Before finalizing the plan, run a completeness check against each research sub-q
 - Is the sample size justified with a specific method (power analysis, saturation rationale, or theoretical sampling logic)?
 
 **Connect to next steps for the learner:**
+
 - After the data collection plan is complete, the next task is typically writing the Methods section of the proposal or report -- use a writing-category skill
 - After data are collected, the learner will need data analysis guidance -- point them to the appropriate analysis skill (quantitative statistics, qualitative coding, or mixed-methods integration)
 - If the plan reveals the research question is underspecified or the methodology is poorly matched to it, redirect to `research-methodology`
@@ -367,7 +377,7 @@ Produce the following complete document. Every field must be filled with the lea
 
 3. **Never suggest starting recruitment before IRB approval.** This is not a procedural formality -- it is a federal requirement in the US under 45 CFR 46 and an equivalent legal/ethical requirement in most countries. Any timeline that shows recruitment beginning before IRB approval is issued must be corrected. If the learner's deadline makes proper IRB review impossible, say so directly and suggest solutions (exempt category redesign, secondary data, course ethics waiver).
 
-4. **Always justify sample size with a named method, not intuition.** "I'll survey 50 people because that seems like enough" is not a justification. For quantitative studies, always run or describe a G*Power calculation. For qualitative studies, always explain the saturation rationale with reference to sample homogeneity. An unjustified N will be rejected by thesis committees and IRB reviewers alike.
+4. **Always justify sample size with a named method, not intuition.** "I'll survey 50 people because that seems like enough" is not a justification. For quantitative studies, always run or describe a G\*Power calculation. For qualitative studies, always explain the saturation rationale with reference to sample homogeneity. An unjustified N will be rejected by thesis committees and IRB reviewers alike.
 
 5. **Distinguish confidentiality from anonymity -- never conflate them.** Confidentiality means the researcher knows identities but protects them through data practices. Anonymity means the researcher cannot link responses to individuals. Qualitative interviews are almost never anonymous. Asserting anonymity for identifiable data in a consent form is an ethical violation, not a minor wording error.
 
@@ -436,13 +446,13 @@ Mixed-methods research fails most often at integration -- the quantitative and q
 
 ### Section 1: Constructs and Operationalization
 
-| Research Sub-Question | Construct/Variable | Type | Instrument | Item Numbers |
-|---|---|---|---|---|
-| Does self-efficacy predict GPA? | Academic self-efficacy | IV | MSLQ Self-Efficacy Subscale | Q1-Q8 |
-| Does self-efficacy predict GPA? | Cumulative GPA (end of semester 1) | DV | Institutional records request | N/A |
-| Does mentoring moderate the relationship? | Peer mentoring participation | Moderator | Survey Q9-Q11 (researcher-developed) | Q9-Q11 |
-| How do students experience self-efficacy? | Lived experience of self-efficacy | Phenomenon | Semi-structured interview guide | All questions |
-| What role does mentoring play experientially? | Experience of mentoring support | Theme | Semi-structured interview guide | Q4, Q6, Q7, probes |
+| Research Sub-Question                         | Construct/Variable                 | Type       | Instrument                           | Item Numbers       |
+| --------------------------------------------- | ---------------------------------- | ---------- | ------------------------------------ | ------------------ |
+| Does self-efficacy predict GPA?               | Academic self-efficacy             | IV         | MSLQ Self-Efficacy Subscale          | Q1-Q8              |
+| Does self-efficacy predict GPA?               | Cumulative GPA (end of semester 1) | DV         | Institutional records request        | N/A                |
+| Does mentoring moderate the relationship?     | Peer mentoring participation       | Moderator  | Survey Q9-Q11 (researcher-developed) | Q9-Q11             |
+| How do students experience self-efficacy?     | Lived experience of self-efficacy  | Phenomenon | Semi-structured interview guide      | All questions      |
+| What role does mentoring play experientially? | Experience of mentoring support    | Theme      | Semi-structured interview guide      | Q4, Q6, Q7, probes |
 
 ---
 
@@ -484,25 +494,26 @@ Mixed-methods research fails most often at integration -- the quantitative and q
 
 **Inclusion Criteria**
 
-| Criterion | Rationale |
-|---|---|
-| Neither parent completed a 4-year college degree | Defines the first-generation population of interest |
-| Currently enrolled as a first-year student (0-29 credit hours completed) | Targets the first-year experience specifically |
-| Enrolled in at least 12 credit hours (full-time) | Controls for part-time enrollment as a confound with GPA |
-| Age 18 or older | Standard consent requirement; avoids minor participant complexity |
-| Enrolled at [researcher's institution] | Access and institutional GPA data availability |
+| Criterion                                                                | Rationale                                                         |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Neither parent completed a 4-year college degree                         | Defines the first-generation population of interest               |
+| Currently enrolled as a first-year student (0-29 credit hours completed) | Targets the first-year experience specifically                    |
+| Enrolled in at least 12 credit hours (full-time)                         | Controls for part-time enrollment as a confound with GPA          |
+| Age 18 or older                                                          | Standard consent requirement; avoids minor participant complexity |
+| Enrolled at [researcher's institution]                                   | Access and institutional GPA data availability                    |
 
 **Exclusion Criteria**
 
-| Criterion | Rationale |
-|---|---|
-| Transfer students with prior college credits | Prior college experience confounds first-generation first-year experience |
-| Students enrolled primarily in online programs | Campus-based peer mentoring program not accessible; different experience |
-| Students who have already withdrawn from the institution | GPA data may be incomplete; experience is retrospective |
+| Criterion                                                | Rationale                                                                 |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Transfer students with prior college credits             | Prior college experience confounds first-generation first-year experience |
+| Students enrolled primarily in online programs           | Campus-based peer mentoring program not accessible; different experience  |
+| Students who have already withdrawn from the institution | GPA data may be incomplete; experience is retrospective                   |
 
 **Sample Size Justification -- QUAN Phase**
+
 - **Target N:** 104 participants
-- **Method:** G*Power 3.1, linear multiple regression
+- **Method:** G\*Power 3.1, linear multiple regression
 - **Specifications:** Moderating effect in regression (interaction term for self-efficacy × mentoring participation predicting GPA); f² = 0.10 (small-to-medium interaction effect, conservative estimate per Champoux & Peters, 1987, on typical interaction effects in behavioral research); Power = 0.80; α = 0.05; 3 predictors (self-efficacy, mentoring participation, self-efficacy × mentoring interaction) → required N = 89
 - **Adjusted target:** 89 × 1.17 attrition buffer = 104 recruitment target (accounting for incomplete surveys, GPA data unavailability, and ineligible participants discovered post-enrollment)
 - **Recruitment target:** 104 valid completed surveys
@@ -511,6 +522,7 @@ Mixed-methods research fails most often at integration -- the quantitative and q
 
 **Purposeful sampling design (from QUAN results):**
 Phase 2 participants will be selected purposefully from Phase 1 survey respondents based on QUAN results:
+
 - 5-6 participants with high self-efficacy scores AND high GPA who participated in peer mentoring
 - 5-6 participants with high self-efficacy scores AND high GPA who did NOT participate in peer mentoring
 - 4-5 participants with low self-efficacy scores regardless of mentoring (to explore what shaped low efficacy perceptions)
@@ -519,6 +531,7 @@ Phase 2 participants will be selected purposefully from Phase 1 survey responden
 **Rationale for N:** Homogeneous sample (all first-year, first-generation, same institution) suggests saturation by 12-15 interviews based on Guest et al. (2006) finding saturation in homogeneous populations by interview 12; 15-17 provides buffer and purposeful contrast groups
 
 #### Recruitment Strategy
+
 - **Phase 1:** Partner with First-Generation Student Services office to distribute survey link via their email list and program communications; post in first-generation student Facebook group (IRB-approved recruitment language); brief First-Year Experience course instructors about study for in-class announcement
 - **Phase 2:** At end of Phase 1 survey, participants indicate willingness to be contacted for an interview (separate consent checkbox; no obligation); researcher selects interview sample from willing Phase 1 participants based on QUAN results
 - **Screening:** Phase 1 survey first page includes 3 eligibility questions (parent education, current year, full-time status); ineligible respondents are redirected out of the survey automatically via Qualtrics skip logic
@@ -529,12 +542,14 @@ Phase 2 participants will be selected purposefully from Phase 1 survey responden
 ### Section 4: Ethical Considerations
 
 #### IRB Status
+
 - **Review type required:** Expedited -- survey of adults on a sensitive topic (first-generation identity, academic performance) with minimal risk; no deception; GPA data requires additional institutional data use agreement
 - **Submission status:** Not yet submitted -- target submission date: [Month 2, Week 1]
 - **Approval required before:** Any recruitment materials distributed or survey link activated
 - **GPA data:** Requires a separate FERPA-compliant data use agreement with the Registrar; initiate this process simultaneously with IRB submission; may take 3-4 weeks for Registrar approval
 
 #### Informed Consent
+
 - [x] Phase 1 consent presented on Qualtrics page 1 before eligibility screening; participants click "I agree to participate" to proceed; participants who do not agree are exited with a thank-you message
 - [x] Phase 2 informed consent is a separate document emailed to interview participants before scheduled interview; signed copy returned before interview begins (PDF signature acceptable)
 - [x] Consent language explains: purpose, procedures for both phases, right to skip questions, right to withdraw at any time without impact on academic standing, how GPA data will be used and stored, audio recording (participant may request no recording), data retention timeline
@@ -543,6 +558,7 @@ Phase 2 participants will be selected purposefully from Phase 1 survey responden
 - [ ] Waiver of written consent requested for Phase 1: Yes (electronic consent, risk is minimal, consent form is the only identifier)
 
 #### Confidentiality and Data Security
+
 - **Phase 1:** Survey is confidential (not anonymous) -- participant email collected only for Phase 2 contact list; email stored separately from response data; Qualtrics configured to anonymize IP addresses; response data exported without embedded email data
 - **Phase 2:** Participants assigned pseudonyms (P-01 through P-17); pseudonym key stored in password-protected file separate from transcripts; audio files stored on institutional encrypted OneDrive folder, accessible only to researcher
 - **GPA data:** Linked to participant IDs, not names; Registrar provides data with student ID numbers only; ID-name key destroyed after data linkage is verified
@@ -550,18 +566,21 @@ Phase 2 participants will be selected purposefully from Phase 1 survey responden
 - **Thin population risk:** With a small purposeful sample at one institution, qualitative quotes will be altered (composite paraphrasing or minor detail changes) if a participant's demographic profile could be re-identified through their words; this will be disclosed in the thesis limitations section
 
 #### Risk/Benefit Analysis
+
 - **Risks:** Mild discomfort when reflecting on academic struggles or self-doubt (low probability, low severity); breach of confidentiality (low probability given security measures, moderate severity given GPA sensitivity)
 - **Risk mitigation:** Participants may skip any question; may withdraw without consequence; Phase 2 interview distress protocol: if participant becomes distressed, researcher will acknowledge, offer to pause or stop, and provide campus counseling center contact information at end of interview
 - **Benefits:** Participants may experience reflection as personally meaningful; study contributes to understanding of first-generation student support needs
 
 #### Deception
+
 - [x] No deception involved
 
 ---
 
 ### Section 5: Data Collection Timeline
 
-| Phase | Activities | Start | End | Responsible | Dependencies |
-|---|---|---|---|---|---|
-| Instrument Development | Draft survey (MSLQ + mentoring items); draft interview guide; advisor review | Month 1 | Month 1, Wk 3 | Researcher | Research question finalized |
+| Phase                  | Activities                                                                   | Start   | End           | Responsible | Dependencies                |
+| ---------------------- | ---------------------------------------------------------------------------- | ------- | ------------- | ----------- | --------------------------- |
+| Instrument Development | Draft survey (MSLQ + mentoring items); draft interview guide; advisor review | Month 1 | Month 1, Wk 3 | Researcher  | Research question finalized |
+
 | IR

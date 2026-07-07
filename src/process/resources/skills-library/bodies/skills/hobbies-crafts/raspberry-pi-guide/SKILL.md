@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "iot guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'iot guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Raspberry Pi Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on raspberry pi guide
 - User asks about raspberry pi guide best practices or techniques
 - User wants a structured approach to raspberry pi guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of raspberry pi guide
 
@@ -56,6 +57,7 @@ Before recommending a setup, I need to understand your goals:
 ## Model Selection Guide
 
 ### Raspberry Pi 5 (Current Flagship)
+
 - **CPU**: Broadcom BCM2712, quad-core Cortex-A76 @ 2.4GHz
 - **RAM**: 2GB, 4GB, or 8GB options
 - **Key features**: PCIe 2.0 connector, dual 4K HDMI, USB 3.0, hardware video decode
@@ -64,6 +66,7 @@ Before recommending a setup, I need to understand your goals:
 - **Cost**: $60 (2GB) to $80 (8GB)
 
 ### Raspberry Pi 4 Model B
+
 - **CPU**: Broadcom BCM2711, quad-core Cortex-A72 @ 1.8GHz
 - **RAM**: 1GB, 2GB, 4GB, or 8GB
 - **Best for**: Still excellent for most projects, widely supported, mature ecosystem
@@ -71,6 +74,7 @@ Before recommending a setup, I need to understand your goals:
 - **Cost**: $35-75 depending on RAM
 
 ### Raspberry Pi Zero 2 W
+
 - **CPU**: Quad-core Cortex-A53 @ 1GHz
 - **RAM**: 512MB
 - **Best for**: Small embedded projects, IoT sensors, Pi-hole, lightweight tasks
@@ -79,32 +83,36 @@ Before recommending a setup, I need to understand your goals:
 - **Cost**: $15
 
 ### Raspberry Pi Pico / Pico W
+
 - **Note**: This is a microcontroller, NOT a Linux computer
 - **Best for**: Arduino-style projects, sensor reading, motor control
 - **Programming**: MicroPython or C/C++
 - **Cost**: $4-6
 
 ### Which Model to Choose
-| Use Case | Recommended Model | RAM |
-|----------|------------------|-----|
-| First Pi / Learning | Pi 5 or Pi 4 | 4GB |
-| Media server (Plex/Jellyfin) | Pi 5 | 8GB |
-| NAS | Pi 5 | 4GB+ |
-| Pi-hole (ad blocking) | Pi Zero 2 W | 512MB |
-| Retro gaming (RetroPie) | Pi 4 or Pi 5 | 4GB |
-| Home automation | Pi 4 | 2-4GB |
-| Docker host | Pi 5 | 8GB |
-| Desktop replacement | Pi 5 | 8GB |
-| IoT sensor node | Pi Zero 2 W or Pico W | - |
+
+| Use Case                     | Recommended Model     | RAM   |
+| ---------------------------- | --------------------- | ----- |
+| First Pi / Learning          | Pi 5 or Pi 4          | 4GB   |
+| Media server (Plex/Jellyfin) | Pi 5                  | 8GB   |
+| NAS                          | Pi 5                  | 4GB+  |
+| Pi-hole (ad blocking)        | Pi Zero 2 W           | 512MB |
+| Retro gaming (RetroPie)      | Pi 4 or Pi 5          | 4GB   |
+| Home automation              | Pi 4                  | 2-4GB |
+| Docker host                  | Pi 5                  | 8GB   |
+| Desktop replacement          | Pi 5                  | 8GB   |
+| IoT sensor node              | Pi Zero 2 W or Pico W | -     |
 
 ## OS Setup
 
 ### Step 1: Download Raspberry Pi Imager
+
 - Download from raspberrypi.com/software
 - Available for Windows, macOS, and Linux
 - This is the official and easiest way to flash OS images
 
 ### Step 2: Flash the OS
+
 1. Insert microSD card into computer (32GB minimum, 64GB recommended, Class 10 / A2)
 2. Open Raspberry Pi Imager
 3. Choose OS: Raspberry Pi OS (64-bit) for most users
@@ -118,24 +126,30 @@ Before recommending a setup, I need to understand your goals:
 6. Click Write and wait for completion
 
 ### Step 3: First Boot
+
 **With monitor**: Insert SD card, connect HDMI, keyboard, mouse, power on
 **Headless (no monitor)**:
+
 1. Insert SD card and power on
 2. Wait 2-3 minutes for first boot
 3. Connect via SSH: `connect-to hostname.local` (or use IP address)
 4. Find IP address from router admin page if .local doesn't resolve
 
 ### Step 4: Initial Configuration
+
 ```
 update-packages && upgrade-packages -y
 system-config-tool    # Configure additional settings
 ```
+
 Key system-config-tool options:
+
 - Interface Options: Enable VNC, SPI, I2C, Serial as needed
 - Performance Options: Set GPU memory split
 - Localization: Timezone, keyboard layout
 
 ### Alternative Operating Systems
+
 - **Ubuntu Server** - For serious server use, better Docker support
 - **LibreELEC** - Dedicated Kodi media center OS
 - **RetroPie** - Retro gaming emulation
@@ -145,6 +159,7 @@ Key system-config-tool options:
 ## Project Guides
 
 ### Project 1: Pi-hole (Network-Wide Ad Blocker)
+
 **Difficulty**: Beginner | **Time**: 30 minutes | **Best on**: Pi Zero 2 W or any Pi
 
 1. Start with fresh Raspberry Pi OS Lite installation
@@ -161,12 +176,14 @@ Key system-config-tool options:
    ```
    request -sSL [URL] | run-installer
    ```
+
 4. Follow the installer prompts
 5. Set your router's DNS to the Pi's IP address
 6. Access admin panel at [URL]
 7. Add additional blocklists for better coverage
 
 ### Project 2: Media Server (Jellyfin)
+
 **Difficulty**: Beginner-Intermediate | **Time**: 1 hour | **Best on**: Pi 4 (4GB) or Pi 5
 
 1. Install Jellyfin (see security note above about `request | run-installer` patterns):
@@ -187,6 +204,7 @@ Key system-config-tool options:
 6. Install Jellyfin apps on TV, phone, tablet for playback
 
 ### Project 3: NAS (Network Attached Storage)
+
 **Difficulty**: Intermediate | **Time**: 2 hours | **Best on**: Pi 4 or Pi 5
 
 1. Connect USB drives (consider USB 3.0 enclosure with RAID)
@@ -201,6 +219,7 @@ Key system-config-tool options:
 7. Configure scheduled backups with rsync
 
 ### Project 4: Retro Gaming (RetroPie)
+
 **Difficulty**: Beginner | **Time**: 1-2 hours | **Best on**: Pi 4
 
 1. Flash RetroPie image using Raspberry Pi Imager
@@ -212,6 +231,7 @@ Key system-config-tool options:
 7. Scrape game metadata for cover art and descriptions
 
 ### Project 5: Home Automation (Home Assistant)
+
 **Difficulty**: Intermediate-Advanced | **Time**: 2-4 hours | **Best on**: Pi 4 or Pi 5
 
 1. Flash Home Assistant OS using Raspberry Pi Imager (choose "Other" > "Home Assistant")
@@ -226,18 +246,21 @@ Key system-config-tool options:
 ## GPIO Basics
 
 ### Pin Layout (40-pin header)
+
 - **3.3V and 5V power pins** - Power external components
 - **Ground pins** - 8 ground pins available
 - **GPIO pins** - General Purpose Input/Output, 3.3V logic
 - **Special function pins**: I2C (SDA/SCL), SPI (MOSI/MISO/SCLK/CE), UART (TX/RX)
 
 ### Important GPIO Rules
+
 - GPIO pins are 3.3V logic - NEVER connect 5V directly to a GPIO pin
 - Maximum current per pin: 16mA (safe), some sources say up to 50mA total across all pins
 - Use level shifters for 5V devices
 - Use transistors or relays for high-power loads
 
 ### Python GPIO Programming (gpiozero library)
+
 ```python
 from gpiozero import LED, Button
 from signal import pause
@@ -252,6 +275,7 @@ pause()  # Keep program running
 ```
 
 ### Common GPIO Projects
+
 - LED control and PWM dimming
 - Button and switch input
 - Temperature/humidity sensors (DHT22, BME280)
@@ -265,6 +289,7 @@ pause()  # Keep program running
 ## Python Programming on Pi
 
 ### Essential Libraries
+
 ```
 install-package python3-pip python3-venv
 python3 -m venv myproject
@@ -273,6 +298,7 @@ install-python-package gpiozero RPi.GPIO requests flask
 ```
 
 ### Useful Python Packages for Pi
+
 - **gpiozero** - Simple GPIO interface
 - **RPi.GPIO** - Lower-level GPIO control
 - **picamera2** - Camera module interface
@@ -296,11 +322,13 @@ docker run hello-world   # Test installation
 ```
 
 ### Docker Compose
+
 ```
 install-package docker-compose-plugin
 ```
 
 ### Recommended Docker Containers for Pi
+
 - **Portainer** - Docker management GUI
 - **Pi-hole** - DNS ad blocking
 - **Nginx Proxy Manager** - Reverse proxy with SSL
@@ -311,6 +339,7 @@ install-package docker-compose-plugin
 - **Watchtower** - Auto-update containers
 
 ### Performance Tips for Docker on Pi
+
 - Use images built for arm64 architecture
 - Limit container memory with `--memory` flag
 - Use bind mounts instead of named volumes for better I/O
@@ -320,6 +349,7 @@ install-package docker-compose-plugin
 ## Remote Access
 
 ### SSH (Secure Shell)
+
 ```
 # From another computer:
 connect-to raspberrypi.local
@@ -328,6 +358,7 @@ connect-to 192.168.1.100
 ```
 
 ### VNC (Remote Desktop)
+
 1. Enable VNC: `system-config-tool` > Interface Options > VNC
 2. Install RealVNC Viewer on your computer
 3. Connect using hostname.local or IP address
@@ -340,10 +371,12 @@ connect-to 192.168.1.100
 request -fsSL [URL] | run-installer
 tailscale up
 ```
+
 - Creates secure VPN tunnel without port forwarding
 - Access Pi from anywhere using Tailscale IP
 
 ### File Transfer
+
 - **SCP**: `scp file.txt user@pi:/home/user/`
 - **SFTP**: Use FileZilla or WinSCP with SFTP protocol
 - **rsync**: `rsync -avz folder/ user@pi:/backup/` (incremental sync)
@@ -352,6 +385,7 @@ tailscale up
 ## Maintenance and Optimization
 
 ### SD Card Health
+
 - SD cards have limited write cycles; they will eventually fail
 - Use `log2ram` to reduce writes: keeps logs in RAM
 - Consider booting from USB SSD for reliability and speed
@@ -359,6 +393,7 @@ tailscale up
 - Keep backups of your SD card image
 
 ### Performance Optimization
+
 - Overclock carefully (Pi 5 supports it well with active cooling)
 - Use 64-bit OS for 4GB+ RAM models
 - Disable unnecessary services: `systemctl disable bluetooth` if unused
@@ -367,6 +402,7 @@ tailscale up
 - Add heatsinks and fan for sustained workloads
 
 ### Security Hardening
+
 - Change default password immediately
 - Use SSH keys instead of passwords
 - Disable password SSH login after setting up keys
@@ -376,6 +412,7 @@ tailscale up
 - Use fail2ban to block brute-force attempts
 
 ### Backup Strategy
+
 1. Image entire SD card periodically (use Raspberry Pi Imager or dd)
 2. Back up specific config files with rsync
 3. Use version control (git) for custom scripts
@@ -384,6 +421,7 @@ tailscale up
 ## Troubleshooting
 
 ### Pi Won't Boot
+
 - Check power supply (official supply recommended, undervoltage causes issues)
 - Re-flash SD card
 - Try a different SD card
@@ -391,6 +429,7 @@ tailscale up
 - Look for steady green LED (means SD card is being read)
 
 ### Network Issues
+
 - Check WiFi credentials in imager settings
 - Use `nmcli` or `system-config-tool` to reconfigure network
 - For Ethernet, check cable and router DHCP settings
@@ -398,12 +437,12 @@ tailscale up
 - `ping google.com` tests internet connectivity
 
 ### Performance Issues
+
 - Check temperature: overheating causes throttling
 - Check CPU usage: `htop`
 - Check disk space: `df -h`
 - Check memory: `free -h`
 - Lightning bolt icon on desktop = insufficient power supply
-
 
 ## Output Format
 
@@ -416,7 +455,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "report writing analysis"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'report writing analysis'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Status Update Writing
 
 ## When to Use
@@ -138,9 +139,9 @@ Use this structure precisely. Section headers may be adapted to organizational t
 ```
 ## Status Update: [Project / Team / Initiative Name]
 
-**Reporting Period:** [Start Date] -- [End Date]  
-**Author:** [Name], [Role]  
-**Audience:** [Manager name / Team name / Distribution list]  
+**Reporting Period:** [Start Date] -- [End Date]
+**Author:** [Name], [Role]
+**Audience:** [Manager name / Team name / Distribution list]
 **Sprint / Iteration:** [Number, if applicable]
 
 ---
@@ -163,7 +164,7 @@ Use this structure precisely. Section headers may be adapted to organizational t
 
 ### Blockers & Risks
 
-- **[Blocked deliverable]** -- Needs [specific action] from [Name, Role] by [date].  
+- **[Blocked deliverable]** -- Needs [specific action] from [Name, Role] by [date].
   Impact: [what slips and by how long if unresolved]
 - **[Risk description]** -- [Probability: low/med/high]. Mitigation: [current action].
 
@@ -315,19 +316,19 @@ Some teams work across time zones with no shared standup, no fixed sprint, and a
 
 - **Rate limiter production validation blocked** -- Need read access to production Datadog dashboards. Omar Castillo (SRE Lead) to provision access. Request submitted Jan 6 -- now 5 days without response. Impact: cannot confirm rate limiter is operating within design thresholds until this is resolved; escalation recommended if no response by Jan 13.
 
-*No risks beyond the above blocker.*
+_No risks beyond the above blocker._
 
 ### Key Metrics
 
-| Metric | This Week | Prior Week | Target | Trend |
-|--------|----------|-----------|--------|-------|
-| Webhook duplicate rate | 0% | 3.0% | 0% | ↑ |
-| Production incidents (P1/P2) | 0 | 1 | 0 | ↑ |
-| Kafka refactor completion | 30% | 0% | 100% by Jan 17 | → |
+| Metric                       | This Week | Prior Week | Target         | Trend |
+| ---------------------------- | --------- | ---------- | -------------- | ----- |
+| Webhook duplicate rate       | 0%        | 3.0%       | 0%             | ↑     |
+| Production incidents (P1/P2) | 0         | 1          | 0              | ↑     |
+| Kafka refactor completion    | 30%       | 0%         | 100% by Jan 17 | →     |
 
 ---
 
-*Next update: Jan 17. Reach out via Slack (#platform-eng) for questions.*
+_Next update: Jan 17. Reach out via Slack (#platform-eng) for questions._
 
 ---
 

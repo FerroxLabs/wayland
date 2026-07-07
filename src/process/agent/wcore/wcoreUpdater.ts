@@ -28,11 +28,7 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import type {
-  WCoreInstallResult,
-  WCoreUpdateCheck,
-  WCoreUpdateProgress,
-} from '@/common/update/wcoreUpdateTypes';
+import type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress } from '@/common/update/wcoreUpdateTypes';
 import { WCORE_OVERRIDE_SUBDIR, detectWCore } from './binaryResolver';
 
 export type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress };
@@ -66,7 +62,11 @@ export function runtimeKey(platform: string = process.platform, arch: string = p
  * `wayland-core-v0.12.2-aarch64-apple-darwin.tar.gz`. Returns `null` for an
  * unsupported platform/arch.
  */
-export function assetNameFor(tag: string, platform: string = process.platform, arch: string = process.arch): string | null {
+export function assetNameFor(
+  tag: string,
+  platform: string = process.platform,
+  arch: string = process.arch
+): string | null {
   const a = ARCH_MAP[arch];
   const p = PLATFORM_MAP[platform];
   if (!a || !p) return null;

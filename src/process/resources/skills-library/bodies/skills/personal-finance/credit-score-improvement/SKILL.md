@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance debt-management planning goal-setting"
-  category: "personal-finance"
-  subcategory: "life-stage-financial"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance debt-management planning goal-setting'
+  category: 'personal-finance'
+  subcategory: 'life-stage-financial'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Credit Score Improvement Plan
 
 > **Disclaimer:** This skill provides educational information about credit scoring concepts and general guidance for personal financial planning. It does NOT constitute financial advice, credit counseling, or legal advice. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, licensed credit counselor, or attorney before making financial decisions that affect your creditworthiness.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly wants a structured, multi-month plan to raise their credit score
 - The user has a specific credit-dependent goal with a target date (mortgage pre-approval, apartment application, auto loan, business financing, rate reduction on existing accounts)
 - The user wants to understand which specific actions will move the needle on their score and in what sequence
@@ -31,6 +33,7 @@ metadata:
 - The user knows their approximate score and wants to understand the fastest path to the next threshold (e.g., 620 → 660, 680 → 720, 740 → 760)
 
 **Do NOT use when:**
+
 - The user does not yet understand what a credit score is or how it is calculated -- use `credit-score-explainer` first, then return to this skill
 - The user wants to dispute inaccurate items on their credit report -- this requires knowledge of FCRA dispute procedures and is outside this skill's scope; refer to credit dispute guidance
 - The user's primary goal is paying off debt, not improving their score per se -- use `debt-snowball-planner` or `debt-avalanche-planner`, though note that debt payoff and score improvement are often complementary
@@ -65,13 +68,13 @@ If the user cannot supply exact figures, work with ranges and flag assumptions e
 
 Map the user's inputs to the five FICO 8 scoring components, which have the following approximate weights:
 
-| Component | FICO Weight | Primary Inputs |
-|---|---|---|
-| Payment History | 35% | Late payments, collections, charge-offs, bankruptcies |
-| Amounts Owed (Utilization) | 30% | Revolving utilization -- per card and aggregate |
-| Length of Credit History | 15% | Age of oldest account, average age of all accounts, age of newest account |
-| Credit Mix | 10% | Presence of both revolving and installment accounts |
-| New Credit | 10% | Hard inquiries in past 24 months (primary impact in first 12), new account openings |
+| Component                  | FICO Weight | Primary Inputs                                                                      |
+| -------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| Payment History            | 35%         | Late payments, collections, charge-offs, bankruptcies                               |
+| Amounts Owed (Utilization) | 30%         | Revolving utilization -- per card and aggregate                                     |
+| Length of Credit History   | 15%         | Age of oldest account, average age of all accounts, age of newest account           |
+| Credit Mix                 | 10%         | Presence of both revolving and installment accounts                                 |
+| New Credit                 | 10%         | Hard inquiries in past 24 months (primary impact in first 12), new account openings |
 
 For each component, assess status as: **Positive**, **Neutral**, **Recoverable Negative** (addressable within the plan timeline), or **Aging Negative** (accurate derogatory item that must age off).
 
@@ -88,6 +91,7 @@ Critical thresholds to assess:
 Rank every available action using this two-axis framework:
 
 **Speed of impact:**
+
 - Immediate (within one billing cycle, 30-45 days): Paying down revolving balances, paying off collections in states where paid collections are removed
 - Short-term (1-3 months): Establishing autopay, resolving any currently delinquent accounts
 - Medium-term (3-6 months): Building consecutive on-time payment streaks, receiving credit limit increases
@@ -95,11 +99,13 @@ Rank every available action using this two-axis framework:
 - Very long-term (24+ months): Negative items aging to 7-year removal point, bankruptcy discharge aging
 
 **Magnitude of impact:**
+
 - High: Resolving current delinquencies, reducing utilization from above 70% to below 30%, establishing first positive revolving account on a thin file
 - Medium: Reducing utilization from 30-50% range to below 10%, building 12+ month streak of on-time payments after a late
 - Low: Correcting credit mix when it's the limiting factor, adding an authorized user tradeline, reducing hard inquiries by pausing applications
 
 Prioritize actions in this order:
+
 1. Stop any ongoing damage first (cure any current delinquencies, set up autopay)
 2. Then address utilization (highest single lever for fast improvement)
 3. Then build payment history consistency
@@ -122,23 +128,27 @@ Note: A balance transfer to consolidate high-utilization cards onto a lower-rate
 Assign specific actions to calendar months. The plan structure should follow this logic:
 
 **Month 1:** Emergency stabilization + quick wins
+
 - Cure any current delinquencies (even if just making a minimum payment to restore current status)
 - Set up autopay for the minimum on all accounts to prevent future missed payments
 - Reduce the highest-utilization card as aggressively as cash allows
 - Pause all planned credit applications
 
 **Months 2-3:** Momentum building
+
 - Continue balance paydown schedule with specific monthly targets
 - Confirm autopay is working (check statements manually the first two months)
 - If any account is in collections, evaluate whether it is within the statute of limitations and whether paying or settling it will help or hurt (see Edge Cases)
 - Begin preparing for credit limit increase requests (most issuers require 6+ months of on-time history before approving increases)
 
 **Months 4-6:** Foundation strengthening
+
 - Request credit limit increases on cards where the user has 6+ months of on-time payment history (do this by phone or online -- most issuers do a soft pull for existing customers, not a hard inquiry)
 - Evaluate whether opening a new account type would help credit mix (only if timeline allows for 6+ months before the goal application date)
 - Continue monitoring for reporting errors that should be disputed
 
 **Months 7-12:** Pre-application optimization
+
 - In the final 30-60 days before a credit application, drive revolving utilization as low as possible -- pay balances before statement closing dates (not just before due dates) so lower balances are reported to the bureaus
 - Avoid any new hard inquiries in the 90 days before a major application
 - Pull reports from all three bureaus and verify accuracy
@@ -157,21 +167,22 @@ Provide a specific monitoring protocol:
 
 Credit scoring models have known threshold bands where scoring behavior changes significantly. Help the user understand which band they are in and what the next meaningful milestone looks like:
 
-| FICO Score Range | Common Designation | Key Milestone Behaviors |
-|---|---|---|
-| 300-579 | Poor | Most conventional credit products unavailable; secured cards and credit-builder loans are primary tools |
-| 580-619 | Fair / Near-Prime | Some subprime products available; crossing 620 opens more options |
-| 620-659 | Below Average | Minimum for FHA mortgage programs; crossing 640 improves auto loan rates meaningfully |
-| 660-699 | Average | Minimum for many conventional products; crossing 700 is a major psychological and practical threshold |
-| 700-739 | Good | Most mainstream products available at reasonable rates; crossing 720 gets better mortgage pricing |
-| 740-779 | Very Good | Near-best rates on most products; crossing 760 often unlocks best-tier mortgage pricing |
-| 780-850 | Exceptional | Best available rates; marginal improvement has minimal practical benefit |
+| FICO Score Range | Common Designation | Key Milestone Behaviors                                                                                 |
+| ---------------- | ------------------ | ------------------------------------------------------------------------------------------------------- |
+| 300-579          | Poor               | Most conventional credit products unavailable; secured cards and credit-builder loans are primary tools |
+| 580-619          | Fair / Near-Prime  | Some subprime products available; crossing 620 opens more options                                       |
+| 620-659          | Below Average      | Minimum for FHA mortgage programs; crossing 640 improves auto loan rates meaningfully                   |
+| 660-699          | Average            | Minimum for many conventional products; crossing 700 is a major psychological and practical threshold   |
+| 700-739          | Good               | Most mainstream products available at reasonable rates; crossing 720 gets better mortgage pricing       |
+| 740-779          | Very Good          | Near-best rates on most products; crossing 760 often unlocks best-tier mortgage pricing                 |
+| 780-850          | Exceptional        | Best available rates; marginal improvement has minimal practical benefit                                |
 
 Set the user's milestone as the next meaningful threshold above their current score, explain what unlocks at that threshold, then set the longer-term milestone if their timeline supports it.
 
 ### Step 8: Deliver the Formatted Plan and Calibrate Expectations
 
 Produce the Output Format below, then explicitly state:
+
 - What is in the user's control (utilization, payment consistency, application pausing)
 - What is not in the user's control (aging timelines, other parties' reporting delays, scoring model opacity)
 - A realistic range of expected improvement: do NOT promise specific point gains, but DO provide context such as "reducing utilization from 52% to under 10% is typically among the highest-impact single actions available at this score range, but the exact result depends on your complete profile and the model used by your lender"
@@ -479,17 +490,17 @@ This is a nuanced scenario with real trade-offs:
 
 ### Current Credit Profile Assessment
 
-| Component | Current Status | Weight in FICO 8 | Current Impact |
-|---|---|---|---|
-| Score | 618 (FICO 8) | -- | Below Average |
-| Payment History | 1 x 30-day late, April (4 months ago); on time every month since | 35% | Recoverable Negative -- damage diminishes with clean streak |
-| Utilization -- Aggregate | 51% ($4,100 balance / $8,000 total limit) | 30% | High Risk -- significant negative |
-| Utilization -- Worst Card | Card A: 90% ($2,700 / $3,000) | 30% | Severe -- critical drag |
-| History Length -- Oldest Account | Card A at 6 years | 15% | Positive |
-| History Length -- Average Age | ~3 years | 15% | Neutral -- solid but not a strength |
-| Credit Mix | Revolving (2 cards) + Installment (auto loan) | 10% | Positive -- both types present |
-| Hard Inquiries (24 months) | 0 | 10% | Positive -- no drag |
-| Negative Items | 1 x 30-day late (April); no collections, charge-offs, or bankruptcies | 35% | Recoverable -- 24 clean months will substantially reduce impact |
+| Component                        | Current Status                                                        | Weight in FICO 8 | Current Impact                                                  |
+| -------------------------------- | --------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
+| Score                            | 618 (FICO 8)                                                          | --               | Below Average                                                   |
+| Payment History                  | 1 x 30-day late, April (4 months ago); on time every month since      | 35%              | Recoverable Negative -- damage diminishes with clean streak     |
+| Utilization -- Aggregate         | 51% ($4,100 balance / $8,000 total limit)                             | 30%              | High Risk -- significant negative                               |
+| Utilization -- Worst Card        | Card A: 90% ($2,700 / $3,000)                                         | 30%              | Severe -- critical drag                                         |
+| History Length -- Oldest Account | Card A at 6 years                                                     | 15%              | Positive                                                        |
+| History Length -- Average Age    | ~3 years                                                              | 15%              | Neutral -- solid but not a strength                             |
+| Credit Mix                       | Revolving (2 cards) + Installment (auto loan)                         | 10%              | Positive -- both types present                                  |
+| Hard Inquiries (24 months)       | 0                                                                     | 10%              | Positive -- no drag                                             |
+| Negative Items                   | 1 x 30-day late (April); no collections, charge-offs, or bankruptcies | 35%              | Recoverable -- 24 clean months will substantially reduce impact |
 
 ---
 
@@ -523,114 +534,122 @@ The two issues driving your score down most severely are:
 ### Month-by-Month Action Plan
 
 #### Month 1: Stabilize and Win Quickly
-*Focus: Lock in autopay to prevent any future late, then attack Card A utilization aggressively.*
 
-| Action | Component | Relative Impact | Effort | Cost / Capacity |
-|---|---|---|---|---|
-| Set up autopay for minimum payment on both cards AND the auto loan | Payment History | High | 30 minutes | $0 -- prevents any future lates regardless of life circumstances |
-| Apply full $400 extra payment to Card A balance | Utilization | High | One transfer | Reduces Card A from $2,700 to $2,300 |
-| Pause all new credit applications for the full 8 months | New Credit | Low | Decision | Protects the 0 inquiries status |
+_Focus: Lock in autopay to prevent any future late, then attack Card A utilization aggressively._
 
-*Month 1 target: Card A $2,300 / Card B $1,400 -- Aggregate utilization: 46%*
-*Per-card utilization: Card A: 77%, Card B: 28%*
+| Action                                                             | Component       | Relative Impact | Effort       | Cost / Capacity                                                  |
+| ------------------------------------------------------------------ | --------------- | --------------- | ------------ | ---------------------------------------------------------------- |
+| Set up autopay for minimum payment on both cards AND the auto loan | Payment History | High            | 30 minutes   | $0 -- prevents any future lates regardless of life circumstances |
+| Apply full $400 extra payment to Card A balance                    | Utilization     | High            | One transfer | Reduces Card A from $2,700 to $2,300                             |
+| Pause all new credit applications for the full 8 months            | New Credit      | Low             | Decision     | Protects the 0 inquiries status                                  |
+
+_Month 1 target: Card A $2,300 / Card B $1,400 -- Aggregate utilization: 46%_
+_Per-card utilization: Card A: 77%, Card B: 28%_
 
 #### Month 2: Confirm Systems and Continue Paydown
-*Focus: Manually verify autopayments posted correctly; continue paydown schedule.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Log in to each account and verify August payment posted as "on-time" | Payment History | High | 15 minutes |
-| Apply $400 extra to Card A | Utilization | High | One transfer |
-| Note: You are now 5 months post-late; clean streak is building | Payment History | -- | Monitor |
+_Focus: Manually verify autopayments posted correctly; continue paydown schedule._
 
-*Month 2 target: Card A $1,900 -- Aggregate utilization: 41%*
-*Per-card utilization: Card A: 63%, Card B: 28%*
+| Action                                                               | Component       | Relative Impact | Effort       |
+| -------------------------------------------------------------------- | --------------- | --------------- | ------------ |
+| Log in to each account and verify August payment posted as "on-time" | Payment History | High            | 15 minutes   |
+| Apply $400 extra to Card A                                           | Utilization     | High            | One transfer |
+| Note: You are now 5 months post-late; clean streak is building       | Payment History | --              | Monitor      |
+
+_Month 2 target: Card A $1,900 -- Aggregate utilization: 41%_
+_Per-card utilization: Card A: 63%, Card B: 28%_
 
 #### Month 3: Three-Month Clean Streak Milestone
-*Focus: 3 consecutive on-time payments since the late is the first meaningful milestone for payment history recovery.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Apply $400 extra to Card A | Utilization | High | One transfer |
-| Verify 3-month consecutive on-time streak across all accounts | Payment History | High | Verify statements |
-| Pull a full credit report (free) and verify no surprises -- check that April late is correctly reported as a single 30-day late, not misreported as a 60-day | Payment History | Medium | 30 minutes |
+_Focus: 3 consecutive on-time payments since the late is the first meaningful milestone for payment history recovery._
 
-*Month 3 target: Card A $1,500 -- Aggregate utilization: 36%*
-*Per-card utilization: Card A: 50%, Card B: 28%*
-*Note: Card A drops below the 50% severe-penalty threshold this month. Expect your next score check to show meaningful movement.*
+| Action                                                                                                                                                       | Component       | Relative Impact | Effort            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | --------------- | ----------------- |
+| Apply $400 extra to Card A                                                                                                                                   | Utilization     | High            | One transfer      |
+| Verify 3-month consecutive on-time streak across all accounts                                                                                                | Payment History | High            | Verify statements |
+| Pull a full credit report (free) and verify no surprises -- check that April late is correctly reported as a single 30-day late, not misreported as a 60-day | Payment History | Medium          | 30 minutes        |
+
+_Month 3 target: Card A $1,500 -- Aggregate utilization: 36%_
+_Per-card utilization: Card A: 50%, Card B: 28%_
+_Note: Card A drops below the 50% severe-penalty threshold this month. Expect your next score check to show meaningful movement._
 
 #### Month 4: Cross the 30% Threshold on Card A
-*Focus: Crossing 30% utilization on Card A is the next inflection point.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Apply $400 extra to Card A | Utilization | High | One transfer |
-| Request credit limit increase on Card A (now have 5 months clean history post-late; combined with 6 years of account history, approval is plausible) | Utilization | Medium | Call issuer; ask if hard pull or soft pull first |
+_Focus: Crossing 30% utilization on Card A is the next inflection point._
 
-*Month 4 target: Card A $1,100 -- Aggregate utilization: 31%*
-*Per-card utilization: Card A: 37%, Card B: 28%*
-*If Card A limit increase to $4,500 is approved: Card A utilization drops to 24% -- aggregate drops to 23%. Major improvement.*
+| Action                                                                                                                                               | Component   | Relative Impact | Effort                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------- | ------------------------------------------------ |
+| Apply $400 extra to Card A                                                                                                                           | Utilization | High            | One transfer                                     |
+| Request credit limit increase on Card A (now have 5 months clean history post-late; combined with 6 years of account history, approval is plausible) | Utilization | Medium          | Call issuer; ask if hard pull or soft pull first |
+
+_Month 4 target: Card A $1,100 -- Aggregate utilization: 31%_
+_Per-card utilization: Card A: 37%, Card B: 28%_
+_If Card A limit increase to $4,500 is approved: Card A utilization drops to 24% -- aggregate drops to 23%. Major improvement._
 
 #### Month 5: Sustain Below 30% Aggregate
-*Focus: Maintain aggregate below 30% and drive toward the sub-10% target before your application.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Apply $400 extra -- shift target to whichever card has higher per-card utilization | Utilization | High | One transfer |
-| Note: 8 consecutive on-time months post-late. Impact of April late is now significantly reduced. | Payment History | -- | Monitor |
+_Focus: Maintain aggregate below 30% and drive toward the sub-10% target before your application._
 
-*Month 5 target (no limit increase): Card A $700 -- Aggregate utilization: 26%*
-*Per-card utilization: Card A: 23%, Card B: 28%*
-*Month 5 target (if limit increase to $4,500 granted): Card A $700 -- Aggregate utilization: 20%*
-*Per-card: Card A: 16%, Card B: 28%*
+| Action                                                                                           | Component       | Relative Impact | Effort       |
+| ------------------------------------------------------------------------------------------------ | --------------- | --------------- | ------------ |
+| Apply $400 extra -- shift target to whichever card has higher per-card utilization               | Utilization     | High            | One transfer |
+| Note: 8 consecutive on-time months post-late. Impact of April late is now significantly reduced. | Payment History | --              | Monitor      |
+
+_Month 5 target (no limit increase): Card A $700 -- Aggregate utilization: 26%_
+_Per-card utilization: Card A: 23%, Card B: 28%_
+_Month 5 target (if limit increase to $4,500 granted): Card A $700 -- Aggregate utilization: 20%_
+_Per-card: Card A: 16%, Card B: 28%_
 
 #### Month 6: Mid-Plan Review
-*Focus: Full assessment; recalibrate for final 2 months.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Pull full reports from all three bureaus; verify April late is accurately reported; check for any new items | All | Variable | Free; 45 minutes |
-| Check current score and compare to Month 1 baseline | All | -- | Monitoring tool |
-| Calculate: can you drive both cards below 10% utilization by Month 8? If not, which card do you prioritize? | Utilization | High | Math |
-| Decide if you can redirect any additional one-time funds (tax refund, bonus, etc.) to pay down Card B | Utilization | Medium | Financial review |
+_Focus: Full assessment; recalibrate for final 2 months._
 
-*Month 6 target: Card A $300-400 -- Aggregate utilization: 21%*
-*Note: You are now on track. At this point, your aggregate utilization should be below 30%, you have 9 months of clean payment history post-late, and no other negative factors exist. Significant score improvement should be visible.*
+| Action                                                                                                      | Component   | Relative Impact | Effort           |
+| ----------------------------------------------------------------------------------------------------------- | ----------- | --------------- | ---------------- |
+| Pull full reports from all three bureaus; verify April late is accurately reported; check for any new items | All         | Variable        | Free; 45 minutes |
+| Check current score and compare to Month 1 baseline                                                         | All         | --              | Monitoring tool  |
+| Calculate: can you drive both cards below 10% utilization by Month 8? If not, which card do you prioritize? | Utilization | High            | Math             |
+| Decide if you can redirect any additional one-time funds (tax refund, bonus, etc.) to pay down Card B       | Utilization | Medium          | Financial review |
+
+_Month 6 target: Card A $300-400 -- Aggregate utilization: 21%_
+_Note: You are now on track. At this point, your aggregate utilization should be below 30%, you have 9 months of clean payment history post-late, and no other negative factors exist. Significant score improvement should be visible._
 
 #### Month 7: Final Approach
-*Focus: Drive utilization as low as possible. You are 1 month from target application.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| Pay Card A and Card B balances as low as possible -- target sub-10% on both | Utilization | High | Requires available cash |
-| Absolutely no new credit applications | New Credit | Medium | Decision |
-| Confirm no payments are overdue on auto loan or either card | Payment History | High | Verify |
+_Focus: Drive utilization as low as possible. You are 1 month from target application._
 
-*Month 7 target: Both cards at or near 0% utilization -- Aggregate: sub-10%*
-*Sub-10% aggregate utilization is where FICO models reward you most. If you can reach this before your application, it is the highest-impact final action available to you.*
+| Action                                                                      | Component       | Relative Impact | Effort                  |
+| --------------------------------------------------------------------------- | --------------- | --------------- | ----------------------- |
+| Pay Card A and Card B balances as low as possible -- target sub-10% on both | Utilization     | High            | Requires available cash |
+| Absolutely no new credit applications                                       | New Credit      | Medium          | Decision                |
+| Confirm no payments are overdue on auto loan or either card                 | Payment History | High            | Verify                  |
+
+_Month 7 target: Both cards at or near 0% utilization -- Aggregate: sub-10%_
+_Sub-10% aggregate utilization is where FICO models reward you most. If you can reach this before your application, it is the highest-impact final action available to you._
 
 #### Month 8: Application Month
-*Focus: Optimize reported balances and time the application correctly.*
 
-| Action | Component | Relative Impact | Effort |
-|---|---|---|---|
-| PAY DOWN CARD BALANCES BEFORE STATEMENT CLOSING DATE, not due date -- this ensures the low balance is the number reported to the bureaus for this cycle | Utilization | High | Critical timing note |
-| Allow 30-45 days for updated balances to be reported before submitting apartment application, if schedule allows | Utilization | High | Timing |
-| Pull your FICO 8 score one final time after balances are reported | All | -- | Monitoring |
-| Confirm with apartment complex whether they use a credit score or a full credit report for their application process | Application strategy | -- | One phone call |
-| Gather documentation: proof of income, bank statements, prior landlord references | Application | -- | Preparation |
+_Focus: Optimize reported balances and time the application correctly._
+
+| Action                                                                                                                                                  | Component            | Relative Impact | Effort               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------- | -------------------- |
+| PAY DOWN CARD BALANCES BEFORE STATEMENT CLOSING DATE, not due date -- this ensures the low balance is the number reported to the bureaus for this cycle | Utilization          | High            | Critical timing note |
+| Allow 30-45 days for updated balances to be reported before submitting apartment application, if schedule allows                                        | Utilization          | High            | Timing               |
+| Pull your FICO 8 score one final time after balances are reported                                                                                       | All                  | --              | Monitoring           |
+| Confirm with apartment complex whether they use a credit score or a full credit report for their application process                                    | Application strategy | --              | One phone call       |
+| Gather documentation: proof of income, bank statements, prior landlord references                                                                       | Application          | --              | Preparation          |
 
 ---
 
 ### Paydown Schedule (Utilization Tracker)
 
-| Month | Card A Balance | Card A Utilization | Card B Balance | Card B Utilization | Aggregate Utilization | Extra Payment Applied |
-|---|---|---|---|---|---|---|
-| Now | $2,700 | 90% | $1,400 | 28% | 51% | -- |
-| Month 1 | $2,300 | 77% | $1,400 | 28% | 46% | $400 to Card A |
-| Month 2 | $1,900 | 63% | $1,400 | 28% | 41% | $400 to Card A |
-| Month 3 | $1,500 | 50% | $1,400 | 28% | 36% | $400 to Card A |
-| Month 4 | $1,100 | 37% | $1,400 | 28% | 31% | $400 to Card A |
-| Month 5 | $700 | 23% | $1,400 | 28% | 26% | $400 to Card A |
-| Month 6 | $300 | 10% | $1,400 | 28% | 21% | $400 to Card A |
-| Month 7 | $
+| Month   | Card A Balance | Card A Utilization | Card B Balance | Card B Utilization | Aggregate Utilization | Extra Payment Applied |
+| ------- | -------------- | ------------------ | -------------- | ------------------ | --------------------- | --------------------- |
+| Now     | $2,700         | 90%                | $1,400         | 28%                | 51%                   | --                    |
+| Month 1 | $2,300         | 77%                | $1,400         | 28%                | 46%                   | $400 to Card A        |
+| Month 2 | $1,900         | 63%                | $1,400         | 28%                | 41%                   | $400 to Card A        |
+| Month 3 | $1,500         | 50%                | $1,400         | 28%                | 36%                   | $400 to Card A        |
+| Month 4 | $1,100         | 37%                | $1,400         | 28%                | 31%                   | $400 to Card A        |
+| Month 5 | $700           | 23%                | $1,400         | 28%                | 26%                   | $400 to Card A        |
+| Month 6 | $300           | 10%                | $1,400         | 28%                | 21%                   | $400 to Card A        |
+| Month 7 | $              |

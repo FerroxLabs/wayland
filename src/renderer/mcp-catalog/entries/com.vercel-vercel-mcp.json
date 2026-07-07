@@ -7,9 +7,7 @@
   "websiteUrl": "https://vercel.com/docs/mcp",
   "repository": { "url": "https://github.com/vercel/vercel-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.vercel.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.vercel.com" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "devops"],

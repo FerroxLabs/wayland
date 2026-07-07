@@ -83,9 +83,7 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({ entry, onClick, featured = 
               {src.label}
             </span>
           </div>
-          <div className={styles.description}>
-            {entry.description || 'No description provided.'}
-          </div>
+          <div className={styles.description}>{entry.description || 'No description provided.'}</div>
         </div>
       </div>
     </button>

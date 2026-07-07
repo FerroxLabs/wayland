@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "email writing relationships"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'email writing relationships'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Conflict Resolution Email Writing
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user's goal is to preserve or repair a professional relationship, address a specific incident or pattern of behavior, or reach a concrete resolution through written communication.
 
 **Trigger scenarios:**
+
 - A colleague misattributed work, ignored a request, or undermined the user in a meeting and the user needs to address it without destroying the relationship
 - The user received a hostile, passive-aggressive, or unfair email and needs to craft a response that de-escalates rather than retaliates
 - A cross-functional partner or vendor has not delivered on a commitment and the user needs to address the gap without blaming or burning the bridge
@@ -34,6 +36,7 @@ Use this skill when the user's goal is to preserve or repair a professional rela
 - A recurring miscommunication between teams needs to be named and structured toward a systemic fix
 
 **Do NOT use this skill when:**
+
 - The user needs to file a formal HR complaint or grievance -- use `business-letter` for documented formal complaints
 - The issue involves a performance problem requiring a documented improvement track -- use `pip-writing`
 - The user needs to decline, reject, or turn someone down -- use `rejection-letter`
@@ -56,11 +59,13 @@ Before drafting a single word, identify which of four conflict types you are dea
 - **Values/style conflict:** Underlying differences in how people work, communicate, or prioritize. The hardest to resolve by email. Resolution path: name the tension, propose a live conversation, use email only to set up the discussion -- not to resolve it.
 
 Also assess emotional temperature using a 3-tier model:
+
 - **Cool (Level 1):** Minor misunderstanding, no relationship damage, factual resolution possible in one exchange
 - **Warm (Level 2):** Real frustration exists on at least one side, relationship trust has been dinged, needs careful framing and possibly a follow-up conversation
 - **Hot (Level 3):** Significant tension, hostility, or betrayal is in play -- email is NOT the right resolution medium at this temperature; use email only to invite a live conversation, not to argue the case
 
 Ask the user these questions before writing:
+
 - Who is the recipient and what is their hierarchical relationship to the user (peer, manager, skip-level, direct report, cross-functional partner, external vendor)?
 - What specifically happened -- including date, context, and what was said or done?
 - Has this happened before? If so, how many times and when?
@@ -78,10 +83,12 @@ If the user rates their emotional activation at 7 or above, flag this explicitly
 This is the most technically important step. Conflict emails fail when these three layers collapse into each other. Pull them apart explicitly:
 
 **Layer 1 -- Observable facts:** What would a neutral third-party observer confirm actually happened? Use the "security camera test" -- if a camera was recording, what would it have captured? Keep only what passes this test.
+
 - Acceptable: "The dashboard I built was not attributed to me in the Tuesday presentation."
 - Not acceptable: "You deliberately took credit for my work."
 
 **Layer 2 -- Measurable or demonstrable impact:** What actual business, project, or professional consequence resulted? This is where the email gets its legitimacy. Impact must be concrete:
+
 - Project impact: "The change meant we missed the Sprint 3 deadline by two days."
 - Reputation/career impact: "Leadership visibility on this project matters for my upcoming promotion review."
 - Team impact: "The miscommunication meant two engineers duplicated work for a full week."
@@ -98,26 +105,31 @@ The exception: for close peer relationships or when the conflict is explicitly i
 The frame determines the psychological position the recipient experiences when reading. Choose one primary frame per email -- mixing frames creates an incoherent tone.
 
 **The Curiosity Frame:** "I want to make sure I understand your perspective on X."
+
 - Best for: expectation conflicts, situations where you might be missing context, addressing a superior, early-stage pattern conflicts
 - Opens with genuine uncertainty, not feigned uncertainty. Use only if you can genuinely acknowledge you might have incomplete information.
 - Signature move: Ask a genuine question before stating your position. "I noticed X -- I may be missing context, so I wanted to check in before making assumptions."
 
 **The Impact Frame:** "When X happened, the effect on [project/team/deliverable] was Y."
+
 - Best for: incidents where the other person may genuinely not realize the downstream consequences of their behavior
 - Opens by assuming good faith about intent while being explicit about consequences. Does not require the recipient to admit wrongdoing -- it simply reports reality.
 - Signature move: Lead with the impact before mentioning the behavior. "The API integration deadline slipped by four days -- I want to walk through what happened so we can prevent it next time."
 
 **The Alignment Frame:** "I want to make sure we are operating from the same understanding."
+
 - Best for: expectation conflicts, miscommunications about scope, role confusion, process disagreements
 - Completely non-confrontational because it positions both parties as working toward shared clarity rather than one correcting the other
 - Signature move: Restate what you understood the agreement to be, invite them to confirm or correct it. "My understanding was X -- is that how you saw it?"
 
 **The Accountability Frame:** Use when the user made the mistake.
+
 - Lead with the acknowledgment before the explanation -- always. The explanation comes second, the fix comes third.
 - Never use "but" between the acknowledgment and explanation. "I missed the deadline, but I had three other priorities" erases the acknowledgment entirely.
 - Use "however" or start a fresh sentence: "I missed the deadline. Here is what happened and what I am doing to prevent recurrence."
 
 **Frames to avoid entirely:**
+
 - Blame frame: "You caused X" -- triggers defensiveness, shuts down resolution
 - Ultimatum frame: "If you do not X, I will Y" -- only use in writing when you have already attempted direct conversation twice and are prepared to follow through
 - Passive-aggressive frame: "I just wanted to make sure you were aware..." -- signals contempt, destroys credibility
@@ -135,13 +147,15 @@ Conflict emails have a specific structural logic that differs from standard prof
 **Section 3 -- Impact statement (2-3 sentences):** Describe the consequence using business or professional terms. This is where the email earns its legitimacy. If you cannot articulate a real impact, reconsider whether this warrants a written conflict email at all.
 
 **Section 4 -- Perspective invitation OR forward proposal (1-2 sentences):** Give the recipient a role in the resolution. There are two options:
+
 - Perspective invitation: "I may be missing something -- I would welcome your take on this." Use when you genuinely might be missing context.
 - Forward proposal: "Going forward, I would suggest X. Does that work for you?" Use when the facts are clear and you just need alignment on next steps.
-Do not use both in the same email -- it dilutes the ask.
+  Do not use both in the same email -- it dilutes the ask.
 
 **Section 5 -- Collaborative close (1 sentence):** Reinforce the relationship frame. Signal that the goal is resolution, not victory. The relationship survives the incident.
 
 **Length targets by conflict level:**
+
 - Level 1 (Cool): 100-150 words. Brevity signals low drama and high confidence.
 - Level 2 (Warm): 150-220 words. Enough space to be thorough without being overwhelming.
 - Level 3 (Hot): 75-100 words maximum -- and those words should be an invitation to talk, not an argument by email. Never try to resolve a Level 3 conflict in writing.
@@ -153,6 +167,7 @@ Do not use both in the same email -- it dilutes the ask.
 The subject line does more work in a conflict email than in any other professional email type. It is the first signal of your intention and frames the recipient's emotional state before they read a single word.
 
 **Rules for conflict email subject lines:**
+
 - Describe the topic, not the conflict. "Follow-up on Monday's presentation" not "Credit for my work"
 - Use "follow-up," "check-in," or "quick question about" as openers when the situation is sensitive -- these signal low stakes even when the content is significant
 - Avoid accusatory or emotionally loaded words in subject lines: "issue," "problem," "concern," "disappointed"
@@ -160,6 +175,7 @@ The subject line does more work in a conflict email than in any other profession
 - For pattern conflicts requiring systemic discussion: "Process alignment -- [topic]" signals you are proposing a structural solution, which is less threatening than "recurring issue with [person's name or team]"
 
 **Subject line red flags to catch and fix:**
+
 - "We need to talk" -- triggers fight-or-flight in almost every reader
 - "FYI" on a conflict-related email -- passive-aggressive
 - A subject that includes the recipient's name when they are the only recipient -- "Mike's behavior on project X" -- sounds like a formal complaint
@@ -184,12 +200,14 @@ Do not send after the first draft. Run four specific review passes:
 ### Step 7: Determine CCs, Timing, and Escalation Logic
 
 **CC decisions:**
+
 - For peer-level conflicts: no CC on initial email, ever. CC is an implicit escalation move.
 - For cross-functional conflicts where a shared manager needs visibility: BCC your manager on the initial email with a separate "heads up" note, or CC them only after one failed direct resolution attempt.
 - If the conflict itself involves a group decision or shared accountability: suggest a meeting rather than a group email thread. Group conflict threads almost always escalate.
 - Reply-all to a hostile group email: break the chain. Start a new thread with only the relevant parties.
 
 **Send timing:**
+
 - Never send a conflict email on Friday afternoon -- the recipient has the whole weekend to ruminate without being able to respond
 - Monday mornings are also suboptimal -- people are in high-task mode and read conflict emails as additional burden
 - Best window: Tuesday-Thursday, mid-morning. The recipient has their week oriented and has bandwidth to respond thoughtfully.
@@ -293,24 +311,31 @@ ESCALATION NOTE: [What to do if there is no response within 5 business days]
 ## Edge Cases
 
 ### Responding to a Hostile or Aggressive Email
+
 Do not match tone. Do not defend every point raised. Respond selectively and calmly to the substantive claims while declining to engage with the emotional register. Practical approach: copy the hostile email into a separate document, identify the 1-3 substantive business claims inside it, and respond to those only. Ignore the insults, the hyperbole, and the emotional language entirely. Opening language: "Thank you for flagging this. Let me address the specific points you raised." This signals you are taking the substance seriously without validating the delivery method. If the email contains personal attacks that cross a professional line, note factually: "I want to keep this conversation focused on the project rather than personal characterizations -- I think we will get to resolution faster that way."
 
 ### The User Is the Party Who Made the Mistake
+
 This is the highest-stakes conflict email type because it sets the tone for how the user will be perceived professionally afterward. The structure must be: acknowledgment → impact → fix → prevention. Never reverse this order. Never put the explanation before the acknowledgment -- it reads as defensive. Never use the word "but" between acknowledgment and explanation. Specific language: "I should have flagged the scope change before the sprint planning session. That gap caused the team to commit to deliverables that did not reflect the revised scope. I have already updated the project tracker and will send a revised timeline to the team by end of day. Going forward, I will confirm scope with you before any sprint commitment." Four sentences, all four steps, nothing extraneous.
 
 ### The Conflict Has an Audience -- Others Were Present or Are Aware
+
 When the conflict occurred in front of others (a meeting, a Slack channel, a group presentation), the user often wants to address it publicly or CC the group. Advise against this unless absolutely necessary. Public resolution attempts create spectators, which raises the stakes for the person being addressed and almost guarantees a defensive response. The one exception: if the incident occurred in a public channel and caused public confusion, a brief clarifying statement to that group may be warranted -- but it should not name or address the other party's behavior publicly. Address the incident one-on-one, then optionally address the group with a neutral clarification.
 
 ### The Other Person Has Repeatedly Not Responded to Previous Direct Attempts
+
 At this point, email is no longer the right tool for resolution -- it is a documentation tool. Advise the user that the conflict email at this stage has two purposes: (1) creating a written record that direct resolution was attempted, and (2) providing notice before escalation. The tone shifts slightly: "I have reached out [twice/three times] about [topic] without a response. I want to give you one more opportunity to address this directly before I loop in [shared manager/HR/project lead]. If I do not hear from you by [specific date], I will escalate through the appropriate channel." This is not a threat -- it is a structured escalation notice, and it is legitimate.
 
 ### The Conflict Is Rooted in a Cultural or Communication Style Difference
+
 Some conflicts that feel like willful behavior are actually style or cultural norm mismatches -- directness norms, hierarchy expectations, meeting etiquette, response time expectations. When there are signals this might be the case (the conflict involves communication style rather than a specific incident; the other party is from a different functional background or cultural context), use the alignment frame and explicitly name the style difference without judgment: "I think we may have different working norms around response timelines -- I typically expect a same-day response on project-critical messages, and I realize that may not match your workflow. I would like to align on what works for both of us." This reframes the conflict as a coordination problem rather than a behavioral failure.
 
 ### The User Wants to CC HR or Legal on the Initial Email
+
 Advise strongly against this in most cases. CC'ing HR or Legal on an initial conflict email signals that you are initiating a formal process, which triggers legal and HR protocols on the recipient's side and removes the possibility of an informal resolution. The response you get will likely be drafted by HR or Legal themselves. Reserve CC'ing HR for situations where: (1) the behavior constitutes harassment, discrimination, or policy violation; (2) direct resolution has been attempted and failed twice; or (3) the user has been advised by HR to document. For the vast majority of workplace conflicts, HR involvement should be the escalation path if direct resolution fails -- not the starting point.
 
 ### The Email Chain Has Already Escalated and the User Is Responding to a Hostile Thread
+
 Stop the chain. Do not reply-all to a hostile thread. Start a fresh email directly to the key party with a subject line that names a forward path: "Setting up time to talk about [topic]." The body should be 3-5 sentences maximum: acknowledge that the thread has gotten heated, express desire to resolve it directly, propose two specific times to connect by phone or video, and close with collaborative intent. Do not relitigate any points from the previous thread. The purpose of this email is solely to get off email and onto a medium that can actually resolve a Level 3 conflict.
 
 ---

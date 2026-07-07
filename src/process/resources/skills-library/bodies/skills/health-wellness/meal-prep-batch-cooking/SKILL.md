@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition meal-planning cooking"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition meal-planning cooking'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Meal Prep Batch Cooking
 
 > **Disclaimer:** This skill provides general wellness and nutrition information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. Food safety thresholds referenced here are based on standard food science guidelines but are not a substitute for professional food safety certification. Always consult a qualified healthcare professional before making significant dietary changes. If you have a compromised immune system, pregnancy, or chronic illness, consult a physician before following any batch cooking storage guidance.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks about meal prep, batch cooking, Sunday prep sessions, or "cook once, eat all week" workflows
 - The user wants to know the optimal order to cook multiple items simultaneously to minimize total prep time
 - The user asks how long batch-cooked foods last in the fridge or freezer and how to store them safely
@@ -34,6 +36,7 @@ metadata:
 - The user wants to prevent food waste by understanding how to stagger refrigerator and freezer use
 
 **Do NOT use when:**
+
 - The user wants a weekly meal plan built around nutritional goals or caloric targets -- use `meal-planning-framework`
 - The user needs macro or calorie calculations for their meals -- use `macro-calculation`
 - The user is asking for a specific recipe with detailed cooking instructions and technique -- use a dedicated recipe or cooking skill
@@ -74,6 +77,7 @@ Document the user's available stations as "active" (requires attention) or "pass
 Not all foods batch cook equally. Use this tiered framework to select items:
 
 **Tier 1 -- Batch Ideally (5+ day fridge life, excellent reheat quality):**
+
 - Cooked grains: white rice (5 days), brown rice (5 days), quinoa (5-7 days), farro (5 days), barley (5 days). Slightly undercook grains by 1-2 minutes -- they continue absorbing moisture when stored and reheating will complete cooking.
 - Legumes: cooked dried beans and lentils (5 days fridge, 3 months freezer). Dried beans cooked from scratch batch-cook 3x the volume of canned at roughly 1/4 the cost.
 - Roasted root vegetables: sweet potato, butternut squash, carrots, beets -- all hold 5-6 days refrigerated with minimal texture degradation.
@@ -81,6 +85,7 @@ Not all foods batch cook equally. Use this tiered framework to select items:
 - Ground meat cooked plain (no sauce): 4 days fridge, 3 months freezer. Seasoning after storage allows a single batch to become taco filling, pasta sauce, or grain bowl topping.
 
 **Tier 2 -- Batch Well With Caveats (3-4 day fridge life):**
+
 - Roasted boneless chicken thighs or breasts: 3-4 days. Thighs are strongly preferred for batch cooking -- the higher fat content prevents drying during storage and reheating. Breasts dry out by day 3.
 - Baked or poached salmon: 3 days maximum. Mark containers clearly as "use first."
 - Roasted cruciferous vegetables (broccoli, cauliflower, Brussels sprouts): 4-5 days but texture softens. Best reheated in air fryer or oven, not microwave.
@@ -88,11 +93,13 @@ Not all foods batch cook equally. Use this tiered framework to select items:
 - Marinated proteins (raw): 2 days for poultry, 3-5 days for red meat. These are "cook-when-ready" items, not cooked batch items.
 
 **Tier 3 -- Limited Batch Suitability (handle carefully):**
+
 - Roasted zucchini, bell pepper, asparagus: 3-4 days but become soft rapidly. Best used in first half of the week.
 - Fish other than salmon: most white fish deteriorates in texture after 2 days. Batch cooking fish only makes sense for Monday and Tuesday use.
 - Cooked shrimp: 3 days maximum. Texture becomes rubbery when reheated in microwave -- prefer cold use in salads.
 
 **Do NOT batch cook:**
+
 - Leafy greens in any cooked form -- they wilt and become unpleasant within hours. Keep raw, dress at time of use.
 - Avocado in any prepared form -- oxidation is rapid and cannot be reliably prevented in batch quantities.
 - Fried foods -- texture degrades completely. Acceptable in air fryer reheat only if reheated within 24 hours.
@@ -100,6 +107,7 @@ Not all foods batch cook equally. Use this tiered framework to select items:
 - Soups or stews with dairy: cream separates. Batch the base without cream and add at reheating.
 
 **Sauces and condiments (separate storage, dramatically increase meal variety):**
+
 - Batch 2-3 sauces from simple pantry ingredients. Store separately -- never dress food before storage.
 - Teriyaki: soy sauce + rice vinegar + honey + fresh ginger + cornstarch. Refrigerates 2 weeks.
 - Tahini dressing: tahini + lemon + garlic + water. Refrigerates 7 days.
@@ -111,6 +119,7 @@ Not all foods batch cook equally. Use this tiered framework to select items:
 The cascade method sequences cooking tasks so each new task begins precisely when a passive window opens in a running task. The goal is 100% utilization of hands-on time and maximum overlap of passive cooking time.
 
 **Cascade rules:**
+
 1. Identify the item with the longest passive cook time (usually oven proteins: 35-50 minutes). Start this first.
 2. Start the second-longest passive item within the first 10 minutes (grains: 20-35 minutes).
 3. Fill all passive time with active prep work: washing, chopping, sauce making, container preparation.
@@ -118,6 +127,7 @@ The cascade method sequences cooking tasks so each new task begins precisely whe
 5. Reserve the final 15-20 minutes for portioning and labeling.
 
 **Specific timing benchmarks for common items:**
+
 - Roasted chicken thighs at 425°F: 35-40 minutes to 165°F internal temperature (verify with instant-read thermometer)
 - Roasted salmon at 400°F: 12-15 minutes for 1-inch thick fillets
 - Roasted vegetables (1-inch pieces) at 425°F: 20-25 minutes for tender-crisp
@@ -135,23 +145,27 @@ The cascade method sequences cooking tasks so each new task begins precisely whe
 Container selection materially affects storage quality and food safety. Apply these specific guidelines:
 
 **Glass containers with airtight lids:**
+
 - Best for acidic foods (tomato-based, citrus-dressed) -- glass does not absorb odors or stain
 - Best for foods intended for oven reheating (glass is oven-safe; most plastic is not)
 - Heavier and more fragile, but extends useful storage life vs. cheap plastic due to better sealing
 - Recommended for complete assembled meals
 
 **BPA-free plastic meal prep containers:**
+
 - Lightweight and stackable -- ideal for portioned lunches
 - Use for foods that will be microwave-reheated only
 - Replace when scratched -- scratches harbor bacteria and allow off-flavors to transfer
 - Not suitable for highly acidic or fatty foods in long-term storage
 
 **Wide-mouth mason jars:**
+
 - Ideal for sauces, dressings, and liquid-adjacent items
 - Excellent for overnight oats, grain salads, or any food eaten directly from the container
 - Freezer-safe if filled only to the "freeze" line (leaving 1 inch headspace -- liquids expand)
 
 **Silicone freezer bags:**
+
 - Best for freezer storage of proteins, cooked grains, and sauces
 - Lay flat to freeze then stack vertically -- doubles effective freezer storage space
 - Remove as much air as possible before sealing to prevent freezer burn
@@ -165,6 +179,7 @@ After portioning, generate a fridge inventory that maps what exists, how many po
 **The fridge-to-freezer handoff rule:** Any item that will not be consumed before its use-by date should be moved to the freezer within the first 2 days of preparation -- not on the day it expires. Freezing delays bacteria growth; it does not reverse it. Food that is beginning to degrade should not be frozen.
 
 **Consumption order recommendation:**
+
 - Days 1-2: Use Tier 2 proteins (fish, baked salmon, anything with a 3-day window)
 - Days 2-4: Use Tier 1 proteins (chicken thighs, ground meat, hard-boiled eggs)
 - Days 3-5: Use Tier 1 grains and legumes (rice, quinoa, beans)
@@ -176,16 +191,19 @@ After portioning, generate a fridge inventory that maps what exists, how many po
 The assembly guide turns batch components into diverse meals, preventing flavor fatigue and ensuring components are used in order of perishability.
 
 **The flavor multiplication framework:** One batch protein can yield 3-4 distinct meal experiences through sauce and format variation.
+
 - Roasted chicken thighs (plain-seasoned): teriyaki rice bowl (Monday), chicken wrap with hummus and raw vegetables (Tuesday), chicken Caesar salad with croutons (Wednesday), chicken pasta with pesto (Thursday), chicken fried rice using leftover rice (Friday)
 - Cooked ground beef (unseasoned): taco bowls with salsa (Monday), pasta Bolognese with tomato sauce (Wednesday), stuffed bell peppers with rice (Friday)
 - Roasted salmon: grain bowl with tahini dressing (Monday), salmon cucumber rice paper wrap (Tuesday -- cold), salmon and greens salad with lemon dressing (Wednesday)
 
 **Assembly time targets:**
+
 - Hot assembly (from stored components, microwave): 5-7 minutes
 - Cold assembly (no cooking required): 3-5 minutes
 - Partial cook assembly (e.g., stir-frying batch rice with eggs): 10-12 minutes
 
 **Reheating protocols by food type:**
+
 - Cooked grains: sprinkle 1 tablespoon of water per cup of grain before microwaving, cover with a damp paper towel, 1.5-2 minutes on high. The moisture prevents the dry, crumbly texture of reheated grain.
 - Cooked chicken (sliced or whole): microwave covered with splash of water, 2-2.5 minutes at 70% power (gentler heat prevents further moisture loss). Alternatively, add directly to a hot pan with 1 tsp oil for 2-3 minutes.
 - Roasted vegetables: air fryer at 375°F for 3-4 minutes strongly preferred. Microwave acceptable but results in softened texture. Oven at 400°F for 5-7 minutes restores crispness.
@@ -367,41 +385,41 @@ Do not provide medical allergy management guidance. Do adjust batch item selecti
 
 ### Prep-Day Cascade Timeline
 
-| Elapsed Time | Task | Station | Hands-On Min | Notes |
-|---|---|---|---|---|
-| 0:00 | Preheat oven to 425°F. Start 3 cups white rice in rice cooker (will yield ~9 cups cooked). | Rice cooker | 2 | Rice will be done at ~0:25. Completely hands-free. |
-| 0:02 | Pat dry and season 3 lbs boneless chicken thighs with olive oil, salt, pepper, garlic powder, smoked paprika. Place on lower oven rack. | Oven prep + oven | 8 | Hands-free after entering oven. Done at ~0:42. |
-| 0:10 | Chop 2 heads broccoli, 2 bell peppers, 1 zucchini into 1-inch pieces. Toss with 2 tbsp olive oil and 1 tsp salt. Spread on upper oven rack sheet pan. | Counter + oven | 12 | Vegetables will cook 20-22 min. Done at ~0:32. |
-| 0:22 | Cook 1.5 lbs ground beef in large skillet over medium-high heat. Season with only salt and black pepper -- no other seasoning. Break into small crumbles. | Stovetop | 10 | Plain-cooked ground beef is flexible for 3 different meal formats. Done at ~0:32. |
-| 0:32 | Remove vegetables from oven. Spread on a clean sheet pan or large plate to cool. Remove and drain ground beef from skillet, spread in shallow bowl to cool. | Oven + stovetop | 3 | Do not cover yet -- cooling is the priority. |
-| 0:35 | Make 3 sauces: (1) Teriyaki: combine 4 tbsp soy sauce, 2 tbsp rice vinegar, 1.5 tbsp honey, 1 tsp fresh grated ginger, 1 tsp cornstarch. Simmer 3 min until thickened. (2) Tahini dressing: whisk 4 tbsp tahini, 3 tbsp lemon juice, 1 clove garlic minced, 3 tbsp water, salt. (3) Chimichurri: blitz ½ cup parsley, 2 cloves garlic, 3 tbsp red wine vinegar, 4 tbsp olive oil, salt, pinch red pepper flakes -- no cooking required. | Stovetop (teriyaki) + counter (tahini, chimichurri) | 15 | Transfer each sauce to its own labeled mason jar while warm. Teriyaki thickens as it cools -- this is correct. |
-| 0:50 | Wash and chop raw vegetables: 1 English cucumber, 1 cup cherry tomatoes (halved), 3 stalks celery. Store in one large container with a folded paper towel beneath. | Counter | 8 | These are for cold lunch salad formats mid-week. |
-| 0:58 | Cook 2 cups quinoa on stovetop: 1:1.75 ratio with water, bring to boil, reduce to low simmer, cover 15 min. | Stovetop | 3 | Hands-free after setting to simmer. Done at ~1:13. |
-| 1:01 | Remove chicken from oven. Verify 165°F internal temperature with thermometer. Spread onto cutting board and allow to rest -- do not cut yet. | Oven | 2 | Resting 10 min before slicing retains more moisture. |
-| 1:03 | Portion rice: rice is now cooled enough. Measure into 5 meal containers (½ cup cooked rice per person = 1 cup per container for 2-person portions). | Counter | 6 | Do not seal lids yet -- food is still slightly warm. |
-| 1:09 | Slice chicken thighs. Portion into 10 portions total: 5 for lunch containers (add to rice already in containers), 5 for dinner containers (set aside). | Counter | 8 | 3 lbs raw chicken thighs yields approximately 2.2-2.4 lbs cooked. Each of 10 portions = ~3.5 oz protein. |
-| 1:17 | Portion roasted vegetables into containers: add to the 5 lunch containers (alongside chicken and rice). Reserve remaining vegetables for dinner containers. | Counter | 5 | |
-| 1:22 | Quinoa is done. Spread briefly to cool. Then portion into 5 dinner containers (½ cup cooked quinoa per person = 1 cup per dinner container for 2). | Counter | 5 | |
-| 1:27 | Add remaining chicken portions and roasted vegetables to dinner containers. Seal all 10 meal containers. Label: "Chicken + [rice/quinoa] + veg | Made 1/12 | Use by 1/16." | Counter | 8 | |
-| 1:35 | Transfer ground beef into one large container. Label "Ground beef -- plain | Made 1/12 | Use by 1/16." This will be used for 2 dinner variations. | Counter | 2 | |
-| 1:37 | Store all 3 sauces. Raw vegetable container goes in fridge. Final fridge organization: perishables (fish, if any) at eye level for "use first" visibility. | Counter + fridge | 5 | |
-| **1:42 total elapsed** | | | **~97 min hands-on** | 18 min of remaining buffer before 2-hour mark |
+| Elapsed Time           | Task                                                                                                                                                                                                                                                                                                                                                                                                                                    | Station                                             | Hands-On Min                                             | Notes                                                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --- | --- |
+| 0:00                   | Preheat oven to 425°F. Start 3 cups white rice in rice cooker (will yield ~9 cups cooked).                                                                                                                                                                                                                                                                                                                                              | Rice cooker                                         | 2                                                        | Rice will be done at ~0:25. Completely hands-free.                                                             |
+| 0:02                   | Pat dry and season 3 lbs boneless chicken thighs with olive oil, salt, pepper, garlic powder, smoked paprika. Place on lower oven rack.                                                                                                                                                                                                                                                                                                 | Oven prep + oven                                    | 8                                                        | Hands-free after entering oven. Done at ~0:42.                                                                 |
+| 0:10                   | Chop 2 heads broccoli, 2 bell peppers, 1 zucchini into 1-inch pieces. Toss with 2 tbsp olive oil and 1 tsp salt. Spread on upper oven rack sheet pan.                                                                                                                                                                                                                                                                                   | Counter + oven                                      | 12                                                       | Vegetables will cook 20-22 min. Done at ~0:32.                                                                 |
+| 0:22                   | Cook 1.5 lbs ground beef in large skillet over medium-high heat. Season with only salt and black pepper -- no other seasoning. Break into small crumbles.                                                                                                                                                                                                                                                                               | Stovetop                                            | 10                                                       | Plain-cooked ground beef is flexible for 3 different meal formats. Done at ~0:32.                              |
+| 0:32                   | Remove vegetables from oven. Spread on a clean sheet pan or large plate to cool. Remove and drain ground beef from skillet, spread in shallow bowl to cool.                                                                                                                                                                                                                                                                             | Oven + stovetop                                     | 3                                                        | Do not cover yet -- cooling is the priority.                                                                   |
+| 0:35                   | Make 3 sauces: (1) Teriyaki: combine 4 tbsp soy sauce, 2 tbsp rice vinegar, 1.5 tbsp honey, 1 tsp fresh grated ginger, 1 tsp cornstarch. Simmer 3 min until thickened. (2) Tahini dressing: whisk 4 tbsp tahini, 3 tbsp lemon juice, 1 clove garlic minced, 3 tbsp water, salt. (3) Chimichurri: blitz ½ cup parsley, 2 cloves garlic, 3 tbsp red wine vinegar, 4 tbsp olive oil, salt, pinch red pepper flakes -- no cooking required. | Stovetop (teriyaki) + counter (tahini, chimichurri) | 15                                                       | Transfer each sauce to its own labeled mason jar while warm. Teriyaki thickens as it cools -- this is correct. |
+| 0:50                   | Wash and chop raw vegetables: 1 English cucumber, 1 cup cherry tomatoes (halved), 3 stalks celery. Store in one large container with a folded paper towel beneath.                                                                                                                                                                                                                                                                      | Counter                                             | 8                                                        | These are for cold lunch salad formats mid-week.                                                               |
+| 0:58                   | Cook 2 cups quinoa on stovetop: 1:1.75 ratio with water, bring to boil, reduce to low simmer, cover 15 min.                                                                                                                                                                                                                                                                                                                             | Stovetop                                            | 3                                                        | Hands-free after setting to simmer. Done at ~1:13.                                                             |
+| 1:01                   | Remove chicken from oven. Verify 165°F internal temperature with thermometer. Spread onto cutting board and allow to rest -- do not cut yet.                                                                                                                                                                                                                                                                                            | Oven                                                | 2                                                        | Resting 10 min before slicing retains more moisture.                                                           |
+| 1:03                   | Portion rice: rice is now cooled enough. Measure into 5 meal containers (½ cup cooked rice per person = 1 cup per container for 2-person portions).                                                                                                                                                                                                                                                                                     | Counter                                             | 6                                                        | Do not seal lids yet -- food is still slightly warm.                                                           |
+| 1:09                   | Slice chicken thighs. Portion into 10 portions total: 5 for lunch containers (add to rice already in containers), 5 for dinner containers (set aside).                                                                                                                                                                                                                                                                                  | Counter                                             | 8                                                        | 3 lbs raw chicken thighs yields approximately 2.2-2.4 lbs cooked. Each of 10 portions = ~3.5 oz protein.       |
+| 1:17                   | Portion roasted vegetables into containers: add to the 5 lunch containers (alongside chicken and rice). Reserve remaining vegetables for dinner containers.                                                                                                                                                                                                                                                                             | Counter                                             | 5                                                        |                                                                                                                |
+| 1:22                   | Quinoa is done. Spread briefly to cool. Then portion into 5 dinner containers (½ cup cooked quinoa per person = 1 cup per dinner container for 2).                                                                                                                                                                                                                                                                                      | Counter                                             | 5                                                        |                                                                                                                |
+| 1:27                   | Add remaining chicken portions and roasted vegetables to dinner containers. Seal all 10 meal containers. Label: "Chicken + [rice/quinoa] + veg                                                                                                                                                                                                                                                                                          | Made 1/12                                           | Use by 1/16."                                            | Counter                                                                                                        | 8   |     |
+| 1:35                   | Transfer ground beef into one large container. Label "Ground beef -- plain                                                                                                                                                                                                                                                                                                                                                              | Made 1/12                                           | Use by 1/16." This will be used for 2 dinner variations. | Counter                                                                                                        | 2   |     |
+| 1:37                   | Store all 3 sauces. Raw vegetable container goes in fridge. Final fridge organization: perishables (fish, if any) at eye level for "use first" visibility.                                                                                                                                                                                                                                                                              | Counter + fridge                                    | 5                                                        |                                                                                                                |
+| **1:42 total elapsed** |                                                                                                                                                                                                                                                                                                                                                                                                                                         |                                                     | **~97 min hands-on**                                     | 18 min of remaining buffer before 2-hour mark                                                                  |
 
 ---
 
 ### Batch Items, Quantities, and Storage
 
-| Item | Batch Quantity | Total Servings (2-person meals) | Fridge Life | Use By | Container |
-|---|---|---|---|---|---|
-| Roasted chicken thighs (sliced) | ~2.3 lbs cooked | 10 individual | 4 days | Thursday | Portioned into meal containers |
-| Ground beef -- plain | ~1.2 lbs cooked | 4-5 individual | 4 days | Thursday | One large sealed container |
-| White rice (cooked) | ~9 cups | 5 two-person portions | 5 days | Friday | Portioned into lunch containers |
-| Quinoa (cooked) | ~5 cups | 5 two-person portions | 7 days | Next Sunday | Portioned into dinner containers |
-| Roasted broccoli, bell pepper, zucchini | ~6 cups | 10 individual | 5 days | Friday | Portioned across meal containers |
-| Raw cucumber, tomato, celery | ~3 cups | 5 individual | 3 days | Wednesday | One large container with paper towel |
-| Teriyaki sauce | ~4 oz | 5 servings | 10 days | Jan 22 | Mason jar |
-| Tahini dressing | ~3 oz | 4 servings | 7 days | Jan 19 | Mason jar |
-| Chimichurri | ~3 oz | 4 servings | 7 days | Jan 19 | Mason jar |
+| Item                                    | Batch Quantity  | Total Servings (2-person meals) | Fridge Life | Use By      | Container                            |
+| --------------------------------------- | --------------- | ------------------------------- | ----------- | ----------- | ------------------------------------ |
+| Roasted chicken thighs (sliced)         | ~2.3 lbs cooked | 10 individual                   | 4 days      | Thursday    | Portioned into meal containers       |
+| Ground beef -- plain                    | ~1.2 lbs cooked | 4-5 individual                  | 4 days      | Thursday    | One large sealed container           |
+| White rice (cooked)                     | ~9 cups         | 5 two-person portions           | 5 days      | Friday      | Portioned into lunch containers      |
+| Quinoa (cooked)                         | ~5 cups         | 5 two-person portions           | 7 days      | Next Sunday | Portioned into dinner containers     |
+| Roasted broccoli, bell pepper, zucchini | ~6 cups         | 10 individual                   | 5 days      | Friday      | Portioned across meal containers     |
+| Raw cucumber, tomato, celery            | ~3 cups         | 5 individual                    | 3 days      | Wednesday   | One large container with paper towel |
+| Teriyaki sauce                          | ~4 oz           | 5 servings                      | 10 days     | Jan 22      | Mason jar                            |
+| Tahini dressing                         | ~3 oz           | 4 servings                      | 7 days      | Jan 19      | Mason jar                            |
+| Chimichurri                             | ~3 oz           | 4 servings                      | 7 days      | Jan 19      | Mason jar                            |
 
 ---
 
@@ -417,20 +435,21 @@ Do not provide medical allergy management guidance. Do adjust batch item selecti
 
 ### Weeknight Meal Assembly Guide
 
-| Slot | Day | Components | Format | Assembly Method | Time |
-|---|---|---|---|---|---|
-| Lunch | Monday | Chicken + rice + roasted veg + teriyaki | Teriyaki rice bowl | Microwave chicken and rice 2.5 min at 70% power. Add veg. Drizzle teriyaki cold. | 7 min |
-| Dinner | Monday | Chicken + quinoa + roasted veg + chimichurri | Chimichurri protein bowl | Microwave all together 2.5 min. Add chimichurri after heating. | 6 min |
-| Lunch | Tuesday | Chicken + rice + raw vegetables + tahini | Cold grain salad | No heating needed. Layer rice, vegetables, chicken cold. Drizzle tahini. | 3 min |
-| Dinner | Tuesday | Ground beef + quinoa + roasted veg + teriyaki | Asian-style ground beef bowl | Microwave ground beef 1.5 min, microwave quinoa 1.5 min. Combine, add sauce. | 6 min |
-| Lunch | Wednesday | Chicken + rice + roasted veg + chimichurri | Rice bowl, different sauce | Microwave chicken and rice. Add roasted veg, top with chimichurri. | 7 min |
-| Dinner | Wednesday | Ground beef + roasted veg + quinoa + tahini | Ground beef mezze bowl | Microwave ground beef and veg. Serve over quinoa. Tahini drizzle. | 7 min |
-| Lunch | Thursday | Chicken + rice + roasted veg + teriyaki | Repeat of Monday format -- last chicken use | Reheat and add remaining teriyaki. Last day for chicken. | 7 min |
-| Dinner | Thursday | Chicken + quinoa + any remaining veg + chimichurri | Protein bowl | Last chicken portions. Reheat all, add chimichurri. | 6 min |
-| Lunch | Friday | Rice + remaining roasted veg + egg (cook fresh 5 min) | Fried rice | Pan-fry rice with egg in 1 tsp oil over high heat. Add vegetables. Soy sauce to taste. | 10 min |
-| Dinner | Friday | Quinoa + remaining components + any fresh additions | Clean-out bowl | Use remaining quinoa and any vegetables. Add fresh ingredients if available. | 8 min |
+| Slot   | Day       | Components                                            | Format                                      | Assembly Method                                                                        | Time   |
+| ------ | --------- | ----------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------- | ------ |
+| Lunch  | Monday    | Chicken + rice + roasted veg + teriyaki               | Teriyaki rice bowl                          | Microwave chicken and rice 2.5 min at 70% power. Add veg. Drizzle teriyaki cold.       | 7 min  |
+| Dinner | Monday    | Chicken + quinoa + roasted veg + chimichurri          | Chimichurri protein bowl                    | Microwave all together 2.5 min. Add chimichurri after heating.                         | 6 min  |
+| Lunch  | Tuesday   | Chicken + rice + raw vegetables + tahini              | Cold grain salad                            | No heating needed. Layer rice, vegetables, chicken cold. Drizzle tahini.               | 3 min  |
+| Dinner | Tuesday   | Ground beef + quinoa + roasted veg + teriyaki         | Asian-style ground beef bowl                | Microwave ground beef 1.5 min, microwave quinoa 1.5 min. Combine, add sauce.           | 6 min  |
+| Lunch  | Wednesday | Chicken + rice + roasted veg + chimichurri            | Rice bowl, different sauce                  | Microwave chicken and rice. Add roasted veg, top with chimichurri.                     | 7 min  |
+| Dinner | Wednesday | Ground beef + roasted veg + quinoa + tahini           | Ground beef mezze bowl                      | Microwave ground beef and veg. Serve over quinoa. Tahini drizzle.                      | 7 min  |
+| Lunch  | Thursday  | Chicken + rice + roasted veg + teriyaki               | Repeat of Monday format -- last chicken use | Reheat and add remaining teriyaki. Last day for chicken.                               | 7 min  |
+| Dinner | Thursday  | Chicken + quinoa + any remaining veg + chimichurri    | Protein bowl                                | Last chicken portions. Reheat all, add chimichurri.                                    | 6 min  |
+| Lunch  | Friday    | Rice + remaining roasted veg + egg (cook fresh 5 min) | Fried rice                                  | Pan-fry rice with egg in 1 tsp oil over high heat. Add vegetables. Soy sauce to taste. | 10 min |
+| Dinner | Friday    | Quinoa + remaining components + any fresh additions   | Clean-out bowl                              | Use remaining quinoa and any vegetables. Add fresh ingredients if available.           | 8 min  |
 
 **Sauce allocation summary:**
+
 - Teriyaki: Monday lunch + Tuesday dinner + Thursday lunch = 3 uses
 - Tahini: Tuesday lunch + Wednesday dinner = 2 uses
 - Chimichurri: Monday dinner + Wednesday lunch + Thursday dinner = 3 uses
@@ -440,23 +459,23 @@ Do not provide medical allergy management guidance. Do adjust batch item selecti
 
 ### Reheating Quick Reference for This Plan
 
-| Food | Method | Setting | Time | Critical Tip |
-|---|---|---|---|---|
-| Chicken thighs (sliced) | Microwave covered | 70% power | 2-2.5 min | Add 1 tbsp water to container; cover with damp paper towel -- prevents drying |
-| Ground beef | Microwave uncovered | High | 1.5 min | Stir once halfway; do not overheat or texture becomes mealy |
-| White rice | Microwave covered | High | 1.5-2 min | Sprinkle 1 tbsp water per cup before heating; mandatory step |
-| Quinoa | Microwave covered | High | 1 min | Lighter than rice; heats quickly; add small water splash |
-| Roasted vegetables | Air fryer | 375°F | 3-4 min | Strongly preferred -- restores original texture. Microwave acceptable (1.5 min) but softens |
-| Any sauce | Do not heat | -- | -- | Always add sauce after reheating solids. Heating tahini or chimichurri kills aromatics |
+| Food                    | Method              | Setting   | Time      | Critical Tip                                                                                |
+| ----------------------- | ------------------- | --------- | --------- | ------------------------------------------------------------------------------------------- |
+| Chicken thighs (sliced) | Microwave covered   | 70% power | 2-2.5 min | Add 1 tbsp water to container; cover with damp paper towel -- prevents drying               |
+| Ground beef             | Microwave uncovered | High      | 1.5 min   | Stir once halfway; do not overheat or texture becomes mealy                                 |
+| White rice              | Microwave covered   | High      | 1.5-2 min | Sprinkle 1 tbsp water per cup before heating; mandatory step                                |
+| Quinoa                  | Microwave covered   | High      | 1 min     | Lighter than rice; heats quickly; add small water splash                                    |
+| Roasted vegetables      | Air fryer           | 375°F     | 3-4 min   | Strongly preferred -- restores original texture. Microwave acceptable (1.5 min) but softens |
+| Any sauce               | Do not heat         | --        | --        | Always add sauce after reheating solids. Heating tahini or chimichurri kills aromatics      |
 
 ---
 
 ### Food Safety Reference for This Session
 
-| Rule | This Session |
-|---|---|
-| 2-hour room temperature limit | All items portioned and refrigerated by 1:42 -- well within window |
-| Chicken internal temperature | Verified at 165°F before portioning |
-| Cooling before sealing | All hot items spread on sheet pans or shallow bowls before portioning -- lids sealed only after no visible steam |
-| Latest use dates | Chicken and ground beef: Thursday January 16. Rice: Friday January 17. Quinoa: Following Sunday. |
-| Freezer option | If Thursday arrives and chicken portions remain, freeze immediately -- do not push to Friday. |
+| Rule                          | This Session                                                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 2-hour room temperature limit | All items portioned and refrigerated by 1:42 -- well within window                                               |
+| Chicken internal temperature  | Verified at 165°F before portioning                                                                              |
+| Cooling before sealing        | All hot items spread on sheet pans or shallow bowls before portioning -- lids sealed only after no visible steam |
+| Latest use dates              | Chicken and ground beef: Thursday January 16. Rice: Friday January 17. Quinoa: Following Sunday.                 |
+| Freezer option                | If Thursday arrives and chicken portions remain, freeze immediately -- do not push to Friday.                    |

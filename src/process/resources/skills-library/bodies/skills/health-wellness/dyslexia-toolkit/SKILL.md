@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness stress-management quick-reference testing accessibility time-management parenting"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness stress-management quick-reference testing accessibility time-management parenting'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Dyslexia Toolkit
@@ -22,15 +22,16 @@ You are a learning specialist focused on dyslexia support. You provide practical
 
 > **DISCLAIMER**: This skill provides general educational strategies and is not a substitute for professional assessment, diagnosis, or specialized instruction. Dyslexia presents differently in each individual. Consult with qualified educational psychologists, reading specialists, or learning disability professionals for personalized guidance.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about dyslexia toolkit techniques or best practices
 - User needs guidance on dyslexia toolkit concepts
 - User wants to implement or improve their approach to dyslexia toolkit
 
 **Do NOT use when:**
+
 - The request falls outside the scope of dyslexia toolkit
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -78,11 +79,13 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### Font Selection
 
 #### Recommended Fonts for Dyslexia
+
 - **Sans-serif fonts**: Arial, Verdana, Tahoma, Calibri, Century Gothic
 - **Designed for dyslexia**: OpenDyslexic (free, weighted bottoms on letters), Lexie Readable, Sylexiad
 - **Monospaced**: Courier New, Consolas (uniform spacing aids tracking)
 
 #### Font Properties That Help
+
 - Consistent letter shapes (avoid decorative fonts)
 - Clear distinction between similar letters (b/d, p/q, m/n, I/l/1)
 - Adequate letter spacing (tracking)
@@ -92,6 +95,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### Formatting Best Practices
 
 #### Text Layout
+
 - **Line spacing**: 1.5 to 2.0 spacing minimum
 - **Line length**: 60-70 characters per line maximum
 - **Paragraph length**: Short paragraphs of 3-5 sentences
@@ -99,6 +103,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 - **Margins**: Wide margins provide visual breathing room
 
 #### Color and Contrast
+
 - **Avoid pure black on pure white**: Reduces glare and visual stress
 - **Recommended combinations**:
   - Dark grey (#333333) on cream (#FFFFF0)
@@ -108,6 +113,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 - **Screen tinting**: Software like f.lux, or accessibility settings to warm screen color
 
 #### Document Structure
+
 - Use headings and subheadings liberally
 - Bullet points and numbered lists over dense paragraphs
 - Bold key terms rather than italicizing (italics are harder to read)
@@ -120,12 +126,14 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### Text-to-Speech (TTS)
 
 #### Built-in Tools
+
 - **Windows**: Narrator, Microsoft Immersive Reader (in Edge, Word, OneNote)
 - **Mac/iOS**: Speak Screen, VoiceOver
 - **Android**: TalkBack, Select to Speak
 - **Chromebook**: ChromeVox, Select-to-speak
 
 #### Dedicated TTS Applications
+
 - **NaturalReader**: Desktop and web, multiple natural voices, PDF support
 - **Voice Dream Reader**: Mobile, supports many file formats
 - **Kurzweil 3000**: Education-focused, includes study tools
@@ -133,6 +141,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 - **Speechify**: Browser extension and mobile app
 
 #### TTS Best Practices
+
 - Start at a slower speed and increase as you become comfortable
 - Follow along visually while listening (multi-sensory reinforcement)
 - Use highlighter feature if available (shows which word is being read)
@@ -141,17 +150,20 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### Speech-to-Text (Dictation)
 
 #### Built-in Tools
+
 - **Windows**: Windows Speech Recognition, Voice Typing (Win+H)
 - **Mac/iOS**: Dictation (built into macOS and iOS)
 - **Android**: Google Voice Typing
 - **Google Docs**: Voice typing feature
 
 #### Dedicated Dictation Software
+
 - **Dragon NaturallySpeaking**: Industry standard for accuracy
 - **Otter.ai**: Great for meeting transcription
 - **Google Docs Voice Typing**: Free and effective
 
 #### Dictation Tips
+
 - Speak punctuation: "period," "comma," "new paragraph"
 - Dictate in a quiet environment for best accuracy
 - Review and edit after dictating (do not try to perfect while speaking)
@@ -184,6 +196,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### During Reading
 
 #### Active Reading Techniques
+
 - **Finger or pointer tracking**: Use a finger, pen, or ruler under the line being read
 - **Colored overlay**: Place a tinted transparent sheet over the page
 - **Window reading**: Use a card with a slot cut out to isolate one line at a time
@@ -192,6 +205,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 - **Whisper reading**: Sub-vocalize when reading silently is not working
 
 #### Comprehension Strategies
+
 - **Stop and summarize**: After each paragraph, state the main idea in your own words
 - **Highlight selectively**: Only key ideas, not entire sentences
 - **Margin notes**: Write brief reactions, questions, or summaries in margins
@@ -235,6 +249,7 @@ You are a learning specialist focused on dyslexia support. You provide practical
 ### Note-Taking
 
 #### Alternative Note-Taking Methods
+
 - **Mind maps**: Central topic with branching ideas (visual-spatial)
 - **Sketch notes**: Combine drawings and words
 - **Audio recording**: Record lectures and discussions (get permission first)
@@ -294,6 +309,7 @@ Common test accommodations for dyslexia (availability varies):
 ## Resources for Different Life Stages
 
 ### Children (Ages 5-12)
+
 - Structured literacy programs with explicit phonics instruction
 - Multisensory learning approaches
 - Regular reading practice with high-interest, accessible books
@@ -302,6 +318,7 @@ Common test accommodations for dyslexia (availability varies):
 - Positive reinforcement and building confidence
 
 ### Teenagers (Ages 13-18)
+
 - Self-advocacy skills development
 - Assistive technology training
 - Study skills and time management coaching
@@ -310,6 +327,7 @@ Common test accommodations for dyslexia (availability varies):
 - Connecting with dyslexic peers and role models
 
 ### Adults
+
 - Workplace accommodation strategies
 - Continuing education support
 - Assistive technology for professional use
@@ -319,16 +337,15 @@ Common test accommodations for dyslexia (availability varies):
 
 ## Quick Reference Card
 
-| Challenge | Immediate Strategy |
-|-----------|-------------------|
-| Cannot read this text | Change font, increase size, add colored overlay, use TTS |
-| Spelling a word | Use speech-to-text, predictive text, or look it up phonetically |
-| Writing a document | Dictate first draft, use mind map to organize, edit after |
-| Studying for exam | Record material, use flashcards, teach someone, draw diagrams |
-| Reading a long document | Break into chunks, use TTS, preview headings first |
-| Proofreading | Use TTS to read back, change font, print on colored paper |
-| Taking notes | Record audio, use mind maps, get collaborative notes |
-
+| Challenge               | Immediate Strategy                                              |
+| ----------------------- | --------------------------------------------------------------- |
+| Cannot read this text   | Change font, increase size, add colored overlay, use TTS        |
+| Spelling a word         | Use speech-to-text, predictive text, or look it up phonetically |
+| Writing a document      | Dictate first draft, use mind map to organize, edit after       |
+| Studying for exam       | Record material, use flashcards, teach someone, draw diagrams   |
+| Reading a long document | Break into chunks, use TTS, preview headings first              |
+| Proofreading            | Use TTS to read back, change font, print on colored paper       |
+| Taking notes            | Record audio, use mind maps, get collaborative notes            |
 
 ## Process
 
@@ -337,7 +354,6 @@ Common test accommodations for dyslexia (availability varies):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -358,14 +374,12 @@ Common test accommodations for dyslexia (availability varies):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

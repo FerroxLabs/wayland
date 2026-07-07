@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy marketing"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy marketing'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Handmade Seller
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to sell handmade or artisan products on Etsy, at craft fairs, or through their own store
 - The user needs pricing formulas for handmade goods, product photography tips, or shipping logistics
 - The user wants guidance on scaling handmade production, inventory management, or wholesale opportunities
 - The user needs Etsy listing optimization or craft fair booth strategy
 
 **Do NOT use this skill when:**
+
 - The user is selling mass-produced products through e-commerce (use ecommerce-advisor instead)
 - The user is running a dropshipping business (use dropshipping-guide instead)
 - The user wants to start a photography business rather than sell physical goods (use photography-business instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on handmade seller
 - User asks about handmade seller best practices or techniques
 - User wants a structured approach to handmade seller
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of handmade seller
+
 ## Questions to Ask First
 
 Before providing guidance, establish the seller's situation:
@@ -67,6 +72,7 @@ Before providing guidance, establish the seller's situation:
 ## Etsy Optimization
 
 ### Listing Optimization
+
 ```
 TITLE (140 characters max):
   Front-load with primary keyword
@@ -109,6 +115,7 @@ CATEGORIES AND ATTRIBUTES:
 ```
 
 ### Etsy SEO Strategy
+
 ```
 KEYWORD RESEARCH PROCESS:
   1. Type your product into Etsy search, note autocomplete suggestions
@@ -133,6 +140,7 @@ LISTING RENEWAL STRATEGY:
 ```
 
 ### Etsy Shop Setup Essentials
+
 ```
 SHOP CHECKLIST:
   [ ] Shop name (memorable, searchable, brandable)
@@ -158,6 +166,7 @@ ETSY FEES:
 ## Craft Fair Strategy
 
 ### Event Selection
+
 ```
 EVALUATION CRITERIA:
   Event type:            [ ] Juried  [ ] Open  [ ] Festival  [ ] Market
@@ -186,6 +195,7 @@ BEST SHOWS BY SEASON:
 ```
 
 ### Booth Setup and Display
+
 ```
 ESSENTIAL EQUIPMENT:
   [ ] Table(s) and tablecloths (neutral colors that don't compete with products)
@@ -220,6 +230,7 @@ BOOTH FLOW:
 ```
 
 ### Craft Fair Sales Tips
+
 ```
 ENGAGEMENT:
   - Greet everyone who looks at your booth
@@ -245,6 +256,7 @@ POST-SHOW:
 ## Pricing Handmade Goods
 
 ### The Handmade Pricing Formula
+
 ```
 WHOLESALE PRICE:
   (Materials + Labor + Overhead) x 2 = Wholesale Price
@@ -264,6 +276,7 @@ BREAKDOWN:
 ```
 
 ### Common Pricing Mistakes
+
 ```
 MISTAKE 1: Not paying yourself for labor
   Fix: Track time per item; set minimum $20/hour for yourself
@@ -285,6 +298,7 @@ MISTAKE 5: Not accounting for platform fees
 ## Product Photography
 
 ### Photography Setup
+
 ```
 EQUIPMENT (Budget-Friendly):
   Camera: Smartphone with good camera (iPhone, Samsung flagship) or DSLR
@@ -316,6 +330,7 @@ PHOTO SPECIFICATIONS:
 ## Shipping Logistics
 
 ### Shipping Strategy
+
 ```
 SHIPPING OPTIONS:
   1. Free shipping (built into product price)
@@ -363,6 +378,7 @@ PACKAGING AS BRAND EXPERIENCE:
 ## Inventory Management
 
 ### Production Planning
+
 ```
 INVENTORY TRACKING:
   Track per product:
@@ -388,6 +404,7 @@ SEASONAL PRODUCTION CALENDAR:
 ```
 
 ### Materials Management
+
 ```
 MATERIAL COST TRACKING:
   For each product, maintain a bill of materials:
@@ -410,6 +427,7 @@ SUPPLIER MANAGEMENT:
 ## Scaling Production
 
 ### Growth Stages
+
 ```
 STAGE 1: ONE-PERSON OPERATION ($0-$2K/month)
   Focus: Perfect your products and find your market
@@ -436,6 +454,7 @@ STAGE 4: SMALL TEAM ($10K-$25K+/month)
 ```
 
 ### Batch Production System
+
 ```
 BATCH PROCESSING STEPS:
   1. Gather all orders and stock requirements for the week
@@ -453,6 +472,7 @@ BATCH PROCESSING STEPS:
 ## Wholesale
 
 ### Getting Started with Wholesale
+
 ```
 WHOLESALE PRICING:
   Wholesale price = Retail price / 2 (standard keystone markup)
@@ -494,6 +514,7 @@ WHOLESALE TERMS:
 ```
 
 ## Financial Management
+
 ```
 MONTHLY P&L:
   Revenue:
@@ -542,7 +563,6 @@ MONTHLY P&L:
 9. Not setting aside money for taxes (25-30% of profit)
 10. Refusing to raise prices as skills and demand increase
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -555,13 +575,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with handmade seller for a mid-size project."
 
 **Output:** A complete handmade seller framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

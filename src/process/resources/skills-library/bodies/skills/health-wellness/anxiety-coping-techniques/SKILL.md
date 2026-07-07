@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care stress-management breathing"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care stress-management breathing'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Anxiety Coping Techniques
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks about coping with everyday anxiety, nervousness, or worry in specific situations (job interviews, presentations, social gatherings, medical appointments, travel, exams)
 - Requests named grounding or breathing techniques by name (5-4-3-2-1, box breathing, PMR, STOP technique) or asks what these techniques are and how to practice them correctly
 - Wants to build a personal anxiety management toolkit tailored to their specific triggers and lifestyle
@@ -34,6 +36,7 @@ metadata:
 - Is a caregiver, teacher, or wellness professional looking to explain coping techniques to someone else
 
 **Do NOT use this skill when:**
+
 - User describes recurrent, unexpected panic attacks with intense physical symptoms (crushing chest pain, numbness spreading through limbs, conviction they are dying) -- direct to a healthcare provider for evaluation; this skill does not address panic disorder management, which requires professional guidance
 - User needs a clinical assessment of whether their anxiety is "normal," "mild," "moderate," or "severe" -- refer to the mental-health-professional-referral skill; this skill does not diagnose or evaluate clinical severity
 - User asks about anxiolytic medications (benzodiazepines, SSRIs, buspirone), dosage adjustments, or tapering schedules -- these require their prescribing physician or pharmacist
@@ -84,6 +87,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **5-4-3-2-1 Grounding**
+
 - **Mechanism:** Redirects attention from internal catastrophizing to external sensory input. Activates the orienting response -- a neurological shift from threat-detection mode to environmental scanning mode. The orienting response competes with the anxiety response at the level of the amygdala.
 - **Protocol:** Name 5 things you can SEE (look around deliberately, name each one aloud or silently). Name 4 things you can physically TOUCH or feel against your skin (chair back, fabric, air temperature, floor under feet). Name 3 things you can HEAR (ambient sounds count -- air conditioning, distant traffic, your own breathing). Name 2 things you can SMELL (if nothing obvious, describe the air quality -- cool, warm, neutral). Name 1 thing you can TASTE (current mouth flavor or a recent taste memory).
 - **Duration:** 2-5 minutes for a full pass. A partial pass (5-4-3 only) takes under 90 seconds and is still effective.
@@ -94,6 +98,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **Box Breathing (4-4-4-4)**
+
 - **Mechanism:** Engages the parasympathetic nervous system through extended, controlled exhalation and breath-hold phases. The vagus nerve responds to slow, diaphragmatic breathing by releasing acetylcholine, which counteracts the sympathetic arousal driving physical anxiety symptoms. The structured counting also occupies the cognitive bandwidth that would otherwise feed worried thoughts.
 - **Protocol:** Sit with feet flat on the floor. Place one hand on your abdomen (belly should rise on inhale, not chest). Inhale through the nose for exactly 4 seconds -- count "one-Mississippi, two-Mississippi, three-Mississippi, four-Mississippi." Hold with lungs full for 4 seconds (do not tense -- just pause airflow). Exhale through the mouth slowly for 4 seconds (steady, controlled stream -- imagine fogging a mirror). Hold with lungs empty for 4 seconds (rest, do not strain). Repeat for 4-6 complete cycles.
 - **The 6-second exhale variation:** For stronger anxiolytic effect, extend the exhale to 6 seconds (inhale 4, hold 4, exhale 6, hold 2). The longer exhale increases vagal tone more than the symmetric version.
@@ -105,6 +110,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **Physiological Sigh**
+
 - **Mechanism:** A double inhale through the nose (first inhale fills the lungs, second shorter inhale pops open collapsed alveoli) followed by a long exhale deflates the lungs more completely than a normal breath. This dramatically increases the exhale-to-inhale ratio, rapidly activating the parasympathetic nervous system. Research from Stanford's Huberman Lab has identified this as the fastest single-breath intervention for acute anxiety -- effect begins within 30 seconds.
 - **Protocol:** Take a normal inhale through the nose. At the top of that inhale, take one more short "sniff" to top off the lungs. Then release everything in one long, slow exhale through the mouth (aim for 6-8 seconds). Repeat 1-3 times.
 - **Duration:** 30-60 seconds for 2-3 repetitions. The fastest technique in the library.
@@ -114,6 +120,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **Progressive Muscle Relaxation (PMR)**
+
 - **Mechanism:** The tension-release cycle creates a contrast effect -- muscles become more relaxed after deliberate tensing than they were at baseline. This is because the nervous system recalibrates muscle tension relative to the peak contraction. Reduces overall somatic anxiety, lowers cortisol levels with regular practice, and improves sleep quality when done before bed.
 - **Full Protocol (muscle group sequence):** Feet (curl toes tightly for 5 seconds, release for 10 seconds) → Calves (point feet upward for 5 seconds, release) → Thighs (press knees together for 5 seconds, release) → Abdomen (clench stomach for 5 seconds, release) → Hands (make tight fists for 5 seconds, release) → Forearms (bend wrists back for 5 seconds, release) → Shoulders (shrug toward ears for 5 seconds, release) → Face (scrunch all facial muscles for 5 seconds, release). Total full-body sequence: 12-15 minutes.
 - **Abbreviated Protocol (upper body only, for desk use):** Hands → Forearms → Shoulders → Face. Total: 4-6 minutes. Less conspicuous but meaningful tension reduction.
@@ -125,6 +132,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **Cognitive Reframing (Thought Record Method)**
+
 - **Mechanism:** Derived from Cognitive Behavioral Therapy (CBT). Anxious thoughts tend to be cognitive distortions -- specifically catastrophizing (overestimating the probability of a bad outcome) and emotional reasoning (treating feelings as facts). Writing the thought down creates psychological distance (called cognitive defusion) and allows the prefrontal cortex to evaluate the thought rather than the amygdala reacting to it.
 - **Quick Protocol (5 minutes):**
   1. Write the exact anxious thought in quotation marks: "I will freeze completely and everyone will think I am incompetent."
@@ -140,6 +148,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **STOP Technique**
+
 - **Mechanism:** A four-step mindfulness-based interrupt that creates a structured pause between the anxiety stimulus and the anxiety response. The "Observe" step is the critical one -- labeling an emotion activates the medial prefrontal cortex and reduces amygdala activation, a process called affect labeling. Even 3-5 seconds of naming the feeling reduces its intensity.
 - **Protocol:** **S -- Stop:** Pause the current activity completely. Put down what you are holding. Stop moving. **T -- Take:** Three slow breaths only. Inhale 4 seconds, exhale 6 seconds, three repetitions. **O -- Observe:** Silently name what you notice in your body and mind. "My heart is fast. My hands are cold. I feel dread about saying the wrong thing." Name it without judgment or effort to fix it. **P -- Proceed:** Choose one deliberate, specific next action and execute it. Not "try to calm down" -- a concrete behavioral choice: "I will take one sip of water and walk to the meeting room."
 - **Duration:** 60-120 seconds. The most time-efficient full technique in the library.
@@ -149,6 +158,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **Urge Surfing (Anxiety Wave Observation)**
+
 - **Mechanism:** Drawn from Dialectical Behavior Therapy (DBT) and Acceptance and Commitment Therapy (ACT). Rather than attempting to suppress or escape the anxiety sensation, the user observes it with curiosity. This works because anxiety sensations, like all physiological states, follow a wave pattern -- they naturally peak and subside within 90 seconds to 3 minutes if not fed by additional thoughts or avoidance behaviors. Fighting the sensation (through suppression, escape, reassurance-seeking) restarts the wave. Observing it allows it to peak and fall.
 - **Protocol:** Notice the anxiety sensation -- identify where it lives in your body (chest, stomach, throat, head). Describe its physical qualities without judgment: is it hot or cool? Sharp or dull? Heavy or light? Moving or still? Assign it an intensity rating between 1 and 10. Set a timer for 30 seconds. At the end of 30 seconds, rate the intensity again. Repeat every 30 seconds. Most users see the number decline within 2-4 minutes without doing anything else.
 - **Duration:** 3-5 minutes for a full wave to pass
@@ -159,6 +169,7 @@ Limit to 3-4 techniques. Research in emotion regulation consistently shows that 
 ---
 
 **4-7-8 Breathing (Nighttime Variant)**
+
 - **Mechanism:** An extended breath-hold (7 seconds) and very long exhale (8 seconds) creates a significant parasympathetic shift and mild CO2 retention, which has a sedating effect. Originally described by Dr. Andrew Weil drawing on pranayama traditions. Best used lying in bed, not as an active daytime technique.
 - **Protocol:** Empty lungs completely. Inhale through the nose for 4 seconds. Hold for 7 seconds (do not strain -- this should be comfortable; reduce to 4 seconds hold if 7 feels distressing). Exhale through the mouth for 8 seconds with an audible "whoosh." Repeat 3-4 cycles. Do not exceed 4 cycles in a single session initially.
 - **Duration:** 3-4 minutes for 4 cycles
@@ -173,6 +184,7 @@ Map the user's specific triggers to specific techniques. Every row needs a prima
 ### Step 5: Write Step-by-Step Technique Instructions
 
 For each selected technique, provide:
+
 - Exact timing (every step, in seconds)
 - What the user will physically feel during the technique (not "relaxation" -- specific sensations: shoulders dropping, hands warming, breathing deepening, a sense of gravity in the legs)
 - How to know the technique is working (specific, observable signals -- not "you will feel calmer")
@@ -187,6 +199,7 @@ Choose one technique the user will practice daily when not acutely anxious. The 
 Anchor the daily practice to an existing habit (after morning coffee, before opening email, while waiting for the kettle, after brushing teeth at night). This habit-stacking principle significantly increases follow-through compared to a free-floating daily reminder.
 
 Recommended daily practice defaults:
+
 - For body-driven anxiety: Box breathing, 4 minutes, anchored to morning coffee
 - For thought-driven anxiety: 5-minute cognitive reframing journal (one entry on any current low-level worry), anchored to before-bed routine
 - For dissociation or grounding needs: 5-4-3-2-1 grounding at noon, anchored to lunch
@@ -344,24 +357,31 @@ Professional support is not a last resort. A licensed mental health professional
 ## Edge Cases
 
 ### User Describes an Imminent Specific Event (24 Hours or Less Away)
+
 Build the toolkit entirely around the event timeline. Provide a minute-by-minute protocol covering: the night before (4-7-8 breathing before sleep, cognitive reframing if worry spirals at night), morning of the event (box breathing anchored to morning routine, one cognitive reframing entry), 30 minutes before (box breathing, STOP technique), 5 minutes before (physiological sigh, one STOP cycle), during the event (silent 5-4-3-2-1 if mind blanks, physiological sigh if heart rate spikes), immediately after (STOP technique to decompress). Acknowledge explicitly that some residual anxiety during the event is normal and not a sign that coping has failed -- the goal is to keep anxiety in the productive range, not to eliminate it entirely.
 
 ### User Reports That Breathing Techniques Make Anxiety Worse
+
 Validate this experience immediately and explain the mechanism: some people become hyperaware of their breathing when focusing on it, interpreting normal breathing sensations as signs of suffocation or loss of control, which amplifies anxiety rather than reducing it. This is common and well-documented. Do not suggest they "try it again differently" or that they are doing it wrong. Remove all breath-focused techniques from the toolkit. Build the toolkit entirely from grounding (5-4-3-2-1), cognitive (STOP technique, reframing), and somatic non-breath techniques (PMR -- muscle tension, not breath). If the user also finds inward body focus distressing, emphasize 5-4-3-2-1 heavily, as it directs attention fully outward to the environment.
 
 ### User Reports Physical Symptoms as Primary Anxiety Manifestations (Chest Tightness, Numbness, Dizziness)
+
 Before proceeding with technique recommendations, insert this explicit note: "Physical symptoms like chest tightness, numbness in the limbs, or dizziness can accompany anxiety but can also be caused by medical conditions unrelated to anxiety. If you experience these symptoms and have not had them evaluated by a healthcare provider, it is worth doing so to rule out other causes. This toolkit can be a helpful complement to any evaluation, but these techniques are wellness tools and do not address underlying medical causes." Then proceed with the toolkit, selecting techniques that do not emphasize chest or breath sensations (avoid box breathing in favor of grounding and STOP). Include a note in the "when to seek professional support" section that specifically names these physical symptoms.
 
 ### User Wants Discreet Techniques for a Workplace or Public Setting
+
 Explicitly exclude PMR (visible muscle tensing of legs, shoulders, face is conspicuous) and extended cognitive reframing (requires taking out a notebook or phone, which draws attention). Build the toolkit from: Box breathing (completely invisible at a desk), STOP technique (fully invisible, takes 90 seconds, can be done mid-meeting by pausing for 3 breaths), silent 5-4-3-2-1 (eyes scan the room naturally, appears like thinking), physiological sigh (single breath, slightly visible but brief). Specify for each technique: "Invisible to coworkers" or "May be visible -- use when alone for 60 seconds."
 
 ### User Reports Nighttime Anxiety That Disrupts Sleep
+
 Build a dedicated nighttime protocol as a separate section of the toolkit. Include: (1) stimulus control -- if awake and anxious for more than 15-20 minutes, leave the bed and go to a dim, quiet room (lying anxious in bed reinforces the association between bed and wakefulness); (2) 5-4-3-2-1 grounding in the dim room using soft sensory detail rather than visual scanning (touch the fabric of a robe, listen to ambient sounds, note temperature); (3) once anxiety has reduced, return to bed and use 4-7-8 breathing (4 cycles only); (4) if the mind immediately returns to anxious thoughts, use the cognitive reframing shorthand: write the thought, write one alternative. For persistent nighttime anxiety disrupting sleep most nights over multiple weeks, include a note that persistent sleep disruption from worry is a common reason people seek support from a licensed mental health professional and can respond well to professional intervention.
 
 ### User Has Already Built a Toolkit Elsewhere and It Has Stopped Working
+
 Do not simply repeat the same techniques more enthusiastically. Ask what the user is currently doing and when it stopped working. Common reasons existing toolkits stop working: (1) they practiced the technique only when anxious, so the technique is strongly conditioned to the anxious state rather than to calm -- solution is daily non-anxious practice; (2) the anxiety has changed pattern (e.g., moved from situational to pervasive, or from thought-driven to body-driven) and the old techniques matched the old pattern but not the new one -- reassess dominant pattern and rebuild; (3) the user is using the techniques to suppress or escape the anxiety rather than as interrupt tools (a subtle but important difference) -- introduce urge surfing and ACT-informed framing as an alternative approach; (4) there is a functional life circumstance driving the anxiety (job loss, relationship crisis, health scare) that coping tools alone cannot address -- acknowledge this directly and include a note about professional support.
 
 ### User Is a Caregiver or Teacher Asking How to Help Someone Else
+
 Shift the output to an explanatory format. Provide the same technique library but describe each technique from the teaching perspective: how to introduce the technique without triggering resistance, how to practice it with a child or adult, what language to use to invite rather than prescribe. Note clearly that if the person they are supporting shows signs of significant impairment, the caregiver's role is to help them access professional support, not to deliver therapy. This skill provides general wellness information -- it does not enable laypersons to provide mental health treatment.
 
 ---
@@ -389,13 +409,13 @@ Shift the output to an explanatory format. Provide the same technique library bu
 
 ### Situation-Response Map
 
-| Trigger / Situation | Timing | First Response | Duration | If That Does Not Help |
-|---------------------|--------|----------------|----------|-----------------------|
-| Night before: mind blanks rehearsing talking points | Evening, 1+ hrs before sleep | Cognitive Reframing (Quick Record) | 8 min | 5-4-3-2-1 Grounding to exit the loop |
-| Morning of: low-level dread building at desk | 2+ hrs before presenting | STOP Technique | 2 min | Silent 5-4-3-2-1 at desk |
-| 5-15 minutes before presenting | Pre-meeting | Silent 5-4-3-2-1 at desk | 3-4 min | Physiological Sigh (1 breath) |
-| Mind blanks in the moment during presentation | During event | Pause, look at notes, Physiological Sigh | 30 sec | STOP Technique (3 breaths + one deliberate next action) |
-| Residual racing heart after presenting | Post-event | STOP Technique | 2 min | Walk for 5 minutes at normal pace |
+| Trigger / Situation                                 | Timing                       | First Response                           | Duration | If That Does Not Help                                   |
+| --------------------------------------------------- | ---------------------------- | ---------------------------------------- | -------- | ------------------------------------------------------- |
+| Night before: mind blanks rehearsing talking points | Evening, 1+ hrs before sleep | Cognitive Reframing (Quick Record)       | 8 min    | 5-4-3-2-1 Grounding to exit the loop                    |
+| Morning of: low-level dread building at desk        | 2+ hrs before presenting     | STOP Technique                           | 2 min    | Silent 5-4-3-2-1 at desk                                |
+| 5-15 minutes before presenting                      | Pre-meeting                  | Silent 5-4-3-2-1 at desk                 | 3-4 min  | Physiological Sigh (1 breath)                           |
+| Mind blanks in the moment during presentation       | During event                 | Pause, look at notes, Physiological Sigh | 30 sec   | STOP Technique (3 breaths + one deliberate next action) |
+| Residual racing heart after presenting              | Post-event                   | STOP Technique                           | 2 min    | Walk for 5 minutes at normal pace                       |
 
 ---
 
@@ -410,6 +430,7 @@ Shift the output to an explanatory format. Provide the same technique library bu
 **Setting:** Fully discreet. Eyes open. Appears as normal environmental awareness. Usable at your desk, in a meeting room, even while standing at a podium.
 
 **Step-by-Step:**
+
 1. Keep your eyes open and your body in its current position. Do not close your eyes or visibly change your posture.
 2. **5 things you can SEE:** Deliberately look around the room. Name each one internally with specific detail -- not "chair" but "black office chair with a small scuff on the left armrest." Specificity matters: the more detail you generate, the more cognitive bandwidth is occupied, which crowds out the anxiety loop. Work through all 5 before moving on.
 3. **4 things you can TOUCH or physically feel:** Without moving noticeably, notice what is currently pressing against your skin or hands. The edge of the desk against your forearms. The texture of your clothing. The temperature of the air on your face. The weight of your feet on the floor. Name each one internally with specific texture or temperature detail.
@@ -440,6 +461,7 @@ Move to the STOP Technique (Technique 2). The shift to a structured 4-step frame
 **Setting:** Completely invisible to others. No change in posture or behavior required. Can be done while seated in a meeting, standing before walking into a room, or mid-conversation.
 
 **Step-by-Step:**
+
 1. **S -- Stop:** Pause whatever you are doing completely. If you are shuffling through slides, stop. If you are rehearsing a sentence in your head, stop. If you are checking your phone for reassurance, stop. Set everything down for 5-10 seconds.
 2. **T -- Take:** Three breaths. Inhale through your nose for 4 seconds -- a normal, relaxed inhale, not a deep forced breath. Exhale through your nose or mouth for 6 seconds -- a slow, easy release. Three repetitions only. The purpose is not respiratory -- it is a brief, structured pause that gives the nervous system a micro-reset before the next two steps. Three breaths is short enough not to trigger breath-focus anxiety in most people. If the first breath already feels uncomfortable, skip steps T and proceed directly to O.
 3. **O -- Observe:** Without judgment, name what you are experiencing right now. Use specific, concrete language internally. "My heart is fast. My hands are damp. I am thinking about the moment when I might go blank." Name all of it -- physical sensations first, then emotions or thoughts. Do not try to fix or argue with what you observe. Spend 20-30 seconds naming. This naming step is doing real neurological work: affect labeling (putting words to feelings) activates the medial prefrontal cortex and reduces the amygdala's alarm signal, measurably reducing physiological arousal.
@@ -467,6 +489,7 @@ Use the physiological sigh (Technique 4) as a single-breath reset, then choose a
 **Setting:** Requires writing -- phone notes app works fine. Use in a quiet moment at home in the evening.
 
 **Step-by-Step:**
+
 1. Open a notes app or take a piece of paper. Write down the exact anxious thought in quotation marks, word for word. Do not paraphrase -- the precision matters. Example: "I'm going to blank on my third point and just stand there looking lost."
 2. Identify the distortion type. This thought is most likely one of: **catastrophizing** (predicting the worst-case outcome as the most probable outcome), **fortune-telling** (treating a prediction as a certainty), or **all-or-nothing thinking** (one moment of blanking = a failed presentation). Write the distortion name next to the thought.
 3. Write the evidence that supports this thought being accurate. Be honest -- do not dismiss the fear. Example: "I did lose my place in a presentation 8 months ago." "I feel underprepared for the third section specifically." Write only the evidence you actually have, not hypothetical evidence.

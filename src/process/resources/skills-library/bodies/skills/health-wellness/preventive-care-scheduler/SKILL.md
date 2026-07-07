@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness template guide beginner-friendly quick-reference testing planning emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness template guide beginner-friendly quick-reference testing planning emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Preventive Care Scheduler
 
 You are a preventive care planning assistant helping individuals organize and track their recommended health screenings, vaccinations, and routine checkups. You provide age-appropriate scheduling frameworks and tracking tools to ensure nothing falls through the cracks. You help users build a personalized preventive care calendar based on their age, sex, and risk factors.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about preventive care scheduler techniques or best practices
 - User needs guidance on preventive care scheduler concepts
 - User wants to implement or improve their approach to preventive care scheduler
 
 **Do NOT use when:**
+
 - The request falls outside the scope of preventive care scheduler
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -67,93 +68,93 @@ An annual wellness visit with your primary care provider is the foundation of pr
 
 #### Ages 18-29
 
-| Screening | Frequency | Notes |
-|-----------|-----------|-------|
-| Blood pressure | Every 1-2 years if normal | More frequent if elevated |
-| Cholesterol (lipid panel) | Once between 20-25 if risk factors; otherwise by 35 (men) or 45 (women) | Earlier if family history of heart disease |
-| Cervical cancer (Pap smear) | Every 3 years starting at age 21 | For individuals with a cervix |
-| STI screening | Based on risk factors and sexual activity | Discuss with provider; chlamydia/gonorrhea screening recommended annually for sexually active women under 25 |
-| Depression screening | At wellness visits | Standard part of checkup |
-| Dental cleaning | Every 6 months | |
-| Eye exam | Every 2 years (or as needed for prescriptions) | |
-| Skin self-exam | Monthly | See a dermatologist if new or changing moles |
+| Screening                   | Frequency                                                               | Notes                                                                                                        |
+| --------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Blood pressure              | Every 1-2 years if normal                                               | More frequent if elevated                                                                                    |
+| Cholesterol (lipid panel)   | Once between 20-25 if risk factors; otherwise by 35 (men) or 45 (women) | Earlier if family history of heart disease                                                                   |
+| Cervical cancer (Pap smear) | Every 3 years starting at age 21                                        | For individuals with a cervix                                                                                |
+| STI screening               | Based on risk factors and sexual activity                               | Discuss with provider; chlamydia/gonorrhea screening recommended annually for sexually active women under 25 |
+| Depression screening        | At wellness visits                                                      | Standard part of checkup                                                                                     |
+| Dental cleaning             | Every 6 months                                                          |                                                                                                              |
+| Eye exam                    | Every 2 years (or as needed for prescriptions)                          |                                                                                                              |
+| Skin self-exam              | Monthly                                                                 | See a dermatologist if new or changing moles                                                                 |
 
 #### Ages 30-39
 
-| Screening | Frequency | Notes |
-|-----------|-----------|-------|
-| Blood pressure | Every 1-2 years if normal | |
-| Cholesterol | Every 4-6 years if normal | More frequent if risk factors |
-| Cervical cancer | Pap every 3 years OR Pap + HPV co-test every 5 years | For individuals with a cervix |
-| Diabetes (blood glucose) | Every 3 years starting at 35 | Earlier if overweight or risk factors |
-| HIV screening | At least once; more if risk factors | |
-| Hepatitis C | At least once (all adults 18-79) | |
-| Dental cleaning | Every 6 months | |
-| Eye exam | Every 2 years | |
+| Screening                | Frequency                                            | Notes                                 |
+| ------------------------ | ---------------------------------------------------- | ------------------------------------- |
+| Blood pressure           | Every 1-2 years if normal                            |                                       |
+| Cholesterol              | Every 4-6 years if normal                            | More frequent if risk factors         |
+| Cervical cancer          | Pap every 3 years OR Pap + HPV co-test every 5 years | For individuals with a cervix         |
+| Diabetes (blood glucose) | Every 3 years starting at 35                         | Earlier if overweight or risk factors |
+| HIV screening            | At least once; more if risk factors                  |                                       |
+| Hepatitis C              | At least once (all adults 18-79)                     |                                       |
+| Dental cleaning          | Every 6 months                                       |                                       |
+| Eye exam                 | Every 2 years                                        |                                       |
 
 #### Ages 40-49
 
-| Screening | Frequency | Notes |
-|-----------|-----------|-------|
-| Blood pressure | Annually | |
-| Cholesterol | Every 4-6 years (or as directed) | Statin discussion with provider if 10-year cardiovascular risk is elevated |
-| Diabetes | Every 3 years | |
-| Mammogram | Discuss starting at 40; recommended by 45-50 depending on guidelines | For individuals with breast tissue; earlier if family history |
-| Cervical cancer | Continue Pap or co-testing schedule | |
-| Colorectal cancer | Begin at 45 (colonoscopy, stool test, or other approved method) | Earlier if family history |
-| Lung cancer (low-dose CT) | Annually if age 50+ with 20+ pack-year smoking history | Some guidelines start discussion at 50 |
-| Dental cleaning | Every 6 months | |
-| Eye exam | Every 1-2 years; annually after 40 if risk factors | Glaucoma screening becomes relevant |
+| Screening                 | Frequency                                                            | Notes                                                                      |
+| ------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Blood pressure            | Annually                                                             |                                                                            |
+| Cholesterol               | Every 4-6 years (or as directed)                                     | Statin discussion with provider if 10-year cardiovascular risk is elevated |
+| Diabetes                  | Every 3 years                                                        |                                                                            |
+| Mammogram                 | Discuss starting at 40; recommended by 45-50 depending on guidelines | For individuals with breast tissue; earlier if family history              |
+| Cervical cancer           | Continue Pap or co-testing schedule                                  |                                                                            |
+| Colorectal cancer         | Begin at 45 (colonoscopy, stool test, or other approved method)      | Earlier if family history                                                  |
+| Lung cancer (low-dose CT) | Annually if age 50+ with 20+ pack-year smoking history               | Some guidelines start discussion at 50                                     |
+| Dental cleaning           | Every 6 months                                                       |                                                                            |
+| Eye exam                  | Every 1-2 years; annually after 40 if risk factors                   | Glaucoma screening becomes relevant                                        |
 
 #### Ages 50-64
 
-| Screening | Frequency | Notes |
-|-----------|-----------|-------|
-| Blood pressure | Annually | |
-| Cholesterol | Every 1-2 years | |
-| Diabetes | Every 3 years | |
-| Colorectal cancer | Colonoscopy every 10 years, or stool-based test as recommended | Continue to age 75 |
-| Mammogram | Every 1-2 years | |
-| Cervical cancer | Continue until age 65 if prior results normal | |
-| Prostate cancer (PSA) | Discuss with provider starting at 50 (or 40-45 if high risk) | For individuals with a prostate; shared decision-making |
-| Osteoporosis (DEXA scan) | Discuss with provider if risk factors | Routine screening begins at 65 for women |
-| Lung cancer | Annually if eligible (age 50-80 with smoking history) | |
-| Abdominal aortic aneurysm | One-time ultrasound for men 65-75 who have ever smoked | |
-| Dental cleaning | Every 6 months | |
-| Eye exam | Every 1-2 years | |
-| Hearing test | Baseline at 50, then as needed | |
+| Screening                 | Frequency                                                      | Notes                                                   |
+| ------------------------- | -------------------------------------------------------------- | ------------------------------------------------------- |
+| Blood pressure            | Annually                                                       |                                                         |
+| Cholesterol               | Every 1-2 years                                                |                                                         |
+| Diabetes                  | Every 3 years                                                  |                                                         |
+| Colorectal cancer         | Colonoscopy every 10 years, or stool-based test as recommended | Continue to age 75                                      |
+| Mammogram                 | Every 1-2 years                                                |                                                         |
+| Cervical cancer           | Continue until age 65 if prior results normal                  |                                                         |
+| Prostate cancer (PSA)     | Discuss with provider starting at 50 (or 40-45 if high risk)   | For individuals with a prostate; shared decision-making |
+| Osteoporosis (DEXA scan)  | Discuss with provider if risk factors                          | Routine screening begins at 65 for women                |
+| Lung cancer               | Annually if eligible (age 50-80 with smoking history)          |                                                         |
+| Abdominal aortic aneurysm | One-time ultrasound for men 65-75 who have ever smoked         |                                                         |
+| Dental cleaning           | Every 6 months                                                 |                                                         |
+| Eye exam                  | Every 1-2 years                                                |                                                         |
+| Hearing test              | Baseline at 50, then as needed                                 |                                                         |
 
 #### Ages 65+
 
-| Screening | Frequency | Notes |
-|-----------|-----------|-------|
-| Blood pressure | Annually | |
-| Cholesterol | Annually | |
-| Diabetes | Every 3 years | |
-| Colorectal cancer | Continue to age 75 (discuss beyond 75 with provider) | |
-| Mammogram | Continue to at least 75; discuss beyond with provider | |
-| Osteoporosis (DEXA scan) | Every 2 years starting at 65 (women); men with risk factors | |
-| Fall risk assessment | Annually | |
-| Cognitive screening | As part of annual wellness visit | |
-| Vision exam | Annually | Macular degeneration, cataracts, glaucoma |
-| Hearing test | Every 1-3 years | |
-| Dental cleaning | Every 6 months | |
+| Screening                | Frequency                                                   | Notes                                     |
+| ------------------------ | ----------------------------------------------------------- | ----------------------------------------- |
+| Blood pressure           | Annually                                                    |                                           |
+| Cholesterol              | Annually                                                    |                                           |
+| Diabetes                 | Every 3 years                                               |                                           |
+| Colorectal cancer        | Continue to age 75 (discuss beyond 75 with provider)        |                                           |
+| Mammogram                | Continue to at least 75; discuss beyond with provider       |                                           |
+| Osteoporosis (DEXA scan) | Every 2 years starting at 65 (women); men with risk factors |                                           |
+| Fall risk assessment     | Annually                                                    |                                           |
+| Cognitive screening      | As part of annual wellness visit                            |                                           |
+| Vision exam              | Annually                                                    | Macular degeneration, cataracts, glaucoma |
+| Hearing test             | Every 1-3 years                                             |                                           |
+| Dental cleaning          | Every 6 months                                              |                                           |
 
 ### 3. Vaccine Schedule for Adults
 
 #### Routine Adult Vaccines
 
-| Vaccine | Schedule | Notes |
-|---------|----------|-------|
-| Influenza (Flu) | Annually (every fall) | Everyone 6 months and older |
-| COVID-19 | Per current CDC recommendations | Updated formulations as available |
-| Tdap/Td (Tetanus, Diphtheria, Pertussis) | Tdap once if not received as adult, then Td booster every 10 years | Tdap recommended during each pregnancy |
-| Shingles (Recombinant Zoster) | 2 doses starting at age 50 | Recommended even if prior shingles episode |
-| Pneumococcal (PCV20 or PCV15+PPSV23) | 1 dose at age 65+ | Earlier if certain health conditions |
-| Hepatitis B | 2- or 3-dose series if not previously vaccinated | Universal recommendation for adults under 60 |
-| HPV | 2-3 dose series through age 26; shared decision 27-45 | Most effective if given before sexual activity |
-| MMR | 1-2 doses if no evidence of immunity | Born after 1957 and no documentation of vaccination |
-| Varicella | 2 doses if no evidence of immunity | |
+| Vaccine                                  | Schedule                                                           | Notes                                               |
+| ---------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
+| Influenza (Flu)                          | Annually (every fall)                                              | Everyone 6 months and older                         |
+| COVID-19                                 | Per current CDC recommendations                                    | Updated formulations as available                   |
+| Tdap/Td (Tetanus, Diphtheria, Pertussis) | Tdap once if not received as adult, then Td booster every 10 years | Tdap recommended during each pregnancy              |
+| Shingles (Recombinant Zoster)            | 2 doses starting at age 50                                         | Recommended even if prior shingles episode          |
+| Pneumococcal (PCV20 or PCV15+PPSV23)     | 1 dose at age 65+                                                  | Earlier if certain health conditions                |
+| Hepatitis B                              | 2- or 3-dose series if not previously vaccinated                   | Universal recommendation for adults under 60        |
+| HPV                                      | 2-3 dose series through age 26; shared decision 27-45              | Most effective if given before sexual activity      |
+| MMR                                      | 1-2 doses if no evidence of immunity                               | Born after 1957 and no documentation of vaccination |
+| Varicella                                | 2 doses if no evidence of immunity                                 |                                                     |
 
 #### Vaccine Tracking Template
 
@@ -250,6 +251,7 @@ EVERY 6 MONTHS:
 ### Step 3 - Schedule Ahead
 
 After each appointment:
+
 1. Book the next occurrence immediately (if annual, book next year's slot before leaving)
 2. Set a calendar reminder 2 weeks before each appointment
 3. Set a second reminder 2 days before for preparation (fasting, paperwork, etc.)
@@ -279,6 +281,7 @@ Date       | Screening/Test         | Result        | Normal Range  | Follow-Up
 ## Preparation Checklists
 
 ### Before a Blood Work Appointment
+
 - [ ] Confirm fasting requirements (typically 9-12 hours for lipid panel and glucose)
 - [ ] Drink plenty of water (fasting usually means no food, water is okay)
 - [ ] Wear a shirt with sleeves that roll up easily
@@ -286,6 +289,7 @@ Date       | Screening/Test         | Result        | Normal Range  | Follow-Up
 - [ ] List all current medications and supplements to report
 
 ### Before a Colonoscopy
+
 - [ ] Complete bowel prep as directed (usually begins the day before)
 - [ ] Follow the clear liquid diet as instructed
 - [ ] Arrange transportation home (sedation means you cannot drive)
@@ -294,6 +298,7 @@ Date       | Screening/Test         | Result        | Normal Range  | Follow-Up
 - [ ] Plan a light day after the procedure for recovery
 
 ### Before an Annual Wellness Visit
+
 - [ ] Update your medication and supplement list
 - [ ] Write down any symptoms, concerns, or questions
 - [ ] Know your family health history (any new diagnoses in relatives?)
@@ -323,16 +328,16 @@ Date       | Screening/Test         | Result        | Normal Range  | Follow-Up
 
 ## Age Milestone Quick Reference
 
-| Age | Key Actions |
-|-----|-------------|
-| 18 | Establish a primary care provider; begin annual checkups |
-| 21 | Begin cervical cancer screening (if applicable) |
-| 25 | First lipid panel if risk factors present |
-| 35 | Diabetes screening begins; lipid panel for men |
-| 40 | Discuss mammogram timing; annual blood pressure checks |
-| 45 | Begin colorectal cancer screening; diabetes screening universal |
-| 50 | Shingles vaccine; discuss prostate screening; lung cancer screening if smoker |
-| 65 | Medicare eligibility; pneumococcal vaccine; osteoporosis screening (women); annual hearing and vision exams |
+| Age | Key Actions                                                                                                 |
+| --- | ----------------------------------------------------------------------------------------------------------- |
+| 18  | Establish a primary care provider; begin annual checkups                                                    |
+| 21  | Begin cervical cancer screening (if applicable)                                                             |
+| 25  | First lipid panel if risk factors present                                                                   |
+| 35  | Diabetes screening begins; lipid panel for men                                                              |
+| 40  | Discuss mammogram timing; annual blood pressure checks                                                      |
+| 45  | Begin colorectal cancer screening; diabetes screening universal                                             |
+| 50  | Shingles vaccine; discuss prostate screening; lung cancer screening if smoker                               |
+| 65  | Medicare eligibility; pneumococcal vaccine; osteoporosis screening (women); annual hearing and vision exams |
 
 ## Maintaining Your Health Records
 
@@ -351,7 +356,6 @@ Update this file after every appointment. Bring it to any new provider visit or 
 
 Preventive care is one of the most impactful investments you can make in your long-term health. Most screenings take minutes but can catch conditions years before symptoms appear. Build the calendar, follow the schedule, and keep your records current.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -359,7 +363,6 @@ Preventive care is one of the most impactful investments you can make in your lo
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -380,14 +383,12 @@ Preventive care is one of the most impactful investments you can make in your lo
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

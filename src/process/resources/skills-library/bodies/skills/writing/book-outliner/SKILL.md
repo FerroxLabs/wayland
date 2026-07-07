@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing planning"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing planning'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Book Outliner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on book outliner
 - User asks about book outliner best practices or techniques
 - User wants a structured approach to book outliner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of book outliner
 
@@ -83,12 +84,13 @@ START: How much do you want to know before you write?
 
 This approach, popularized by Randy Ingermanson's Snowflake Method(R), works by starting small and expanding outward through multiple passes of increasing detail. Each pass deepens both plot and character simultaneously.
 
-**Further reading:** Randy Ingermanson's *How to Write a Novel Using the Snowflake Method* and the Advanced Fiction Writing website describe the complete step-by-step system.
+**Further reading:** Randy Ingermanson's _How to Write a Novel Using the Snowflake Method_ and the Advanced Fiction Writing website describe the complete step-by-step system.
 
 ### The General Process
 
 **Phase 1: One-Sentence Summary (1 hour)**
 Write a single sentence that captures the entire novel. Rules:
+
 - 25 words maximum
 - No character names (use descriptors: "a disgraced detective," "an ambitious chef")
 - Include the setup, conflict, and resolution arc
@@ -98,6 +100,7 @@ Example: "When a disgraced detective's daughter vanishes, he must solve a serial
 
 **Phase 2: One-Paragraph Summary (1 hour)**
 Expand the sentence into five sentences:
+
 1. Backdrop and setup
 2. First major turning point (end of Act 1)
 3. Second major turning point (midpoint)
@@ -106,6 +109,7 @@ Expand the sentence into five sentences:
 
 **Phase 3: Character Summaries (1 day)**
 For each major character, write one page containing:
+
 - Name and one-sentence arc summary
 - Motivation (abstract) and goal (concrete)
 - Core conflict and what they learn
@@ -119,6 +123,7 @@ Expand each character summary into a detailed character bible. Include backstory
 
 **Phase 6: Scene List (several days)**
 From the expanded synopsis, list every scene needed. For each scene, note:
+
 - POV character
 - What happens
 - Scene function (what it accomplishes in the plot)
@@ -130,6 +135,7 @@ This typically yields 50-100 scenes.
 Write a multi-paragraph description of each scene. Many writers skip this phase and begin drafting from the scene list. Others find this produces a very rough draft that makes the actual writing faster.
 
 ### When to Abandon the Expansion
+
 If at any phase you feel the outline is becoming a prison rather than a foundation, stop expanding and start writing. You can always return to the expansion process to plan the unfinished sections.
 
 ## Method 2: Detailed Beat Sheet
@@ -138,35 +144,37 @@ If at any phase you feel the outline is becoming a prison rather than a foundati
 **Time investment:** 1-3 days.
 **Detail level:** Moderate (key turning points defined).
 
-Beat sheets map a story's key turning points to approximate positions within the manuscript. The approach below synthesizes common beats found across multiple story structure methodologies, including Save the Cat!(R) (Blake Snyder, adapted for novels by Jessica Brody), the Hero's Journey, and classic three-act structure. For the complete Save the Cat! beat sheet system, see Jessica Brody's *Save the Cat! Writes a Novel*.
+Beat sheets map a story's key turning points to approximate positions within the manuscript. The approach below synthesizes common beats found across multiple story structure methodologies, including Save the Cat!(R) (Blake Snyder, adapted for novels by Jessica Brody), the Hero's Journey, and classic three-act structure. For the complete Save the Cat! beat sheet system, see Jessica Brody's _Save the Cat! Writes a Novel_.
 
 ### Key Story Beats
 
-| # | Beat | Approximate Position | Purpose |
-|---|------|---------------------|---------|
-| 1 | Opening Snapshot | 0-1% | Snapshot of the "before" world |
-| 2 | Theme Hinted | ~5% | The thematic question is introduced (the protagonist does not understand it yet) |
-| 3 | Setup / Status Quo | 1-10% | Establish character, world, and status quo |
-| 4 | Inciting Incident | ~10% | The event that disrupts everything |
-| 5 | Debate / Reluctance | 10-20% | Protagonist hesitates, resists, prepares |
-| 6 | Commitment to Act II | ~20% | Protagonist commits to the new world/goal |
-| 7 | Subplot Introduction | ~22% | A relationship or subplot begins that carries the theme |
-| 8 | Exploration | 20-50% | The "promise of the premise" delivered |
-| 9 | Midpoint Shift | ~50% | A false victory or false defeat; stakes raised |
-| 10 | Escalating Pressure | 50-75% | External pressure and internal doubts intensify |
-| 11 | Lowest Point | ~75% | Something is lost (literally or figuratively) |
-| 12 | Emotional Reckoning | 75-80% | Emotional rock bottom; confrontation with the core lie |
-| 13 | Commitment to Act III | ~80% | Protagonist finds the solution (often from subplot insight) |
-| 14 | Climax and Resolution | 80-99% | Protagonist executes new plan, confronts antagonist, transforms |
-| 15 | Closing Snapshot | 99-100% | Snapshot of the "after" world; mirrors the opening |
+| #   | Beat                  | Approximate Position | Purpose                                                                          |
+| --- | --------------------- | -------------------- | -------------------------------------------------------------------------------- |
+| 1   | Opening Snapshot      | 0-1%                 | Snapshot of the "before" world                                                   |
+| 2   | Theme Hinted          | ~5%                  | The thematic question is introduced (the protagonist does not understand it yet) |
+| 3   | Setup / Status Quo    | 1-10%                | Establish character, world, and status quo                                       |
+| 4   | Inciting Incident     | ~10%                 | The event that disrupts everything                                               |
+| 5   | Debate / Reluctance   | 10-20%               | Protagonist hesitates, resists, prepares                                         |
+| 6   | Commitment to Act II  | ~20%                 | Protagonist commits to the new world/goal                                        |
+| 7   | Subplot Introduction  | ~22%                 | A relationship or subplot begins that carries the theme                          |
+| 8   | Exploration           | 20-50%               | The "promise of the premise" delivered                                           |
+| 9   | Midpoint Shift        | ~50%                 | A false victory or false defeat; stakes raised                                   |
+| 10  | Escalating Pressure   | 50-75%               | External pressure and internal doubts intensify                                  |
+| 11  | Lowest Point          | ~75%                 | Something is lost (literally or figuratively)                                    |
+| 12  | Emotional Reckoning   | 75-80%               | Emotional rock bottom; confrontation with the core lie                           |
+| 13  | Commitment to Act III | ~80%                 | Protagonist finds the solution (often from subplot insight)                      |
+| 14  | Climax and Resolution | 80-99%               | Protagonist executes new plan, confronts antagonist, transforms                  |
+| 15  | Closing Snapshot      | 99-100%              | Snapshot of the "after" world; mirrors the opening                               |
 
 ### How to Use the Beat Sheet
+
 1. Write one sentence for each beat
 2. For each beat, expand to a paragraph if needed
 3. Identify which scenes belong to each beat
 4. You now have structural signposts; write toward the next one
 
 ### Beat Sheet Pitfalls
+
 - Do not force your story into beats that do not fit naturally
 - The percentages are guidelines, not rules
 - Some novels will combine beats or reorder slightly
@@ -179,19 +187,23 @@ Beat sheets map a story's key turning points to approximate positions within the
 **Detail level:** High (every scene mapped).
 
 ### The Pattern
+
 Every unit of narrative alternates between SCENE and SEQUEL:
 
 **SCENE (Action):**
+
 - Goal: What does the POV character want in this scene?
 - Conflict: What opposes them?
 - Disaster: How does it go wrong? (Four options: Yes, Yes But, No, No And Furthermore)
 
 **SEQUEL (Reaction):**
+
 - Emotion: How does the character feel about the disaster?
 - Analysis: What are the options now?
 - Decision: What do they do next? (This becomes the next scene's goal)
 
 ### Building the Chain
+
 1. Start with the protagonist's opening goal
 2. Write the Scene (goal-conflict-disaster)
 3. Write the Sequel (emotion-analysis-decision)
@@ -200,6 +212,7 @@ Every unit of narrative alternates between SCENE and SEQUEL:
 6. At the climax, the final disaster forces the ultimate choice
 
 ### Scene-Sequel Pacing Adjustments
+
 - **Fast pacing:** Short or skipped sequels, immediate next scenes
 - **Slow pacing:** Extended sequels with deep emotional processing
 - **Thriller pacing:** Scene-scene-scene-brief sequel-scene-scene
@@ -212,6 +225,7 @@ Every unit of narrative alternates between SCENE and SEQUEL:
 **Detail level:** Low (signpost scenes only).
 
 ### How It Works
+
 1. Identify 5-8 "tentpole scenes" --- the moments you are most excited to write
 2. These are typically: the opening, the inciting incident, 2-3 major turning points, the climax, and the resolution
 3. Place them in rough chronological order
@@ -219,12 +233,14 @@ Every unit of narrative alternates between SCENE and SEQUEL:
 5. Start writing toward the first tentpole
 
 ### Tentpole Advantages
+
 - Preserves discovery and creative energy
 - Provides just enough structure to prevent wandering
 - Easy to add tentpoles mid-draft if you discover new key scenes
 - Works well for writers who know their ending
 
 ### Tentpole Template
+
 ```
 TENTPOLE 1 (Opening): [Description]
   Gap 1: [What needs to happen to reach Tentpole 2]
@@ -248,6 +264,7 @@ TENTPOLE 7 (Resolution): [Description]
 **Detail level:** Variable (organic and evolving).
 
 ### How to Create a Story Mind Map
+
 1. **Center node:** Your story's core concept (one phrase)
 2. **First ring:** Major story elements (protagonist, antagonist, setting, conflict, theme)
 3. **Second ring:** Branch details from each first-ring node (character traits, specific settings, subplot threads)
@@ -255,12 +272,14 @@ TENTPOLE 7 (Resolution): [Description]
 5. **Connections:** Draw lines between nodes on different branches that relate to each other
 
 ### Mind Map Tools
+
 - **Paper and markers:** Best for initial brainstorming (no software friction)
 - **Miro or Mural:** Digital whiteboard for ongoing development
 - **XMind, MindMeister, or Coggle:** Dedicated mind-mapping software
 - **Scrivener corkboard view:** Index cards that can be rearranged
 
 ### From Mind Map to Manuscript
+
 1. After the map feels complete, identify the chronological sequence of events
 2. Convert the sequence into a numbered list
 3. Group scenes into chapters
@@ -273,9 +292,11 @@ TENTPOLE 7 (Resolution): [Description]
 **Detail level:** None upfront; generated after the fact.
 
 ### What Is a Zero Draft?
+
 A zero draft is a fast, messy, no-pressure draft written specifically to discover the story. It is not a first draft. It is pre-draft exploration in narrative form.
 
 ### Zero Draft Rules
+
 1. Write fast (1,500-3,000 words/day minimum)
 2. Do not revise. Do not look back.
 3. Use brackets for problems: [FIX THIS LATER] [NEED RESEARCH] [THIS IS TERRIBLE]
@@ -284,7 +305,9 @@ A zero draft is a fast, messy, no-pressure draft written specifically to discove
 6. The goal is to reach THE END, not to write well
 
 ### Reverse Outlining the Zero Draft
+
 Once complete, create a retroactive outline:
+
 1. List every scene with a one-sentence summary
 2. Identify which scenes are working and which are not
 3. Map the act structure that emerged
@@ -292,17 +315,21 @@ Once complete, create a retroactive outline:
 5. Create a revision outline that restructures the zero draft into a real first draft
 
 ### Zero Draft to First Draft
+
 The zero draft is raw material. Expect to rewrite 50-80% of it. The value is not in the prose --- it is in the discovery of the story's structure, characters, and emotional core.
 
 ## Hybrid Approaches
 
 ### The Progressive Outline
+
 Outline only the next 5-10 scenes at a time. Write those scenes. Then outline the next 5-10 based on what you discovered. This balances structure with discovery.
 
 ### The Reverse Expansion
+
 Start with the beat sheet (quick, high-level) and then expand individual beats using the progressive expansion technique for sections that need more planning.
 
 ### The Discovery-then-Structure Method
+
 1. Write freely for 20,000-30,000 words (pantsing phase)
 2. Stop and outline the rest of the book based on what you have discovered
 3. Revise the pantsed section to align with the outline
@@ -311,7 +338,9 @@ Start with the beat sheet (quick, high-level) and then expand individual beats u
 ## Outline Maintenance
 
 ### The Living Outline
+
 No outline survives contact with the draft unchanged. Treat your outline as a living document:
+
 - Update it when you deviate during drafting
 - Add scenes that emerge organically
 - Remove scenes that no longer fit
@@ -319,6 +348,7 @@ No outline survives contact with the draft unchanged. Treat your outline as a li
 - The outline should always reflect the current state of the project
 
 ### When to Abandon the Outline
+
 - When the characters are doing something more interesting than what you planned
 - When a new plot thread is stronger than the outlined one
 - When forcing the outline feels like killing the story's energy
@@ -327,7 +357,6 @@ No outline survives contact with the draft unchanged. Treat your outline as a li
 Do not abandon the outline because writing is hard. Abandon it because you have found something better. Then make a new outline from your new direction.
 
 The outline is a tool. It serves the story. The moment it stops serving the story, reshape it or set it aside. But having one --- in whatever form matches your brain --- almost always produces a better book than having none.
-
 
 ## Output Format
 
@@ -341,13 +370,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with book outliner for a mid-size project."
 
 **Output:** A complete book outliner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

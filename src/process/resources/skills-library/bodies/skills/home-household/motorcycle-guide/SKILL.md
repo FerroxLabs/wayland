@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Motorcycle Guide
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about motorcycle guide
 - User needs guidance on motorcycle guide topics
 - User wants a structured approach to motorcycle guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -93,16 +95,16 @@ STATE VARIATIONS:
 
 ### Choosing the Right Style
 
-| Type | Best For | Seat Height | Power | Ergonomics | Beginner? |
-|------|---------|-------------|-------|------------|-----------|
-| Standard/Naked | All-around, learning | Medium | Moderate | Upright, neutral | Excellent |
-| Cruiser | Relaxed riding, touring | Low | Moderate-High | Feet forward, low | Good |
-| Sport | Performance, track | High | High | Aggressive forward lean | Poor |
-| Adventure/ADV | Mixed terrain, touring | Tall | Moderate-High | Upright, standing capable | Moderate |
-| Touring | Long-distance comfort | Medium | High | Upright, wind protection | Moderate |
-| Dual-Sport | On/off road versatility | Tall | Low-Moderate | Upright, narrow | Good |
-| Cafe Racer | Style, short rides | Medium | Moderate | Moderate lean | Moderate |
-| Scooter | City commuting | Low | Low | Step-through, upright | Excellent |
+| Type           | Best For                | Seat Height | Power         | Ergonomics                | Beginner? |
+| -------------- | ----------------------- | ----------- | ------------- | ------------------------- | --------- |
+| Standard/Naked | All-around, learning    | Medium      | Moderate      | Upright, neutral          | Excellent |
+| Cruiser        | Relaxed riding, touring | Low         | Moderate-High | Feet forward, low         | Good      |
+| Sport          | Performance, track      | High        | High          | Aggressive forward lean   | Poor      |
+| Adventure/ADV  | Mixed terrain, touring  | Tall        | Moderate-High | Upright, standing capable | Moderate  |
+| Touring        | Long-distance comfort   | Medium      | High          | Upright, wind protection  | Moderate  |
+| Dual-Sport     | On/off road versatility | Tall        | Low-Moderate  | Upright, narrow           | Good      |
+| Cafe Racer     | Style, short rides      | Medium      | Moderate      | Moderate lean             | Moderate  |
+| Scooter        | City commuting          | Low         | Low           | Step-through, upright     | Excellent |
 
 ### Recommended Beginner Bikes by Category
 

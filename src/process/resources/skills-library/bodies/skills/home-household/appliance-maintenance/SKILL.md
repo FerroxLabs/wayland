@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist cleaning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist cleaning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Appliance Maintenance
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user's request clearly centers on a specific major house
 - The user asks about a specific part -- such as a water inlet valve, door gasket, heating element, or anode rod -- and whether they should replace it themselves
 
 **Do NOT use this skill when:**
+
 - The user's problem involves HVAC, heat pumps, furnaces, or central air systems -- use `hvac-maintenance` instead
 - The user smells gas near any appliance -- instruct them to leave the home immediately without flipping any switches, then call their gas utility's emergency line from outside; this is a life-safety emergency, not a maintenance call
 - The user needs a full seasonal home checklist across all systems -- use `annual-home-maintenance` instead
@@ -61,18 +63,18 @@ Before providing any guidance, collect the information that determines which mai
 
 Use the expected lifespan table below as your baseline. Age alone does not determine status -- age relative to expected lifespan does.
 
-| Appliance | Expected Lifespan | Early Life (Invest in Maintenance) | Mid Life (Prime Maintenance Window) | Late Life (Minimal Investment, Plan Replacement) |
-|---|---|---|---|---|
-| Refrigerator | 13-17 years | 0-6 years | 7-12 years | 13+ years |
-| Dishwasher | 9-13 years | 0-4 years | 5-9 years | 10+ years |
-| Front-load washer | 10-14 years | 0-4 years | 5-9 years | 10+ years |
-| Top-load washer | 10-15 years | 0-5 years | 6-10 years | 11+ years |
-| Dryer (gas or electric) | 13-15 years | 0-5 years | 6-11 years | 12+ years |
-| Gas range/oven | 13-18 years | 0-6 years | 7-12 years | 13+ years |
-| Electric range/oven | 13-16 years | 0-5 years | 6-11 years | 12+ years |
-| Microwave (over-range) | 9-10 years | 0-3 years | 4-7 years | 8+ years |
-| Water heater (tank) | 8-12 years | 0-3 years | 4-8 years | 9+ years |
-| Water heater (tankless) | 15-20 years | 0-6 years | 7-14 years | 15+ years |
+| Appliance               | Expected Lifespan | Early Life (Invest in Maintenance) | Mid Life (Prime Maintenance Window) | Late Life (Minimal Investment, Plan Replacement) |
+| ----------------------- | ----------------- | ---------------------------------- | ----------------------------------- | ------------------------------------------------ |
+| Refrigerator            | 13-17 years       | 0-6 years                          | 7-12 years                          | 13+ years                                        |
+| Dishwasher              | 9-13 years        | 0-4 years                          | 5-9 years                           | 10+ years                                        |
+| Front-load washer       | 10-14 years       | 0-4 years                          | 5-9 years                           | 10+ years                                        |
+| Top-load washer         | 10-15 years       | 0-5 years                          | 6-10 years                          | 11+ years                                        |
+| Dryer (gas or electric) | 13-15 years       | 0-5 years                          | 6-11 years                          | 12+ years                                        |
+| Gas range/oven          | 13-18 years       | 0-6 years                          | 7-12 years                          | 13+ years                                        |
+| Electric range/oven     | 13-16 years       | 0-5 years                          | 6-11 years                          | 12+ years                                        |
+| Microwave (over-range)  | 9-10 years        | 0-3 years                          | 4-7 years                           | 8+ years                                         |
+| Water heater (tank)     | 8-12 years        | 0-3 years                          | 4-8 years                           | 9+ years                                         |
+| Water heater (tankless) | 15-20 years       | 0-6 years                          | 7-14 years                          | 15+ years                                        |
 
 - **Early life:** Emphasize proper habits and preventive maintenance; return on investment is highest here
 - **Mid life:** Comprehensive maintenance plus targeted part replacement (belts, hoses, filters); the user should plan for end-of-life 3-6 years out
@@ -85,6 +87,7 @@ Before providing troubleshooting steps, apply this framework whenever a symptom 
 **The 50% Rule:** If the estimated repair cost exceeds 50% of the cost of a comparable new replacement unit AND the appliance is past 50% of its expected lifespan, replacement is nearly always the better financial decision.
 
 **The Escalation Check:** Some failures are indicators that more failures are coming soon. Flag these as escalation risks:
+
 - Compressor failure in a refrigerator -- compressors cost $300-600 installed, and when they fail, other sealed-system components (evaporator, condenser) are often degraded
 - Control board failure in any appliance -- boards cost $150-400 and their failure often indicates voltage spikes or moisture intrusion that will affect other boards
 - Inner drum bearing failure in a washer -- replacing bearings costs $200-350 in labor and parts; if the machine is over 8 years old, replacement is almost always cheaper
@@ -318,6 +321,7 @@ Combo washer-dryers, stacked units, and compact apartment appliances have unique
 ## Appliance Maintenance Plan
 
 ### Dishwasher -- Built-In Standard (assumed 24-inch)
+
 **Age:** 8 years | **Expected Lifespan:** 9-13 years | **Status:** Late Mid Life -- entering the replacement planning window
 **Remaining Useful Life (estimated):** 1-5 years
 **Annual Maintenance Cost (if kept in good condition):** ~$30-50
@@ -339,6 +343,7 @@ Your symptoms are almost certainly related to three overlapping problems: hard w
 White spots on glasses and dishes are calcium carbonate deposits left behind when hard water evaporates. If you see white buildup on your faucets, inside your kettle, or on shower doors, you have hard water -- which is the root cause. The dishwasher itself is not malfunctioning; it is working correctly but cannot overcome chemistry without help.
 
 Immediate fix (one-time deep descale):
+
 1. Empty the dishwasher completely.
 2. Place 2 cups of white vinegar in a dishwasher-safe bowl on the bottom rack. Run a hot water cycle (the hottest setting available). The vinegar dissolves calcium deposits from the interior walls, door, and spray arms.
 3. After the cycle completes and the interior cools, sprinkle 1 cup of baking soda across the bottom of the tub. Run a short hot cycle. This neutralizes residual odors and polishes the stainless interior.
@@ -352,6 +357,7 @@ Modern dishwashers (post-2010 on most brands, post-2005 on some) replaced self-c
 The filter is located at the bottom of the dishwasher tub, typically at the base of the lower spray arm. It consists of two pieces: a cylindrical upper filter and a flat mesh lower filter. When the filter is clogged with food particles, grease, and debris, the recirculation pump pulls from a contaminated water supply and redistributes that debris onto your dishes -- which explains the gritty film. It also reduces water pressure to the spray arms, which reduces cleaning performance.
 
 How to clean the filter (15 minutes, tools: none):
+
 1. Pull out the lower rack completely.
 2. Locate the cylindrical filter at the bottom center of the tub. Twist it counterclockwise (usually 1/4 turn) and lift straight up.
 3. Below the cylindrical filter is a flat mesh filter -- lift it out.
@@ -367,6 +373,7 @@ Clean this filter monthly going forward. Based on your symptoms, yours is likely
 The bottom spray arm is a rotating plastic arm with 8-12 small holes (approximately 1.5-2mm diameter). Food particles, mineral deposits, and debris block these holes over time, reducing water pressure and spray coverage -- which is why your bottom rack performance has declined faster than the top. The top spray arm (located under the upper rack) is partially protected from falling debris and typically stays cleaner longer.
 
 How to clean the spray arms (20 minutes, tools: toothpick, needle, or thin wire):
+
 1. Remove the lower rack. The bottom spray arm snaps off its center hub -- press the center tab and pull up, or unscrew the center nut (counterclockwise) depending on your model.
 2. Hold the spray arm up to a light source and look through each nozzle hole. Blocked holes will appear dark or opaque.
 3. Use a toothpick or thin wire to clear each blocked hole. Do not use a drill bit or any tool that will enlarge the hole.
@@ -378,35 +385,37 @@ How to clean the spray arms (20 minutes, tools: toothpick, needle, or thin wire)
 ---
 
 #### Maintenance Schedule
-| Frequency | Task | Time Required | DIY Cost |
-|-----------|------|---------------|----------|
-| After every load | Leave the door slightly ajar for 15-20 minutes after the cycle ends to allow steam and residual moisture to escape -- reduces interior mold and odor | 5 sec | $0 |
-| Every load | Use rinse aid -- fill the dispenser and set to level 4-5 for hard water | 1 min | ~$0.10/load |
-| Every load | Scrape (do not pre-rinse) dishes before loading -- modern dishwashers need a small amount of food soil to activate the enzymes in detergent; rinsing dishes too clean can actually result in worse cleaning | 30 sec | $0 |
-| Monthly | Clean the drain filter (cylindrical + flat mesh) -- remove, scrub with toothbrush, rinse, reinstall | 15 min | $0 |
-| Monthly | Run a descaling cycle: empty machine, 2 cups white vinegar on the bottom rack, hottest cycle | 1 hr (machine time) | $0.50 |
-| Monthly | Check and refill rinse aid dispenser | 2 min | ~$3/month |
-| Every 3 months | Clean both spray arms -- remove, clear all nozzle holes with a toothpick, rinse, reinstall | 20 min | $0 |
-| Every 3 months | Wipe the door gasket (the rubber seal around the door perimeter) with a damp cloth -- remove food debris and check for tears or mold | 5 min | $0 |
-| Annually | Inspect and clean the interior walls, door inner panel, and detergent dispenser with a citric acid descaler cycle (run empty with a commercial dishwasher cleaner tablet, $4-6) | 1.5 hrs total | $5-7 |
-| Annually | Inspect the door springs and hinges for wear -- the door should feel balanced and stay open at a 45-degree angle without slamming down or springing up | 5 min | $0 (inspect) |
-| Annually | Check the water supply inlet valve hose under the sink (connects dishwasher to hot water supply) for bulging, cracking, or leaks at the connection points | 5 min | $0 (inspect) |
-| At 8-10 years (NOW) | Inspect the spray arm bearing hubs and filter housing for stress cracks -- plastic components become brittle with age and heat cycling; replace if cracked (parts are $10-40 each) | 10 min | $0-40 |
+
+| Frequency           | Task                                                                                                                                                                                                        | Time Required       | DIY Cost     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------ |
+| After every load    | Leave the door slightly ajar for 15-20 minutes after the cycle ends to allow steam and residual moisture to escape -- reduces interior mold and odor                                                        | 5 sec               | $0           |
+| Every load          | Use rinse aid -- fill the dispenser and set to level 4-5 for hard water                                                                                                                                     | 1 min               | ~$0.10/load  |
+| Every load          | Scrape (do not pre-rinse) dishes before loading -- modern dishwashers need a small amount of food soil to activate the enzymes in detergent; rinsing dishes too clean can actually result in worse cleaning | 30 sec              | $0           |
+| Monthly             | Clean the drain filter (cylindrical + flat mesh) -- remove, scrub with toothbrush, rinse, reinstall                                                                                                         | 15 min              | $0           |
+| Monthly             | Run a descaling cycle: empty machine, 2 cups white vinegar on the bottom rack, hottest cycle                                                                                                                | 1 hr (machine time) | $0.50        |
+| Monthly             | Check and refill rinse aid dispenser                                                                                                                                                                        | 2 min               | ~$3/month    |
+| Every 3 months      | Clean both spray arms -- remove, clear all nozzle holes with a toothpick, rinse, reinstall                                                                                                                  | 20 min              | $0           |
+| Every 3 months      | Wipe the door gasket (the rubber seal around the door perimeter) with a damp cloth -- remove food debris and check for tears or mold                                                                        | 5 min               | $0           |
+| Annually            | Inspect and clean the interior walls, door inner panel, and detergent dispenser with a citric acid descaler cycle (run empty with a commercial dishwasher cleaner tablet, $4-6)                             | 1.5 hrs total       | $5-7         |
+| Annually            | Inspect the door springs and hinges for wear -- the door should feel balanced and stay open at a 45-degree angle without slamming down or springing up                                                      | 5 min               | $0 (inspect) |
+| Annually            | Check the water supply inlet valve hose under the sink (connects dishwasher to hot water supply) for bulging, cracking, or leaks at the connection points                                                   | 5 min               | $0 (inspect) |
+| At 8-10 years (NOW) | Inspect the spray arm bearing hubs and filter housing for stress cracks -- plastic components become brittle with age and heat cycling; replace if cracked (parts are $10-40 each)                          | 10 min              | $0-40        |
 
 ---
 
 #### Common Issues and Fixes
-| Symptom | Most Likely Cause | DIY Fix | DIY Cost | Pro Repair Cost |
-|---------|-------------------|---------|----------|-----------------|
-| White spots / film on dishes | Hard water deposits; insufficient rinse aid | Run vinegar descale cycle; add rinse aid; increase rinse aid dispenser level | $0-1 | $80-120 (descale service) |
-| Gritty residue on dishes | Clogged drain filter recirculating debris | Clean filter monthly | $0 | $100-150 |
-| Bottom rack cleans worse than top | Blocked lower spray arm nozzles | Clear spray arm holes with toothpick | $0 | $100-150 |
-| Standing water after cycle | Clogged filter + drain hose blockage | Clean filter; check drain hose for kinks; check air gap (if present) on the sink | $0 | $100-200 |
-| Musty odor from interior | Mold in filter housing, door gasket, or interior crevices | Deep clean cycle + leave door ajar after every load | $1-2 | $100-150 |
-| Door latch does not catch | Worn door latch or misaligned strike plate | Replace door latch assembly ($20-40, 20 min DIY) | $20-40 | $120-200 |
-| Water leaks from door seal | Torn or hardened door gasket | Replace door gasket ($30-70, 30 min DIY -- pull old gasket from channel, push new one in) | $30-70 | $150-250 |
-| Detergent pod does not dissolve | Dispenser door spring broken, or pod placed incorrectly | Replace dispenser door spring ($8-20, 20 min DIY); ensure pod goes in the dispenser cup, not the bottom of the tub | $8-20 | $100-180 |
-| Loud grinding during wash cycle | Debris (glass chip, bone fragment) in the pump impeller | Remove filter, use a flashlight to inspect impeller cavity, remove debris with needle-nose pliers | $0 | $120-200 |
+
+| Symptom                           | Most Likely Cause                                         | DIY Fix                                                                                                            | DIY Cost | Pro Repair Cost           |
+| --------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------- |
+| White spots / film on dishes      | Hard water deposits; insufficient rinse aid               | Run vinegar descale cycle; add rinse aid; increase rinse aid dispenser level                                       | $0-1     | $80-120 (descale service) |
+| Gritty residue on dishes          | Clogged drain filter recirculating debris                 | Clean filter monthly                                                                                               | $0       | $100-150                  |
+| Bottom rack cleans worse than top | Blocked lower spray arm nozzles                           | Clear spray arm holes with toothpick                                                                               | $0       | $100-150                  |
+| Standing water after cycle        | Clogged filter + drain hose blockage                      | Clean filter; check drain hose for kinks; check air gap (if present) on the sink                                   | $0       | $100-200                  |
+| Musty odor from interior          | Mold in filter housing, door gasket, or interior crevices | Deep clean cycle + leave door ajar after every load                                                                | $1-2     | $100-150                  |
+| Door latch does not catch         | Worn door latch or misaligned strike plate                | Replace door latch assembly ($20-40, 20 min DIY)                                                                   | $20-40   | $120-200                  |
+| Water leaks from door seal        | Torn or hardened door gasket                              | Replace door gasket ($30-70, 30 min DIY -- pull old gasket from channel, push new one in)                          | $30-70   | $150-250                  |
+| Detergent pod does not dissolve   | Dispenser door spring broken, or pod placed incorrectly   | Replace dispenser door spring ($8-20, 20 min DIY); ensure pod goes in the dispenser cup, not the bottom of the tub | $8-20    | $100-180                  |
+| Loud grinding during wash cycle   | Debris (glass chip, bone fragment) in the pump impeller   | Remove filter, use a flashlight to inspect impeller cavity, remove debris with needle-nose pliers                  | $0       | $120-200                  |
 
 ---
 
@@ -415,6 +424,7 @@ How to clean the spray arms (20 minutes, tools: toothpick, needle, or thin wire)
 At 8 years old on a 9-13 year lifespan, your dishwasher is entering its replacement planning window. Here is how to think about any future repairs:
 
 **50% threshold for your appliance:**
+
 - Replacement cost for a comparable mid-range dishwasher: $600-900 installed
 - 50% threshold: $300-450
 - Current appliance age vs. lifespan: 8 years / 9-13 years = 62-89% through expected life
@@ -428,16 +438,19 @@ At 8 years old on a 9-13 year lifespan, your dishwasher is entering its replacem
 #### Prioritized Action List
 
 **Do this week:**
+
 - Clean the drain filter -- this is the most likely contributor to the gritty film and is causing active degradation; it takes 15 minutes and costs nothing
 - Clear all nozzle holes on both spray arms -- this directly addresses the uneven cleaning performance you are seeing
 - Run a full descaling cycle with 2 cups of white vinegar on the hottest cycle
 
 **Do this month:**
+
 - Purchase rinse aid (a standard 16 oz bottle, $4-6, lasts 2-3 months) and fill the dispenser to level 4-5
 - Wipe down the door gasket and inspect it for tears or mold
 - If the white film is severe, run a citric acid descaler (commercial dishwasher cleaner tablet, $4-6) cycle after the vinegar cycle
 
 **Add to your ongoing calendar:**
+
 - Monthly: Clean drain filter + run descaling cycle
 - Quarterly: Clean spray arms; wipe door gasket
 - Annually: Full interior descale + door spring and hinge inspection + supply hose inspection
@@ -446,10 +459,11 @@ At 8 years old on a 9-13 year lifespan, your dishwasher is entering its replacem
 ---
 
 ### Replacement Budget Planner
-| Appliance | Current Age | Lifespan | Est. Replace Window | Budget Tier | Est. Cost |
-|-----------|-------------|----------|---------------------|-------------|-----------|
-| Dishwasher (24-inch built-in) | 8 years | 9-13 years | 1-5 years from now | Budget | $400-600 |
-| | | | | Mid-range | $600-900 |
-| | | | | Premium | $900-1,500 |
+
+| Appliance                     | Current Age | Lifespan   | Est. Replace Window | Budget Tier | Est. Cost  |
+| ----------------------------- | ----------- | ---------- | ------------------- | ----------- | ---------- |
+| Dishwasher (24-inch built-in) | 8 years     | 9-13 years | 1-5 years from now  | Budget      | $400-600   |
+|                               |             |            |                     | Mid-range   | $600-900   |
+|                               |             |            |                     | Premium     | $900-1,500 |
 
 **Buying guidance when you reach replacement:** Prioritize a third rack (adds utensil washing capacity and is a strong indicator of overall build quality), 4.0 gallons-per-cycle or less (Energy Star), and a stainless steel interior tub (plastic tub interiors absorb odors and are associated with shorter appliance life in higher-humidity climates). Skip Wi-Fi connectivity on dishwashers -- it adds cost without meaningful maintenance benefit.

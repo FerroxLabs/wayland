@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide template strategy"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'guide template strategy'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Symptom Documentation Guide
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to build a symptom diary or health journal and needs a structured framework for what to observe and record
 - A user has a recurring symptom (headaches, fatigue, stomach discomfort, joint pain, skin flares, dizziness) and wants to identify patterns before a medical appointment
 - A user says their doctor asked them to "keep track" of symptoms and they are not sure what information to capture
@@ -33,6 +35,7 @@ metadata:
 - A user has been living with a chronic condition and wants to detect whether their symptom pattern is changing over time
 
 **Do NOT use when:**
+
 - The user asks what their symptoms might mean or indicate -- this requires clinical interpretation and falls outside this skill's scope; acknowledge the question and advise them to raise it with their provider
 - The user asks whether their symptoms are serious or whether they should see a doctor -- do not assess urgency; advise consulting their healthcare provider promptly and, if symptoms feel severe or sudden, contacting emergency services
 - The user asks for treatment recommendations, home remedies, or medication guidance -- defer entirely to their provider; see the medication-tracking or treatment-adherence skills for related but distinct workflows
@@ -72,33 +75,38 @@ OPQRST is the gold-standard clinical framework used by healthcare professionals 
 Different symptom categories warrant different logging emphases. Apply domain-specific column configurations:
 
 **For pain symptoms (headache, back pain, joint pain, abdominal pain):**
-  - Location specificity (point location vs. regional) and radiation pattern are critical
-  - Include a body map field -- instruct users to mark the location on a simple front/back body outline
-  - Add a functional impact column: "What did this prevent you from doing?" -- this is clinically meaningful beyond intensity alone
-  - Track position-dependency: does lying down, sitting, or standing make it better or worse?
+
+- Location specificity (point location vs. regional) and radiation pattern are critical
+- Include a body map field -- instruct users to mark the location on a simple front/back body outline
+- Add a functional impact column: "What did this prevent you from doing?" -- this is clinically meaningful beyond intensity alone
+- Track position-dependency: does lying down, sitting, or standing make it better or worse?
 
 **For gastrointestinal symptoms (nausea, cramping, bloating, changes in bowel habits):**
-  - Track the prior 2-hour food and beverage intake for every episode
-  - Include a bowel habits column if relevant -- frequency, consistency using Bristol Stool Scale descriptors (formed, loose, watery) without asking the user to interpret what this means clinically
-  - Note whether onset is related to eating: before meals, immediately after, 30-60 minutes post-meal, 2+ hours after
-  - Track stress and sleep quality on the same day as high-impact variables
+
+- Track the prior 2-hour food and beverage intake for every episode
+- Include a bowel habits column if relevant -- frequency, consistency using Bristol Stool Scale descriptors (formed, loose, watery) without asking the user to interpret what this means clinically
+- Note whether onset is related to eating: before meals, immediately after, 30-60 minutes post-meal, 2+ hours after
+- Track stress and sleep quality on the same day as high-impact variables
 
 **For fatigue, mood, or cognitive symptoms:**
-  - Intensity alone is insufficient -- add functional impact: "Could not drive / could not work / rested for 2 hours"
-  - Track sleep the prior night (hours and perceived quality on a 1-5 scale)
-  - Note hydration and caffeine intake as baseline variables
-  - Track time of day carefully -- fatigue that is worst in the morning has different pattern implications than late-afternoon crashes
+
+- Intensity alone is insufficient -- add functional impact: "Could not drive / could not work / rested for 2 hours"
+- Track sleep the prior night (hours and perceived quality on a 1-5 scale)
+- Note hydration and caffeine intake as baseline variables
+- Track time of day carefully -- fatigue that is worst in the morning has different pattern implications than late-afternoon crashes
 
 **For skin symptoms (rash, hives, itching, flares):**
-  - Track location AND spread over time (did it appear in one spot and spread?)
-  - Note any new products used in the prior 72 hours: detergents, lotions, soaps, foods, medications
-  - Environmental exposures: outdoor time, animals, dust, pollen levels
-  - Temperature and moisture: hot shower before onset? Sweating? Cold exposure?
+
+- Track location AND spread over time (did it appear in one spot and spread?)
+- Note any new products used in the prior 72 hours: detergents, lotions, soaps, foods, medications
+- Environmental exposures: outdoor time, animals, dust, pollen levels
+- Temperature and moisture: hot shower before onset? Sweating? Cold exposure?
 
 **For cyclical or hormonal-pattern symptoms:**
-  - Build the log to track cycle day if the user tracks their menstrual cycle
-  - Note whether symptoms correlate with the week before menstruation, during, or after
-  - Track 2 full cycles minimum to detect a cyclical pattern
+
+- Build the log to track cycle day if the user tracks their menstrual cycle
+- Note whether symptoms correlate with the week before menstruation, during, or after
+- Track 2 full cycles minimum to detect a cyclical pattern
 
 ### Step 4: Establish Consistent Intensity and Impact Scaling
 
@@ -341,6 +349,7 @@ On days with NO symptom, note which potential triggers were present but did NOT 
 ### Tracking Symptoms for a Child
 
 Parents cannot rely on a child's self-reported intensity score, especially under age 8-10. Adapt the framework:
+
 - Replace the 0-10 intensity scale with a behavioral impact scale: 1 = playing/active normally, 2 = quieter than usual / self-limiting activity, 3 = resting voluntarily / not eating normally, 4 = crying / unable to be comforted / refusing all normal activities
 - Add columns specifically for: appetite change (eating normal / eating less / refusing food), sleep disruption (fell asleep earlier / woke at night / napped when normally does not), behavioral change (irritable, clingy, withdrawn)
 - Record the child's own description verbatim in quotation marks alongside the parent's behavioral observation -- "my tummy is on fire" alongside "child bent over and declined dinner" gives the provider both data points
@@ -350,6 +359,7 @@ Parents cannot rely on a child's self-reported intensity score, especially under
 ### User Has Multiple Simultaneous Symptoms to Track
 
 When a user is tracking 3 or more concurrent symptoms, individual logs become unmanageable. Structure for this scenario:
+
 - Create one master daily log with a row per symptom per day (not per episode) to track co-occurrence
 - Use color-coding or column groupings to distinguish symptom categories
 - Add a "same-day co-occurrence" column to each symptom section: "Did [other symptom] also occur today? Y/N"
@@ -359,6 +369,7 @@ When a user is tracking 3 or more concurrent symptoms, individual logs become un
 ### User Is Trying to Track Symptoms Retrospectively From Memory
 
 For users who have not been tracking and have an appointment in days rather than weeks:
+
 - Start with a timeline reconstruction: working backward week by week, ask what they can recall about frequency (roughly how many times per week?), intensity (was it ever bad enough to stop activity?), and any consistent circumstances
 - Capture at least 4-6 specific episodes from memory in the daily log format, even if dates are approximate -- "approximately 3 weeks ago, after dinner" is more useful than no data
 - Have the user note which elements are estimated ("~") vs. clearly recalled -- providers understand memory limitations and appreciate the transparency
@@ -368,6 +379,7 @@ For users who have not been tracking and have an appointment in days rather than
 ### User Was Given a Specific Tracking Form by Their Provider
 
 This is the highest-priority scenario -- the provider's format overrides any generic template:
+
 - Ask the user to describe every field on the provider's form before building anything
 - Map the OPQRST framework onto the provider's specific field names -- they are almost certainly capturing the same dimensions, just labeled differently
 - If the provider's form has fields the user does not understand, help them understand what observation those fields are asking for without interpreting what the answers mean
@@ -377,6 +389,7 @@ This is the highest-priority scenario -- the provider's format overrides any gen
 ### User Describes Symptoms That Sound Acute or Emergent While Setting Up a Tracking System
 
 This is not an edge case -- it is a priority interrupt. If a user mentions any of the following while asking about documentation, stop all documentation guidance immediately:
+
 - Chest pain, pressure, or tightness
 - Shortness of breath at rest
 - Sudden severe headache described as "worst of my life"
@@ -392,6 +405,7 @@ Response in these cases: "What you are describing could require immediate medica
 ### User Wants to Track Symptoms Over a Very Long Timeline (6+ Months)
 
 For chronic condition monitoring, the daily log format becomes unwieldy at scale. Adapt:
+
 - Shift to a weekly-entry format rather than episode-by-episode after the first 4-6 weeks of establishing a baseline
 - Create a monthly summary page that tracks frequency, average intensity, and functional impact per month in a single row -- this allows a full year to be represented in 12 rows
 - Add a "baseline change" indicator: a threshold the user and provider agreed upon that would trigger additional contact (e.g., "if frequency exceeds 4 episodes per week for 2 consecutive weeks")
@@ -401,6 +415,7 @@ For chronic condition monitoring, the daily log format becomes unwieldy at scale
 ### User Tracks Symptoms but Cannot Identify Any Consistent Triggers
 
 This is a valid and important outcome -- absence of trigger patterns is itself clinically meaningful:
+
 - Help the user articulate it clearly in the provider summary: "Over [X] weeks and [Y] episodes, I tracked [list of trigger categories] and was unable to identify a consistent pattern. Episodes appear to occur without a consistent preceding circumstance."
 - Suggest adding a "random vs. patterned" field to the weekly summary: did this week's episodes seem to cluster around anything, or were they distributed without obvious pattern?
 - Advise the user that lack of identifiable triggers is useful information for the provider -- it narrows the clinical picture differently than trigger-associated symptoms do
@@ -417,6 +432,7 @@ This is a valid and important outcome -- absence of trigger patterns is itself c
 ---
 
 ## Symptom Documentation System: Recurring Headaches
+
 **Created:** [Today's date]
 **Tracking through:** [Appointment date -- approximately 3 weeks]
 **Primary symptom:** Recurring headache -- descriptive tracking only
@@ -426,6 +442,7 @@ This is a valid and important outcome -- absence of trigger patterns is itself c
 ### Intensity Scale -- Set Your Personal Anchors Now (Before You Begin)
 
 Answer these once and keep them visible when you record:
+
 - **My 10:** The worst headache I have ever had (or can imagine)
 - **My 7-8:** Bad enough that I stop what I am doing and lie down
 - **My 5:** Clearly there, getting in the way of concentration, but I can push through
@@ -441,10 +458,11 @@ Use these same reference points every time you record to keep your numbers consi
 Fill in one row each time a headache occurs. Record as close to the time of the episode as possible -- same-day is always better than next-morning recall.
 
 | Date | Start Time | Location (front/back/one side/both sides/behind eyes/top of head) | Quality (throbbing, pressure, stabbing, tight band, dull ache, other) | Intensity at Onset (0-10) | Peak Intensity (0-10) | Duration (minutes/hours) | Functional Impact (1-4) | Sleep Prior Night (hours + quality 1-5) | Stress Level That Day (1-5) | Food/Caffeine in Prior 2 Hours | Activity Before Onset | Light/Sound Sensitivity (Y/N) | Nausea (Y/N) | What You Tried for Relief | Relief Effect (reduced by X points / no change / resolved) |
-|------|------------|---------------------------------------------------------------------|------------------------------------------------------------------------|---------------------------|----------------------|--------------------------|--------------------------|----------------------------------------|-----------------------------|-------------------------------|----------------------|-------------------------------|--------------|---------------------------|-----------------------------------------------------------|
-|      |            |                                                                     |                                                                        |                           |                      |                          |                          |                                        |                             |                               |                      |                               |              |                           |                                                           |
+| ---- | ---------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------- | --------------------- | ------------------------ | ----------------------- | --------------------------------------- | --------------------------- | ------------------------------ | --------------------- | ----------------------------- | ------------ | ------------------------- | ---------------------------------------------------------- |
+|      |            |                                                                   |                                                                       |                           |                       |                          |                         |                                         |                             |                                |                       |                               |              |                           |                                                            |
 
 **Functional Impact Reference:**
+
 - 1 = Noticeable, no change to plans
 - 2 = Reduced activity level (quieter, took a break)
 - 3 = Stopped activity, rested
@@ -457,21 +475,24 @@ Fill in one row each time a headache occurs. Record as close to the time of the 
 Check anything that was present in the few hours before the headache began. You are recording observations, not conclusions -- a trigger is just something that was present; your provider will help interpret what it means.
 
 **Sleep:**
+
 - [ ] Less than 6 hours sleep the night before
 - [ ] More than 9 hours sleep (oversleeping is a documented pattern in some headache types)
 - [ ] Disrupted or poor-quality sleep
 - [ ] Unusual sleep schedule (weekend lie-in, shift change, travel time zones)
 
 **Dietary:**
+
 - [ ] Skipped a meal or ate significantly later than usual
 - [ ] Dehydration / lower fluid intake than normal
-- [ ] Alcohol (type and amount: _________)
+- [ ] Alcohol (type and amount: ****\_****)
 - [ ] High caffeine intake
 - [ ] Caffeine withdrawal (lower than usual / missed morning coffee)
-- [ ] Specific food consumed (note it -- let your provider identify patterns): _________
+- [ ] Specific food consumed (note it -- let your provider identify patterns): ****\_****
 - [ ] Large meal within 30 minutes before onset
 
 **Environmental:**
+
 - [ ] Weather change (temperature drop, incoming storm, humidity change)
 - [ ] Strong smells (perfume, cleaning products, smoke, paint)
 - [ ] Bright or flickering light (screens, fluorescent lights, sunlight)
@@ -479,23 +500,27 @@ Check anything that was present in the few hours before the headache began. You 
 - [ ] High altitude or pressure change (flight, elevation)
 
 **Physical and Postural:**
-- [ ] Prolonged screen time before onset (hours: _______)
+
+- [ ] Prolonged screen time before onset (hours: **\_\_\_**)
 - [ ] Poor posture / sustained neck position (driving, desk work)
 - [ ] Strenuous physical exertion
 - [ ] Coughing, straining
 - [ ] Eye strain (sustained reading, detailed close work)
 
 **Stress:**
-- [ ] High-stress day (rate: _____/5)
+
+- [ ] High-stress day (rate: **\_**/5)
 - [ ] Emotional distress, conflict, or significant event
 - [ ] Post-stress / letdown (headache started after stressful period ended -- sometimes called "letdown headache")
 
 **Hormonal (if applicable):**
-- [ ] Menstrual cycle day: ______ (note day 1 = first day of menstruation)
+
+- [ ] Menstrual cycle day: **\_\_** (note day 1 = first day of menstruation)
 
 **Medications:**
-- [ ] Pain medication taken in prior 48 hours (type and frequency: _________)
-- [ ] Any new medication or supplement started recently: _________
+
+- [ ] Pain medication taken in prior 48 hours (type and frequency: ****\_****)
+- [ ] Any new medication or supplement started recently: ****\_****
 
 ---
 
@@ -504,9 +529,9 @@ Check anything that was present in the few hours before the headache began. You 
 On days you do NOT have a headache, note which triggers were present anyway. This is how you distinguish "coffee triggers my headaches" from "I drink coffee every day and my headaches are unrelated to it."
 
 | Date | Triggers Present (from checklist above) | Headache Occurred? |
-|------|----------------------------------------|--------------------|
-|      |                                        | No                 |
-|      |                                        | No                 |
+| ---- | --------------------------------------- | ------------------ |
+|      |                                         | No                 |
+|      |                                         | No                 |
 
 ---
 
@@ -515,12 +540,13 @@ On days you do NOT have a headache, note which triggers were present anyway. Thi
 Complete this every Sunday before the next week begins.
 
 | Week | Total Headaches | Avg Intensity | Peak Intensity | Avg Duration | Episodes at Functional Impact 3-4 | Most Consistent Trigger | Most Effective Relief | Trend vs. Prior Week | Pattern Notes |
-|------|----------------|---------------|----------------|--------------|-------------------------------------|------------------------|-----------------------|---------------------|---------------|
-| 1 | | | | | | | | Baseline | |
-| 2 | | | | | | | | | |
-| 3 | | | | | | | | | |
+| ---- | --------------- | ------------- | -------------- | ------------ | --------------------------------- | ----------------------- | --------------------- | -------------------- | ------------- |
+| 1    |                 |               |                |              |                                   |                         |                       | Baseline             |               |
+| 2    |                 |               |                |              |                                   |                         |                       |                      |               |
+| 3    |                 |               |                |              |                                   |                         |                       |                      |               |
 
 **At the end of each week, answer:**
+
 - Did headaches cluster on certain days of the week?
 - Did most episodes start at a similar time of day?
 - Was there any week-level variable that differed from prior week (higher stress, unusual schedule, different food habits)?
@@ -532,40 +558,47 @@ Complete this every Sunday before the next week begins.
 
 **Symptom (descriptive):** Recurring headache -- [location and quality description, e.g., "pressure sensation, both sides of forehead"]
 **Tracking period:** [Start date] to [End date] -- 3 weeks
-**Total episodes recorded:** ___
-**Average frequency:** ___ headaches per week
-**Typical intensity:** ___/10 | Peak intensity recorded: ___/10
-**Typical duration:** ___ (range: ___ to ___)
-**Functional impact:** ___ episodes required stopping activity or resting
+**Total episodes recorded:** **_
+**Average frequency:** _** headaches per week
+**Typical intensity:** **_/10 | Peak intensity recorded: _**/10
+**Typical duration:** **_ (range: _** to **_)
+**Functional impact:** _** episodes required stopping activity or resting
 
 **Timing Pattern:**
-- Most common time of onset: ___________
-- Day-of-week clustering: ___________
-- Relationship to sleep: ___________
+
+- Most common time of onset: ****\_\_\_****
+- Day-of-week clustering: ****\_\_\_****
+- Relationship to sleep: ****\_\_\_****
 
 **Most Consistent Triggers (present in 2 or more episodes):**
-1. __________ (present in ___ of ___ episodes)
-2. __________ (present in ___ of ___ episodes)
-3. __________ (present in ___ of ___ episodes)
+
+1. ****\_\_**** (present in **_ of _** episodes)
+2. ****\_\_**** (present in **_ of _** episodes)
+3. ****\_\_**** (present in **_ of _** episodes)
 
 **Triggers Present on Headache-Free Days (ruled out or inconsistent):**
-- __________
+
+- ***
 
 **Effective Relief:**
-- [Method] -- reduced intensity by approximately ___ points / resolved in ___ minutes
+
+- [Method] -- reduced intensity by approximately **_ points / resolved in _** minutes
 - [Method] -- no consistent effect
 
 **Associated Symptoms Present in Episodes:**
-- Light sensitivity: ___ of ___ episodes
-- Sound sensitivity: ___ of ___ episodes
-- Nausea: ___ of ___ episodes
+
+- Light sensitivity: **_ of _** episodes
+- Sound sensitivity: **_ of _** episodes
+- Nausea: **_ of _** episodes
 
 **Trend Over 3 Weeks:**
+
 - Frequency: [Increasing / decreasing / stable]
 - Intensity: [Increasing / decreasing / stable]
 - Duration: [Increasing / decreasing / stable]
 
 **Questions for My Provider Based on My Observations:**
+
 1. I noticed most headaches started in the [time range] and were often preceded by [trigger] -- is that pattern significant?
 2. [Relief method] consistently helped more than others -- does that tell you anything useful?
 3. I had several headaches on days after less than 6 hours of sleep -- is sleep a common factor worth prioritizing?

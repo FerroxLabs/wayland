@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance decision-making analysis"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance decision-making analysis'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Flooring Selection
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks which flooring type to choose for a specific room -- kitchen, bathroom, basement, bedroom, living room, entryway, laundry room, mudroom, sunroom, or home gym
 - A user wants to compare two or more flooring materials side by side (e.g., "Is LVP better than laminate for my situation?")
 - A user needs flooring that meets specific constraints -- moisture exposure, pet traffic, wheelchair accessibility, radiant heating compatibility, or allergy management
@@ -29,6 +31,7 @@ metadata:
 - A user explicitly asks for a flooring comparison matrix, a scored recommendation, or wants to understand trade-offs across multiple options
 
 **Do NOT use when:**
+
 - The user needs step-by-step installation instructions -- use `tile-installation` for tile work, or a general DIY installation skill for click-lock flooring
 - The user needs subfloor repair, leveling compound application, or moisture remediation -- those are distinct structural tasks outside this skill's scope
 - The user needs commercial or industrial flooring specifications (epoxy coatings, rubber gym flooring, VCT tile for commercial kitchens) -- those involve building codes, ADA compliance, and OSHA standards not covered here
@@ -46,6 +49,7 @@ metadata:
 Before scoring anything, collect enough information to apply hard disqualifiers and weight the scoring matrix accurately. Missing information leads to inappropriate recommendations.
 
 **Room geometry and location:**
+
 - Room type (kitchen, bathroom, basement, etc.) -- this alone triggers several hard disqualifiers
 - Square footage (length x width in feet; for irregular rooms, break into rectangles and sum)
 - Floor location relative to grade: above-grade, on-grade slab, or below-grade (basement)
@@ -53,6 +57,7 @@ Before scoring anything, collect enough information to apply hard disqualifiers 
 - Ceiling height clearance if adding flooring thickness matters (door clearance, stair nosing)
 
 **Environmental conditions:**
+
 - Moisture exposure level -- use these specific categories:
   - **Dry:** Bedroom, living room, no moisture sources nearby
   - **Occasional spills:** Kitchen, dining room, mudroom
@@ -62,16 +67,19 @@ Before scoring anything, collect enough information to apply hard disqualifiers 
 - HVAC control: is the space climate-controlled year-round? Unheated garages or three-season sunrooms have extreme humidity swings that disqualify solid hardwood and some LVP products
 
 **Traffic and use patterns:**
+
 - Traffic level: light (guest bedroom), moderate (living room, home office), heavy (kitchen, entryway, main hallway), extreme (mudroom with outdoor access)
 - Household composition: number of adults, children under 10 (spills, crayon, dropped food), elderly occupants (slip resistance), infants (floor-level comfort and hardness)
 - Pets: species, size, and number matter -- a single small cat has different scratch impact than three 80-pound dogs; dog urine penetration is the decisive moisture failure mode for hardwood and laminate
 
 **Budget:**
+
 - Total project budget in dollars, or budget per square foot installed
 - Whether DIY installation is desired, feasible, or required to stay in budget
 - Whether the user values long-term cost of ownership or minimizing upfront spend
 
 **Priorities ranking:** Ask the user to rank these if they have not volunteered the information:
+
 1. Budget (upfront cost)
 2. Durability and lifespan
 3. Moisture resistance
@@ -86,16 +94,19 @@ Before scoring anything, collect enough information to apply hard disqualifiers 
 Hard disqualifiers eliminate flooring types that will physically fail in the environment. Do not score eliminated options -- doing so misleads users by making an impossible option look competitive. Apply these in order:
 
 **Moisture-based disqualifiers:**
+
 - **Solid hardwood:** Eliminate in any below-grade space (basement), bathroom, laundry room, or kitchen unless the user explicitly acknowledges the risk and plans for extraordinary moisture management. Solid wood at equilibrium moisture content of 6-8% will cup, buckle, or delaminate when ambient humidity exceeds 60% for extended periods.
 - **Laminate:** Eliminate in all wet rooms (bathroom, laundry room) and high-spill kitchens. Laminate uses an HDF core that swells irreversibly when water penetrates seams. Even "waterproof" laminate marketing claims apply only to the surface layer -- seam penetration remains a failure point.
 - **Standard carpet:** Eliminate in kitchens (hygiene -- grease and food bacteria), bathrooms (mold and mildew growth in backing), and basement slab installations without a moisture vapor barrier system. Carpet over a damp slab is a mold incubation environment.
 
 **Structural disqualifiers:**
+
 - **Solid hardwood:** Eliminate over concrete slab -- solid hardwood must be nail-down installed into a wood subfloor. It can be glue-down over concrete only in specific conditions (bone-dry slab, above-grade, controlled humidity) and most installers advise against it.
 - **Nail-down flooring formats (solid hardwood, some engineered):** Eliminate over concrete without a plywood subfloor system, which adds $1.50-$3.00/sqft in subfloor material and installation cost.
 - **Large-format porcelain tile (24"x24" or larger):** Flagged (not eliminated) on joist-and-subfloor systems -- verify floor deflection is within L/360 (the standard tile industry threshold). Undersized joists that flex cause cracked grout and cracked tiles.
 
 **Application-based disqualifiers:**
+
 - **Carpet:** Eliminate for allergy-sensitive households where the user identifies dust mite, pet dander, or respiratory allergies as a priority. Carpet retains 4-8x the allergen load of hard-surface flooring of equivalent area.
 - **Solid hardwood, laminate:** Flag (not eliminate) for households with large dogs -- the user should weigh scratch risk explicitly.
 - **Polished porcelain tile:** Flag for households with elderly occupants or toddlers -- the Coefficient of Friction (COF) for wet polished tile can fall below the 0.42 minimum recommended by the Americans with Disabilities Act (ADA). Textured or matte-finish tile with a COF of 0.60+ is safer.
@@ -104,36 +115,37 @@ Hard disqualifiers eliminate flooring types that will physically fail in the env
 
 Once disqualifiers are applied, evaluate surviving options against the full specification matrix below. Use this as a reference -- do not copy the entire matrix into output unless the user asks for a full comparison. Extract the relevant rows for the scored output.
 
-| Feature | Solid Hardwood | Engineered Hardwood | LVP | Laminate | Porcelain Tile | Ceramic Tile | Carpet |
-|---|---|---|---|---|---|---|---|
-| **Material cost ($/sqft)** | $5-$15 | $4-$12 | $2-$7 | $1-$5 | $3-$12 | $1-$8 | $1-$6 |
-| **Installed cost ($/sqft)** | $8-$22 | $7-$18 | $4-$10 | $3-$8 | $8-$20 | $5-$15 | $3-$10 |
-| **Wear layer / hardness metric** | Janka hardness 900-2300 lbf depending on species | Janka same as solid top layer | Wear layer 6-40 mil | AC rating AC1-AC5 | Glazed surface (PEI 0-5 rating) | PEI 0-5 rating | Face weight 20-80 oz |
-| **Moisture resistance** | Poor -- will cup, swell, buckle | Moderate -- tolerates humidity better than solid; not waterproof | Excellent -- 100% waterproof core | Poor (surface) / Varies (core) | Excellent -- impermeable | Excellent -- impermeable | Poor -- backing traps moisture |
-| **Below-grade suitable** | No | Some products with vapor barrier | Yes | No | Yes | Yes | Only with comprehensive moisture management |
-| **Subfloor type required** | Plywood nail-down preferred; glue-down on dry above-grade slab only | Glue, float, or nail-down; works over concrete with vapor barrier | Float over almost any flat surface | Float over flat surface | Mortar set over backerboard, concrete, or cement board | Same as porcelain | Stretch-in over any subfloor |
-| **Min subfloor flatness** | 3/16" over 10 ft | 3/16" over 10 ft | 3/16" over 10 ft | 3/16" over 10 ft | 1/8" over 10 ft (large format 1/8" over 6 ft) | 1/8" over 10 ft | Tolerant |
-| **Traffic durability** | High -- refinishable | High -- limited refinish cycles (1-3 depending on veneer thickness) | High -- wear layer dependent | Moderate -- AC4/AC5 for high traffic; AC1-AC3 wears quickly | Very high -- glazed surface is among hardest flooring | High | Low to Moderate -- fiber crushes under sustained point load |
-| **Refinishability** | 5-10 times (0.75" solid) | 1-3 times (1.5-4mm veneer typical) | None -- replace individual planks | None | None | None | None -- replace |
-| **Pet scratch resistance** | Low-Moderate (species matters; Brazilian cherry at Janka 2350 better than pine at 870) | Low-Moderate | High (wear layer 20 mil+) | Moderate (AC4+) | Excellent | Excellent | N/A (shows stains/odors instead) |
-| **Pet urine resistance** | None -- urine wicks into wood grain permanently | None -- same failure mode | Excellent -- impermeable to liquid | None -- HDF core wicks moisture | Excellent | Excellent | None -- urine bonds to carpet backing, pad, and subfloor |
-| **DIY difficulty** | Hard (nail gun, moisture acclimation, precise cutting) | Moderate (float or glue, acclimation required) | Easy (click-lock, no acclimation, basic saw) | Easy to Moderate (click-lock but requires flat subfloor prep) | Hard (wet saw, mortar mixing, grouting, leveling) | Hard | Moderate (requires stretcher tool, tack strips, seaming) |
-| **Acclimation required** | Yes -- 3-5 days minimum in room at final temp/humidity | Yes -- 24-48 hours | No -- dimensionally stable | Yes -- 48 hours | No | No | No |
-| **Lifespan** | 50-100+ years (with refinishing) | 20-50 years | 15-25 years (quality products) | 10-20 years | 50-75+ years | 40-60 years | 5-15 years |
-| **Cost per year (lifetime)** | $0.09-$0.44/sqft/yr | $0.14-$0.90/sqft/yr | $0.16-$0.67/sqft/yr | $0.15-$0.80/sqft/yr | $0.11-$0.40/sqft/yr | $0.08-$0.38/sqft/yr | $0.20-$2.00/sqft/yr |
-| **Maintenance requirements** | Refinish every 7-15 years; sweep weekly; no wet mop | Refinish 1-2 times over life; damp mop only | Sweep/damp mop; no wax | Sweep/damp mop; no steam cleaner | Grout sealing every 1-3 years; regrout every 10-15 years | Same as porcelain | Vacuum 1-2x weekly; professional deep clean yearly |
-| **Allergen performance** | Good -- hard surface, easy to sweep | Good | Excellent -- nonporous | Good | Excellent | Excellent | Poor -- traps allergens, dust mites, pet dander |
-| **Underfoot comfort** | Hard | Hard | Hard (slightly warmer than tile) | Hard (hollow sound without underlayment) | Cold, hard | Cold, hard | Soft, warm, high cushion |
-| **Sound insulation (IIC rating)** | Low without underlayment | Low to moderate | Moderate with attached pad | Moderate with underlayment | Very low -- highest sound transmission | Very low | Very high -- best sound absorption |
-| **Radiant heat compatible** | No -- expansion risk; some manufacturers void warranty above 80°F subfloor temp | Yes -- most products rated to 80-85°F subfloor temp | Yes -- most rated to 80-85°F; check max temp | Yes -- most rated to 80-85°F | Yes -- best conductor; fastest heat response | Yes | No -- insulates, reducing radiant efficiency |
-| **Resale value impact** | High positive -- buyers recognize and pay premium for solid hardwood | Moderate positive | Neutral to positive (quality-dependent) | Neutral | High positive in kitchens and bathrooms | Moderate positive | Neutral to negative -- many buyers discount or plan to replace |
-| **Eco / VOC concerns** | Natural material; finish VOCs during refinishing | Adhesive in core may off-gas; look for CARB Phase 2 compliance | PVC-based; look for FloorScore or GREENGUARD certification | Formaldehyde in HDF core; look for CARB Phase 2 or E1/E0 rating | No VOC concern | No VOC concern | Adhesives and backing can off-gas; look for Green Label Plus certification |
+| Feature                           | Solid Hardwood                                                                         | Engineered Hardwood                                                 | LVP                                                        | Laminate                                                        | Porcelain Tile                                           | Ceramic Tile             | Carpet                                                                     |
+| --------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------- | ------------------------ | -------------------------------------------------------------------------- |
+| **Material cost ($/sqft)**        | $5-$15                                                                                 | $4-$12                                                              | $2-$7                                                      | $1-$5                                                           | $3-$12                                                   | $1-$8                    | $1-$6                                                                      |
+| **Installed cost ($/sqft)**       | $8-$22                                                                                 | $7-$18                                                              | $4-$10                                                     | $3-$8                                                           | $8-$20                                                   | $5-$15                   | $3-$10                                                                     |
+| **Wear layer / hardness metric**  | Janka hardness 900-2300 lbf depending on species                                       | Janka same as solid top layer                                       | Wear layer 6-40 mil                                        | AC rating AC1-AC5                                               | Glazed surface (PEI 0-5 rating)                          | PEI 0-5 rating           | Face weight 20-80 oz                                                       |
+| **Moisture resistance**           | Poor -- will cup, swell, buckle                                                        | Moderate -- tolerates humidity better than solid; not waterproof    | Excellent -- 100% waterproof core                          | Poor (surface) / Varies (core)                                  | Excellent -- impermeable                                 | Excellent -- impermeable | Poor -- backing traps moisture                                             |
+| **Below-grade suitable**          | No                                                                                     | Some products with vapor barrier                                    | Yes                                                        | No                                                              | Yes                                                      | Yes                      | Only with comprehensive moisture management                                |
+| **Subfloor type required**        | Plywood nail-down preferred; glue-down on dry above-grade slab only                    | Glue, float, or nail-down; works over concrete with vapor barrier   | Float over almost any flat surface                         | Float over flat surface                                         | Mortar set over backerboard, concrete, or cement board   | Same as porcelain        | Stretch-in over any subfloor                                               |
+| **Min subfloor flatness**         | 3/16" over 10 ft                                                                       | 3/16" over 10 ft                                                    | 3/16" over 10 ft                                           | 3/16" over 10 ft                                                | 1/8" over 10 ft (large format 1/8" over 6 ft)            | 1/8" over 10 ft          | Tolerant                                                                   |
+| **Traffic durability**            | High -- refinishable                                                                   | High -- limited refinish cycles (1-3 depending on veneer thickness) | High -- wear layer dependent                               | Moderate -- AC4/AC5 for high traffic; AC1-AC3 wears quickly     | Very high -- glazed surface is among hardest flooring    | High                     | Low to Moderate -- fiber crushes under sustained point load                |
+| **Refinishability**               | 5-10 times (0.75" solid)                                                               | 1-3 times (1.5-4mm veneer typical)                                  | None -- replace individual planks                          | None                                                            | None                                                     | None                     | None -- replace                                                            |
+| **Pet scratch resistance**        | Low-Moderate (species matters; Brazilian cherry at Janka 2350 better than pine at 870) | Low-Moderate                                                        | High (wear layer 20 mil+)                                  | Moderate (AC4+)                                                 | Excellent                                                | Excellent                | N/A (shows stains/odors instead)                                           |
+| **Pet urine resistance**          | None -- urine wicks into wood grain permanently                                        | None -- same failure mode                                           | Excellent -- impermeable to liquid                         | None -- HDF core wicks moisture                                 | Excellent                                                | Excellent                | None -- urine bonds to carpet backing, pad, and subfloor                   |
+| **DIY difficulty**                | Hard (nail gun, moisture acclimation, precise cutting)                                 | Moderate (float or glue, acclimation required)                      | Easy (click-lock, no acclimation, basic saw)               | Easy to Moderate (click-lock but requires flat subfloor prep)   | Hard (wet saw, mortar mixing, grouting, leveling)        | Hard                     | Moderate (requires stretcher tool, tack strips, seaming)                   |
+| **Acclimation required**          | Yes -- 3-5 days minimum in room at final temp/humidity                                 | Yes -- 24-48 hours                                                  | No -- dimensionally stable                                 | Yes -- 48 hours                                                 | No                                                       | No                       | No                                                                         |
+| **Lifespan**                      | 50-100+ years (with refinishing)                                                       | 20-50 years                                                         | 15-25 years (quality products)                             | 10-20 years                                                     | 50-75+ years                                             | 40-60 years              | 5-15 years                                                                 |
+| **Cost per year (lifetime)**      | $0.09-$0.44/sqft/yr                                                                    | $0.14-$0.90/sqft/yr                                                 | $0.16-$0.67/sqft/yr                                        | $0.15-$0.80/sqft/yr                                             | $0.11-$0.40/sqft/yr                                      | $0.08-$0.38/sqft/yr      | $0.20-$2.00/sqft/yr                                                        |
+| **Maintenance requirements**      | Refinish every 7-15 years; sweep weekly; no wet mop                                    | Refinish 1-2 times over life; damp mop only                         | Sweep/damp mop; no wax                                     | Sweep/damp mop; no steam cleaner                                | Grout sealing every 1-3 years; regrout every 10-15 years | Same as porcelain        | Vacuum 1-2x weekly; professional deep clean yearly                         |
+| **Allergen performance**          | Good -- hard surface, easy to sweep                                                    | Good                                                                | Excellent -- nonporous                                     | Good                                                            | Excellent                                                | Excellent                | Poor -- traps allergens, dust mites, pet dander                            |
+| **Underfoot comfort**             | Hard                                                                                   | Hard                                                                | Hard (slightly warmer than tile)                           | Hard (hollow sound without underlayment)                        | Cold, hard                                               | Cold, hard               | Soft, warm, high cushion                                                   |
+| **Sound insulation (IIC rating)** | Low without underlayment                                                               | Low to moderate                                                     | Moderate with attached pad                                 | Moderate with underlayment                                      | Very low -- highest sound transmission                   | Very low                 | Very high -- best sound absorption                                         |
+| **Radiant heat compatible**       | No -- expansion risk; some manufacturers void warranty above 80°F subfloor temp        | Yes -- most products rated to 80-85°F subfloor temp                 | Yes -- most rated to 80-85°F; check max temp               | Yes -- most rated to 80-85°F                                    | Yes -- best conductor; fastest heat response             | Yes                      | No -- insulates, reducing radiant efficiency                               |
+| **Resale value impact**           | High positive -- buyers recognize and pay premium for solid hardwood                   | Moderate positive                                                   | Neutral to positive (quality-dependent)                    | Neutral                                                         | High positive in kitchens and bathrooms                  | Moderate positive        | Neutral to negative -- many buyers discount or plan to replace             |
+| **Eco / VOC concerns**            | Natural material; finish VOCs during refinishing                                       | Adhesive in core may off-gas; look for CARB Phase 2 compliance      | PVC-based; look for FloorScore or GREENGUARD certification | Formaldehyde in HDF core; look for CARB Phase 2 or E1/E0 rating | No VOC concern                                           | No VOC concern           | Adhesives and backing can off-gas; look for Green Label Plus certification |
 
 ### Step 4: Score Remaining Candidates Against User Priorities
 
 For each surviving flooring type, score it 1-5 on each criterion relevant to the user's situation. Use the definitions below to ensure consistent scoring -- do not assign scores intuitively.
 
 **Budget Fit (1-5):**
+
 - 5 = Installed cost is 25% or more below the user's stated budget
 - 4 = Installed cost is within budget with room to spare
 - 3 = Installed cost exactly meets the budget
@@ -141,6 +153,7 @@ For each surviving flooring type, score it 1-5 on each criterion relevant to the
 - 1 = Installed cost exceeds budget by more than 25% or is structurally unaffordable
 
 **Moisture Suitability (1-5):**
+
 - 5 = Fully waterproof; appropriate for wet rooms and below-grade
 - 4 = High moisture resistance; appropriate for kitchens, moderate spills
 - 3 = Moderate moisture resistance; appropriate for dry rooms with occasional spills
@@ -148,6 +161,7 @@ For each surviving flooring type, score it 1-5 on each criterion relevant to the
 - 1 = Will fail in the stated environment (should already be eliminated)
 
 **Traffic Durability (1-5):**
+
 - 5 = Rated for heavy commercial or extreme residential traffic; will outlast the building
 - 4 = Rated for heavy residential traffic; expected lifespan 30+ years
 - 3 = Suitable for moderate traffic; will show wear in 10-20 years under heavy use
@@ -155,6 +169,7 @@ For each surviving flooring type, score it 1-5 on each criterion relevant to the
 - 1 = Inappropriate for traffic level stated
 
 **DIY Feasibility (1-5):**
+
 - 5 = First-time DIYer can complete with basic tools (utility knife, tapping block, pull bar); no special equipment
 - 4 = Confident DIYer with a miter saw and basic experience can complete successfully
 - 3 = Requires renting specialized tools (wet saw, floor nailer) or has a significant learning curve
@@ -162,12 +177,14 @@ For each surviving flooring type, score it 1-5 on each criterion relevant to the
 - 1 = Professional installation required for warranty or structural reasons
 
 **Aesthetic Match (1-5):**
+
 - Score based on user's stated aesthetic preference -- warm/natural, modern/minimal, traditional, rustic, or neutral
 - 5 = Strong match to stated aesthetic
 - 3 = Neutral -- works but not the user's ideal
 - 1 = Direct conflict with stated aesthetic
 
 **Maintenance Burden (1-5):**
+
 - 5 = Sweep and damp mop; no periodic treatments required
 - 4 = Minor annual maintenance (grout sealing, occasional deep clean)
 - 3 = Moderate periodic maintenance (refinishing possible but infrequent)
@@ -184,11 +201,13 @@ Sum of (score x weight) across all criteria = weighted total. Compare totals to 
 Never present material cost alone. Full installed cost includes:
 
 **Material cost:** Base sqft price x square footage with waste allowance
+
 - Rectangular rooms with minimal cuts: add 7-8% waste
 - Diagonal installation, rooms with many angles or cutouts: add 12-15% waste
 - Tile: add 10% for straight lay, 15% for diagonal or herringbone
 
 **Installation cost:**
+
 - DIY: $0 labor; add tool rental if applicable ($30-$75/day for wet saw, $40-$65/day for floor nailer)
 - Professional installation rate benchmarks (these vary significantly by region -- present as ranges):
   - LVP click-lock: $1.50-$3.00/sqft labor
@@ -198,6 +217,7 @@ Never present material cost alone. Full installed cost includes:
   - Carpet (stretch-in): $0.50-$1.50/sqft labor
 
 **Necessary add-ons:**
+
 - Underlayment: $0.25-$0.75/sqft if not pre-attached to plank; required for most floating floors
 - Moisture barrier / vapor retarder: $0.10-$0.30/sqft for below-grade or slab installations
 - Transition strips (T-molding, reducer, threshold, end cap): $10-$35 per transition
@@ -211,11 +231,13 @@ Present this metric when the user is debating a cheaper short-life option versus
 ### Step 6: Identify the Recommendation and Runner-Up
 
 **Primary recommendation criteria:**
+
 - Highest weighted score among surviving candidates
 - Passes all hard disqualifiers
 - Total installed cost fits within the user's stated budget (if over budget, flag explicitly and offer a scaled-down approach)
 
 **Runner-up criteria:**
+
 - State the specific condition under which the runner-up becomes the better choice (e.g., "if you plan to stay in this home 30+ years," "if a professional is already on-site for another project," "if pet accidents are your single biggest concern")
 - Do not present a runner-up that fails any hard disqualifier
 
@@ -226,6 +248,7 @@ Present this metric when the user is debating a cheaper short-life option versus
 Every recommendation must end with a checklist of the 3-5 most important next actions specific to the chosen flooring type. These should be concrete, sequenced, and executable -- not generic advice.
 
 **Examples of specific next steps by flooring type:**
+
 - **LVP:** Confirm subfloor flatness with a long straightedge; select a wear layer of 20 mil or greater; order with at least 8% overage; verify the product's maximum temperature rating if near a sliding glass door with direct sun (surface temps can exceed 100°F)
 - **Tile:** Pull a permit if required by local jurisdiction; identify whether the existing subfloor meets L/360 deflection; rent or purchase a quality wet saw (not an angle grinder for cuts near walls); plan grout joint width and color before ordering
 - **Solid hardwood:** Measure room humidity over 7 days; deliver and acclimate the wood in the room before installation begins; select species Janka hardness appropriate for traffic (oak at 1290 lbf is a minimum threshold for heavy traffic)
@@ -361,6 +384,7 @@ Priority weights: [List the 2-3 criteria weighted 2x, and which are 1x]
 ## Edge Cases
 
 ### Radiant Floor Heating Systems
+
 Flooring selection over radiant heat requires additional constraints beyond the standard matrix. Solid hardwood is incompatible with most radiant systems -- the repeated thermal cycling causes seasonal expansion and contraction that opens gaps in winter (dry, hot) and cups in summer (humid, cool). Even manufacturers who allow solid hardwood over radiant heat limit it to narrow-width planks (under 3" wide) and require the subfloor temperature to never exceed 80°F. The practical recommendation is to avoid solid hardwood entirely in radiant heat applications.
 
 Engineered hardwood performs well over radiant heat because the cross-ply construction limits the seasonal movement that damages solid planks. Porcelain tile is the gold standard for radiant heat -- it conducts heat most efficiently, has no thermal expansion concerns, and is compatible with all hydronic and electric mat systems. LVP is compatible with most radiant systems but requires verification of the specific product's maximum rated subfloor temperature (most are 80-85°F, but some budget products are rated lower). Laminate is nominally compatible but the HDF core is moisture-sensitive and thermal cycling can accelerate seam failure over time.
@@ -368,11 +392,13 @@ Engineered hardwood performs well over radiant heat because the cross-ply constr
 When a user mentions radiant heat, add a checklist item: verify the product's radiant heat compatibility and maximum subfloor temperature in writing before purchasing.
 
 ### Concrete Slab Subfloor (On-Grade and Below-Grade)
+
 Concrete slabs introduce two complications: moisture vapor transmission and the absence of a nailable substrate.
 
 **Moisture testing is mandatory before any flooring installation over concrete.** The industry-standard test is ASTM F2170 (relative humidity probe test, requires drilling into the slab) or ASTM F1869 (calcium chloride test). As a low-cost field test, tape a 24" x 24" piece of clear polyethylene plastic to the slab with all edges sealed using duct tape. Leave it for 72 hours. Condensation or darkening of the concrete beneath indicates active moisture vapor emission requiring a vapor barrier or epoxy moisture mitigation system before flooring. This field test is qualitative -- if moisture is found, recommend professional testing with ASTM F2170 before proceeding.
 
 Acceptable moisture vapor emission rate (MVER) thresholds:
+
 - LVP: Most manufacturers require MVER below 5 lbs/1,000 sqft/24 hours (calcium chloride) or RH below 85% (probe test)
 - Engineered hardwood: Typically MVER below 3 lbs/1,000 sqft/24 hours or RH below 75%
 - Tile: No moisture concern (cement-based adhesives are unaffected)
@@ -382,9 +408,11 @@ If moisture levels exceed thresholds, the user must either install an epoxy vapo
 **Solid hardwood on slab:** Technically possible with a floating installation system (engineered only) or a glue-down application, but only for above-grade, bone-dry slabs with MVER below 3 lbs. Most flooring manufacturers void the warranty for glue-down hardwood over slab. Present this as a non-recommended option even when technically permissible.
 
 ### Open Floor Plans Spanning Multiple Rooms
+
 When flooring must transition across a kitchen-living room-dining room open plan, continuity of material is the professional standard. Transition strips within a continuous open space look inexpensive and break visual flow. Hardwood or LVP can run continuously through all three zones if the room conditions allow it (moisture disqualifiers still apply at zone-specific points like the kitchen sink area).
 
 If the user wants hardwood in the living/dining zones but the kitchen zone disqualifies hardwood on moisture grounds, the practical approach is:
+
 1. Run LVP through all zones (compromise on aesthetic for continuity)
 2. Use tile in the kitchen only, with a well-planned transition strip at the kitchen boundary
 3. Accept that porcelain tile laid on the same plane as hardwood requires a reducer transition strip ($10-$25) that, when properly chosen, looks intentional
@@ -392,7 +420,9 @@ If the user wants hardwood in the living/dining zones but the kitchen zone disqu
 When specifying continuous flooring across an open plan, add 5% to the waste calculation for the additional cutting and fitting at interior walls and obstacles. Plan the plank layout direction before installation -- diagonal layout unifies a space visually but increases waste by 12-15% and installation difficulty significantly.
 
 ### Very Low Budget Situations (Under $2/sqft Material)
+
 At material costs below $2/sqft, the realistic and honest options are:
+
 - **Entry-level laminate (AC2-AC3 rating):** Appropriate for light-traffic bedrooms and living rooms in dry environments. Expected lifespan 8-12 years with normal care. Not appropriate for kitchens or bathrooms.
 - **Low-grade LVP (6-8 mil wear layer):** The wear layer will show scratching and surface damage within 3-5 years under moderate traffic. Appropriate only for low-traffic rooms or temporary/rental situations.
 - **Loop or level-cut pile carpet (20-25 oz face weight):** Budget end of the carpet market. Expect fiber crush and matting within 3-5 years under normal foot traffic.
@@ -400,6 +430,7 @@ At material costs below $2/sqft, the realistic and honest options are:
 Be transparent with the user: a $1.50/sqft material budget will not produce a durable, attractive floor in high-traffic areas. If budget is genuinely this constrained, recommend they focus on the highest-impact room only and choose the best LVP product they can afford at 6 mil minimum wear layer, understanding that it is a temporary solution. Do not recommend solid hardwood, engineered hardwood, porcelain tile, or quality LVP with 20 mil wear layers at this price point -- the installed cost will be 3-5x the material cost and far exceeds the stated budget.
 
 ### Wheelchair and Mobility Aid Use
+
 Hard-surface flooring is strongly preferred, but surface texture and transition details matter more than the flooring category. Specific guidance:
 
 - **Surface texture:** Smooth to slightly textured is best. Heavily embossed or hand-scraped hardwood, deeply textured tile, and shag carpet all create rolling resistance and potential tipping hazards for wheelchair users.
@@ -409,6 +440,7 @@ Hard-surface flooring is strongly preferred, but surface texture and transition 
 - **LVP recommendation:** Wide-plank LVP (5" to 9" wide planks) with a smooth surface finish and low-profile transitions is typically the strongest recommendation for mobility-aid users who prefer a warm residential look. It eliminates grout lines, provides a smooth rolling surface, and transitions easily to other rooms.
 
 ### Flooring Over Existing Flooring (Double-Layer Installation)
+
 Some users want to install new flooring over existing vinyl, tile, or hardwood rather than removing it. The key considerations:
 
 - **Height clearance:** Adding a flooring layer raises the floor height by the thickness of the new material (typically 3/8" to 3/4"). Check door clearance (standard interior doors clear 3/4" to 1" above the subfloor), stair nosing fit, and transitions to adjacent rooms.
@@ -419,6 +451,7 @@ Some users want to install new flooring over existing vinyl, tile, or hardwood r
 When a user mentions installing over existing flooring, flag the height impact and confirm the existing floor is in good condition before recommending a skip-removal approach.
 
 ### High-End Aesthetic Priorities with Budget Mismatches
+
 Occasionally a user describes a design vision (wide-plank white oak hardwood, large-format 24"x48" porcelain slab tile) that significantly exceeds their stated budget. Handle this as follows:
 
 1. Acknowledge the aesthetic direction -- it is a legitimate target
@@ -437,27 +470,29 @@ Occasionally a user describes a design vision (wide-plank white oak hardwood, la
 ## Flooring Recommendation: Basement Family Room / Playroom
 
 ### Room Profile
-| Parameter           | Value                                                            |
-|---------------------|------------------------------------------------------------------|
-| Room                | Below-grade basement -- family room and playroom combined        |
-| Area                | 600 sqft                                                         |
-| Grade / Subfloor    | Below-grade concrete slab                                        |
-| Moisture exposure   | High humidity potential -- below-grade concrete vapor emission risk |
-| Traffic level       | Heavy -- young children, dog, daily family use                   |
+
+| Parameter           | Value                                                                  |
+| ------------------- | ---------------------------------------------------------------------- |
+| Room                | Below-grade basement -- family room and playroom combined              |
+| Area                | 600 sqft                                                               |
+| Grade / Subfloor    | Below-grade concrete slab                                              |
+| Moisture exposure   | High humidity potential -- below-grade concrete vapor emission risk    |
+| Traffic level       | Heavy -- young children, dog, daily family use                         |
 | Household factors   | 1 medium dog, children ages 4 and 7 (spills, rough play, dropped food) |
-| Budget              | $4,000–$5,500 total ($6.67–$9.17/sqft installed)               |
-| Installation method | DIY preferred (no prior experience)                              |
-| Aesthetic priority  | Not specified -- assume warm and comfortable over cold/clinical   |
-| Special conditions  | Below-grade; concrete slab; first-time DIY                       |
+| Budget              | $4,000–$5,500 total ($6.67–$9.17/sqft installed)                       |
+| Installation method | DIY preferred (no prior experience)                                    |
+| Aesthetic priority  | Not specified -- assume warm and comfortable over cold/clinical        |
+| Special conditions  | Below-grade; concrete slab; first-time DIY                             |
 
 ---
 
 ### Options Eliminated
-| Flooring Type          | Reason Eliminated                                                           |
-|------------------------|-----------------------------------------------------------------------------|
-| Solid hardwood         | Cannot be installed on below-grade concrete slab; moisture will cause cupping and buckling; not nailable into concrete without plywood subfloor system |
-| Laminate               | HDF core absorbs moisture vapor from concrete and swells irreversibly; below-grade basements routinely exceed laminate's moisture tolerance even without visible flooding |
-| Carpet (standard)      | Below-grade moisture vapor trapped under carpet backing creates mold and mildew; dog and young children produce spills and accidents that saturate carpet irreversibly in a basement environment |
+
+| Flooring Type     | Reason Eliminated                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Solid hardwood    | Cannot be installed on below-grade concrete slab; moisture will cause cupping and buckling; not nailable into concrete without plywood subfloor system                                           |
+| Laminate          | HDF core absorbs moisture vapor from concrete and swells irreversibly; below-grade basements routinely exceed laminate's moisture tolerance even without visible flooding                        |
+| Carpet (standard) | Below-grade moisture vapor trapped under carpet backing creates mold and mildew; dog and young children produce spills and accidents that saturate carpet irreversibly in a basement environment |
 
 ---
 
@@ -465,15 +500,15 @@ Occasionally a user describes a design vision (wide-plank white oak hardwood, la
 
 **Priority weights:** Durability (2x), Moisture suitability (2x), Budget fit (2x), DIY feasibility (1x), Maintenance ease (1x), Aesthetic match (1x)
 
-| Criteria             | Weight | LVP (20+ mil)              | Engineered Hardwood (float) | Porcelain Tile             |
-|----------------------|--------|----------------------------|-----------------------------|----------------------------|
-| Budget fit           | 2x     | 5 (well within at $4–$10/sqft installed) | 2 (professional install pushes to $10–$18/sqft; over budget for 600 sqft) | 3 (installed $8–$20/sqft; hits the top of budget or exceeds) |
-| Moisture suitability | 2x     | 5 (100% waterproof; approved for below-grade with vapor barrier) | 2 (requires MVER below 3 lbs; at-risk on below-grade slab without aggressive vapor mitigation) | 5 (zero moisture concern; mortar and grout impervious to vapor) |
-| Traffic durability   | 2x     | 4 (20 mil wear layer handles kids and dogs; resist scratches and scuffs) | 4 (comparable, but limited refinish cycles and veneer vulnerability) | 5 (glazed porcelain is hardest surface available; virtually indestructible under residential traffic) |
-| DIY feasibility      | 1x     | 5 (click-lock floating; no adhesive, no special tools beyond a miter saw or circular saw) | 2 (floating engineered requires careful acclimation, moisture testing, and precise cutting; not recommended for first-time DIY on below-grade slab) | 1 (wet saw, mortar mixing, grouting, leveling, and tiling are not beginner-appropriate) |
-| Maintenance ease     | 1x     | 5 (sweep and damp mop; no waxing, no sealing, no grout) | 3 (damp mop only; avoid standing water; periodic inspection of acclimation performance) | 3 (excellent surface durability but grout lines require annual sealing and periodic regrout) |
-| Aesthetic match      | 1x     | 4 (wood-look planks are warmer and more inviting than tile for a playroom; wide variety of styles) | 5 (most authentic wood appearance) | 2 (cold underfoot and clinical look; not typical playroom aesthetic) |
-| **Weighted Total**   |        | **54**                     | **31**                      | **38**                     |
+| Criteria             | Weight | LVP (20+ mil)                                                                                      | Engineered Hardwood (float)                                                                                                                         | Porcelain Tile                                                                                        |
+| -------------------- | ------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Budget fit           | 2x     | 5 (well within at $4–$10/sqft installed)                                                           | 2 (professional install pushes to $10–$18/sqft; over budget for 600 sqft)                                                                           | 3 (installed $8–$20/sqft; hits the top of budget or exceeds)                                          |
+| Moisture suitability | 2x     | 5 (100% waterproof; approved for below-grade with vapor barrier)                                   | 2 (requires MVER below 3 lbs; at-risk on below-grade slab without aggressive vapor mitigation)                                                      | 5 (zero moisture concern; mortar and grout impervious to vapor)                                       |
+| Traffic durability   | 2x     | 4 (20 mil wear layer handles kids and dogs; resist scratches and scuffs)                           | 4 (comparable, but limited refinish cycles and veneer vulnerability)                                                                                | 5 (glazed porcelain is hardest surface available; virtually indestructible under residential traffic) |
+| DIY feasibility      | 1x     | 5 (click-lock floating; no adhesive, no special tools beyond a miter saw or circular saw)          | 2 (floating engineered requires careful acclimation, moisture testing, and precise cutting; not recommended for first-time DIY on below-grade slab) | 1 (wet saw, mortar mixing, grouting, leveling, and tiling are not beginner-appropriate)               |
+| Maintenance ease     | 1x     | 5 (sweep and damp mop; no waxing, no sealing, no grout)                                            | 3 (damp mop only; avoid standing water; periodic inspection of acclimation performance)                                                             | 3 (excellent surface durability but grout lines require annual sealing and periodic regrout)          |
+| Aesthetic match      | 1x     | 4 (wood-look planks are warmer and more inviting than tile for a playroom; wide variety of styles) | 5 (most authentic wood appearance)                                                                                                                  | 2 (cold underfoot and clinical look; not typical playroom aesthetic)                                  |
+| **Weighted Total**   |        | **54**                                                                                             | **31**                                                                                                                                              | **38**                                                                                                |
 
 ---
 
@@ -483,6 +518,7 @@ Occasionally a user describes a design vision (wide-plank white oak hardwood, la
 LVP is the decisive recommendation for this basement. It is the only option that simultaneously passes the below-grade moisture disqualifier, fits comfortably within the $4,000-$5,500 budget with room to spare, and is achievable as a first-time DIY project. The 20 mil wear layer specification is critical for a household with a dog and two young children -- thinner LVP (6-12 mil) will show scratching from pet nails within 2-3 years, while 20 mil products are rated for heavy residential and light commercial traffic and will maintain their appearance for 15-20 years under this household's use pattern. The floating click-lock format means installation errors are correctable without special tools or professional remediation.
 
 **Key product specifications to look for:**
+
 - Wear layer thickness: 20 mil minimum; 28-40 mil for maximum durability
 - Core type: WPC (Wood Plastic Composite) or SPC (Stone Plastic Composite) preferred for basements -- SPC is denser, more rigid, and more dimensionally stable under temperature swings; WPC is slightly warmer underfoot and more comfortable for children playing on the floor
 - Attached underlayment: Look for products with a pre-attached cork or foam underlayment -- this eliminates a separate purchase, adds slight cushion underfoot (important for a playroom), and provides minor thermal comfort over cold concrete
@@ -491,7 +527,7 @@ LVP is the decisive recommendation for this basement. It is the only option that
 
 **Full Budget Estimate:**
 
-| Component                     | Calculation                                      | Cost Range         |
-|-------------------------------|--------------------------------------------------|--------------------|
+| Component                                  | Calculation                                            | Cost Range         |
+| ------------------------------------------ | ------------------------------------------------------ | ------------------ |
 | Moisture vapor test (plastic sheet method) | DIY field test first; pro ASTM F2170 if moisture found | $0–$300 (pro test) |
-| Vapor barrier (6-mil poly sheeting) | 660 sqft x $0.10–$0.20/sqft                 | $66–$132           
+| Vapor barrier (6-mil poly sheeting)        | 660 sqft x $0.10–$0.20/sqft                            | $66–$132           |

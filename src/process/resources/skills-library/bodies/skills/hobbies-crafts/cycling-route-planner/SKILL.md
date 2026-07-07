@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning checklist step-by-step guide"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'planning checklist step-by-step guide'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Cycling Route Planner
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to plan a recreational bike ride, including selecting a route, estimating time, or choosing a starting point
 - The user wants help interpreting an elevation profile from a mapping tool like Komoot, Strava, Ride with GPS, or Google Maps cycling directions
 - The user asks what gear to bring on a bike ride, or wants a packing checklist tailored to ride duration and conditions
@@ -31,6 +33,7 @@ metadata:
 - The user asks about gravel riding surface selection, road quality, or how to find quiet country roads in their region
 
 **Do NOT use when:**
+
 - The user asks about structured training plans, FTP testing, power-based periodization, or race preparation (these require sport-specific coaching methodology beyond recreational planning)
 - The user needs professional bike fitting -- saddle height, cleat alignment, reach, stack -- these require in-person biomechanical assessment and should be referred to a certified bike fitter
 - The user is progressing through mountain biking technical skills such as drops, rock gardens, switchback cornering, or jump technique -- this is trail skills coaching, not route planning
@@ -242,6 +245,7 @@ Assemble all gathered information into the structured output format. Include spe
 ### Step 8: Confirm Understanding and Offer Refinement
 
 Before finalizing, ask:
+
 - Does the distance and time estimate fit within the stated time window, including travel to the start?
 - Are there any physical limitations not yet mentioned (recent injury, cardiac condition, recent illness)?
 - Does the user have all the listed gear, or should the checklist be adjusted based on what they already have versus what they'd need to acquire?
@@ -407,6 +411,7 @@ Before finalizing, ask:
 ## Edge Cases
 
 ### Complete Beginner on Their First Real Ride
+
 A rider who has never cycled as an adult, or has not ridden in 10+ years, is not even Tier 1 in the framework above -- they are at the "pre-Tier 1" stage. The plan changes substantially:
 
 - Recommend a 3-5 mile out-and-back on a flat, dedicated bike path. Not a loop -- a simple straight path they can turn around on at any moment.
@@ -416,6 +421,7 @@ A rider who has never cycled as an adult, or has not ridden in 10+ years, is not
 - Pacing advice: go slower than seems necessary. Most new riders start too fast, feel exhausted within 10 minutes, and conclude they are unfit. The correct beginner pace feels almost embarrassingly slow.
 
 ### Riding in Extreme Heat (Above 90F)
+
 Heat represents one of the most genuinely dangerous conditions in recreational cycling because symptoms of heat exhaustion develop rapidly and are often not recognized until serious.
 
 - Reschedule if possible: recommend starting before 8 AM or after 6 PM when temperatures are below 80F. If the ride must happen in heat, reduce planned distance by 25-30%.
@@ -426,6 +432,7 @@ Heat represents one of the most genuinely dangerous conditions in recreational c
 - Sunscreen must be reapplied every 90 minutes during rides. One pre-ride application is insufficient.
 
 ### Riding in Rain or Wet Conditions
+
 Wet roads change the physics of cycling significantly.
 
 - Braking distance on wet roads is approximately double that of dry roads. This means riders should begin braking for stops and turns much earlier than usual.
@@ -440,6 +447,7 @@ Wet roads change the physics of cycling significantly.
 - Fenders: if the bike has fender mounts, install clip-on fenders before a rain ride. Without fenders, the front wheel directs a spray of water directly onto the rider and drivetrain
 
 ### Riding in Cold Weather (Below 40F)
+
 Cold is more forgiving than heat in terms of physical danger, but hypothermia and frostbite are genuine risks on long winter rides.
 
 - The rule of thumb for cycling clothing: dress as if it is 15-20F warmer than the actual temperature, because cycling generates substantial body heat. A rider who is perfectly comfortable standing still will overheat if dressed that way on a bike.
@@ -449,6 +457,7 @@ Cold is more forgiving than heat in terms of physical danger, but hypothermia an
 - Battery performance in cold: GPS computers and lights lose battery capacity rapidly below 40F. Lithium batteries are less affected than standard batteries. A device that shows 50% charge in a warm room may have 20-25% effective capacity at 32F.
 
 ### Multi-Day Ride or Overnight Bike Tour
+
 A multi-day ride exceeds the single-ride scope of this skill, but when a user asks about it, redirect constructively rather than refusing.
 
 - Confirm: is this a supported tour (vehicle carries bags) or self-supported? The difference is enormous in gear volume and planning complexity.
@@ -458,6 +467,7 @@ A multi-day ride exceeds the single-ride scope of this skill, but when a user as
 - Recommend the user plan a single supported overnight as their first tour experience before committing to multi-day self-supported touring. The logistical learning curve is steep.
 
 ### Route Planning Without Access to Elevation Data
+
 Some users will ask for a route plan without access to Strava, Komoot, or similar tools that show elevation profiles.
 
 - Use regional terrain knowledge to provide general guidance: coastal areas and river valleys are typically flat; foothills and any route described as "through the mountains" or "over a pass" will have substantial climbing; suburban areas are typically gently rolling.
@@ -468,6 +478,7 @@ Some users will ask for a route plan without access to Strava, Komoot, or simila
 - If no elevation data is accessible, recommend the user drive the route in a car before cycling it to assess grades visually.
 
 ### User Describes a Route That Exceeds Their Capabilities
+
 When the user states they want to do a specific route (perhaps a famous local route or an organized event) that is clearly beyond their current tier, handle this carefully and constructively.
 
 - Do not simply refuse or dismiss the goal.
@@ -489,8 +500,9 @@ When the user states they want to do a specific route (perhaps a famous local ro
 ## Cycling Route Plan
 
 ### Ride Overview
+
 | Parameter          | Value                                                      |
-|--------------------|------------------------------------------------------------|
+| ------------------ | ---------------------------------------------------------- |
 | Rider(s)           | Pair -- you (Tier 3-4), wife (Tier 2, returning rider)     |
 | Ride goal          | Leisure                                                    |
 | Bike types         | Gravel bike (you), hybrid (wife)                           |
@@ -506,6 +518,7 @@ When the user states they want to do a specific route (perhaps a famous local ro
 ---
 
 ### Route Criteria Summary
+
 - **Target distance range:** 18-22 miles -- set to your wife's returning-rider capability (Tier 2), not your own. A 20-mile flat-to-rolling ride will feel like a good workout for her and an easy spin for you.
 - **Maximum elevation gain per mile:** 40 ft/mile. Denver's flattest routes are along the South Platte River trail system and the Cherry Creek Trail, both of which stay comfortably under 30 ft/mile.
 - **Surface requirement:** Both hybrid and gravel bike are compatible with paved paths and packed gravel, so mixed-surface multi-use paths are ideal.
@@ -517,25 +530,27 @@ When the user states they want to do a specific route (perhaps a famous local ro
 ---
 
 ### Elevation Profile Interpretation
-| Metric             | Value              | What It Means                                   |
-|--------------------|--------------------|-------------------------------------------------|
-| Total gain         | ~500-700 ft        | Very manageable for a returning rider           |
-| Total loss         | ~500-700 ft        | Balanced -- no significant net climb            |
-| Gain per mile      | ~25-35 ft/mile     | Gently rolling -- flat by Denver standards      |
-| Steepest grade     | Under 3% sustained | No sections that require significant gear shift |
-| Profile shape      | Even and gentle    | No front-loading or back-loading concerns       |
-| Recommendation     | Maintain easy conversational pace throughout. At no point should either rider feel too winded to talk. If conversation becomes difficult, ease off the pace. This is the best real-time pacing check for a leisure ride. |
+
+| Metric         | Value                                                                                                                                                                                                                    | What It Means                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| Total gain     | ~500-700 ft                                                                                                                                                                                                              | Very manageable for a returning rider           |
+| Total loss     | ~500-700 ft                                                                                                                                                                                                              | Balanced -- no significant net climb            |
+| Gain per mile  | ~25-35 ft/mile                                                                                                                                                                                                           | Gently rolling -- flat by Denver standards      |
+| Steepest grade | Under 3% sustained                                                                                                                                                                                                       | No sections that require significant gear shift |
+| Profile shape  | Even and gentle                                                                                                                                                                                                          | No front-loading or back-loading concerns       |
+| Recommendation | Maintain easy conversational pace throughout. At no point should either rider feel too winded to talk. If conversation becomes difficult, ease off the pace. This is the best real-time pacing check for a leisure ride. |
 
 ---
 
 ### Estimated Time Breakdown
-| Segment               | Miles   | Terrain      | Pace Est.    | Time Est. | Notes                                  |
-|-----------------------|---------|--------------|--------------|-----------|----------------------------------------|
-| Start → Mile 5        | 5 mi    | Flat path    | 10-11 mph    | 28 min    | Warm-up zone, easy spin, assess wife's comfort |
-| Mile 5 → Midpoint     | 5-6 mi  | Gently rolling | 10-11 mph  | 32 min    | Main outbound leg                      |
-| Rest stop (midpoint)  | --      | --           | --           | 20 min    | Snack, water, stretch, enjoy the view  |
-| Return leg            | 10-11 mi | Flat path   | 11-12 mph    | 55 min    | Slight advantage returning (tailwind or easier grade) |
-| **Total**             | **20-21 mi** | --      | **~10.5 mph avg** | **~2 hr 15 min** | **Including 20 min break**   |
+
+| Segment              | Miles        | Terrain        | Pace Est.         | Time Est.        | Notes                                                 |
+| -------------------- | ------------ | -------------- | ----------------- | ---------------- | ----------------------------------------------------- |
+| Start → Mile 5       | 5 mi         | Flat path      | 10-11 mph         | 28 min           | Warm-up zone, easy spin, assess wife's comfort        |
+| Mile 5 → Midpoint    | 5-6 mi       | Gently rolling | 10-11 mph         | 32 min           | Main outbound leg                                     |
+| Rest stop (midpoint) | --           | --             | --                | 20 min           | Snack, water, stretch, enjoy the view                 |
+| Return leg           | 10-11 mi     | Flat path      | 11-12 mph         | 55 min           | Slight advantage returning (tailwind or easier grade) |
+| **Total**            | **20-21 mi** | --             | **~10.5 mph avg** | **~2 hr 15 min** | **Including 20 min break**                            |
 
 This leaves you with 45-60 minutes of buffer within your 4-hour window for travel to the trailhead, parking, and any pace variation.
 
@@ -544,6 +559,7 @@ This leaves you with 45-60 minutes of buffer within your 4-hour window for trave
 ### Gear Checklist
 
 #### Safety (Non-Negotiable)
+
 - [ ] Helmet for each rider -- confirm both fit correctly before leaving home
 - [ ] Rear light -- red, charged, mounted on seatpost of each bike (even Saturday afternoon)
 - [ ] Front light -- charged on each bike for daytime visibility
@@ -551,6 +567,7 @@ This leaves you with 45-60 minutes of buffer within your 4-hour window for trave
 - [ ] ID -- card or road ID for each rider
 
 #### Flat Repair Kit
+
 - [ ] Spare inner tube -- **700x40-45c for wife's hybrid** (confirm her exact tire size the night before)
 - [ ] Spare inner tube -- **700x40-50c for your gravel bike** (confirm your tire size)
 - [ ] 2 plastic tire levers (one set shared is fine)
@@ -559,7 +576,9 @@ This leaves you with 45-60 minutes of buffer within your 4-hour window for trave
 - [ ] Stick-on patch kit -- backup for a second flat
 
 #### Hydration & Nutrition
+
 At 75-80F, you are in the "warm" category. Scale accordingly.
+
 - [ ] **2 water bottles per rider (4 bottles total) -- 24 oz each = 48 oz per person.** This covers roughly 2+ hours of warm-weather riding. Confirm there is a water fountain at the planned midpoint rest stop.
 - [ ] Electrolyte tablets or mix -- one serving per person per hour after the first hour (bring 2 servings each, use at miles 10-11 rest stop and mile 15-16 mark)
 - [ ] Snack for rest stop: banana, energy bar, or fig cookies -- 200-250 calories per person
@@ -567,6 +586,7 @@ At 75-80F, you are in the "warm" category. Scale accordingly.
 - [ ] Small amount of cash -- check if there is a coffee shop or food cart near the midpoint of your planned trail
 
 #### Clothing (75-80F, morning start)
+
 - [ ] Cycling shorts or comfortable athletic shorts -- padded shorts recommended for a 2+ hour ride, especially for your wife returning after a break
 - [ ] Moisture-wicking jersey or athletic shirt -- no cotton (holds sweat and causes chafing and chills)
 - [ ] Sunglasses
@@ -574,6 +594,7 @@ At 75-80F, you are in the "warm" category. Scale accordingly.
 - [ ] Light cycling gloves -- optional but recommended for your wife whose hands may fatigue from grip pressure on a longer ride
 
 #### Tools & Repair
+
 - [ ] Multi-tool with 4mm and 5mm hex keys
 - [ ] Note: both bikes should be running correctly before leaving. If either bike has a shifting or braking issue, address it the night before -- don't rely on a multi-tool fix during the ride
 
@@ -582,6 +603,7 @@ At 75-80F, you are in the "warm" category. Scale accordingly.
 ### Ride-Day Prep Sequence
 
 #### Evening Before
+
 - [ ] **Inflate tires:** Wife's hybrid to 55-60 PSI; your gravel bike to 40-45 PSI (slightly lower end of range -- the lower pressure will improve comfort on any path imperfections and is appropriate for the warm-weather ride)
 - [ ] Squeeze both brake levers on both bikes -- verify firm engagement before the lever reaches 1 inch from the bar
 - [ ] Spin cranks on both bikes -- smooth shifting through all gears. If either bike's derailleur is skipping, adjust the barrel adjuster now, not Saturday morning
@@ -591,6 +613,7 @@ At 75-80F, you are in the "warm" category. Scale accordingly.
 - [ ] Lay out both gear kits the night before
 
 #### Morning Of Ride
+
 - [ ] Eat breakfast 2 hours before departure: oatmeal with banana and honey, or eggs on toast. Something with carbohydrates and a little protein. Avoid a heavy, greasy meal.
 - [ ] Fill all 4 water bottles (2 per rider)
 - [ ] ABC Quick Check on both bikes: Air (squeeze tires), Brakes (squeeze levers), Chain (spin cranks)
@@ -599,6 +622,7 @@ At 75-80F, you are in the "warm" category. Scale accordingly.
 - [ ] Give yourselves 20-25 minutes of travel time to the trailhead and parking
 
 #### At the Start
+
 - [ ] Begin with 10 minutes of very easy spinning at comfortable cadence -- this is especially important for your wife who hasn't ridden recently. Her legs will feel better for the whole ride if the first 10 minutes are genuinely easy.
 - [ ] Set your pace to hers from the first pedal stroke. The ride goal is leisure -- you should be able to have a full conversation throughout.
 - [ ] Confirm the midpoint and rest stop plan: agree on where you'll stop, how long you'll rest, and what the bail-out is if she's tired at that point (out-and-back means simply turning around and heading home from wherever you are)

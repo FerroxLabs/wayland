@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing template"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing template'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Style Guide Compliance
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly names a style guide (AP Stylebook, Chicago Manual of Style, APA Publication Manual 7th ed., MLA Handbook 9th ed., AMA Manual of Style, Bluebook, or a named house style) and wants text checked or corrected against it
 - The user submits a document for publication submission and needs it formatted to a specific journal, publication, or institution's standards
 - The user is converting a document from one style guide to another (e.g., converting a Chicago-formatted academic paper to APA for journal submission)
@@ -29,6 +31,7 @@ metadata:
 - The user is a copyeditor, managing editor, or production editor preparing text for typesetting and needs a clean, annotated deviation report
 
 **Do NOT use this skill when:**
+
 - The user wants general content editing for clarity, logic, or flow -- use `copy-editing` instead
 - The user wants basic proofreading for typos and grammatical errors without a specific style guide in scope -- use `proofreading` instead
 - The user wants citation formatting only, without broader document-level style checking -- use `citation-reference` instead
@@ -76,18 +79,21 @@ Systematic compliance checking requires working through the document in passes, 
 Work through each category independently. Mixing categories causes missed deviations.
 
 #### Category 1: Numbers and Quantities
+
 - **AP:** Spell out one through nine; use numerals for 10 and above. Use numerals always for ages, percentages (with "percent" spelled out, not %), addresses, speeds, temperatures, election results, dimensions, and monetary amounts of $1 million or more expressed as "$3.2 million." Dates use numerals without ordinal suffixes (Jan. 15, not January 15th). Fractions below one are spelled out (one-half, two-thirds).
 - **Chicago:** Spell out one through one hundred; use numerals for 101 and above. In scientific and statistical contexts, use numerals throughout. Percentages: spell out "percent" in humanistic text; use % symbol in scientific text. Large round numbers may be expressed as "4 million" rather than "4,000,000."
 - **APA 7th:** Spell out numbers below 10 except when they precede a unit of measurement (3 kg, 5 cm), represent statistical or mathematical functions, represent time, dates, ages, scores, or points on a scale, or appear in a series with numbers 10 or above. Use the % symbol (not "percent") when preceded by a numeral.
 - **MLA 9th:** Spell out numbers expressible in one or two words (fifteen, two hundred, three million); use numerals for others. Numerals are always used for numbers that include decimal points or fractions, percentages, and numbers in a series that includes numbers that would be written as numerals.
 
 #### Category 2: Capitalization
+
 - **Headings and titles in running text:** Chicago and MLA use title case (capitalize all "major" words -- nouns, verbs, adjectives, adverbs -- and all words of four or more letters). APA uses title case for headings in the document body but sentence case for titles in the reference list. AP uses title case for formal titles and proper names but does not italicize.
 - **Job titles:** AP capitalizes formal titles only when they immediately precede a name (President Biden, but the president spoke). Chicago and APA follow the same convention. Titles that follow a name or stand alone are lowercased.
 - **Government and institutional names:** Always capitalized as proper nouns. But "the government," "the university," "the department" as generic references are lowercase (Chicago) or lowercase in AP.
 - **Composition titles (books, films, journals, articles):** Chicago and MLA italicize books, journals, films, and longer works; use quotation marks for shorter works (articles, chapters, poems, songs). AP neither italicizes nor puts quotation marks around titles in news contexts. APA italicizes book and journal titles in the reference list; article titles take no special formatting.
 
 #### Category 3: Punctuation
+
 - **Serial comma (Oxford comma):** Chicago, APA, and MLA require it (apples, oranges, and pears). AP omits it except when needed to prevent ambiguity. This single rule generates more deviations than almost any other.
 - **Em dashes and en dashes:** Chicago uses em dashes (--) without spaces for parenthetical insertions, and en dashes for ranges (pp. 45--67) and compound modifiers with a multi-word element (New York--London flight). AP traditionally used em dashes without spaces; many house styles add spaces around em dashes for readability. APA uses em dashes without spaces. MLA follows Chicago conventions. Never use a hyphen where an en dash is required.
 - **Ellipses:** Chicago: three periods with spaces between (. . .) or, when text is omitted between two sentences, four (. . . .). APA and MLA: three periods without internal spaces (...), but with a space before and after. AP: three periods with no spaces between them (...).
@@ -95,6 +101,7 @@ Work through each category independently. Mixing categories causes missed deviat
 - **Hyphenation:** This is one of the most guide-specific areas. Chicago follows Merriam-Webster for compound words; AP has its own hyphenation preferences. Key rule across guides: a compound modifier before a noun is hyphenated (well-known author) but not after (the author is well known). Suspensive hyphens: "10- and 20-year terms" (Chicago/APA) vs. avoiding this construction (AP).
 
 #### Category 4: Abbreviations and Acronyms
+
 - **First use:** All major guides require spelling out an abbreviation or acronym on first use, with the abbreviation in parentheses: "the American Psychological Association (APA)." Subsequent uses may use the abbreviation alone.
 - **State abbreviations:** AP uses its own set of state abbreviations (Calif., not CA; Fla., not FL) in datelines and running text; US Postal Service two-letter codes are for addresses only. Chicago uses either spelled-out or postal codes, not AP abbreviations. APA uses postal codes.
 - **Titles and honorifics:** AP abbreviates Dr., Gov., Lt. Gov., Rep., Sen., and military titles before names; spells out Professor and President before a name in most contexts. Chicago spells out most titles in text but abbreviates in footnotes. APA abbreviates common titles.
@@ -102,6 +109,7 @@ Work through each category independently. Mixing categories causes missed deviat
 - **Units of measurement:** APA uses metric measurements in scientific text. Chicago spells out most units in humanistic text but uses abbreviations in scientific contexts. AP spells out measurements in narrative text but may abbreviate in tabular material.
 
 #### Category 5: Citations and References
+
 - This category is deep enough to warrant its own skill (`citation-reference`), but a style guide compliance check must verify that in-text citation format and reference list format match the governing guide.
 - **APA 7th in-text:** (Author, Year) or (Author, Year, p. X) for direct quotes. Three or more authors: (Author et al., Year) from the first citation.
 - **Chicago Notes-Bibliography:** Footnote with full citation on first use, shortened form thereafter. Bibliography at end.
@@ -110,6 +118,7 @@ Work through each category independently. Mixing categories causes missed deviat
 - **AP:** AP does not have a formal citation system for news prose. For AP-style content with attribution, use "according to [source]" or "a [year] study by [institution] found..." constructions.
 
 #### Category 6: Formatting and Miscellaneous Usage
+
 - **Dates:** AP: Jan. 15, 2024 (abbreviate months with more than five letters; no ordinal suffix). Chicago: January 15, 2024 (spell out month) or 15 January 2024 (day-month-year in some international contexts). APA: January 15, 2024 in text; 2024, January 15 in references.
 - **Time:** AP: 3 p.m., 10:30 a.m. (lowercase with periods, no space before). Chicago: 3:00 PM or 3 p.m. (both acceptable, but be consistent). APA: 3:00 PM.
 - **Decades:** AP: the 1990s (no apostrophe). Chicago: the 1990s or the nineties. APA: the 1990s.
@@ -269,7 +278,9 @@ Close with a summary that helps the author understand the pattern of deviations.
 ## Edge Cases
 
 ### The Document Has a House Style That Partially Overrides a Base Guide
+
 Some organizations use "AP style with exceptions" -- for example, a tech publication that follows AP but requires serial commas, uses title case for product names, and spells out "percent" always rather than using %. When this occurs:
+
 - Apply house style rules first; they govern wherever they speak.
 - Apply the base guide (AP, Chicago, etc.) for everything the house style does not address.
 - In the deviation table, tag each correction as either "[House style]" or "[AP base]" so the author can trace the source.
@@ -277,7 +288,9 @@ Some organizations use "AP style with exceptions" -- for example, a tech publica
 - If you receive a house style document, read it fully before running the check. House style guides often contain unexpected overrides (e.g., "we always use 'setup' not 'set up' as a noun and as a verb").
 
 ### Converting from One Style Guide to Another
+
 A writer submitting a Chicago-formatted dissertation chapter to an APA journal must change dozens of conventions. This is not a single-pass correction -- it requires a conversion matrix.
+
 - Build a side-by-side comparison of the two guides for the six categories before editing.
 - Key differences between Chicago NB and APA 7th: serial comma (both require it, so no change); title case vs. sentence case in references (major change -- every reference title must be re-cased); footnote citations vs. in-text author-date citations (structural change, not just formatting); "ibid." and shortened forms eliminated (APA has no equivalent); running heads required in APA professional manuscripts but not Chicago.
 - Key differences between AP and APA: AP spells out "percent," APA uses %; AP spells out one through nine with exceptions, APA spells out below ten with different exceptions; AP has no formal citation system, APA has a mandatory one.
@@ -285,27 +298,35 @@ A writer submitting a Chicago-formatted dissertation chapter to an APA journal m
 - Warn the author that citation conversion (especially footnote-to-author-date) may require information not present in the original document (page numbers for quotes, DOIs, publication years for footnote-only sources).
 
 ### The Text Shows Evidence of Multiple Style Guides Applied Inconsistently
+
 This is common in multi-author documents (committee reports, white papers, academic anthologies). Some sections will use serial commas; others will not. Some will spell out percentages; others will use the % symbol.
+
 - Do not silently correct all instances to the governing guide. First, note the inconsistency explicitly: "This document appears to have been written by multiple authors using different style conventions. Sections 1 and 3 follow Chicago conventions; Sections 2 and 4 follow AP conventions."
 - Apply the governing guide uniformly after noting the inconsistency.
 - Flag this to the author as a potential sign that the document needs substantive editorial review beyond style compliance alone.
 
 ### The Author Has Made Intentional Style Guide Deviations for Effect
+
 Creative writers, literary essayists, and marketers sometimes intentionally break style guide rules -- lowercase proper nouns, unconventional capitalization (e.e. cummings), sentence fragments as stylistic devices, or em dashes used in ways that violate Chicago conventions.
+
 - Flag every deviation but do not auto-correct intentional ones.
 - Use the notation "Deviation -- intentional?" in the Corrected Text column, leaving the original text unchanged in the compliant document version.
 - Ask the author to confirm intentional deviations before finalizing.
 - Never assume a deviation is intentional just because it is consistent -- consistent errors are still errors.
 
 ### The Document Contains Specialized Content Requiring Domain-Specific Style
+
 Medical content may need to follow AMA 11th edition (which has its own abbreviation list, drug name conventions, and statistical reporting standards) even when the base guide is APA or Chicago. Legal content may need Bluebook citation conventions embedded within an otherwise APA or Chicago document.
+
 - Flag specialized content as requiring domain-specific checking beyond the governing guide.
 - Apply the governing guide to non-specialized sections.
 - For specialized sections (e.g., a methodology section reporting clinical statistics in an APA paper), note: "This section contains clinical/statistical content. AMA conventions for reporting p-values, confidence intervals, and drug names may apply in addition to APA 7th requirements."
 - Do not attempt to apply AMA or Bluebook rules from memory without the user confirming those guides are in scope.
 
 ### The Document Is Very Long (More Than 3,000 Words)
+
 A full element-by-element audit of a 10,000-word document is impractical in a single pass.
+
 - Sample the first, middle, and final sections for a pattern audit before committing to a full check.
 - Identify the two or three most prevalent deviation types from the sample.
 - Apply the prevalent corrections globally (search-and-replace logic applied to all instances of the deviation pattern).
@@ -313,7 +334,9 @@ A full element-by-element audit of a 10,000-word document is impractical in a si
 - Report: "Due to document length, this report applies a pattern-based audit. [n] instances of [deviation type] have been corrected throughout the document. A full element-by-element audit would require [estimated scope]."
 
 ### The Style Guide Rule Has Changed Between Editions
+
 AP updates its stylebook annually. APA moved from 6th to 7th edition with significant changes. Chicago moved from 16th to 17th with changes to digital source citation. When an author has been trained on an older edition:
+
 - Note edition-specific changes explicitly: "This correction applies the APA 7th edition rule. APA 6th required three or more authors to be cited as [Author et al.] from first use; APA 7th requires this from first use for works with three or more authors [same rule, but the threshold changed from 6 to 3 authors between 6th and 7th]."
 - If the user's document was clearly written under an older edition (e.g., systematic use of "et al." only after six authors, a 6th edition convention), note this and apply the current edition corrections.
 - If the user explicitly states they need to comply with an older edition (some institutions still require APA 6th), apply that edition's rules and note them as such.
@@ -323,6 +346,7 @@ AP updates its stylebook annually. APA moved from 6th to 7th edition with signif
 ## Example
 
 **Input:**
+
 > "Check this abstract for APA 7th edition compliance: 'This study examined the effects of sleep deprivation on cognitive performance in 150 college-aged students (male: 75, female: 75). Participants completed 3 tasks: a memory recall test, a reaction time assessment, and a problem-solving exercise, over a period of seventy-two hours. The results indicated that sleep deprived participants performed significantly worse (p < .05) on all tasks. These findings have important implications for University administrators and Mental Health Professionals working with college populations. The data was collected between January 1st, 2023 and March 31st, 2023.'"
 
 ---
@@ -339,36 +363,36 @@ AP updates its stylebook annually. APA moved from 6th to 7th edition with signif
 
 ### Deviations (in document order)
 
-| # | Location | Category | Original Text | Corrected Text | Rule Reference |
-|---|----------|----------|---------------|----------------|----------------|
-| 1 | Sentence 1 | Numbers | "150 college-aged students" | "150 college-aged students" -- COMPLIANT | APA 7th §6.32: numerals for numbers 10 and above; 150 is correct |
-| 2 | Sentence 1 | Formatting | "(male: 75, female: 75)" | "(men: 75, women: 75)" | APA 7th §5.5 Bias-free language: "male/female" as standalone nouns are acceptable in biological/medical contexts but "men/women" are preferred for human participants in behavioral research |
-| 3 | Sentence 2 | Numbers | "3 tasks" | "three tasks" | APA 7th §6.32: spell out numbers below 10; 3 does not precede a unit of measurement and is not a statistical value, so the exception does not apply |
-| 4 | Sentence 2 | Punctuation | "a memory recall test, a reaction time assessment, and a problem-solving exercise," | COMPLIANT | APA 7th §6.3: serial comma required before "and" in a list -- already present |
-| 5 | Sentence 2 | Numbers | "seventy-two hours" | "72 hours" | APA 7th §6.32: use numerals for numbers that represent time; "72 hours" is a unit of time measurement -- numerals required |
-| 6 | Sentence 3 | Formatting | "sleep deprived" | "sleep-deprived" | APA 7th §6.12 (hyphenation table): compound modifier before a noun is hyphenated; "sleep-deprived participants" |
-| 7 | Sentence 3 | Numbers | "(p < .05)" | COMPLIANT | APA 7th §6.36: italicize p; report without leading zero; "(p < .05)" is correct -- note p should be italicized in final typeset: (*p* < .05) |
-| 8 | Sentence 4 | Capitalization | "University administrators" | "university administrators" | APA 7th §6.16: generic institutional titles are not capitalized when used as common nouns; "university" is not a proper noun here |
-| 9 | Sentence 4 | Capitalization | "Mental Health Professionals" | "mental health professionals" | APA 7th §6.16: occupational titles and professional descriptors used as common nouns are lowercased; only capitalize when the full formal title precedes a name |
-| 10 | Sentence 4 | Usage | "The data was collected" | "The data were collected" | APA 7th §4.19 and Merriam-Webster guidance cited in APA: "data" is a plural noun in academic and scientific writing; use plural verb "were" |
-| 11 | Sentence 5 | Formatting | "January 1st, 2023" | "January 1, 2023" | APA 7th §6.35: dates in text do not use ordinal suffixes (1st, 2nd, 3rd); write January 1, 2023 |
-| 12 | Sentence 5 | Formatting | "March 31st, 2023" | "March 31, 2023" | APA 7th §6.35: same rule -- no ordinal suffix on dates |
+| #   | Location   | Category       | Original Text                                                                       | Corrected Text                           | Rule Reference                                                                                                                                                                               |
+| --- | ---------- | -------------- | ----------------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Sentence 1 | Numbers        | "150 college-aged students"                                                         | "150 college-aged students" -- COMPLIANT | APA 7th §6.32: numerals for numbers 10 and above; 150 is correct                                                                                                                             |
+| 2   | Sentence 1 | Formatting     | "(male: 75, female: 75)"                                                            | "(men: 75, women: 75)"                   | APA 7th §5.5 Bias-free language: "male/female" as standalone nouns are acceptable in biological/medical contexts but "men/women" are preferred for human participants in behavioral research |
+| 3   | Sentence 2 | Numbers        | "3 tasks"                                                                           | "three tasks"                            | APA 7th §6.32: spell out numbers below 10; 3 does not precede a unit of measurement and is not a statistical value, so the exception does not apply                                          |
+| 4   | Sentence 2 | Punctuation    | "a memory recall test, a reaction time assessment, and a problem-solving exercise," | COMPLIANT                                | APA 7th §6.3: serial comma required before "and" in a list -- already present                                                                                                                |
+| 5   | Sentence 2 | Numbers        | "seventy-two hours"                                                                 | "72 hours"                               | APA 7th §6.32: use numerals for numbers that represent time; "72 hours" is a unit of time measurement -- numerals required                                                                   |
+| 6   | Sentence 3 | Formatting     | "sleep deprived"                                                                    | "sleep-deprived"                         | APA 7th §6.12 (hyphenation table): compound modifier before a noun is hyphenated; "sleep-deprived participants"                                                                              |
+| 7   | Sentence 3 | Numbers        | "(p < .05)"                                                                         | COMPLIANT                                | APA 7th §6.36: italicize p; report without leading zero; "(p < .05)" is correct -- note p should be italicized in final typeset: (_p_ < .05)                                                 |
+| 8   | Sentence 4 | Capitalization | "University administrators"                                                         | "university administrators"              | APA 7th §6.16: generic institutional titles are not capitalized when used as common nouns; "university" is not a proper noun here                                                            |
+| 9   | Sentence 4 | Capitalization | "Mental Health Professionals"                                                       | "mental health professionals"            | APA 7th §6.16: occupational titles and professional descriptors used as common nouns are lowercased; only capitalize when the full formal title precedes a name                              |
+| 10  | Sentence 4 | Usage          | "The data was collected"                                                            | "The data were collected"                | APA 7th §4.19 and Merriam-Webster guidance cited in APA: "data" is a plural noun in academic and scientific writing; use plural verb "were"                                                  |
+| 11  | Sentence 5 | Formatting     | "January 1st, 2023"                                                                 | "January 1, 2023"                        | APA 7th §6.35: dates in text do not use ordinal suffixes (1st, 2nd, 3rd); write January 1, 2023                                                                                              |
+| 12  | Sentence 5 | Formatting     | "March 31st, 2023"                                                                  | "March 31, 2023"                         | APA 7th §6.35: same rule -- no ordinal suffix on dates                                                                                                                                       |
 
-*(Note: Item #1 and #4 were checked and confirmed compliant; they appear in the table for transparency.)*
+_(Note: Item #1 and #4 were checked and confirmed compliant; they appear in the table for transparency.)_
 
 ---
 
 ### Deviation Summary by Category
 
-| Category | Deviations | % of Total |
-|----------|------------|------------|
-| Numbers | 2 | 22% |
-| Capitalization | 2 | 22% |
-| Punctuation | 0 | 0% |
-| Abbreviations | 0 | 0% |
-| Formatting & Dates | 3 | 34% |
-| Bias-free Language & Usage | 2 | 22% |
-| **Total** | **9** | **100%** |
+| Category                   | Deviations | % of Total |
+| -------------------------- | ---------- | ---------- |
+| Numbers                    | 2          | 22%        |
+| Capitalization             | 2          | 22%        |
+| Punctuation                | 0          | 0%         |
+| Abbreviations              | 0          | 0%         |
+| Formatting & Dates         | 3          | 34%        |
+| Bias-free Language & Usage | 2          | 22%        |
+| **Total**                  | **9**      | **100%**   |
 
 **Most frequent deviation type:** Formatting and Dates (3 instances) -- APA 7th prohibits ordinal suffixes on dates and requires hyphenation of compound modifiers; these are commonly overlooked because they differ from informal writing habits.
 
@@ -378,7 +402,7 @@ AP updates its stylebook annually. APA moved from 6th to 7th edition with signif
 
 ### Compliant Document
 
-This study examined the effects of sleep deprivation on cognitive performance in 150 college-aged students (men: 75, women: 75). Participants completed three tasks: a memory recall test, a reaction time assessment, and a problem-solving exercise, over a period of 72 hours. The results indicated that sleep-deprived participants performed significantly worse (*p* < .05) on all tasks. These findings have important implications for university administrators and mental health professionals working with college populations. The data were collected between January 1, 2023 and March 31, 2023.
+This study examined the effects of sleep deprivation on cognitive performance in 150 college-aged students (men: 75, women: 75). Participants completed three tasks: a memory recall test, a reaction time assessment, and a problem-solving exercise, over a period of 72 hours. The results indicated that sleep-deprived participants performed significantly worse (_p_ < .05) on all tasks. These findings have important implications for university administrators and mental health professionals working with college populations. The data were collected between January 1, 2023 and March 31, 2023.
 
 *(Note: The italicization of p in "*p* < .05" should be applied in the typeset version. Plain text rendering may not preserve italics.)*
 
@@ -386,11 +410,11 @@ This study examined the effects of sleep deprivation on cognitive performance in
 
 ### Guide Ambiguities and Discretionary Choices
 
-| Element | Options Allowed by Guide | Choice Applied | Rationale |
-|---------|--------------------------|----------------|-----------|
-| "men/women" vs. "male/female" as participant descriptors | APA 7th §5.5 allows "male/female" when referring to biological sex in clinical contexts; recommends "men/women" for behavioral research | "men/women" applied | This is a behavioral/cognitive study, not a clinical sex-difference study; "men/women" is the APA preference for this context |
-| "data were" vs. "data was" | APA prescribes "data were" per §4.19; some style guides (Chicago 17th) now permit "data is" as acceptable informal usage | "data were" applied | APA is the governing guide; "data were" is mandatory in APA context regardless of emerging informal usage |
-| p-value italicization | APA 7th requires *p* in italics; plain text submission may not support this | Noted but not applied in plain text | Author should apply italics in word processor or typesetting software before submission |
+| Element                                                  | Options Allowed by Guide                                                                                                                | Choice Applied                      | Rationale                                                                                                                     |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| "men/women" vs. "male/female" as participant descriptors | APA 7th §5.5 allows "male/female" when referring to biological sex in clinical contexts; recommends "men/women" for behavioral research | "men/women" applied                 | This is a behavioral/cognitive study, not a clinical sex-difference study; "men/women" is the APA preference for this context |
+| "data were" vs. "data was"                               | APA prescribes "data were" per §4.19; some style guides (Chicago 17th) now permit "data is" as acceptable informal usage                | "data were" applied                 | APA is the governing guide; "data were" is mandatory in APA context regardless of emerging informal usage                     |
+| p-value italicization                                    | APA 7th requires _p_ in italics; plain text submission may not support this                                                             | Noted but not applied in plain text | Author should apply italics in word processor or typesetting software before submission                                       |
 
 ---
 

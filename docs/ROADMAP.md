@@ -94,13 +94,13 @@ In-flight Wave A dispatch artifacts (M1 closeout):
 
 ## Milestone overview
 
-| ID | Tag | Theme | Status |
-|----|-----|-------|--------|
-| M1 | `v0.2.0-wayland-base` | Phase 1 channels closeout - packaged builds work | SHIPPED 2026-05-17 |
-| M2 | `v0.3.0-wayland-base` | Phase 2 channels - Email + Matrix (+ Signal if scope) | SHIPPED 2026-05-17 (Signal deferred to M2.5) |
-| M3 | `v0.4.0-wayland-base` | Gemini A2A migration + Teams Library Phase 1b/1c | PLANNED |
-| M4 | `v0.5.0-wayland-base` | Phase 3 channels (tier-3) + packaging hardening | PLANNED |
-| M5 | `v0.6.0-wayland-base` | Productization - sync, multi-device, plugin marketplace MVP | VISION |
+| ID  | Tag                   | Theme                                                       | Status                                       |
+| --- | --------------------- | ----------------------------------------------------------- | -------------------------------------------- |
+| M1  | `v0.2.0-wayland-base` | Phase 1 channels closeout - packaged builds work            | SHIPPED 2026-05-17                           |
+| M2  | `v0.3.0-wayland-base` | Phase 2 channels - Email + Matrix (+ Signal if scope)       | SHIPPED 2026-05-17 (Signal deferred to M2.5) |
+| M3  | `v0.4.0-wayland-base` | Gemini A2A migration + Teams Library Phase 1b/1c            | PLANNED                                      |
+| M4  | `v0.5.0-wayland-base` | Phase 3 channels (tier-3) + packaging hardening             | PLANNED                                      |
+| M5  | `v0.6.0-wayland-base` | Productization - sync, multi-device, plugin marketplace MVP | VISION                                       |
 
 No calendar dates. Dependencies and dispatch graph order, per the
 `feedback-no-week-months-pacing` principle in project memory.
@@ -140,7 +140,7 @@ identically in a packaged production build, not just dev. Cut the mainline
   the engine roadmap), verify `gh release view v0.2.0-wayland-base` asset count
   matches the release matrix before declaring shipped. The app's release flow
   is electron-builder for macOS / Windows / Linux; smoke = each artifact opens
-  + the four Tier 1 channels round-trip a test message.
+  - the four Tier 1 channels round-trip a test message.
 
 ### Dependencies
 
@@ -285,10 +285,10 @@ entries.
   - Gate: `wc -l ~/dev/waylandteams/contributes/assistants.json` shows ≥ 13
     entries (was 4 at pause). If still 4, Teams scope slips to M4.
   - Implement the `/teams` sidebar route + `teamPresets` contribution point
-    + Connection Card pattern. v3 mockup at
-    `~/dev/wayland/app/.planning/brainstorm/teams-library-mockup.html` is the
-    visual spec. Build the v4 mockup against the full 13 entries first; ship
-    code against v4.
+    - Connection Card pattern. v3 mockup at
+      `~/dev/wayland/app/.planning/brainstorm/teams-library-mockup.html` is the
+      visual spec. Build the v4 mockup against the full 13 entries first; ship
+      code against v4.
   - First-class extension manifest schema for `teamPresets` so future
     third-party assistant bundles can register through the same path.
 
@@ -372,7 +372,7 @@ deletion that M3's Gemini A2A migration unblocked.
   - `src/process/task/GeminiAgentManager.ts`
   - `@office-ai/aioncli-core` from `package.json`
   - Codemod ~20 import sites - most are `import { AuthType } from
-    '@office-ai/aioncli-core'`. Replace with a local `AuthType` enum in
+'@office-ai/aioncli-core'`. Replace with a local `AuthType` enum in
     `src/common/types/auth.ts`.
   - Bundle size verification confirms ~7.7 MB saved.
 
@@ -397,8 +397,8 @@ deletion that M3's Gemini A2A migration unblocked.
   with the X DMs entry showing a "Premium API required - $200/mo" gated
   state per memory.
 - ≥ 28 of 33 actually round-trip a test message; the remaining ≤ 5 (X DMs
-  + any that hit provider provisioning lead time) document the blocker in
-  their ConfigForm.
+  - any that hit provider provisioning lead time) document the blocker in
+    their ConfigForm.
 - Packaged builds on all three platforms install with zero security prompts
   beyond the standard "first-run open from unknown developer" macOS dialog
   (which should NOT appear given notarization succeeded).
@@ -536,4 +536,3 @@ Items explicitly NOT on this roadmap:
   when first needed).
 - This file is owned by the orchestrator. Sub-agents don't touch it during
   execute-dispatches; they propose edits via the Wave dispatch handoff.
-

@@ -16,11 +16,7 @@ vi.mock('electron', () => ({
 }));
 
 // eslint-disable-next-line import/first
-import {
-  ijfwCacheKey,
-  moveWithExdevFallback,
-  writeAtomic,
-} from '@process/services/ijfw/atomicFile';
+import { ijfwCacheKey, moveWithExdevFallback, writeAtomic } from '@process/services/ijfw/atomicFile';
 
 function mktemp(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-atomic-'));

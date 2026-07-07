@@ -18,11 +18,7 @@
  * persisting the new status (on accept) and emitting the telemetry event (on reject).
  */
 
-import type {
-  StepStatus,
-  StepTransition,
-  StepTransitionSource,
-} from '@/common/types/workflowTypes';
+import type { StepStatus, StepTransition, StepTransitionSource } from '@/common/types/workflowTypes';
 
 export type TransitionResult =
   | { accepted: true; newStatus: StepStatus; logged: false }
@@ -33,11 +29,7 @@ export type TransitionResult =
       telemetryEvent: string;
     };
 
-const VALID_SOURCES: ReadonlySet<StepTransitionSource> = new Set<StepTransitionSource>([
-  'parent',
-  'worker',
-  'user',
-]);
+const VALID_SOURCES: ReadonlySet<StepTransitionSource> = new Set<StepTransitionSource>(['parent', 'worker', 'user']);
 
 // Higher number = higher precedence. user > worker > parent per SPEC §11.1.
 const SOURCE_RANK: Record<StepTransitionSource, number> = {
@@ -59,7 +51,7 @@ function assertValidSource(source: StepTransitionSource): void {
 export function applyTransition(
   currentStatus: StepStatus,
   incoming: StepTransition,
-  competingTransitions: StepTransition[] = [],
+  competingTransitions: StepTransition[] = []
 ): TransitionResult {
   assertValidSource(incoming.source);
   for (const competitor of competingTransitions) {
@@ -104,7 +96,7 @@ export function applyTransition(
         // that this transition has already been recorded - dedup it. Otherwise accept as
         // a displacement (or as an idempotent no-op when no competitor exists).
         const sameSourceNowCompetitor = competingTransitions.find(
-          (c) => c.source === incoming.source && c.status === 'now',
+          (c) => c.source === incoming.source && c.status === 'now'
         );
         if (sameSourceNowCompetitor !== undefined) {
           return {
@@ -167,4 +159,3 @@ export function applyTransition(
     }
   }
 }
-

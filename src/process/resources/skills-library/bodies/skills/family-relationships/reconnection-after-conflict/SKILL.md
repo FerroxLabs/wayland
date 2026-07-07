@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships planning guide"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships planning guide'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Reconnection After Conflict
 
 Conflict creates neurobiological distance before it creates relational distance -- when the amygdala floods the body with stress hormones, the capacity for empathic connection is temporarily offline. The quality of repair that follows conflict is one of the strongest predictors of long-term relationship health. Research from the Gottman Institute and attachment-focused therapists consistently shows that it is not the absence of conflict but the presence of effective repair attempts that distinguishes stable, satisfying relationships from deteriorating ones. This skill provides the structure for moving from neurobiological shutdown and emotional distance back to genuine connection -- with specific timing frameworks, sequenced conversation scripts, and trust-rebuilding pathways calibrated to the type and severity of the conflict.
@@ -26,6 +27,7 @@ For recurring conflict patterns that resist repair, underlying attachment injuri
 ## When to Use
 
 **Use this skill when:**
+
 - A user has had a specific, identifiable argument and wants to re-establish emotional connection with the other person
 - A user describes a "cold house" or "walking on eggshells" dynamic that has persisted for days after a fight
 - A user is emotionally ready to reconnect but does not know how to initiate without re-igniting the conflict
@@ -36,6 +38,7 @@ For recurring conflict patterns that resist repair, underlying attachment injuri
 - A user is the one who was hurt and wants guidance on whether and how to receive a repair attempt from the other person
 
 **Do NOT use when:**
+
 - The user is evaluating whether to continue the relationship at all -- use a decision-support framework instead, or recommend a therapist
 - The user describes patterns of emotional, physical, or verbal abuse -- safety resources are the appropriate response, not reconnection scripts
 - The user is navigating a post-breakup reconciliation -- that is a categorically different process involving a different set of stakes and dynamics
@@ -79,6 +82,7 @@ Timing is not intuitive -- both too-soon and too-late reconnection attempts fail
 The reconnection sequence is not a single conversation -- it is a structured progression that separates emotional reconnection from issue resolution. Attempting to do both simultaneously usually derails both.
 
 **Phase 1 -- The Reach Out (Bid for Connection)**
+
 - The purpose is not to discuss the conflict. It is to signal: "I want to be connected to you. The distance is not what I want."
 - The bid should be brief, specific, non-pressuring, and contain no demands for immediate response.
 - Format: one sentence of care + one sentence of intent. Example: "I miss you. I'd like to talk tonight when you're ready."
@@ -86,12 +90,14 @@ The reconnection sequence is not a single conversation -- it is a structured pro
 - Do not front-load the bid with the issue: "We need to talk about the money thing" is an issue-reopener, not a bid for connection.
 
 **Phase 2 -- The Acknowledgment**
+
 - Name what happened without relitigating it. This is not the place to present your case again or add new grievances.
 - Acknowledge the experience of the conflict itself: "The fight we had was hard. I don't want to pretend it didn't happen."
 - One sentence is sufficient at this phase. The goal is to confirm shared reality without triggering defensive escalation.
 - What to avoid: revisiting who was right, adding "but" statements, minimizing the conflict ("it wasn't that big a deal"), or catastrophizing it.
 
 **Phase 3 -- The Validation**
+
 - Validation means acknowledging that the other person's emotional experience was real and understandable -- even if you do not agree with their position.
 - The structure: "I can see why you felt [emotion] when [thing happened]." This requires genuine engagement with their perspective, not strategic performance.
 - If you genuinely do not understand their experience, lead with curiosity: "I want to understand how you experienced this. Can you help me see it from where you were standing?"
@@ -99,6 +105,7 @@ The reconnection sequence is not a single conversation -- it is a structured pro
 - Common failure: offering validation while adding a qualification ("I can see why you were upset, but you have to admit..."). This invalidates the validation.
 
 **Phase 4 -- The Repair**
+
 - This phase has two possible tracks depending on issue status:
   - If the issue was resolved during or after the conflict: Acknowledge the resolution and confirm shared understanding: "I think we figured out the money situation. I want to make sure we're on the same page about what we agreed."
   - If the issue is still unresolved: Separate the emotional reconnection from the issue resolution explicitly. "I don't think we've solved [issue] yet, and I want to. But right now I care more about us being okay than about being right about [issue]. Can we set a time this weekend to actually work through it?"
@@ -106,6 +113,7 @@ The reconnection sequence is not a single conversation -- it is a structured pro
 - If something harmful was said during the conflict (contempt, name-calling, a specific cutting remark), this phase must include a specific acknowledgment and apology for that harm. Reconnecting over the top of an unaddressed wound does not close the wound -- it buries it.
 
 **Phase 5 -- The Reconnect**
+
 - After the repair conversation, do something together that has no connection to the conflict. The purpose is to rebuild the positive experience bank and to re-establish the physical and emotional proximity that conflict disrupts.
 - Activities should be shared, low-stakes, and familiar: cooking a meal, watching a show you both like, a walk, physical closeness on the couch. The activity is a vehicle for proximity -- it does not need to be special.
 - Do not use Phase 5 as an opportunity to circle back to the conflict. If the issue resurfaces, table it: "We said we'd talk about that this weekend. Tonight I just want to be with you."
@@ -116,22 +124,26 @@ The reconnection sequence is not a single conversation -- it is a structured pro
 The reconnection sequence is the same across relationship types, but the language and expectations differ substantially:
 
 **Partner/Spouse conflicts:**
+
 - The highest intimacy context means the highest stakes. Reconnection requires genuine vulnerability, not performance.
 - Physical touch is often the most powerful Phase 5 tool -- not sexual, but a hand on the back, sitting close, initiating a hug.
 - If the conflict touched a recurring theme (the same fight you have every few months), acknowledge that in Phase 4: "I know we've been here before. I want to actually figure this out this time, not just smooth it over."
 
 **Parent-Adult Child conflicts:**
+
 - Power dynamics from childhood are activated in these conflicts even when both people are adults. The adult child often feels the old experience of powerlessness; the parent often feels rejection or disrespect.
 - Reconnection here often requires accepting a partial resolution. Full resolution -- "we now agree" -- may not be realistic when the conflict involves fundamental values.
 - The goal shifts: from resolution to restoration of basic warmth and functionality. "I don't want this between us" is a sufficient Phase 2 acknowledgment.
 - Parents who initiated the conflict may have difficulty making the first bid. Adult children who value the relationship often need to model the repair.
 
 **Close Friendships:**
+
 - Friendships lack the institutional structure (living together, shared finances, co-parenting) that keeps partners in contact during distance. Silence is easier to sustain and harder to break.
 - The window before silence calcifies is shorter for friendships than for partner relationships -- 5-7 days without contact risks the conflict becoming permanent by default.
 - Low-pressure written bids (a voice note, a substantive text) work well with friends because they remove the face-to-face pressure while still communicating genuine care.
 
 **Sibling Conflicts:**
+
 - Family systems often triangulate -- parents, other siblings, or shared history become part of the conflict dynamics.
 - Reconnection with siblings often requires explicitly agreeing not to loop in other family members: "I'd rather we figure this out between us before it becomes a family thing."
 
@@ -310,6 +322,7 @@ If your bid is met with continued silence or rejection after [timeframe], consid
 ## Edge Cases
 
 ### The Conflict Involved a Fundamental Value Difference
+
 When the argument was not about a problem to be solved but about a genuine incompatibility in values -- political beliefs, religious practice, how to raise children, whether to have children, lifestyle choices -- the reconnection script changes because full resolution is not the goal. The goal is restored connection in the presence of difference.
 
 The Phase 4 script shifts to: "I know we see this differently. I don't think either of us is going to change our mind, and I've stopped wanting to convince you. What I want is to still be [close / connected / in a relationship] with you even though we disagree on this. Is that something you want too?"
@@ -317,6 +330,7 @@ The Phase 4 script shifts to: "I know we see this differently. I don't think eit
 This requires the user to genuinely mean it. If they are hoping the reconnection will eventually lead the other person to change their position, this is a manipulation, not a repair. Distinguish between accepting difference and tolerating difference while waiting for eventual agreement.
 
 ### Someone Said Something Deeply Hurtful During the Fight
+
 Contemptuous language ("you're pathetic," "you're just like your father," "I don't respect you"), threats ("I'm done with this marriage"), or a betrayal of confidence (bringing up a vulnerability that was shared privately) cannot be treated as part of the general conflict. These require standalone acknowledgment.
 
 The sequence is: specific acknowledgment of the harm FIRST (Phase 4, Track C), then the general repair, then Phase 5. Attempting to reconnect before addressing the specific harm leaves the wound unacknowledged. The other person will maintain distance not because they don't want to reconnect but because they are still processing the specific hurt.
@@ -326,9 +340,11 @@ Script for the specific acknowledgment: "Before anything else, I need to say som
 Refer to `apology-repair` for the full apology framework if the harm was significant.
 
 ### The Silent Treatment Has Been in Effect for More Than a Week
+
 Prolonged silence -- defined as more than 7 days with no meaningful communication -- is qualitatively different from the cool-down distance after a conflict. It has moved from processing into either punishment, shutdown, or entrenched conflict avoidance.
 
 Do not recommend a face-to-face repair attempt as the first move after a week of silence. The entry point should be written -- a letter, a card, or a substantive message. Written communication:
+
 - Removes the immediate pressure to respond in the moment
 - Gives the other person time to process before responding
 - Allows the writer to say exactly what they mean without the volatility of live conversation
@@ -338,6 +354,7 @@ The written bid should be brief (no more than one page / 200-300 words), contain
 If a written bid goes unacknowledged for more than a week, the situation has moved beyond what this skill addresses. Recommend couples therapy, mediated conversation, or -- in parent/child or sibling contexts -- a trusted family member who can serve as a neutral bridge.
 
 ### The Conflict Revealed a Deeper Unmet Need or Ongoing Pattern
+
 Sometimes a specific argument (about dishes, about finances, about a social event) is the surface manifestation of a deeper unmet need: "I don't feel like a priority," "I feel controlled," "I don't feel respected in this household." When this is the case, the reconnection is necessary but not sufficient.
 
 Reconnect first -- genuinely, not strategically. Then, at a neutral time (not during the reconnection conversation, not in the heat of residual emotion), have a separate, structured conversation about the deeper need. Frame it: "The fight about [topic] keeps happening. I think it's really about something bigger for me, and I'd like to talk about that when you have time and space for a real conversation."
@@ -345,15 +362,18 @@ Reconnect first -- genuinely, not strategically. Then, at a neutral time (not du
 Use `difficult-conversation-prep` for the deeper-need conversation. The reconnection plan should explicitly name that the reconnection is not the resolution of the deeper pattern -- and that naming this is itself an act of honesty and respect.
 
 ### The User Is the One Who Was Hurt and Is Deciding Whether to Receive the Repair
+
 This skill is most often used by the person initiating repair, but it can also guide the person deciding whether and how to receive one.
 
 Key guidance for the receiver:
+
 - Receiving a repair attempt does not require full forgiveness yet, nor does it signal that everything is fine. It signals willingness to begin the process.
 - A script for receiving: "I appreciate you reaching out. I'm not all the way there yet, but I want to be. Give me a little more time and then yes, let's talk."
 - If the repair attempt feels insufficient (no acknowledgment of the specific harm, a "non-apology apology"), the receiver can name this without rejecting the repair outright: "I want to reconnect too. I need you to acknowledge [specific thing] first. That's what's making it hard for me to get there."
 - The receiver should not use their position to indefinitely withhold reconnection as leverage. Sustained stonewalling damages the relationship in ways that outlast the original conflict.
 
 ### Reconnection After Conflict in a Co-Parenting Relationship
+
 When the two people in conflict share children, the dynamics are more complex because co-parenting logistics cannot pause for the conflict. Both people are required to interact daily or near-daily regardless of the emotional temperature.
 
 Separate co-parenting functionality from personal reconnection. The immediate priority is ensuring that co-parenting communication continues to work even before personal reconnection is complete. A brief, explicit agreement helps: "Whatever is happening between us personally, can we agree to keep the kids' stuff normal?"
@@ -361,6 +381,7 @@ Separate co-parenting functionality from personal reconnection. The immediate pr
 The reconnection itself then happens on a parallel, slower track. Do not conflate co-parenting logistics with the personal repair -- scheduling pickups is not Phase 5. The relationship reconnection requires separate intentional time that is specifically not about parenting logistics.
 
 ### Reconnection Attempt Was Made and Failed
+
 The user reached out, delivered Phase 1, and received either no response or a cold / hostile response. How to proceed:
 
 - **Do not immediately try again.** A second bid within 24 hours reads as pressure and will harden the other person's position.
@@ -380,20 +401,22 @@ The user reached out, delivered Phase 1, and received either no response or a co
 ## Reconnection Plan: Married Partners After Financial Deception Conflict (4 Days)
 
 ### Current State Assessment
-| Variable | Assessment |
-|----------|------------|
-| Conflict type | Financial -- discovery of hidden credit card debt |
-| Severity level | Significant. Two layers: (1) the financial conflict itself and (2) the concealment, which is a trust breach separate from the money issue. |
-| Time since conflict | 4 days |
-| Current temperature | Functional minimum -- co-parenting contact only, no emotional exchange |
-| Issue resolution status | Unresolved on both layers (the debt and the concealment) |
-| Underlying recurring theme | Unknown -- first known instance, but concealment suggests possible pattern |
-| Specific harms to address | User reports saying harsh things during the fight that need specific acknowledgment. His concealment of the debt is a trust breach that also needs acknowledgment from him. |
-| Repair initiator pattern | User is initiating -- note that this creates an asymmetry given that he is the one who concealed information |
+
+| Variable                   | Assessment                                                                                                                                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Conflict type              | Financial -- discovery of hidden credit card debt                                                                                                                           |
+| Severity level             | Significant. Two layers: (1) the financial conflict itself and (2) the concealment, which is a trust breach separate from the money issue.                                  |
+| Time since conflict        | 4 days                                                                                                                                                                      |
+| Current temperature        | Functional minimum -- co-parenting contact only, no emotional exchange                                                                                                      |
+| Issue resolution status    | Unresolved on both layers (the debt and the concealment)                                                                                                                    |
+| Underlying recurring theme | Unknown -- first known instance, but concealment suggests possible pattern                                                                                                  |
+| Specific harms to address  | User reports saying harsh things during the fight that need specific acknowledgment. His concealment of the debt is a trust breach that also needs acknowledgment from him. |
+| Repair initiator pattern   | User is initiating -- note that this creates an asymmetry given that he is the one who concealed information                                                                |
 
 ---
 
 ### Timing Guidance
+
 - **Your timing now:** Right. Four days for a conflict this significant is not too long -- this falls within the productive window. The nervous systems of both people are past acute activation, and the current functional-minimum state is functional enough to prevent crisis but cold enough that it will calcify if left another 3-4 days.
 - **Recommended window to reach out:** Tonight or tomorrow. Do not wait past 48 more hours.
 - **Risk of waiting:** At the 7-day mark, the functional-minimum dynamic risks becoming the new relational normal. You would be dealing with two things to repair instead of one: the original conflict and the prolonged distance.
@@ -404,28 +427,30 @@ The user reached out, delivered Phase 1, and received either no response or a co
 ### Five-Phase Reconnection Sequence
 
 **Phase 1 -- Reach Out**
-*Purpose:* Signal that you want to reconnect, not that you want to relitigate or that you're ready to forgive everything immediately. Genuine, brief, non-pressuring.
-*When:* Tonight, when the kids are settled and there is a quiet moment. Not at bedtime.
-*Delivery:* In person. Sit close. Make eye contact. This is not a business negotiation.
+_Purpose:_ Signal that you want to reconnect, not that you want to relitigate or that you're ready to forgive everything immediately. Genuine, brief, non-pressuring.
+_When:_ Tonight, when the kids are settled and there is a quiet moment. Not at bedtime.
+_Delivery:_ In person. Sit close. Make eye contact. This is not a business negotiation.
 
 > "I don't want to keep doing this. I miss you, and I want us to find our way back. Can we sit down and actually talk -- not about everything, just about us?"
 
-*If he goes quiet or hesitant:* Do not fill the silence immediately. Give him 10-15 seconds. His shutdown pattern is visible -- he needs a moment to shift out of the defensive wall. If he stays quiet past that, add:
+_If he goes quiet or hesitant:_ Do not fill the silence immediately. Give him 10-15 seconds. His shutdown pattern is visible -- he needs a moment to shift out of the defensive wall. If he stays quiet past that, add:
 
 > "I'm not asking you to have it all figured out. I'm not either. I just want to start."
 
-*If he says he needs more time:*
+_If he says he needs more time:_
+
 > "Okay. I'll follow your lead. I'm here."
-Then do not pursue further tonight. Give him 24-36 hours and make a second, low-key bid tomorrow.
+> Then do not pursue further tonight. Give him 24-36 hours and make a second, low-key bid tomorrow.
 
 ---
 
 **Phase 2 -- Acknowledgment**
-*Purpose:* Name both layers of what happened without making this the prosecutorial phase. This conversation is about reconnection -- the deeper accountability conversation comes later, separately.
+_Purpose:_ Name both layers of what happened without making this the prosecutorial phase. This conversation is about reconnection -- the deeper accountability conversation comes later, separately.
 
 > "What happened four days ago was hard. I know there are two things that happened: you were hiding something from me, and I said some things when I was at my worst. Both of those are real, and I don't want to skip past either of them. But right now I want to start with us -- not with the problem."
 
-*What NOT to say:*
+_What NOT to say:_
+
 - "You know what you did." (Accusatory opener, will trigger shutdown)
 - "I'm trying to forgive you but it's hard." (Keeps the focus on his wrongdoing rather than shared reconnection)
 - "I was upset and said things I didn't mean." (Dismisses your harsh words too quickly -- he may need to hear something more specific before this lands)
@@ -433,13 +458,14 @@ Then do not pursue further tonight. Give him 24-36 hours and make a second, low-
 ---
 
 **Phase 3 -- Validation**
-*Purpose:* Acknowledge what he was likely experiencing that led to the concealment, and what he is likely experiencing now in the shutdown. This is not excusing it -- it is demonstrating that you understand there was something happening for him, not just a deliberate act of malice.
+_Purpose:_ Acknowledge what he was likely experiencing that led to the concealment, and what he is likely experiencing now in the shutdown. This is not excusing it -- it is demonstrating that you understand there was something happening for him, not just a deliberate act of malice.
 
 > "I've been trying to think about what it was like for you, carrying that without telling me. I don't know -- maybe you were scared of exactly what happened. I'm not saying that makes it okay that you hid it. But I want to understand it, not just be hurt by it."
 
-*If he opens up at this point:* Listen without interrupting. Do not correct his account of his experience even if you see it differently. Save your perspective for the subsequent conversation (issue resolution, not this reconnection conversation).
+_If he opens up at this point:_ Listen without interrupting. Do not correct his account of his experience even if you see it differently. Save your perspective for the subsequent conversation (issue resolution, not this reconnection conversation).
 
-*If he remains closed:* Offer the curiosity alternative:
+_If he remains closed:_ Offer the curiosity alternative:
+
 > "I'd rather you tell me what was going on for you than me guess. When you're ready to talk about that part, I want to listen."
 
 ---
@@ -458,25 +484,27 @@ The emotional reconnection is this conversation. The full resolution of the trus
 
 > "I'm not ready to say the debt and the hiding of it are okay -- and I don't think you'd want me to pretend that. But I also don't want to spend every conversation we have for the next month relitigating this. Can we agree to have a real sit-down conversation about the money and about what happened -- maybe this weekend, when the kids are at [wherever they can be]? Tonight I just want to know we're still us."
 
-*Why this matters:* Separating these conversations gives him something concrete (a specific time the hard conversation will happen), which reduces the anxiety of indefinite unresolved tension. It also signals that you're not going to weaponize the reconnection by using it to avoid accountability -- you're scheduling the accountability, not canceling it.
+_Why this matters:_ Separating these conversations gives him something concrete (a specific time the hard conversation will happen), which reduces the anxiety of indefinite unresolved tension. It also signals that you're not going to weaponize the reconnection by using it to avoid accountability -- you're scheduling the accountability, not canceling it.
 
 ---
 
 **Phase 5 -- Reconnect**
-*Purpose:* Rebuild physical and emotional proximity. Not about the conflict at all.
+_Purpose:_ Rebuild physical and emotional proximity. Not about the conflict at all.
 
 For tonight, if the conversation went reasonably well:
+
 - Sit together on the couch -- even just to watch something ordinary. Physical proximity without the pressure of continued processing is itself healing.
 - If either of you reaches for the other's hand or moves physically closer, let that happen. Don't narrate it.
 
 For the next 4-5 days:
+
 - Have coffee together in the morning before the kids are up -- even 10 minutes
 - Cook dinner together one night instead of alongside each other
 - Text him something small during the day that has nothing to do with the conflict or the logistics ("thought you'd like this" / a reference to an inside joke / checking in on something he mentioned caring about)
 
 These small moments are the actual trust rebuilding. They are more important than the weekend accountability conversation.
 
-*Explicit agreement to hold:* "Tonight is about us. If the money thing comes back up, can we agree to table it until the weekend? I'll follow that too."
+_Explicit agreement to hold:_ "Tonight is about us. If the money thing comes back up, can we agree to table it until the weekend? I'll follow that too."
 
 ---
 
@@ -484,19 +512,20 @@ These small moments are the actual trust rebuilding. They are more important tha
 
 This conflict involves a genuine trust breach (concealment of financial information). The reconnection conversation is the beginning of rebuilding, not the end. The following actions apply to both of you -- trust rebuilding in this situation is a two-person project.
 
-| Action | Timeline | What It Demonstrates | Watch Out For |
-|--------|----------|---------------------|---------------|
-| Schedule and keep the dedicated money/accountability conversation | This weekend | Shows that reconnection was not a strategy to avoid accountability | Do not let this meeting get rescheduled twice -- reschedule once maximum |
-| He shares the full picture of the finances openly | During weekend conversation | Rebuilds financial transparency; allows you to assess the actual scope of the issue | Do not "check up" on this by going through accounts without discussing it together first -- create a shared transparency agreement instead |
-| Agree on a financial transparency practice going forward (shared access, monthly money check-ins) | Within 1 week | Creates a structural accountability system rather than relying on trust alone | If this feels like surveillance, reframe: "This is so neither of us is carrying financial stress alone" |
-| He initiates connection at least once per day for the next two weeks | Daily, starting now | Shifts the repair-initiation imbalance -- you reached out first despite being the one who was wronged | He may not be comfortable initiating; a gentle naming of this helps: "Part of how I'll know we're okay is if you reach for me sometimes too" |
-| Check-in conversation about how both of you are feeling about the trust | 1-2 weeks post reconnection | Normalizes that healing is ongoing; prevents the "we're fine now" assumption | Do not conflate "I'm feeling better today" with "the trust issue is resolved" |
+| Action                                                                                            | Timeline                    | What It Demonstrates                                                                                  | Watch Out For                                                                                                                                |
+| ------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Schedule and keep the dedicated money/accountability conversation                                 | This weekend                | Shows that reconnection was not a strategy to avoid accountability                                    | Do not let this meeting get rescheduled twice -- reschedule once maximum                                                                     |
+| He shares the full picture of the finances openly                                                 | During weekend conversation | Rebuilds financial transparency; allows you to assess the actual scope of the issue                   | Do not "check up" on this by going through accounts without discussing it together first -- create a shared transparency agreement instead   |
+| Agree on a financial transparency practice going forward (shared access, monthly money check-ins) | Within 1 week               | Creates a structural accountability system rather than relying on trust alone                         | If this feels like surveillance, reframe: "This is so neither of us is carrying financial stress alone"                                      |
+| He initiates connection at least once per day for the next two weeks                              | Daily, starting now         | Shifts the repair-initiation imbalance -- you reached out first despite being the one who was wronged | He may not be comfortable initiating; a gentle naming of this helps: "Part of how I'll know we're okay is if you reach for me sometimes too" |
+| Check-in conversation about how both of you are feeling about the trust                           | 1-2 weeks post reconnection | Normalizes that healing is ongoing; prevents the "we're fine now" assumption                          | Do not conflate "I'm feeling better today" with "the trust issue is resolved"                                                                |
 
 ---
 
 ### Reconnection Check-In
-*When:* 5 days after the initial reconnection conversation
-*Purpose:* Confirm that the surface warmth is reflecting genuine reconnection, and that neither of you has reverted to performing-fine while still feeling the distance.
+
+_When:_ 5 days after the initial reconnection conversation
+_Purpose:_ Confirm that the surface warmth is reflecting genuine reconnection, and that neither of you has reverted to performing-fine while still feeling the distance.
 
 > "I want to check in -- not about the money stuff, we'll cover that this weekend. Just about us. Are you feeling like we're actually getting closer again, or does it still feel like we're going through the motions? I want to know the real answer."
 
@@ -505,6 +534,7 @@ Prepare for him to say "I don't know" or to deflect. If he does, try: "That's ok
 ---
 
 ### Pattern Note
+
 One element worth naming at a low-stakes moment in the coming weeks (not in the reconnection conversation, not in the accountability conversation): the question of why he hid the debt rather than told you.
 
 This is important because concealment of financial information in a marriage often reflects either (a) shame about the debt that felt too large to admit, (b) a fear of your response that felt too big to face, or (c) a pattern of managing difficult things alone rather than as a team. All three are addressable -- but they require a different conversation than the one about the debt itself.
@@ -516,6 +546,7 @@ If this dynamic persists or proves difficult to address in conversation, couples
 ---
 
 ### If Reconnection Is Resisted
+
 If he does not respond to tonight's bid -- returns to shutdown, leaves the room, says he needs more time:
 
 - Do not pursue further tonight. Respect the stated need for time.

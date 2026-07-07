@@ -46,10 +46,7 @@ export const lineVerifier: WebhookVerifier = (input, secret) => {
   // Extract first event id for replay cache.
   const events = (payload as { events?: Array<{ webhookEventId?: string; message?: { id?: string } }> }).events;
   const firstEvent = Array.isArray(events) ? events[0] : undefined;
-  const eventId =
-    firstEvent?.webhookEventId?.trim() ??
-    firstEvent?.message?.id?.trim() ??
-    undefined;
+  const eventId = firstEvent?.webhookEventId?.trim() ?? firstEvent?.message?.id?.trim() ?? undefined;
 
   return { ok: true, payload, eventId };
 };
@@ -58,11 +55,7 @@ export const lineVerifier: WebhookVerifier = (input, secret) => {
  * Exposed for unit testing - returns true iff HMAC-SHA256 of `rawBody` under
  * `secret` (Base64-encoded) matches `providedSignature`.
  */
-export function verifyLineSignature(
-  rawBody: Buffer | string,
-  providedSignature: string,
-  secret: string,
-): boolean {
+export function verifyLineSignature(rawBody: Buffer | string, providedSignature: string, secret: string): boolean {
   const provided = normalizeSignature(providedSignature);
   if (!provided) return false;
   const body = typeof rawBody === 'string' ? Buffer.from(rawBody, 'utf8') : rawBody;

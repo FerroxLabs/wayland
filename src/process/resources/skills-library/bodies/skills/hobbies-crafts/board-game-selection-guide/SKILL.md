@@ -15,14 +15,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "board-games research guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'board-games research guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Board Game Selection Guide
 
 ## When to Use
@@ -38,6 +39,7 @@ Use this skill when any of the following conditions are met:
 - The user asks about the difference between supported player count and optimal player count for any game
 
 **Do NOT use this skill when:**
+
 - The user wants tabletop RPG campaign design, worldbuilding, or adventure structure -- use `tabletop-rpg-campaign-builder` instead
 - The user wants strategy advice for a specific video game title -- use `video-game-strategy-guide-writer` instead
 - The user wants to set up streaming equipment or capture card software for broadcasting game sessions -- use `game-streaming-setup-guide` instead
@@ -70,14 +72,14 @@ The board game hobby uses a 1.0-5.0 complexity weight scale, where 1.0 is trivia
 
 **Experience-to-weight baseline mapping:**
 
-| Experience Descriptor | Examples They Have Played | Starting Weight Range |
-|---|---|---|
-| Non-gamer (no hobby games ever) | Go Fish, Monopoly, Uno | 1.0 -- 1.5 |
-| Mass-market casual | Catan (basic), Pictionary, Taboo | 1.5 -- 2.0 |
-| Gateway hobby gamer | Ticket to Ride, Pandemic, Sushi Go | 2.0 -- 2.5 |
-| Regular hobby gamer | Dominion, 7 Wonders, Wingspan | 2.5 -- 3.5 |
-| Experienced enthusiast | Viticulture, Arkham Horror, Spirit Island | 3.5 -- 4.5 |
-| Heavy game veteran | Twilight Imperium, Gloomhaven, Paths of Glory | 4.5 -- 5.0 |
+| Experience Descriptor           | Examples They Have Played                     | Starting Weight Range |
+| ------------------------------- | --------------------------------------------- | --------------------- |
+| Non-gamer (no hobby games ever) | Go Fish, Monopoly, Uno                        | 1.0 -- 1.5            |
+| Mass-market casual              | Catan (basic), Pictionary, Taboo              | 1.5 -- 2.0            |
+| Gateway hobby gamer             | Ticket to Ride, Pandemic, Sushi Go            | 2.0 -- 2.5            |
+| Regular hobby gamer             | Dominion, 7 Wonders, Wingspan                 | 2.5 -- 3.5            |
+| Experienced enthusiast          | Viticulture, Arkham Horror, Spirit Island     | 3.5 -- 4.5            |
+| Heavy game veteran              | Twilight Imperium, Gloomhaven, Paths of Glory | 4.5 -- 5.0            |
 
 **Safety margin rule:** Always recommend 0.5 weight points below the group's apparent baseline. A group that correctly self-identifies as "regular gamers" should start at 2.5, not 3.5. A game that feels slightly easy generates confidence and enthusiasm. A game that feels too hard on first play generates frustration and often ends the game night -- and sometimes ends the hobby for new players.
 
@@ -91,20 +93,20 @@ Every board game is built on one or more core mechanical systems. Matching the m
 
 **Primary social style to mechanic mapping:**
 
-| Social Style | Core Mechanic | What Players Actually Do | Conflict Level |
-|---|---|---|---|
-| Reading people, catching liars | Social deduction | Hold hidden roles; deduce, accuse, and bluff | High indirect |
-| Building something that grows | Engine building | Develop a personal system that generates compounding output | Low-medium |
-| Competing for territory | Area control | Deploy units to claim and hold map regions | High direct |
-| Collecting and completing sets | Set collection | Gather matching or complementary cards/tokens for points | Low-medium |
-| Strategic resource management | Worker placement | Assign limited action pawns to spaces that produce resources | Medium |
-| Surviving together against difficulty | Cooperative | All players share information and coordinate to beat the game system | None (vs. game) |
-| Combining cards for powerful effects | Deck building | Start with weak cards, buy better cards, optimize a personal deck | Low-medium |
-| Storytelling and branching choices | Narrative/adventure | Make decisions that advance a story with persistent consequences | Variable |
-| Fast, chaotic fun | Real-time | Simultaneously complete tasks before a timer or faster opponent | High excitement |
-| Negotiating deals and alliances | Trading/diplomacy | Propose, negotiate, and break deals with other players | Very high indirect |
-| Spatial reasoning and placement | Tile/pattern building | Place physical tiles or tokens to create configurations for points | Low-medium |
-| Probability and risk management | Push-your-luck | Decide when to stop pressing for more rewards before losing everything | Medium |
+| Social Style                          | Core Mechanic         | What Players Actually Do                                               | Conflict Level     |
+| ------------------------------------- | --------------------- | ---------------------------------------------------------------------- | ------------------ |
+| Reading people, catching liars        | Social deduction      | Hold hidden roles; deduce, accuse, and bluff                           | High indirect      |
+| Building something that grows         | Engine building       | Develop a personal system that generates compounding output            | Low-medium         |
+| Competing for territory               | Area control          | Deploy units to claim and hold map regions                             | High direct        |
+| Collecting and completing sets        | Set collection        | Gather matching or complementary cards/tokens for points               | Low-medium         |
+| Strategic resource management         | Worker placement      | Assign limited action pawns to spaces that produce resources           | Medium             |
+| Surviving together against difficulty | Cooperative           | All players share information and coordinate to beat the game system   | None (vs. game)    |
+| Combining cards for powerful effects  | Deck building         | Start with weak cards, buy better cards, optimize a personal deck      | Low-medium         |
+| Storytelling and branching choices    | Narrative/adventure   | Make decisions that advance a story with persistent consequences       | Variable           |
+| Fast, chaotic fun                     | Real-time             | Simultaneously complete tasks before a timer or faster opponent        | High excitement    |
+| Negotiating deals and alliances       | Trading/diplomacy     | Propose, negotiate, and break deals with other players                 | Very high indirect |
+| Spatial reasoning and placement       | Tile/pattern building | Place physical tiles or tokens to create configurations for points     | Low-medium         |
+| Probability and risk management       | Push-your-luck        | Decide when to stop pressing for more rewards before losing everything | Medium             |
 
 **Hybrid preference handling:** Most groups express two preferences. When this happens, look for games that combine both mechanics (e.g., a group that likes both engine building and cooperative play should look for cooperative games with distinct player roles that each build separate asymmetric powers). Note that some mechanic pairings are rare -- social deduction plus heavy worker placement is unusual, and if a user asks for that combination, acknowledge the tension and recommend them separately.
 
@@ -117,6 +119,7 @@ When the user has a shortlist of games they are considering -- either games they
 **Criterion definitions and scoring anchors:**
 
 **Player Count Match (20% weight)**
+
 - Score 5: The game's "best at" count exactly matches the group size
 - Score 4: The group size is within 1 of the "best at" count
 - Score 3: The game supports the group size but "best at" is 2+ players different
@@ -125,6 +128,7 @@ When the user has a shortlist of games they are considering -- either games they
 - Critical note: Never rely on the box's listed minimum-maximum range alone. Research the "best at" count from player reviews and designer notes. A game listed as "2-6 players" may be genuinely excellent at 4 and nearly unplayable at 6.
 
 **Complexity Match (20% weight)**
+
 - Score 5: The game's rated weight is within 0.3 of the target weight range
 - Score 4: The game's weight is within 0.5 of the target range
 - Score 3: The game's weight is 0.5-1.0 outside the target range but in the "lighter" direction
@@ -132,6 +136,7 @@ When the user has a shortlist of games they are considering -- either games they
 - Score 1: The game's weight is 1.0+ heavier than the target range
 
 **Playtime Match (15% weight)**
+
 - Score 5: The game's actual play time (with teach time added) fits within 80% of available session time
 - Score 4: The game fits with normal efficiency but not if rules take long to learn
 - Score 3: The game is possible but leaves little buffer for a second game or late start
@@ -140,6 +145,7 @@ When the user has a shortlist of games they are considering -- either games they
 - Teach time formula: add 20 minutes for a weight 1.5-2.0 game, 30-45 minutes for 2.0-3.0, 45-60 minutes for 3.0+, on the first play only. Subsequent plays require no teach time adjustment.
 
 **Mechanic Match (20% weight)**
+
 - Score 5: The primary mechanic directly matches the group's stated social preference
 - Score 4: A secondary mechanic matches the preference, or the primary is adjacent
 - Score 3: The mechanic is neutral -- neither a match nor a conflict with preference
@@ -147,11 +153,13 @@ When the user has a shortlist of games they are considering -- either games they
 - Score 1: The mechanic directly conflicts with a stated preference (e.g., heavy direct conflict for a conflict-averse group)
 
 **Theme Appeal (10% weight)**
+
 - Score 5: The theme directly matches a stated group preference
 - Score 3: No theme preference stated -- treat as neutral and apply to all games equally
 - Score 1: The theme falls into a category the group has flagged as off-putting
 
 **Replayability (15% weight)**
+
 - Score 5: Variable setup with multiple distinct strategies, asymmetric player powers, or modular board/scenario system. Each play feels genuinely different.
 - Score 4: High variance through card randomization or player interaction but same strategic arc
 - Score 3: Moderate replay -- the game is fun multiple times but the experience converges after 5-6 plays
@@ -159,6 +167,7 @@ When the user has a shortlist of games they are considering -- either games they
 - Score 1: The game has a single "solved" path, no variable setup, or relies on a hidden-information reveal that loses impact on repeat plays
 
 **Scoring interpretation:**
+
 - 4.5 -- 5.0: Exceptional match. Strongly recommend.
 - 4.0 -- 4.4: Strong match. Recommend.
 - 3.5 -- 3.9: Good match with one notable weakness. Recommend with caveat.
@@ -206,6 +215,7 @@ The centerpiece game. Teach the rules using the progressive disclosure method: e
 A light, quick game that provides closure without demanding full attention. People are tired, conversation has shifted to social, and not everyone wants to commit to another full game. Real-time games, push-your-luck card games, or light deduction games fill this slot. The wind-down filler should be completable even if one player needs to leave early.
 
 **Analysis paralysis mitigation:**
+
 - Pre-agree on a per-turn time limit before starting competitive games: 60 seconds for light games, 90 seconds for medium, 2 minutes for heavy
 - Use a physical timer visible to all players rather than relying on social pressure
 - For first plays, suspend turn timers entirely -- the goal is learning, not speed
@@ -218,12 +228,14 @@ When the group has only one game and three hours, adjust: play the main game twi
 Teach the user how to research and verify games independently, since specific titles can go out of print or be replaced by new editions.
 
 **The four-source verification method:**
+
 1. **Weight and mechanics:** Look up any candidate game and verify its complexity weight rating and primary mechanic category. The weight score from a large community database is based on thousands of plays and is a reliable predictor of how experienced the game feels.
 2. **Player count reviews:** Search specifically for reviews mentioning your exact player count. Search strings like "game name + 5 players" or "game name + 2 player review" surface player-count-specific feedback that box descriptions never provide.
 3. **First play experience:** Look for "first play" or "learning game" impressions specifically -- not veteran strategy reviews. A game can be excellent for experienced players while being a nightmare to teach.
 4. **Teach time estimates:** Search for "how long does it take to teach [game name]" or "rulebook length [game name]." These estimates will not appear on the box and are critical for realistic session planning.
 
 **Red flags to look for during research:**
+
 - Reviews that mention "the first game always ends early because someone made an irreversible mistake" -- indicates a game with unforgiving early rules
 - Editions confusion (multiple versions with incompatible rule differences) -- verify which edition is current before purchasing
 - Out-of-print status with no reprint announced -- the secondary market price may be inflated beyond budget
@@ -377,6 +389,7 @@ Produce all seven sections below for every recommendation request. Do not omit s
 Solo gaming is a significant and growing segment of the hobby, not a niche exception. Many games have robust solo modes, and some games are designed exclusively for one player.
 
 When recommending for solo play:
+
 - Remove the weight ceiling constraint entirely. There is no weakest-link problem in solo play. The player can pause, re-read rules, and take as long as needed.
 - Prioritize puzzle-style optimization games (the player solves a spatial or resource puzzle), campaign games with persistent narrative (decisions carry forward across sessions creating a personal story), and asymmetric challenge games (the player faces a game system that escalates difficulty).
 - Evaluate replay value with higher weight (increase replayability criterion from 15% to 30%) since a solo player plays the same game far more often than group players who rotate titles.
@@ -388,6 +401,7 @@ When recommending for solo play:
 Groups of 8 or more players create a structural problem: virtually no hobby strategy games are designed for this count. Most hobby games that list large player counts (like certain social deduction games) are specifically designed for large groups, but mainstream strategy games are not.
 
 Approaches in priority order:
+
 1. **Dedicated large-group games:** Some categories of games are explicitly designed for 6-12 players -- team-based trivia games, large-group social deduction games, party word games, and some negotiation games. These fill the full-group slot.
 2. **Split tables:** For groups of 8+, split into two tables of 4 playing the same or different games simultaneously. This is often better for the experience than forcing 8 players into a game designed for 6. It requires owning two copies of a game or two compatible games at similar complexity.
 3. **Team variants:** Some games for 4 players can be extended to 8 by pairing players into teams who share a single game position. This works best in real-time games, word games, and light strategy games where sharing decisions adds comedy rather than analysis paralysis. It does not work for games with complex hidden information.
@@ -396,6 +410,7 @@ Approaches in priority order:
 ### Mixed Adult-Child Groups (Ages 5-12 with Adults)
 
 Children under age 8 need games that meet specific cognitive and physical design requirements:
+
 - Rules must be learnable by demonstration without reading (visual turn structure, iconography)
 - Winning should not be achievable through pure adult strategy advantage -- dexterity components, luck elements, or cooperative design levels the playing field
 - Session length must stay under 20 minutes for under-6, under 30 minutes for ages 6-8
@@ -411,6 +426,7 @@ Cooperative games are the best choice for all-ages groups: adults can support wi
 This is one of the most common and most recoverable scenarios. Almost every case of "we don't like board games" is a diagnosis problem, not a permanent preference.
 
 Diagnostic questions to ask:
+
 - What game did you play? (Determines if the problem was weight, mechanic, theme, or playtime)
 - How long did the session take? (If over 2 hours with new players, the game was too long regardless of quality)
 - Did anyone feel confused or lost? (Weight too high)
@@ -419,6 +435,7 @@ Diagnostic questions to ask:
 - Did anyone feel ganged up on? (Direct conflict too intense)
 
 Map the answer to the corrective recommendation:
+
 - Confusion and rules problems --> weight 1.5-2.0 with progressive disclosure teaching
 - Too long --> games under 45 minutes until the group is comfortable
 - Couldn't catch up --> cooperative games or games with catch-up mechanics (games where losing players receive benefits that help them recover)
@@ -444,6 +461,7 @@ Accessibility dimensions frequently go unstated but materially affect game selec
 Budget-constrained selection requires different criteria weighting: value per dollar becomes a primary filter, not an afterthought.
 
 Highest value categories in order:
+
 1. **Card games with small boxes ($10-18):** Many award-winning, well-designed card games retail in this range. Component count is lower but gameplay depth can be equivalent to $50+ games. Fast to teach, easy to transport.
 2. **Print-and-play games ($0-10):** A large library of licensed and free print-and-play games exists, requiring only a printer and scissors. Quality ranges from excellent to poor -- look for games that have won physical print-and-play awards or have large online communities. The component cost is paper and printer ink.
 3. **Used and secondhand market:** Popular hobby games from 3-7 years ago are frequently available used at 30-50% of retail. Verify that the used copy is the current edition, contains all components (use the publisher's component list), and has no water damage on cards.
@@ -464,21 +482,23 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 ## Board Game Selection Report
 
 ### Group Profile Summary
-| Dimension | Value | Confidence |
-|---|---|---|
-| Player count | 5 (consistent) | Stated |
-| Age range | Late 20s -- early 30s | Stated |
-| Experience level | Gateway-to-mid-weight (Ticket to Ride, Catan, Wingspan exposure) | Stated |
-| Session time | 7:00 PM -- 10:00 PM = 3 hours, adjusted to 2.5 hours usable | Stated |
-| Social preference | Mixed -- open to competitive and cooperative; one player conflict-averse | Stated |
-| Theme preference | No strong preference; avoid grim/war themes | Stated |
-| Budget per game | $40 -- $55 | Stated |
+
+| Dimension         | Value                                                                    | Confidence |
+| ----------------- | ------------------------------------------------------------------------ | ---------- |
+| Player count      | 5 (consistent)                                                           | Stated     |
+| Age range         | Late 20s -- early 30s                                                    | Stated     |
+| Experience level  | Gateway-to-mid-weight (Ticket to Ride, Catan, Wingspan exposure)         | Stated     |
+| Session time      | 7:00 PM -- 10:00 PM = 3 hours, adjusted to 2.5 hours usable              | Stated     |
+| Social preference | Mixed -- open to competitive and cooperative; one player conflict-averse | Stated     |
+| Theme preference  | No strong preference; avoid grim/war themes                              | Stated     |
+| Budget per game   | $40 -- $55                                                               | Stated     |
 
 **Critical flag:** One player explicitly dislikes games where other players can attack or steal from her. This eliminates all direct conflict and "take-that" mechanics from competitive game recommendations. Semi-cooperative (team vs. the game) and cooperative designs are strongly preferred for the main event. Competitive games in this collection must have indirect competition only -- racing to a goal, not attacking other players' progress.
 
 ---
 
 ### Complexity Target
+
 - **Recommended weight range:** 2.0 -- 3.0
 - **Ceiling weight (hard limit):** 3.0 (Wingspan is approximately 2.4-2.6; exceeding 3.0 significantly risks confusion on first play)
 - **Growth path:** After 6-8 game nights together, this group is well-positioned to step up to 3.0-3.5 if interest holds
@@ -488,11 +508,11 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 
 ### Mechanic Recommendations
 
-| Group Preference / Social Style | Primary Mechanic Match | Secondary Mechanic | Conflict to Avoid |
-|---|---|---|---|
-| Open to teamwork vs. the game | Cooperative with asymmetric roles | Semi-cooperative (team + traitor) | Player elimination; resource stealing; direct attack |
-| Strategic building (liked Catan, Wingspan) | Engine building | Set collection | Take-that card effects |
-| Competitive but indirect | Route/network building | Area majority (no direct displacement) | Direct conflict; area control with combat |
+| Group Preference / Social Style            | Primary Mechanic Match            | Secondary Mechanic                     | Conflict to Avoid                                    |
+| ------------------------------------------ | --------------------------------- | -------------------------------------- | ---------------------------------------------------- |
+| Open to teamwork vs. the game              | Cooperative with asymmetric roles | Semi-cooperative (team + traitor)      | Player elimination; resource stealing; direct attack |
+| Strategic building (liked Catan, Wingspan) | Engine building                   | Set collection                         | Take-that card effects                               |
+| Competitive but indirect                   | Route/network building            | Area majority (no direct displacement) | Direct conflict; area control with combat            |
 
 **Mechanic notes:** The conflict-averse player's constraint rules out area control with combat, trading games with mandatory resource theft, and any "take-that" card mechanics. Indirect competition (racing to complete goals, optimizing your own engine faster than others) is acceptable. The best mechanic targets are engine building (builds personal systems without attacking others), route building (familiar from Ticket to Ride), and cooperative games where all five players win or lose together. Avoid negotiation games -- the social pressure to negotiate can feel coercive for conflict-averse players.
 
@@ -500,20 +520,21 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 
 ### Game Evaluation Rubric
 
-*This rubric is populated with three illustrative game profiles matching the search criteria. The user should verify all data before purchasing.*
+_This rubric is populated with three illustrative game profiles matching the search criteria. The user should verify all data before purchasing._
 
-| Criterion | Weight | Engine-Builder (weight ~2.4, 2-5p, 60-90 min, indirect competition) | Cooperative Adventure (weight ~2.5, 1-5p, 60-90 min) | Set Collection Race (weight ~2.0, 2-5p, 45-60 min) |
-|---|---|---|---|---|
-| Player count match | 20% | 5 / 5 (designed for up to 5, reviews positive at 5) | 4 / 5 (supports 5; some reviews prefer 3-4) | 5 / 5 (plays well at all counts to 5) |
-| Complexity match | 20% | 5 / 5 (weight ~2.4, directly in target range 2.0-3.0) | 5 / 5 (weight ~2.5, in range) | 4 / 5 (weight ~2.0, slightly light but accessible) |
-| Playtime match | 15% | 4 / 5 (60-90 min stated; first play ~105-120 min -- fits within 2.5 hr) | 4 / 5 (75-90 min stated; first play ~110 min -- fits tightly) | 5 / 5 (45-60 min stated; first play ~75 min -- leaves room for two games) |
-| Mechanic match | 20% | 5 / 5 (engine building, indirect competition -- matches group profile exactly) | 5 / 5 (cooperative with roles -- eliminates conflict, satisfies teamwork preference) | 4 / 5 (set collection race -- indirect, familiar feel to Ticket to Ride) |
-| Theme appeal | 10% | 3 / 5 (not grim; neutral theme -- no strong match but no conflict) | 4 / 5 (adventure theme, positive tone, no war or horror) | 3 / 5 (neutral/abstract theme) |
-| Replayability | 15% | 5 / 5 (variable card market, multiple engine strategies, high variance) | 4 / 5 (scenario-based or modular, different difficulty levels) | 3 / 5 (moderate replay; strategy converges after 8-10 plays) |
-| **Weighted total** | | **4.65** | **4.45** | **4.10** |
-| **Recommendation** | | **Yes -- strong fit** | **Yes -- strong fit** | **Yes -- good backup** |
+| Criterion          | Weight | Engine-Builder (weight ~2.4, 2-5p, 60-90 min, indirect competition)            | Cooperative Adventure (weight ~2.5, 1-5p, 60-90 min)                                 | Set Collection Race (weight ~2.0, 2-5p, 45-60 min)                        |
+| ------------------ | ------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Player count match | 20%    | 5 / 5 (designed for up to 5, reviews positive at 5)                            | 4 / 5 (supports 5; some reviews prefer 3-4)                                          | 5 / 5 (plays well at all counts to 5)                                     |
+| Complexity match   | 20%    | 5 / 5 (weight ~2.4, directly in target range 2.0-3.0)                          | 5 / 5 (weight ~2.5, in range)                                                        | 4 / 5 (weight ~2.0, slightly light but accessible)                        |
+| Playtime match     | 15%    | 4 / 5 (60-90 min stated; first play ~105-120 min -- fits within 2.5 hr)        | 4 / 5 (75-90 min stated; first play ~110 min -- fits tightly)                        | 5 / 5 (45-60 min stated; first play ~75 min -- leaves room for two games) |
+| Mechanic match     | 20%    | 5 / 5 (engine building, indirect competition -- matches group profile exactly) | 5 / 5 (cooperative with roles -- eliminates conflict, satisfies teamwork preference) | 4 / 5 (set collection race -- indirect, familiar feel to Ticket to Ride)  |
+| Theme appeal       | 10%    | 3 / 5 (not grim; neutral theme -- no strong match but no conflict)             | 4 / 5 (adventure theme, positive tone, no war or horror)                             | 3 / 5 (neutral/abstract theme)                                            |
+| Replayability      | 15%    | 5 / 5 (variable card market, multiple engine strategies, high variance)        | 4 / 5 (scenario-based or modular, different difficulty levels)                       | 3 / 5 (moderate replay; strategy converges after 8-10 plays)              |
+| **Weighted total** |        | **4.65**                                                                       | **4.45**                                                                             | **4.10**                                                                  |
+| **Recommendation** |        | **Yes -- strong fit**                                                          | **Yes -- strong fit**                                                                | **Yes -- good backup**                                                    |
 
 **Weighted calculation example (Engine-Builder):**
+
 - Player count: 5 × 0.20 = 1.00
 - Complexity: 5 × 0.20 = 1.00
 - Playtime: 4 × 0.15 = 0.60
@@ -523,6 +544,7 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 - **Total: 4.65**
 
 **Research checklist before purchasing:**
+
 - [ ] Verify weight rating from community database for each candidate
 - [ ] Search "game name + 5 players" to confirm experience at that count
 - [ ] Search "game name + first play" to confirm teachability
@@ -534,13 +556,13 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 
 ### Collection Blueprint
 
-| Slot | Function | Target Weight | Target Players | Target Playtime | Priority |
-|---|---|---|---|---|---|
-| 1. Icebreaker | Arrival / warm-up | 1.0 -- 1.5 | 4 -- 8+ | 15-25 min | Buy first |
-| 2. Gateway | Already covered (Ticket to Ride, Catan in hand) | -- | -- | -- | Already owned |
-| 3. Main event (indirect competitive) | Centerpiece / engine builder | 2.0 -- 3.0 | 3 -- 5 | 60-90 min | Buy first |
-| 4. Cooperative | Conflict-free option | 2.0 -- 3.0 | 2 -- 5 | 60-90 min | Buy first |
-| 5. Two-player | Date night / small group | 2.0 -- 3.0 | Exactly 2 | 30-60 min | Buy when needed |
+| Slot                                 | Function                                        | Target Weight | Target Players | Target Playtime | Priority        |
+| ------------------------------------ | ----------------------------------------------- | ------------- | -------------- | --------------- | --------------- |
+| 1. Icebreaker                        | Arrival / warm-up                               | 1.0 -- 1.5    | 4 -- 8+        | 15-25 min       | Buy first       |
+| 2. Gateway                           | Already covered (Ticket to Ride, Catan in hand) | --            | --             | --              | Already owned   |
+| 3. Main event (indirect competitive) | Centerpiece / engine builder                    | 2.0 -- 3.0    | 3 -- 5         | 60-90 min       | Buy first       |
+| 4. Cooperative                       | Conflict-free option                            | 2.0 -- 3.0    | 2 -- 5         | 60-90 min       | Buy first       |
+| 5. Two-player                        | Date night / small group                        | 2.0 -- 3.0    | Exactly 2      | 30-60 min       | Buy when needed |
 
 **Collection gap analysis:**
 | Existing Game | Fills Slot | Notes |
@@ -552,6 +574,7 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 **Key insight from gap analysis:** The group already owns a strong main event game (Wingspan). The priority purchases should be an icebreaker (Slot 1) and a cooperative game (Slot 4). The group does not need a second indirect competitive game until they exhaust Wingspan's replay value (~15-20 plays).
 
 **Revised purchase priority:**
+
 1. Icebreaker game ($15-25) -- fills a slot not yet owned, solves the arrival period problem
 2. Cooperative main event ($40-55) -- fills Slot 4, provides the conflict-free evening option
 3. Two-player game ($30-45) -- fills Slot 5 for smaller gatherings
@@ -560,14 +583,15 @@ Recommend buying two inexpensive games ($12-18 each) over one expensive game ($5
 
 ### Game Night Schedule
 
-| Time Block | Game Slot | Notes |
-|---|---|---|
-| 7:00 -- 7:25 PM | Icebreaker | Works with 3+ players; latecomers join in progress; no elimination |
-| 7:25 -- 7:35 PM | Rules teach for main game | Progressive disclosure method (see teaching plan below) |
-| 7:35 -- 9:30 PM | Main event | Alternate monthly: cooperative one month, Wingspan the next |
+| Time Block       | Game Slot                      | Notes                                                               |
+| ---------------- | ------------------------------ | ------------------------------------------------------------------- |
+| 7:00 -- 7:25 PM  | Icebreaker                     | Works with 3+ players; latecomers join in progress; no elimination  |
+| 7:25 -- 7:35 PM  | Rules teach for main game      | Progressive disclosure method (see teaching plan below)             |
+| 7:35 -- 9:30 PM  | Main event                     | Alternate monthly: cooperative one month, Wingspan the next         |
 | 9:30 -- 10:00 PM | Wind-down filler or discussion | Light card game; or if the main event ran to 9:45, skip and debrief |
 
 **Teaching plan for new main event game:**
+
 1. "The goal is to [win condition in one sentence -- e.g., 'have the most points at the end of 7 rounds']"
 2. "On your turn you do one of these [2-4 options] -- here's what each one does" (2 minutes maximum)
 3. "The only thing that can end your game early is [instant failure condition, if any]"

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide woodworking stress-management beginner-friendly testing research safety cooking"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide woodworking stress-management beginner-friendly testing research safety cooking'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Vintage Clothing Restorer
 
 You are an expert vintage clothing restorer who helps collectors, sellers, and enthusiasts clean, repair, date, authenticate, and properly store vintage garments. You understand textile care across decades, from delicate 1920s silk to robust 1980s denim, and balance wearability with preservation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about vintage clothing restorer techniques or best practices
 - User needs guidance on vintage clothing restorer concepts
 - User wants to implement or improve their approach to vintage clothing restorer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of vintage clothing restorer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -342,16 +343,15 @@ Pricing research:
 
 ### Selling Platforms
 
-| Platform | Best For | Fees | Audience |
-|----------|----------|------|----------|
-| eBay | All vintage, wide reach | 13-15% | Broadest |
-| Etsy | Curated vintage, handmade | 6.5% + listing | Vintage enthusiasts |
-| Depop | 1990s-2000s, trendy pieces | 10% | Gen Z, younger buyers |
-| Poshmark | Designer, brand-name vintage | 20% | Fashion-conscious |
-| Instagram | Direct sales, brand building | 0% (your own marketing) | Followers |
-| Consignment shops | High-end vintage | 40-60% commission | Local buyers |
-| Vintage fairs | All vintage, in-person | Table fee ($50-200) | Enthusiasts |
-
+| Platform          | Best For                     | Fees                    | Audience              |
+| ----------------- | ---------------------------- | ----------------------- | --------------------- |
+| eBay              | All vintage, wide reach      | 13-15%                  | Broadest              |
+| Etsy              | Curated vintage, handmade    | 6.5% + listing          | Vintage enthusiasts   |
+| Depop             | 1990s-2000s, trendy pieces   | 10%                     | Gen Z, younger buyers |
+| Poshmark          | Designer, brand-name vintage | 20%                     | Fashion-conscious     |
+| Instagram         | Direct sales, brand building | 0% (your own marketing) | Followers             |
+| Consignment shops | High-end vintage             | 40-60% commission       | Local buyers          |
+| Vintage fairs     | All vintage, in-person       | Table fee ($50-200)     | Enthusiasts           |
 
 ## Process
 
@@ -360,7 +360,6 @@ Pricing research:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -381,14 +380,12 @@ Pricing research:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

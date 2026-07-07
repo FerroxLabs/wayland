@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "life-coach goal-setter retirement-planner habit-tracker"
+skills: 'life-coach goal-setter retirement-planner habit-tracker'
 trigger_phrases: >-
   I want to plan my retirement help me plan for retirement retirement lifestyle
   planning what to do in retirement preparing for retirement retirement
@@ -24,10 +24,11 @@ metadata:
     retirement-planning habits personal-finance health-wellness step-by-step
     planning
   category: life-event
-  depends: "life-coach goal-setter retirement-planner habit-tracker"
+  depends: 'life-coach goal-setter retirement-planner habit-tracker'
   disclaimer: educational-finance
   difficulty: intermediate
 ---
+
 # Plan Retirement Lifestyle
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -179,6 +180,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

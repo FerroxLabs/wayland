@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step sustainability"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'guide step-by-step sustainability'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Beekeeping Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on beekeeping guide
 - User asks about beekeeping guide best practices or techniques
 - User wants a structured approach to beekeeping guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of beekeeping guide
 
@@ -58,9 +59,11 @@ Before starting a beekeeping journey:
 ## Bee Biology Basics
 
 ### The Honey Bee Colony
+
 A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 
 **Queen Bee (One per colony)**
+
 - Only sexually mature female
 - Lays up to 2,000 eggs per day at peak
 - Lives 2-5 years
@@ -68,6 +71,7 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 - Produces pheromones that regulate colony behavior
 
 **Worker Bees (Female, 20,000-60,000)**
+
 - All female, cannot reproduce (usually)
 - Live 6 weeks in summer, 4-6 months in winter
 - Age-based roles:
@@ -77,17 +81,20 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
   - Days 18+: Forage for nectar, pollen, water, propolis
 
 **Drone Bees (Male, 500-2,000)**
+
 - Only purpose: Mate with queens from other colonies
 - Cannot sting (no stinger)
 - Larger than workers, big compound eyes
 - Expelled from hive before winter (no longer needed, resource drain)
 
 ### The Brood Cycle
+
 - Egg (3 days) > Larva (6 days) > Pupa (12 days for workers) > Adult
 - Total: 21 days for workers, 16 days for queens, 24 days for drones
 - Understanding the brood cycle helps you read the hive during inspections
 
 ### How Bees Make Honey
+
 1. Foragers collect nectar from flowers (store in honey stomach)
 2. Return to hive, pass nectar to house bees
 3. House bees process nectar: enzymes break down complex sugars
@@ -98,6 +105,7 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 ## Hive Types
 
 ### Langstroth Hive (Most Common)
+
 - Stacked rectangular boxes with removable frames
 - Most widely used worldwide, standard equipment fits
 - Easy to inspect, manage, and extract honey
@@ -107,6 +115,7 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 - **Cost**: $200-350 per assembled hive
 
 ### Top-Bar Hive
+
 - Horizontal design, bars across the top, bees build natural comb
 - No heavy lifting (no stacking boxes)
 - More natural comb construction (bees choose cell size)
@@ -116,6 +125,7 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 - **Cost**: $150-300
 
 ### Warre Hive
+
 - Vertical like Langstroth but with top bars instead of frames
 - Boxes added to the bottom (nadiring) rather than top
 - Minimal intervention philosophy
@@ -123,11 +133,13 @@ A colony is a superorganism of 20,000-60,000 bees functioning as a single unit.
 - **Cost**: $200-300
 
 ### Recommendation
+
 For beginners: **Langstroth hive**. Best educational resources, most mentors use it, standardized equipment, easiest to learn proper management.
 
 ## Equipment Checklist
 
 ### Essential Equipment
+
 - **Hive**: Complete Langstroth (bottom board, 2 deep boxes, frames with foundation, inner cover, outer cover) - $200-350
 - **Protective gear**: Jacket with veil or full suit ($40-100), gloves ($15-25)
 - **Smoker**: Calms bees during inspection ($25-40)
@@ -137,6 +149,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - **Bees**: Package (3 lbs bees + queen) or nucleus colony (5 frames with brood and queen)
 
 ### Nice to Have
+
 - **Entrance reducer**: Protects weak colonies, manages traffic ($3-5)
 - **Queen excluder**: Keeps queen out of honey supers ($10-15)
 - **Feeder** (multiple types): Feeds sugar syrup to new or struggling colonies ($8-20)
@@ -146,21 +159,22 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 
 ## Getting Started Costs
 
-| Item | Budget | Mid-Range | Premium |
-|------|--------|-----------|---------|
-| First hive (assembled) | $200 | $300 | $400 |
-| Second hive (recommended) | $200 | $300 | $400 |
-| Protective gear | $40 | $80 | $150 |
-| Smoker and tools | $40 | $60 | $80 |
-| Package bees (x2) | $300 | $400 | $500 |
-| Feeder and supplies | $30 | $50 | $80 |
-| **Total** | **$810** | **$1,190** | **$1,610** |
+| Item                      | Budget   | Mid-Range  | Premium    |
+| ------------------------- | -------- | ---------- | ---------- |
+| First hive (assembled)    | $200     | $300       | $400       |
+| Second hive (recommended) | $200     | $300       | $400       |
+| Protective gear           | $40      | $80        | $150       |
+| Smoker and tools          | $40      | $60        | $80        |
+| Package bees (x2)         | $300     | $400       | $500       |
+| Feeder and supplies       | $30      | $50        | $80        |
+| **Total**                 | **$810** | **$1,190** | **$1,610** |
 
 **Why start with two hives**: You can compare colonies (is that behavior normal?), transfer resources between them, and if one queen fails, you have eggs from the other colony to raise a new queen.
 
 ## Where to Get Bees
 
 ### Package Bees ($150-250)
+
 - 3 lbs of bees (approximately 10,000) with a caged queen
 - Installed into prepared hive
 - Queen releases from cage over 3-5 days (colony acclimates to her pheromones)
@@ -168,6 +182,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - Order by January/February (they sell out)
 
 ### Nucleus Colony ("Nuc") ($175-300)
+
 - 5 frames with established brood, honey, pollen, and a laying queen
 - Stronger start than a package
 - Already functioning as a colony
@@ -175,6 +190,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - Generally recommended over packages for beginners
 
 ### Catching a Swarm (Free)
+
 - Swarm lists through local beekeeping associations
 - Experienced beekeeper assistance recommended for first swarm
 - Free bees, but genetics and health unknown
@@ -183,6 +199,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 ## Seasonal Management
 
 ### Spring (March-May)
+
 - **First inspection**: Check for queen (look for eggs - tiny grains of rice standing in cells)
 - **Feed**: 1:1 sugar syrup if stores are low (stimulates brood production)
 - **Expand**: Add frames/boxes as population grows
@@ -191,6 +208,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - **Install new colonies**: Package bees or nucs
 
 ### Summer (June-August)
+
 - **Honey flow**: Primary nectar collection period
 - **Add supers**: Honey supers go on when bees fill frames
 - **Monitor**: Check for queen, brood pattern, disease signs
@@ -199,6 +217,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - **Harvest**: First honey harvest possible in late summer of second year (do not harvest first year in most cases)
 
 ### Fall (September-November)
+
 - **Assess stores**: Colony needs 60-90 lbs of honey for winter (varies by climate)
 - **Feed**: 2:1 sugar syrup if stores are insufficient
 - **Varroa treatment**: Critical treatment window (see pest management below)
@@ -207,6 +226,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - **Ensure young queen**: Colonies with old queens have higher winter failure
 
 ### Winter (December-February)
+
 - **Minimal disturbance**: Do not open hive unless absolutely necessary
 - **Ventilation**: Ensure moisture can escape (moisture kills more colonies than cold)
 - **Emergency feeding**: Fondant or sugar board if stores run low
@@ -217,12 +237,14 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 ## Inspection Routines
 
 ### When to Inspect
+
 - Every 7-10 days during active season (spring through fall)
 - Choose warm, sunny, calm days (above 60F)
 - Midday is best (many foragers are out, fewer bees in hive)
 - Brief inspections: 10-15 minutes per hive
 
 ### Inspection Procedure
+
 1. Light smoker (use natural fuel: pine needles, burlap, cotton)
 2. Approach hive from the side or rear (not blocking the entrance)
 3. Puff 2-3 gentle smoke puffs at entrance, wait 30 seconds
@@ -241,6 +263,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 9. Record observations in hive log
 
 ### What NOT to Do During Inspections
+
 - Do not crush bees (especially the queen) - move slowly and deliberately
 - Do not bang frames or boxes together
 - Do not breathe on the bees (CO2 agitates them)
@@ -250,12 +273,14 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 ## Honey Harvest
 
 ### When to Harvest
+
 - Frames are at least 80% capped (wax cap over each cell)
 - Only harvest surplus - leave enough for the bees (60-90 lbs minimum for winter)
 - First-year colonies typically produce little to no surplus
 - Most harvests happen late summer to early fall
 
 ### Harvest Process (Langstroth)
+
 1. Remove honey supers from hive (bee escape boards, fume boards, or brush bees off)
 2. Bring frames to extraction area (clean, screened from bees)
 3. Uncap cells with uncapping knife or fork
@@ -267,6 +292,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 9. Return wet supers to hive for bees to clean
 
 ### Yields
+
 - Average first-year surplus: 0-30 lbs (often none)
 - Average established colony: 30-60 lbs per year
 - Exceptional colonies/years: 100+ lbs
@@ -275,6 +301,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 ## Disease and Pest Management
 
 ### Varroa Mites (Most Critical Threat)
+
 - Parasitic mite that feeds on bee fat bodies and transmits viruses
 - Present in virtually every colony worldwide
 - If left untreated, colony will die within 1-3 years
@@ -290,6 +317,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - Treat in late summer/early fall to protect winter bees
 
 ### American Foulbrood (AFB)
+
 - Bacterial disease that kills larvae
 - **Symptoms**: Sunken, perforated cappings; ropy brown residue when toothpick inserted in cell; foul smell
 - **Extremely serious**: Spores survive decades
@@ -297,17 +325,20 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - No treatment that saves the colony; prevention through hygienic bee stock
 
 ### Nosema
+
 - Microsporidian gut parasite
 - Causes dysentery (fecal streaks on hive front)
 - Weakens colony, especially in spring
 - Prevention: Good ventilation, strong colonies, young queens
 
 ### Small Hive Beetle
+
 - Dark beetle that lays eggs in hive; larvae destroy comb
 - Common in southern US
 - Management: Strong colonies (bees control beetle population), beetle traps, reduce hive space
 
 ### Wax Moths
+
 - Larvae tunnel through comb, especially in weak colonies or stored equipment
 - Strong colonies handle wax moths easily
 - Store empty supers in cold or with paramoth crystals (not in the hive)
@@ -315,6 +346,7 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 ## Local Regulations
 
 ### Before Getting Bees, Check:
+
 - City/county ordinances on beekeeping (many cities now allow it, some restrict hive numbers or placement)
 - Required setback distances from property lines and structures
 - Registration requirements (many states require hive registration)
@@ -354,7 +386,6 @@ For beginners: **Langstroth hive**. Best educational resources, most mentors use
 - **Online courses**: Penn State Master Beekeeper program, University of Montana online beekeeping
 - **Suppliers**: Mann Lake, Dadant, Brushy Mountain, Betterbee
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -367,13 +398,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with beekeeping guide for a mid-size project."
 
 **Output:** A complete beekeeping guide framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

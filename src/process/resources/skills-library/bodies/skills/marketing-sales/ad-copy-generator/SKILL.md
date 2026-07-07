@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing-copy marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing-copy marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Ad Copy Generator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on ad copy generator
 - User asks about ad copy generator best practices or techniques
 - User wants a structured approach to ad copy generator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of ad copy generator
+
 ## Questions to Ask the User First
 
 1. **What platform(s) are you advertising on?** (Google, Facebook, Instagram, LinkedIn, TikTok, YouTube)
@@ -51,10 +53,13 @@ metadata:
 8. **What landing page will ads link to?**
 9. **Do you have any brand guidelines or restrictions?** (Tone, words to avoid)
 10. **What has worked or not worked in past ads?**
+
 ---
+
 ## Step 1: Google Ads Copy
 
 ### Search Ads (Responsive Search Ads)
+
 ```
 GOOGLE RESPONSIVE SEARCH AD TEMPLATE
 
@@ -107,6 +112,7 @@ GOOGLE ADS COPY RULES:
 ```
 
 ### Google Ad Extensions
+
 ```
 AD EXTENSIONS (now called Assets)
 
@@ -144,10 +150,13 @@ PROMOTION EXTENSION:
   Promo code: {{code}} (optional)
   Dates: {{start}} - {{end}}
 ```
+
 ---
+
 ## Step 2: Facebook/Instagram Ad Copy
 
 ### Ad Format Templates
+
 ```
 FACEBOOK/INSTAGRAM AD COPY TEMPLATES
 FORMAT 1: SINGLE IMAGE/VIDEO AD
@@ -192,6 +201,7 @@ Story ad rules:
 ```
 
 ### Facebook Ad Copy by Funnel Stage
+
 ```
 AD COPY BY FUNNEL STAGE
 
@@ -237,8 +247,11 @@ BOTTOM OF FUNNEL (Hot audience, conversion):
 
   Do not miss out. Tap below."
 ```
+
 ---
+
 ## Step 3: LinkedIn Ad Copy
+
 ```
 LINKEDIN AD FORMATS AND TEMPLATES
 
@@ -290,8 +303,11 @@ LINKEDIN AD COPY RULES:
 - [ ] Include company credibility (customers, results, awards)
 - [ ] CTA is clear and professional
 ```
+
 ---
+
 ## Step 4: Ad Copywriting Formulas
+
 ```
 UNIVERSAL AD COPY FORMULAS
 
@@ -325,8 +341,11 @@ FORMULA 9: CURIOSITY
 FORMULA 10: COMPARISON
   "Stop using {{old_way}} for {{task}}. {{Product}} is {{better_by_X}}."
 ```
+
 ---
+
 ## Step 5: A/B Test Variations
+
 ```
 AD A/B TESTING FRAMEWORK
 WHAT TO TEST (one variable at a time):
@@ -378,8 +397,11 @@ TEST TRACKING LOG:
 | 2      | CTA      | {{}}      | {{}}      | {{}}   | {{}}%       | {{}} |
 | 3      | Image    | {{}}      | {{}}      | {{}}   | {{}}%       | {{}} |
 ```
+
 ---
+
 ## Step 6: Retargeting Ad Copy
+
 ```
 RETARGETING AD COPY STRATEGY
 AUDIENCE: Website visitors who did not convert
@@ -426,8 +448,11 @@ RETARGETING RULES:
 - [ ] Use burn pixels to stop showing ads after conversion
 - [ ] Decrease bid/budget as time from visit increases
 ```
+
 ---
+
 ## Step 7: Compliance Guidelines
+
 ```
 AD COMPLIANCE CHECKLIST
 
@@ -465,8 +490,11 @@ GENERAL COMPLIANCE:
 - [ ] Terms and conditions for offers are accessible
 - [ ] Privacy policy is current and accessible from landing page
 ```
+
 ---
+
 ## Step 8: Performance Metrics
+
 ```
 AD PERFORMANCE DASHBOARD
 
@@ -516,7 +544,9 @@ REPORTING CADENCE:
   Monthly: Full performance review, budget reallocation, creative refresh
   Quarterly: Strategy review, channel mix optimization, audience expansion
 ```
+
 ---
+
 ## Output Checklist
 
 - [ ] Ad copy follows platform-specific character limits and guidelines
@@ -530,7 +560,6 @@ REPORTING CADENCE:
 - [ ] Performance metrics are tracked and optimization actions are defined
 - [ ] Creative refresh schedule is established (every 2-3 weeks)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +572,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with ad copy generator for a mid-size project."
 
 **Output:** A complete ad copy generator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -5,14 +5,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning checklist cooking"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning checklist cooking'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Catering Planner
 
 ## When to Use
@@ -20,6 +21,7 @@ metadata:
 Use this skill when the user needs structured, expert-level help planning catering for a real event -- from initial concept through cleanup.
 
 **Trigger scenarios -- use this skill when the user:**
+
 - Is organizing an event (wedding, corporate function, fundraiser, birthday, holiday party, memorial, baby shower, retirement, bar/bat mitzvah, graduation, or similar) and needs a complete catering plan
 - Needs to calculate food and beverage quantities for a specific guest count and service style
 - Is building a catering budget and needs per-head cost breakdowns, vendor evaluation criteria, or cost-saving strategies
@@ -32,6 +34,7 @@ Use this skill when the user needs structured, expert-level help planning cateri
 - Wants a day-of catering checklist or event timeline for kitchen and service staff
 
 **Do NOT use this skill when:**
+
 - The user needs help planning non-food elements of an event such as venue selection, floral design, entertainment, or guest list management -- use an event-planning or venue-selection skill instead
 - The user is asking about restaurant operations, commercial kitchen management, or food service business planning -- these require a food service operations skill
 - The request is about recipe development or cooking technique at a non-event level -- use a culinary skills or recipe development skill
@@ -75,29 +78,29 @@ Apply the quantity formulas below to the confirmed guest count and service style
 
 **Food quantity framework by category:**
 
-| Category | Plated Portion | Buffet Portion | Notes |
-|---|---|---|---|
-| Main protein (single option) | 6-8 oz cooked weight | 8-10 oz cooked weight | Bone-in cuts lose 30-40% to bone/shrinkage |
-| Main protein (two options) | 4-5 oz each | 5-6 oz each | Calculate 60% popular / 40% alternative split |
-| Starch (pasta, rice, potato) | 4 oz | 5-6 oz | Pasta expands 2x when cooked from dry |
-| Roasted vegetables | 4 oz | 5-6 oz | Raw vegetables lose 30-40% weight when roasted |
-| Green salad | 1.5-2 oz dressed | 2-3 oz | Dress at service, not ahead |
-| Bread/rolls | 1.5-2 rolls | 2 rolls | Offer butter or dipping oil |
-| Dessert | 1 standard serving | 1.1 servings | Add 10% buffer; guests often take a second |
-| Appetizers (pre-dinner) | 4-6 pieces | -- | Passed apps before a sit-down dinner |
-| Appetizers (cocktail-only, 2 hrs) | 10-12 pieces | -- | Add 2 pieces per additional 30 minutes |
+| Category                          | Plated Portion       | Buffet Portion        | Notes                                          |
+| --------------------------------- | -------------------- | --------------------- | ---------------------------------------------- |
+| Main protein (single option)      | 6-8 oz cooked weight | 8-10 oz cooked weight | Bone-in cuts lose 30-40% to bone/shrinkage     |
+| Main protein (two options)        | 4-5 oz each          | 5-6 oz each           | Calculate 60% popular / 40% alternative split  |
+| Starch (pasta, rice, potato)      | 4 oz                 | 5-6 oz                | Pasta expands 2x when cooked from dry          |
+| Roasted vegetables                | 4 oz                 | 5-6 oz                | Raw vegetables lose 30-40% weight when roasted |
+| Green salad                       | 1.5-2 oz dressed     | 2-3 oz                | Dress at service, not ahead                    |
+| Bread/rolls                       | 1.5-2 rolls          | 2 rolls               | Offer butter or dipping oil                    |
+| Dessert                           | 1 standard serving   | 1.1 servings          | Add 10% buffer; guests often take a second     |
+| Appetizers (pre-dinner)           | 4-6 pieces           | --                    | Passed apps before a sit-down dinner           |
+| Appetizers (cocktail-only, 2 hrs) | 10-12 pieces         | --                    | Add 2 pieces per additional 30 minutes         |
 
 **Beverage quantity framework:**
 
-| Beverage | Quantity per Guest | Notes |
-|---|---|---|
-| Water (still) | 1 liter | More in summer or outdoor events -- increase to 1.5 liters |
-| Coffee | 1.5 cups; 1 lb ground = 40-45 cups | Offer decaf for 30% of the supply |
-| Beer (casual event) | 2 per person first hour, 1 per hour after | Offer 2 styles -- 1 light, 1 craft/IPA |
-| Wine (dinner) | 1 bottle per 2.5 guests | Plan 60% white, 40% red for most events; reverse for winter |
-| Champagne toast | 1 bottle per 6 glasses | One 5 oz pour per person |
-| Full bar cocktails | 2 per person first hour, 1 per hour after | Factor in non-drinkers (typically 15-20% of adult guests) |
-| Soft drinks / juice | 2 per non-drinking guest | Also provide for all guests as mixer option |
+| Beverage            | Quantity per Guest                        | Notes                                                       |
+| ------------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| Water (still)       | 1 liter                                   | More in summer or outdoor events -- increase to 1.5 liters  |
+| Coffee              | 1.5 cups; 1 lb ground = 40-45 cups        | Offer decaf for 30% of the supply                           |
+| Beer (casual event) | 2 per person first hour, 1 per hour after | Offer 2 styles -- 1 light, 1 craft/IPA                      |
+| Wine (dinner)       | 1 bottle per 2.5 guests                   | Plan 60% white, 40% red for most events; reverse for winter |
+| Champagne toast     | 1 bottle per 6 glasses                    | One 5 oz pour per person                                    |
+| Full bar cocktails  | 2 per person first hour, 1 per hour after | Factor in non-drinkers (typically 15-20% of adult guests)   |
+| Soft drinks / juice | 2 per non-drinking guest                  | Also provide for all guests as mixer option                 |
 
 **Buffer rule:** Always add 8-10% to all food quantities. Always add 10-15% to beverage quantities. Running out of food is catastrophic and unrecoverable. Leftover food has planned uses (staff meals, donation, guest takeaway).
 
@@ -108,6 +111,7 @@ Apply the quantity formulas below to the confirmed guest count and service style
 Construct the budget using a per-head framework broken into five cost categories. Present the budget in a line-item format with totals.
 
 **Five cost categories:**
+
 1. **Food and non-alcoholic beverage:** The largest single cost. Covers all ingredients, packaging, serving vessels, and non-alcohol drinks.
 2. **Alcohol:** Often 20-35% of total event catering cost. If the venue requires a licensed bartender or has a corkage fee, include that here.
 3. **Labor:** Caterer staff, servers, bartenders, kitchen crew. For self-catered events, factor in whether paid help is hired. Standard is 1 server per 20 guests (plated), 1 per 30 (buffet), 1 bartender per 50 guests.
@@ -116,18 +120,19 @@ Construct the budget using a per-head framework broken into five cost categories
 
 **Per-head benchmarks (all-in, including service charge and tax):**
 
-| Event Type | Per-Head Range | Notes |
-|---|---|---|
-| Self-catered casual (BBQ, buffet) | $15-$30 | Excludes labor cost if self-served |
-| Catered casual lunch or breakfast | $25-$45 | Boxed or simple buffet |
-| Catered cocktail party (apps + bar) | $45-$80 | 6-8 passed items, beer/wine |
-| Catered buffet dinner (no bar) | $50-$90 | Full meal, basic rentals included |
-| Catered plated dinner (no bar) | $70-$150 | More staff-intensive, higher perceived quality |
-| Upscale gala or wedding (with bar) | $120-$300+ | Full service, premium menu, full bar |
-| Alcohol add-on (beer/wine only) | $18-$35 per person | Two-hour open bar |
-| Alcohol add-on (full bar) | $30-$65 per person | Well liquor, wine, beer, mixers, garnish |
+| Event Type                          | Per-Head Range     | Notes                                          |
+| ----------------------------------- | ------------------ | ---------------------------------------------- |
+| Self-catered casual (BBQ, buffet)   | $15-$30            | Excludes labor cost if self-served             |
+| Catered casual lunch or breakfast   | $25-$45            | Boxed or simple buffet                         |
+| Catered cocktail party (apps + bar) | $45-$80            | 6-8 passed items, beer/wine                    |
+| Catered buffet dinner (no bar)      | $50-$90            | Full meal, basic rentals included              |
+| Catered plated dinner (no bar)      | $70-$150           | More staff-intensive, higher perceived quality |
+| Upscale gala or wedding (with bar)  | $120-$300+         | Full service, premium menu, full bar           |
+| Alcohol add-on (beer/wine only)     | $18-$35 per person | Two-hour open bar                              |
+| Alcohol add-on (full bar)           | $30-$65 per person | Well liquor, wine, beer, mixers, garnish       |
 
 **Cost-saving tactics (with realistic savings):**
+
 - Switch from plated to buffet: saves $10-$25 per person in labor
 - Brunch or lunch instead of dinner: typically 30-40% less per head
 - Beer and wine only instead of full bar: saves $15-$30 per person
@@ -141,6 +146,7 @@ Construct the budget using a per-head framework broken into five cost categories
 A catering timeline works backward from the moment guests arrive. Build it with hour-by-hour precision.
 
 **Timeline construction rules:**
+
 - Identify the guest arrival time first -- this is the anchor point for all backward planning.
 - Add 15-minute buffer between courses for plated service.
 - All hot food must be on serving stations or at the pass within 15 minutes of service time.
@@ -177,6 +183,7 @@ A catering timeline works backward from the moment guests arrive. Build it with 
 ```
 
 **Prep day activities (the day before):**
+
 - Complete grocery shopping and cross-check against master quantity list
 - Prepare all hold-well items: stocks, sauces, marinades, dressings, rubs
 - Bake all pastries, bread, and dessert components
@@ -189,6 +196,7 @@ A catering timeline works backward from the moment guests arrive. Build it with 
 If the user is hiring a caterer, provide this structured framework for finding, evaluating, and contracting the right vendor.
 
 **Evaluation criteria (rank in this order):**
+
 1. Direct tasting of their food -- non-negotiable for events over $2,000 total food cost
 2. Experience with events of similar type, size, and service style
 3. Active health department license and general liability insurance certificate (request copies)
@@ -201,6 +209,7 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 10. Cancellation and force majeure policy
 
 **Questions to ask before booking:**
+
 - What is included in the per-person price? (Food, labor, setup, cleanup, rentals, service charge, gratuity, or are these separate?)
 - What is your policy if a key ingredient becomes unavailable? (Substitution approval process)
 - What is the deadline for final headcount, and how do changes affect pricing?
@@ -211,6 +220,7 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 - What happens if you need to cancel? (Force majeure clause, backup vendor relationships)
 
 **Contract must include:**
+
 - Detailed menu with specific dishes, portion sizes, and dietary designations
 - Itemized pricing: food cost per head, bar cost per head, staffing cost, rental cost, service charge percentage, tax
 - Exact number of staff committed for the event duration
@@ -224,6 +234,7 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 ### Step 7: Plan Food Presentation and Display
 
 **Buffet setup protocol:**
+
 - **Flow sequencing (left to right):** Plates first -- Salads and cold dishes -- Starches and sides -- Proteins -- Bread and condiments -- Utensils and napkins at the end (not the beginning, where they create bottlenecks)
 - **Beverage station:** Always a separate station from the food line, positioned away from the main traffic flow
 - **Dessert station:** Keep covered and out of view until after dinner service -- opening it prematurely causes guests to skip main courses
@@ -233,6 +244,7 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 - **Labeling:** Every single item gets a tent card with: dish name, description of key ingredients, and dietary symbols (V, VG, GF, DF, N). Never assume guests can identify dishes by sight.
 
 **Plated service standards:**
+
 - Standard plate clock: protein at 6 o'clock (closest to guest), starch at 2 o'clock, vegetable at 10 o'clock
 - Sauce applied as a drizzle or smear -- not pooled over protein -- to preserve visual clarity
 - Garnish placed on top or at the leading edge of the plate -- never underneath protein
@@ -241,6 +253,7 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 - Serve from the guest's left, clear from the guest's right -- remove all dishes from a table before plating the next course
 
 **Food station design:**
+
 - Each station needs: a designated attendant, a sign with station name, labels for each item, all serving utensils, napkins, appropriate plates or vessels, and a trash receptacle within 5 feet
 - Popular stations to consider: carving station (prime rib, whole roasted salmon), pasta bar (two sauce options, toppings), taco/burrito bar (proteins, toppings, tortillas), build-your-own salad, charcuterie and cheese, dessert station
 - Space stations at least 8-10 feet apart to prevent guest clustering and bottlenecks
@@ -250,12 +263,14 @@ If the user is hiring a caterer, provide this structured framework for finding, 
 Cleanup is the most underplanned phase of catering events. Define it explicitly before the event.
 
 **During-event busing protocol:**
+
 - Assign at least one staff member per 40 guests solely to table busing during dinner service
 - Clear all appetizer debris before main course arrives at the table
 - Bus side plates and bread baskets after salad course
 - In buffet setup, assign one person to monitor station fullness, consolidate depleted dishes, and remove empty vessels
 
 **Post-event cleanup checklist:**
+
 1. Clear and wipe all guest tables; collect linens for return/laundry
 2. Pack all leftover food immediately -- hot food must drop below 70°F within 2 hours of cooking and below 40°F within 4 hours total (use ice baths to accelerate cooling)
 3. Label all leftover containers with item name, quantity, and date/time packed
@@ -269,6 +284,7 @@ Cleanup is the most underplanned phase of catering events. Define it explicitly 
 11. Conduct final walk-through with venue manager or event coordinator and get written sign-off
 
 **Leftover food decision tree:**
+
 - **Guest takeaway:** Prepare labeled takeaway containers before the event. Works well for family-style dinners and casual events.
 - **Staff meals:** Let kitchen and service staff eat well -- they've earned it and it prevents food waste.
 - **Food bank donation:** Many cities have food rescue organizations (local food banks, community fridges) that accept hot food within 2 hours of cooking. Identify the nearest location and contact before the event.
@@ -400,13 +416,17 @@ When delivering a catering plan to a user, structure the output as follows. Adju
 ## Edge Cases
 
 ### 1. Guest Count Changes Late in Planning
+
 Final headcount often shifts 10-20% in the week before an event. Build this into the plan from the start.
+
 - **Upward shift:** The 8-10% food buffer and 10-15% beverage buffer should absorb increases up to 10%. For increases above 10%, identify which dishes scale most easily (sides, salads, bread) and which require advance ordering (proteins, seafood).
 - **Downward shift:** Most caterers require final headcount 5-10 business days before the event. After that cutoff, the client typically pays for the contracted count regardless. Make this clear to users early so they don't wait until the last moment to confirm.
 - **Contracted caterer:** Confirm the caterer's headcount change policy in writing before signing. Some allow changes up to 5% with no charge; others lock in the original count.
 
 ### 2. Outdoor Events Without Power or Kitchen Access
+
 This scenario eliminates electric warming equipment and requires a transport-first mindset.
+
 - Use insulated cambro containers (heavy-duty insulated food transport boxes) to hold hot food at temperature during transport. A properly loaded cambro holds food above 140°F for 2-3 hours.
 - Use Sterno-fueled chafing dishes for buffet service -- each full can burns approximately 2 hours. Bring 50% more Sterno than calculated minimum.
 - Cold items must be packed in ice-filled coolers at 40°F or below and moved to serving vessels only at service time.
@@ -414,21 +434,27 @@ This scenario eliminates electric warming equipment and requires a transport-fir
 - Generator-powered electric equipment is an alternative for large events -- specify this in vendor contracts if required.
 
 ### 3. Conflicting or Overlapping Dietary Restrictions
+
 It is common for a guest list to include, simultaneously, someone who is vegan, someone who is gluten-free, and someone with a tree nut allergy.
+
 - Build the base menu around what these three constraints share: naturally gluten-free grains (rice, quinoa, polenta), vegetable-forward dishes, and protein options that exclude both animal products and nuts.
 - Watch hidden allergens: soy sauce contains gluten (use tamari); many vegan cheese alternatives contain cashews; oat-based items may be cross-contaminated with wheat. Review every ingredient label when severe allergies are present.
 - Create a matrix: rows = menu items, columns = dietary categories. Mark each cell safe/unsafe/contains. This prevents serving staff from having to remember individual dish compositions on the fly.
 - When restrictions are extreme (e.g., nut-free event because a child has anaphylaxis), eliminate all nut-containing items from the entire menu rather than trying to manage cross-contamination at service.
 
 ### 4. Very Small Events (Under 20 Guests)
+
 Small events have different economics and logistics than large ones.
+
 - Caterers often have minimums of $500-$1,500 for delivery or on-site service -- at small guest counts this creates very high per-head costs. Self-catering is frequently the better choice under 20 guests.
 - Buffet setups for under 20 guests often feel institutional. Consider family-style service (large platters passed at the table) -- it is warmer, more personal, and uses less equipment.
 - Quantity over-calculation is more likely at small scale: buffet waste percentages are higher with fewer guests because you still need to fill serving vessels. Over-prepare the most important dishes and scale back on secondary items.
 - Plated service at under 20 people can be executed by a single skilled cook plus one or two assistants -- no professional catering team required for casual events.
 
 ### 5. Very Large Events (250+ Guests)
+
 Scale creates logistics challenges that do not exist at moderate event sizes.
+
 - **Multiple cooking locations:** No single standard kitchen can produce and hold food for 250+ people simultaneously. Plan for either a large commercial kitchen off-site with transport, or renting on-site cooking equipment (convection ovens, large commercial burners, hot boxes).
 - **Staggered seating:** For very large events, consider staggered seating by table rather than simultaneous service. This allows kitchen to plate in waves of 40-50 covers rather than all 250 at once.
 - **Staffing ratios at scale:** At 300 guests, 1 server per 20 guests (plated) = 15 servers plus a lead per section of 60. Add 2-3 runners, 2 buspersons per section, and a floor manager. Never rely on a single lead to manage a room of 300.
@@ -436,21 +462,27 @@ Scale creates logistics challenges that do not exist at moderate event sizes.
 - **Logistics sequence:** For 250+ guests at a buffet, plan 3-4 separate buffet stations positioned around the room. Allow 1 station per 60-80 guests. Opening all stations simultaneously at a timed signal prevents any one station from being overwhelmed.
 
 ### 6. Religious or Cultural Dietary Observance (Kosher, Halal, Hindu Vegetarian)
+
 These requirements go beyond ingredient exclusions and involve preparation protocols.
+
 - **Kosher:** Requires separation of meat and dairy at the equipment, preparation surface, and serving levels. A fully kosher event requires a certified kosher caterer with mashgiach (kosher supervisor) supervision. Do not attempt to make an existing menu "kosher-ish" by simply avoiding pork and shellfish -- that does not constitute a kosher event and misrepresents the accommodation to observant guests.
 - **Halal:** Requires halal-certified meat (slaughtered according to Islamic law) and the absence of alcohol in cooking as well as serving. Verify the caterer's halal certification and sourcing. For large events, request the halal certificate from the meat supplier.
 - **Hindu vegetarian:** Typically excludes beef, pork, and often all meat. Many observant Hindu vegetarians also avoid onion, garlic, and leek (especially in Jain practice). Clarify with the guest or host exactly which restrictions apply.
 - **For any religious dietary observance:** Contact the specific guests directly (or ask the host to do so) rather than assuming. These accommodations are personal and the exact requirements vary significantly between individuals and observance levels.
 
 ### 7. Hired Caterer Cancels Close to the Event
+
 This is rare but devastating without a contingency plan.
+
 - At the planning stage, ask users: "What is the caterer's cancellation policy, and do you know of at least one backup caterer in the area?"
 - If a cancellation happens within 2 weeks of the event: contact 3-5 caterers immediately with a clear brief (date, guest count, menu needs, budget). Many caterers maintain waitlists and can mobilize for last-minute events.
 - If cancellation happens within 72 hours: pivot to a combination approach -- identify high-quality restaurant catering (most large restaurants offer catering trays with 24-48 hours notice), specialty food shops for prepared items, and self-executed sides and desserts.
 - If the original caterer was paid a deposit and cancels without providing services: review the contract cancellation clause. Most require full or partial refund if the canceler is the vendor. Document all communications and losses for potential small claims action.
 
 ### 8. Self-Catering a Plated Dinner for 40+ Guests
+
 This is the highest-complexity scenario for a non-professional host.
+
 - The bottleneck is always plating speed: at 40 covers, you need 3-4 people plating simultaneously to get all plates out within a 3-4 minute window. Assign roles before service: one person plates protein, one plates sides, one garnishes, one runs plates to the table.
 - Prep in advance aggressively: anything that can be portioned, sauced, or partially cooked the day before should be. On event day, the only kitchen activity should be final heating and plating.
 - Rent or borrow a sufficient number of covered sheet pans and hotel pans to hold pre-plated dishes in the oven at 175-200°F for up to 20 minutes while other tables are being plated.
@@ -468,6 +500,7 @@ This is the highest-complexity scenario for a non-professional host.
 **Output:**
 
 # Catering Plan: Baby Shower Brunch
+
 **Event Type:** Baby Shower Brunch -- Self-Catered
 **Guest Count:** 45
 **Service Style:** Buffet with light passed welcome drink
@@ -481,85 +514,86 @@ This is the highest-complexity scenario for a non-professional host.
 ## Menu
 
 ### Arrival Welcome
+
 - Sparkling rosé punch (prosecco + raspberry sorbet + fresh mint) -- alcohol -- V, VG, GF
-- Sparkling elderflower lemonade -- non-alcoholic -- V, VG, GF *(unlimited refill throughout)*
+- Sparkling elderflower lemonade -- non-alcoholic -- V, VG, GF _(unlimited refill throughout)_
 
 ### Buffet -- Savory
 
-| Dish | Dietary Codes | Key Ingredients / Notes |
-|---|---|---|
-| Smoked salmon cucumber rounds | GF, DF | Cream cheese piped onto GF cucumber round, capers, dill. Salmon fully cured/smoked -- safe for pregnant guest. |
-| Mini vegetable frittatas (individual ramekins) | V, GF | Egg, roasted red pepper, spinach, goat cheese. Baked to 165°F internal. |
-| Avocado and heirloom tomato bruschetta | VG | Served on GF crostini for celiac guest (separate labeled tray) and standard baguette slices |
-| Herb-roasted asparagus with lemon zest | V, VG, GF, DF | Seasonal, simple, elegant |
-| Smashed baby potatoes with crème fraîche and chives | V, GF | Crowd-pleaser; filling base for the buffet |
-| Fresh seasonal fruit platter with honey-yogurt dip | V, GF | Strawberries, melon, grapes, mandarin. Yogurt dip labeled separately (not vegan) |
+| Dish                                                | Dietary Codes | Key Ingredients / Notes                                                                                        |
+| --------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------- |
+| Smoked salmon cucumber rounds                       | GF, DF        | Cream cheese piped onto GF cucumber round, capers, dill. Salmon fully cured/smoked -- safe for pregnant guest. |
+| Mini vegetable frittatas (individual ramekins)      | V, GF         | Egg, roasted red pepper, spinach, goat cheese. Baked to 165°F internal.                                        |
+| Avocado and heirloom tomato bruschetta              | VG            | Served on GF crostini for celiac guest (separate labeled tray) and standard baguette slices                    |
+| Herb-roasted asparagus with lemon zest              | V, VG, GF, DF | Seasonal, simple, elegant                                                                                      |
+| Smashed baby potatoes with crème fraîche and chives | V, GF         | Crowd-pleaser; filling base for the buffet                                                                     |
+| Fresh seasonal fruit platter with honey-yogurt dip  | V, GF         | Strawberries, melon, grapes, mandarin. Yogurt dip labeled separately (not vegan)                               |
 
 **Note on celiac accommodation:** The bruschetta GF crostini are prepared using a dedicated GF baking sheet and tong set not used for any wheat products. They are stored in a sealed container and plated to a separate labeled tray that reads: **"GLUTEN-FREE BRUSCHETTA -- prepared separately, no wheat contact."** The celiac guest is contacted in advance and shown the setup at arrival.
 
 ### Buffet -- Sweet
 
-| Dish | Dietary Codes | Notes |
-|---|---|---|
-| Mini lemon ricotta pancakes with berry compote | V | Passed warm at opening; 3 per person, plated on display after opening |
-| Almond-olive oil cake (individual slices) | V, DF | Naturally dense, moist, fragrant -- naturally dairy-free |
-| Coconut macaroon bites | V, VG, GF, DF | Simple, crowd-pleasing, meets all dietary needs |
-| Baby shower themed cake (one tier) | V | Served at event close; custom from local bakery; 45 portions |
+| Dish                                           | Dietary Codes | Notes                                                                 |
+| ---------------------------------------------- | ------------- | --------------------------------------------------------------------- |
+| Mini lemon ricotta pancakes with berry compote | V             | Passed warm at opening; 3 per person, plated on display after opening |
+| Almond-olive oil cake (individual slices)      | V, DF         | Naturally dense, moist, fragrant -- naturally dairy-free              |
+| Coconut macaroon bites                         | V, VG, GF, DF | Simple, crowd-pleasing, meets all dietary needs                       |
+| Baby shower themed cake (one tier)             | V             | Served at event close; custom from local bakery; 45 portions          |
 
 ---
 
 ## Quantity Calculations
 
-| Item | Per Person | 45 Guests | Buffer (10%) | Total to Prepare |
-|---|---|---|---|---|
-| Smoked salmon rounds | 3 pieces | 135 | +14 | 149 pieces (~5 lbs smoked salmon, 8 cucumbers) |
-| Mini frittatas | 2 pieces | 90 | +9 | 99 (10 dozen eggs, 2 ramekin pans minimum) |
-| Bruschetta (standard) | 3 pieces | 135 | +14 | 149 standard crostini |
-| Bruschetta GF | Dedicated tray | 1 celiac guest + 4 buffer | -- | 15 GF crostini (separate tray) |
-| Asparagus | 4 oz | 180 oz = 11.25 lbs raw | +10% | 12.5 lbs raw |
-| Smashed potatoes | 5 oz | 225 oz = 14 lbs raw | +10% | 15.5 lbs raw baby potatoes |
-| Fruit platter | 4 oz | 180 oz = 11.25 lbs | +10% | 12.5 lbs mixed seasonal fruit |
-| Mini pancakes | 3 | 135 | +14 | 150 pancakes |
-| Almond cake slices | 1 | 45 | +5 | 50 slices (bake 2 x 9-inch cakes = ~50 slices) |
-| Coconut macaroons | 2 | 90 | +9 | 99 pieces |
-| Shower cake | 1 slice | 45 | +3 | 48 portions (order 48-slice cake) |
+| Item                  | Per Person     | 45 Guests                 | Buffer (10%) | Total to Prepare                               |
+| --------------------- | -------------- | ------------------------- | ------------ | ---------------------------------------------- |
+| Smoked salmon rounds  | 3 pieces       | 135                       | +14          | 149 pieces (~5 lbs smoked salmon, 8 cucumbers) |
+| Mini frittatas        | 2 pieces       | 90                        | +9           | 99 (10 dozen eggs, 2 ramekin pans minimum)     |
+| Bruschetta (standard) | 3 pieces       | 135                       | +14          | 149 standard crostini                          |
+| Bruschetta GF         | Dedicated tray | 1 celiac guest + 4 buffer | --           | 15 GF crostini (separate tray)                 |
+| Asparagus             | 4 oz           | 180 oz = 11.25 lbs raw    | +10%         | 12.5 lbs raw                                   |
+| Smashed potatoes      | 5 oz           | 225 oz = 14 lbs raw       | +10%         | 15.5 lbs raw baby potatoes                     |
+| Fruit platter         | 4 oz           | 180 oz = 11.25 lbs        | +10%         | 12.5 lbs mixed seasonal fruit                  |
+| Mini pancakes         | 3              | 135                       | +14          | 150 pancakes                                   |
+| Almond cake slices    | 1              | 45                        | +5           | 50 slices (bake 2 x 9-inch cakes = ~50 slices) |
+| Coconut macaroons     | 2              | 90                        | +9           | 99 pieces                                      |
+| Shower cake           | 1 slice        | 45                        | +3           | 48 portions (order 48-slice cake)              |
 
-| Beverage | Per Person | 45 Guests | Buffer | Total |
-|---|---|---|---|---|
-| Prosecco (for punch) | 3 oz poured = ~1/3 bottle | 45 | +10% | 20 bottles |
-| Elderflower lemonade (non-alc) | 16 oz | 720 oz | +15% | ~7 gallons (56 x 16 oz bottles or 7 x 1-gallon batches) |
-| Still water (infused cucumber/mint) | 16 oz | 720 oz | +15% | 7 gallons |
-| Coffee | 1.5 cups | 67 cups | +10% | 74 cups; 2 lbs ground (1 lb caffeinated, 0.5 lb decaf, 0.5 lb herbal tea assortment) |
+| Beverage                            | Per Person                | 45 Guests | Buffer | Total                                                                                |
+| ----------------------------------- | ------------------------- | --------- | ------ | ------------------------------------------------------------------------------------ |
+| Prosecco (for punch)                | 3 oz poured = ~1/3 bottle | 45        | +10%   | 20 bottles                                                                           |
+| Elderflower lemonade (non-alc)      | 16 oz                     | 720 oz    | +15%   | ~7 gallons (56 x 16 oz bottles or 7 x 1-gallon batches)                              |
+| Still water (infused cucumber/mint) | 16 oz                     | 720 oz    | +15%   | 7 gallons                                                                            |
+| Coffee                              | 1.5 cups                  | 67 cups   | +10%   | 74 cups; 2 lbs ground (1 lb caffeinated, 0.5 lb decaf, 0.5 lb herbal tea assortment) |
 
 ---
 
 ## Budget Breakdown
 
-| Category | Per Head | Subtotal |
-|---|---|---|
-| Food (all buffet items, baking supplies) | $18.50 | $832 |
-| Custom shower cake (from bakery) | $3.00 | $135 |
-| Beverage (prosecco, elderflower, water, coffee) | $7.50 | $337 |
-| Disposable or rented servingware, chafing dishes | $4.00 | $180 |
-| Linens, decorative elements (platters, labels) | $2.00 | $90 |
-| Staff / help (2 friends assisting = gift, not paid) | $0 | $0 |
-| Miscellaneous (ice, foil, extra ingredients) | $2.00 | $90 |
-| **Subtotal** | **$37.00** | **$1,664** |
-| Buffer reserve | $3.00 | $136 |
-| **TOTAL** | **$40.00** | **$1,800** |
+| Category                                            | Per Head   | Subtotal   |
+| --------------------------------------------------- | ---------- | ---------- |
+| Food (all buffet items, baking supplies)            | $18.50     | $832       |
+| Custom shower cake (from bakery)                    | $3.00      | $135       |
+| Beverage (prosecco, elderflower, water, coffee)     | $7.50      | $337       |
+| Disposable or rented servingware, chafing dishes    | $4.00      | $180       |
+| Linens, decorative elements (platters, labels)      | $2.00      | $90        |
+| Staff / help (2 friends assisting = gift, not paid) | $0         | $0         |
+| Miscellaneous (ice, foil, extra ingredients)        | $2.00      | $90        |
+| **Subtotal**                                        | **$37.00** | **$1,664** |
+| Buffer reserve                                      | $3.00      | $136       |
+| **TOTAL**                                           | **$40.00** | **$1,800** |
 
-*Self-catered events save the service charge (18-22%) and labor cost that a hired caterer would charge. This plan stays on budget specifically because it is self-catered with volunteer help.*
+_Self-catered events save the service charge (18-22%) and labor cost that a hired caterer would charge. This plan stays on budget specifically because it is self-catered with volunteer help._
 
 ---
 
 ## Dietary Accommodation Summary
 
-| Need | # Guests | Safe Dishes Available | Special Handling |
-|---|---|---|---|
-| Vegetarian | 5 | All dishes except smoked salmon rounds | Clearly labeled; servers informed |
-| Vegan | 0 confirmed, design buffer | Asparagus, bruschetta, fruit platter, macaroons, elderflower lemonade, water | Labels still benefit guests who don't announce |
-| Gluten-free (celiac -- strict) | 1 | Frittatas, asparagus, potatoes, fruit, macaroons, GF bruschetta tray | Dedicated GF crostini tray, separate prep equipment, contact guest in advance |
-| Pregnant (food safety) | 1 (guest of honor) | All dishes on this menu are fully cooked or pasteurized/cured. No soft-ripened cheese, no raw fish, no deli meat | Confirm smoked salmon is commercially cured (not raw); avoid brie or camembert if added to board |
+| Need                           | # Guests                   | Safe Dishes Available                                                                                            | Special Handling                                                                                 |
+| ------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Vegetarian                     | 5                          | All dishes except smoked salmon rounds                                                                           | Clearly labeled; servers informed                                                                |
+| Vegan                          | 0 confirmed, design buffer | Asparagus, bruschetta, fruit platter, macaroons, elderflower lemonade, water                                     | Labels still benefit guests who don't announce                                                   |
+| Gluten-free (celiac -- strict) | 1                          | Frittatas, asparagus, potatoes, fruit, macaroons, GF bruschetta tray                                             | Dedicated GF crostini tray, separate prep equipment, contact guest in advance                    |
+| Pregnant (food safety)         | 1 (guest of honor)         | All dishes on this menu are fully cooked or pasteurized/cured. No soft-ripened cheese, no raw fish, no deli meat | Confirm smoked salmon is commercially cured (not raw); avoid brie or camembert if added to board |
 
 ---
 
@@ -582,3 +616,4 @@ This is the highest-complexity scenario for a non-professional host.
 10:45 AM  Set dessert table (pancakes covered, cakes plated, macaroons displayed)
 10:50 AM  Briefing with 2 assistants: dietary flags, GF tray location, celiac guest name
 10:55 AM  Light candles; set welcome drink station; final walk
+```

@@ -183,7 +183,10 @@ const RemoteAgentFormModal: React.FC<{
         const result = await ipcBridge.remoteAgent.handshake.invoke({ id: agentId });
 
         if (result.status === 'ok') {
-          toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
+          toast.show({
+            variant: 'success',
+            title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'),
+          });
           onSaved();
           onClose();
         } else if (result.status === 'pending_approval') {
@@ -198,7 +201,10 @@ const RemoteAgentFormModal: React.FC<{
           onClose();
         }
       } else {
-        toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
+        toast.show({
+          variant: 'success',
+          title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'),
+        });
         onSaved();
         onClose();
       }
@@ -394,13 +400,7 @@ const RemoteAgentFormModal: React.FC<{
             }
           </Form.Item>
 
-          <Button
-            long
-            type='outline'
-            icon={<Gauge size={14} />}
-            loading={testing}
-            onClick={handleTestConnection}
-          >
+          <Button long type='outline' icon={<Gauge size={14} />} loading={testing} onClick={handleTestConnection}>
             {t('settings.remoteAgent.testConnection')}
           </Button>
         </Form>

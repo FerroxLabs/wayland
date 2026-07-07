@@ -140,9 +140,7 @@ export class SynologyChatPlugin extends BasePlugin {
     const resolvedChatId = await this.resolveChatUserId(chatId);
 
     const body = toSynologyChatSendBody(message, resolvedChatId);
-    await this.withRetryAndThrottle(() =>
-      doPost(this.incomingUrl as string, body, this.allowInsecureSsl),
-    );
+    await this.withRetryAndThrottle(() => doPost(this.incomingUrl as string, body, this.allowInsecureSsl));
     return `synology-chat:${resolvedChatId}:${Date.now()}`;
   }
 
@@ -162,17 +160,14 @@ export class SynologyChatPlugin extends BasePlugin {
     const fresh = this.userIdMap && now - this.userIdMapFetchedAt < USER_LIST_TTL_MS;
     if (!fresh) {
       try {
-        this.userIdMap = await fetchSynologyUserList(
-          this.incomingUrl,
-          this.allowInsecureSsl,
-        );
+        this.userIdMap = await fetchSynologyUserList(this.incomingUrl, this.allowInsecureSsl);
         this.userIdMapFetchedAt = now;
       } catch (err) {
         // Don't blow up the send - fall through and use the webhook id. Log so
         // operators on multi-account servers can diagnose silent delivery loss.
         console.warn(
           '[synology-chatPlugin] user_list lookup failed; using webhook user_id verbatim:',
-          err instanceof Error ? err.message : String(err),
+          err instanceof Error ? err.message : String(err)
         );
         this.userIdMap = this.userIdMap ?? new Map();
         this.userIdMapFetchedAt = now;
@@ -219,7 +214,7 @@ export class SynologyChatPlugin extends BasePlugin {
   async handleWebhookPayload(
     payload: object,
     _headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     // The verifier hands us the parsed payload object. For Synology Chat the
     // verifier returns the parsed inner JSON (from the `payload` form field).
@@ -241,7 +236,7 @@ export class SynologyChatPlugin extends BasePlugin {
    * Token argument is JSON-encoded creds per the multi-credential contract.
    */
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: SynologyChatCreds;
     try {
@@ -306,10 +301,7 @@ function sleep(ms: number): Promise<void> {
  * (sends fall back to the webhook id, which works for the canonical bot-DM
  * case).
  */
-async function fetchSynologyUserList(
-  incomingUrl: string,
-  allowInsecureSsl: boolean,
-): Promise<Map<string, string>> {
+async function fetchSynologyUserList(incomingUrl: string, allowInsecureSsl: boolean): Promise<Map<string, string>> {
   const listUrl = incomingUrl.replace(/method=incoming/i, 'method=user_list');
   if (listUrl === incomingUrl) {
     // Incoming URL didn't carry `method=incoming` - we have no derivable
@@ -353,9 +345,7 @@ function parseUserListBody(body: unknown): Map<string, string> {
     if (typeof u !== 'object' || u === null) continue;
     const entry = u as { user_id?: unknown; nickname?: unknown; username?: unknown };
     const chatId =
-      typeof entry.user_id === 'string' || typeof entry.user_id === 'number'
-        ? String(entry.user_id)
-        : undefined;
+      typeof entry.user_id === 'string' || typeof entry.user_id === 'number' ? String(entry.user_id) : undefined;
     if (!chatId) continue;
     map.set(chatId, chatId);
     if (typeof entry.nickname === 'string' && entry.nickname.trim()) {
@@ -376,18 +366,19 @@ function parseUserListBody(body: unknown): Map<string, string> {
  * routes through an undici Dispatcher that disables certificate verification
  * (LAN Synology NAS boxes ship self-signed certs by default).
  */
-async function doPost(
-  url: string,
-  body: string,
-  allowInsecureSsl: boolean,
-): Promise<void> {
+async function doPost(url: string, body: string, allowInsecureSsl: boolean): Promise<void> {
   const dispatcher: Dispatcher | undefined = allowInsecureSsl
     ? new Agent({ connect: { rejectUnauthorized: false } })
     : undefined;
 
   // `dispatcher` is a Node/undici-specific fetch option (not in the lib.dom
   // RequestInit type). Cast at the call-site so we don't leak `any` further.
-  const init = { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body, dispatcher } as RequestInit;
+  const init = {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body,
+    dispatcher,
+  } as RequestInit;
 
   try {
     const response = await fetch(url, init);

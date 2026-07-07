@@ -14,7 +14,7 @@ const WebuiSettings: React.FC = () => {
   return (
     <SettingsPageWrapper>
       <WebuiModalContent />
-      <div className="flex flex-col gap-12px mt-12px px-[12px] md:px-[28px]">
+      <div className='flex flex-col gap-12px mt-12px px-[12px] md:px-[28px]'>
         <PairedDevicesCard />
         <ActivityLogCard />
       </div>

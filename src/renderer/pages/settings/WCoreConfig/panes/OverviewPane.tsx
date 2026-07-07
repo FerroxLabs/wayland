@@ -98,9 +98,11 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
       setProgress(p);
       if (p.phase === 'done') {
         setInstalling(false);
+        setInstallError(null);
         setInstalledVersion(p.message ?? null);
       } else if (p.phase === 'error') {
         setInstalling(false);
+        setInstallError(p.message ?? null);
         setInstallError(
           p.message ??
             t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
@@ -114,12 +116,22 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
     if (!tag) return;
     setInstallError(null);
     setInstalling(true);
+    setInstallError(null);
     setProgress({ phase: 'downloading', percent: 0 });
     try {
       const res = await ipcBridge.wcoreUpdate.install.invoke({ tag });
+      // Several failure paths (checksum mismatch, missing binary in the
+      // archive, unsupported platform) resolve `{ ok: false }` WITHOUT ever
+      // streaming a `phase: 'error'` progress event - so this is the only
+      // place those failures surface. Without it the card silently reverts
+      // to "update available" and a completed download looks like it never
+      // installed (issue #680).
       if (res.ok) setInstalledVersion(res.version);
       else
         setInstallError(
+          'error' in res
+            ? res.error
+            : t('settings.wcoreConfig.overview.update.failedGeneric', { defaultValue: 'Update failed.' })
           'error' in res && res.error
             ? res.error
             : t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
@@ -283,12 +295,14 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         <div className={styles.section}>
           <div
             className={`${styles.updateCard} ${installedVersion ? styles.updateCardDone : ''} ${
+              installError && !installing ? styles.updateCardError : ''
               showError ? styles.updateCardError : ''
             }`}
           >
             <span className={styles.updateIcon}>
               {installedVersion ? (
                 <CheckCircle2 size={18} />
+              ) : installError && !installing ? (
               ) : showError ? (
                 <AlertTriangle size={18} />
               ) : (
@@ -322,6 +336,19 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                     <Progress percent={progress.percent} size='small' className={styles.updateProgress} />
                   )}
                 </>
+              ) : installError ? (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.failedTitle', {
+                      defaultValue: 'Wayland Core update failed',
+                    })}
+                  </div>
+                  <div className={styles.updateBody}>
+                    {t('settings.wcoreConfig.overview.update.failedBody', {
+                      defaultValue: '{{error}}',
+                      error: installError,
+                    })}
+                  </div>
               ) : showError ? (
                 <>
                   <div className={styles.updateTitle}>
@@ -356,6 +383,8 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                 onClick={() => void handleInstall()}
                 className={styles.updateBtn}
               >
+                {installError
+                  ? t('settings.wcoreConfig.overview.update.retryCta', { defaultValue: 'Retry update' })
                 {showError
                   ? t('settings.wcoreConfig.overview.update.retry', { defaultValue: 'Retry' })
                   : t('settings.wcoreConfig.overview.update.cta', { defaultValue: 'Update now' })}

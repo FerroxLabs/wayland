@@ -120,31 +120,31 @@ Inherited environment variable allowlist: `PATH`, `NODE_EXTRA_CA_CERTS`, `SSL_CE
 
 **macOS / Linux:**
 
-| Path           | Purpose              |
-| -------------- | -------------------- |
-| `~/.bun/bin`   | bun global packages  |
-| `~/.cargo/bin` | Rust / cargo         |
-| `~/go/bin`     | Go                   |
-| `~/.deno/bin`  | Deno                 |
-| `~/.local/bin` | pip, pipx, etc.      |
+| Path           | Purpose             |
+| -------------- | ------------------- |
+| `~/.bun/bin`   | bun global packages |
+| `~/.cargo/bin` | Rust / cargo        |
+| `~/go/bin`     | Go                  |
+| `~/.deno/bin`  | Deno                |
+| `~/.local/bin` | pip, pipx, etc.     |
 
 **Windows:**
 
-| Path                                        | Purpose                              |
-| ------------------------------------------- | ------------------------------------ |
-| `%APPDATA%\npm`                             | npm global packages                  |
-| `%ProgramFiles%\nodejs`                     | Node.js official install             |
-| `%APPDATA%\nvm` / `%NVM_HOME%`              | nvm-windows                          |
-| `%ProgramFiles%\nodejs` / `%NVM_SYMLINK%`   | nvm active version symlink           |
-| `%LOCALAPPDATA%\fnm_multishells`            | fnm-windows                          |
-| `~\.volta\bin`                              | Volta                                |
-| `~\scoop\shims` / `%SCOOP%\shims`           | Scoop                                |
-| `%LOCALAPPDATA%\pnpm`                       | pnpm global                          |
-| `%ChocolateyInstall%\bin`                   | Chocolatey                           |
-| `%ProgramFiles%\Git\{cmd,bin,usr\bin}`      | Git for Windows (includes cygpath)   |
-| `%ProgramFiles(x86)%\Git\{cmd,bin,usr\bin}` | Git for Windows (x86)                |
-| `C:\cygwin64\bin`, `C:\cygwin\bin`          | Cygwin                               |
-| `~\.bun\bin`                                | bun global packages                  |
+| Path                                        | Purpose                            |
+| ------------------------------------------- | ---------------------------------- |
+| `%APPDATA%\npm`                             | npm global packages                |
+| `%ProgramFiles%\nodejs`                     | Node.js official install           |
+| `%APPDATA%\nvm` / `%NVM_HOME%`              | nvm-windows                        |
+| `%ProgramFiles%\nodejs` / `%NVM_SYMLINK%`   | nvm active version symlink         |
+| `%LOCALAPPDATA%\fnm_multishells`            | fnm-windows                        |
+| `~\.volta\bin`                              | Volta                              |
+| `~\scoop\shims` / `%SCOOP%\shims`           | Scoop                              |
+| `%LOCALAPPDATA%\pnpm`                       | pnpm global                        |
+| `%ChocolateyInstall%\bin`                   | Chocolatey                         |
+| `%ProgramFiles%\Git\{cmd,bin,usr\bin}`      | Git for Windows (includes cygpath) |
+| `%ProgramFiles(x86)%\Git\{cmd,bin,usr\bin}` | Git for Windows (x86)              |
+| `C:\cygwin64\bin`, `C:\cygwin\bin`          | Cygwin                             |
+| `~\.bun\bin`                                | bun global packages                |
 
 All paths are appended only if they **exist and are not already in the current PATH**.
 
@@ -171,12 +171,12 @@ All paths are appended only if they **exist and are not already in the current P
 
 **Backends excluded from CLI detection:**
 
-| Backend ID | Reason                                                         |
-| ---------- | -------------------------------------------------------------- |
-| `gemini`   | Built-in agent, always available, no CLI detection needed      |
-| `custom`   | User-defined, has no `cliCommand`                              |
-| `wcore`    | Non-ACP protocol (JSON Lines), explicitly excluded             |
-| `remote`   | No local CLI; connects via WebSocket URL                       |
+| Backend ID | Reason                                                    |
+| ---------- | --------------------------------------------------------- |
+| `gemini`   | Built-in agent, always available, no CLI detection needed |
+| `custom`   | User-defined, has no `cliCommand`                         |
+| `wcore`    | Non-ACP protocol (JSON Lines), explicitly excluded        |
+| `remote`   | No local CLI; connects via WebSocket URL                  |
 
 ## Merging and Deduplication
 
@@ -186,12 +186,12 @@ No deduplication is performed - the same CLI can exist as both a builtin and an 
 
 ## Refresh Mechanisms
 
-| Method                     | Refresh Scope               | Clears env cache |
-| -------------------------- | --------------------------- | ---------------- |
-| `refreshBuiltinAgents()`   | Built-in CLI agents only    | Yes              |
-| `refreshExtensionAgents()` | Extension-contributed agents only | Yes         |
-| `refreshRemoteAgents()`    | Remote agents only          | No               |
-| `refreshAll()`             | All sources re-detected     | Yes              |
+| Method                     | Refresh Scope                     | Clears env cache |
+| -------------------------- | --------------------------------- | ---------------- |
+| `refreshBuiltinAgents()`   | Built-in CLI agents only          | Yes              |
+| `refreshExtensionAgents()` | Extension-contributed agents only | Yes              |
+| `refreshRemoteAgents()`    | Remote agents only                | No               |
+| `refreshAll()`             | All sources re-detected           | Yes              |
 
 All refresh methods remove the existing agents of the corresponding type before re-detecting and appending results.
 
@@ -204,13 +204,13 @@ All refresh methods remove the existing agents of the corresponding type before 
 
 ## Consumers
 
-| File                                            | Purpose                                                              |
-| ----------------------------------------------- | -------------------------------------------------------------------- |
-| `src/process/bridge/acpConversationBridge.ts`   | IPC bridge: fetch agent list, health checks, model probing           |
-| `src/process/extensions/hub/HubInstaller.ts`    | refreshAll + verify detection results after extension install        |
-| `src/process/extensions/hub/HubStateManager.ts` | Refresh built-in agents to determine extension install status        |
-| `src/process/team/TeammateManager.ts`           | Filter available agent types for the Team feature                    |
-| `src/process/channels/actions/SystemActions.ts` | Build the selectable agent list for channels                         |
+| File                                            | Purpose                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------- |
+| `src/process/bridge/acpConversationBridge.ts`   | IPC bridge: fetch agent list, health checks, model probing    |
+| `src/process/extensions/hub/HubInstaller.ts`    | refreshAll + verify detection results after extension install |
+| `src/process/extensions/hub/HubStateManager.ts` | Refresh built-in agents to determine extension install status |
+| `src/process/team/TeammateManager.ts`           | Filter available agent types for the Team feature             |
+| `src/process/channels/actions/SystemActions.ts` | Build the selectable agent list for channels                  |
 
 ## Fault-Tolerance Design
 
@@ -472,20 +472,20 @@ The response contains `sessionId`, `configOptions` (model, mode), and `models`.
 
 The child process sends NDJSON messages via stdout, dispatched by `handleMessage()`:
 
-| Message type     | Detection condition          | Handling                                                              |
-| ---------------- | ---------------------------- | --------------------------------------------------------------------- |
-| **Response**     | Has `id`, no `method`        | Match pending Promise in `pendingRequests`, resolve/reject            |
-| **Notification** | Has `method`, no `id`        | Dispatch to `handleIncomingRequest()`                                 |
-| **Request**      | Has both `method` and `id`   | Dispatch to `handleIncomingRequest()`, write response back after handling |
+| Message type     | Detection condition        | Handling                                                                  |
+| ---------------- | -------------------------- | ------------------------------------------------------------------------- |
+| **Response**     | Has `id`, no `method`      | Match pending Promise in `pendingRequests`, resolve/reject                |
+| **Notification** | Has `method`, no `id`      | Dispatch to `handleIncomingRequest()`                                     |
+| **Request**      | Has both `method` and `id` | Dispatch to `handleIncomingRequest()`, write response back after handling |
 
 ### Inbound Method Handling
 
-| Method                       | Purpose                            | Handling                                                         |
-| ---------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
-| `session/update`             | Streaming content, tool calls, thinking | → `AcpAgent` → `AcpAdapter` → converted to UI messages     |
-| `session/request_permission` | Tool permission request            | Pause timeout → show UI dialog → user selects → write result back |
-| `fs/read_text_file`          | Backend reads a file               | Parse path → `readTextFile()` → write content back              |
-| `fs/write_text_file`         | Backend writes a file              | Parse path → `writeTextFile()` → notify UI                      |
+| Method                       | Purpose                                 | Handling                                                          |
+| ---------------------------- | --------------------------------------- | ----------------------------------------------------------------- |
+| `session/update`             | Streaming content, tool calls, thinking | → `AcpAgent` → `AcpAdapter` → converted to UI messages            |
+| `session/request_permission` | Tool permission request                 | Pause timeout → show UI dialog → user selects → write result back |
+| `fs/read_text_file`          | Backend reads a file                    | Parse path → `readTextFile()` → write content back                |
+| `fs/write_text_file`         | Backend writes a file                   | Parse path → `writeTextFile()` → notify UI                        |
 
 ### Data Flow
 
@@ -522,33 +522,33 @@ AcpConnection.disconnect()
 
 ## Claude-Specific Behavior vs Other Backends
 
-| Feature               | Claude                                              | Other Backends                               |
-| --------------------- | --------------------------------------------------- | -------------------------------------------- |
-| **Launch method**     | npx bridge (`@zed-industries/claude-agent-acp`)     | Direct CLI spawn (`goose acp`, `qwen --acp`) |
-| **Session resumption**| `_meta.claudeCode.options.resume`                   | `resumeSessionId` parameter                  |
-| **Model source**      | Reads `ANTHROPIC_MODEL` from `~/.claude/settings.json` | `session/new` response                    |
-| **YOLO mode**         | `'bypassPermissions'`                               | `'yolo'` (Qwen, etc.)                        |
-| **Auth failure recovery** | Run `claude /login` to refresh token           | No special handling                          |
-| **Model switching**   | Injects `<system-reminder>` to notify AI of model change | None                                    |
-| **Node version requirement** | >= 20.10                                   | >= 18.17 (generic)                           |
-| **npx cache recovery**| Supported (member of NPX_BACKENDS)                  | Not applicable                               |
+| Feature                      | Claude                                                   | Other Backends                               |
+| ---------------------------- | -------------------------------------------------------- | -------------------------------------------- |
+| **Launch method**            | npx bridge (`@zed-industries/claude-agent-acp`)          | Direct CLI spawn (`goose acp`, `qwen --acp`) |
+| **Session resumption**       | `_meta.claudeCode.options.resume`                        | `resumeSessionId` parameter                  |
+| **Model source**             | Reads `ANTHROPIC_MODEL` from `~/.claude/settings.json`   | `session/new` response                       |
+| **YOLO mode**                | `'bypassPermissions'`                                    | `'yolo'` (Qwen, etc.)                        |
+| **Auth failure recovery**    | Run `claude /login` to refresh token                     | No special handling                          |
+| **Model switching**          | Injects `<system-reminder>` to notify AI of model change | None                                         |
+| **Node version requirement** | >= 20.10                                                 | >= 18.17 (generic)                           |
+| **npx cache recovery**       | Supported (member of NPX_BACKENDS)                       | Not applicable                               |
 
 ## Module Summary
 
-| Module                  | File                       | Responsibility                                                       |
-| ----------------------- | -------------------------- | -------------------------------------------------------------------- |
-| `AcpDetector`           | `AcpDetector.ts`           | Detect CLI agents installed on the system                            |
-| `acpConversationBridge` | `acpConversationBridge.ts` | IPC bridge between the renderer and main process                     |
-| `AcpAgentManager`       | `AcpAgentManager.ts`       | Task lifecycle management: create agents, persist state, IPC events  |
+| Module                  | File                       | Responsibility                                                                 |
+| ----------------------- | -------------------------- | ------------------------------------------------------------------------------ |
+| `AcpDetector`           | `AcpDetector.ts`           | Detect CLI agents installed on the system                                      |
+| `acpConversationBridge` | `acpConversationBridge.ts` | IPC bridge between the renderer and main process                               |
+| `AcpAgentManager`       | `AcpAgentManager.ts`       | Task lifecycle management: create agents, persist state, IPC events            |
 | `AcpAgent`              | `index.ts`                 | Orchestrate connection/auth/session/message flow; permissions, model switching |
-| `AcpConnection`         | `AcpConnection.ts`         | Core protocol: child process management, JSON-RPC send/receive, session state |
-| `acpConnectors`         | `acpConnectors.ts`         | Per-backend spawn logic, environment preparation, npx Phase 1/2      |
-| `AcpAdapter`            | `AcpAdapter.ts`            | Convert ACP session updates to Wayland TMessage format               |
-| `ApprovalStore`         | `ApprovalStore.ts`         | Session-level "always allow" permission cache                        |
-| `utils`                 | `utils.ts`                 | JSON-RPC stdin writes, process termination, file I/O                 |
-| `mcpSessionConfig`      | `mcpSessionConfig.ts`      | Build the MCP server list for `session/new`                          |
-| `modelInfo`             | `modelInfo.ts`             | Extract model information from `configOptions`/`models`              |
-| `constants`             | `constants.ts`             | YOLO mode strings per backend                                        |
+| `AcpConnection`         | `AcpConnection.ts`         | Core protocol: child process management, JSON-RPC send/receive, session state  |
+| `acpConnectors`         | `acpConnectors.ts`         | Per-backend spawn logic, environment preparation, npx Phase 1/2                |
+| `AcpAdapter`            | `AcpAdapter.ts`            | Convert ACP session updates to Wayland TMessage format                         |
+| `ApprovalStore`         | `ApprovalStore.ts`         | Session-level "always allow" permission cache                                  |
+| `utils`                 | `utils.ts`                 | JSON-RPC stdin writes, process termination, file I/O                           |
+| `mcpSessionConfig`      | `mcpSessionConfig.ts`      | Build the MCP server list for `session/new`                                    |
+| `modelInfo`             | `modelInfo.ts`             | Extract model information from `configOptions`/`models`                        |
+| `constants`             | `constants.ts`             | YOLO mode strings per backend                                                  |
 
 ---
 
@@ -618,11 +618,11 @@ Three key functions are imported from the SDK:
 import { getSessionMessages, listSessions, query } from '@anthropic-ai/claude-agent-sdk';
 ```
 
-| Function               | Purpose                                                 |
-| ---------------------- | ------------------------------------------------------- |
+| Function               | Purpose                                                   |
+| ---------------------- | --------------------------------------------------------- |
 | `query()`              | Core function: spawn CLI subprocess to create new session |
-| `listSessions()`       | List existing sessions from disk                        |
-| `getSessionMessages()` | Retrieve messages from a previous session for replay    |
+| `listSessions()`       | List existing sessions from disk                          |
+| `getSessionMessages()` | Retrieve messages from a previous session for replay      |
 
 When creating a new ACP session (`createSession` method, line 937):
 
@@ -661,12 +661,12 @@ export async function claudeCliPath() {
 
 ### Step 5: Ways to Override the CLI Path
 
-| Mechanism                                                    | Priority | Description                                              |
-| ------------------------------------------------------------ | -------- | -------------------------------------------------------- |
-| `CLAUDE_CODE_EXECUTABLE` environment variable                | Highest  | Directly overrides the executable path                   |
-| Static binary mode (`CLAUDE_AGENT_ACP_IS_SINGLE_FILE_BUN`)  | High     | Bun `--compile` build: extracts from `$bunfs` to a temp directory |
-| `options.pathToClaudeCodeExecutable`                         | Medium   | SDK-level API option                                     |
-| Default fallback                                             | Lowest   | `path.join(dirname(import.meta.url), "cli.js")`          |
+| Mechanism                                                  | Priority | Description                                                       |
+| ---------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
+| `CLAUDE_CODE_EXECUTABLE` environment variable              | Highest  | Directly overrides the executable path                            |
+| Static binary mode (`CLAUDE_AGENT_ACP_IS_SINGLE_FILE_BUN`) | High     | Bun `--compile` build: extracts from `$bunfs` to a temp directory |
+| `options.pathToClaudeCodeExecutable`                       | Medium   | SDK-level API option                                              |
+| Default fallback                                           | Lowest   | `path.join(dirname(import.meta.url), "cli.js")`                   |
 
 Environment variable check in the adapter (`acp-agent.js:1034`):
 
@@ -707,13 +707,13 @@ this.process = spawn(command, args, {
 
 Key CLI arguments passed:
 
-| Argument                                        | Purpose                                   |
-| ----------------------------------------------- | ----------------------------------------- |
-| `--output-format stream-json`                   | CLI outputs streaming JSON                |
-| `--input-format stream-json`                    | CLI accepts streaming JSON input          |
-| `--verbose`                                     | Enable verbose output                     |
+| Argument                                        | Purpose                                       |
+| ----------------------------------------------- | --------------------------------------------- |
+| `--output-format stream-json`                   | CLI outputs streaming JSON                    |
+| `--input-format stream-json`                    | CLI accepts streaming JSON input              |
+| `--verbose`                                     | Enable verbose output                         |
 | `--permission-prompt-tool stdio`                | Permission requests returned via stdin/stdout |
-| `--model`, `--max-turns`, `--thinking`, `--cwd` | Various session configuration options     |
+| `--model`, `--max-turns`, `--thinking`, `--cwd` | Various session configuration options         |
 
 Runtime inheritance (`acp-agent.js:1033`):
 
@@ -732,15 +732,15 @@ Communication is based on **stdin/stdout streaming NDJSON** of the child process
 
 Message types output by the CLI:
 
-| Type                 | Description                                                     |
-| -------------------- | --------------------------------------------------------------- |
-| `system`             | init, status, compact_boundary, session_state_changed           |
-| `result`             | success, error_during_execution, error_max_turns                |
-| `stream_event`       | content_block_start, content_block_delta, message_start         |
+| Type                 | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `system`             | init, status, compact_boundary, session_state_changed            |
+| `result`             | success, error_during_execution, error_max_turns                 |
+| `stream_event`       | content_block_start, content_block_delta, message_start          |
 | `user` / `assistant` | Conversation messages containing tool_use, text, thinking blocks |
-| `tool_progress`      | Tool execution progress                                         |
-| `auth_status`        | Authentication status                                           |
-| `rate_limit_event`   | Rate limit events                                               |
+| `tool_progress`      | Tool execution progress                                          |
+| `auth_status`        | Authentication status                                            |
+| `rate_limit_event`   | Rate limit events                                                |
 
 ## Architecture Overview
 

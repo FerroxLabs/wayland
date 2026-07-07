@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media writing linkedin"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'social-media writing linkedin'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # LinkedIn Post Writing
@@ -57,10 +57,10 @@ Gather these inputs before writing. If the user is chatting interactively, ask. 
 - **The core message in one sentence** -- force this to a single declarative sentence. "Hiring for culture fit is a mistake because it produces teams that agree on everything and challenge nothing" is usable. "I want to talk about hiring" is not. If the user cannot articulate this, help them find it by asking: "If someone reads your post and remembers only one thing, what should that thing be?"
 - **Target audience on LinkedIn** -- who specifically should care about this post: peers in the same role, recruiters, potential clients, industry leaders, junior professionals looking up, or a general professional audience. The audience determines vocabulary level, how much context to provide, and whether the tone leans advisory or peer-to-peer.
 - **Post goal** -- map to one of four outcomes:
-  - *Engagement* (comments and shares) -- structure the post to invite professional opinions
-  - *Visibility* (impressions and reach) -- optimize for the algorithm's dwell-time and share signals
-  - *Connection* (DMs and follows) -- demonstrate specific expertise that makes people want to reach out
-  - *Promotion* (drive traffic to a link, product, or event) -- lead with standalone value, bury the link
+  - _Engagement_ (comments and shares) -- structure the post to invite professional opinions
+  - _Visibility_ (impressions and reach) -- optimize for the algorithm's dwell-time and share signals
+  - _Connection_ (DMs and follows) -- demonstrate specific expertise that makes people want to reach out
+  - _Promotion_ (drive traffic to a link, product, or event) -- lead with standalone value, bury the link
 - **Voice sample** -- if the user has previous LinkedIn posts or a personal brand voice, ask for an example. Identify three markers (sentence length, use of "I" vs. "we," humor level, use of em dashes or ellipses) and replicate them. If no sample is available, default to professional casual.
 
 ### 2. Calibrate Voice and Tone
@@ -129,11 +129,11 @@ The body is the payoff for the hook's promise. It must deliver specific value --
 
 **Body development by format:**
 
-- *Story posts:* Follow a narrative arc -- situation, complication, action, result. Keep the story to 4-6 sentences maximum. The lesson comes after the story, not woven into it.
-- *Insight posts:* State the observation, provide one piece of evidence or example, explain why it matters or what to do about it.
-- *Contrarian posts:* Name the common belief, explain why it is wrong (with evidence, not just assertion), offer what to do instead.
-- *Achievement posts:* State the result, explain what made it hard (the backstory), share 2-3 specific things you learned.
-- *List posts:* Deliver each item in one sentence. Do not elaborate on each item -- the constraint is the format's strength.
+- _Story posts:_ Follow a narrative arc -- situation, complication, action, result. Keep the story to 4-6 sentences maximum. The lesson comes after the story, not woven into it.
+- _Insight posts:_ State the observation, provide one piece of evidence or example, explain why it matters or what to do about it.
+- _Contrarian posts:_ Name the common belief, explain why it is wrong (with evidence, not just assertion), offer what to do instead.
+- _Achievement posts:_ State the result, explain what made it hard (the backstory), share 2-3 specific things you learned.
+- _List posts:_ Deliver each item in one sentence. Do not elaborate on each item -- the constraint is the format's strength.
 
 ### 6. Write the Closing
 
@@ -154,7 +154,7 @@ The closing is the second most important element after the hook. It determines w
 - Line break between every sentence or short phrase. This is LinkedIn's native formatting. Prose paragraphs underperform.
 - No bullet points or numbered lists in the body unless the post is explicitly a list/framework format. Bullets in a story post break the narrative flow.
 - No more than one emoji per post, and only if it is brand-appropriate. Zero emojis is always safe. Posts with 3+ emojis per line read as Instagram content on the wrong platform.
-- Bold text is not supported in LinkedIn's native post editor (only in articles). Do not use markdown formatting like **bold** or *italics* in the post output -- they will render as plain text with asterisks.
+- Bold text is not supported in LinkedIn's native post editor (only in articles). Do not use markdown formatting like **bold** or _italics_ in the post output -- they will render as plain text with asterisks.
 - Unicode special characters (hollow bullets, arrows, checkmarks) are acceptable sparingly in list-format posts but should not be used in narrative posts.
 
 **Hashtag rules:**
@@ -279,13 +279,13 @@ Understanding how LinkedIn distributes content helps you write posts that actual
 
 **Metadata block** (include beneath the post):
 
-| Field | Value |
-|---|---|
-| Format | Story / Insight / Contrarian / Achievement / Question / List |
-| Word count | [n] |
-| Voice register | Professional casual / Authoritative / Vulnerable / Provocative |
-| Post goal | Engagement / Visibility / Connection / Promotion |
-| Hook type | Specific number / Pattern interrupt / Scene drop / Confession / Counterintuitive result / Timestamp |
+| Field          | Value                                                                                               |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| Format         | Story / Insight / Contrarian / Achievement / Question / List                                        |
+| Word count     | [n]                                                                                                 |
+| Voice register | Professional casual / Authoritative / Vulnerable / Provocative                                      |
+| Post goal      | Engagement / Visibility / Connection / Promotion                                                    |
+| Hook type      | Specific number / Pattern interrupt / Scene drop / Confession / Counterintuitive result / Timestamp |
 
 ---
 
@@ -336,11 +336,12 @@ Lead with the insight from the content, not the content itself. The post should 
 
 **User is not sure what to post about.**
 Ask one of these prompting questions:
+
 - "What happened this week at work that surprised you?"
 - "What advice would you give yourself two years ago in your current role?"
 - "What is one thing you do differently from most people in your position?"
 - "What mistake do you see others in your industry making repeatedly?"
-Use the answer as the post's foundation. Most professionals have 2-3 strong LinkedIn posts hiding in their recent work experiences -- they just have not framed them as content yet.
+  Use the answer as the post's foundation. Most professionals have 2-3 strong LinkedIn posts hiding in their recent work experiences -- they just have not framed them as content yet.
 
 **User wants a poll-style post.**
 LinkedIn polls are a separate content format with different mechanics. Polls get high impressions but low-quality engagement -- people vote without reading or commenting. If the user wants to ask a question, structure it as a question post with a specific ask in text form, not a poll. If the user specifically insists on a poll, write the poll question and 3-4 answer options, plus a companion post text that provides context for why the question matters. The companion text should be 3-5 sentences maximum.
@@ -391,13 +392,13 @@ What is the one meeting on your calendar this week that should be an email?
 
 #ProductManagement #Leadership #Productivity
 
-| Field | Value |
-|---|---|
-| Format | Story |
-| Word count | 138 |
+| Field          | Value               |
+| -------------- | ------------------- |
+| Format         | Story               |
+| Word count     | 138                 |
 | Voice register | Professional casual |
-| Post goal | Engagement |
-| Hook type | Specific number |
+| Post goal      | Engagement          |
+| Hook type      | Specific number     |
 
 ---
 
@@ -427,13 +428,13 @@ What is one hire you almost passed on who turned out to be exactly what your tea
 
 #Engineering #Hiring #Leadership #TeamBuilding
 
-| Field | Value |
-|---|---|
-| Format | Contrarian |
-| Word count | 167 |
-| Voice register | Provocative |
-| Post goal | Engagement |
-| Hook type | Pattern interrupt |
+| Field          | Value             |
+| -------------- | ----------------- |
+| Format         | Contrarian        |
+| Word count     | 167               |
+| Voice register | Provocative       |
+| Post goal      | Engagement        |
+| Hook type      | Pattern interrupt |
 
 ---
 
@@ -469,13 +470,13 @@ What is one thing you learned on the way to a role you worked hard for?
 
 #Marketing #Leadership #CareerGrowth
 
-| Field | Value |
-|---|---|
-| Format | Achievement |
-| Word count | 204 |
+| Field          | Value                |
+| -------------- | -------------------- |
+| Format         | Achievement          |
+| Word count     | 204                  |
 | Voice register | Vulnerable/authentic |
-| Post goal | Connection |
-| Hook type | Timestamp |
+| Post goal      | Connection           |
+| Hook type      | Timestamp            |
 
 ---
 
@@ -507,10 +508,10 @@ What does the first 48 hours look like at your company?
 
 #Onboarding #PeopleOps #HRStrategy
 
-| Field | Value |
-|---|---|
-| Format | Insight |
-| Word count | 168 |
-| Voice register | Professional casual |
-| Post goal | Promotion |
-| Hook type | Counterintuitive result |
+| Field          | Value                   |
+| -------------- | ----------------------- |
+| Format         | Insight                 |
+| Word count     | 168                     |
+| Voice register | Professional casual     |
+| Post goal      | Promotion               |
+| Hook type      | Counterintuitive result |

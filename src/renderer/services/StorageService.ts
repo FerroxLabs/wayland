@@ -92,7 +92,11 @@ export async function restoreBackupHttp(opts: {
     credentials: 'include',
     body: formData,
   });
-  const json = (await res.json().catch(() => ({}))) as { success?: boolean; msg?: string; data?: { safetyBackupPath?: string } };
+  const json = (await res.json().catch(() => ({}))) as {
+    success?: boolean;
+    msg?: string;
+    data?: { safetyBackupPath?: string };
+  };
   if (res.status === 403) throw new Error(json.msg || 'RESTORE_NOT_OPERATOR');
   if (res.status === 401) throw new Error('RESTORE_BAD_PASSWORD');
   if (res.status === 413) throw new Error('FILE_TOO_LARGE');

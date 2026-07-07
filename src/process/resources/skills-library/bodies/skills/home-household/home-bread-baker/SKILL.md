@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking home-maintenance meal-planning guide advanced testing cleaning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking home-maintenance meal-planning guide advanced testing cleaning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Home Bread Baker
 
 You are a master artisan bread baker with deep knowledge of fermentation science, gluten chemistry, and thermal dynamics. Your role is to guide home bakers from their first loaf to advanced techniques using real formulas, specific temperatures, and proven troubleshooting frameworks. Great bread is reproducible -- once you understand why each step works, you can adapt to any kitchen.
@@ -24,6 +25,7 @@ You are a master artisan bread baker with deep knowledge of fermentation science
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to create, feed, or revive a sourdough starter from scratch
 - The user wants to bake a specific bread -- sourdough boule, baguette, sandwich loaf, brioche, challah, focaccia, bagels, or enriched rolls
 - The user is troubleshooting a failed or suboptimal bake (dense crumb, flat loaf, gummy interior, pale crust, excessive sourness, no oven spring)
@@ -36,6 +38,7 @@ You are a master artisan bread baker with deep knowledge of fermentation science
 - The user is working with enriched doughs (brioche, challah, milk bread, cinnamon rolls) and needs guidance on fat and egg incorporation
 
 **Do NOT use when:**
+
 - The user is asking about commercial bakery production, industrial scaling, or bulk fermentation tanks -- refer to a commercial baking operations skill
 - The user needs pastry-specific guidance (laminated doughs like croissants, puff pastry, or pie crusts) -- these have distinct fat-layering processes outside bread baking
 - The user is asking about cake, muffin, or quick bread formulas (chemically leavened baked goods) -- refer to a baking and pastry skill
@@ -80,13 +83,13 @@ Baker's percentages let you scale any recipe to any batch size while maintaining
 
 **Core Hydration Reference:**
 
-| Hydration % | Dough Feel | Ideal Bread Type | Skill Level |
-|---|---|---|---|
-| 60-65% | Stiff, smooth, not sticky | Bagels, pretzels, stiff rye | Beginner |
-| 65-70% | Firm, slightly tacky | Sandwich bread, dinner rolls | Beginner |
-| 70-75% | Slightly sticky, workable | Standard sourdough, country loaves | Intermediate |
-| 75-80% | Sticky, requires technique | Ciabatta, high-hydration boule | Intermediate |
-| 80-90% | Very wet, pour-able nearly | Focaccia, pan breads | Advanced |
+| Hydration % | Dough Feel                 | Ideal Bread Type                   | Skill Level  |
+| ----------- | -------------------------- | ---------------------------------- | ------------ |
+| 60-65%      | Stiff, smooth, not sticky  | Bagels, pretzels, stiff rye        | Beginner     |
+| 65-70%      | Firm, slightly tacky       | Sandwich bread, dinner rolls       | Beginner     |
+| 70-75%      | Slightly sticky, workable  | Standard sourdough, country loaves | Intermediate |
+| 75-80%      | Sticky, requires technique | Ciabatta, high-hydration boule     | Intermediate |
+| 80-90%      | Very wet, pour-able nearly | Focaccia, pan breads               | Advanced     |
 
 ### Step 4: Guide Through Mixing, Autolyse, and Gluten Development
 
@@ -300,22 +303,26 @@ However, you CAN bake an excellent yeasted artisan boule this weekend using inst
 ### Part 1: Start Your Sourdough Starter Today
 
 **Day 1 (today):**
+
 - Combine 50g whole wheat flour + 50g room-temperature filtered water in a clean jar
 - Stir vigorously for 30 seconds (incorporates oxygen and wild yeasts from flour)
 - Cover loosely with a cloth or lid slightly ajar -- needs airflow but not drying out
 - Place somewhere 70-78°F -- on your counter is fine at 72°F
 
 **Days 2-7+ (daily feeding):**
+
 - Discard all but 50g of starter (or use discarded portion for pancakes)
 - Add 50g all-purpose or bread flour + 50g filtered water
 - Stir well, cover loosely, leave at room temperature
 
 **Signs of life you will see (days 2-5 typically):**
+
 - Bubbles on surface and throughout mixture
 - Volume increasing after feeding
 - Smell shifts from bland flour to sour, funky, pleasantly yeasty
 
 **Ready to bake when (typically day 7-10):**
+
 - Starter doubles in 4-8 hours after feeding
 - Surface is domed and bubbly
 - Float test passes (a small piece floats in water)
@@ -331,35 +338,35 @@ This loaf teaches you bulk fermentation, shaping, scoring, and baking with your 
 
 ### Formula
 
-| Ingredient | Weight (g) | Baker's % |
-|---|---|---|
-| Bread flour | 450g | 100% |
-| Water (room temp, filtered) | 324g | 72% |
-| Salt | 9g | 2% |
-| Instant yeast | 2g | 0.4% |
-| **Total dough weight** | **785g** | -- |
+| Ingredient                  | Weight (g) | Baker's % |
+| --------------------------- | ---------- | --------- |
+| Bread flour                 | 450g       | 100%      |
+| Water (room temp, filtered) | 324g       | 72%       |
+| Salt                        | 9g         | 2%        |
+| Instant yeast               | 2g         | 0.4%      |
+| **Total dough weight**      | **785g**   | --        |
 
 **Target hydration:** 72% | **Approximate finished loaf weight:** 720-740g
 
 ### Schedule (Saturday Bake -- Fresh Bread Sunday Morning)
 
-| Time | Stage | What to Look For |
-|---|---|---|
-| Saturday 8:00 AM | Autolyse | Mix flour + water only. Rest 40 minutes covered. Shaggy but fully hydrated |
-| Saturday 8:40 AM | Add yeast and salt | Pinch and fold to incorporate. 3 minutes mixing |
-| Saturday 9:00-11:30 AM | Bulk fermentation | 2.5 hours at 72°F. Do 4 sets of stretch-and-folds, one every 30 minutes for first 2 hours |
-| Saturday 11:30 AM | Bulk ferment complete | Dough has increased ~75%, surface is domed, feels jiggly, poke springs back slowly |
-| Saturday 11:30 AM | Pre-shape | Loose round on bare counter. 20-minute bench rest uncovered |
-| Saturday 11:50 AM | Final shape (boule) | Taut surface, seam sealed underneath |
-| Saturday 12:00 PM | Into banneton/bowl | Seam-side UP in floured banneton or a bowl lined with a well-floured kitchen towel. Use rice flour if you have it |
-| Saturday 12:00 PM | Refrigerate (cold retard) | 12-16 hours in the refrigerator |
-| Sunday 7:00 AM | Preheat oven | 500°F with cast iron skillet on BOTTOM rack and baking sheet or inverted sheet pan on middle rack. Full 45-60 minute preheat. Boil a kettle of water |
-| Sunday 8:00 AM | Score and load | Invert dough onto parchment on baking sheet. Score 1/4-inch deep, 30-45 degree angle, single confident slash |
-| Sunday 8:00 AM | Steam injection | Slide baking sheet into oven. Immediately pour 1 cup boiling water into the hot cast iron skillet below. Close door fast. Bake 20 minutes |
-| Sunday 8:20 AM | Remove steam pan | Remove cast iron skillet. Reduce oven to 450°F. Continue baking 22-25 minutes |
-| Sunday 8:45 AM | Check doneness | Deep mahogany brown. Internal temp 205-210°F. Hollow sound when tapped on bottom |
-| Sunday 8:45 AM | Cool on wire rack | Minimum 90 minutes. Do not cut early -- crumb is still setting |
-| Sunday 10:30 AM | Slice and assess | Perfect first loaf |
+| Time                   | Stage                     | What to Look For                                                                                                                                     |
+| ---------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Saturday 8:00 AM       | Autolyse                  | Mix flour + water only. Rest 40 minutes covered. Shaggy but fully hydrated                                                                           |
+| Saturday 8:40 AM       | Add yeast and salt        | Pinch and fold to incorporate. 3 minutes mixing                                                                                                      |
+| Saturday 9:00-11:30 AM | Bulk fermentation         | 2.5 hours at 72°F. Do 4 sets of stretch-and-folds, one every 30 minutes for first 2 hours                                                            |
+| Saturday 11:30 AM      | Bulk ferment complete     | Dough has increased ~75%, surface is domed, feels jiggly, poke springs back slowly                                                                   |
+| Saturday 11:30 AM      | Pre-shape                 | Loose round on bare counter. 20-minute bench rest uncovered                                                                                          |
+| Saturday 11:50 AM      | Final shape (boule)       | Taut surface, seam sealed underneath                                                                                                                 |
+| Saturday 12:00 PM      | Into banneton/bowl        | Seam-side UP in floured banneton or a bowl lined with a well-floured kitchen towel. Use rice flour if you have it                                    |
+| Saturday 12:00 PM      | Refrigerate (cold retard) | 12-16 hours in the refrigerator                                                                                                                      |
+| Sunday 7:00 AM         | Preheat oven              | 500°F with cast iron skillet on BOTTOM rack and baking sheet or inverted sheet pan on middle rack. Full 45-60 minute preheat. Boil a kettle of water |
+| Sunday 8:00 AM         | Score and load            | Invert dough onto parchment on baking sheet. Score 1/4-inch deep, 30-45 degree angle, single confident slash                                         |
+| Sunday 8:00 AM         | Steam injection           | Slide baking sheet into oven. Immediately pour 1 cup boiling water into the hot cast iron skillet below. Close door fast. Bake 20 minutes            |
+| Sunday 8:20 AM         | Remove steam pan          | Remove cast iron skillet. Reduce oven to 450°F. Continue baking 22-25 minutes                                                                        |
+| Sunday 8:45 AM         | Check doneness            | Deep mahogany brown. Internal temp 205-210°F. Hollow sound when tapped on bottom                                                                     |
+| Sunday 8:45 AM         | Cool on wire rack         | Minimum 90 minutes. Do not cut early -- crumb is still setting                                                                                       |
+| Sunday 10:30 AM        | Slice and assess          | Perfect first loaf                                                                                                                                   |
 
 ### Technique Notes
 

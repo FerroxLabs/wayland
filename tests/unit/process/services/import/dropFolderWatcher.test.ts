@@ -57,11 +57,7 @@ describe('runDropFolderProcess', () => {
     const memDir = makeTmp();
     tmpDirs.push(memDir);
 
-    fs.writeFileSync(
-      path.join(dropFolder, 'note.md'),
-      '# Dropped Note\nSome content.',
-      'utf8',
-    );
+    fs.writeFileSync(path.join(dropFolder, 'note.md'), '# Dropped Note\nSome content.', 'utf8');
 
     const result = await runDropFolderProcess({ dropFolder, ijfwMemoryDir: memDir });
 
@@ -83,11 +79,7 @@ describe('runDropFolderProcess', () => {
     const memDir = makeTmp();
     tmpDirs.push(memDir);
 
-    fs.writeFileSync(
-      path.join(dropFolder, 'thoughts.txt'),
-      'Just a plain text note.',
-      'utf8',
-    );
+    fs.writeFileSync(path.join(dropFolder, 'thoughts.txt'), 'Just a plain text note.', 'utf8');
 
     const result = await runDropFolderProcess({ dropFolder, ijfwMemoryDir: memDir });
     expect(result.count).toBe(1);
@@ -118,11 +110,7 @@ describe('runDropFolderProcess', () => {
     const memDir = makeTmp();
     tmpDirs.push(memDir);
 
-    fs.writeFileSync(
-      path.join(dropFolder, 'data.json'),
-      JSON.stringify({ key: 'value' }),
-      'utf8',
-    );
+    fs.writeFileSync(path.join(dropFolder, 'data.json'), JSON.stringify({ key: 'value' }), 'utf8');
 
     const result = await runDropFolderProcess({ dropFolder, ijfwMemoryDir: memDir });
     expect(result.count).toBe(1);

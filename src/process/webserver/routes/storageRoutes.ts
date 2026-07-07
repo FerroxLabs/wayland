@@ -147,7 +147,10 @@ export function registerStorageRoutes(app: Express, validateApiAccess: RequestHa
 
         // Pre-restore safety backup so a bad restore is recoverable.
         const safetyDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'wl-safety-'));
-        const safetyPath = path.join(safetyDir, `pre-restore-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.zip`);
+        const safetyPath = path.join(
+          safetyDir,
+          `pre-restore-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.zip`
+        );
         await backupExport({ userData, destPath: safetyPath, includeKeys: Boolean(passphrase), passphrase });
 
         // Apply the restore (core enforces zip-slip containment, dir allowlist,

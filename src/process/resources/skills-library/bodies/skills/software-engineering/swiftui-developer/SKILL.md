@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices swift design"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices swift design'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SwiftUI Developer
@@ -56,15 +56,15 @@ class TaskStore {
 
 ### When to Use Each Property Wrapper
 
-| Wrapper | Purpose | Scope |
-|---------|---------|-------|
-| `@State` | View-local value types | Single view |
-| `@Binding` | Two-way reference to parent state | Parent-child |
-| `@Observable` class | Shared reference-type model | App-wide |
-| `@Environment` | Dependency injection via view tree | Subtree |
-| `@AppStorage` | UserDefaults-backed persistence | App-wide |
-| `@SceneStorage` | Scene-level state restoration | Per scene |
-| `@FocusState` | Keyboard and focus management | View subtree |
+| Wrapper             | Purpose                            | Scope        |
+| ------------------- | ---------------------------------- | ------------ |
+| `@State`            | View-local value types             | Single view  |
+| `@Binding`          | Two-way reference to parent state  | Parent-child |
+| `@Observable` class | Shared reference-type model        | App-wide     |
+| `@Environment`      | Dependency injection via view tree | Subtree      |
+| `@AppStorage`       | UserDefaults-backed persistence    | App-wide     |
+| `@SceneStorage`     | Scene-level state restoration      | Per scene    |
+| `@FocusState`       | Keyboard and focus management      | View subtree |
 
 ### Environment-Based Dependency Injection
 
@@ -495,6 +495,7 @@ struct TaskStoreTests {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing swiftui developer solutions
 - Reviewing or improving existing swiftui developer approaches
 - Making architectural or implementation decisions about swiftui developer
@@ -502,6 +503,7 @@ struct TaskStoreTests {
 - Troubleshooting swiftui developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -512,21 +514,26 @@ struct TaskStoreTests {
 # Swiftui Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

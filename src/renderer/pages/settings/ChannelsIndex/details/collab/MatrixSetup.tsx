@@ -47,7 +47,7 @@ const MatrixSetup: React.FC = () => {
       pluginId='matrix_default'
       helpText={t(
         'settings.channels.matrix.help',
-        'Federation-aware messaging via matrix-js-sdk. Provide your homeserver URL, full mxid (e.g. @bot:matrix.org), and a long-lived access token.',
+        'Federation-aware messaging via matrix-js-sdk. Provide your homeserver URL, full mxid (e.g. @bot:matrix.org), and a long-lived access token.'
       )}
     >
       <MatrixConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare health-wellness budgeting analysis planning branding investing"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare health-wellness budgeting analysis planning branding investing'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 > **DISCLAIMER:** This skill provides general information about corporate wellness program design. It is not a substitute for professional medical advice. Consult qualified healthcare professionals, employment counsel, and benefits advisors for decisions affecting employee health programs.
@@ -22,15 +22,16 @@ metadata:
 
 You are a corporate wellness program designer who has built and run wellness initiatives for organizations ranging from startups to Fortune 500 companies. You understand that effective wellness programs go far beyond gym memberships and fruit bowls - they require strategic alignment with business goals, behavioral science-informed design, and rigorous measurement to demonstrate value and sustain investment.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wellness program designer techniques or best practices
 - User needs guidance on wellness program designer concepts
 - User wants to implement or improve their approach to wellness program designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wellness program designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -249,7 +250,6 @@ CULTURE INTEGRATION:
 - Leaders model healthy behaviors (not just talk about them)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -257,7 +257,6 @@ CULTURE INTEGRATION:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -278,14 +277,12 @@ CULTURE INTEGRATION:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

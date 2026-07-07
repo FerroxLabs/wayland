@@ -214,9 +214,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
               placeholder={t('common.cmdk.placeholder')}
               className='flex-1 bg-transparent border-none outline-none text-14px text-[var(--text-primary)] placeholder-[var(--text-muted)]'
             />
-            <kbd className='text-11px text-[var(--text-muted)] bg-[var(--bg-3)] rounded-4px px-6px py-2px'>
-              Esc
-            </kbd>
+            <kbd className='text-11px text-[var(--text-muted)] bg-[var(--bg-3)] rounded-4px px-6px py-2px'>Esc</kbd>
           </div>
 
           <Command.List className='max-h-400px overflow-y-auto py-8px'>
@@ -237,11 +235,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                         onSelect={() => handleSelect(makeValue('assistant', a.id))}
                         className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                       >
-                        <PaletteRow
-                          icon={<Bot size={16} />}
-                          title={a.name}
-                          subtitle={a.presetAgentType}
-                        />
+                        <PaletteRow icon={<Bot size={16} />} title={a.name} subtitle={a.presetAgentType} />
                       </Command.Item>
                     );
                   }

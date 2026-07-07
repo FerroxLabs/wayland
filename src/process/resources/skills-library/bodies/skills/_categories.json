@@ -7,12 +7,7 @@
       "description": "Core software engineering skills covering programming languages, design patterns, SOLID principles, code review, refactoring, git workflows, release management, mobile development, developer tools, and architecture/design.",
       "includes": "Programming languages (Python, JavaScript/TypeScript, Go, Rust, Java, C#, Ruby, PHP, Swift, Kotlin), design patterns, SOLID principles, code review, refactoring, git workflows, release management, mobile development, developer tools, architecture and system design",
       "excludes": "Web frontend frameworks (-> web-development), APIs/databases/backend (-> backend-systems), CI/CD and cloud (-> devops-cloud), testing methodology (-> testing-quality), AI/ML (-> ai-machine-learning), data pipelines (-> data-engineering)",
-      "subcategories": [
-        "languages-runtimes",
-        "architecture-design",
-        "mobile-development",
-        "developer-tools"
-      ],
+      "subcategories": ["languages-runtimes", "architecture-design", "mobile-development", "developer-tools"],
       "expectedSkillCount": 87
     },
     "web-development": {
@@ -20,11 +15,7 @@
       "description": "Frontend web development skills including frameworks, HTML/CSS, accessibility, responsive design, and progressive web apps.",
       "includes": "React, Vue, Svelte, Angular, Next.js, HTML/CSS, accessibility, responsive design, progressive web apps, frontend performance, browser APIs, CSS frameworks, web components",
       "excludes": "Server-side APIs and databases (-> backend-systems), deployment and hosting (-> devops-cloud), core programming language skills (-> software-engineering), UI/UX visual design (-> design-creative)",
-      "subcategories": [
-        "frontend-frameworks",
-        "html-css-web",
-        "accessibility-performance"
-      ],
+      "subcategories": ["frontend-frameworks", "html-css-web", "accessibility-performance"],
       "expectedSkillCount": 20
     },
     "backend-systems": {
@@ -32,11 +23,7 @@
       "description": "Backend development skills covering APIs, databases, microservices, message queues, authentication, caching, and server architecture.",
       "includes": "API design (REST, GraphQL), database design and optimization, microservices architecture, message queues, authentication and authorization, caching strategies, server architecture, ORM and query optimization",
       "excludes": "Frontend frameworks (-> web-development), CI/CD pipelines (-> devops-cloud), core language skills (-> software-engineering), data analysis with spreadsheets (-> data-analysis)",
-      "subcategories": [
-        "api-design",
-        "database",
-        "server-infrastructure"
-      ],
+      "subcategories": ["api-design", "database", "server-infrastructure"],
       "expectedSkillCount": 17
     },
     "devops-cloud": {
@@ -57,11 +44,7 @@
       "description": "Data engineering skills covering data pipelines, ETL processes, data modeling, and streaming architectures.",
       "includes": "Data pipelines, ETL/ELT processes, data modeling, streaming architectures, data warehousing, data lake design, Apache Spark, Apache Kafka, Airflow, dbt, data quality frameworks",
       "excludes": "Data analysis and visualization (-> data-analysis), ML model training (-> ai-machine-learning), database administration (-> backend-systems), business intelligence dashboards (-> data-analysis)",
-      "subcategories": [
-        "pipelines-etl",
-        "data-modeling",
-        "streaming"
-      ],
+      "subcategories": ["pipelines-etl", "data-modeling", "streaming"],
       "expectedSkillCount": 0
     },
     "ai-machine-learning": {
@@ -69,11 +52,7 @@
       "description": "AI and machine learning skills covering ML fundamentals, LLM engineering, RAG, agents, NLP, computer vision, prompt engineering, and fine-tuning.",
       "includes": "Machine learning fundamentals, LLM engineering, RAG (retrieval-augmented generation), AI agents, NLP, computer vision, prompt engineering, fine-tuning, model evaluation, MLOps, deep learning, neural networks",
       "excludes": "Data analysis with spreadsheets (-> data-analysis), data pipelines (-> data-engineering), AI image generation prompting (-> design-creative), general programming skills (-> software-engineering)",
-      "subcategories": [
-        "ml-fundamentals",
-        "llm-engineering",
-        "applied-ai"
-      ],
+      "subcategories": ["ml-fundamentals", "llm-engineering", "applied-ai"],
       "expectedSkillCount": 8
     },
     "testing-quality": {
@@ -81,11 +60,7 @@
       "description": "Software testing and quality assurance skills covering unit testing, integration testing, E2E testing, TDD, load testing, code quality metrics, and test strategy.",
       "includes": "Unit testing, integration testing, end-to-end testing, test-driven development, load testing, code quality metrics, test strategy, test automation, mocking and stubbing, coverage analysis, performance testing",
       "excludes": "Security testing (-> security), code review practices (-> software-engineering), CI/CD pipeline configuration (-> devops-cloud), debugging strategies (-> software-engineering)",
-      "subcategories": [
-        "test-methodology",
-        "test-automation",
-        "quality-metrics"
-      ],
+      "subcategories": ["test-methodology", "test-automation", "quality-metrics"],
       "expectedSkillCount": 12
     },
     "writing": {
@@ -124,11 +99,7 @@
       "description": "Skills for marketing campaigns, sales processes, SEO, content marketing, platform strategies, and brand positioning.",
       "includes": "Marketing campaigns, sales processes and CRM, SEO, content marketing strategy, social media marketing, brand positioning, email marketing, advertising, lead generation, conversion optimization, platform-specific marketing (LinkedIn, TikTok, Instagram, YouTube)",
       "excludes": "Business strategy and operations (-> business-strategy), creative writing (-> writing), personal branding for job search (-> career-development), graphic design (-> design-creative), data analysis for marketing (-> data-analysis)",
-      "subcategories": [
-        "marketing",
-        "sales",
-        "seo-growth"
-      ],
+      "subcategories": ["marketing", "sales", "seo-growth"],
       "expectedSkillCount": 24
     },
     "education": {
@@ -214,12 +185,7 @@
       "description": "Skills for physical fitness, nutrition, mental wellbeing, and preventive health -- educational guidance, not medical advice.",
       "includes": "Workout plans (beginner through advanced), running training plans, yoga and stretching, meal planning by dietary preference, macro and calorie calculation, stress management, mindfulness and meditation, sleep hygiene, journaling for mental health, health screening schedules",
       "excludes": "Cooking recipes and meal prep techniques (-> home-household), parenting health decisions (-> family-relationships), medical diagnosis or treatment (anti-feature -- never build), sports-specific hobby training (-> hobbies-crafts), ergonomic workspace setup (-> productivity)",
-      "subcategories": [
-        "fitness-exercise",
-        "nutrition-diet",
-        "mental-health",
-        "preventive-health"
-      ],
+      "subcategories": ["fitness-exercise", "nutrition-diet", "mental-health", "preventive-health"],
       "expectedSkillCount": 45
     },
     "home-household": {
@@ -242,12 +208,7 @@
       "description": "Skills for parenting, relationship communication, family event planning, and caregiving across all life stages.",
       "includes": "Age-appropriate activity planning, homework help strategies, screen time management, difficult conversation preparation, conflict resolution, boundary setting, wedding and party planning, family reunion organization, elder care planning, caregiver self-care",
       "excludes": "Cooking for the family (-> home-household), family budgeting (-> personal-finance), children's education and tutoring (-> education), family health decisions (-> health-wellness), family travel planning (-> travel-experiences)",
-      "subcategories": [
-        "parenting",
-        "relationships-communication",
-        "family-events",
-        "caregiving"
-      ],
+      "subcategories": ["parenting", "relationships-communication", "family-events", "caregiving"],
       "expectedSkillCount": 40
     },
     "travel-experiences": {
@@ -255,12 +216,7 @@
       "description": "Skills for trip planning, travel logistics, local experiences, and event organization.",
       "includes": "Itinerary creation (family, solo, romantic, adventure, budget), packing lists, travel budget planning, visa and documentation checklists, restaurant selection, road trip planning, city walking tours, airport navigation, travel rewards optimization, party and event planning",
       "excludes": "Business conference logistics (-> business-strategy), outdoor recreation hobbies (-> hobbies-crafts), sustainable travel philosophy (-> sustainability), vacation budgeting (-> personal-finance), relocation and moving checklists (-> home-household)",
-      "subcategories": [
-        "trip-planning",
-        "experiences-activities",
-        "travel-logistics",
-        "event-planning"
-      ],
+      "subcategories": ["trip-planning", "experiences-activities", "travel-logistics", "event-planning"],
       "expectedSkillCount": 28
     },
     "legal-civic": {
@@ -268,12 +224,7 @@
       "description": "Skills for legal literacy, document understanding, and civic engagement -- educational information, not legal advice.",
       "includes": "Lease agreement review checklists, employment contract key terms, small claims court preparation, NDA and terms of service review, business entity comparison (LLC, Corp, Sole Prop), will and estate planning checklists, voter registration guidance, understanding ballot measures, public records requests",
       "excludes": "Business contract negotiation strategy (-> business-strategy), tax planning (-> personal-finance), employment law from the HR perspective (-> business-strategy), legal writing as a craft (-> writing), practicing law or providing legal advice (anti-feature -- never build)",
-      "subcategories": [
-        "personal-legal",
-        "business-legal",
-        "estate-planning",
-        "civic-engagement"
-      ],
+      "subcategories": ["personal-legal", "business-legal", "estate-planning", "civic-engagement"],
       "expectedSkillCount": 28
     },
     "career-development": {
@@ -281,12 +232,7 @@
       "description": "Skills for finding jobs, preparing for interviews, advancing careers, and building freelance practices.",
       "includes": "Resume writing, cover letter crafting, LinkedIn optimization, job search strategy, behavioral and technical interview prep, salary negotiation, performance review preparation, career pivot planning, freelance rate setting, client proposals, portfolio building",
       "excludes": "Business hiring and HR processes (-> business-strategy), professional writing craft (-> writing), software engineering skill-building (-> software-engineering), personal brand content creation (-> writing), networking event planning (-> travel-experiences)",
-      "subcategories": [
-        "job-search",
-        "interview-preparation",
-        "career-growth",
-        "freelancing"
-      ],
+      "subcategories": ["job-search", "interview-preparation", "career-growth", "freelancing"],
       "expectedSkillCount": 32
     },
     "hobbies-crafts": {
@@ -294,13 +240,7 @@
       "description": "Skills for hands-on making, performing arts, collecting, games, and outdoor recreation pursued for personal enjoyment.",
       "includes": "Woodworking, sewing and knitting, electronics and Arduino, 3D printing, jewelry making, learning musical instruments, tabletop RPG campaign design, board game selection, hiking and trail planning, fishing, bird watching, cycling routes, home brewing",
       "excludes": "Professional music production (-> design-creative), creative writing (-> writing), professional photography (-> design-creative), competitive fitness training (-> health-wellness), gardening for home maintenance (-> home-household)",
-      "subcategories": [
-        "making-building",
-        "performing-arts",
-        "collecting",
-        "games-puzzles",
-        "outdoor-recreation"
-      ],
+      "subcategories": ["making-building", "performing-arts", "collecting", "games-puzzles", "outdoor-recreation"],
       "expectedSkillCount": 35
     },
     "sustainability": {
@@ -308,10 +248,7 @@
       "description": "Skills for reducing environmental impact through energy efficiency, waste reduction, sustainable consumption, and eco-friendly living.",
       "includes": "Home energy audits, water conservation, waste reduction plans, composting, solar panel evaluation, eco-friendly product alternatives, sustainable shopping, food waste reduction, repair vs replace frameworks, carbon footprint estimation, green transportation",
       "excludes": "Gardening techniques (-> home-household), outdoor recreation (-> hobbies-crafts), business sustainability reporting (-> business-strategy), environmental science education (-> education), sustainable architecture (-> software-engineering for green tech)",
-      "subcategories": [
-        "home-sustainability",
-        "sustainable-living"
-      ],
+      "subcategories": ["home-sustainability", "sustainable-living"],
       "expectedSkillCount": 18
     },
     "security": {
@@ -333,11 +270,7 @@
       "description": "Skills for performing arts, visual arts, music composition, film/video production, and photography artistry pursued at a professional or semi-professional level.",
       "includes": "Performing arts (acting, dance, theater direction), visual arts (painting, sculpture, illustration), music composition and theory, film and video production, photography artistry, art critique and portfolio development",
       "excludes": "Hobby-level crafts (-> hobbies-crafts), AI image generation (-> design-creative), creative writing (-> writing), graphic design for business (-> design-creative), music as a hobby instrument (-> hobbies-crafts)",
-      "subcategories": [
-        "performing-arts",
-        "visual-arts",
-        "music-composition"
-      ],
+      "subcategories": ["performing-arts", "visual-arts", "music-composition"],
       "expectedSkillCount": 0
     },
     "game-development": {
@@ -345,11 +278,7 @@
       "description": "Skills for game design, game engines, narrative design, level design, and game testing.",
       "includes": "Game design principles, game engines (Unity, Unreal, Godot), narrative design, level design, game testing and QA, game monetization, game physics, multiplayer networking, game UI/UX",
       "excludes": "Tabletop RPG design (-> hobbies-crafts), general software engineering (-> software-engineering), 3D modeling as hobby (-> hobbies-crafts), competitive gaming (-> hobbies-crafts)",
-      "subcategories": [
-        "game-design",
-        "game-engines",
-        "narrative-design"
-      ],
+      "subcategories": ["game-design", "game-engines", "narrative-design"],
       "expectedSkillCount": 0
     },
     "emerging-tech": {
@@ -357,11 +286,7 @@
       "description": "Skills for blockchain/web3, embedded systems/IoT, competitive programming, and quantum computing.",
       "includes": "Blockchain and web3 development, smart contracts, embedded systems, IoT development, competitive programming, quantum computing fundamentals, AR/VR development",
       "excludes": "General cloud infrastructure (-> devops-cloud), AI/ML (-> ai-machine-learning), standard web development (-> web-development), mobile development (-> software-engineering)",
-      "subcategories": [
-        "blockchain-web3",
-        "embedded-iot",
-        "competitive-programming"
-      ],
+      "subcategories": ["blockchain-web3", "embedded-iot", "competitive-programming"],
       "expectedSkillCount": 0
     }
   }

@@ -58,11 +58,7 @@ export const MENU_ACTIONS: Record<string, { type: ActionCategory; action: string
  * Tencent-derived branch even if `ilinkUserId` is later omitted from the
  * config (defensive against credential migration churn).
  */
-function loadOrCreateWechatUin(
-  dataDir: string,
-  accountId: string,
-  ilinkUserId?: string
-): string {
+function loadOrCreateWechatUin(dataDir: string, accountId: string, ilinkUserId?: string): string {
   const uinDir = path.join(dataDir, 'weixin-monitor');
   const uinFile = path.join(uinDir, `${accountId}.uin`);
 

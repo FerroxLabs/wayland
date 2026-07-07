@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain budgeting javascript api-design cloud automation networking"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced blockchain budgeting javascript api-design cloud automation networking'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Decentralized Storage Engineer
 
 You are an expert decentralized storage engineer with deep knowledge of IPFS, Arweave, Filecoin, and content-addressed storage patterns. You help teams choose the right storage protocol, architect reliable data persistence strategies, and integrate decentralized storage into applications.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about decentralized storage engineer techniques or best practices
 - User needs guidance on decentralized storage engineer concepts
 - User wants to implement or improve their approach to decentralized storage engineer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of decentralized storage engineer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -132,15 +133,15 @@ const pinata = new PinataSDK({ pinataApiKey, pinataSecretApiKey });
 // Pin file
 const result = await pinata.pinFromFS('./my-nft-image.png', {
   pinataMetadata: { name: 'NFT #1' },
-  pinataOptions: { cidVersion: 1 }
+  pinataOptions: { cidVersion: 1 },
 });
 console.log(result.IpfsHash); // bafybeig...
 
 // Pin JSON metadata
 const metadata = await pinata.pinJSONToIPFS({
-  name: "My NFT",
-  description: "An awesome NFT",
-  image: `ipfs://${result.IpfsHash}`
+  name: 'My NFT',
+  description: 'An awesome NFT',
+  image: `ipfs://${result.IpfsHash}`,
 });
 
 // Pin by CID (remote pin)
@@ -237,19 +238,21 @@ const receipt = await irys.upload(JSON.stringify(metadata), {
 ```graphql
 # Find all uploads from your app
 query {
-  transactions(
-    tags: [
-      { name: "App-Name", values: ["MyDApp"] }
-      { name: "Type", values: ["nft-image"] }
-    ]
-    first: 100
-  ) {
+  transactions(tags: [{ name: "App-Name", values: ["MyDApp"] }, { name: "Type", values: ["nft-image"] }], first: 100) {
     edges {
       node {
         id
-        tags { name value }
-        data { size }
-        block { timestamp height }
+        tags {
+          name
+          value
+        }
+        data {
+          size
+        }
+        block {
+          timestamp
+          height
+        }
       }
     }
   }
@@ -292,13 +295,10 @@ import { Web3Storage } from 'web3.storage';
 const client = new Web3Storage({ token: CONFIG.WEB3_STORAGE_TOKEN });
 
 // Upload files
-const files = [
-  new File(['hello world'], 'readme.txt'),
-  new File([imageBuffer], 'image.png')
-];
+const files = [new File(['hello world'], 'readme.txt'), new File([imageBuffer], 'image.png')];
 const rootCid = await client.put(files, {
   name: 'my-upload',
-  wrapWithDirectory: true
+  wrapWithDirectory: true,
 });
 console.log(`Stored with CID: ${rootCid}`);
 // Data is stored on IPFS + Filecoin for redundancy
@@ -320,16 +320,16 @@ for (const file of files) {
 
 ## Protocol Decision Framework
 
-| Criterion | IPFS + Pinning | Arweave | Filecoin |
-|-----------|---------------|---------|----------|
-| **Cost model** | Monthly subscription | One-time payment | Per-deal negotiated |
-| **Permanence** | While pinned | Permanent (200+ yr endowment) | Deal duration (6-18 mo typical) |
-| **Retrieval speed** | Fast (gateway/CDN) | Fast (gateways) | Slow (retrieval deals) |
-| **Best data size** | Any size | <100MB per tx ideal | Large archives (32GB sectors) |
-| **Mutability** | Via IPNS or ENS | Immutable forever | Immutable per deal |
-| **NFT metadata** | Common (with pinning) | Gold standard (permanent) | Less common for NFTs |
-| **Large archives** | Expensive at scale | Moderate cost | Most cost-effective |
-| **Ecosystem** | Largest, most tools | Growing, SmartWeave apps | Enterprise, compliance |
+| Criterion           | IPFS + Pinning        | Arweave                       | Filecoin                        |
+| ------------------- | --------------------- | ----------------------------- | ------------------------------- |
+| **Cost model**      | Monthly subscription  | One-time payment              | Per-deal negotiated             |
+| **Permanence**      | While pinned          | Permanent (200+ yr endowment) | Deal duration (6-18 mo typical) |
+| **Retrieval speed** | Fast (gateway/CDN)    | Fast (gateways)               | Slow (retrieval deals)          |
+| **Best data size**  | Any size              | <100MB per tx ideal           | Large archives (32GB sectors)   |
+| **Mutability**      | Via IPNS or ENS       | Immutable forever             | Immutable per deal              |
+| **NFT metadata**    | Common (with pinning) | Gold standard (permanent)     | Less common for NFTs            |
+| **Large archives**  | Expensive at scale    | Moderate cost                 | Most cost-effective             |
+| **Ecosystem**       | Largest, most tools   | Growing, SmartWeave apps      | Enterprise, compliance          |
 
 ### Decision Tree
 
@@ -356,14 +356,14 @@ Is permanence absolutely required?
 async function uploadNFTAssets(imageBuffer, metadata) {
   // 1. Upload image to Arweave
   const imageReceipt = await irys.upload(imageBuffer, {
-    tags: [{ name: "Content-Type", value: "image/png" }]
+    tags: [{ name: 'Content-Type', value: 'image/png' }],
   });
   const imageUrl = `ar://${imageReceipt.id}`;
 
   // 2. Upload metadata pointing to permanent image
   metadata.image = imageUrl;
   const metaReceipt = await irys.upload(JSON.stringify(metadata), {
-    tags: [{ name: "Content-Type", value: "application/json" }]
+    tags: [{ name: 'Content-Type', value: 'application/json' }],
   });
 
   // 3. Use metadata URI in smart contract
@@ -424,12 +424,12 @@ server {
 
 ### Pinning Redundancy Strategy
 
-| Tier | Redundancy | Services | Use Case |
-|------|-----------|----------|----------|
-| Basic | 1 pin service | Pinata OR Infura | Development, low-value data |
-| Standard | 2 pin services | Pinata + Web3.Storage | Production NFTs, app data |
-| High | 3+ pins + self-hosted | Pinata + Infura + own cluster | Business-critical data |
-| Maximum | Pins + Arweave + Filecoin | All of the above | Regulatory, legal, permanent |
+| Tier     | Redundancy                | Services                      | Use Case                     |
+| -------- | ------------------------- | ----------------------------- | ---------------------------- |
+| Basic    | 1 pin service             | Pinata OR Infura              | Development, low-value data  |
+| Standard | 2 pin services            | Pinata + Web3.Storage         | Production NFTs, app data    |
+| High     | 3+ pins + self-hosted     | Pinata + Infura + own cluster | Business-critical data       |
+| Maximum  | Pins + Arweave + Filecoin | All of the above              | Regulatory, legal, permanent |
 
 ### Monitoring Data Availability
 
@@ -449,22 +449,16 @@ ipfs dht findprovs QmHash
 ```javascript
 // Automated availability monitoring
 async function checkAvailability(cid) {
-  const gateways = [
-    '[external resource]',
-    '[external resource]',
-    '[external resource]'
-  ];
+  const gateways = ['[external resource]', '[external resource]', '[external resource]'];
 
   const results = await Promise.allSettled(
-    gateways.map(gw =>
-      retrieve(`${gw}${cid}`, { method: 'HEAD', signal: AbortSignal.timeout(10000) })
-    )
+    gateways.map((gw) => retrieve(`${gw}${cid}`, { method: 'HEAD', signal: AbortSignal.timeout(10000) }))
   );
 
   return results.map((r, i) => ({
     gateway: gateways[i],
     available: r.status === 'fulfilled' && r.value.ok,
-    latency: r.status === 'fulfilled' ? r.value.headers.get('x-response-time') : null
+    latency: r.status === 'fulfilled' ? r.value.headers.get('x-response-time') : null,
   }));
 }
 ```
@@ -473,21 +467,21 @@ async function checkAvailability(cid) {
 
 ## Cost Estimation
 
-| Protocol | Estimate (1 GB) | Estimate (1 TB) | Notes |
-|----------|-----------------|-----------------|-------|
-| IPFS (Pinata free) | Free (1 GB limit) | N/A | Limited to 1 GB total |
-| IPFS (Pinata paid) | ~$0.15/mo | ~$150/mo | Scales linearly |
-| Arweave | ~$1-5 one-time | ~$1000-5000 one-time | Varies with AR token price |
-| Filecoin | ~$0.0001/mo | ~$0.10/mo | Cheapest at scale, slow retrieval |
-| Web3.Storage (free) | Free (5 GB limit) | N/A | IPFS + Filecoin hybrid |
+| Protocol            | Estimate (1 GB)   | Estimate (1 TB)      | Notes                             |
+| ------------------- | ----------------- | -------------------- | --------------------------------- |
+| IPFS (Pinata free)  | Free (1 GB limit) | N/A                  | Limited to 1 GB total             |
+| IPFS (Pinata paid)  | ~$0.15/mo         | ~$150/mo             | Scales linearly                   |
+| Arweave             | ~$1-5 one-time    | ~$1000-5000 one-time | Varies with AR token price        |
+| Filecoin            | ~$0.0001/mo       | ~$0.10/mo            | Cheapest at scale, slow retrieval |
+| Web3.Storage (free) | Free (5 GB limit) | N/A                  | IPFS + Filecoin hybrid            |
 
 ### Cost Optimization Tips
+
 1. **Deduplicate before uploading** -- IPFS deduplicates at block level automatically
 2. **Compress data** before upload (images, JSON minification)
 3. **Use CAR files** for batch uploads to reduce transaction overhead
 4. **Choose Filecoin** for cold storage of large datasets
 5. **Use Arweave** selectively for data that truly must be permanent
-
 
 ## Process
 
@@ -496,7 +490,6 @@ async function checkAvailability(cid) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -517,14 +510,12 @@ async function checkAvailability(cid) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,54 +7,55 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart best-practices python javascript testing email"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart best-practices python javascript testing email'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Regex Cheatsheet
 
 You are a regex specialist. Help the user build, test, and debug regular expressions. Provide exact patterns with explanations, test cases, and language-specific syntax where relevant. Favor readability over cleverness.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about regex cheatsheet techniques or best practices
 - User needs guidance on regex cheatsheet concepts
 - User wants to implement or improve their approach to regex cheatsheet
 
 **Do NOT use when:**
+
 - The request falls outside the scope of regex cheatsheet
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
 
 ## Quick Reference
 
-| Pattern | Matches | Example |
-|---------|---------|---------|
-| `.` | Any character except newline | `a.c` matches `abc`, `a1c` |
-| `\d` | Digit [0-9] | `\d{3}` matches `123` |
-| `\w` | Word char [a-zA-Z0-9_] | `\w+` matches `hello_1` |
-| `\s` | Whitespace | `\s+` matches spaces, tabs |
-| `\b` | Word boundary | `\bcat\b` matches `cat` not `catch` |
-| `^` | Start of line | `^Hello` |
-| `$` | End of line | `world$` |
-| `*` | 0 or more | `ab*c` matches `ac`, `abc`, `abbc` |
-| `+` | 1 or more | `ab+c` matches `abc` not `ac` |
-| `?` | 0 or 1 | `colou?r` matches both spellings |
-| `{n,m}` | n to m times | `\d{2,4}` matches 2-4 digits |
-| `(...)` | Capture group | `(ab)+` captures `ab` |
-| `(?:...)` | Non-capturing group | `(?:ab)+` groups without capture |
-| `(?=...)` | Lookahead | `\d(?=px)` digit before `px` |
-| `(?<=...)` | Lookbehind | `(?<=\$)\d+` digits after `$` |
-| `[abc]` | Character class | `[aeiou]` matches vowels |
-| `[^abc]` | Negated class | `[^0-9]` matches non-digits |
-| `\1` | Backreference | `(\w)\1` matches `aa`, `bb` |
+| Pattern    | Matches                      | Example                             |
+| ---------- | ---------------------------- | ----------------------------------- |
+| `.`        | Any character except newline | `a.c` matches `abc`, `a1c`          |
+| `\d`       | Digit [0-9]                  | `\d{3}` matches `123`               |
+| `\w`       | Word char [a-zA-Z0-9_]       | `\w+` matches `hello_1`             |
+| `\s`       | Whitespace                   | `\s+` matches spaces, tabs          |
+| `\b`       | Word boundary                | `\bcat\b` matches `cat` not `catch` |
+| `^`        | Start of line                | `^Hello`                            |
+| `$`        | End of line                  | `world$`                            |
+| `*`        | 0 or more                    | `ab*c` matches `ac`, `abc`, `abbc`  |
+| `+`        | 1 or more                    | `ab+c` matches `abc` not `ac`       |
+| `?`        | 0 or 1                       | `colou?r` matches both spellings    |
+| `{n,m}`    | n to m times                 | `\d{2,4}` matches 2-4 digits        |
+| `(...)`    | Capture group                | `(ab)+` captures `ab`               |
+| `(?:...)`  | Non-capturing group          | `(?:ab)+` groups without capture    |
+| `(?=...)`  | Lookahead                    | `\d(?=px)` digit before `px`        |
+| `(?<=...)` | Lookbehind                   | `(?<=\$)\d+` digits after `$`       |
+| `[abc]`    | Character class              | `[aeiou]` matches vowels            |
+| `[^abc]`   | Negated class                | `[^0-9]` matches non-digits         |
+| `\1`       | Backreference                | `(\w)\1` matches `aa`, `bb`         |
 
 ## Common Recipes
 
@@ -75,6 +76,7 @@ https?://[^\s<>"{}|\\^`\[\]]+
 ```regex
 (?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}
 ```
+
 Matches: `(555) 123-4567`, `555.123.4567`, `+1-555-123-4567`
 
 ### IPv4 Address
@@ -232,22 +234,22 @@ sed -E 's/([0-9]+)/[\1]/g' file  # extended regex
 
 ## Testing Tools
 
-| Tool | URL | Best For |
-|------|-----|----------|
+| Tool     | URL          | Best For                               |
+| -------- | ------------ | -------------------------------------- |
 | regex101 | regex101.com | Detailed explanation, multiple flavors |
-| regexr | regexr.com | Interactive learning |
-| debuggex | debuggex.com | Visual railroad diagrams |
+| regexr   | regexr.com   | Interactive learning                   |
+| debuggex | debuggex.com | Visual railroad diagrams               |
 
 ## Gotchas
 
-| Trap | Problem | Fix |
-|------|---------|-----|
-| Greedy `.*` | Matches too much | Use `.*?` (lazy) |
-| Unescaped `.` | Matches any char | Use `\.` for literal dot |
-| `^$` in multiline | Matches line vs string | Use `\A` and `\z` for string boundaries |
-| Backtracking | Catastrophic performance | Avoid nested quantifiers `(a+)+` |
-| Character class `-` | Interpreted as range | Put `-` first or last: `[-abc]` |
-| Lookbehind length | Variable length not always supported | Use `\K` in PCRE instead |
+| Trap                | Problem                              | Fix                                     |
+| ------------------- | ------------------------------------ | --------------------------------------- |
+| Greedy `.*`         | Matches too much                     | Use `.*?` (lazy)                        |
+| Unescaped `.`       | Matches any char                     | Use `\.` for literal dot                |
+| `^$` in multiline   | Matches line vs string               | Use `\A` and `\z` for string boundaries |
+| Backtracking        | Catastrophic performance             | Avoid nested quantifiers `(a+)+`        |
+| Character class `-` | Interpreted as range                 | Put `-` first or last: `[-abc]`         |
+| Lookbehind length   | Variable length not always supported | Use `\K` in PCRE instead                |
 
 ## Build-a-Pattern Workflow
 
@@ -258,7 +260,6 @@ sed -E 's/([0-9]+)/[\1]/g' file  # extended regex
 5. **Test edge cases**: Empty strings, special characters, unexpected input
 6. **Add groups** only if you need to capture or reference parts
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -266,7 +267,6 @@ sed -E 's/([0-9]+)/[\1]/g' file  # extended regex
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -287,14 +287,12 @@ sed -E 's/([0-9]+)/[\1]/g' file  # extended regex
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

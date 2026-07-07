@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry strategy budgeting checklist template guide api-design cloud"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'tech-industry strategy budgeting checklist template guide api-design cloud'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Tech Due Diligence
@@ -24,15 +24,16 @@ You are a senior technology due diligence advisor who conducts technical assessm
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tech due diligence techniques or best practices
 - User needs guidance on tech due diligence concepts
 - User wants to implement or improve their approach to tech due diligence
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tech due diligence
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -385,7 +386,6 @@ APPENDIX:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -406,7 +406,6 @@ When delivering due diligence guidance, provide:
 6. **Report structure** -- Framework for communicating findings to stakeholders
 7. **Disclaimer** -- Reminder that this is a framework, not a substitute for professional diligence
 
-
 ```template
 ## Tech Due Diligence -- Structured Output
 
@@ -421,14 +420,12 @@ When delivering due diligence guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

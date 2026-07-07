@@ -137,9 +137,7 @@ describe('IrcPlugin reconnect exhaustion', () => {
 describe('IrcPlugin PASS without SASL', () => {
   it('sets connectOpts.password and omits the account block when saslMechanism="none" + password present', async () => {
     const plugin = new IrcPlugin();
-    await plugin.initialize(
-      makeConfig({ password: 'server-pass-123', saslMechanism: 'none' }),
-    );
+    await plugin.initialize(makeConfig({ password: 'server-pass-123', saslMechanism: 'none' }));
     await plugin.start();
 
     expect(mockClientInstance.connect).toHaveBeenCalledTimes(1);

@@ -55,7 +55,7 @@ describe('resolveWorkflowPalette', () => {
 
 describe('WORKFLOW_CATEGORY_PALETTE constant', () => {
   it('contains all seven known category keys', () => {
-    expect(Object.keys(WORKFLOW_CATEGORY_PALETTE).sort()).toEqual(
+    expect(Object.keys(WORKFLOW_CATEGORY_PALETTE).toSorted()).toEqual(
       [
         'Business Operations',
         'Career',
@@ -64,7 +64,7 @@ describe('WORKFLOW_CATEGORY_PALETTE constant', () => {
         'Cross-Domain',
         'Lifestyle',
         'Software & Engineering',
-      ].sort()
+      ].toSorted()
     );
   });
 });

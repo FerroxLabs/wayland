@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices testing"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices testing'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile Testing Expert
@@ -163,7 +163,9 @@ describe('Checkout Flow', () => {
     await element(by.id('checkout-button')).tap();
     await element(by.id('address-line1')).typeText('123 Main St');
     await element(by.id('place-order-button')).tap();
-    await waitFor(element(by.id('order-confirmation'))).toBeVisible().withTimeout(10000);
+    await waitFor(element(by.id('order-confirmation')))
+      .toBeVisible()
+      .withTimeout(10000);
   });
 });
 ```
@@ -219,20 +221,20 @@ Minimum Test Matrix:
     one per screen size bucket, one per chipset family
 ```
 
-| Service | Strengths | Pricing |
-|---------|-----------|---------|
-| AWS Device Farm | Large catalog, CI integration | Per minute |
-| Firebase Test Lab | Free tier, Robo test | Free basic, pay per device-min |
-| BrowserStack | Real devices, manual + auto | Monthly subscription |
+| Service           | Strengths                     | Pricing                        |
+| ----------------- | ----------------------------- | ------------------------------ |
+| AWS Device Farm   | Large catalog, CI integration | Per minute                     |
+| Firebase Test Lab | Free tier, Robo test          | Free basic, pay per device-min |
+| BrowserStack      | Real devices, manual + auto   | Monthly subscription           |
 
 ## Performance Testing
 
-| Metric | Target | Tool |
-|--------|--------|------|
-| Cold start | <2s | Instruments / Android Profiler |
-| Frame rate | 60fps | Core Animation / GPU Profiler |
-| Memory | <150MB typical | Allocations / Memory Profiler |
-| APK/IPA size | <50MB ideal | App Thinning / `--analyze-size` |
+| Metric       | Target         | Tool                            |
+| ------------ | -------------- | ------------------------------- |
+| Cold start   | <2s            | Instruments / Android Profiler  |
+| Frame rate   | 60fps          | Core Animation / GPU Profiler   |
+| Memory       | <150MB typical | Allocations / Memory Profiler   |
+| APK/IPA size | <50MB ideal    | App Thinning / `--analyze-size` |
 
 ```swift
 // iOS performance test
@@ -274,12 +276,12 @@ func testAccessibility() throws {
 }
 ```
 
-| Check | iOS | Android |
-|-------|-----|---------|
-| Screen reader | VoiceOver | TalkBack |
-| Touch targets >= 44pt/48dp | Accessibility Inspector | Layout Inspector |
-| Color contrast >= 4.5:1 | Accessibility Inspector | Accessibility Scanner |
-| Dynamic type | Test with largest size | Test with largest font scale |
+| Check                      | iOS                     | Android                      |
+| -------------------------- | ----------------------- | ---------------------------- |
+| Screen reader              | VoiceOver               | TalkBack                     |
+| Touch targets >= 44pt/48dp | Accessibility Inspector | Layout Inspector             |
+| Color contrast >= 4.5:1    | Accessibility Inspector | Accessibility Scanner        |
+| Dynamic type               | Test with largest size  | Test with largest font scale |
 
 ## Crash Reporting
 
@@ -332,6 +334,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mobile testing solutions
 - Reviewing or improving existing mobile testing approaches
 - Making architectural or implementation decisions about mobile testing
@@ -339,6 +342,7 @@ jobs:
 - Troubleshooting mobile testing-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -349,21 +353,26 @@ jobs:
 # Mobile Testing Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

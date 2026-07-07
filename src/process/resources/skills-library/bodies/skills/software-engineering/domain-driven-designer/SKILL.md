@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns best-practices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture design-patterns best-practices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Domain-Driven Designer
@@ -23,6 +23,7 @@ You are an expert in Domain-Driven Design (DDD) with deep experience applying bo
 ## DDD Philosophy
 
 ### When to Use DDD
+
 ```
 Use DDD When:
 - The business domain is complex (many rules, edge cases, workflows)
@@ -39,6 +40,7 @@ Don't Use DDD When:
 ```
 
 ### The Two Halves of DDD
+
 ```
 Strategic DDD (the "big picture"):
 - Bounded Contexts: Where does each model apply?
@@ -57,6 +59,7 @@ without using tactical patterns. The reverse is not true.
 ## Ubiquitous Language
 
 ### Concept
+
 ```
 The ubiquitous language is a shared vocabulary between developers and
 domain experts within a bounded context. The code uses the same terms
@@ -82,6 +85,7 @@ class LoanApplication {
 ```
 
 ### Building the Ubiquitous Language
+
 ```
 1. Listen to domain experts: Note the exact terms they use
 2. Document terms in a glossary: Define each term precisely
@@ -111,6 +115,7 @@ you have likely discovered a bounded context boundary.
 ## Bounded Contexts
 
 ### What is a Bounded Context?
+
 ```
 A bounded context is a boundary within which a particular domain model
 is defined and applicable. The same word can mean different things in
@@ -140,6 +145,7 @@ conflicted mess.
 ```
 
 ### Identifying Bounded Context Boundaries
+
 ```
 Indicators of a Context Boundary:
 1. Different definitions of the same term
@@ -162,6 +168,7 @@ Workshop Exercise (Context Discovery):
 ## Context Mapping
 
 ### Relationship Patterns
+
 ```
 1. Partnership:
    Two contexts cooperate closely, coordinated development.
@@ -192,6 +199,7 @@ Workshop Exercise (Context Discovery):
 ```
 
 ### Context Map Template
+
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                    CONTEXT MAP                            │
@@ -218,6 +226,7 @@ Workshop Exercise (Context Discovery):
 ## Tactical DDD Patterns
 
 ### Entities
+
 ```
 Entities have:
 - A unique identity that persists over time
@@ -242,6 +251,7 @@ regardless of their attribute values.
 ```
 
 ### Value Objects
+
 ```
 Value Objects have:
 - No identity (defined by their attributes)
@@ -272,6 +282,7 @@ When to Use Value Objects:
 ```
 
 ### Aggregates
+
 ```
 An aggregate is a cluster of entities and value objects that are treated
 as a single unit for data changes. Every aggregate has a root entity.
@@ -302,6 +313,7 @@ GOOD: Order contains customerId (a reference) not the full Customer
 ```
 
 ### Aggregate Design Guidelines
+
 ```
 1. Protect business invariants:
    "An order cannot have a negative total"
@@ -325,6 +337,7 @@ GOOD: Order contains customerId (a reference) not the full Customer
 ```
 
 ### Domain Events
+
 ```
 Domain events represent something meaningful that happened in the domain.
 
@@ -355,6 +368,7 @@ Event Handling Flow:
 ```
 
 ### Repositories
+
 ```
 Repositories provide collection-like access to aggregates.
 
@@ -387,6 +401,7 @@ Rules:
 ```
 
 ### Application Services
+
 ```
 Application services orchestrate use cases. They coordinate between
 domain objects, repositories, and infrastructure.
@@ -464,6 +479,7 @@ Dependency Rule:
 ## Quick Decision Guide
 
 When asked about DDD:
+
 - **"Where to start with DDD?"** → Strategic patterns first (bounded contexts, ubiquitous language)
 - **"How to model entity X?"** → Determine if it's an entity, value object, or aggregate root
 - **"How to structure the code?"** → Layered or hexagonal architecture with domain at the core
@@ -474,6 +490,7 @@ When asked about DDD:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing domain driven designer solutions
 - Reviewing or improving existing domain driven designer approaches
 - Making architectural or implementation decisions about domain driven designer
@@ -481,6 +498,7 @@ When asked about DDD:
 - Troubleshooting domain driven designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -491,21 +509,26 @@ When asked about DDD:
 # Domain Driven Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

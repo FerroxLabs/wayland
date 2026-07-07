@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills step-by-step guide beginner-friendly"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'study-skills step-by-step guide beginner-friendly'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Learning Objectives
 
 ## When to Use
@@ -81,14 +82,14 @@ Bloom's taxonomy is not just a vocabulary list -- it is a cognitive load progres
 
 **Match the level to the purpose:**
 
-| Bloom's Level | What the Learner Can Do | Required Study Activity | Appropriate For |
-|---|---|---|---|
-| **Remember** | Recall facts, terms, definitions, sequences | Flashcards, repetition, labeling diagrams | Early phase of any new topic; prerequisite for all higher levels |
-| **Understand** | Explain in own words, paraphrase, give examples, classify | Summarization, concept mapping, explaining aloud, rewriting in own words | Building conceptual foundation; precedes application |
-| **Apply** | Use a procedure in a new situation, execute a technique | Practice problems, worked examples with variation, projects | Skill-building for practical use; required for most job-relevant goals |
-| **Analyze** | Break down components, compare, differentiate, identify causes | Case studies, comparative analysis, debugging, critique | Deep understanding; required for professional-level competency |
-| **Evaluate** | Make judgments, critique, justify a choice, weigh trade-offs | Debates, written critiques, design reviews, recommendation documents | Advanced competency; relevant when learner needs to make decisions |
-| **Create** | Produce something new from learned components | Projects, original writing, building tools, designing systems | Mastery-level; appropriate as a capstone, not a starting point |
+| Bloom's Level  | What the Learner Can Do                                        | Required Study Activity                                                  | Appropriate For                                                        |
+| -------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| **Remember**   | Recall facts, terms, definitions, sequences                    | Flashcards, repetition, labeling diagrams                                | Early phase of any new topic; prerequisite for all higher levels       |
+| **Understand** | Explain in own words, paraphrase, give examples, classify      | Summarization, concept mapping, explaining aloud, rewriting in own words | Building conceptual foundation; precedes application                   |
+| **Apply**      | Use a procedure in a new situation, execute a technique        | Practice problems, worked examples with variation, projects              | Skill-building for practical use; required for most job-relevant goals |
+| **Analyze**    | Break down components, compare, differentiate, identify causes | Case studies, comparative analysis, debugging, critique                  | Deep understanding; required for professional-level competency         |
+| **Evaluate**   | Make judgments, critique, justify a choice, weigh trade-offs   | Debates, written critiques, design reviews, recommendation documents     | Advanced competency; relevant when learner needs to make decisions     |
+| **Create**     | Produce something new from learned components                  | Projects, original writing, building tools, designing systems            | Mastery-level; appropriate as a capstone, not a starting point         |
 
 - Never set a Create-level objective for a beginner. The cognitive prerequisites at lower levels must be met first.
 - Most self-study objectives for practical goals (job prep, certification, skill building) should target Apply or Analyze.
@@ -250,6 +251,7 @@ Assemble all components into the formatted output below. Every field must be pop
 ### The Learner Has No Source Material Yet
 
 If the learner wants to learn something but has no textbook, course, or structured material identified, do not write objectives against an undefined corpus. Instead:
+
 - Help them identify 2-3 credible source options appropriate to their level (structured course for complete beginners, reference documentation for experienced learners, textbook for academic topics)
 - Write a preliminary "source selection" milestone as Milestone 0 before the main milestone plan
 - Clarify that scope and achievability cannot be finalized until source material is confirmed, because the depth and sequencing of the material directly affects milestone design
@@ -258,6 +260,7 @@ If the learner wants to learn something but has no textbook, course, or structur
 ### The Goal Spans Multiple Years or a Very Large Domain
 
 If a learner wants to "become a software engineer" or "master Japanese," a single SMART objective cannot capture the full scope. Handle this with a layered approach:
+
 - Write a **horizon objective** -- the multi-year ultimate goal, stated qualitatively (this is the exception to the single-sentence measurable rule, and should be labeled "Horizon Goal, Not Measurable Objective")
 - Write one **near-term SMART objective** that covers the next 4-12 weeks and moves them meaningfully toward the horizon goal
 - Include a note that the next SMART objective should be written after the current one is completed, because competency at higher levels enables more accurate scoping of subsequent objectives
@@ -266,6 +269,7 @@ If a learner wants to "become a software engineer" or "master Japanese," a singl
 ### The Learner Is Returning to a Topic After a Gap
 
 A learner who studied something 6 months or 2 years ago is not starting from zero -- but they have experienced significant decay, particularly for procedural and factual content. Handle this differently from a beginner:
+
 - Recommend a **retention assessment** before setting objectives: spend 30 minutes attempting the criterion-level tasks from the last time they studied and honestly recording what they can and cannot still do
 - Set Milestone 1 as a **recovery milestone** targeting the prior Apply-level competency they had, rather than rebuilding from Remember
 - Expect recovery to take approximately 30-50% of the original learning time, not 100%
@@ -274,6 +278,7 @@ A learner who studied something 6 months or 2 years ago is not starting from zer
 ### The Learner Sets an Objective That Conflicts With Their Time Budget
 
 This is one of the most important mismatches to catch early. If a learner says "I want to learn calculus from scratch in 2 weeks studying 1 hour per day" (14 hours), that is approximately 100-150 hours short of Apply-level competency for a typical adult learner:
+
 - Do not write the unrealistic objective. Do not soften it with "this might be challenging."
 - State the conflict explicitly with numbers: "Your time budget is approximately 14 hours. Apply-level calculus from scratch typically requires 80-120 hours. Here are three ways to resolve this:"
 - Offer three genuine options: (1) Extend the timeline to match the goal, (2) Shrink the objective to what 14 hours can achieve (e.g., "understand limits and basic derivatives conceptually"), (3) Change the purpose (if the real goal is to pass a specific test, focus exclusively on tested topics)
@@ -282,6 +287,7 @@ This is one of the most important mismatches to catch early. If a learner says "
 ### The Learner Is Highly Anxious About Failure or Perfectionism
 
 Some learners set objectives that are either impossibly demanding (perfectionism) or deliberately easy (fear of failure). Watch for these signals: objectives with pass thresholds of "100% correct," objectives that have no stretch at all ("I will read one page per week"), or learners who revise objectives downward repeatedly before starting.
+
 - For perfectionists: point out that 85-90% criterion thresholds are appropriate for self-study objectives, that professional standards in most fields do not require 100% recall, and that setting a 100% threshold guarantees chronic perceived failure
 - For avoidant learners: gently escalate the pass threshold to something that requires actual learning effort -- "reviewing the material" is not a pass criterion, "reproducing the key concepts from memory" is
 - In both cases, normalize that the objective can be revised after the first milestone is reached -- the goal is a good-faith starting point, not a permanent contract
@@ -289,6 +295,7 @@ Some learners set objectives that are either impossibly demanding (perfectionism
 ### The Learner Wants Objectives in a Domain Where AI Knowledge Has Limits
 
 For very recent, highly specialized, or rapidly evolving topics (a specific new regulatory framework, bleeding-edge research, niche industry practices), acknowledge the limitation explicitly:
+
 - Write the structural objective (SMART format, milestones, self-tests) using the learner's description of what they need to learn
 - Note that the specific content within the objectives should be verified against authoritative current sources, and name what those source types should be (regulatory body publications, peer-reviewed journals, official documentation)
 - Do not invent specific facts, benchmarks, or techniques in domains where currency of information matters
@@ -296,6 +303,7 @@ For very recent, highly specialized, or rapidly evolving topics (a specific new 
 ### The Learner Wants to Set Objectives for a Skill That Requires Human Feedback
 
 Some objectives -- public speaking, creative writing, surgical technique, instrument performance -- cannot be fully self-assessed because the quality criterion requires an outside evaluator. Do not pretend the cold-start self-test is sufficient here.
+
 - Write the structural objective normally
 - Replace the solo self-assessment criterion with a hybrid: "I will self-assess against [specific rubric] AND receive feedback from [peer, instructor, recording review] at milestone 3 and at the final criterion test"
 - Suggest that the learner identify a feedback source before beginning -- a language exchange partner, a writing group, a recording and self-review protocol, a practice test grader
@@ -308,6 +316,7 @@ Some objectives -- public speaking, creative writing, surgical technique, instru
 **Input:** "I want to learn SQL. I'm a complete beginner. I've heard I need it for data analyst jobs. I have about 8 hours a week and want to be job-ready in 2 months."
 
 **Intake assessment:**
+
 - Topic: SQL
 - Current level: Complete beginner
 - Purpose: Data analyst job readiness
@@ -339,20 +348,20 @@ Some objectives -- public speaking, creative writing, surgical technique, instru
 
 > By [8 weeks from start], I will be able to write correct SQL queries -- including multi-table joins, GROUP BY aggregations, and subqueries -- against an unfamiliar database schema to answer realistic data analyst questions, demonstrating this by completing a timed 10-question SQL challenge on an unseen dataset with at least 8 out of 10 correct answers without referring to documentation.
 
-**Bloom's Target Level:** Apply -- *execute, construct, produce*
+**Bloom's Target Level:** Apply -- _execute, construct, produce_
 **Success Criterion:** 8/10 correct answers on a 10-question SQL challenge using an unfamiliar dataset, completed without reference to notes or documentation, within a 90-minute window
 
 ---
 
 ### Milestone Plan
 
-| Milestone | Target Date | Bloom's Level | What I Can Do | Self-Test |
-|---|---|---|---|---|
-| 1 -- Foundation | End of Week 2 | Remember + Understand | Name and explain the purpose of SELECT, FROM, WHERE, ORDER BY, LIMIT, and basic data types (INT, VARCHAR, DATE); explain what a relational table and primary key are | Close all materials and write a correct query from memory to retrieve all rows from a named table where a date column is after a given value; explain what a primary key does in one sentence without notes |
-| 2 -- Aggregation | End of Week 4 | Apply | Write GROUP BY queries with COUNT, SUM, AVG, MIN, MAX; filter grouped results with HAVING; distinguish WHERE from HAVING with a concrete example | Given a table schema (customer orders), answer 5 aggregation questions: total revenue by region, count of orders per customer, average order value by product category -- all from memory, no documentation |
-| 3 -- Joins | End of Week 6 | Apply | Write INNER JOIN and LEFT JOIN queries across 2-3 tables; explain when to use each join type with a real example; identify when a query requires a join vs. a filter | Given a 3-table schema (customers, orders, products), answer 4 questions that require joining 2 or 3 tables -- at least 3 out of 4 correct, no documentation |
-| 4 -- Consolidation | End of Week 7 | Apply + Analyze | Combine all prior skills (aggregation + joins + subqueries) in multi-step queries; identify and correct common SQL errors (wrong join type, missing GROUP BY column, incorrect aggregation); explain query logic in plain English | Attempt a 5-question mixed challenge (aggregation + join + subquery). Then explain each query's logic aloud as if walking a non-technical colleague through it. Identify at least one efficiency concern in your own query |
-| 5 -- Mastery Check | End of Week 8 | Apply | Demonstrate full objective: answer 10 realistic analyst questions against an unfamiliar schema, 90 minutes, no notes | Cold-start 10-question challenge. Pass = 8/10 correct |
+| Milestone          | Target Date   | Bloom's Level         | What I Can Do                                                                                                                                                                                                                     | Self-Test                                                                                                                                                                                                                  |
+| ------------------ | ------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 -- Foundation    | End of Week 2 | Remember + Understand | Name and explain the purpose of SELECT, FROM, WHERE, ORDER BY, LIMIT, and basic data types (INT, VARCHAR, DATE); explain what a relational table and primary key are                                                              | Close all materials and write a correct query from memory to retrieve all rows from a named table where a date column is after a given value; explain what a primary key does in one sentence without notes                |
+| 2 -- Aggregation   | End of Week 4 | Apply                 | Write GROUP BY queries with COUNT, SUM, AVG, MIN, MAX; filter grouped results with HAVING; distinguish WHERE from HAVING with a concrete example                                                                                  | Given a table schema (customer orders), answer 5 aggregation questions: total revenue by region, count of orders per customer, average order value by product category -- all from memory, no documentation                |
+| 3 -- Joins         | End of Week 6 | Apply                 | Write INNER JOIN and LEFT JOIN queries across 2-3 tables; explain when to use each join type with a real example; identify when a query requires a join vs. a filter                                                              | Given a 3-table schema (customers, orders, products), answer 4 questions that require joining 2 or 3 tables -- at least 3 out of 4 correct, no documentation                                                               |
+| 4 -- Consolidation | End of Week 7 | Apply + Analyze       | Combine all prior skills (aggregation + joins + subqueries) in multi-step queries; identify and correct common SQL errors (wrong join type, missing GROUP BY column, incorrect aggregation); explain query logic in plain English | Attempt a 5-question mixed challenge (aggregation + join + subquery). Then explain each query's logic aloud as if walking a non-technical colleague through it. Identify at least one efficiency concern in your own query |
+| 5 -- Mastery Check | End of Week 8 | Apply                 | Demonstrate full objective: answer 10 realistic analyst questions against an unfamiliar schema, 90 minutes, no notes                                                                                                              | Cold-start 10-question challenge. Pass = 8/10 correct                                                                                                                                                                      |
 
 **Milestone Dependency Note:** Do not begin Milestone 3 (Joins) until you have passed the Milestone 2 self-test (5 aggregation questions, at least 4/5 correct). Join queries that involve aggregation require confident aggregation skills as a prerequisite -- attempting them before that foundation is solid will produce confusion rather than learning.
 
@@ -379,13 +388,13 @@ Some objectives -- public speaking, creative writing, surgical technique, instru
 
 **First Study Session Completion:** Day 1 (Week 1, Session 1)
 
-| Review # | Timing | Focus |
-|---|---|---|
-| Review 1 | Day 2 | Rapid recall: write SELECT, WHERE, ORDER BY syntax from memory without looking. 15 minutes maximum. |
-| Review 2 | Day 4 | Write 3 fresh queries against the practice database using only what you've learned so far. No copy-pasting from prior queries. |
-| Review 3 | Day 8 | Cold-start: close all notes and attempt to answer 5 questions from a fresh prompt. Note which concepts required hesitation. |
-| Review 4 | Day 15 | Focus review on hesitation points from Review 3. Re-attempt the same 5 questions plus 2 new ones. |
-| Review 5 | Day 30 | Full Milestone 2 self-test (aggregation challenge). At this point you should pass 4/5 with confidence. |
+| Review # | Timing | Focus                                                                                                                          |
+| -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Review 1 | Day 2  | Rapid recall: write SELECT, WHERE, ORDER BY syntax from memory without looking. 15 minutes maximum.                            |
+| Review 2 | Day 4  | Write 3 fresh queries against the practice database using only what you've learned so far. No copy-pasting from prior queries. |
+| Review 3 | Day 8  | Cold-start: close all notes and attempt to answer 5 questions from a fresh prompt. Note which concepts required hesitation.    |
+| Review 4 | Day 15 | Focus review on hesitation points from Review 3. Re-attempt the same 5 questions plus 2 new ones.                              |
+| Review 5 | Day 30 | Full Milestone 2 self-test (aggregation challenge). At this point you should pass 4/5 with confidence.                         |
 
 **Note on high-decay content:** SQL syntax (exact keyword order, JOIN syntax, GROUP BY placement rules) decays faster than conceptual understanding. Use a brief 5-minute syntax recall exercise at the start of every study session throughout the 8 weeks -- not just at formal review points.
 
@@ -417,13 +426,13 @@ The following are deliberately excluded from this objective. They are not unimpo
 
 Use this table to verify your objective before beginning study. Every column must have a substantive answer -- not "yes" or "TBD."
 
-| Component | Question to Answer | This Objective's Answer |
-|---|---|---|
-| **Specific** | What exactly will I be able to do? | Write correct SQL queries including joins, aggregations, and subqueries against unfamiliar schemas |
-| **Measurable** | What is the pass/fail threshold? | 8/10 correct on a 10-question challenge, 90 minutes, no documentation |
-| **Achievable** | Do I have the time and resources for this? | Yes -- 64 hours is realistic for Apply-level SQL core querying |
-| **Relevant** | Why does this matter to my actual goal? | SQL is a primary technical requirement in data analyst job postings |
-| **Time-bound** | By what specific date? | End of Week 8 (specify the actual calendar date) |
+| Component      | Question to Answer                         | This Objective's Answer                                                                            |
+| -------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| **Specific**   | What exactly will I be able to do?         | Write correct SQL queries including joins, aggregations, and subqueries against unfamiliar schemas |
+| **Measurable** | What is the pass/fail threshold?           | 8/10 correct on a 10-question challenge, 90 minutes, no documentation                              |
+| **Achievable** | Do I have the time and resources for this? | Yes -- 64 hours is realistic for Apply-level SQL core querying                                     |
+| **Relevant**   | Why does this matter to my actual goal?    | SQL is a primary technical requirement in data analyst job postings                                |
+| **Time-bound** | By what specific date?                     | End of Week 8 (specify the actual calendar date)                                                   |
 
 ---
 
@@ -431,11 +440,11 @@ Use this table to verify your objective before beginning study. Every column mus
 
 Use this when writing milestones or revising your objective. Swap any banned verb (know, understand, learn) for a specific verb from the appropriate level.
 
-| If your goal is to... | Use these verbs | Avoid |
-|---|---|---|
-| Memorize facts and syntax | define, list, label, recall, name, state, identify | know, learn, memorize (too vague) |
-| Explain concepts | explain, describe, paraphrase, summarize, classify, give an example of | understand, grasp, be familiar with |
-| Use skills in practice | execute, solve, compute, construct, use, demonstrate, produce, write | practice (too vague -- practice what, exactly?) |
-| Compare and break down | compare, differentiate, examine, distinguish, diagram, infer, analyze | analyze (too vague without specifying what is being broken down) |
-| Make judgments | evaluate, justify, critique, recommend, assess, argue | think about, consider |
-| Build something new | design, create, compose, construct, develop, produce | make (too vague) |
+| If your goal is to...     | Use these verbs                                                        | Avoid                                                            |
+| ------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Memorize facts and syntax | define, list, label, recall, name, state, identify                     | know, learn, memorize (too vague)                                |
+| Explain concepts          | explain, describe, paraphrase, summarize, classify, give an example of | understand, grasp, be familiar with                              |
+| Use skills in practice    | execute, solve, compute, construct, use, demonstrate, produce, write   | practice (too vague -- practice what, exactly?)                  |
+| Compare and break down    | compare, differentiate, examine, distinguish, diagram, infer, analyze  | analyze (too vague without specifying what is being broken down) |
+| Make judgments            | evaluate, justify, critique, recommend, assess, argue                  | think about, consider                                            |
+| Build something new       | design, create, compose, construct, develop, produce                   | make (too vague)                                                 |

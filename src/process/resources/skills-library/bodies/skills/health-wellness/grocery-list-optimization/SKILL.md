@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition meal-planning checklist"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition meal-planning checklist'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Grocery List Optimization
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants their grocery shopping reorganized by physical store section to reduce backtracking, shopping time, and impulse purchases
 - The user asks how to cut their grocery bill without reducing nutrition quality or meal variety -- they want specific tactics, not generic advice
 - The user wants to eliminate or significantly reduce food waste and needs a system for buying only what they will actually use
@@ -31,6 +33,7 @@ metadata:
 - The user mentions they keep throwing food away, running out of key staples mid-week, or spending more than expected at the store
 
 **Do NOT use when:**
+
 - The user wants a full weekly or monthly meal plan with breakfast, lunch, and dinner mapped out -- use `meal-planning-framework` instead, which generates the meal schedule, then optionally feed those meals into this skill
 - The user needs macro totals, caloric targets, or protein-per-meal calculations -- use `macro-calculation` and optionally pass results here for quantity scaling
 - The user is asking how to cook specific recipes or wants cooking technique guidance -- refer to cooking-specific skills
@@ -70,6 +73,7 @@ A grocery list built without a pantry audit leads to duplicate purchasing and bu
 Grocery stores are laid out in a predictable pattern in most layouts: produce at the entry, proteins along the back perimeter, dairy along the back or side perimeter, frozen in interior aisles, dry goods in interior aisles. Organizing the list by this physical flow reduces shopping time and impulse purchases from backtracking.
 
 **Standard section order for list organization:**
+
 1. Produce (fresh)
 2. Proteins (meat, seafood, poultry counter -- back perimeter)
 3. Dairy and refrigerated (side or back perimeter)
@@ -89,6 +93,7 @@ Grocery stores are laid out in a predictable pattern in most layouts: produce at
 Use these calibrated benchmarks as starting points, then adjust for meals eaten outside the home.
 
 **Per adult, per week (7 days, 3 meals per day at home):**
+
 - Fresh vegetables: 3.5-5 lbs
 - Fresh fruit: 2-3 lbs
 - Animal protein (meat, poultry, fish): 3.5-4.5 lbs raw weight (raw weight loses 20-30% to cooking)
@@ -99,6 +104,7 @@ Use these calibrated benchmarks as starting points, then adjust for meals eaten 
 - Cooking fats: restocked by pantry audit, not weekly purchase
 
 **Adjustment factors:**
+
 - Each meal eaten outside the home reduces protein need by ~0.25-0.35 lbs and vegetable need by ~0.4-0.5 lbs
 - Children 2-12: multiply adult quantities by 0.5-0.75
 - Teenagers: use full adult quantities for proteins and grains; 0.75 for vegetables and fruits
@@ -111,6 +117,7 @@ Use these calibrated benchmarks as starting points, then adjust for meals eaten 
 Budget strategies should be matched to the user's stated budget level. Do not apply all strategies at every budget level -- this creates friction for users who do not need it.
 
 **Tight budget (under 75 dollars per week for 2 adults):**
+
 - Anchor proteins around eggs (lowest cost per gram of protein at approximately 0.10-0.15 dollars per serving), dried legumes (black beans, lentils, chickpeas cost 0.07-0.15 dollars per serving when cooked from dry), and whole chicken (40-60% cheaper per pound than boneless breast; one 4-5 lb chicken yields 4-6 meal-sized portions when broken down)
 - Buy frozen vegetables exclusively over fresh for any cooked application. Frozen peas, broccoli, corn, green beans, and spinach are nutritionally comparable to fresh for cooked dishes (blanching before freezing preserves micronutrients) and cost 30-60% less per pound
 - Avoid pre-cut, pre-marinated, or pre-seasoned proteins -- these carry a 20-50% premium for labor that takes 5 minutes at home
@@ -119,6 +126,7 @@ Budget strategies should be matched to the user's stated budget level. Do not ap
 - Use the "cost per meal" metric instead of "cost per item." A 12-dollar rotisserie chicken yields 4 meals, making it 3 dollars per meal -- often cheaper than buying and cooking raw if time is constrained.
 
 **Moderate budget (75-150 dollars per week for 2 adults):**
+
 - Mix fresh and frozen produce. Use fresh produce for raw applications (salads, sliced fruit, crudités) where texture and flavor matter. Use frozen for all cooked applications (soups, stir-fries, roasted dishes, casseroles).
 - Buy store-brand versions of all commodity items: canned tomatoes, canned beans, frozen vegetables, rice, pasta, flour, sugar, oats, chicken broth. Quality testing by consumer organizations consistently shows store-brand commodity products are equal to name brands. The savings are typically 20-40% per item.
 - Buy proteins in multipack or family-pack sizes and portion and freeze what will not be used within 2 days. A 5-lb bag of chicken thighs is typically 25-35% cheaper per pound than a 1.5-lb tray.
@@ -126,6 +134,7 @@ Budget strategies should be matched to the user's stated budget level. Do not ap
 - Use seasonal produce pricing. In North America: summer = tomatoes, corn, zucchini, berries, stone fruit; fall = apples, pears, winter squash, sweet potatoes; winter = citrus, root vegetables; spring = asparagus, peas, lettuce. Seasonal produce is typically 30-60% cheaper and higher quality than off-season produce.
 
 **Flexible budget (150+ dollars per week for 2 adults):**
+
 - Budget optimization is less critical. Focus on waste reduction and variety over cost cutting.
 - Prioritize fresh, high-quality proteins and a wider produce variety.
 - Still apply pantry audit and FIFO to prevent spoilage regardless of budget level.
@@ -137,11 +146,13 @@ Food waste is the #1 hidden cost in grocery budgets. The average household waste
 **The consumption timeline method:** For every fresh item on the list, assign a "use by" day based on the shopping date and the item's storage life. Plan meals that use the shortest-shelf-life items earliest in the week.
 
 **Shortest-shelf-life fresh items (use within 1-3 days of purchase):**
+
 - Fresh fish and shellfish: use on day 1 or day 2 maximum; never purchase unless planning to cook within 48 hours
 - Fresh berries: 2-3 days; freeze any excess immediately after purchase to prevent mold
 - Fresh herbs (basil, cilantro, parsley): 3-5 days in water in the fridge like a bouquet; or wash, dry, chop, freeze in ice cube trays with olive oil
 
 **Short-shelf-life items (use within 4-6 days):**
+
 - Leafy greens, baby spinach, arugula: 4-5 days after opening
 - Fresh mushrooms: 4-6 days
 - Ground meat: cook or freeze within 2 days of purchase; never leave ground beef at refrigerator temperature for more than 2 days
@@ -159,34 +170,40 @@ A well-maintained pantry reduces weekly grocery spending by 15-25% because the u
 
 **Core pantry staples by category:**
 
-*Cooking fats:*
+_Cooking fats:_
+
 - Neutral oil (vegetable, canola, or avocado) -- for high-heat cooking above 375°F where olive oil degrades
 - Olive oil -- for medium heat, finishing, and dressings
 - Butter or ghee -- for sautéing, baking, finishing
 
-*Acids and umami builders:*
+_Acids and umami builders:_
+
 - White wine vinegar, apple cider vinegar, or rice vinegar
 - Soy sauce or tamari (gluten-free equivalent)
 - Worcestershire sauce
 - Canned diced tomatoes and tomato paste
 
-*Dry proteins and legumes:*
+_Dry proteins and legumes:_
+
 - Dried lentils (fastest cooking -- no soaking required, ready in 20-25 minutes)
 - Canned chickpeas, black beans, kidney beans (2-3 varieties, minimum 2 cans each)
 - Canned tuna or salmon (emergency protein, 2-3 year shelf life)
 
-*Grains and starches:*
+_Grains and starches:_
+
 - Long-grain white rice (faster cooking) or brown rice (higher fiber, 45-minute cook time)
 - Dried pasta (multiple shapes -- short shapes for baked and saucy dishes, long shapes for simple sauces)
 - Rolled oats
 - Breadcrumbs (panko or regular) -- doubles as a coating and a topping
 
-*Aromatics (semi-pantry):*
+_Aromatics (semi-pantry):_
+
 - Onions -- store at room temperature, not in the refrigerator
 - Garlic -- store at room temperature, lasts 3-6 weeks
 - Dried spices: salt, black pepper, cumin, paprika (sweet and smoked), garlic powder, onion powder, dried oregano, chili powder, red pepper flakes, bay leaves
 
-*Baking basics (if the household bakes at all):*
+_Baking basics (if the household bakes at all):_
+
 - All-purpose flour
 - Baking powder and baking soda
 - Granulated sugar
@@ -194,19 +211,19 @@ A well-maintained pantry reduces weekly grocery spending by 15-25% because the u
 
 **Pantry audit restock thresholds:**
 
-| Staple | Restock threshold | Notes |
-|--------|-------------------|-------|
-| Olive oil | Below 1/4 bottle | Buy 1 liter bottles for 30-40% cost saving vs. small bottles |
-| Neutral oil | Below 1/4 bottle | High smoke point oils degrade with heat exposure; store away from stove |
-| Soy sauce | Below 1/4 bottle | Check sodium level -- low-sodium is nearly identical in flavor |
-| Canned diced tomatoes | Below 2 cans | 28-oz cans are typically cheaper per ounce than 14-oz cans |
-| Canned beans | Below 2 cans per type | Keep 3 types minimum for variety |
-| Rice | Below 2 cups dry | Buy in 5-lb or 10-lb bags for cost efficiency |
-| Pasta | Below 1 lb | Keep 2 shapes on hand |
-| Oats | Below 2 cups dry | Rolled oats work for both cooking and baking |
-| Cumin, paprika | Feel less than 1/4 full | Spices lose potency after 12-18 months; replace if older |
-| Salt | Below 1/4 container | Never run out; stock aggressively |
-| Chicken or veg broth | Below 1 carton | Buy low-sodium to control seasoning |
+| Staple                | Restock threshold       | Notes                                                                   |
+| --------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| Olive oil             | Below 1/4 bottle        | Buy 1 liter bottles for 30-40% cost saving vs. small bottles            |
+| Neutral oil           | Below 1/4 bottle        | High smoke point oils degrade with heat exposure; store away from stove |
+| Soy sauce             | Below 1/4 bottle        | Check sodium level -- low-sodium is nearly identical in flavor          |
+| Canned diced tomatoes | Below 2 cans            | 28-oz cans are typically cheaper per ounce than 14-oz cans              |
+| Canned beans          | Below 2 cans per type   | Keep 3 types minimum for variety                                        |
+| Rice                  | Below 2 cups dry        | Buy in 5-lb or 10-lb bags for cost efficiency                           |
+| Pasta                 | Below 1 lb              | Keep 2 shapes on hand                                                   |
+| Oats                  | Below 2 cups dry        | Rolled oats work for both cooking and baking                            |
+| Cumin, paprika        | Feel less than 1/4 full | Spices lose potency after 12-18 months; replace if older                |
+| Salt                  | Below 1/4 container     | Never run out; stock aggressively                                       |
+| Chicken or veg broth  | Below 1 carton          | Buy low-sodium to control seasoning                                     |
 
 ---
 
@@ -428,20 +445,20 @@ A household where 1-2 people travel for work, have irregular work schedules, or 
 
 Check these before leaving. Only restock what is below threshold.
 
-| Item | Check | Restock if below threshold |
-|------|-------|---------------------------|
-| Olive oil | [ ] | 1/4 bottle (250 ml) |
-| Neutral cooking oil | [ ] | 1/4 bottle |
-| Soy sauce | [ ] | 1/4 bottle |
-| Rice | [ ] | 2 cups dry |
-| Pasta | [ ] | 1 lb |
-| Canned diced tomatoes | [ ] | 2 cans |
-| Canned beans (any type) | [ ] | 2 cans |
-| Garlic | [ ] | 4 cloves |
-| Onions | [ ] | 2 onions |
-| Cumin, paprika, chili powder | [ ] | Each less than 1/4 full |
-| Salt and pepper | [ ] | Running low in container |
-| Chicken or vegetable broth | [ ] | Less than 1 carton |
+| Item                         | Check | Restock if below threshold |
+| ---------------------------- | ----- | -------------------------- |
+| Olive oil                    | [ ]   | 1/4 bottle (250 ml)        |
+| Neutral cooking oil          | [ ]   | 1/4 bottle                 |
+| Soy sauce                    | [ ]   | 1/4 bottle                 |
+| Rice                         | [ ]   | 2 cups dry                 |
+| Pasta                        | [ ]   | 1 lb                       |
+| Canned diced tomatoes        | [ ]   | 2 cans                     |
+| Canned beans (any type)      | [ ]   | 2 cans                     |
+| Garlic                       | [ ]   | 4 cloves                   |
+| Onions                       | [ ]   | 2 onions                   |
+| Cumin, paprika, chili powder | [ ]   | Each less than 1/4 full    |
+| Salt and pepper              | [ ]   | Running low in container   |
+| Chicken or vegetable broth   | [ ]   | Less than 1 carton         |
 
 **Audit summary:** If most of these are stocked, this week's list focuses on proteins, fresh produce, and targeted restocks -- target spend is well within the 100 dollar range. If pantry is largely empty, flag a first-time pantry foundation cost of an additional 35-55 dollars for oils, spices, and canned goods that will last 4-8+ weeks.
 
@@ -450,7 +467,7 @@ Check these before leaving. Only restock what is below threshold.
 ### Shopping List by Store Section
 
 **[1] Produce -- Fresh**
-*(Use in this order: salmon and berries first, then greens, then broccoli and peppers, then tomatoes, then potatoes last)*
+_(Use in this order: salmon and berries first, then greens, then broccoli and peppers, then tomatoes, then potatoes last)_
 
 - [ ] Baby spinach -- 5 oz bag -- shelf life: 5 days -- for: Wednesday dinner salad + Saturday frittata
 - [ ] Broccoli -- 2 medium crowns (about 1.5 lbs) -- shelf life: 5 days -- for: Tuesday stir-fry + Thursday side
@@ -463,7 +480,7 @@ Check these before leaving. Only restock what is below threshold.
 - [ ] Lemons -- 2 -- for: salmon on Monday + dressing on Wednesday
 
 **[2] Proteins -- Meat / Seafood / Poultry Counter**
-*(Freeze chicken immediately after purchase; cook salmon Monday)*
+_(Freeze chicken immediately after purchase; cook salmon Monday)_
 
 - [ ] Chicken thighs, bone-in skin-on -- 4 lbs -- use 2 lbs Monday-Tuesday (batch roast Sunday), freeze 2 lbs for later this week -- approximately 3.50-5.00 dollars per lb
 - [ ] Salmon fillets -- 2 (6 oz each, or one 12 oz piece cut by the counter) -- COOK MONDAY or Tuesday; do not store raw beyond 48 hours
@@ -478,7 +495,7 @@ Check these before leaving. Only restock what is below threshold.
 - [ ] Plain Greek yogurt -- 32 oz container -- for: weekday breakfasts (7 servings at roughly 4-5 oz each); lasts 10-14 days after opening
 
 **[4] Frozen**
-*(For all cooked applications -- nutritionally identical to fresh for these uses)*
+_(For all cooked applications -- nutritionally identical to fresh for these uses)_
 
 - [ ] Frozen stir-fry vegetable mix (broccoli, snap peas, carrots, water chestnuts) -- 16 oz bag -- for: Tuesday stir-fry; extends the fresh broccoli or fully replaces it
 - [ ] Frozen corn -- 12 oz bag -- for: Friday fajitas and Saturday lunch bowls
@@ -491,20 +508,20 @@ Check these before leaving. Only restock what is below threshold.
 - [ ] Rolled oats -- 2 lbs (buy 2-lb container or bag) -- for: 7 weekday breakfasts (overnight oats or stovetop); 2 lbs provides approximately 10-12 servings
 
 **[6] Canned Goods**
-*(Check pantry first -- only buy what is below 2-can threshold)*
+_(Check pantry first -- only buy what is below 2-can threshold)_
 
 - [ ] Canned diced tomatoes -- 2 × 14 oz cans -- for: Wednesday pasta sauce base; or 1 × 28 oz can (lower unit price)
 - [ ] Canned black beans -- 2 × 15 oz cans -- for: Friday fajita bowls; leftover serves as fast protein add-in
 - [ ] Canned chickpeas -- 1 × 15 oz can -- for: optional Thursday sheet-pan dinner or weekend lunch addition
 
 **[7] Oils, Vinegars, Condiments**
-*(Restock only if below pantry threshold -- do not duplicate)*
+_(Restock only if below pantry threshold -- do not duplicate)_
 
 - [ ] Olive oil -- 1 liter bottle if below threshold -- cost-per-ounce note: 1 liter bottle is typically 30-40% lower cost per ounce than 500 ml or 16 oz bottles
 - [ ] Soy sauce or tamari -- 10 oz bottle if below threshold -- for: stir-fry and rice bowls
 
 **[8] Spices and Baking**
-*(Restock only -- skip any that are adequately stocked)*
+_(Restock only -- skip any that are adequately stocked)_
 
 - [ ] Chili powder and cumin -- for: fajitas, beans; restock if less than 1/4 full
 - [ ] Smoked paprika -- versatile for chicken, potatoes, eggs; restock if below threshold
@@ -515,16 +532,16 @@ Check these before leaving. Only restock what is below threshold.
 
 ### Waste Reduction Timeline
 
-| Item | Use by | If approaching end of shelf life |
-|------|--------|----------------------------------|
-| Salmon fillets | Day 2 (Monday or Tuesday latest) | No flexibility -- cook on purchase day or next morning |
-| Baby spinach | Day 5 (Wednesday) | Use remainder in Saturday frittata even if slightly wilted |
-| Cherry tomatoes | Day 5 | If softening, roast in a 425°F oven with olive oil for 20 minutes -- become a sauce for pasta or eggs |
-| Broccoli crowns | Day 5 | Chop and freeze any remaining florets before Day 6 |
-| Bell peppers | Day 6 | Move any unused peppers to the freezer by Friday -- frozen peppers work perfectly in cooked applications |
-| Ground beef | Day 3 (Wednesday) or freeze day of purchase | Pull from freezer Thursday if not cooked by then |
-| Bananas | As they peak | Peel and freeze over-ripe bananas immediately -- add to morning oats or yogurt |
-| Greek yogurt | Check label, typically 14 days after opening | At 4-5 oz per person per day, a 32 oz container is used in 3-4 days for 2 people |
+| Item            | Use by                                       | If approaching end of shelf life                                                                         |
+| --------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Salmon fillets  | Day 2 (Monday or Tuesday latest)             | No flexibility -- cook on purchase day or next morning                                                   |
+| Baby spinach    | Day 5 (Wednesday)                            | Use remainder in Saturday frittata even if slightly wilted                                               |
+| Cherry tomatoes | Day 5                                        | If softening, roast in a 425°F oven with olive oil for 20 minutes -- become a sauce for pasta or eggs    |
+| Broccoli crowns | Day 5                                        | Chop and freeze any remaining florets before Day 6                                                       |
+| Bell peppers    | Day 6                                        | Move any unused peppers to the freezer by Friday -- frozen peppers work perfectly in cooked applications |
+| Ground beef     | Day 3 (Wednesday) or freeze day of purchase  | Pull from freezer Thursday if not cooked by then                                                         |
+| Bananas         | As they peak                                 | Peel and freeze over-ripe bananas immediately -- add to morning oats or yogurt                           |
+| Greek yogurt    | Check label, typically 14 days after opening | At 4-5 oz per person per day, a 32 oz container is used in 3-4 days for 2 people                         |
 
 **FIFO action before unpacking:** Move existing fridge contents to the front. Place new proteins behind existing leftovers. Move older canned goods to the front of the pantry shelf. Move older dry goods to the front of the grain shelf.
 
@@ -545,25 +562,25 @@ Check these before leaving. Only restock what is below threshold.
 
 This is provided so the user can confirm the purchase-to-meal logic, not as a rigid plan.
 
-| Day | Dinner | Breakfast | Notes |
-|-----|--------|-----------|-------|
-| Monday | Lemon garlic roasted chicken thighs + Yukon gold potatoes + simple salad | Oats + banana | Batch roast all 4 lbs chicken; refrigerate leftovers |
-| Tuesday | Chicken stir-fry with frozen vegetable mix + rice | Eggs + banana | Use leftover roasted chicken; stir-fry takes 15 minutes |
-| Wednesday | Cherry tomato pasta with spinach + white beans | Greek yogurt | Pasta uses pantry olive oil + canned tomatoes |
-| Thursday | Sheet-pan chicken thighs (from freezer portion) + broccoli + chickpeas | Oats | Pull frozen chicken from freezer Wednesday night to thaw |
-| Friday | Fajita bowls: bell peppers, black beans, corn, cheese, sour cream + rice | Greek yogurt | No additional protein needed; beans anchor the meal |
-| Saturday | Frittata: eggs + spinach + cherry tomatoes + shredded cheese | Oats or yogurt | Lunch + dinner versatility; clears remaining produce |
-| Sunday | Flexible -- use remaining proteins, grains, or eggs | Potato hash + eggs | Clears potatoes and any remaining proteins |
+| Day       | Dinner                                                                   | Breakfast          | Notes                                                    |
+| --------- | ------------------------------------------------------------------------ | ------------------ | -------------------------------------------------------- |
+| Monday    | Lemon garlic roasted chicken thighs + Yukon gold potatoes + simple salad | Oats + banana      | Batch roast all 4 lbs chicken; refrigerate leftovers     |
+| Tuesday   | Chicken stir-fry with frozen vegetable mix + rice                        | Eggs + banana      | Use leftover roasted chicken; stir-fry takes 15 minutes  |
+| Wednesday | Cherry tomato pasta with spinach + white beans                           | Greek yogurt       | Pasta uses pantry olive oil + canned tomatoes            |
+| Thursday  | Sheet-pan chicken thighs (from freezer portion) + broccoli + chickpeas   | Oats               | Pull frozen chicken from freezer Wednesday night to thaw |
+| Friday    | Fajita bowls: bell peppers, black beans, corn, cheese, sour cream + rice | Greek yogurt       | No additional protein needed; beans anchor the meal      |
+| Saturday  | Frittata: eggs + spinach + cherry tomatoes + shredded cheese             | Oats or yogurt     | Lunch + dinner versatility; clears remaining produce     |
+| Sunday    | Flexible -- use remaining proteins, grains, or eggs                      | Potato hash + eggs | Clears potatoes and any remaining proteins               |
 
 ---
 
 ### Quantity Verification
 
-| Category | Target for 2 adults, 7 days (dinners + breakfasts + weekend lunches) | List total | Status |
-|----------|-----------------------------------------------------------------------|------------|--------|
-| Vegetables (fresh + frozen) | 7-10 lbs | ~9 lbs (3 lbs fresh + ~2 lbs frozen + 2 lbs potato + 1.5 lbs broccoli) | ✓ |
-| Protein -- animal (raw weight) | 7-9 lbs for all meals | ~8.5 lbs (4 lbs chicken + 0.75 lbs salmon + 1 lb beef + 1.5 lbs eggs at 1.5 lbs/18 eggs) | ✓ |
-| Protein -- plant (canned) | 3-4 meal equivalents | 5 cans (beans + chickpeas) = 5-6 servings each = 25-30 servings available | ✓ (surplus usable) |
-| Grains (dry weight) | 3-4 lbs across all meals | ~5 lbs (2 lbs rice + 1 lb pasta + 2 lbs oats) | ✓ |
-| Fruit | 4-6 lbs | Bananas (~2 lbs), lemons (0.5 lbs), cherry tomatoes count as culinary fruit (~0.75 lbs) | ✓ (light on fruit -- add 1 bag frozen berries if budget allows) |
-| Dairy | 2+ weeks coverage | 32 oz yogurt + eggs + 8 oz cheese + 8 oz sour cream + 1 stick butter | ✓ |
+| Category                       | Target for 2 adults, 7 days (dinners + breakfasts + weekend lunches) | List total                                                                               | Status                                                          |
+| ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Vegetables (fresh + frozen)    | 7-10 lbs                                                             | ~9 lbs (3 lbs fresh + ~2 lbs frozen + 2 lbs potato + 1.5 lbs broccoli)                   | ✓                                                               |
+| Protein -- animal (raw weight) | 7-9 lbs for all meals                                                | ~8.5 lbs (4 lbs chicken + 0.75 lbs salmon + 1 lb beef + 1.5 lbs eggs at 1.5 lbs/18 eggs) | ✓                                                               |
+| Protein -- plant (canned)      | 3-4 meal equivalents                                                 | 5 cans (beans + chickpeas) = 5-6 servings each = 25-30 servings available                | ✓ (surplus usable)                                              |
+| Grains (dry weight)            | 3-4 lbs across all meals                                             | ~5 lbs (2 lbs rice + 1 lb pasta + 2 lbs oats)                                            | ✓                                                               |
+| Fruit                          | 4-6 lbs                                                              | Bananas (~2 lbs), lemons (0.5 lbs), cherry tomatoes count as culinary fruit (~0.75 lbs)  | ✓ (light on fruit -- add 1 bag frozen berries if budget allows) |
+| Dairy                          | 2+ weeks coverage                                                    | 32 oz yogurt + eggs + 8 oz cheese + 8 oz sour cream + 1 stick butter                     | ✓                                                               |

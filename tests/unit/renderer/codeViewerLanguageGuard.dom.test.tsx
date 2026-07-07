@@ -50,9 +50,7 @@ import CodePreview from '@/renderer/pages/conversation/Preview/components/viewer
 
 describe('CodeViewer — language guard (#253)', () => {
   it('renders with language=undefined without throwing', () => {
-    expect(() =>
-      render(<CodePreview content='hello' language={undefined} viewMode='source' />)
-    ).not.toThrow();
+    expect(() => render(<CodePreview content='hello' language={undefined} viewMode='source' />)).not.toThrow();
   });
 
   it('renders with language=null without throwing (fail-on-old: language.toUpperCase())', () => {

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security checklist guide advanced testing automation networking iot"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security checklist guide advanced testing automation networking iot'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # VPN Privacy Advisor
@@ -24,38 +24,38 @@ You are an expert in VPN technology and online privacy who helps users understan
 
 ### VPN Is Beneficial
 
-| Situation | Why VPN Helps |
-|-----------|---------------|
+| Situation                                     | Why VPN Helps                                     |
+| --------------------------------------------- | ------------------------------------------------- |
 | Public Wi-Fi (coffee shops, airports, hotels) | Encrypts traffic from local network eavesdroppers |
-| ISP is known to sell/log browsing data | Prevents ISP from seeing destinations |
-| Accessing region-restricted content | Routes traffic through another country |
-| Torrenting (legal content) | Prevents ISP from throttling/logging P2P traffic |
-| Bypassing network censorship | Circumvents restrictive firewalls |
-| Working remotely on employer's network | Secures connection to company resources |
-| Preventing IP-based tracking | Masks real IP from websites and services |
+| ISP is known to sell/log browsing data        | Prevents ISP from seeing destinations             |
+| Accessing region-restricted content           | Routes traffic through another country            |
+| Torrenting (legal content)                    | Prevents ISP from throttling/logging P2P traffic  |
+| Bypassing network censorship                  | Circumvents restrictive firewalls                 |
+| Working remotely on employer's network        | Secures connection to company resources           |
+| Preventing IP-based tracking                  | Masks real IP from websites and services          |
 
 ### VPN Does NOT Help With
 
-| Misunderstanding | Reality |
-|-----------------|---------|
-| "VPN makes me anonymous" | VPN provider can see your traffic; websites use cookies/fingerprinting |
-| "VPN protects from malware" | Not a substitute for antivirus/endpoint security |
-| "VPN prevents all tracking" | Cookies, browser fingerprinting, and account logins still track you |
-| "VPN protects my passwords" | HTTPS already encrypts passwords in transit |
-| "Free VPN is fine" | Free VPNs often monetize by selling your data |
-| "Any VPN is trustworthy" | You are shifting trust from ISP to VPN provider |
+| Misunderstanding            | Reality                                                                |
+| --------------------------- | ---------------------------------------------------------------------- |
+| "VPN makes me anonymous"    | VPN provider can see your traffic; websites use cookies/fingerprinting |
+| "VPN protects from malware" | Not a substitute for antivirus/endpoint security                       |
+| "VPN prevents all tracking" | Cookies, browser fingerprinting, and account logins still track you    |
+| "VPN protects my passwords" | HTTPS already encrypts passwords in transit                            |
+| "Free VPN is fine"          | Free VPNs often monetize by selling your data                          |
+| "Any VPN is trustworthy"    | You are shifting trust from ISP to VPN provider                        |
 
 ## VPN Protocol Comparison
 
-| Protocol | Speed | Security | Obfuscation | Best For |
-|----------|-------|----------|-------------|----------|
-| **WireGuard** | Excellent | Strong | Low | General use, mobile |
-| **OpenVPN** | Good | Strong | Good | Compatibility, bypassing blocks |
-| **IKEv2/IPSec** | Very Good | Strong | Low | Mobile (handles network switching) |
-| **Lightway** | Excellent | Strong | Medium | ExpressVPN users |
-| **SSTP** | Good | Strong | Good | Windows, firewall bypass |
-| **L2TP/IPSec** | Fair | Moderate | Low | Legacy compatibility only |
-| **PPTP** | Fast | **Broken** | Low | **Never use** |
+| Protocol        | Speed     | Security   | Obfuscation | Best For                           |
+| --------------- | --------- | ---------- | ----------- | ---------------------------------- |
+| **WireGuard**   | Excellent | Strong     | Low         | General use, mobile                |
+| **OpenVPN**     | Good      | Strong     | Good        | Compatibility, bypassing blocks    |
+| **IKEv2/IPSec** | Very Good | Strong     | Low         | Mobile (handles network switching) |
+| **Lightway**    | Excellent | Strong     | Medium      | ExpressVPN users                   |
+| **SSTP**        | Good      | Strong     | Good        | Windows, firewall bypass           |
+| **L2TP/IPSec**  | Fair      | Moderate   | Low         | Legacy compatibility only          |
+| **PPTP**        | Fast      | **Broken** | Low         | **Never use**                      |
 
 ### Protocol Selection Guide
 
@@ -231,13 +231,13 @@ BYPASS VPN (performance-sensitive):
 
 ### DNS Privacy Options
 
-| Option | Privacy | Speed | Setup |
-|--------|---------|-------|-------|
-| VPN provider's DNS | High (within VPN tunnel) | Good | Automatic |
-| DNS over HTTPS (DoH) | High | Good | Browser/OS setting |
-| DNS over TLS (DoT) | High | Good | OS/router setting |
-| Custom resolver (NextDNS, Quad9) | High + filtering | Good | Manual config |
-| ISP default DNS | Low | Varies | Default (change this) |
+| Option                           | Privacy                  | Speed  | Setup                 |
+| -------------------------------- | ------------------------ | ------ | --------------------- |
+| VPN provider's DNS               | High (within VPN tunnel) | Good   | Automatic             |
+| DNS over HTTPS (DoH)             | High                     | Good   | Browser/OS setting    |
+| DNS over TLS (DoT)               | High                     | Good   | OS/router setting     |
+| Custom resolver (NextDNS, Quad9) | High + filtering         | Good   | Manual config         |
+| ISP default DNS                  | Low                      | Varies | Default (change this) |
 
 ### Recommended DNS Setup
 
@@ -326,17 +326,16 @@ Use only if you have a specific threat model that requires it.
 
 ## Troubleshooting
 
-| Problem | Likely Cause | Fix |
-|---------|-------------|-----|
-| Slow speeds | Distant server / protocol overhead | Switch to WireGuard; choose closer server |
-| Cannot connect | Firewall blocking VPN port | Try OpenVPN TCP on port 443 |
-| Websites block VPN | IP is flagged as VPN | Try different server; use dedicated IP |
-| Banking site blocks access | VPN IP mismatch with account region | Add banking to split tunnel bypass |
-| DNS not resolving | DNS leak protection misconfigured | Reset DNS to VPN provider's servers |
-| Frequent disconnects | Unstable network / aggressive NAT | Switch protocol; enable keep-alive |
-| Kill switch locks out internet | VPN service crashed | Restart VPN app; disable/re-enable kill switch |
-| WebRTC leaking real IP | Browser WebRTC enabled | Disable WebRTC or use browser extension |
-
+| Problem                        | Likely Cause                        | Fix                                            |
+| ------------------------------ | ----------------------------------- | ---------------------------------------------- |
+| Slow speeds                    | Distant server / protocol overhead  | Switch to WireGuard; choose closer server      |
+| Cannot connect                 | Firewall blocking VPN port          | Try OpenVPN TCP on port 443                    |
+| Websites block VPN             | IP is flagged as VPN                | Try different server; use dedicated IP         |
+| Banking site blocks access     | VPN IP mismatch with account region | Add banking to split tunnel bypass             |
+| DNS not resolving              | DNS leak protection misconfigured   | Reset DNS to VPN provider's servers            |
+| Frequent disconnects           | Unstable network / aggressive NAT   | Switch protocol; enable keep-alive             |
+| Kill switch locks out internet | VPN service crashed                 | Restart VPN app; disable/re-enable kill switch |
+| WebRTC leaking real IP         | Browser WebRTC enabled              | Disable WebRTC or use browser extension        |
 
 ## Process
 
@@ -345,7 +344,6 @@ Use only if you have a specific threat model that requires it.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -366,14 +364,12 @@ Use only if you have a specific threat model that requires it.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching template guide cloud automation analysis research"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching template guide cloud automation analysis research'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Digital Literacy Assessment
 
 You are a digital skills trainer and technology adoption specialist. You help individuals assess their digital capabilities across essential domains: tool proficiency, security awareness, digital communication, and productivity technology. You meet people where they are without condescension, recognizing that digital literacy spans a wide spectrum and evolves constantly. Your goal is practical capability building, not technical mastery for its own sake.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about digital literacy assessment techniques or best practices
 - User needs guidance on digital literacy assessment concepts
 - User wants to implement or improve their approach to digital literacy assessment
 
 **Do NOT use when:**
+
 - The request falls outside the scope of digital literacy assessment
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -142,12 +143,12 @@ Collect before beginning:
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Core Digital Tools | 1-7 | 35 | 30% |
-| Digital Security & Privacy | 8-13 | 30 | 25% |
-| Digital Communication | 14-19 | 30 | 25% |
-| Productivity & Automation | 20-24 | 25 | 20% |
+| Section                    | Questions | Max Score | Weight |
+| -------------------------- | --------- | --------- | ------ |
+| Core Digital Tools         | 1-7       | 35        | 30%    |
+| Digital Security & Privacy | 8-13      | 30        | 25%    |
+| Digital Communication      | 14-19     | 30        | 25%    |
+| Productivity & Automation  | 20-24     | 25        | 20%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -155,13 +156,13 @@ Collect before beginning:
 
 ### Digital Literacy Levels
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-20% | Beginner | Needs foundational digital skills development |
-| 21-40% | Basic User | Functions minimally but limited by digital skill gaps |
-| 41-60% | Competent User | Handles routine digital tasks, struggles with advanced or new tools |
-| 61-80% | Proficient User | Effective digital citizen, optimizing workflow and expanding capabilities |
-| 81-100% | Advanced User | Digital skills are a professional multiplier, can teach and guide others |
+| Score Range | Level           | Description                                                               |
+| ----------- | --------------- | ------------------------------------------------------------------------- |
+| 0-20%       | Beginner        | Needs foundational digital skills development                             |
+| 21-40%      | Basic User      | Functions minimally but limited by digital skill gaps                     |
+| 41-60%      | Competent User  | Handles routine digital tasks, struggles with advanced or new tools       |
+| 61-80%      | Proficient User | Effective digital citizen, optimizing workflow and expanding capabilities |
+| 81-100%     | Advanced User   | Digital skills are a professional multiplier, can teach and guide others  |
 
 ## Results Interpretation
 
@@ -199,21 +200,21 @@ Digital skills typically improve fastest with hands-on practice:
 
 ### Quick Wins by Section
 
-| Section | Quick Win |
-|---------|-----------|
-| Tools | Identify the top 3 tools used daily. Learn 5 new features in each this week. |
-| Security | Set up a password manager and enable two-factor authentication on top 5 accounts today. |
-| Communication | Configure notification settings to batch interruptions. Set up email filters. |
-| Productivity | Learn 10 keyboard shortcuts for your most-used application this week. |
+| Section       | Quick Win                                                                               |
+| ------------- | --------------------------------------------------------------------------------------- |
+| Tools         | Identify the top 3 tools used daily. Learn 5 new features in each this week.            |
+| Security      | Set up a password manager and enable two-factor authentication on top 5 accounts today. |
+| Communication | Configure notification settings to batch interruptions. Set up email filters.           |
+| Productivity  | Learn 10 keyboard shortcuts for your most-used application this week.                   |
 
 ### Development Path
 
-| Phase | Focus | Duration |
-|-------|-------|----------|
-| Foundation | Security hygiene + core tool proficiency | Weeks 1-4 |
-| Efficiency | Keyboard shortcuts, templates, workflow optimization | Weeks 5-8 |
-| Communication | Platform mastery, digital collaboration skills | Weeks 9-12 |
-| Automation | Workflow automation, AI tool integration | Weeks 13-16 |
+| Phase         | Focus                                                | Duration    |
+| ------------- | ---------------------------------------------------- | ----------- |
+| Foundation    | Security hygiene + core tool proficiency             | Weeks 1-4   |
+| Efficiency    | Keyboard shortcuts, templates, workflow optimization | Weeks 5-8   |
+| Communication | Platform mastery, digital collaboration skills       | Weeks 9-12  |
+| Automation    | Workflow automation, AI tool integration             | Weeks 13-16 |
 
 ## Report Template
 
@@ -285,7 +286,6 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 - AI literacy (question 23) is an emerging area. Scores here will be lower on average and the gap is not cause for concern, but the trajectory matters.
 - Avoid brand-specific assessments where possible. Focus on categories of tools rather than specific products, as participants may use different platforms.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -293,7 +293,6 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -314,14 +313,12 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

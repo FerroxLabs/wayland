@@ -12,14 +12,15 @@ description: >-
   advice. The output is a draft; counsel review is required before execution.
 license: Apache-2.0
 type: workflow
-skills: "legal-nda"
+skills: 'legal-nda'
 metadata:
   author: wayland
   version: 1.0.0
   tags: legal nda confidentiality mutual unilateral step-by-step business-legal
   category: business-legal
-  depends: ""
+  depends: ''
 ---
+
 # NDA Pack
 
 **Estimated time:** 10-15 minutes

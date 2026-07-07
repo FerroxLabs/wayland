@@ -13,14 +13,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "hr-handbook"
+skills: 'hr-handbook'
 metadata:
   author: wayland
   version: 1.0.0
   tags: hr handbook policy compliance step-by-step planning
   category: hr
-  depends: "hr-handbook"
+  depends: 'hr-handbook'
 ---
+
 # Build an Employee Handbook
 
 **Estimated time:** 60-90 minutes

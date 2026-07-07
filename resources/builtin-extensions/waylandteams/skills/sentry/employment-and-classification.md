@@ -12,11 +12,11 @@ The Operator handed off a hiring question, or the user is about to write a job d
 
 Five concepts. Each one a real trap.
 
-**1. Contractor vs. employee.** Misclassification is the most expensive common mistake. Two frameworks: the IRS multi-factor test (behavioral control, financial control, relationship) and the ABC test (California, Massachusetts, New Jersey — worker is presumed an employee unless A: free from control, B: doing work outside the hiring entity's usual business, *and* C: independently established in that trade). A "contractor" doing core work on your tools, your schedule, exclusively for you is an employee regardless of paperwork. Penalties stack: back wages, payroll taxes, benefits, state penalties.
+**1. Contractor vs. employee.** Misclassification is the most expensive common mistake. Two frameworks: the IRS multi-factor test (behavioral control, financial control, relationship) and the ABC test (California, Massachusetts, New Jersey — worker is presumed an employee unless A: free from control, B: doing work outside the hiring entity's usual business, _and_ C: independently established in that trade). A "contractor" doing core work on your tools, your schedule, exclusively for you is an employee regardless of paperwork. Penalties stack: back wages, payroll taxes, benefits, state penalties.
 
 **2. At-will basics.** Every US state except Montana defaults to at-will — either side ends it for any legal reason. Exceptions: discrimination, retaliation, contract (offer language promising a term). Offer letters should state at-will explicitly. "Permanent" creates exposure.
 
-**3. Equity as compensation — the 83(b) trap.** Restricted stock vests over time. Without an 83(b) election filed within 30 days of grant, the recipient pays ordinary income tax on the spread between strike and fair market value *as each tranche vests* — years of escalating tax bills on illiquid paper. ISOs (incentive stock options) carry favorable tax treatment but only for employees, only within limits. NSOs go to contractors but are taxed as ordinary income on exercise. The 30-day 83(b) window does not extend.
+**3. Equity as compensation — the 83(b) trap.** Restricted stock vests over time. Without an 83(b) election filed within 30 days of grant, the recipient pays ordinary income tax on the spread between strike and fair market value _as each tranche vests_ — years of escalating tax bills on illiquid paper. ISOs (incentive stock options) carry favorable tax treatment but only for employees, only within limits. NSOs go to contractors but are taxed as ordinary income on exercise. The 30-day 83(b) window does not extend.
 
 **4. Multi-state employment.** Hiring in a state where you have no other employees creates obligations: state income tax withholding, unemployment insurance registration, state-specific paid-leave laws, workers' comp. California, New York, Washington, Colorado, Illinois, Massachusetts each override home-state defaults. A remote hire in a new state is a payroll and compliance project, not a Slack invite.
 
@@ -40,8 +40,8 @@ Five concepts. Each one a real trap.
 
 ## Before / after
 
-**Before:** *A founder hires a California engineer as a 1099 contractor at $8k/month, full-time, exclusive, on company tools, for 14 months. The engineer leaves and files a wage claim. The state finds employee status. Bill: back overtime, missed-meal-break premiums, payroll taxes, state penalties — roughly $90k.*
+**Before:** _A founder hires a California engineer as a 1099 contractor at $8k/month, full-time, exclusive, on company tools, for 14 months. The engineer leaves and files a wage claim. The state finds employee status. Bill: back overtime, missed-meal-break premiums, payroll taxes, state penalties — roughly $90k._
 
-**After:** *Same founder hires the engineer as W-2 from day one. Offer letter states at-will, names base salary, references the stock plan, requires invention assignment and confidentiality. The engineer files an 83(b) within 30 days. Cost: one $600 lawyer hour for the template, plus payroll provider at $50/month. The engagement closes without claims.*
+**After:** _Same founder hires the engineer as W-2 from day one. Offer letter states at-will, names base salary, references the stock plan, requires invention assignment and confidentiality. The engineer files an 83(b) within 30 days. Cost: one $600 lawyer hour for the template, plus payroll provider at $50/month. The engagement closes without claims._
 
 **Disclaimer:** I am not your lawyer. This is a framework for spotting risk, not legal advice for resolving it. Classification disputes, terminations in protected states, and equity grants above the threshold need actual counsel.

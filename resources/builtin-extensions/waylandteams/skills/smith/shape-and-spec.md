@@ -10,15 +10,15 @@ You are not coding here. You produce a written shaped concept that the coding ag
 
 1. **Name the raw idea in one sentence.** Whatever the user said, restate it as a single sentence ending in a verb the user can recognize. If you cannot restate it in one sentence, the idea is two ideas — split it.
 
-2. **Fix the appetite.** Ask the user directly: *small batch (hours to a couple of days), medium (a week), or big batch (a multi-week cycle)?* Appetite is a budget, not an estimate. The point is not "how long will it take" — the point is "how long is the user willing to spend before we throw it out and try something else." Write the appetite at the top of the shaped doc.
+2. **Fix the appetite.** Ask the user directly: _small batch (hours to a couple of days), medium (a week), or big batch (a multi-week cycle)?_ Appetite is a budget, not an estimate. The point is not "how long will it take" — the point is "how long is the user willing to spend before we throw it out and try something else." Write the appetite at the top of the shaped doc.
 
-3. **Find the meaningful problem.** Ask: *what is broken right now, and what does the user do today instead?* If the answer is "nothing, they don't have a way to do this yet," the problem is greenfield and risk goes up. If the answer is "they hack around it with a spreadsheet," the spreadsheet is the breadboard — start there.
+3. **Find the meaningful problem.** Ask: _what is broken right now, and what does the user do today instead?_ If the answer is "nothing, they don't have a way to do this yet," the problem is greenfield and risk goes up. If the answer is "they hack around it with a spreadsheet," the spreadsheet is the breadboard — start there.
 
 4. **Breadboard the solution.** Draw, in text, three things: **places** (the screens or surfaces the user passes through), **affordances** (what they can do on each), and **connections** (what flows between them). Use fat-marker resolution — `[Inbox] → click row → [Detail view: title, body, archive, snooze] → snooze → [Inbox with row hidden]`. No pixels, no fonts, no React component names.
 
-5. **Name the rabbit holes.** Walk the breadboard and ask: *which step here could eat the whole appetite if we let it?* Common culprits: auth flows, file uploads, search, anything cross-tenant, anything with a timezone. Write each rabbit hole as a one-liner with the chosen mitigation: cut it, time-box it, fake it for v1, or defer to a follow-up.
+5. **Name the rabbit holes.** Walk the breadboard and ask: _which step here could eat the whole appetite if we let it?_ Common culprits: auth flows, file uploads, search, anything cross-tenant, anything with a timezone. Write each rabbit hole as a one-liner with the chosen mitigation: cut it, time-box it, fake it for v1, or defer to a follow-up.
 
-6. **Write the no-gos.** Explicit list of features the user might assume are in scope but are not. *No bulk actions in v1. No export. No mobile-specific styling.* The no-gos are how you protect the appetite.
+6. **Write the no-gos.** Explicit list of features the user might assume are in scope but are not. _No bulk actions in v1. No export. No mobile-specific styling._ The no-gos are how you protect the appetite.
 
 7. **Hand the shaped doc to the architecture-decision step or the coding-agent ticket.** If the build needs a non-trivial technical call (storage, sync model, service boundary), route to `architecture-decisions.md` first. If it's a straight implementation, route to `agent-handoff.md`.
 
@@ -38,9 +38,10 @@ You are not coding here. You produce a written shaped concept that the coding ag
 
 ## Before-and-after
 
-**Before:** *"Build a notifications inbox. Should support email, SMS, in-app. Probably needs filters, search, bulk archive. Reusable across products."*
+**Before:** _"Build a notifications inbox. Should support email, SMS, in-app. Probably needs filters, search, bulk archive. Reusable across products."_
 
 **After (shaped):**
+
 - **Appetite:** 1 week.
 - **Problem:** Users miss in-app events because we email-blast everything; emails get filtered.
 - **Breadboard:** `[Bell icon w/ count] → [Inbox list: title, preview, time] → click → [Detail view: full text, archive]`. Email is unchanged; bell mirrors the same payload.

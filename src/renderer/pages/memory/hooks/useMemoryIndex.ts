@@ -42,14 +42,7 @@ export type UseMemoryIndexResult = {
   reload: () => void;
 };
 
-const MEMORY_TYPES: MemoryType[] = [
-  'decision',
-  'pattern',
-  'observation',
-  'session',
-  'wiki',
-  'preference',
-];
+const MEMORY_TYPES: MemoryType[] = ['decision', 'pattern', 'observation', 'session', 'wiki', 'preference'];
 
 const EMPTY_TYPE_COUNTS: Record<MemoryType, number> = {
   decision: 0,
@@ -102,8 +95,7 @@ export function useMemoryIndex(filter: ListFilter): UseMemoryIndexResult {
       setError(null);
       try {
         const f = filterRef.current;
-        const tp =
-          f.project && f.project !== 'all' ? { project: f.project } : undefined;
+        const tp = f.project && f.project !== 'all' ? { project: f.project } : undefined;
         // buildProvider<Data, Params|void> resolves to invoke(params: Params|void)
         // which TypeScript evaluates via conditional type narrowing. Cast through
         // unknown to satisfy the conditional type without losing safety elsewhere.
@@ -153,10 +145,7 @@ export function useMemoryIndex(filter: ListFilter): UseMemoryIndexResult {
 
     const doFetch = async (): Promise<void> => {
       try {
-        const tp =
-          filter.project && filter.project !== 'all'
-            ? { project: filter.project }
-            : undefined;
+        const tp = filter.project && filter.project !== 'all' ? { project: filter.project } : undefined;
         type ListInvoke = (p: ListFilter | void) => Promise<{ entries: MemoryEntry[]; total: number }>;
         type TagsInvoke = (p: { project?: string } | void) => Promise<TagCount[]>;
         const [entriesResult, tagsResult] = await Promise.all([

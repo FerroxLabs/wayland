@@ -84,10 +84,8 @@ export class LinePlugin extends BasePlugin {
 
   protected async onInitialize(config: IChannelPluginConfig): Promise<void> {
     const creds = config.credentials ?? {};
-    const token =
-      typeof creds.channelAccessToken === 'string' ? creds.channelAccessToken.trim() : '';
-    const secret =
-      typeof creds.channelSecret === 'string' ? creds.channelSecret.trim() : '';
+    const token = typeof creds.channelAccessToken === 'string' ? creds.channelAccessToken.trim() : '';
+    const secret = typeof creds.channelSecret === 'string' ? creds.channelSecret.trim() : '';
 
     if (!token) throw new Error('LINE channel access token is required');
     if (!secret) throw new Error('LINE channel secret is required');
@@ -183,7 +181,7 @@ export class LinePlugin extends BasePlugin {
   async handleWebhookPayload(
     payload: object,
     _headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     const body = payload as LineCallbackRequest;
     const events: LineWebhookEvent[] = Array.isArray(body.events) ? body.events : [];
@@ -275,9 +273,7 @@ export class LinePlugin extends BasePlugin {
    * Credentials are JSON-encoded per TRANSLATION-GUIDE §4:
    *   { channelAccessToken: string; channelSecret: string }
    */
-  static async testConnection(
-    tokenJson: string,
-  ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
+  static async testConnection(tokenJson: string): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     type Creds = { channelAccessToken: string; channelSecret: string };
     let creds: Creds;
     try {

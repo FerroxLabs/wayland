@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting checklist habits self-care"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'goal-setting checklist habits self-care'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Habit Tracking System
 
 > **Disclaimer:** This skill provides general wellness and habit-formation information for educational and organizational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. Always consult a qualified healthcare professional before making decisions about your health or beginning a new wellness program. If tracking-related anxiety, perfectionism, or obsessive patterns emerge, refer the user to a licensed mental health professional.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to create a habit tracker from scratch -- paper, digital, or app-based -- and needs a ready-to-use template they can start today
 - The user is already tracking habits but their system feels chaotic, overwhelming, or has broken down and they want a redesign
 - The user asks how to measure habit consistency, calculate completion rates, or quantify their progress over time
@@ -33,6 +35,7 @@ metadata:
 - The user needs to define what "done" means for each habit so there is no ambiguity during daily marking
 
 **Do NOT use when:**
+
 - The user wants to build a new habit from scratch using environmental design, cue-routine-reward loops, or implementation intentions -- use `habit-stacking-framework` instead
 - The user wants a structured 30-day progressive challenge with escalating difficulty -- use `30-day-habit-challenge` instead
 - The user wants to identify the triggers, cravings, or environmental cues that drive existing behaviors -- use `trigger-identification` instead
@@ -85,6 +88,7 @@ Every tracked habit needs three layers of definition before it can be tracked ac
 Match the format to the user's cognitive style, environment, and available time. Present the options and let the user choose -- do not assume.
 
 **Format 1: Paper Monthly Grid**
+
 - Structure: Habits on rows, days 1-31 on columns, one sheet per month. Hang it where the habit happens (bathroom mirror for morning habits, kitchen for nutrition habits, desk for work habits).
 - Marking system: X = full completion, / = MVH, blank = missed. Optional: color the cells with markers (green/yellow/red) for visual impact.
 - Best for: Visual processors, people who want a physical cue, users who do not want screen time in their routine, users who find satisfaction in physical marking (the "satisfying X" effect).
@@ -92,6 +96,7 @@ Match the format to the user's cognitive style, environment, and available time.
 - Supports: 3-7 habits comfortably on one standard portrait-orientation sheet.
 
 **Format 2: Digital Spreadsheet with Conditional Formatting**
+
 - Structure: One tab per month. Column A = habit names. Column B = point values. Columns C onward = days of the month. A summary column calculates monthly completion rate using COUNTIF formulas.
 - Conditional formatting: cells marked "1" (full) turn green, cells marked "0.5" (MVH) turn yellow, cells marked "0" turn red, blank cells remain white.
 - Completion formula: =COUNTIF(C2:AG2,"1")/DAY(EOMONTH(A1,0)) -- gives percentage of full completions for the month.
@@ -100,6 +105,7 @@ Match the format to the user's cognitive style, environment, and available time.
 - Supports: Unlimited habits, but visual clarity degrades above 10 rows.
 
 **Format 3: Minimal Daily Check-In (Journal Style)**
+
 - Structure: Three questions answered daily in a notes app, paper journal, or text file. No grids. No columns. Questions: (1) Which habits did I complete today? (2) Did I do the full version or MVH for each? (3) How is my energy and mood today? (1-10)
 - Best for: Users who dislike visual grids, users who already journal, users for whom structured tracking has previously caused anxiety, users tracking subjective or hard-to-quantify habits.
 - Limitation: Hard to calculate consistency percentages without manual counting. Streaks are visible only by scrolling through entries. Not visually motivating.
@@ -107,12 +113,14 @@ Match the format to the user's cognitive style, environment, and available time.
 - Supports: Any number of habits, but practically useful only for 3-5 without becoming repetitive.
 
 **Format 4: Daily Scorecard**
+
 - Structure: Each day has a possible score based on the sum of all habit point values. The user earns points for full completions, partial points for MVH. The daily score is compared to a "good day" threshold (typically 70% of possible points). Weekly score is compared to a "good week" threshold.
 - Best for: Gamification-motivated users, users with a competitive mindset, users who do not want to feel guilty about imperfect days (a score of 8/10 is objectively good, even if one habit was missed), users who respond to percentages over binary pass/fail systems.
 - The scorecard separates performance from identity: "I scored 7/10 today" is more emotionally neutral than "I missed two habits today."
 - Supports: 3-10 habits. Above 10 habits, daily score calculation becomes burdensome even mentally.
 
 **Format 5: Habit Stack Anchor Sheet (for users building habit stacks)**
+
 - A one-page list of habits organized by anchor event (wake up, after coffee, at lunch, before dinner, before bed) rather than by time of day. Each anchor has 2-3 attached habits. The user marks the anchor event and each attached habit as a unit.
 - This format is most effective when habits are already linked to existing routines. It reinforces the habit stack structure rather than treating each habit as an independent item.
 - Best used in combination with: `habit-stacking-framework` outputs.
@@ -298,19 +306,25 @@ with the user's specific habits, point values, and marking keys.]
 ## Edge Cases
 
 ### User Wants to Track 10+ Habits Simultaneously
+
 Apply the Habit Priority Matrix immediately. Draw a 2×2 grid with "Impact on your goals" (low/high) on the Y-axis and "Current consistency" (low/high) on the X-axis. Place each habit in a quadrant. High impact + low consistency = Track now (these are the highest-ROI habits to reinforce). High impact + high consistency = Waitlist or remove (may already be automatic). Low impact + low consistency = Drop entirely (these are aspirational habits without commitment). Low impact + high consistency = Consider removing from tracker (already automatic, tracking may be unnecessary). Select the top 3-5 from the "Track now" quadrant. Place the rest in the waitlist with the explicit instruction: "You can add one habit from this list when any currently tracked habit reaches 80% consistency for two consecutive months."
 
 ### User Has an Existing Tracker That Has Broken Down
+
 Do not build a new tracker on top of a failed one. Conduct an abandonment autopsy first. Ask: When did you stop using it? What was happening in your life then? What did the tracker look like (how many habits, what format)? How long did daily marking take? Common diagnoses and fixes: Too many habits (solution: cut to 3) -- no MVH definitions (solution: define MVH for each remaining habit) -- tracking took too long (solution: switch to Minimal Check-In) -- no weekly review (solution: add review before anything else) -- format mismatch (solution: change the format, not the habits) -- life disruption caused a miss that felt like failure (solution: add streak insurance and reframe the language). The rebuilt tracker should be materially simpler than the abandoned one. If the user had 8 habits, rebuild with 4. If they had a complex spreadsheet, rebuild with paper.
 
 ### User Wants to Track the Same Habits for the Whole Family
+
 Do not build a single shared tracker for individual habits. Shared trackers for individual behaviors create comparison dynamics that undermine intrinsic motivation, particularly with children. Build one personal tracker per family member. For habits the family shares (weekly family dinner, device-free evenings, family walk), a shared tracker is appropriate -- but the shared tracker tracks the family unit's behavior, not individual compliance. Implement a low-friction family check-in: at a fixed time (dinner, car ride), each person states one habit win from the day in under 30 seconds. This creates social acknowledgment without scorecarding. For children, use sticker-based paper grids with 3 habits maximum, non-comparative framing ("Did you do your habit today?" not "Your brother did his habit today"), and reward milestones at 7-day and 21-day intervals rather than streaks, which children find discouraging after a reset.
 
 ### User Achieves 14 Days of Tracking Then Abandons the System
-This is the most statistically common abandonment pattern. The cause is almost always the same: the novelty effect (tracking feels engaging at first) wears off at approximately Day 10-14, and the intrinsic reward of marking boxes is no longer sufficient to sustain the behavior. Prevention strategies: (1) Reward milestone at Day 14: a small, predetermined personal reward for completing 14 consecutive days of tracking -- not for habit completion, for the tracking behavior itself. The tracking habit needs reinforcement just like any other habit. (2) Reward milestone at Day 30: a larger reward at the first full month. (3) At the Week 2 review, make a deliberate, written re-commitment: "I am choosing to continue this system because ___." The written re-commitment counteracts drift. (4) If this has already happened (the user is describing a past system), add the milestone rewards retroactively in the rebuilt system and set a calendar event for the Day 14 reward immediately.
+
+This is the most statistically common abandonment pattern. The cause is almost always the same: the novelty effect (tracking feels engaging at first) wears off at approximately Day 10-14, and the intrinsic reward of marking boxes is no longer sufficient to sustain the behavior. Prevention strategies: (1) Reward milestone at Day 14: a small, predetermined personal reward for completing 14 consecutive days of tracking -- not for habit completion, for the tracking behavior itself. The tracking habit needs reinforcement just like any other habit. (2) Reward milestone at Day 30: a larger reward at the first full month. (3) At the Week 2 review, make a deliberate, written re-commitment: "I am choosing to continue this system because \_\_\_." The written re-commitment counteracts drift. (4) If this has already happened (the user is describing a past system), add the milestone rewards retroactively in the rebuilt system and set a calendar event for the Day 14 reward immediately.
 
 ### User Tracks Habits That Are Hard to Measure (Internal States, Emotional Goals)
+
 Users frequently want to track internal states: "be more present," "worry less," "practice gratitude," "be kinder." These cannot be directly observed or marked. Apply the Observable Behavior Conversion protocol:
+
 - Identify the internal state: e.g., "worry less"
 - Identify the physical or behavioral correlate that the user can control: e.g., "when I notice worry, do one round of box breathing (4 counts in, 4 hold, 4 out, 4 hold)"
 - Define completion: "Did I do at least one round of box breathing in response to worry today? Yes/No"
@@ -320,10 +334,13 @@ Users frequently want to track internal states: "be more present," "worry less,"
 - Never accept a habit definition that requires the user to subjectively judge whether they "felt" the habit. Feelings are outcomes; behaviors are inputs. Track the inputs.
 
 ### User Uses a Habit App with Built-In Tracking and Asks for Help Optimizing It
+
 The skill does not recommend specific apps, but can work with whatever tool the user already uses. Ask: Does the app support custom habit definitions (not just preset habits)? Does it allow you to mark partial completion (MVH)? Does it show a monthly grid view? Does it calculate consistency percentages? Does it allow you to add notes? If the app is missing critical features -- particularly MVH partial credit -- supplement it with a minimal paper or notes-app tracker for the MVH distinction. The app handles the streak and full-completion marking; the supplemental tool records MVH days. Alternatively, if the app supports two separate entries for the same habit (e.g., "Exercise -- Full" and "Exercise -- MVH"), use this workaround. The key is that the MVH must be distinct from both full completion and a miss -- a system that only recognizes done/not-done will not accurately reflect the user's behavior.
 
 ### User Experiences a Multi-Week Life Disruption (Illness, Travel, Family Emergency, Major Life Change)
+
 This is different from a standard missed day. When the user's life circumstances fundamentally change for a period of weeks, the appropriate response is a system pause, not a streak insurance attempt.
+
 - Formally pause the tracker: note the date and reason in the tracker itself ("Paused: [date] due to [brief reason]").
 - During the pause period, maintain only one keystone habit -- the one with the highest identity value for the user -- using only the MVH. Everything else is suspended.
 - Resume the tracker on a specific restart date (set this date at the time of the pause, not after). Upon restart: reset all streaks to 0, reduce the habit load by one habit for the first two weeks post-disruption, use the MVH as the default target (not the full version) for the first week.
@@ -351,13 +368,13 @@ This is different from a standard missed day. When the user's life circumstances
 
 ### Habit Definitions
 
-| # | Habit | Full Version | MVH (Minimum Viable) | Frequency | FV Points | MVH Points |
-|---|-------|-------------|---------------------|-----------|-----------|------------|
-| 1 | Morning Run | 25-minute run outside at a conversational pace before 9am | Put on running shoes, walk outside, walk for 5 minutes (no excuses needed, no pace) | Daily | 4 | 2 |
-| 2 | Journal | Write for 10 minutes -- open entry, no prompt required, private | Write 3 sentences about anything (can be "I have nothing to say") | Daily | 2 | 1 |
-| 3 | Read Before Bed | Read a physical or digital book (not social media, not news) for 20 minutes, in bed, before turning off the light | Read 2 pages -- any book -- before putting the device down | Daily | 2 | 1 |
-| 4 | Phone Curfew | All phone activity (including passive scrolling) ends by 9:00pm. Phone placed in a room other than the bedroom. | Phone is placed outside the bedroom by 9:30pm. Looking at it until 9:30 is allowed; keeping it in the bedroom is not. | Daily | 2 | 1 |
-| 5 | Hydration | Drink 64oz (8 cups) of water distributed across the day, starting with 1 cup upon waking | Drink 1 full glass (16oz) of water before your first coffee or tea of the day | Daily | 1 | 1 |
+| #   | Habit           | Full Version                                                                                                      | MVH (Minimum Viable)                                                                                                  | Frequency | FV Points | MVH Points |
+| --- | --------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ---------- |
+| 1   | Morning Run     | 25-minute run outside at a conversational pace before 9am                                                         | Put on running shoes, walk outside, walk for 5 minutes (no excuses needed, no pace)                                   | Daily     | 4         | 2          |
+| 2   | Journal         | Write for 10 minutes -- open entry, no prompt required, private                                                   | Write 3 sentences about anything (can be "I have nothing to say")                                                     | Daily     | 2         | 1          |
+| 3   | Read Before Bed | Read a physical or digital book (not social media, not news) for 20 minutes, in bed, before turning off the light | Read 2 pages -- any book -- before putting the device down                                                            | Daily     | 2         | 1          |
+| 4   | Phone Curfew    | All phone activity (including passive scrolling) ends by 9:00pm. Phone placed in a room other than the bedroom.   | Phone is placed outside the bedroom by 9:30pm. Looking at it until 9:30 is allowed; keeping it in the bedroom is not. | Daily     | 2         | 1          |
+| 5   | Hydration       | Drink 64oz (8 cups) of water distributed across the day, starting with 1 cup upon waking                          | Drink 1 full glass (16oz) of water before your first coffee or tea of the day                                         | Daily     | 1         | 1          |
 
 **Daily max score:** 11 points (4+2+2+2+1)
 **Weekly max score:** 77 points
@@ -403,11 +420,11 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 
 ### Scoring Rules
 
-| Completion Type | Morning Run | Journal | Read Before Bed | Phone Curfew | Hydration |
-|-----------------|-------------|---------|----------------|-------------|-----------|
-| Full Version (X) | 4 pts | 2 pts | 2 pts | 2 pts | 1 pt |
-| MVH (/) | 2 pts | 1 pt | 1 pt | 1 pt | 1 pt |
-| Missed (blank) | 0 pts | 0 pts | 0 pts | 0 pts | 0 pts |
+| Completion Type  | Morning Run | Journal | Read Before Bed | Phone Curfew | Hydration |
+| ---------------- | ----------- | ------- | --------------- | ------------ | --------- |
+| Full Version (X) | 4 pts       | 2 pts   | 2 pts           | 2 pts        | 1 pt      |
+| MVH (/)          | 2 pts       | 1 pt    | 1 pt            | 1 pt         | 1 pt      |
+| Missed (blank)   | 0 pts       | 0 pts   | 0 pts           | 0 pts        | 0 pts     |
 
 **Daily max:** 11 points
 **Good day:** 8+ points (73% of daily max)
@@ -416,6 +433,7 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 **Monthly consistency target:** 80%+ full completions per habit by Month 3 (first month: 60%+ is a strong start)
 
 **Streak Insurance -- the explicit rule:**
+
 - If you miss a day entirely (all five habits), do the MVH for each habit the very next morning/evening and mark the missed day as "/" retroactively (using the grace rule, one time per 7-day window).
 - If you miss two days in a row: streaks reset. Mark the missed days as blank. Write the new streak start date in pencil next to each habit name. Begin counting from 1. This is not failure -- it is honest data.
 - Three consecutive days of MVH-only (no full version for any habit): flag this at the next weekly review. Something is draining your capacity. Name it.
@@ -425,14 +443,16 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 ### Review Schedule
 
 **Daily (2 minutes, in the evening after brushing teeth):**
+
 - Retrieve the tracker (bathroom mirror placement makes this automatic)
 - Mark each cell: X, /, or leave blank
 - Add the daily score at the bottom row
 - Total takes under 90 seconds once you are practiced
 
 **Weekly (10 minutes, every Sunday at 8:00pm):**
-1. Add up this week's daily scores for the weekly total: ___ / 77
-2. Which habit had the most blank cells this week? _______________
+
+1. Add up this week's daily scores for the weekly total: \_\_\_ / 77
+2. Which habit had the most blank cells this week? ******\_\_\_******
 3. What specific event or pattern caused those misses? (Not "life was busy." What time of day? What came up? What was competing?)
 4. One micro-adjustment for next week (choose one):
    - Change the time of day for [habit]
@@ -440,18 +460,19 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
    - Reduce [habit] from daily to 5x/week temporarily
    - Move the tracker to a new location
 5. Write this week's streak count for each habit:
-   - Morning Run: ___ days | Journal: ___ days | Read: ___ days | Phone Curfew: ___ days | Hydration: ___ days
+   - Morning Run: **_ days | Journal: _** days | Read: **_ days | Phone Curfew: _** days | Hydration: \_\_\_ days
 
 **Monthly (20 minutes, first Sunday of each month):**
+
 1. Count total marks for each habit:
-   - Full completions (X): ___ | MVH completions (/): ___ | Missed (blank): ___
-   - Consistency % = (X + (/ × 0.5)) ÷ days in month × 100 = ___%
+   - Full completions (X): **_ | MVH completions (/): _** | Missed (blank): \_\_\_
+   - Consistency % = (X + (/ × 0.5)) ÷ days in month × 100 = \_\_\_%
 2. Longest streak this month per habit:
-   - Morning Run: ___ | Journal: ___ | Read: ___ | Phone Curfew: ___ | Hydration: ___
-3. Streak insurance uses this month: ___ / 4 maximum
-4. Habit to investigate (below 50% consistency): _______________
+   - Morning Run: **_ | Journal: _** | Read: **_ | Phone Curfew: _** | Hydration: \_\_\_
+3. Streak insurance uses this month: \_\_\_ / 4 maximum
+4. Habit to investigate (below 50% consistency): ******\_\_\_******
    - Root cause question: "Was the full version too hard, or did I not care enough about this habit this month?"
-5. Habit to celebrate (above 80% consistency for 2 months in a row): _______________
+5. Habit to celebrate (above 80% consistency for 2 months in a row): ******\_\_\_******
    - Upgrade question: "Is this habit becoming automatic? Should I make the full version harder?"
 6. Alignment check: "Three months from now, which of these five habits will I be most grateful I kept?"
 7. Reward milestone check:
@@ -462,15 +483,15 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 
 ### Streak Summary Table
 
-| Habit | Current Streak | Longest Streak This Month | Streak Resets This Month |
-|-------|---------------|--------------------------|--------------------------|
-| Morning Run | ___ days | ___ days | ___ |
-| Journal | ___ days | ___ days | ___ |
-| Read Before Bed | ___ days | ___ days | ___ |
-| Phone Curfew | ___ days | ___ days | ___ |
-| Hydration | ___ days | ___ days | ___ |
+| Habit           | Current Streak | Longest Streak This Month | Streak Resets This Month |
+| --------------- | -------------- | ------------------------- | ------------------------ |
+| Morning Run     | \_\_\_ days    | \_\_\_ days               | \_\_\_                   |
+| Journal         | \_\_\_ days    | \_\_\_ days               | \_\_\_                   |
+| Read Before Bed | \_\_\_ days    | \_\_\_ days               | \_\_\_                   |
+| Phone Curfew    | \_\_\_ days    | \_\_\_ days               | \_\_\_                   |
+| Hydration       | \_\_\_ days    | \_\_\_ days               | \_\_\_                   |
 
-**Streak Insurance uses this month:** ___ (max 4 -- 1 per 7-day window)
+**Streak Insurance uses this month:** \_\_\_ (max 4 -- 1 per 7-day window)
 
 ---
 

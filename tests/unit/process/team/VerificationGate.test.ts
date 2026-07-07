@@ -106,7 +106,10 @@ function failResult(): IjfwInvokeResult {
 
 describe('VerificationGate - gate decisions', () => {
   it('PASS with >= 1 lens completes the task', async () => {
-    const gate = new VerificationGate(async () => passResult(), () => 'blocking');
+    const gate = new VerificationGate(
+      async () => passResult(),
+      () => 'blocking'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('complete');
     expect(decision.verification.outcome).toBe('pass');
@@ -115,14 +118,20 @@ describe('VerificationGate - gate decisions', () => {
 
   it('PASS with zero lenses is inconclusive -> fails soft to complete (advisory)', async () => {
     const result: IjfwInvokeResult = { ok: true, data: { verdict: 'PASS', perIteration: [{ lensResults: [] }] } };
-    const gate = new VerificationGate(async () => result, () => 'blocking');
+    const gate = new VerificationGate(
+      async () => result,
+      () => 'blocking'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('complete');
     expect(decision.verification.outcome).toBe('advisory');
   });
 
   it('FAIL in blocking mode rejects back to in_progress with critique', async () => {
-    const gate = new VerificationGate(async () => failResult(), () => 'blocking');
+    const gate = new VerificationGate(
+      async () => failResult(),
+      () => 'blocking'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('reject');
     expect(decision.verification.outcome).toBe('fail');
@@ -130,7 +139,10 @@ describe('VerificationGate - gate decisions', () => {
   });
 
   it('FAIL in advisory mode completes but records the verdict', async () => {
-    const gate = new VerificationGate(async () => failResult(), () => 'advisory');
+    const gate = new VerificationGate(
+      async () => failResult(),
+      () => 'advisory'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('complete');
     expect(decision.verification.outcome).toBe('advisory');
@@ -138,7 +150,10 @@ describe('VerificationGate - gate decisions', () => {
   });
 
   it('2nd consecutive FAIL in blocking mode escalates to needs_human', async () => {
-    const gate = new VerificationGate(async () => failResult(), () => 'blocking');
+    const gate = new VerificationGate(
+      async () => failResult(),
+      () => 'blocking'
+    );
     const task = makeTask({
       metadata: { startRef: 'abc123', verification: { outcome: 'fail', failCount: 1, checkedAt: 1 } },
     });
@@ -160,7 +175,10 @@ describe('VerificationGate - gate decisions', () => {
 
   it('fails soft (complete) when IJFW is unavailable', async () => {
     const result: IjfwInvokeResult = { ok: false, errorReason: 'spawn_error' };
-    const gate = new VerificationGate(async () => result, () => 'blocking');
+    const gate = new VerificationGate(
+      async () => result,
+      () => 'blocking'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('complete');
     expect(decision.verification.outcome).toBe('advisory');
@@ -170,9 +188,12 @@ describe('VerificationGate - gate decisions', () => {
   it('fails soft (complete) when invoke THROWS instead of returning ok:false', async () => {
     // A thrown rejection must not escape verify() (it would strand the task in
     // `verifying`); it is treated identically to infra-unavailable.
-    const gate = new VerificationGate(async () => {
-      throw new Error('mcp transport exploded');
-    }, () => 'blocking');
+    const gate = new VerificationGate(
+      async () => {
+        throw new Error('mcp transport exploded');
+      },
+      () => 'blocking'
+    );
     const decision = await gate.verify(makeTask());
     expect(decision.kind).toBe('complete');
     expect(decision.verification.outcome).toBe('advisory');
@@ -182,8 +203,13 @@ describe('VerificationGate - gate decisions', () => {
   it('failSoft CARRIES the prior failCount so a transient IJFW blip cannot launder a real FAIL', async () => {
     // Turn 1 was a real blocking FAIL (failCount 1). Turn 2 hits an IJFW outage.
     const result: IjfwInvokeResult = { ok: false, errorReason: 'spawn_error' };
-    const gate = new VerificationGate(async () => result, () => 'blocking');
-    const task = makeTask({ metadata: { startRef: 'abc123', verification: { outcome: 'fail', failCount: 1, checkedAt: 1 } } });
+    const gate = new VerificationGate(
+      async () => result,
+      () => 'blocking'
+    );
+    const task = makeTask({
+      metadata: { startRef: 'abc123', verification: { outcome: 'fail', failCount: 1, checkedAt: 1 } },
+    });
     const decision = await gate.verify(task);
     expect(decision.kind).toBe('complete'); // still fails soft (never traps in verifying)
     expect(decision.verification.failCount).toBe(1); // but does NOT reset to 0
@@ -210,7 +236,10 @@ describe('VerificationGate - gate decisions', () => {
     const invoke = vi.fn(async () => passResult());
     const gate = new VerificationGate(invoke, () => 'blocking');
     await gate.verify(makeTask({ metadata: { baseBranch: 'main', taskBranch: 'feat/login' } }));
-    expect(invoke).toHaveBeenCalledWith('cross_audit_converge', expect.objectContaining({ commitRange: 'main..feat/login' }));
+    expect(invoke).toHaveBeenCalledWith(
+      'cross_audit_converge',
+      expect.objectContaining({ commitRange: 'main..feat/login' })
+    );
   });
 });
 
@@ -218,7 +247,10 @@ describe('TaskManager + VerificationGate - completed interception', () => {
   it('routes a proposed completed through verifying then to completed on pass', async () => {
     const seed = makeTask();
     const { repo, get } = makeRepo(seed);
-    const gate = new VerificationGate(async () => passResult(), () => 'blocking');
+    const gate = new VerificationGate(
+      async () => passResult(),
+      () => 'blocking'
+    );
     const tm = new TaskManager(repo, () => [ALICE], undefined, gate);
 
     const result = await tm.update(seed.id, { status: 'completed' });
@@ -230,7 +262,10 @@ describe('TaskManager + VerificationGate - completed interception', () => {
   it('blocking FAIL sends the task back to in_progress with critique', async () => {
     const seed = makeTask();
     const { repo, get } = makeRepo(seed);
-    const gate = new VerificationGate(async () => failResult(), () => 'blocking');
+    const gate = new VerificationGate(
+      async () => failResult(),
+      () => 'blocking'
+    );
     const tm = new TaskManager(repo, () => [ALICE], undefined, gate);
 
     const result = await tm.update(seed.id, { status: 'completed' });
@@ -256,7 +291,10 @@ describe('TaskManager + VerificationGate - completed interception', () => {
 
   it('parks a needs_human task: a re-proposed completion is dropped without re-running the gate', async () => {
     const seed = makeTask({
-      metadata: { startRef: 'abc123', verification: { outcome: 'needs_human', needsHuman: true, failCount: 2, checkedAt: 1 } },
+      metadata: {
+        startRef: 'abc123',
+        verification: { outcome: 'needs_human', needsHuman: true, failCount: 2, checkedAt: 1 },
+      },
     });
     const { repo, get } = makeRepo(seed);
     const invoke = vi.fn(async () => passResult());

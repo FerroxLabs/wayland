@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design sustainable-shopping"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design sustainable-shopping'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Sustainable Fashion Curator
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to audit their existing wardrobe and identify gaps, redundancies, or items to remove from rotation
 - A user is building a capsule wardrobe from scratch or transitioning from fast fashion consumption patterns
 - A user needs to evaluate whether a specific brand or garment meets ethical and environmental standards
@@ -32,6 +34,7 @@ metadata:
 - A user is weighing the trade-off between cost, ethics, and environmental impact across price points and sourcing models
 
 **Do NOT use when:**
+
 - The user is asking for fashion trend forecasting or editorial styling advice disconnected from sustainability -- use a general fashion styling skill instead
 - The user needs professional textile manufacturing or supply chain consultation for a business -- this is consumer-facing guidance only
 - The request is about fast fashion brand recommendations without any sustainability context or interest
@@ -285,24 +288,31 @@ Cost-per-wear calculation:    ___
 ## Edge Cases
 
 ### The "I Only Want to Buy Sustainable Brands But Have a Tight Budget" Scenario
+
 When a user insists on buying new from certified-sustainable brands but has a budget under $500/year for clothing, the math often does not work at standard sustainable brand price points ($60--$150 per basic item). The correct response is to reframe the sustainability hierarchy: (1) secondhand from any brand is more sustainable than new from the most ethical brand; (2) prioritize new-sustainable purchases for the highest-wear items only (daily footwear, everyday coat, basic foundation pieces); (3) fill the rest of the capsule secondhand. A $150 budget spent on one well-made sustainable basic plus $350 spent on secondhand pieces creates a better outcome than $500 spent entirely on mid-tier sustainable new purchases.
 
 ### The "I Have Thousands of Items and Cannot Part With Anything" Scenario
+
 Some users have deep sentimental attachment to accumulated clothing. Do not force a minimalist reduction framework. Instead: (1) apply the "active wardrobe" concept -- the user maintains all items they wish to keep, but designates 30--40 pieces as the active rotation with everything else stored; (2) guide them toward organizing storage so items are visible and accessible, reducing the impulse to buy something they already own; (3) introduce the concept of one-in-one-out as a forward rule -- no new acquisition without a corresponding item leaving active rotation. Never prescribe total item counts to users who have not requested minimalism.
 
 ### The "I Live in an Extreme Climate" Scenario
+
 A capsule wardrobe designed for a temperate climate fails completely in extreme cold (northern Canada, Scandinavia, mountain regions) or extreme heat (Middle East, deep tropics). For extreme cold, the capsule architecture must expand the outerwear category to include: a base layer system (merino wool is optimal at 17.5--19.5 micron fineness for next-to-skin warmth without itch), a mid-layer insulation piece (down or recycled Thinsulate fill), and a weatherproof outer shell. The foundation layer shrinks correspondingly because heavy layering means fewer distinct daily outfits. For extreme heat, prioritize linen and open-weave cotton exclusively; synthetics of any type create discomfort through poor moisture management; the capsule should weight heavily toward tops and lightweight bottoms with minimal outerwear.
 
 ### The "I Need Professional Attire But Sustainable Options Seem Limited"
+
 Professional environments with strict dress codes (law, finance, conservative corporate) require specific garment types where sustainable options are genuinely less available. Guide the user to: (1) secondhand quality suiting from estate sales, consignment, and tailors who sell off-the-rack inventory; (2) brands with transparent supply chains that specifically produce professional wear (several exist in the Tencel-suiting and responsible wool categories); (3) tailoring as sustainability -- a $40 secondhand blazer altered to fit perfectly by a $30 tailor visit is both more sustainable and better-looking than a $120 new suit from a mid-range brand. Also flag that a well-maintained dark suit or blazer-trouser combination with rotating shirts and blouses provides more professional outfit variety than a larger collection of lower-quality pieces.
 
 ### The "I Was Just Told My Favorite Brand Is Not Sustainable After All" Scenario
+
 Users frequently encounter conflicting information about specific brands, particularly after a brand receives negative press coverage or appears on a greenwashing list. The response is to walk through the brand scoring framework (Step 6) using publicly available information at that time, acknowledge that corporate sustainability practices change (both improving and regressing), and note that no single external report is infallible. Encourage the user to focus their evaluation on verifiable third-party certifications for the specific product category rather than brand-level reputation. A brand may have poor overall transparency but sell specific certified-organic items -- and those specific certified items are defensible purchases even if the brand at large is not a sustainability leader.
 
 ### The "I Want to Go Fully Plastic-Free in My Wardrobe" Scenario
+
 Eliminating all synthetic fiber from a wardrobe is a legitimate sustainability goal but has real functional trade-offs. Activewear with zero synthetic content (100% merino wool base layers, natural rubber or leather athletic footwear) is available but expensive and less durable under high-abrasion athletic use. Waterproof outerwear without synthetic membrane technology is largely non-functional for serious weather protection -- waxed cotton (Milium, oilskin, or organic wax treatments) is an authentic alternative for moderate rain but fails under sustained heavy rain or technical mountain conditions. Guide the user to a "minimal synthetic" goal rather than "zero synthetic" -- accepting recycled synthetics in performance-specific categories where natural alternatives genuinely cannot perform, while eliminating synthetic fiber from all other categories.
 
 ### The "I Want to Buy a Sustainable Gift for Someone Else" Scenario
+
 Clothing gifts raise a specific practical challenge: fit and personal style are highly individual, making garments poor gift choices in most cases unless the giver knows the recipient's measurements and color palette precisely. Redirect toward: (1) accessories (scarves, jewelry, bags) that are fit-independent and palette-flexible; (2) a secondhand shopping experience or clothing swap experience together as a shared activity; (3) a gift certificate to a consignment store or ethical brand so the recipient chooses for themselves; (4) a practical sustainability kit (Guppyfriend microplastic wash bag, high-quality wooden hangers, cedar moth deterrents, quality sewing kit) rather than a garment.
 
 ---

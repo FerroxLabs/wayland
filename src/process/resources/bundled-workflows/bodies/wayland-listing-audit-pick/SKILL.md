@@ -12,14 +12,15 @@ description: >-
   wants a deep rewrite (use the full listing-optimize workflow instead).
 license: Apache-2.0
 type: workflow
-skills: "commerce-listing commerce-description"
+skills: 'commerce-listing commerce-description'
 metadata:
   author: wayland
   version: 1.0.0
   tags: commerce ecommerce listing audit triage deterministic
   category: marketing
-  depends: "commerce-listing commerce-description"
+  depends: 'commerce-listing commerce-description'
 ---
+
 # Listing Audit (Pick One)
 
 **Estimated time:** under 1 minute

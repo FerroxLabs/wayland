@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops ci-cd cloud database step-by-step planning"
-  category: "software-development"
-  depends: "ci-cd-pipeline-design deployment-strategies database-migration-patterns monitoring-alerting logging-patterns performance-testing"
-  disclaimer: "none"
-  difficulty: "intermediate"
-  interactivity: "auto"
+  version: '1.0.0'
+  tags: 'devops ci-cd cloud database step-by-step planning'
+  category: 'software-development'
+  depends: 'ci-cd-pipeline-design deployment-strategies database-migration-patterns monitoring-alerting logging-patterns performance-testing'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
+  interactivity: 'auto'
 ---
 
 # Deploy to Production

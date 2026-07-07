@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing personal-communication email"
-  category: "writing"
-  subcategory: "personal-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing personal-communication email'
+  category: 'writing'
+  subcategory: 'personal-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Recommendation Letter
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write a recommendation letter for a student applying to undergraduate, graduate, or professional school (MBA, law, medical)
 - A user needs a reference letter for a job applicant, particularly for senior or competitive roles where a letter carries weight
 - A user needs to write a letter supporting a colleague or student for a fellowship, grant, award, or competitive program (NSF, Fulbright, Rhodes, MacArthur, internal company awards)
@@ -29,6 +31,7 @@ metadata:
 - A user is writing a character reference for a professional licensing board (bar admission, medical licensure, CPA)
 
 **Do NOT use this skill when:**
+
 - The user wants to write their own cover letter or personal statement -- use career writing skills, which follow a first-person narrative structure entirely different from third-party endorsement
 - The user needs a personal character reference for a court proceeding or legal matter -- these have specific legal conventions and risk profiles that require legal guidance
 - The user needs a landlord reference or housing reference -- these focus on financial reliability and tenancy behavior, not professional competence
@@ -76,11 +79,11 @@ Before writing prose, build a competency-evidence map. This prevents the common 
 
 Create a mental (or literal) two-column structure:
 
-| Competency to Highlight | Specific Evidence |
-|---|---|
-| Independent research aptitude | Identified a flaw in the existing methodology unprompted, proposed a correction, validated it in three months without supervision |
+| Competency to Highlight        | Specific Evidence                                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Independent research aptitude  | Identified a flaw in the existing methodology unprompted, proposed a correction, validated it in three months without supervision                             |
 | Communication across audiences | Translated technical findings to a non-specialist clinical audience; clinician described it as "the first time I could evaluate a computational claim myself" |
-| Leadership under pressure | When the launch timeline compressed by six weeks, reorganized team task allocation, held daily standups, delivered on the revised date |
+| Leadership under pressure      | When the launch timeline compressed by six weeks, reorganized team task allocation, held daily standups, delivered on the revised date                        |
 
 Rank these rows by relevance to the specific opportunity. The highest-ranked competency gets the most space -- typically a full paragraph of 120-180 words. The second gets 90-130 words. The third, if included, gets 60-90 words or is folded into the closing.
 
@@ -93,28 +96,33 @@ Never list more than three core competencies. Readers remember the first two cla
 The recommendation letter has a settled structural logic developed over decades of institutional reading. Deviation requires justification. Follow this structure:
 
 **Paragraph 1 -- Opening credentialing and headline (60-90 words):**
+
 - Identify who the recommender is in one sentence -- enough to establish credibility, not a biography
 - State the relationship: capacity, duration, intensity
 - Deliver the overall recommendation in explicit terms -- "without reservation," "my strongest recommendation," "among the most capable individuals I have supervised." The opening recommendation should be unambiguous. Committees read dozens of letters; they need the signal immediately.
 - Include the comparative ranking here or anchor it by promising it will follow.
 
 **Paragraph 2 -- Core competency with primary evidence (120-180 words):**
+
 - State the quality being demonstrated
 - Narrate the specific incident or project with enough detail to be vivid and verifiable
 - Include concrete specifics: numbers, timelines, outcomes, scale ("team of 8," "three months ahead of schedule," "manuscript accepted to Nature Methods")
 - End with the recommender's interpretive assessment -- what does this incident mean? What does it reveal about the candidate's potential?
 
 **Paragraph 3 -- Second competency with supporting evidence (90-130 words):**
+
 - Introduce a distinct quality -- not a repetition or variation of Paragraph 2
 - Evidence can be briefer here, but must still be specific
 - If possible, show how Paragraph 2 and Paragraph 3 qualities work together -- they compound into a portrait, not a list
 
 **Paragraph 4 (optional) -- Third quality or character dimension (60-90 words):**
+
 - Use this paragraph when there is a meaningful personal quality that the institutional record cannot show: intellectual humility, generosity as a mentor, ethical judgment under pressure
 - This paragraph is most valuable in academic letters for programs where collegiality and community contribution matter
 - Skip this paragraph for most business-context letters -- keep them tighter
 
 **Paragraph 5 -- Closing with comparative ranking, restatement, and contact offer (60-90 words):**
+
 - State the comparative ranking explicitly if not in Paragraph 1: "Of the 47 master's students I have supervised in fifteen years, Maya ranks in the top three."
 - Restate the recommendation with a forward-looking frame: not just "she is excellent" but "she will excel in your program because..."
 - Offer explicitly to discuss further, and provide direct contact information (email and phone). This signals genuine confidence -- a lukewarm recommender offers no such invitation.
@@ -142,6 +150,7 @@ After a complete draft, run each of these tests before delivering the letter:
 Academic letters and professional letters have different conventions. Match the register:
 
 **Academic context (graduate school, fellowships, academic positions):**
+
 - Tone is formal and analytical. The recommender is an authority speaking to peer authorities.
 - Language foregrounds intellectual qualities: "rigorous," "independent," "original," "methodologically sophisticated"
 - Evidence privileges research outputs: papers, conference presentations, thesis quality, seminar performance
@@ -150,6 +159,7 @@ Academic letters and professional letters have different conventions. Match the 
 - Length can stretch to two pages for PhD or faculty position letters
 
 **Professional / corporate context:**
+
 - Tone is confident and direct. Readers are busy.
 - Language foregrounds execution and impact: "delivered," "drove," "built," "solved," "led"
 - Evidence privileges measurable outcomes: revenue, team size, timelines, business results
@@ -157,6 +167,7 @@ Academic letters and professional letters have different conventions. Match the 
 - One tight page is preferred. Two pages is rarely appropriate.
 
 **Fellowship and award context:**
+
 - The committee's question is: "Why this person over other excellent candidates?"
 - The letter must answer the distinction question -- not just "she is excellent" but "she is exceptional in ways that are rare"
 - Evidence should show the candidate operating at the edge of their field, not just performing competently within it
@@ -240,15 +251,15 @@ Dear [Dr. / Professor / Members of the Committee],
 
 **Length targets by context:**
 
-| Context | Target Length | Maximum |
-|---|---|---|
-| Undergraduate admission | 300-450 words | 500 words |
-| Graduate school (master's) | 400-600 words | 700 words |
-| PhD program / research fellowship | 500-750 words | 900 words |
-| Professional job application | 350-500 words | 600 words |
-| Senior executive / board | 450-650 words | 800 words |
-| Academic tenure / promotion | 600-1000 words | 1200 words |
-| Award / competitive fellowship | 450-700 words | 800 words |
+| Context                           | Target Length  | Maximum    |
+| --------------------------------- | -------------- | ---------- |
+| Undergraduate admission           | 300-450 words  | 500 words  |
+| Graduate school (master's)        | 400-600 words  | 700 words  |
+| PhD program / research fellowship | 500-750 words  | 900 words  |
+| Professional job application      | 350-500 words  | 600 words  |
+| Senior executive / board          | 450-650 words  | 800 words  |
+| Academic tenure / promotion       | 600-1000 words | 1200 words |
+| Award / competitive fellowship    | 450-700 words  | 800 words  |
 
 ---
 
@@ -281,6 +292,7 @@ Dear [Dr. / Professor / Members of the Committee],
 ### The Candidate Has Asked for a Letter But the Recommender Has Reservations
 
 This is one of the most ethically complex scenarios. Help the user think through the framework:
+
 - If the recommender has genuine reservations about the candidate's fit for the specific opportunity, the most honest and kind action is often to decline to write the letter. A lukewarm letter harms the candidate more than no letter.
 - If the reservations are about one dimension but the recommender can genuinely endorse others, write a truthful letter that focuses only on the competencies the recommender can affirm without qualification, and does not address the areas of concern. A narrowly scoped honest letter is legitimate.
 - If the user asks you to write a letter that misrepresents the recommender's actual assessment, that is fabrication. Decline the fabrication; help the user either write an honest limited letter or draft a graceful decline note for the recommender to send.
@@ -288,6 +300,7 @@ This is one of the most ethically complex scenarios. Help the user think through
 ### The Recommender Barely Knows the Candidate
 
 Some institutional cultures require a letter from a specific category of person (department chair, direct supervisor) even when that person had limited contact. Approach:
+
 - Scope the letter explicitly and honestly: "While my direct supervisory contact with [Name] was limited to [specific context], I can speak specifically to what I observed during [precise context]."
 - Make the specific evidence work harder -- two vivid observations from limited contact are more valuable than vague enthusiasm across claimed extensive interaction.
 - Do not pad the letter with inferred qualities or secondhand reports ("my colleagues tell me she is excellent"). Secondhand praise is nearly worthless and signals the recommender's limited knowledge.
@@ -296,6 +309,7 @@ Some institutional cultures require a letter from a specific category of person 
 ### The Candidate Has a Record Gap or Problematic Element
 
 When the letter must address context for a weak grade period, academic interruption, or career gap:
+
 - Only include this explanation if the candidate has explicitly asked for it and consented to the explanation being shared
 - Frame context before assessment: explain the circumstance briefly (one to two sentences), then pivot immediately to performance evidence that demonstrates recovery, resilience, or sustained excellence outside the affected period
 - Avoid language that sounds defensive ("despite these challenges") -- use language that sounds forward-looking ("what this period demonstrated was")
@@ -304,6 +318,7 @@ When the letter must address context for a weak grade period, academic interrupt
 ### Academic Recommendation for a Highly Competitive Research Program (PhD, Rhodes, NSF Graduate Fellowship)
 
 These contexts have experienced, skeptical readers who have read thousands of letters. The bar is different:
+
 - Superlatives must be earned and specific. "The best student I've taught" from a faculty member who has taught for 20 years means something; from someone in their second year, it means less.
 - Research evidence is king: co-authorship, conference presentations, independent contributions to methodology, intellectual initiative are the currency. Class performance alone is insufficient evidence of research potential.
 - The letter should demonstrate that the candidate can generate original questions, not just execute assigned tasks. This is the crucial distinction between an excellent coursework student and a viable PhD candidate.
@@ -312,6 +327,7 @@ These contexts have experienced, skeptical readers who have read thousands of le
 ### Professional Letter for a Senior or Executive Role
 
 At senior levels, committees and hiring managers are reading for leadership evidence that is specifically about scale, ambiguity, and organizational impact:
+
 - Evidence must match seniority: managing a team of 2 is not leadership evidence for a VP-level letter. Evidence should show decisions made at organizational scope, stakeholders influenced without direct authority, or complex cross-functional leadership.
 - Quantification matters more in business letters than academic ones: "$14M budget," "across 6 countries," "reduced churn by 18 points" -- these numbers give the letter specificity that words alone cannot.
 - Avoid academic language in business letters. "Demonstrated strong theoretical grounding" is the wrong register. "Built the analytical framework the team still uses two years later" is right.
@@ -320,6 +336,7 @@ At senior levels, committees and hiring managers are reading for leadership evid
 ### International Candidates and Cross-Cultural Context
 
 When writing a letter for a candidate whose educational or professional context is unfamiliar to the receiving institution:
+
 - Contextualize institutional rankings or competitive context: "Tsinghua University's Computer Science program accepts roughly 200 students from a national applicant pool of over 1 million" is necessary context for an American reader unfamiliar with the Chinese Gaokao system.
 - Grade scales differ internationally: a 7.8/10 GPA from a European institution may be equivalent to a 3.9/4.0 in the US system. If relevant, note this explicitly.
 - Research or professional experiences may look different on paper but be substantively equivalent or superior. Help the recommender contextualize what the candidate's role meant in their specific institutional and national context.
@@ -327,6 +344,7 @@ When writing a letter for a candidate whose educational or professional context 
 ### The User Is the Candidate Drafting for Their Recommender
 
 This is entirely standard practice and ethically fine when handled correctly:
+
 - Write in first person from the recommender's perspective, using only information the recommender actually has
 - Build in a note at the top of the draft: "DRAFT FOR [RECOMMENDER NAME] -- Please review every specific claim for accuracy, add your own examples, and personalize the closing in your own voice."
 - Flag any example that should be verified: "[Recommender: please confirm the specific timing/outcome of this project before keeping this paragraph]"
@@ -371,6 +389,7 @@ Sincerely,
 ---
 
 **Why this letter works:**
+
 - The comparative ranking ("eleven product leaders," "ranks first") is explicit and calibrated -- it is not hyperbolic but it is specific
 - Both primary evidence blocks contain concrete numbers: 34% churn to 11%, 14 days to 4 days, two team promotions
 - The turnaround story reveals a specific decision-making process (40 customer interviews before proposing anything) -- this is the kind of observable behavior that differentiates insight from luck

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture backend microservices"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture backend microservices'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Microservices Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is decomposing a monolith and needs guidance on identifying service boundaries using domain-driven design (DDD) bounded contexts, seams analysis, or strangler fig patterns
 - A user is designing a greenfield distributed system and needs help with service granularity decisions, communication patterns (sync vs. async), and data ownership models
 - A user needs to choose between choreography-based and orchestration-based saga patterns for distributed transactions
@@ -29,6 +31,7 @@ metadata:
 - A user needs to design a data strategy -- per-service databases, CQRS, event sourcing, or polyglot persistence
 
 **Do NOT use this skill when:**
+
 - The user has a team of fewer than 4 engineers or an application serving fewer than ~10,000 daily active users -- recommend a modular monolith instead; use the monolith architecture skill
 - The user is asking about container orchestration specifics (Kubernetes deployment manifests, Helm charts) -- use the container-orchestration skill
 - The user needs CI/CD pipeline design for deploying microservices -- use the deployment-pipelines skill
@@ -300,6 +303,7 @@ Enterprise environments often have mobile clients (iOS/Android) that cannot forc
 ## Microservices Design Specification: Food Delivery Platform
 
 ### Context Summary
+
 - **Business domain:** Food delivery platform (consumer ordering, restaurant operations, driver logistics, payments)
 - **Team structure:** 24 engineers, 4 teams (~6 engineers each)
 - **Current state:** Node.js monolith, scaling bottlenecks on order placement and driver tracking, payments team blocked on independent deployments
@@ -316,16 +320,17 @@ Apply event storming to identify domain events: `OrderPlaced`, `OrderAccepted` (
 
 These events cluster into four bounded contexts that map directly to the four teams:
 
-| Service Name         | Bounded Context     | Owns Aggregates                      | Database                    | Team Owner     |
-|----------------------|---------------------|--------------------------------------|-----------------------------|----------------|
-| user-service         | Identity            | User, Address, Session               | PostgreSQL + Redis (sessions)| Platform Team  |
-| catalog-service      | Restaurant Catalog  | Restaurant, Menu, MenuItem, Hours    | PostgreSQL + Redis (read cache)| Catalog Team  |
-| orders-service       | Order Management    | Order, OrderLineItem, OrderStatus    | PostgreSQL                  | Orders Team    |
-| payments-service     | Payments            | Payment, Refund, PaymentMethod       | PostgreSQL (PCI segment)    | Payments Team  |
-| delivery-service     | Delivery Logistics  | DeliveryJob, DriverLocation, Route   | PostgreSQL + Redis (live loc)| Delivery Team  |
-| notifications-svc    | Notifications       | Notification, Template               | PostgreSQL                  | Platform Team  |
+| Service Name      | Bounded Context    | Owns Aggregates                    | Database                        | Team Owner    |
+| ----------------- | ------------------ | ---------------------------------- | ------------------------------- | ------------- |
+| user-service      | Identity           | User, Address, Session             | PostgreSQL + Redis (sessions)   | Platform Team |
+| catalog-service   | Restaurant Catalog | Restaurant, Menu, MenuItem, Hours  | PostgreSQL + Redis (read cache) | Catalog Team  |
+| orders-service    | Order Management   | Order, OrderLineItem, OrderStatus  | PostgreSQL                      | Orders Team   |
+| payments-service  | Payments           | Payment, Refund, PaymentMethod     | PostgreSQL (PCI segment)        | Payments Team |
+| delivery-service  | Delivery Logistics | DeliveryJob, DriverLocation, Route | PostgreSQL + Redis (live loc)   | Delivery Team |
+| notifications-svc | Notifications      | Notification, Template             | PostgreSQL                      | Platform Team |
 
 **Notes on boundary decisions:**
+
 - `catalog-service` and `orders-service` are separate despite both touching "order items" -- the catalog owns the definition of what can be ordered; orders owns the snapshot of what was ordered (including price at time of order, which must not change if the menu changes later)
 - `delivery-service` is isolated specifically for the driver tracking scaling requirement -- it will handle 10--50 location updates per second per active driver via WebSocket connections, a completely different scaling profile than orders
 - `notifications-svc` is owned by Platform Team alongside `user-service` to avoid a fifth team for a low-complexity service
@@ -334,16 +339,16 @@ These events cluster into four bounded contexts that map directly to the four te
 
 ### Communication Architecture
 
-| Interaction                              | Pattern              | Protocol         | Justification                                      |
-|------------------------------------------|---------------------|------------------|----------------------------------------------------|
-| Mobile/web client → API                  | Sync request         | REST/HTTPS       | User-facing; immediate response required           |
-| orders → catalog (price validation)      | Sync call            | gRPC             | Must validate price and availability at order time |
-| orders → payments (charge)               | Orchestrated saga    | Kafka events     | Distributed transaction; compensation logic needed |
-| orders → delivery (dispatch)             | Async event          | Kafka            | Fire-and-forget; delivery picks up when ready      |
-| payments → orders (payment result)       | Async event          | Kafka            | Saga response; eventual update acceptable          |
-| delivery → orders (status updates)       | Async event          | Kafka            | Status sync; eventual consistency OK (< 2s lag)    |
-| any service → notifications              | Async event          | Kafka            | Non-critical path; all notification triggers async |
-| driver app → delivery (location)         | WebSocket            | WSS              | 1--5 second location update frequency; persistent connection |
+| Interaction                         | Pattern           | Protocol     | Justification                                                |
+| ----------------------------------- | ----------------- | ------------ | ------------------------------------------------------------ |
+| Mobile/web client → API             | Sync request      | REST/HTTPS   | User-facing; immediate response required                     |
+| orders → catalog (price validation) | Sync call         | gRPC         | Must validate price and availability at order time           |
+| orders → payments (charge)          | Orchestrated saga | Kafka events | Distributed transaction; compensation logic needed           |
+| orders → delivery (dispatch)        | Async event       | Kafka        | Fire-and-forget; delivery picks up when ready                |
+| payments → orders (payment result)  | Async event       | Kafka        | Saga response; eventual update acceptable                    |
+| delivery → orders (status updates)  | Async event       | Kafka        | Status sync; eventual consistency OK (< 2s lag)              |
+| any service → notifications         | Async event       | Kafka        | Non-critical path; all notification triggers async           |
+| driver app → delivery (location)    | WebSocket         | WSS          | 1--5 second location update frequency; persistent connection |
 
 **API Gateway:** Single ingress via Kong. Handles JWT validation, rate limiting (100 req/min per authenticated user, 10 req/min unauthenticated), and routing. No business logic in the gateway.
 
@@ -353,15 +358,16 @@ These events cluster into four bounded contexts that map directly to the four te
 
 **Orchestrator:** `orders-service` contains the saga orchestrator as an internal component (not a separate service -- the team is 6 engineers). The orchestrator state is persisted in the `order_saga_state` table in the orders PostgreSQL database.
 
-| Step | Command Published         | Kafka Topic                | Success Event              | Compensation Command               |
-|------|---------------------------|----------------------------|----------------------------|------------------------------------|
-| 1    | ValidateCart              | catalog.commands           | CartValidated              | -- (first step)                   |
-| 2    | ReservePaymentMethod      | payments.commands          | PaymentMethodReserved      | -- (authorization, not charge)    |
-| 3    | CapturePayment            | payments.commands          | PaymentCaptured            | RefundPayment                      |
-| 4    | DispatchDelivery          | delivery.commands          | DeliveryDispatched         | CancelDelivery + RefundPayment     |
-| 5    | SendOrderConfirmation     | notifications.commands     | NotificationSent           | -- (non-critical; log failure)    |
+| Step | Command Published     | Kafka Topic            | Success Event         | Compensation Command           |
+| ---- | --------------------- | ---------------------- | --------------------- | ------------------------------ |
+| 1    | ValidateCart          | catalog.commands       | CartValidated         | -- (first step)                |
+| 2    | ReservePaymentMethod  | payments.commands      | PaymentMethodReserved | -- (authorization, not charge) |
+| 3    | CapturePayment        | payments.commands      | PaymentCaptured       | RefundPayment                  |
+| 4    | DispatchDelivery      | delivery.commands      | DeliveryDispatched    | CancelDelivery + RefundPayment |
+| 5    | SendOrderConfirmation | notifications.commands | NotificationSent      | -- (non-critical; log failure) |
 
 **Failure behavior:**
+
 - Cart validation failure (step 1): return HTTP 422 to caller with specific item error
 - Payment capture failure (step 3): return HTTP 402 to caller; saga terminates
 - Delivery dispatch failure (step 4): trigger RefundPayment compensation; return HTTP 503; alert on-call
@@ -373,6 +379,7 @@ These events cluster into four bounded contexts that map directly to the four te
 **Outbox Pattern Implementation** (applies to all services):
 
 Each service has an `outbox` table:
+
 ```sql
 CREATE TABLE outbox (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -388,10 +395,12 @@ State change and outbox insert happen in the same database transaction. A Debezi
 **CQRS for delivery-service:**
 
 Driver location updates arrive at 10--50 updates/second per driver. Querying the current location of all active drivers in a geographic area for order dispatch cannot hit PostgreSQL at this rate. Design:
+
 - Write model: each location update appended to `driver_location_events` table (PostgreSQL, partitioned by day)
 - Read model: Redis hash per driver ID, updated on each location event, TTL 30 seconds (if no update, driver is considered offline). Geospatial queries use Redis GEOADD/GEORADIUS commands.
 
 **Schema for payments-service** (PCI isolation):
+
 - Deployed in a separate Kubernetes namespace with NetworkPolicy blocking all egress except to its own database and the Kafka brokers
 - Card data stored with AES-256 encryption at field level; encryption keys managed by AWS KMS, not accessible to other services
 - All access logged to immutable audit log (append-only PostgreSQL table with row-level security)
@@ -400,14 +409,15 @@ Driver location updates arrive at 10--50 updates/second per driver. Querying the
 
 ### Resilience Configuration
 
-| Service          | Dependency          | Timeout | Circuit Breaker              | Retry Policy             | Fallback                            |
-|------------------|---------------------|---------|------------------------------|--------------------------|-------------------------------------|
-| orders-service   | catalog (gRPC)      | 1.5s    | 40% errors / 10s window      | 2x, 100ms + jitter       | Reject order with "service unavailable" |
-| orders-service   | payments (Kafka)    | N/A     | N/A (async)                  | Kafka producer retry: 5x | Dead-letter topic: payments.dlq     |
-| delivery-service | Redis (geo queries) | 200ms   | 70% errors / 5s window       | 1x immediate             | Fall through to PostgreSQL query    |
-| catalog-service  | Redis (read cache)  | 100ms   | 80% errors / 5s window       | None                     | Fall through to PostgreSQL          |
+| Service          | Dependency          | Timeout | Circuit Breaker         | Retry Policy             | Fallback                                |
+| ---------------- | ------------------- | ------- | ----------------------- | ------------------------ | --------------------------------------- |
+| orders-service   | catalog (gRPC)      | 1.5s    | 40% errors / 10s window | 2x, 100ms + jitter       | Reject order with "service unavailable" |
+| orders-service   | payments (Kafka)    | N/A     | N/A (async)             | Kafka producer retry: 5x | Dead-letter topic: payments.dlq         |
+| delivery-service | Redis (geo queries) | 200ms   | 70% errors / 5s window  | 1x immediate             | Fall through to PostgreSQL query        |
+| catalog-service  | Redis (read cache)  | 100ms   | 80% errors / 5s window  | None                     | Fall through to PostgreSQL              |
 
 **Bulkhead configuration for orders-service:**
+
 - Separate thread pool for catalog gRPC calls: max 20 concurrent requests
 - Separate thread pool for saga orchestration: max 50 concurrent sagas
 - Default HTTP handler pool: 200 threads
@@ -422,14 +432,14 @@ Driver location updates arrive at 10--50 updates/second per driver. Querying the
 - **Logs:** Winston (Node.js) configured for JSON output; fields: `service`, `version`, `traceId`, `spanId`, `level`, `message`, `timestamp`; shipped via Fluent Bit to Loki
 - **SLOs:**
 
-| Service          | SLI                          | SLO Target      |
-|------------------|------------------------------|-----------------|
-| orders-service   | p99 order placement latency  | < 800ms         |
-| orders-service   | Error rate (5xx)             | < 0.5%          |
-| payments-service | p99 payment capture latency  | < 1200ms        |
-| payments-service | Error rate (5xx)             | < 0.05%         |
-| delivery-service | p99 location update latency  | < 300ms         |
-| catalog-service  | p99 menu read latency        | < 150ms         |
+| Service          | SLI                         | SLO Target |
+| ---------------- | --------------------------- | ---------- |
+| orders-service   | p99 order placement latency | < 800ms    |
+| orders-service   | Error rate (5xx)            | < 0.5%     |
+| payments-service | p99 payment capture latency | < 1200ms   |
+| payments-service | Error rate (5xx)            | < 0.05%    |
+| delivery-service | p99 location update latency | < 300ms    |
+| catalog-service  | p99 menu read latency       | < 150ms    |
 
 ---
 
@@ -451,12 +461,12 @@ The monolith is not replaced in a single cutover. The sequence:
 
 ### Architecture Decision Records
 
-| ADR #   | Decision                                                                  | Status   | Rationale Summary                                                    |
-|---------|---------------------------------------------------------------------------|----------|----------------------------------------------------------------------|
-| ADR-001 | Orchestration-based saga for order placement                              | Accepted | 5-step transaction with non-trivial rollback logic; central visibility needed |
-| ADR-002 | gRPC for orders → catalog price validation                                | Accepted | Synchronous, latency-sensitive; binary protocol reduces p99         |
-| ADR-003 | Redis GEOADD for driver location read model                               | Accepted | Native geospatial queries, 50--50k driver scale, sub-10ms reads     |
-| ADR-004 | Outbox pattern via Debezium CDC for all event publishing                  | Accepted | Guarantees no lost events under database transaction rollback       |
-| ADR-005 | Payments service in isolated Kubernetes namespace (PCI scope reduction)   | Accepted | Network isolation reduces PCI audit scope; required by security team|
-| ADR-006 | Service mesh (Istio) deferred until 6+ services in production             | Proposed | Current 6 services can use application-level circuit breakers; revisit at 10 services |
-| ADR-007 | Strangler Fig migration rather than big-bang rewrite                      | Accepted | Monolith handles $X revenue; zero-downtime migration mandatory      |
+| ADR #   | Decision                                                                | Status   | Rationale Summary                                                                     |
+| ------- | ----------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| ADR-001 | Orchestration-based saga for order placement                            | Accepted | 5-step transaction with non-trivial rollback logic; central visibility needed         |
+| ADR-002 | gRPC for orders → catalog price validation                              | Accepted | Synchronous, latency-sensitive; binary protocol reduces p99                           |
+| ADR-003 | Redis GEOADD for driver location read model                             | Accepted | Native geospatial queries, 50--50k driver scale, sub-10ms reads                       |
+| ADR-004 | Outbox pattern via Debezium CDC for all event publishing                | Accepted | Guarantees no lost events under database transaction rollback                         |
+| ADR-005 | Payments service in isolated Kubernetes namespace (PCI scope reduction) | Accepted | Network isolation reduces PCI audit scope; required by security team                  |
+| ADR-006 | Service mesh (Istio) deferred until 6+ services in production           | Proposed | Current 6 services can use application-level circuit breakers; revisit at 10 services |
+| ADR-007 | Strangler Fig migration rather than big-bang rewrite                    | Accepted | Monolith handles $X revenue; zero-downtime migration mandatory                        |

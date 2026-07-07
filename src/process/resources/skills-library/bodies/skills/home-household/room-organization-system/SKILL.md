@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decluttering home-maintenance cleaning"
-  category: "home-household"
-  subcategory: "interior-organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'decluttering home-maintenance cleaning'
+  category: 'home-household'
+  subcategory: 'interior-organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Room Organization System
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user has already decided what to keep and needs help deciding WHERE things go and HOW to store them effectively.
 
 **Trigger scenarios -- use this skill when:**
+
 - User wants to reorganize a specific room that functions poorly (kitchen, bedroom, bathroom, garage, laundry room, home office, pantry, mudroom, closet)
 - User has just moved into a new home or room and wants to set up an organized system from the start
 - User's existing system has broken down -- items consistently end up in the wrong places, flat surfaces accumulate clutter, or family members cannot find things
@@ -36,6 +38,7 @@ Use this skill when the user has already decided what to keep and needs help dec
 - User asks about zone-based organization, container systems, vertical storage, or maximizing a small space
 
 **Do NOT use this skill when:**
+
 - User needs to decide what to keep versus discard -- use `decluttering-method` first. Organizing items the user will ultimately discard wastes time and money. Ask directly: "Have you already gone through this space and decided what you're keeping?" If no, redirect.
 - User needs a regular cleaning routine rather than an organizational system -- use `weekly-cleaning-schedule` for chore scheduling and surface cleaning cadences
 - User needs to organize paper documents, filing systems, or digital files -- use `paper-document-organization` for those workflows
@@ -109,6 +112,7 @@ Zones are the architecture of the system. Every subsequent decision -- what cont
 Each room type has a standard zone framework. Use these as starting points, then modify based on the specific space and user's activities.
 
 **Kitchen:**
+
 - Prep Zone (counter nearest sink + adjacent cabinets): knives, cutting boards, measuring tools, mixing bowls, colander
 - Cooking Zone (counter and cabinets nearest range): pots, pans, lids, cooking utensils, cooking oils, spices
 - Baking Zone (if applicable, adjacent to prep): baking sheets, muffin tins, cake pans, baking ingredients (flour, sugar, baking powder in airtight containers)
@@ -117,6 +121,7 @@ Each room type has a standard zone framework. Use these as starting points, then
 - Serving Zone (upper cabinets nearest dishwasher for efficient unloading): plates, bowls, glasses, mugs, flatware
 
 **Bedroom/Closet:**
+
 - Daily Wear Zone (eye-level hanging rod + top 2 drawers): clothing worn 5+ days per week
 - Weekly Wear Zone (second hanging rod or lower drawers): clothing worn 1-4 times per week
 - Accessories Zone (hooks, trays, small drawers): jewelry, belts, scarves, hats, sunglasses
@@ -125,6 +130,7 @@ Each room type has a standard zone framework. Use these as starting points, then
 - Linen Storage Zone (closet shelf, linen closet, or under bed): sheets, extra blankets, pillowcases -- store sheet sets nested inside one pillowcase from the set
 
 **Bathroom:**
+
 - Daily Skincare/Grooming Zone (first drawer or countertop): items used every single morning and evening -- toothbrush, toothpaste, face wash, moisturizer, deodorant
 - Hair Tools Zone (second drawer or wall-mounted holder): blow dryer, straightener/curling iron, brushes -- use heat-resistant pouches for hot tools
 - Makeup Zone (dedicated train case, drawer, or tiered tray): separated by category (face, eye, lip)
@@ -133,6 +139,7 @@ Each room type has a standard zone framework. Use these as starting points, then
 - Towel Zone (hooks, rings, or bar within reach of shower/tub): 1-2 towels per person in use, backups in linen closet or under-sink
 
 **Garage:**
+
 - Automotive Zone (nearest car doors/hood): jumper cables, car cleaning supplies, motor oil, tire pressure gauge, windshield washer fluid
 - Yard and Garden Zone (nearest exterior door to yard): lawn mower, hand tools, fertilizer, seeds, pots, garden gloves -- hang long-handled tools on wall hooks or in a vertical holder
 - Workshop/Tools Zone (wall-mounted, ideally on pegboard or slatwall): power tools, hand tools organized by type, hardware (fasteners in labeled small bins)
@@ -141,6 +148,7 @@ Each room type has a standard zone framework. Use these as starting points, then
 - Hazardous Materials Note: gas cans and propane tanks must be stored in a ventilated area, minimum 10 feet from water heater or furnace pilot light, and never inside the living envelope of the home
 
 **Home Office:**
+
 - Active Work Zone (desk surface + top 1-2 drawers): items used during every work session -- computer, current project files, pens, notepad
 - Reference Zone (bookshelf within rolling chair reach): reference books, binders, manuals accessed weekly
 - Supply Zone (lower drawer or supply cabinet): printer paper, extra pens, staples, tape -- replenish active work zone from here
@@ -148,6 +156,7 @@ Each room type has a standard zone framework. Use these as starting points, then
 - Tech Zone (cable management is mandatory): power strip, cable box, router -- use velcro cable ties, not zip ties, so cables can be reconfigured
 
 **Pantry (standalone):**
+
 - Eye-level shelf: most frequently used items (coffee, daily snacks, bread, oils used daily)
 - Second shelf (slightly above or below eye level): canned goods (organized by food type, FIFO stacked front to back), pasta, rice, grains
 - Third shelf: baking supplies in airtight containers, specialty items used weekly
@@ -269,11 +278,14 @@ A maintenance routine is not optional -- it is the difference between implementi
 
 ### Visual Index (Post inside cabinet door or on wall for quick reference)
 ```
+
 [Zone Name]:
-  - [Specific item]: [Exact location]
-  - [Specific item]: [Exact location]
-[Zone Name]:
-  - [Specific item]: [Exact location]
+
+- [Specific item]: [Exact location]
+- [Specific item]: [Exact location]
+  [Zone Name]:
+- [Specific item]: [Exact location]
+
 ```
 
 ---
@@ -344,27 +356,35 @@ A maintenance routine is not optional -- it is the difference between implementi
 ## Edge Cases
 
 ### Zero or Minimal Budget ($0-$25)
+
 Do not suggest the user wait until they can afford supplies. A functional system can be built entirely from repurposed materials. Cereal boxes cut in half make drawer dividers. Glass jars organize bathroom counters, pencils, and small hardware. Shoeboxes covered in kraft paper become pantry bins. Cardboard boxes from Amazon deliveries become garage sorting bins until proper ones are purchased. Tension rods require only a dollar-store purchase and add hanging storage inside cabinets without drilling. The zone system is free -- it is just a decision about what goes where. The containers are secondary. Implement the zone system immediately and upgrade containers over time.
 
 ### Very Small Spaces (Studio Apartment, Tiny Bedroom, Small Closet Under 40 Square Feet)
+
 Small spaces fail because of horizontal thinking -- everything placed on a flat surface. The fix is vertical thinking. Every wall is potential storage. Every door is potential storage. Every inch of ceiling height is potential storage. Specific tactics: install wall-mounted shelves from 12 inches below the ceiling downward (most walls have 12-18 inches of unused space above existing furniture). Use bed risers to create 6-10 additional inches of under-bed clearance -- one queen bed can store 4-6 large flat bins underneath (roughly 12 cubic feet of storage). Over-door organizers on every door (closet, bathroom, bedroom) add 8-16 pocket storage locations per door. In studio apartments, furniture serves as zone boundaries: a bookshelf placed perpendicular to the wall divides sleeping from living while adding two sides of storage. A storage ottoman is both seating and a seasonal storage zone.
 
 ### Shared Closet (Couple or Roommates)
+
 The fundamental rule: divide the closet in half, and each person's half is organized independently. Do not try to create a single unified system -- two people have different habits, and one unified system means one person's misplacement disrupts the other's ability to find things. If the closet has a single hanging rod, install a second rod at 40 inches below the first (using a closet rod doubler, approximately $15) to create a short-hang section for folded shirts and jackets on one side. Label shelves clearly. Create a "neutral zone" for genuinely shared items (extra blankets, out-of-season items both own). If the users have significantly different wardrobe sizes, divide proportionally, not equally -- a person with twice the clothing needs twice the space.
 
 ### Garage (Large, Multi-Purpose Space)
+
 Garages require a floor plan before any other planning. The specific placement of each zone relative to the garage door, the interior door to the house, and the location of the car(s) dramatically affects system usability. Automotive zone belongs on the wall nearest the car's front (hood-level) for emergency access. Yard and garden zone belongs nearest the exterior side door if present, or the garage door. Workshop zone needs the best lighting and a dedicated work surface (a workbench at 34-36 inches height for standing work). Overhead ceiling-mounted storage systems (4x8 foot platforms that mount to ceiling joists) can hold 600-1000 pounds and keep seasonal and bulky items off the floor -- measure garage ceiling height, as standard systems require minimum 8-foot ceilings with the car fitting below the platform. Never store propane tanks, gasoline, or lithium batteries in enclosed garage spaces adjacent to the living area in a way that blocks egress.
 
 ### Pantry Reset After Years of Neglect
+
 A deeply disorganized pantry requires a full empty-and-sort before reorganization. Do not try to reorganize a full pantry in place. Empty the entire pantry onto a table or counter, grouping into: keep (check expiration dates), discard (expired, stale, or unwanted), donate (unexpired but unlikely to be used). Only then measure shelf dimensions and design the zone system. In most neglected pantries, 20-40% of contents are expired or expired-adjacent. Post-reset, implement the FIFO rule without exception: new items go behind existing items of the same type. A "first-to-use" visual marker (a rubber band or tape flag on the front item) helps in households where the FIFO discipline is new.
 
 ### Families With Young Children (Accessibility by Age)
+
 The standard ergonomic hierarchy changes when children are users. Children's items must be accessible to children -- between 18 and 42 inches from the floor -- not stored at adult eye level. In a kitchen, a lower cabinet with children's plates, cups, and snacks allows children to retrieve their own items (reduces adult workload, builds independence). In a playroom or bedroom, toys should be at 18-36 inches, with lower-frequency or aspirational items higher. Toy storage works best in open bins without lids -- lids are the single biggest reason children do not put toys away. No lid means no friction means higher compliance. Label bins with pictures AND words for pre-readers. In any space children access, medications, cleaning supplies, sharp tools, and small items that are choking hazards must be in locked or high-shelf storage only.
 
 ### High-Turnover or Transitional Spaces (Mudroom, Entryway)
+
 High-turnover spaces are the most frequently disorganized rooms in any home because they are the first contact point for items entering and leaving the house. Every person entering the home needs a hook for their coat (at their usable height -- child hooks at 42 inches, adult hooks at 60-68 inches), a shelf or tray for their bag or backpack, a spot for their shoes (bench with cubby storage beneath is the gold standard -- allows sitting to remove shoes and stores them immediately), and a spot for outgoing items (a "launching pad" tray near the door for items that need to leave with someone tomorrow). The mudroom system fails not because of poor design but because it lacks capacity -- there must be exactly as many hooks, shoe spots, and bag spots as there are people using the space daily. Add one extra hook per person for guests.
 
 ### Converting a Non-Storage Space to Multi-Purpose (Bedroom That Needs Home Office Function)
+
 When a room must serve two functions, the critical principle is visual separation between zones. The bedroom-office combination fails psychologically and practically when the work zone is visible from the bed (disrupts sleep) and when the sleeping zone is visible from the desk (reduces work focus). Separate zones physically: use the desk placed against or near the door wall and the bed against the far wall. Use a curtain, folding screen, or tall bookshelf as a visual divider if the room allows. Each zone must be fully functional independently: the office zone needs its own organizational system (see home office zone above), and the transition between zones should require a physical act (standing up, closing a laptop, pulling a curtain) to reinforce the psychological shift between modes.
 
 ---
@@ -388,14 +408,14 @@ When a room must serve two functions, the critical principle is visual separatio
 
 ### Zone Map
 
-| Zone # | Zone Name | Location in Room | Primary Purpose | Contents Overview |
-|--------|-----------|-----------------|-----------------|-------------------|
-| 1 | Prep Zone | Counter + upper/lower cabinet left of sink | Cutting, measuring, mixing | Knives, cutting boards, measuring tools, mixing bowls, colander |
-| 2 | Cooking Zone | Counter + upper/lower cabinet right of range | Stovetop and oven use | Pots, pans, lids, cooking utensils, oils, spices |
-| 3 | Pantry Zone | One designated upper or lower cabinet away from heat | Dry goods and food storage | Dry goods, canned goods, snacks, condiments |
-| 4 | Serving Zone | Upper cabinets nearest dishwasher | Dishes, glasses, flatware | Plates, bowls, glasses, mugs, flatware |
-| 5 | Cleaning Zone | Under sink lower cabinet | Dish and surface cleaning | Dish soap, sponges, cleaning sprays, trash bags |
-| 6 | Coffee/Beverage Zone | Counter section nearest outlet (if dedicated) | Daily beverage prep | Coffee maker, coffee, filters, mugs (overflow to Serving Zone) |
+| Zone # | Zone Name            | Location in Room                                     | Primary Purpose            | Contents Overview                                               |
+| ------ | -------------------- | ---------------------------------------------------- | -------------------------- | --------------------------------------------------------------- |
+| 1      | Prep Zone            | Counter + upper/lower cabinet left of sink           | Cutting, measuring, mixing | Knives, cutting boards, measuring tools, mixing bowls, colander |
+| 2      | Cooking Zone         | Counter + upper/lower cabinet right of range         | Stovetop and oven use      | Pots, pans, lids, cooking utensils, oils, spices                |
+| 3      | Pantry Zone          | One designated upper or lower cabinet away from heat | Dry goods and food storage | Dry goods, canned goods, snacks, condiments                     |
+| 4      | Serving Zone         | Upper cabinets nearest dishwasher                    | Dishes, glasses, flatware  | Plates, bowls, glasses, mugs, flatware                          |
+| 5      | Cleaning Zone        | Under sink lower cabinet                             | Dish and surface cleaning  | Dish soap, sponges, cleaning sprays, trash bags                 |
+| 6      | Coffee/Beverage Zone | Counter section nearest outlet (if dedicated)        | Daily beverage prep        | Coffee maker, coffee, filters, mugs (overflow to Serving Zone)  |
 
 **Note on galley layout:** In a galley kitchen, each wall functions as its own "run" of zones. Zones 1 and 3 may be on the same wall (sink side), with Zones 2 and 4 on the range side. Place Serving Zone near the dishwasher regardless of which wall it is on to allow efficient unloading.
 
@@ -403,15 +423,15 @@ When a room must serve two functions, the critical principle is visual separatio
 
 ### Storage Solutions
 
-| Location | Current Problem | Recommended Solution | Specific Items | Dimensions Needed | Est. Cost |
-|----------|----------------|---------------------|----------------|-------------------|-----------|
-| Lower cabinet near range (pots/pans) | Stacked chaos, items fall when door opens | Vertical pan organizer (wire rack with 5-7 dividers, stands upright in cabinet) | All pans stored vertically, one per slot -- never stacked | 10-12 in W x 11-13 in D (measure cabinet floor space before purchasing) | $18-28 |
-| Same cabinet as above or adjacent | Lids stored separately from pans (or not at all) | Adjustable pot lid organizer (standing rack, holds 6-8 lids vertically) | All pot and pan lids, organized by size | 6-8 in W x 12 in D | $12-18 |
-| Upper cabinet near range | Spices invisible, stacked behind each other | 2-tier stepped shelf riser inside cabinet (elevates back row 3-4 inches so all labels visible) | Spice jars and bottles (all facing forward, alphabetized or grouped by cuisine) | Measure upper cabinet interior: typically 11-12 in deep x 30-36 in wide | $10-15 |
-| Three drawers | No separation -- utensils, tools, and miscellaneous all mixed | Adjustable bamboo or plastic drawer divider set (one per drawer) | Drawer 1: cooking utensils by type; Drawer 2: knives + cutting tools + measuring tools; Drawer 3: miscellaneous or baking tools | Measure drawer interior W x D before purchasing -- standard is 14-17 in W | $15-25 (set of 3) |
-| Pantry cabinet | Items hidden, expired, inaccessible | 2-3 wire shelf risers to create sub-levels; 4-6 clear bins for categorized dry goods | Shelf riser row 1: canned goods; Clear bins: pasta, rice, cereal, snacks; Upper shelf: baking supplies | Clear bins: measure pantry shelf depth (typically 12-14 in) x 10-11 in W x 5-6 in tall | $20-30 |
-| Under sink | Sprawling products, nothing contained | 2 stackable open bins or a 2-tier under-sink shelf unit (tension-mounted, no drilling) | Upper: daily cleaning products, sponges; Lower: backup supplies, trash bags | Measure cabinet interior, subtract drain pipe clearance -- typically 18-22 in usable W on each side of pipe | $12-20 |
-| Counter | Items live on counter permanently | Adhesive-removable hooks on backsplash tiles or cabinet sides (renter-safe Command hooks or suction hooks) -- plus one designated clear counter zone | Cooking utensil crock (contains spatulas, tongs, wooden spoons -- max 8 items), knife block or magnetic strip | N/A for hooks; Magnetic strip: 15-18 in long | $8-12 |
+| Location                             | Current Problem                                               | Recommended Solution                                                                                                                                 | Specific Items                                                                                                                  | Dimensions Needed                                                                                           | Est. Cost         |
+| ------------------------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------- |
+| Lower cabinet near range (pots/pans) | Stacked chaos, items fall when door opens                     | Vertical pan organizer (wire rack with 5-7 dividers, stands upright in cabinet)                                                                      | All pans stored vertically, one per slot -- never stacked                                                                       | 10-12 in W x 11-13 in D (measure cabinet floor space before purchasing)                                     | $18-28            |
+| Same cabinet as above or adjacent    | Lids stored separately from pans (or not at all)              | Adjustable pot lid organizer (standing rack, holds 6-8 lids vertically)                                                                              | All pot and pan lids, organized by size                                                                                         | 6-8 in W x 12 in D                                                                                          | $12-18            |
+| Upper cabinet near range             | Spices invisible, stacked behind each other                   | 2-tier stepped shelf riser inside cabinet (elevates back row 3-4 inches so all labels visible)                                                       | Spice jars and bottles (all facing forward, alphabetized or grouped by cuisine)                                                 | Measure upper cabinet interior: typically 11-12 in deep x 30-36 in wide                                     | $10-15            |
+| Three drawers                        | No separation -- utensils, tools, and miscellaneous all mixed | Adjustable bamboo or plastic drawer divider set (one per drawer)                                                                                     | Drawer 1: cooking utensils by type; Drawer 2: knives + cutting tools + measuring tools; Drawer 3: miscellaneous or baking tools | Measure drawer interior W x D before purchasing -- standard is 14-17 in W                                   | $15-25 (set of 3) |
+| Pantry cabinet                       | Items hidden, expired, inaccessible                           | 2-3 wire shelf risers to create sub-levels; 4-6 clear bins for categorized dry goods                                                                 | Shelf riser row 1: canned goods; Clear bins: pasta, rice, cereal, snacks; Upper shelf: baking supplies                          | Clear bins: measure pantry shelf depth (typically 12-14 in) x 10-11 in W x 5-6 in tall                      | $20-30            |
+| Under sink                           | Sprawling products, nothing contained                         | 2 stackable open bins or a 2-tier under-sink shelf unit (tension-mounted, no drilling)                                                               | Upper: daily cleaning products, sponges; Lower: backup supplies, trash bags                                                     | Measure cabinet interior, subtract drain pipe clearance -- typically 18-22 in usable W on each side of pipe | $12-20            |
+| Counter                              | Items live on counter permanently                             | Adhesive-removable hooks on backsplash tiles or cabinet sides (renter-safe Command hooks or suction hooks) -- plus one designated clear counter zone | Cooking utensil crock (contains spatulas, tongs, wooden spoons -- max 8 items), knife block or magnetic strip                   | N/A for hooks; Magnetic strip: 15-18 in long                                                                | $8-12             |
 
 **Total Estimated Supplies Cost:** $95-148 -- **recommend prioritizing** the vertical pan organizer ($20), lid organizer ($15), drawer dividers ($20), and 2 shelf risers ($15) for $70 total impact on the biggest pain points. Add bins and under-sink solutions in a second phase if budget is tight.
 
@@ -420,6 +440,7 @@ When a room must serve two functions, the critical principle is visual separatio
 ### Placement Plan
 
 #### Zone 1: Prep Zone -- Cutting, Measuring, Mixing
+
 **Location:** Counter and cabinet to the left of the sink (or nearest the sink on the sink wall)
 
 - **Counter surface:** Knife block or wall-mounted magnetic knife strip on backsplash (freeing 1 full drawer). Cutting board stored vertically behind the knife block or in a slot beside it.
@@ -431,6 +452,7 @@ When a room must serve two functions, the critical principle is visual separatio
 ---
 
 #### Zone 2: Cooking Zone -- Stovetop and Oven Use
+
 **Location:** Counter and cabinets adjacent to or flanking the range
 
 - **Lower cabinet, with vertical pan organizer:** Pans stored one per slot in size order (smallest to largest). Most-used pan (likely a 10-inch skillet) in the first slot, easiest to retrieve.
@@ -443,6 +465,7 @@ When a room must serve two functions, the critical principle is visual separatio
 ---
 
 #### Zone 3: Pantry Zone -- Dry Goods and Food Storage
+
 **Location:** One full upper cabinet or lower cabinet designated as pantry; away from the heat of the range and the steam of the dishwasher
 
 - **Shelf 1, eye level (most accessible):** 4-6 clear bins, each labeled:
@@ -458,6 +481,7 @@ When a room must serve two functions, the critical principle is visual separatio
 ---
 
 #### Zone 4: Serving Zone -- Dishes, Glasses, Flatware
+
 **Location:** Upper cabinets nearest the dishwasher (allows unloading without walking across the kitchen)
 
 - **Shelf 1 (eye level):** Dinner plates stacked (maximum 8 -- more than 8 becomes unwieldy and heavy). Bowls stacked next to plates. If space is tight, use a shelf riser to create two levels: plates on the lower level, bowls elevated on the riser.
@@ -468,9 +492,10 @@ When a room must serve two functions, the critical principle is visual separatio
 ---
 
 #### Zone 5: Cleaning Zone -- Under Sink
+
 **Location:** Lower cabinet under the sink
 
 - **Right side of cabinet (away from drain pipe):** Upper tier or forward bin: dish soap (bottle and 1-2 backups), sponges (current + 2-3 backup), dish brush, and drain stopper. These are used daily.
 - **Left side of cabinet (other side of drain pipe, using second bin or shelf tier):** Cleaning sprays (all-purpose, glass cleaner, scrubbing powder), rubber gloves hung on an adhesive hook on the interior cabinet door. Trash bags (folded flat in a stack or in a ziplock).
 - **Cabinet door interior:** One adhesive hook for rubber gloves. One small adhesive pocket or clip for the trash bag refills.
-- **Items that do NOT belong under the sink
+- \*\*Items that do NOT belong under the sink

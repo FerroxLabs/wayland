@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning template writing"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning template writing'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Performance Review Prep
@@ -230,30 +230,35 @@ This year I delivered above-target retention (94% vs. 88% company average), succ
 ### Key Accomplishments
 
 #### 1. Maintained 94% Account Retention Rate
+
 **Impact:** 94% retention vs. 88% company average, representing approximately $X in preserved ARR
 **What I did:** Proactive quarterly business reviews with all accounts, identified at-risk signals early, and intervened with recovery plans for 4 accounts that showed churn indicators
 **Context:** Retention is the team's primary metric and directly affects company revenue growth
 **Goal alignment:** Exceeded the 90%+ retention goal set at the start of the year
 
 #### 2. Onboarded 12 Enterprise Accounts Including Largest Client ($500K ARR)
+
 **Impact:** $500K ARR from our single largest account; 12 enterprise accounts totaling approximately $X in new ARR successfully launched
 **What I did:** Led the entire onboarding process: kickoff calls, implementation planning, training sessions, and go-live support for each account
 **Context:** The $500K account required a custom onboarding track with executive stakeholders, making it the most complex onboarding our team has handled
 **Goal alignment:** Supports company growth target for enterprise segment
 
 #### 3. Built New Onboarding Playbook Adopted Team-Wide
+
 **Impact:** Standardized onboarding across the 4-person team; reduced average time-to-value from 6 weeks to 4 weeks for new enterprise accounts
 **What I did:** Documented the onboarding process step-by-step based on patterns from 12 enterprise onboardings, created templates for kickoff decks, training schedules, and success milestone checklists
 **Context:** Previously, each CSM had their own approach, leading to inconsistent client experiences and no knowledge transfer when accounts were reassigned
 **Goal alignment:** Not in original goals -- self-initiated based on team need
 
 #### 4. Presented Churn Analysis to Executive Team
+
 **Impact:** Executive team adopted two of three recommended interventions for at-risk account management
 **What I did:** Analyzed churn patterns across 18 months of data, identified 3 leading indicators, and presented findings with specific recommendations to the VP of Sales and CRO
 **Context:** First time a CSM presented directly to the executive team; expanded the team's visibility with senior leadership
 **Goal alignment:** Supports company retention strategy
 
 #### 5. Mentored New Team Member Through Onboarding and First Quarter
+
 **Impact:** New CSM [Name] independently managed their first 5 accounts by end of Q2 and retained all of them
 **What I did:** Served as primary buddy: weekly 1:1s, shadowed my client calls, co-led their first 3 onboardings, provided feedback on their QBR presentations
 **Context:** Team grew from 3 to 4 members; effective onboarding was critical to maintain service quality during growth
@@ -282,6 +287,7 @@ The churn analysis presentation to the executive team led to concrete action on 
 ### Growth Areas
 
 **Technical Product Knowledge**
+
 - **Challenge:** I escalated approximately 15-20 technical questions to engineering this year that I could have answered with deeper product knowledge, particularly around our API integrations and data pipeline features
 - **What I learned:** The most common escalations fall into 3 categories (API authentication, data export configurations, webhook setup) -- these are learnable patterns, not edge cases
 - **Action plan:** Complete the internal technical certification program by end of Q1; shadow 3 engineering support calls per month for the next quarter; goal is to reduce escalations by 50% in the next review period
@@ -290,21 +296,21 @@ The churn analysis presentation to the executive team led to concrete action on 
 
 ### Previous Review Follow-Up
 
-| Previous Growth Area | Progress Made | Status |
-|---------------------|--------------|--------|
-| Maintain 90%+ retention | Achieved 94%, exceeding the 90% target | Addressed |
+| Previous Growth Area     | Progress Made                                                | Status    |
+| ------------------------ | ------------------------------------------------------------ | --------- |
+| Maintain 90%+ retention  | Achieved 94%, exceeding the 90% target                       | Addressed |
 | Mentor a new team member | Mentored [Name] through onboarding; they are now independent | Addressed |
 
 ---
 
 ### Goals for Next Period
 
-| # | Goal | Metric | Category | Support Needed |
-|---|------|--------|----------|---------------|
-| 1 | Maintain 93%+ retention rate | Retention rate at or above 93% | Impact | Continued access to churn analytics dashboard |
-| 2 | Complete technical certification | Pass internal cert exam by end of Q1 | Growth | Time allocation for study (4 hrs/week for 8 weeks) |
-| 3 | Reduce technical escalations by 50% | From ~18/year to ~9/year | Growth | Shadowing opportunities with engineering support |
-| 4 | Onboard 15+ enterprise accounts | Successfully launched with positive NPS | Impact | Support from solutions engineering for complex accounts |
+| #   | Goal                                | Metric                                  | Category | Support Needed                                          |
+| --- | ----------------------------------- | --------------------------------------- | -------- | ------------------------------------------------------- |
+| 1   | Maintain 93%+ retention rate        | Retention rate at or above 93%          | Impact   | Continued access to churn analytics dashboard           |
+| 2   | Complete technical certification    | Pass internal cert exam by end of Q1    | Growth   | Time allocation for study (4 hrs/week for 8 weeks)      |
+| 3   | Reduce technical escalations by 50% | From ~18/year to ~9/year                | Growth   | Shadowing opportunities with engineering support        |
+| 4   | Onboard 15+ enterprise accounts     | Successfully launched with positive NPS | Impact   | Support from solutions engineering for complex accounts |
 
 ---
 

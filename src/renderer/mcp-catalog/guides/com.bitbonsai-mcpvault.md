@@ -15,7 +15,7 @@ steps:
     title: Point Wayland at your vault folder
     estSeconds: 30
     inputs:
-      - { name: OBSIDIAN_VAULT_PATH, label: "Absolute path to your vault" }
+      - { name: OBSIDIAN_VAULT_PATH, label: 'Absolute path to your vault' }
     body: |
       mcpvault needs an absolute path to the folder that holds your
       `.md` notes. It only touches files inside that path.

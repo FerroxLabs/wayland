@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills step-by-step guide beginner-friendly"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'study-skills step-by-step guide beginner-friendly'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Pomodoro Study
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when the learner wants a concrete, ready-to-follow session plan -- not an explanation of what the Pomodoro technique is or advice about study habits in general.
 
 **Trigger scenarios:**
+
 - A learner provides specific material (lecture notes, a textbook chapter, a list of concepts) and asks for a Pomodoro session to study it now or later today
 - A student has a fixed window of time (e.g., "I have 2 hours before my exam") and needs a structured, timed plan for that window
 - A learner has already studied material once and wants a Pomodoro session focused on review and self-testing -- not first-pass reading
@@ -31,6 +33,7 @@ Use this skill when the learner wants a concrete, ready-to-follow session plan -
 - A student needs to process a large chunk of material in a single sitting and wants to avoid burnout or wandering attention
 
 **Do NOT use when:**
+
 - The user wants a multi-day or multi-week study schedule across multiple subjects -- use `study-plan` instead, which handles spaced sessions across a calendar
 - The user wants to know when to review material based on forgetting curves -- use `spaced-repetition`, which schedules reviews over days and weeks
 - The user is asking about time management for work tasks, projects, or productivity outside study -- this skill is scoped to learning sessions only
@@ -62,6 +65,7 @@ If the learner provides all five spontaneously, skip directly to Step 2.
 Calculate how many Pomodoros fit in the available time and select the appropriate interval variant.
 
 **Time mapping (standard 25/5 protocol):**
+
 - 30 minutes: 1 Pomodoro only -- no break needed, but end with a 5-minute self-check
 - 60 minutes: 2 Pomodoros + 1 short break (5 min) -- effective for single-concept deep dives
 - 90 minutes: 3 Pomodoros + 2 short breaks -- the minimum for a complete study arc (introduce, process, review)
@@ -71,13 +75,13 @@ Calculate how many Pomodoros fit in the available time and select the appropriat
 
 **Interval variants by learner profile (select before building the table):**
 
-| Profile | Work Interval | Short Break | Long Break After |
-|---------|--------------|-------------|-----------------|
-| Standard adult learner | 25 min | 5 min | 4 Pomodoros |
-| Learner building focus stamina | 15 min | 5 min | 4 Pomodoros |
-| Deep-work adapted learner | 50 min | 10 min | 2-3 Pomodoros |
-| ADHD or high-distractibility | 15-20 min | 5 min active | 3 Pomodoros |
-| Pre-exam last review (high urgency) | 25 min | 3 min | 4 Pomodoros |
+| Profile                             | Work Interval | Short Break  | Long Break After |
+| ----------------------------------- | ------------- | ------------ | ---------------- |
+| Standard adult learner              | 25 min        | 5 min        | 4 Pomodoros      |
+| Learner building focus stamina      | 15 min        | 5 min        | 4 Pomodoros      |
+| Deep-work adapted learner           | 50 min        | 10 min       | 2-3 Pomodoros    |
+| ADHD or high-distractibility        | 15-20 min     | 5 min active | 3 Pomodoros      |
+| Pre-exam last review (high urgency) | 25 min        | 3 min        | 4 Pomodoros      |
 
 Identify which profile fits the learner based on what they've told you. If uncertain, default to standard 25/5.
 
@@ -86,12 +90,14 @@ Identify which profile fits the learner based on what they've told you. If uncer
 ### 3. Assign specific tasks to each Pomodoro
 
 This is the core of the skill -- vague task assignments produce vague results. Every Pomodoro must have a task that is:
+
 - **Bounded:** The learner can know when it is done (finish reading pages 34-47, not "read chapter 3")
 - **Cognitively matched:** First-pass Pomodoros = reading and annotating. Second-pass = summarizing or concept mapping. Third-pass = self-testing or practice problems. Fourth (review) = retrieval practice with notes closed.
 - **Sequenced deliberately:** Follow the read → process → retrieve arc within a session. Never assign retrieval in Pomodoro 1 if the learner hasn't encountered the material yet.
 - **Realistic in scope:** A 25-minute Pomodoro can cover approximately 8-12 pages of dense academic text with annotation, 15-20 pages of lighter reading, 10-15 vocabulary items with active recall, or 5-8 multi-step practice problems. Do not over-assign.
 
 **Task type taxonomy (use these labels in the session table):**
+
 - **Read & Annotate:** First encounter with new material; mark key terms, write margin questions
 - **Summarize:** Close the source and write a 5-8 sentence summary from memory; then check
 - **Concept Map:** Draw relationships between ideas on paper -- no looking up, then verify
@@ -106,6 +112,7 @@ This is the core of the skill -- vague task assignments produce vague results. E
 ### 4. Extract and embed the actual content into the plan
 
 Do not leave the plan abstract. Populate it with the learner's real material:
+
 - List the key concepts, terms, formulas, or processes from the source material explicitly in the plan so the learner doesn't have to re-derive them
 - Group related concepts so each Pomodoro covers a coherent sub-topic rather than a random slice of pages
 - Identify which concepts are high-complexity (require deeper processing, more time) vs. definitional (can be processed faster)
@@ -130,15 +137,18 @@ Every session plan must include an explicit strategy for handling interruptions 
 These are not optional add-ons -- they are the mechanism that converts passive study time into verifiable learning.
 
 **Per-Pomodoro micro-check (embed at the end of each Pomodoro in the table):**
+
 - One specific recall question the learner can answer without notes
 - A binary pass/fail: if they cannot answer it, the next Pomodoro should revisit before moving forward
 
 **End-of-session self-check (3-5 questions, retrieval-style):**
+
 - Questions must test application or explanation, not just definition recall
 - At least one question should require the learner to connect two concepts from different Pomodoros
 - At least one question should ask the learner to generate a new example -- not repeat an example from the source material
 
 **Session reflection log (fill in after the session):**
+
 - Pomodoros completed vs. planned
 - Interruption count
 - Hardest concept encountered
@@ -160,6 +170,7 @@ Every session plan must end with a clear forward-link so the learner knows exact
 ### 8. Final quality check before delivering
 
 Before outputting the plan, verify:
+
 - Every Pomodoro has a specific, bounded task (no "study X" -- must say what action to take)
 - The total time adds up correctly (Pomodoros + breaks = learner's available time)
 - The sequence follows a logical cognitive arc (input before processing, processing before retrieval)
@@ -189,7 +200,7 @@ Deliver the session plan in this exact structure. Every field must be filled wit
 
 ### Key Concepts This Session Covers
 
-[List the actual concepts, terms, formulas, or processes from the learner's material. 
+[List the actual concepts, terms, formulas, or processes from the learner's material.
 Grouped by sub-topic where relevant. 3-15 items depending on session scope.]
 
 - **[Term or Concept]:** [One-sentence definition or description]
@@ -217,7 +228,7 @@ Grouped by sub-topic where relevant. 3-15 items depending on session scope.]
 
 ### Interruption Management
 
-**Interruption Sheet:** Keep a blank piece of paper nearby. If a stray thought, task, or 
+**Interruption Sheet:** Keep a blank piece of paper nearby. If a stray thought, task, or
 distraction surfaces mid-Pomodoro, write it here and return immediately to studying.
 
 | # | Interruption / Stray Thought | Handle During: |
@@ -233,7 +244,7 @@ distraction surfaces mid-Pomodoro, write it here and return immediately to study
 
 ### End-of-Session Self-Check
 
-Answer these questions with your notes closed. If you cannot answer a question, 
+Answer these questions with your notes closed. If you cannot answer a question,
 mark it as a gap and schedule targeted review for it in your next session.
 
 1. [Application or explanation question requiring synthesis of Pomodoros 1-2 content]
@@ -277,8 +288,8 @@ mark it as a gap and schedule targeted review for it in your next session.
 [Specific topic, based on what was not completed or what micro-checks flagged as weak]
 
 **Recommended Complementary Technique:**
-[One specific technique with skill name, e.g., "Create active-recall flashcards for the 
-key terms using `flashcard-generation`" or "Generate practice problems for the 
+[One specific technique with skill name, e.g., "Create active-recall flashcards for the
+key terms using `flashcard-generation`" or "Generate practice problems for the
 calculation steps using `exam-practice`"]
 ```
 
@@ -317,6 +328,7 @@ calculation steps using `exam-practice`"]
 ### The learner has vastly too much material for one session
 
 A single Pomodoro session cannot cover an entire textbook chapter, a week of lectures, or a full course unit in one sitting. If the material clearly exceeds what 4-6 Pomodoros can reasonably process:
+
 - Estimate the realistic scope per session based on the task type limits (8-12 annotated pages per Pomodoro, etc.)
 - Split the material into numbered sessions (Session 1: pp. 1-30, Session 2: pp. 31-60)
 - Build the plan for Session 1 only, and note explicitly what Sessions 2 and 3 will cover
@@ -326,6 +338,7 @@ A single Pomodoro session cannot cover an entire textbook chapter, a week of lec
 ### The learner has ADHD, attention difficulties, or cannot sustain 25-minute focus
 
 This is stated directly in many requests or implied by phrases like "I keep getting distracted" or "I can never finish a full Pomodoro."
+
 - Switch to 15-minute work intervals with 5-minute active breaks (standing, walking, stretching -- not seated rest)
 - Reduce the micro-check to a single sentence: "What was the most important thing in the last 15 minutes?"
 - After 4 of these short Pomodoros (60 minutes total), recommend a genuine 15-20 minute break, not 5 minutes
@@ -336,6 +349,7 @@ This is stated directly in many requests or implied by phrases like "I keep gett
 ### The learner is studying in a second language (and the material is also in that language)
 
 When a learner is both processing new academic content AND decoding in a non-native language, cognitive load is substantially higher than normal.
+
 - Reduce task scope per Pomodoro by approximately 30-40% (6-8 pages instead of 10-12, 8-10 terms instead of 15)
 - Add a dedicated vocabulary Pomodoro before comprehension tasks if the material is terminology-heavy
 - Permit the learner to write their self-check answers in their native language -- comprehension is the goal, not language output accuracy
@@ -345,6 +359,7 @@ When a learner is both processing new academic content AND decoding in a non-nat
 ### The learner wants to study a skill that requires active practice, not reading (e.g., math problem sets, coding, instrument practice)
 
 Some study tasks are not reading-based, and the standard read/summarize/retrieve arc does not apply.
+
 - For math or quantitative subjects: assign 4-6 worked problems per Pomodoro for first encounter, 6-8 problems per Pomodoro for practice
 - For coding: assign one implementation task (write a function, debug a specific file, complete a specific exercise) per Pomodoro -- never open-ended "practice coding"
 - For language writing tasks: assign one discrete output (write 150-word paragraph, complete 10-sentence grammar exercise) per Pomodoro
@@ -354,6 +369,7 @@ Some study tasks are not reading-based, and the standard read/summarize/retrieve
 ### The learner is in pre-exam crisis mode (exam in less than 3 hours)
 
 The standard read → process → retrieve arc does not work when time is critically short. Prioritize ruthlessly.
+
 - Use only two task types: Term Drill and Full Retrieval Test -- no new reading
 - Assign Pomodoros strictly to high-yield topics: concepts most likely to appear on the exam, not all topics equally
 - Use 3-minute breaks rather than 5-minute breaks -- the learner's urgency is real and 5-minute breaks feel wasteful under pressure, making it likely they will skip breaks entirely; shorter mandatory breaks maintain the rhythm without the resistance
@@ -364,6 +380,7 @@ The standard read → process → retrieve arc does not work when time is critic
 ### The learner wants to use Pomodoro for a topic that requires extended, uninterrupted flow (e.g., writing a first draft, solving a complex proof, deep reading of dense philosophy)
 
 Some cognitive tasks are genuinely harmed by the 25-minute interrupt cycle.
+
 - Acknowledge this directly: "First-draft writing, long-form proofs, and dense interpretive reading benefit from longer uninterrupted blocks."
 - Recommend the 50/10 extended protocol for these tasks (50 minutes work, 10 minutes break, long break after 2-3 cycles)
 - If the learner insists on standard Pomodoros, structure them so that each 25-minute block ends at a natural stopping point (end of a paragraph, completion of a sub-problem step) rather than at an arbitrary moment in a continuous flow
@@ -372,6 +389,7 @@ Some cognitive tasks are genuinely harmed by the 25-minute interrupt cycle.
 ### The learner's source material is incomplete, disorganized, or of poor quality
 
 When the learner shares notes that are bullet-point fragments, highlight-only PDFs, or sparse lecture summaries:
+
 - Do not pretend the material is sufficient -- flag the gaps explicitly
 - Build the Pomodoro session around the available material but add a dedicated "Fill Gaps" Pomodoro where the learner consults the textbook, asks a peer, or reviews a reliable reference for the missing sections
 - Identify which concepts are missing from the notes and name them in the session plan: "Your notes do not cover [concept X]. Pomodoro 2 should locate and read the textbook section on this before proceeding."
@@ -403,6 +421,7 @@ When the learner shares notes that are bullet-point fragments, highlight-only PD
 ### Key Concepts This Session Covers
 
 **Foundational Framework -- Pavlov's Experiment:**
+
 - **Unconditioned Stimulus (UCS):** A stimulus that automatically triggers a response without any learning -- in Pavlov's experiment, the food powder placed in the dog's mouth
 - **Unconditioned Response (UCR):** The automatic, unlearned response to the UCS -- salivation in response to food
 - **Neutral Stimulus (NS):** A stimulus that initially produces no relevant response -- the bell before conditioning begins
@@ -410,11 +429,13 @@ When the learner shares notes that are bullet-point fragments, highlight-only PD
 - **Conditioned Response (CR):** The learned response to the CS alone -- salivation in response to the bell, typically slightly weaker than the UCR
 
 **Three-Phase Model of Conditioning:**
+
 - **Before conditioning:** NS (bell) → no salivation. UCS (food) → UCR (salivation). These are separate and unrelated.
 - **During conditioning:** NS + UCS presented together repeatedly. The timing matters: the NS must precede the UCS by approximately 0.5 seconds for optimal association formation.
 - **After conditioning:** CS (bell) → CR (salivation). The NS has become a CS because of its reliable predictive relationship to the UCS.
 
 **Key Phenomena:**
+
 - **Acquisition:** The initial learning phase during which the CS-UCS association is established. Requires multiple pairings; the strength of the association increases with each pairing up to a plateau.
 - **Extinction:** The gradual weakening and disappearance of the CR when the CS is repeatedly presented without the UCS. Note: extinction is not erasure of the original learning -- it is new inhibitory learning layered on top.
 - **Spontaneous Recovery:** After extinction and a rest period, the CR reappears at reduced strength when the CS is presented again -- evidence that extinction does not destroy the original association but suppresses it.
@@ -425,16 +446,16 @@ When the learner shares notes that are bullet-point fragments, highlight-only PD
 
 ### Session Schedule
 
-| Block | Duration | Task Type | Specific Task | Micro-Check Question |
-|-------|----------|-----------|---------------|---------------------|
-| **Pomodoro 1** | 25 min | Read & Annotate | Re-read your lecture notes on Pavlov's experiment and the UCS/UCR/CS/CR framework (all notes on the foundational setup). For each of the four terms, write a one-sentence definition in your own words in the margin. Draw the three-phase model (before/during/after conditioning) as a simple diagram. | Without looking at your notes, what is the difference between a UCR and a CR? |
-| **Break 1** | 5 min | Active rest | Stand up, walk around, drink water. No phone, no messages. | -- |
-| **Pomodoro 2** | 25 min | Summarize + Term Drill | Close your notes. Write a 6-sentence paragraph explaining classical conditioning from scratch (what it is, how it works, what changes across the three phases). Then open notes, check accuracy, and correct any errors in red ink. Spend the final 8 minutes drilling the 4 core terms: cover the definition, say it aloud, uncover, check. | Can you state what happens to the conditioned response during extinction -- and why it is not the same as forgetting? |
-| **Break 2** | 5 min | Active rest | Stand, stretch your arms and neck, look out a window. No screens. | -- |
-| **Pomodoro 3** | 25 min | Concept Map + Application | On a blank page, map all five key phenomena (acquisition, extinction, spontaneous recovery, generalization, discrimination) with arrows showing their relationships: which follow from which, which oppose which, which involve the CS with vs. without the UCS. Then write a real-world example of each phenomenon that does NOT come from your notes or Pavlov's dogs -- use your own scenarios. | What is the relationship between extinction and spontaneous recovery? Does spontaneous recovery mean the extinction failed? |
-| **Break 3** | 5 min | Active rest | Walk to another room if possible. Hydrate. No information input. | -- |
-| **Pomodoro 4** | 25 min | Full Retrieval Test | Notes closed, concept map face-down. On a blank page: (1) Define all 7 key terms from memory. (2) Explain the three-phase model. (3) Describe one study-relevant scenario (e.g., a phobia developing) and identify the UCS, UCR, CS, CR, and which phenomena are demonstrated. (4) Explain the difference between generalization and discrimination with a concrete example. After 20 minutes, open notes and mark what you got right, partially right, and wrong. | Identified during the self-test itself -- any term or concept you could not complete goes directly into the session reflection as a gap. |
-| **Long Break** | 15 min | Full rest | Step away from the material entirely. Eat something, walk outside if possible. | -- |
+| Block          | Duration | Task Type                 | Specific Task                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Micro-Check Question                                                                                                                     |
+| -------------- | -------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pomodoro 1** | 25 min   | Read & Annotate           | Re-read your lecture notes on Pavlov's experiment and the UCS/UCR/CS/CR framework (all notes on the foundational setup). For each of the four terms, write a one-sentence definition in your own words in the margin. Draw the three-phase model (before/during/after conditioning) as a simple diagram.                                                                                                                                                           | Without looking at your notes, what is the difference between a UCR and a CR?                                                            |
+| **Break 1**    | 5 min    | Active rest               | Stand up, walk around, drink water. No phone, no messages.                                                                                                                                                                                                                                                                                                                                                                                                         | --                                                                                                                                       |
+| **Pomodoro 2** | 25 min   | Summarize + Term Drill    | Close your notes. Write a 6-sentence paragraph explaining classical conditioning from scratch (what it is, how it works, what changes across the three phases). Then open notes, check accuracy, and correct any errors in red ink. Spend the final 8 minutes drilling the 4 core terms: cover the definition, say it aloud, uncover, check.                                                                                                                       | Can you state what happens to the conditioned response during extinction -- and why it is not the same as forgetting?                    |
+| **Break 2**    | 5 min    | Active rest               | Stand, stretch your arms and neck, look out a window. No screens.                                                                                                                                                                                                                                                                                                                                                                                                  | --                                                                                                                                       |
+| **Pomodoro 3** | 25 min   | Concept Map + Application | On a blank page, map all five key phenomena (acquisition, extinction, spontaneous recovery, generalization, discrimination) with arrows showing their relationships: which follow from which, which oppose which, which involve the CS with vs. without the UCS. Then write a real-world example of each phenomenon that does NOT come from your notes or Pavlov's dogs -- use your own scenarios.                                                                 | What is the relationship between extinction and spontaneous recovery? Does spontaneous recovery mean the extinction failed?              |
+| **Break 3**    | 5 min    | Active rest               | Walk to another room if possible. Hydrate. No information input.                                                                                                                                                                                                                                                                                                                                                                                                   | --                                                                                                                                       |
+| **Pomodoro 4** | 25 min   | Full Retrieval Test       | Notes closed, concept map face-down. On a blank page: (1) Define all 7 key terms from memory. (2) Explain the three-phase model. (3) Describe one study-relevant scenario (e.g., a phobia developing) and identify the UCS, UCR, CS, CR, and which phenomena are demonstrated. (4) Explain the difference between generalization and discrimination with a concrete example. After 20 minutes, open notes and mark what you got right, partially right, and wrong. | Identified during the self-test itself -- any term or concept you could not complete goes directly into the session reflection as a gap. |
+| **Long Break** | 15 min   | Full rest                 | Step away from the material entirely. Eat something, walk outside if possible.                                                                                                                                                                                                                                                                                                                                                                                     | --                                                                                                                                       |
 
 ---
 
@@ -442,13 +463,14 @@ When the learner shares notes that are bullet-point fragments, highlight-only PD
 
 **Interruption Sheet:** Keep a blank piece of paper at the edge of your desk. If a stray thought appears mid-Pomodoro -- a text you need to send, something you forgot to do, an unrelated question -- write it on this sheet and return immediately. You will handle it during the break or after the session.
 
-| # | Interruption / Stray Thought | Handle During: |
-|---|------------------------------|---------------|
-| 1 | (write here as they come up) | Break / After session |
-| 2 | | |
-| 3 | | |
+| #   | Interruption / Stray Thought | Handle During:        |
+| --- | ---------------------------- | --------------------- |
+| 1   | (write here as they come up) | Break / After session |
+| 2   |                              |                       |
+| 3   |                              |                       |
 
 **If the Pomodoro is broken involuntarily:**
+
 - Broken before 20 minutes: restart the Pomodoro from zero once the interruption is resolved
 - Broken after 20 minutes: count as complete, record the interruption above, continue
 
@@ -477,15 +499,15 @@ Answer these with all notes and your concept map face-down.
 
 ### Session Reflection Log
 
-*(Fill in immediately after the session -- before you do anything else)*
+_(Fill in immediately after the session -- before you do anything else)_
 
-- Pomodoros completed: ___/4
-- Total interruptions recorded: ___
-- Micro-check fails (topics to revisit): ___________________________
-- Terms or concepts I could not retrieve in Pomodoro 4: ___________________________
-- Hardest concept this session: ___________________________
-- Confidence level on classical conditioning overall (1 = very shaky, 5 = could teach it): ___/5
-- One thing I will do differently in the next session: ___________________________
+- Pomodoros completed: \_\_\_/4
+- Total interruptions recorded: \_\_\_
+- Micro-check fails (topics to revisit): ************\_\_\_************
+- Terms or concepts I could not retrieve in Pomodoro 4: ************\_\_\_************
+- Hardest concept this session: ************\_\_\_************
+- Confidence level on classical conditioning overall (1 = very shaky, 5 = could teach it): \_\_\_/5
+- One thing I will do differently in the next session: ************\_\_\_************
 
 ---
 
@@ -493,6 +515,7 @@ Answer these with all notes and your concept map face-down.
 
 **Spaced Review Schedule:**
 Because this is a second encounter with the material (you attended lecture), your intervals are extended:
+
 - Review again 7 days from today
 - Review again 21 days from today
 - If your Pomodoro 4 self-test revealed gaps in specific concepts (e.g., you could not distinguish spontaneous recovery from re-acquisition): review those specific concepts in 24 hours using the Term Drill task type -- not the full session

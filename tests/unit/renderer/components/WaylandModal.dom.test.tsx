@@ -78,7 +78,12 @@ describe('WaylandModal', () => {
 
   it('preserves an explicit content background override', () => {
     const { container } = render(
-      <WaylandModal visible onCancel={vi.fn()} header='Modal title' contentStyle={{ background: 'rgb(var(--primary-1))' }}>
+      <WaylandModal
+        visible
+        onCancel={vi.fn()}
+        header='Modal title'
+        contentStyle={{ background: 'rgb(var(--primary-1))' }}
+      >
         content
       </WaylandModal>
     );

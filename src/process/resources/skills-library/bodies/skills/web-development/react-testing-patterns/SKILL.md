@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript testing frameworks accessibility"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript testing frameworks accessibility'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to test a specific React component pattern -- hooks, context providers, compound components, portals, or async data fetching
 - The user wants to choose between testing approaches: React Testing Library vs Enzyme vs Cypress component testing vs Vitest
 - The user is writing TypeScript-typed tests and needs guidance on typing mocks, spy functions, or render helpers
@@ -32,6 +34,7 @@ metadata:
 - The user asks about snapshot testing -- when to use it, when to avoid it, and how to maintain snapshots properly
 
 **Do NOT use this skill when:**
+
 - The user needs help with end-to-end testing of full user flows across multiple pages -- use a dedicated E2E skill covering Playwright or Cypress test authoring
 - The user is asking about backend API testing, Node.js unit testing, or Express middleware testing -- those have different tool sets
 - The user is asking about performance profiling or React DevTools -- that is a separate profiling skill
@@ -56,6 +59,7 @@ Before writing a single test, confirm the foundational toolchain and configurati
 - **Add jest-axe for accessibility testing:** `jest-axe` wraps the `axe-core` engine and integrates with jest/vitest matchers via `expect(results).toHaveNoViolations()`. This catches WCAG 2.1 AA violations automatically.
 
 A minimal `vitest.config.ts`:
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
@@ -80,6 +84,7 @@ export default defineConfig({
 ```
 
 A minimal `src/setupTests.ts`:
+
 ```typescript
 import '@testing-library/jest-dom';
 import { afterAll, afterEach, beforeAll } from 'vitest';
@@ -136,6 +141,7 @@ Untyped mocks are a source of silent errors. Apply these patterns:
   ```
   `vi.mocked()` preserves the original function signature while allowing mock method calls like `.mockResolvedValue()`.
 - **Custom render functions:** Create a `src/test-utils/render.tsx` that wraps RTL's `render` with all providers the app uses (QueryClientProvider, Router, ThemeProvider, Redux store). Type the wrapper's `options` parameter to extend RTL's `RenderOptions`:
+
   ```typescript
   import { render, RenderOptions } from '@testing-library/react';
   import { ReactElement } from 'react';
@@ -157,6 +163,7 @@ Untyped mocks are a source of silent errors. Apply these patterns:
   export * from '@testing-library/react';
   export { customRender as render };
   ```
+
   Import from `test-utils` everywhere instead of directly from `@testing-library/react`.
 
 ---
@@ -235,7 +242,7 @@ Accessibility testing should be automated and mandatory, not optional:
 
 When helping a user implement or review React testing patterns, provide output in this structure:
 
-```
+````
 ## Test Strategy for [Component or Hook Name]
 
 ### Classification
@@ -252,18 +259,18 @@ import userEvent from '@testing-library/user-event';
 import { server } from '../mocks/server';
 import { http, HttpResponse } from 'msw';
 // MSW handler overrides for this test file
-```
+````
 
 ### Test Cases
 
-| Scenario | Query Strategy | Async | Assertion Type |
-|----------|---------------|-------|----------------|
-| Default render | getByRole | No | toBeInTheDocument |
-| Loading state | getByRole('status') | Yes (findBy) | toBeInTheDocument |
-| Success state | findByRole('list') | Yes (waitFor) | toHaveLength(n) |
-| Error state | findByRole('alert') | Yes (waitFor) | toHaveTextContent |
-| User interaction | getByRole('button') | Yes (await user.click) | onChange called |
-| Accessibility | container | Yes (axe) | toHaveNoViolations |
+| Scenario         | Query Strategy      | Async                  | Assertion Type     |
+| ---------------- | ------------------- | ---------------------- | ------------------ |
+| Default render   | getByRole           | No                     | toBeInTheDocument  |
+| Loading state    | getByRole('status') | Yes (findBy)           | toBeInTheDocument  |
+| Success state    | findByRole('list')  | Yes (waitFor)          | toHaveLength(n)    |
+| Error state      | findByRole('alert') | Yes (waitFor)          | toHaveTextContent  |
+| User interaction | getByRole('button') | Yes (await user.click) | onChange called    |
+| Accessibility    | container           | Yes (axe)              | toHaveNoViolations |
 
 ### Implementation
 
@@ -305,15 +312,18 @@ describe('[ComponentName]', () => {
 ```
 
 ### Mocking Requirements
+
 - MSW Handlers: [list endpoints and response shapes]
 - Module Mocks: [list vi.mock calls with rationale]
 - Browser API Stubs: [list any window/navigator mocks needed]
 
 ### Coverage Targets
+
 - Lines: [target %]
 - Branches: [target %]
 - Key paths to cover: [list critical conditional branches]
-```
+
+````
 
 ---
 
@@ -361,18 +371,21 @@ const mockIntersectionObserver = vi.fn().mockImplementation((callback) => ({
   disconnect: vi.fn(),
 }));
 window.IntersectionObserver = mockIntersectionObserver;
-```
+````
+
 This mock fires the callback immediately with `isIntersecting: true`, simulating an element entering the viewport. For tests that need to verify behavior when NOT in the viewport, create an alternate mock that passes `isIntersecting: false`.
 
 ### Testing Error Boundaries
 
 React error boundaries require a component to throw during rendering. In tests, create a `ThrowOnRender` test component:
+
 ```typescript
 const ThrowOnRender = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) throw new Error('Test render error');
   return <div>Safe</div>;
 };
 ```
+
 Suppress the expected `console.error` output that React prints when an error boundary catches an error -- otherwise it pollutes test output and can cause false CI failures. Use `vi.spyOn(console, 'error').mockImplementation(() => {})` in `beforeEach` and restore it in `afterEach`. Assert that the error boundary's fallback UI renders and is accessible using `axe`.
 
 ### Testing Components with `useEffect` Data Fetching Without React Query
@@ -382,11 +395,15 @@ Components that fetch in `useEffect` directly (using `fetch` or axios) require c
 ### Testing Zustand or Jotai Stores in Isolation
 
 Global stores that persist state across tests cause the most insidious test pollution. For Zustand, create a store with `createStore` (not `create`) so you can instantiate a fresh store per test:
+
 ```typescript
 const createTestStore = () => createStore<UserStore>()(userSlice);
 let testStore: ReturnType<typeof createTestStore>;
-beforeEach(() => { testStore = createTestStore(); });
+beforeEach(() => {
+  testStore = createTestStore();
+});
 ```
+
 Pass the test store into the component wrapper using the store's context provider. For Jotai, wrap each test's render in a `<Provider store={createStore()}>` where the store is created fresh. Never export a global singleton store from your store module -- always export the creator function.
 
 ### Testing React 18 Concurrent Features (Transitions and Deferred Values)
@@ -396,6 +413,7 @@ Pass the test store into the component wrapper using the store's context provide
 ### Testing Components in a Monorepo with Shared Packages
 
 When a tested component imports from a shared internal package (`@company/design-system`, `@company/auth`), configure the test runner's module resolver to use the TypeScript source of those packages rather than their compiled output. Add path aliases in `vitest.config.ts` under `resolve.alias`:
+
 ```typescript
 resolve: {
   alias: {
@@ -403,6 +421,7 @@ resolve: {
   },
 }
 ```
+
 This eliminates the need to rebuild shared packages before running tests, cutting CI time by 30-60% in monorepo setups. If shared packages have their own `setupTests.ts`, import them in the consuming package's setup file to avoid duplicating browser API mocks.
 
 ---
@@ -416,6 +435,7 @@ This eliminates the need to rebuild shared packages before running tests, cuttin
 ## Test Strategy for UserProfileCard
 
 ### Classification
+
 - Test Category: Integration (React Query + network calls + user interaction)
 - Dependencies: QueryClientProvider, React Query's `useQuery` and `useMutation`, MSW for network interception
 - Async Behavior: Yes -- initial data fetch on mount, mutation on button click
@@ -717,30 +737,32 @@ describe('UserProfileCard', () => {
 
 ### Test Cases Summary
 
-| Scenario | Query Strategy | Async | Primary Assertion |
-|----------|---------------|-------|-------------------|
-| Loading skeleton visible | `getByRole('status')` | No (synchronous) | `toBeInTheDocument` |
-| Loading skeleton disappears | `queryByRole('status')` | Yes (`waitFor`) | `not.toBeInTheDocument` |
-| User name rendered | `findByRole('heading')` | Yes (`findBy`) | `toBeInTheDocument` |
-| Follower count formatted | `getByText('1,842 followers')` | No (after await) | `toBeInTheDocument` |
-| Follow button unfollowed state | `findByRole('button', { name })` | Yes (`findBy`) | `toHaveAttribute('aria-pressed', 'false')` |
-| 500 error shows alert | `findByRole('alert')` | Yes (`findBy`) | `toHaveTextContent` |
-| Network error shows alert | `findByRole('alert')` | Yes (`findBy`) | Not to stringify error object |
-| Follow success updates UI | `getByRole('button', { name })` | Yes (`waitFor`) | `aria-pressed: true`, count incremented |
-| Follow failure reverts UI | `getByRole('alert')` | Yes (`findBy`) | Count unchanged, `aria-pressed: false` |
-| Mutation in flight disables button | `followButton` (retained ref) | Yes (`waitFor`) | `toBeDisabled` then `not.toBeDisabled` |
-| Loaded state axe scan | `container` | Yes (`findByRole` first) | `toHaveNoViolations` |
-| Error state axe scan | `container` | Yes (`findByRole` first) | `toHaveNoViolations` |
+| Scenario                           | Query Strategy                   | Async                    | Primary Assertion                          |
+| ---------------------------------- | -------------------------------- | ------------------------ | ------------------------------------------ |
+| Loading skeleton visible           | `getByRole('status')`            | No (synchronous)         | `toBeInTheDocument`                        |
+| Loading skeleton disappears        | `queryByRole('status')`          | Yes (`waitFor`)          | `not.toBeInTheDocument`                    |
+| User name rendered                 | `findByRole('heading')`          | Yes (`findBy`)           | `toBeInTheDocument`                        |
+| Follower count formatted           | `getByText('1,842 followers')`   | No (after await)         | `toBeInTheDocument`                        |
+| Follow button unfollowed state     | `findByRole('button', { name })` | Yes (`findBy`)           | `toHaveAttribute('aria-pressed', 'false')` |
+| 500 error shows alert              | `findByRole('alert')`            | Yes (`findBy`)           | `toHaveTextContent`                        |
+| Network error shows alert          | `findByRole('alert')`            | Yes (`findBy`)           | Not to stringify error object              |
+| Follow success updates UI          | `getByRole('button', { name })`  | Yes (`waitFor`)          | `aria-pressed: true`, count incremented    |
+| Follow failure reverts UI          | `getByRole('alert')`             | Yes (`findBy`)           | Count unchanged, `aria-pressed: false`     |
+| Mutation in flight disables button | `followButton` (retained ref)    | Yes (`waitFor`)          | `toBeDisabled` then `not.toBeDisabled`     |
+| Loaded state axe scan              | `container`                      | Yes (`findByRole` first) | `toHaveNoViolations`                       |
+| Error state axe scan               | `container`                      | Yes (`findByRole` first) | `toHaveNoViolations`                       |
 
 ---
 
 ### Mocking Requirements
+
 - **MSW Handlers:** `GET /api/users/:userId` returns user object; `POST /api/users/:userId/follow` returns `{ success: true }`
 - **Per-test overrides:** 500 error on GET, network failure on GET, 403 on POST follow, delayed POST follow
 - **Module Mocks:** None -- React Query, fetch, and component internals are all tested through real implementations intercepted by MSW
 - **Browser API Stubs:** None required for this component unless it uses IntersectionObserver for avatar lazy loading
 
 ### Coverage Targets
+
 - **Lines:** 90%+ (this is a critical user-facing component)
 - **Branches:** 85%+ (all conditional render paths: loading, error, success, follow/following state, mutation pending state)
 - **Key branches to cover:** `isLoading`, `isError`, `isSuccess`, `mutation.isPending`, `isFollowedByCurrentUser`, follower count formatting edge cases (0 followers, 1 follower, 1000+)

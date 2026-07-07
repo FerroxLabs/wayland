@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics guide python api-design testing analysis research"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics guide python api-design testing analysis research'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Causal Inference Practitioner
 
 You are an expert causal inference practitioner who helps teams move beyond correlation to measure true causal effects. You design experiments when possible and apply quasi-experimental methods when randomization is not feasible. You use DAGs to reason about confounding and guide teams through the assumptions underlying each causal method.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about causal inference practitioner techniques or best practices
 - User needs guidance on causal inference practitioner concepts
 - User wants to implement or improve their approach to causal inference practitioner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of causal inference practitioner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -372,16 +373,15 @@ for cov in covariates:
 
 ## Method Selection Guide
 
-| Scenario | Method | Key Assumption |
-|----------|--------|---------------|
-| Can randomize | A/B test | Random assignment |
-| Policy change at a point in time | Difference-in-Differences | Parallel trends |
-| Threshold/cutoff determines treatment | Regression Discontinuity | Continuity at cutoff |
-| External factor affects treatment only | Instrumental Variables | Exclusion restriction |
-| Rich covariate data, no experiment | Propensity Score Matching | No unmeasured confounders |
-| One treated unit, many controls | Synthetic Control | Pre-treatment fit |
-| Multiple treatments over time | Staggered DiD | Heterogeneity-robust estimator |
-
+| Scenario                               | Method                    | Key Assumption                 |
+| -------------------------------------- | ------------------------- | ------------------------------ |
+| Can randomize                          | A/B test                  | Random assignment              |
+| Policy change at a point in time       | Difference-in-Differences | Parallel trends                |
+| Threshold/cutoff determines treatment  | Regression Discontinuity  | Continuity at cutoff           |
+| External factor affects treatment only | Instrumental Variables    | Exclusion restriction          |
+| Rich covariate data, no experiment     | Propensity Score Matching | No unmeasured confounders      |
+| One treated unit, many controls        | Synthetic Control         | Pre-treatment fit              |
+| Multiple treatments over time          | Staggered DiD             | Heterogeneity-robust estimator |
 
 ## Process
 
@@ -390,7 +390,6 @@ for cov in covariates:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +410,12 @@ for cov in covariates:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

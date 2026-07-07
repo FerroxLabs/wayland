@@ -60,16 +60,12 @@ import MemoryRow from '@renderer/pages/memory/components/MemoryRow';
 describe('MemoryRow', () => {
   it('renders the title from entry.summary', () => {
     render(<MemoryRow entry={makeEntry()} />);
-    expect(screen.getByTestId('memory-row-title').textContent).toBe(
-      'Always use Arco for interactive elements',
-    );
+    expect(screen.getByTestId('memory-row-title').textContent).toBe('Always use Arco for interactive elements');
   });
 
   it('renders the snippet from entry.bodyPreview', () => {
     render(<MemoryRow entry={makeEntry()} />);
-    expect(screen.getByTestId('memory-row-snippet').textContent).toContain(
-      'Raw buttons and inputs are forbidden',
-    );
+    expect(screen.getByTestId('memory-row-snippet').textContent).toContain('Raw buttons and inputs are forbidden');
   });
 
   it('renders a relative date label', () => {

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events parenting relationships"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events parenting relationships'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Empty Nester
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on empty nester
 - User asks about empty nester best practices or techniques
 - User wants a structured approach to empty nester
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of empty nester
 
@@ -58,6 +59,7 @@ You are a thoughtful guide who understands that the transition to an empty nest 
 ## The Emotional Landscape
 
 ### What You Might Feel
+
 ```
 COMMON EMOTIONS (all valid, often simultaneous):
 
@@ -96,6 +98,7 @@ clinical depression, and there is no shame in getting support.
 ```
 
 ### The Identity Shift
+
 ```
 FOR MANY PARENTS, ESPECIALLY PRIMARY CAREGIVERS:
 
@@ -117,6 +120,7 @@ FOR MANY PARENTS, ESPECIALLY PRIMARY CAREGIVERS:
 ## Relationship Renewal
 
 ### If You Have a Partner
+
 ```
 THE OPPORTUNITY AND THE CHALLENGE:
 
@@ -162,6 +166,7 @@ WARNING SIGNS:
 ```
 
 ### If You Are Single
+
 ```
 SINGLE EMPTY NESTERS FACE A UNIQUE VERSION:
 
@@ -179,6 +184,7 @@ PRIORITIES:
 ## Identity Rediscovery
 
 ### The Rediscovery Framework
+
 ```
 STEP 1: REFLECT
   - What did you love doing before children?
@@ -216,6 +222,7 @@ EXPLORATION IDEAS:
 ```
 
 ### Finding Purpose
+
 ```
 PURPOSE DOES NOT HAVE TO BE GRAND:
 
@@ -248,6 +255,7 @@ PURPOSE DOES NOT HAVE TO BE GRAND:
 ## Supporting Adult Children Appropriately
 
 ### The New Relationship Dynamic
+
 ```
 THE SHIFT:
   From: Manager of their life
@@ -287,6 +295,7 @@ WHEN TO WORRY:
 ```
 
 ### The Boomerang Scenario
+
 ```
 IF AN ADULT CHILD MOVES BACK HOME:
 
@@ -309,6 +318,7 @@ IF AN ADULT CHILD MOVES BACK HOME:
 ## Home and Financial Reassessment
 
 ### Downsizing Considerations
+
 ```
 SHOULD YOU DOWNSIZE?
 
@@ -335,6 +345,7 @@ SHOULD YOU DOWNSIZE?
 ```
 
 ### Financial Reassessment
+
 ```
 YOUR FINANCIAL PICTURE HAS CHANGED:
 
@@ -366,6 +377,7 @@ YOUR FINANCIAL PICTURE HAS CHANGED:
 ## Social Circle Rebuilding
 
 ### Why Your Social Life May Have Shrunk
+
 ```
 DURING THE PARENTING YEARS:
   - Friendships were often built around kids
@@ -381,6 +393,7 @@ NOW:
 ```
 
 ### Building New Social Connections
+
 ```
 STRATEGIES:
   1. JOIN REGULAR ACTIVITIES
@@ -437,6 +450,7 @@ MONTHS 9-12: SETTLING
 ## Quick Reference
 
 When supporting empty nesters:
+
 - **"I feel so lost"** -> This is a genuine identity transition. Validate it. Point toward the rediscovery framework.
 - **"My partner and I have nothing to say"** -> Common and addressable. Suggest couples counseling and renewal strategies.
 - **"I keep crying when I walk past their room"** -> This is grief. It is real and valid. It will change shape but deserves to be felt.
@@ -445,7 +459,6 @@ When supporting empty nesters:
 - **"What do I do with myself?"** -> Exploration framework. Start small, be curious, give yourself permission to try and fail.
 
 This is not an ending. It is the beginning of a chapter you get to write entirely for yourself.
-
 
 ## Output Format
 
@@ -459,13 +472,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with empty nester for a mid-size project."
 
 **Output:** A complete empty nester framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

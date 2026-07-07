@@ -83,10 +83,7 @@ function renderSection(collapsed = false) {
 }
 
 function setAccordionOpen(open: boolean) {
-  localStorage.setItem(
-    ACCORDION_STORAGE_KEY,
-    JSON.stringify({ scheduled: false, workflows: open, teams: false })
-  );
+  localStorage.setItem(ACCORDION_STORAGE_KEY, JSON.stringify({ scheduled: false, workflows: open, teams: false }));
 }
 
 describe('SiderWorkflowsSection', () => {

@@ -30,8 +30,7 @@ vi.mock('@arco-design/web-react', async () => {
     children?: React.ReactNode;
     onClick?: () => void;
     'data-testid'?: string;
-  }) =>
-    React2.createElement('div', { 'data-testid': testId, onClick, role: 'menuitem' }, children);
+  }) => React2.createElement('div', { 'data-testid': testId, onClick, role: 'menuitem' }, children);
 
   const Menu = ({
     children,
@@ -51,20 +50,19 @@ vi.mock('@arco-design/web-react', async () => {
           });
         }
         return child;
-      }),
+      })
     );
   (Menu as { Item: typeof MenuItem }).Item = MenuItem;
 
   return {
-    Dropdown: ({
-      children,
-      droplist,
-    }: {
-      children: React.ReactNode;
-      droplist: React.ReactNode;
-    }) => React2.createElement(React2.Fragment, null, children, droplist),
+    Dropdown: ({ children, droplist }: { children: React.ReactNode; droplist: React.ReactNode }) =>
+      React2.createElement(React2.Fragment, null, children, droplist),
     Menu,
-    DatePicker: ({ placeholder, onChange, 'data-testid': testId }: {
+    DatePicker: ({
+      placeholder,
+      onChange,
+      'data-testid': testId,
+    }: {
       placeholder?: string;
       onChange?: (val: string, date: Date | null) => void;
       'data-testid'?: string;

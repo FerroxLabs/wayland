@@ -13,9 +13,9 @@ steps:
   - id: api-key
     title: Paste your Firecrawl API key
     estSeconds: 60
-    externalAction: { label: "Open Firecrawl dashboard", url: "https://www.firecrawl.dev/app/api-keys" }
+    externalAction: { label: 'Open Firecrawl dashboard', url: 'https://www.firecrawl.dev/app/api-keys' }
     inputs:
-      - { name: FIRECRAWL_API_KEY, label: "Firecrawl API key", secret: true }
+      - { name: FIRECRAWL_API_KEY, label: 'Firecrawl API key', secret: true }
     body: |
       The free plan includes **1,000 credits/month** (one credit per scraped
       page) with **2 concurrent requests** and low rate limits - no credit

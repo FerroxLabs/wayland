@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go backend api-design"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go backend api-design'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go API Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Structuring HTTP handlers in Go using `net/http`, `chi`, `gorilla/mux`, or `httprouter`
 - Building middleware chains for authentication, logging, rate limiting, or request tracing
 - Implementing graceful shutdown with `context.Context` and `os.Signal` coordination
@@ -29,6 +31,7 @@ metadata:
 - Organizing a Go web service project layout -- handler files, routing, dependency injection, server wiring
 
 **Do NOT use this skill when:**
+
 - The user asks about Go language idioms unrelated to HTTP (use `go-idioms` -- covers interfaces, embedding, goroutine patterns)
 - The user asks about Go error wrapping, sentinel errors, or `errors.As`/`errors.Is` mechanics (use `go-error-handling`)
 - The user asks about REST API design principles like resource modeling, HATEOAS, or HTTP status code semantics (use `rest-api-design`)
@@ -244,7 +247,7 @@ myapi/
 
 When responding to a Go API patterns question, structure the response as follows:
 
-```
+````
 ## Assessment
 
 **Router:** [stdlib ServeMux / chi / httprouter] -- [one-sentence rationale]
@@ -255,7 +258,7 @@ When responding to a Go API patterns question, structure the response as follows
 
 ```go
 // Full http.Server struct with all timeout fields set and annotated
-```
+````
 
 ## Handler Pattern
 
@@ -266,15 +269,15 @@ When responding to a Go API patterns question, structure the response as follows
 
 ## Middleware Chain
 
-| Position | Middleware       | Scope           | Key Behavior                          |
-|----------|-----------------|-----------------|---------------------------------------|
-| 1        | CORS            | Global          | Handle OPTIONS before auth            |
-| 2        | RequestID       | Global          | Generate, store in ctx, set header    |
-| 3        | Recovery        | Global          | Catch panics, log stack, return 500   |
-| 4        | StructuredLog   | Global          | Log after handler returns             |
-| 5        | Authentication  | Protected routes| Validate JWT, store claims in ctx     |
-| 6        | Authorization   | Specific routes | Check role from ctx claims            |
-| 7        | RateLimit       | Per-IP or user  | Token bucket, 429 on exceeded         |
+| Position | Middleware     | Scope            | Key Behavior                        |
+| -------- | -------------- | ---------------- | ----------------------------------- |
+| 1        | CORS           | Global           | Handle OPTIONS before auth          |
+| 2        | RequestID      | Global           | Generate, store in ctx, set header  |
+| 3        | Recovery       | Global           | Catch panics, log stack, return 500 |
+| 4        | StructuredLog  | Global           | Log after handler returns           |
+| 5        | Authentication | Protected routes | Validate JWT, store claims in ctx   |
+| 6        | Authorization  | Specific routes  | Check role from ctx claims          |
+| 7        | RateLimit      | Per-IP or user   | Token bucket, 429 on exceeded       |
 
 ## Request Validation
 
@@ -314,12 +317,13 @@ When responding to a Go API patterns question, structure the response as follows
 
 ## Key Decisions
 
-| Decision         | Choice Made       | Alternative Considered | Reason                          |
-|-----------------|-------------------|------------------------|----------------------------------|
-| Router          | chi               | stdlib ServeMux        | Named params + subrouter middleware |
-| Validation      | validator v10     | hand-written           | 15+ input types with complex rules |
-| OpenAPI         | oapi-codegen      | swaggo/swag            | API-first, compiler-enforced coverage |
-```
+| Decision   | Choice Made   | Alternative Considered | Reason                                |
+| ---------- | ------------- | ---------------------- | ------------------------------------- |
+| Router     | chi           | stdlib ServeMux        | Named params + subrouter middleware   |
+| Validation | validator v10 | hand-written           | 15+ input types with complex rules    |
+| OpenAPI    | oapi-codegen  | swaggo/swag            | API-first, compiler-enforced coverage |
+
+````
 
 ---
 
@@ -458,7 +462,7 @@ func Run(ctx context.Context, srv *http.Server, log *slog.Logger) error {
         return nil
     }
 }
-```
+````
 
 ---
 
@@ -582,15 +586,15 @@ func respondError(w http.ResponseWriter, status int, code, message string,
 
 ## Middleware Chain
 
-| Position | Middleware       | Scope             | Key Behavior                                          |
-|----------|-----------------|-------------------|-------------------------------------------------------|
-| 1        | CORS            | Global            | Handle OPTIONS preflights before auth runs            |
-| 2        | RequestID       | Global            | `crypto/rand` 16-byte hex ID in ctx + response header|
-| 3        | Recovery        | Global            | Catch panics, log `debug.Stack()`, return 500         |
-| 4        | StructuredLog   | Global            | Log after handler: method, path, status, duration, ID |
-| 5        | Authentication  | `/users`, `/roles`| Validate JWT (sig + exp + iss + aud), store claims    |
-| 6        | RequireRole     | `DELETE /users/*` | Read claims from ctx, check role field, return 403    |
-| 7        | RateLimit       | Global            | 100 req/min per IP, token bucket via x/time/rate      |
+| Position | Middleware     | Scope              | Key Behavior                                          |
+| -------- | -------------- | ------------------ | ----------------------------------------------------- |
+| 1        | CORS           | Global             | Handle OPTIONS preflights before auth runs            |
+| 2        | RequestID      | Global             | `crypto/rand` 16-byte hex ID in ctx + response header |
+| 3        | Recovery       | Global             | Catch panics, log `debug.Stack()`, return 500         |
+| 4        | StructuredLog  | Global             | Log after handler: method, path, status, duration, ID |
+| 5        | Authentication | `/users`, `/roles` | Validate JWT (sig + exp + iss + aud), store claims    |
+| 6        | RequireRole    | `DELETE /users/*`  | Read claims from ctx, check role field, return 403    |
+| 7        | RateLimit      | Global             | 100 req/min per IP, token bucket via x/time/rate      |
 
 ```go
 // internal/server/routes.go
@@ -720,7 +724,7 @@ All error responses use a consistent envelope:
 ```
 
 | HTTP Status | Code String        | When to Use                                          |
-|-------------|--------------------|------------------------------------------------------|
+| ----------- | ------------------ | ---------------------------------------------------- |
 | 400         | `INVALID_JSON`     | Malformed JSON, wrong Content-Type                   |
 | 401         | `UNAUTHORIZED`     | Missing or invalid JWT                               |
 | 403         | `FORBIDDEN`        | Valid JWT but insufficient role                      |
@@ -738,10 +742,10 @@ Using `oapi-codegen` (spec-first):
 
 ```yaml
 # docs/openapi.yaml (excerpt)
-openapi: "3.0.3"
+openapi: '3.0.3'
 info:
   title: User Management API
-  version: "1.0.0"
+  version: '1.0.0'
 paths:
   /users:
     post:
@@ -756,19 +760,20 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateUserRequest'
       responses:
-        "201":
+        '201':
           description: User created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserEnvelope'
-        "422":
+        '422':
           $ref: '#/components/responses/ValidationError'
-        "401":
+        '401':
           $ref: '#/components/responses/Unauthorized'
 ```
 
 Generate with:
+
 ```bash
 oapi-codegen -generate types,chi-server,spec -package api docs/openapi.yaml > internal/api/api.gen.go
 ```
@@ -819,12 +824,12 @@ userapi/
 
 ## Key Decisions
 
-| Decision       | Choice Made         | Alternative Considered    | Reason                                                     |
-|---------------|---------------------|---------------------------|-------------------------------------------------------------|
-| Router        | `chi` v5            | stdlib ServeMux (Go 1.22) | Subrouter-scoped middleware for auth is cleaner in chi      |
-| Validation    | `validator` v10     | Hand-written              | 8 input types with nested rules; struct tags scale better   |
-| OpenAPI       | `oapi-codegen`      | `swaggo/swag`             | Spec-first, compiler-enforced coverage, no comment drift    |
-| Error format  | Typed code + fields | Plain string messages     | Machine-readable for clients, localizable, testable         |
-| Config        | `os.Getenv`         | `spf13/viper`             | 12 config values; viper overhead not justified at this scale|
-| DI            | Manual constructor  | `uber-go/fx`              | 6 dependencies; fx overhead and indirection not warranted   |
-| Logging       | `log/slog`          | `uber-go/zap`             | Go 1.21+ stdlib slog is sufficient; zero external dependency|
+| Decision     | Choice Made         | Alternative Considered    | Reason                                                       |
+| ------------ | ------------------- | ------------------------- | ------------------------------------------------------------ |
+| Router       | `chi` v5            | stdlib ServeMux (Go 1.22) | Subrouter-scoped middleware for auth is cleaner in chi       |
+| Validation   | `validator` v10     | Hand-written              | 8 input types with nested rules; struct tags scale better    |
+| OpenAPI      | `oapi-codegen`      | `swaggo/swag`             | Spec-first, compiler-enforced coverage, no comment drift     |
+| Error format | Typed code + fields | Plain string messages     | Machine-readable for clients, localizable, testable          |
+| Config       | `os.Getenv`         | `spf13/viper`             | 12 config values; viper overhead not justified at this scale |
+| DI           | Manual constructor  | `uber-go/fx`              | 6 dependencies; fx overhead and indirection not warranted    |
+| Logging      | `log/slog`          | `uber-go/zap`             | Go 1.21+ stdlib slog is sufficient; zero external dependency |

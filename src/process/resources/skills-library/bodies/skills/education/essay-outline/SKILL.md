@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing study-skills research step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing study-skills research step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Essay Outline
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a learner needs a structural skeleton for an academic essay -- not finished prose, but a complete architectural plan they can execute independently.
 
 **Trigger scenarios:**
+
 - A learner says "I need to outline my essay on X" or "help me plan my argument before I start writing"
 - A student has a prompt and knows the topic but cannot figure out how to structure or sequence their argument
 - A learner has done research and collected notes/sources but cannot figure out how to organize them into a coherent argument
@@ -31,6 +33,7 @@ Use this skill when a learner needs a structural skeleton for an academic essay 
 - A learner asks "how many paragraphs should I write" or "where does the counterargument go" -- structural planning questions that belong here
 
 **Do NOT use when:**
+
 - The learner wants finished essay prose written for them -- use writing category skills instead
 - The request involves a research paper with literature review, methodology, and findings sections -- use `research-paper-structure` instead
 - The user is writing a creative nonfiction, personal narrative, or memoir -- use writing category creative skills instead
@@ -102,12 +105,14 @@ For each body paragraph, apply the TEAC structure: Topic sentence -- Evidence --
 Introductions and conclusions are the most frequently botched essay components. Treat them as requiring specific design choices, not boilerplate.
 
 **Introduction design:**
+
 - The hook must match the essay's tone. Academic essays rarely benefit from rhetorical questions as hooks (overused and often vague). Better hooks for academic writing: a counterintuitive statistic, a brief concrete scene that illustrates the problem, a provocative expert claim the essay will complicate, or a historical moment that crystallizes the issue.
 - Context sentences (2-4 sentences) should narrow from broad to specific -- not from "since the beginning of time" (never use this) but from the relevant historical, disciplinary, or social context to the specific case the essay addresses.
 - The thesis is always the last sentence of the introduction. Do not bury it in the middle.
 - At the outline stage, mark the hook type the learner should aim for, but do not write the hook itself -- that is a drafting task.
 
 **Conclusion design:**
+
 - A conclusion that only restates the introduction fails. The conclusion should synthesize -- show how the body paragraphs together prove something larger than any single paragraph could.
 - The "so what?" move is non-negotiable: the conclusion must state why the argument matters beyond the essay itself. This could be a policy implication, a call to further research, a connection to a broader pattern, or a reframing of the stakes.
 - The final sentence should not trail off into vague generality. It should be the most memorable sentence in the essay -- connect back to the hook (circular structure), pose a forward-looking question, or make a precise, striking claim.

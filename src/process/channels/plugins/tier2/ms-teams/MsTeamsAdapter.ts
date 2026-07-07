@@ -115,7 +115,7 @@ export function htmlToPlainText(html: string): string {
     html
       .replace(/<[^>]*>/g, ' ')
       .replace(/\s+/g, ' ')
-      .trim(),
+      .trim()
   );
 }
 
@@ -142,9 +142,7 @@ export function normalizeMsTeamsConversationId(raw: string): string {
 export function wasBotMentioned(activity: BotFrameworkActivity): boolean {
   const botId = activity.recipient?.id;
   if (!botId) return false;
-  return (activity.entities ?? []).some(
-    (e) => e.type === 'mention' && e.mentioned?.id === botId,
-  );
+  return (activity.entities ?? []).some((e) => e.type === 'mention' && e.mentioned?.id === botId);
 }
 
 // ── Incoming → Unified ────────────────────────────────────────────────────────
@@ -160,7 +158,7 @@ export function wasBotMentioned(activity: BotFrameworkActivity): boolean {
  */
 export function toUnifiedIncomingFromActivity(
   activity: BotFrameworkActivity,
-  selfId: string,
+  selfId: string
 ): IUnifiedIncomingMessage | null {
   // Only handle message-type activities
   if (activity.type !== 'message') return null;
@@ -187,9 +185,7 @@ export function toUnifiedIncomingFromActivity(
   }
 
   // Extract attachment info (file name + content type) for first real attachment
-  const firstAttachment = (activity.attachments ?? []).find(
-    (a) => a.contentType && !a.contentType.startsWith('text/'),
-  );
+  const firstAttachment = (activity.attachments ?? []).find((a) => a.contentType && !a.contentType.startsWith('text/'));
 
   const timestamp = activity.timestamp ? new Date(activity.timestamp).getTime() : Date.now();
 
@@ -199,9 +195,7 @@ export function toUnifiedIncomingFromActivity(
   // Without serviceUrl, replies hit the default smba.trafficmanager.net region
   // which may be wrong for the tenant that sent us the inbound activity
   // (audit fix HIGH6 2026-05-18).
-  const chatId = activity.serviceUrl
-    ? `${activity.serviceUrl.replace(/\/$/, '')}|${conversationId}`
-    : conversationId;
+  const chatId = activity.serviceUrl ? `${activity.serviceUrl.replace(/\/$/, '')}|${conversationId}` : conversationId;
 
   return {
     id: messageId,

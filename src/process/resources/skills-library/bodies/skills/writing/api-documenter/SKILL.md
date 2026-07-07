@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation api-design"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation api-design'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # API Documenter
@@ -49,7 +49,7 @@ info:
 
 ### Template for Each Endpoint
 
-```markdown
+````markdown
 ## Create a Product
 
 Creates a new product in the catalog. The product will be immediately
@@ -62,6 +62,7 @@ available in search results and listing endpoints.
 #### Headers
 
 # ... (condensed) ...
+
 #### 201 Created
 
 The product was created successfully.
@@ -79,16 +80,18 @@ The product was created successfully.
   "updated_at": "2025-01-15T10:30:00Z"
 }
 ```
+````
 
 #### Error Responses
 
-| Status | Code              | Description                          |
-|--------|-------------------|--------------------------------------|
-| 400    | VALIDATION_ERROR  | Invalid or missing required fields    |
-| 401    | UNAUTHORIZED      | Missing or invalid authentication     |
-| 409    | DUPLICATE_SKU     | A product with this SKU already exists|
-| 429    | RATE_LIMITED      | Too many requests                     |
-```
+| Status | Code             | Description                            |
+| ------ | ---------------- | -------------------------------------- |
+| 400    | VALIDATION_ERROR | Invalid or missing required fields     |
+| 401    | UNAUTHORIZED     | Missing or invalid authentication      |
+| 409    | DUPLICATE_SKU    | A product with this SKU already exists |
+| 429    | RATE_LIMITED     | Too many requests                      |
+
+````
 
 ## Authentication Documentation
 
@@ -110,9 +113,10 @@ HTTP client request -X POST [reference URL] \
     "client_id": "your_client_id",
     "client_secret": "your_client_secret"
   }'
-```
+````
 
 Response:
+
 ```json
 {
   "access_token": "eyJhbGciOiJSUzI1NiIs...",
@@ -123,12 +127,14 @@ Response:
 ```
 
 Use the token in subsequent requests:
+
 ```shell
 HTTP client request [reference URL] \
   -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."  # Example only -- not a real token
 ```
 
 ### Token Lifecycle
+
 - Access tokens expire after **1 hour**
 - Use the refresh token to obtain a new access token
 - Refresh tokens expire after **30 days**
@@ -144,11 +150,13 @@ HTTP client request [reference URL] \
 ```
 
 ### Security Best Practices
+
 - Never expose API keys in client-side code
 - Rotate keys every 90 days
 - Use environment variables, not hardcoded values
 - Set IP allowlists for production keys
-```
+
+````
 
 ## Error Code Reference
 
@@ -168,24 +176,27 @@ All errors follow a consistent format:
     "request_id": "req_abc123"
   }
 }
-```
+````
 
 ## Client Errors (4xx)
 
-| Code                  | HTTP | Description                                 | Resolution                                      |
-|-----------------------|------|---------------------------------------------|-------------------------------------------------|
-| VALIDATION_ERROR      | 400  | Request body failed validation              | Check `details` array for specific field errors  |
-| INVALID_PARAMETER     | 400  | Query parameter has invalid value           | Verify parameter type and allowed values         |
-| UNAUTHORIZED          | 401  | Authentication missing or invalid           | Provide valid token or API key                   |
-| TOKEN_EXPIRED         | 401  | JWT token has expired                       | Refresh the token via POST /auth/token/refresh   |
-| FORBIDDEN             | 403  | Authenticated but lacks permission          | Contact admin for role/permission update          |
-| NOT_FOUND             | 404  | Requested resource does not exist           | Verify the resource ID                           |
+| Code              | HTTP | Description                        | Resolution                                      |
+| ----------------- | ---- | ---------------------------------- | ----------------------------------------------- |
+| VALIDATION_ERROR  | 400  | Request body failed validation     | Check `details` array for specific field errors |
+| INVALID_PARAMETER | 400  | Query parameter has invalid value  | Verify parameter type and allowed values        |
+| UNAUTHORIZED      | 401  | Authentication missing or invalid  | Provide valid token or API key                  |
+| TOKEN_EXPIRED     | 401  | JWT token has expired              | Refresh the token via POST /auth/token/refresh  |
+| FORBIDDEN         | 403  | Authenticated but lacks permission | Contact admin for role/permission update        |
+| NOT_FOUND         | 404  | Requested resource does not exist  | Verify the resource ID                          |
+
 # ... (condensed) ...
+
 |-----------------------|------|---------------------------------------------|-------------------------------------------------|
-| INTERNAL_ERROR        | 500  | Unexpected server error                     | Retry with exponential backoff; contact support  |
-| SERVICE_UNAVAILABLE   | 503  | Temporary maintenance                       | Retry after `Retry-After` header duration         |
-| GATEWAY_TIMEOUT       | 504  | Upstream service timeout                    | Retry the request                                 |
-```
+| INTERNAL_ERROR | 500 | Unexpected server error | Retry with exponential backoff; contact support |
+| SERVICE_UNAVAILABLE | 503 | Temporary maintenance | Retry after `Retry-After` header duration |
+| GATEWAY_TIMEOUT | 504 | Upstream service timeout | Retry the request |
+
+````
 
 ## SDK Documentation Pattern
 
@@ -198,7 +209,7 @@ All errors follow a consistent format:
 
 ```shell
 install via pip: example-sdk
-```
+````
 
 ## Quick Start
 
@@ -241,7 +252,8 @@ client = Client(
     max_retries=3,     # Automatic retries on 5xx / network errors
 )
 ```
-```
+
+````
 
 ## Interactive API Explorer
 
@@ -274,7 +286,7 @@ client = Client(
   <script src="[reference URL]"></script>
 </body>
 </html>
-```
+````
 
 ## Versioning Documentation
 
@@ -292,11 +304,13 @@ This API uses **URL path versioning**. The current version is **v2**.
 - **Deprecation notice**: Minimum 6 months before sunsetting a version
 
 ## What Counts as a Breaking Change
+
 # ... (condensed) ...
-| v1 Endpoint | v2 Endpoint | Changes |
-|-------------|-------------|---------|
-| GET /v1/products | GET /v2/products | Pagination now uses cursor-based, response wrapper added |
-| POST /v1/products | POST /v2/products | `category` (string) → `category_id` (uuid) |
+
+| v1 Endpoint       | v2 Endpoint       | Changes                                                  |
+| ----------------- | ----------------- | -------------------------------------------------------- |
+| GET /v1/products  | GET /v2/products  | Pagination now uses cursor-based, response wrapper added |
+| POST /v1/products | POST /v2/products | `category` (string) → `category_id` (uuid)               |
 ```
 
 ## API Changelog
@@ -309,16 +323,21 @@ This API uses **URL path versioning**. The current version is **v2**.
 ## 2025-01-15 - v2.1.0
 
 ### Added
+
 - `GET /v2/products/search` - Full-text search endpoint with relevance scoring
 - `metadata` field on Product object (arbitrary key-value pairs)
 - `Idempotency-Key` header support on all POST endpoints
 
 ### Changed
+
 - Default pagination limit increased from 10 to 20
+
 # ... (condensed) ...
+
 - `category` field replaced with `category_id` (UUID reference)
 
 ### Migration Guide
+
 See [v1 to v2 Migration Guide](/docs/migration/v1-to-v2)
 ```
 
@@ -342,6 +361,7 @@ See [v1 to v2 Migration Guide](/docs/migration/v1-to-v2)
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api documenter solutions
 - Reviewing or improving existing api documenter approaches
 - Making architectural or implementation decisions about api documenter
@@ -349,6 +369,7 @@ See [v1 to v2 Migration Guide](/docs/migration/v1-to-v2)
 - Troubleshooting api documenter-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -359,21 +380,26 @@ See [v1 to v2 Migration Guide](/docs/migration/v1-to-v2)
 # Api Documenter Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

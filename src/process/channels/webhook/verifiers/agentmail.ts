@@ -61,11 +61,7 @@ export const agentMailVerifier: WebhookVerifier = (input, secret) => {
  * under `secret` matches `providedSignature` (case-insensitive hex, with or
  * without a `sha256=` prefix).
  */
-export function verifyAgentMailSignature(
-  rawBody: Buffer | string,
-  providedSignature: string,
-  secret: string
-): boolean {
+export function verifyAgentMailSignature(rawBody: Buffer | string, providedSignature: string, secret: string): boolean {
   const provided = normalizeSignature(providedSignature);
   if (!provided) return false;
   const body = typeof rawBody === 'string' ? Buffer.from(rawBody, 'utf8') : rawBody;

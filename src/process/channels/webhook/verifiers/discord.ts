@@ -59,10 +59,7 @@ export const discordVerifier: WebhookVerifier = (input, secret) => {
   try {
     pubKey = createPublicKey({
       // DER-encoded Ed25519 SPKI: 0x302a300506032b6570032100 + 32 raw key bytes
-      key: Buffer.concat([
-        Buffer.from('302a300506032b6570032100', 'hex'),
-        Buffer.from(secret, 'hex'),
-      ]),
+      key: Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), Buffer.from(secret, 'hex')]),
       format: 'der',
       type: 'spki',
     });

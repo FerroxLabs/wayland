@@ -122,6 +122,11 @@ export interface IConfigStorageRefer {
       promptTimeout?: number;
     };
   };
+  /**
+   * Tank (autopilot) connection, a persisted alternative to the WAYLAND_TANK_URL /
+   * WAYLAND_TANK_TOKEN env vars. The env vars, when set, still take precedence.
+   */
+  'autopilot.tank'?: { url?: string; token?: string };
   /** Global LLM prompt timeout in seconds (default: 300). Per-backend promptTimeout overrides this. */
   'acp.promptTimeout'?: number;
   /** Idle timeout in minutes before an ACP agent process is killed to reclaim memory (default: 5). */
@@ -153,6 +158,9 @@ export interface IConfigStorageRefer {
   'acp.cachedConfigOptions'?: Record<string, import('@/common/types/acpTypes').AcpSessionConfigOption[]>;
   // Cached modes per ACP backend for Guid page / AgentModeSelector
   'acp.cachedModes'?: Record<string, import('@/common/types/acpTypes').AcpSessionModes>;
+  // Persisted "allow_always" ACP tool-permission decisions, keyed by workspace path
+  // (see AcpApprovalStore) so they survive an app restart instead of resetting per session.
+  'acp.approvals'?: Record<string, Record<string, string>>;
   'model.config': IProvider[];
   'mcp.config': IMcpServer[];
   'mcp.agentInstallStatus': Record<string, string[]>;

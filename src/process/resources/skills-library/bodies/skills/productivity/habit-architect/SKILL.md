@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks breathing journaling habits template guide automation"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks breathing journaling habits template guide automation'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Habit Architect
 
 You are an expert in behavioral science and habit formation. You synthesize the best evidence-based principles from multiple behavior change frameworks to help users design habits that actually stick. You understand that willpower is unreliable and that lasting change comes from system design, not motivation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about habit architect techniques or best practices
 - User needs guidance on habit architect concepts
 - User wants to implement or improve their approach to habit architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of habit architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -65,12 +66,12 @@ This extends the models from all four source methodologies into a single actiona
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Atomic Habits (James Clear) | General habit building; identity change | Habits are compound interest for self-improvement; focus on systems, not goals | Broad framework; less specific on the mechanics of initial adoption |
-| Tiny Habits (BJ Fogg) | Starting new behaviors; low motivation | Start absurdly small; anchor to existing routines; celebrate immediately | Scaling from tiny to meaningful can feel unclear |
-| The Power of Habit (Charles Duhigg) | Understanding existing habits; breaking bad ones | The Habit Loop (Cue-Routine-Reward); identify cravings driving behavior | Descriptive more than prescriptive; light on implementation |
-| Behavior Design (BJ Fogg, expanded) | Product design; systematic behavior change | Behavior = Motivation + Ability + Prompt; design for the person at their least motivated | Academic framework; requires translation for personal use |
+| Approach                            | Best For                                         | Key Insight                                                                              | Limitation                                                          |
+| ----------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Atomic Habits (James Clear)         | General habit building; identity change          | Habits are compound interest for self-improvement; focus on systems, not goals           | Broad framework; less specific on the mechanics of initial adoption |
+| Tiny Habits (BJ Fogg)               | Starting new behaviors; low motivation           | Start absurdly small; anchor to existing routines; celebrate immediately                 | Scaling from tiny to meaningful can feel unclear                    |
+| The Power of Habit (Charles Duhigg) | Understanding existing habits; breaking bad ones | The Habit Loop (Cue-Routine-Reward); identify cravings driving behavior                  | Descriptive more than prescriptive; light on implementation         |
+| Behavior Design (BJ Fogg, expanded) | Product design; systematic behavior change       | Behavior = Motivation + Ability + Prompt; design for the person at their least motivated | Academic framework; requires translation for personal use           |
 
 ## Phase 1: Design the Habit
 
@@ -114,6 +115,7 @@ Starter: Brush teeth immediately after dinner
 Every habit needs a reliable trigger. The best triggers are existing habits you already do consistently.
 
 **The Anchor Formula:**
+
 ```
 After I [EXISTING HABIT], I will [NEW TINY HABIT].
 
@@ -125,6 +127,7 @@ After I put my kids to bed, I will lay out tomorrow's clothes.
 ```
 
 **Anchor Selection Criteria:**
+
 - You do it every day (or on the frequency you want the new habit)
 - It has a clear end point (you know when it is done)
 - It happens at the right time and location for the new habit
@@ -135,11 +138,13 @@ After I put my kids to bed, I will lay out tomorrow's clothes.
 Make the desired behavior the path of least resistance:
 
 **For habits you want to BUILD:**
+
 - Make cues visible (put the book on your pillow, put vitamins next to the coffee maker)
 - Reduce steps (sleep in workout clothes, prep ingredients the night before)
 - Use implementation intentions: decide where, when, and how in advance
 
 **For habits you want to BREAK:**
+
 - Make cues invisible (delete apps, put junk food in opaque containers on high shelves)
 - Increase steps (add friction: lock phone in another room, require cash for impulse purchases)
 - Redesign the routine that satisfies the same craving (replace the behavior, not just resist it)
@@ -167,27 +172,28 @@ Adapted from Clear's framework, applied to our Blueprint:
 
 **To BUILD a habit:**
 
-| Law | Principle | Action |
-|-----|-----------|--------|
-| Make it Obvious | Design clear cues | Use anchors; make visual cues; use implementation intentions |
-| Make it Attractive | Pair with something enjoyable | Temptation bundling; join a group where the behavior is normal |
-| Make it Easy | Reduce friction to minimum | Start tiny; prep environment; use the 2-minute rule |
-| Make it Satisfying | Create immediate reward | Celebrate immediately; track visually; never break the chain twice |
+| Law                | Principle                     | Action                                                             |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------ |
+| Make it Obvious    | Design clear cues             | Use anchors; make visual cues; use implementation intentions       |
+| Make it Attractive | Pair with something enjoyable | Temptation bundling; join a group where the behavior is normal     |
+| Make it Easy       | Reduce friction to minimum    | Start tiny; prep environment; use the 2-minute rule                |
+| Make it Satisfying | Create immediate reward       | Celebrate immediately; track visually; never break the chain twice |
 
 **To BREAK a habit:**
 
-| Law | Principle | Action |
-|-----|-----------|--------|
-| Make it Invisible | Remove cues | Change environment; avoid trigger situations |
-| Make it Unattractive | Reframe the narrative | Highlight costs; change identity narrative |
-| Make it Difficult | Add friction | Increase steps required; use commitment devices |
-| Make it Unsatisfying | Add accountability | Tell someone; create a habit contract; immediate consequence |
+| Law                  | Principle             | Action                                                       |
+| -------------------- | --------------------- | ------------------------------------------------------------ |
+| Make it Invisible    | Remove cues           | Change environment; avoid trigger situations                 |
+| Make it Unattractive | Reframe the narrative | Highlight costs; change identity narrative                   |
+| Make it Difficult    | Add friction          | Increase steps required; use commitment devices              |
+| Make it Unsatisfying | Add accountability    | Tell someone; create a habit contract; immediate consequence |
 
 ### The Celebration Effect (From Fogg)
 
 Immediately after performing your tiny habit, celebrate. This is not optional. Celebration creates a positive emotional association that wires the habit into your brain faster than any other technique.
 
 **Celebration examples:**
+
 - Internal fist pump and say "Victory!" to yourself
 - Smile and nod
 - Say "I'm the kind of person who..."
@@ -210,6 +216,7 @@ Week 7-8: After coffee, I do a 10-minute bodyweight circuit
 ```
 
 **Scaling rules:**
+
 1. Never increase by more than 10-20% per step
 2. If you miss two days in a row at the new level, drop back one step
 3. The behavior should never feel like it requires willpower to start
@@ -321,13 +328,13 @@ LOW MOTIVATION + LOW ABILITY
 
 ### Common Failure Patterns and Fixes
 
-| Failure | Root Cause | Fix |
-|---------|-----------|-----|
-| "I keep skipping" | Weak or unreliable anchor | Choose a stronger anchor; add a visual cue |
-| "I did it for a week then stopped" | Started too big; relied on motivation | Shrink to tiny version; add celebration |
-| "It feels pointless - too small" | Misunderstanding the purpose of tiny habits | The goal is the neural pathway, not the reps; trust the scaling plan |
-| "My schedule changed and it fell apart" | Habit anchored to a fragile routine | Re-anchor to a more stable behavior; design multiple anchor options |
-| "I keep breaking my streak" | All-or-nothing thinking | Never miss twice rule; any amount counts |
+| Failure                                 | Root Cause                                  | Fix                                                                  |
+| --------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------- |
+| "I keep skipping"                       | Weak or unreliable anchor                   | Choose a stronger anchor; add a visual cue                           |
+| "I did it for a week then stopped"      | Started too big; relied on motivation       | Shrink to tiny version; add celebration                              |
+| "It feels pointless - too small"        | Misunderstanding the purpose of tiny habits | The goal is the neural pathway, not the reps; trust the scaling plan |
+| "My schedule changed and it fell apart" | Habit anchored to a fragile routine         | Re-anchor to a more stable behavior; design multiple anchor options  |
+| "I keep breaking my streak"             | All-or-nothing thinking                     | Never miss twice rule; any amount counts                             |
 
 ## Identity-Based Habit Change
 
@@ -342,6 +349,7 @@ IDENTITY-BASED (durable):
 ```
 
 **The identity shift process:**
+
 1. Decide the type of person you want to become
 2. Prove it to yourself with small wins
 3. Each time you perform the habit, say: "This is what [identity] people do"
@@ -353,6 +361,7 @@ IDENTITY-BASED (durable):
 A simple checkbox calendar or habit tracker app. Mark each day you performed the behavior. The visual chain of completed days becomes its own motivation.
 
 **Review questions (weekly):**
+
 1. How many days out of 7 did I perform the habit?
 2. What got in the way on missed days?
 3. Is the habit still tiny enough, or do I need to shrink it?
@@ -370,7 +379,6 @@ For deeper exploration of the source methodologies:
 
 The Behavior Blueprint integrates these approaches so you do not have to choose between them. Use the pieces that match your situation, and iterate from there.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -378,7 +386,6 @@ The Behavior Blueprint integrates these approaches so you do not have to choose 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -399,14 +406,12 @@ The Behavior Blueprint integrates these approaches so you do not have to choose 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -84,7 +84,8 @@ const VALID_PRESET_AGENT_TYPES: ReadonlySet<string> = new Set(PRESET_AGENT_TYPES
  *  - asset: or app: scheme (internal asset references)
  * Anything else falls back to DEFAULT_AVATAR.
  */
-const SAFE_AVATAR_RE = /^(lucide:[A-Za-z][A-Za-z0-9]*|data:[a-z]+\/[a-z0-9+.-]+;base64,[A-Za-z0-9+/=]+|(asset|app):\/\/[^\s]+|\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u;
+const SAFE_AVATAR_RE =
+  /^(lucide:[A-Za-z][A-Za-z0-9]*|data:[a-z]+\/[a-z0-9+.-]+;base64,[A-Za-z0-9+/=]+|(asset|app):\/\/[^\s]+|\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u;
 
 function sanitizePresetAgentType(raw: string | undefined): string {
   if (raw && VALID_PRESET_AGENT_TYPES.has(raw)) return raw;

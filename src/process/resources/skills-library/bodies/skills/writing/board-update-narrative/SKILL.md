@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing report"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing business-writing report'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Board Update Narrative
 
 ## When to Use
@@ -65,12 +66,14 @@ Board narratives fail most often because the writer substitutes general language
 Board narratives are not one-size-fits-all. Apply the following calibration framework based on what the user tells you about their company stage and situation.
 
 **By company stage:**
+
 - Pre-seed and seed: Boards are small (3-5 members), often informal, and founders often lack governance experience. Keep the narrative to 3-4 pages. Focus heavily on cash runway (boards of early-stage companies are acutely focused on this) and product-market fit signals. Skip competitive context sections if the market is too early to have established competitors.
 - Series A and B: Boards are formalizing (5-7 members, first independent directors arriving). 4-6 pages. Introduce the full plan-vs.-actual table, competitive framing, and formal risk tracking. This is the stage where governance discipline must be established.
 - Series C through pre-IPO: Boards are fully professional (7-9 members, audit and compensation committees forming). 6-8 pages. Add committee-specific reporting, compensation disclosures, and legal/regulatory tracking. Boards at this stage will notice missing governance structure immediately.
 - Public company: Board narratives are typically 5-7 pages of CEO/CFO narrative supplementing the formal MD&A and press release. Forward-looking statements require legal review before distribution. Focus the narrative on strategic context that the MD&A does not provide.
 
 **By situation:**
+
 - Normal quarter, results on plan: Keep it tight (3-4 pages). Boards respect brevity when things are on track. Spend word count on forward risks and strategic questions.
 - Significant miss or material setback: Expand the financial narrative section. Lead with the facts, not the recovery plan. Boards trust managers who report bad news directly before being asked.
 - Transformational event (acquisition, major partnership, capital raise): Add a dedicated section for the event, its strategic rationale, and the board approval or ratification requested.
@@ -93,6 +96,7 @@ The company summary must NOT contain optimistic framing, spin, or conclusions wi
 The financial performance section is the technical core of the narrative. Apply these principles:
 
 **Plan-vs.-actual table construction:**
+
 - Always include plan, actual, and variance for each metric -- never actual-only
 - Express variance as both a percentage (for relative magnitude) and an absolute dollar amount (for materiality assessment)
 - Include at minimum: revenue, gross margin percentage, operating burn or EBITDA, and cash position with runway
@@ -102,6 +106,7 @@ The financial performance section is the technical core of the narrative. Apply 
 - Cash position does not have a plan variance -- show only actual with runway at current burn and runway at projected burn if those differ
 
 **Financial narrative paragraphs:**
+
 - Paragraph 1: What drove the revenue result. Decompose the miss or beat into its components. A $300K revenue miss explained as "a combination of enterprise sales cycle delay ($200K, one deal that closed two weeks into Q4), lower SMB average contract value ($75K, discount campaign impact), and one customer churn event ($25K)" is infinitely more useful than "revenue was impacted by timing."
 - Paragraph 2: Margin and expense. Explain the key cost drivers and whether they were planned or unplanned. Flag any cost acceleration that will persist vs. one-time items.
 - Paragraph 3: Cash and runway. State the cash position, the monthly burn rate, the runway calculation, and any known upcoming cash needs (tax payments, bonus cycles, capital expenditures, debt service) that are not reflected in the monthly burn. For companies within 9 months of runway, this paragraph must also address the plan for extending runway.
@@ -111,12 +116,14 @@ The financial performance section is the technical core of the narrative. Apply 
 These sections provide the interpretation layer that raw financial data cannot. Apply these specific techniques:
 
 **Strategic highlights:**
+
 - Limit to 3-5 items maximum. More than 5 dilutes significance.
 - Each highlight must state what happened AND why it matters strategically -- one sentence of fact, one sentence of strategic implication
 - Connect each highlight back to the strategic plan the board approved: "This validates / accelerates / complicates the strategy we presented in [month]"
 - Do not list operational achievements that have no strategic implication (shipping a minor feature, completing a routine audit, hiring for a budgeted role)
 
 **Competitive and market context:**
+
 - This section is where most board narratives fail. CEOs report internal results but treat external context as optional. It is not optional. Internal results mean nothing without external benchmarks.
 - Specific items to cover: new competitor market entries or funding events, competitor pricing changes, regulatory changes affecting the industry, macroeconomic shifts affecting buyer behavior (budget freezes, procurement slowdowns, sector tailwinds), and market share estimates where available
 - For early-stage companies without market share data, report leading indicators: win/loss ratios by competitor, sales cycle length trends, average discount depth as a proxy for pricing power
@@ -127,12 +134,14 @@ These sections provide the interpretation layer that raw financial data cannot. 
 Board risk reporting is a governance obligation, not an optional narrative element. Apply the following framework:
 
 **Risk classification:**
+
 - Classify each risk on two dimensions: probability (High, Medium, Low) and impact severity (H/M/L) -- this produces a 3x3 risk matrix
 - High probability + High impact risks require board-level attention and a mitigation narrative, not just a table entry
 - Low probability + High impact risks should be in the table to demonstrate awareness but need only brief mitigation notes
 - Risks that are fully mitigated and closed should be removed from the table and noted in a one-sentence "Risks resolved this quarter" footnote
 
 **Risk categories to always consider:**
+
 - Market risk (competitive, regulatory, macroeconomic)
 - Execution risk (product delivery, sales pipeline, operational capacity)
 - People risk (key person dependency, retention, succession)
@@ -141,21 +150,25 @@ Board risk reporting is a governance obligation, not an optional narrative eleme
 - Reputational risk (customer data breach, executive conduct, social media events)
 
 **Status tracking:**
+
 - Mark each risk as New (arose since the last board meeting), Ongoing (previously reported, still active), Escalating (previously reported, now assessed as more severe), De-escalating (previously reported, now assessed as less severe), or Resolved (closed since the last board meeting)
 - The "New" and "Escalating" designations are what board members will focus on -- never understate risk escalation
 
 **Mitigation quality test:**
+
 - After drafting each mitigation, apply this test: "If this risk materializes in the next 30 days, will the mitigation have meaningfully reduced the impact?" If the mitigation is a plan to plan, or a committee that will assess the situation, say so honestly -- boards value honesty about mitigation quality over false confidence
 
 ### Step 7: Write the Forward Outlook and Board Asks Sections
 
 **Forward outlook:**
+
 - State the next-period revenue forecast with an explicit range (not a single point estimate) -- using a range signals appropriate epistemic humility and prevents boards from anchoring on a single number
 - List the 3-5 key assumptions underlying the forecast explicitly. Examples: "The Meridian account closes by January 15"; "The engineering team reaches full capacity by February"; "No material change to CompetitorX pricing"
 - State the upside scenario (what has to go right and what the outcome would be) and the downside scenario (what has to go wrong and what the outcome would be)
 - Do NOT present a forward outlook as a commitment. Use language like "we expect," "our current forecast," "based on current pipeline visibility." For public companies, add the required forward-looking statement disclaimer.
 
 **Board approvals and discussion items:**
+
 - This section is why the board is meeting. Make it easy to find and easy to act on.
 - Every item needs: a description, a type (approval requiring a formal vote, or discussion where management seeks board guidance), management's recommendation, and a reference to supporting materials
 - Approval items should state the resolution language management is proposing so the board secretary can record the vote accurately
@@ -167,18 +180,21 @@ Board risk reporting is a governance obligation, not an optional narrative eleme
 Before finalizing the narrative, apply this quality review:
 
 **Tone register check:**
+
 - Board narratives should be written in third person or first-person plural ("we"), never first-person singular ("I")
 - Avoid operational jargon that board members may not know -- define metrics on first use if there is any chance of ambiguity
 - Avoid marketing language ("exciting," "incredible," "transformational") -- these words undermine credibility in a governance document
 - Avoid hedges that obscure accountability ("performance was impacted by factors") -- use active voice and name the causes
 
 **Candor check -- apply to every section:**
+
 - Would a board member who reads this document and then sees the actual results feel they were given an accurate picture? If not, revise.
 - Is every variance explained with a root cause, not a narrative excuse?
 - Are the risks the real risks, or are they the sanitized risks that management is comfortable disclosing?
 - Is the forward outlook consistent with what management actually believes, or is it optimistic to avoid board concern?
 
 **Legal review flag:**
+
 - For public companies: all forward-looking statements require legal review before distribution
 - For pre-IPO companies: be careful about making representations about timing, valuation, or transaction terms in board documents that will become discoverable
 - For companies with ongoing litigation: board narratives that discuss the litigation in detail become part of the litigation record -- note the matter and direct board members to speak with legal counsel for details
@@ -446,14 +462,14 @@ Q2 revenue of $3.1M was 18% below the $3.8M plan, driven by the loss of two ente
 
 ### Results vs. Plan
 
-| Metric | Plan | Actual | Variance ($) | Variance (%) | Commentary |
-|--------|------|--------|-------------|-------------|-----------|
-| Revenue | $3.8M | $3.1M | -$700K | -18% | Two enterprise churns ($480K ARR) plus pipeline slowdown ($220K) |
-| Gross margin | 74% | 76% | -- | +2pp | Infrastructure cost optimization from Q1 project completed |
-| Net burn | $480K/mo | $520K/mo | -$40K/mo | -8% | Engineering headcount above plan; see cost narrative |
-| Cash position | -- | $7.8M | -- | -- | 15 months at current burn; 21 months post-restructuring |
-| ARR | $14.2M | $13.1M | -$1.1M | -8% | Net churn of $480K plus new ARR below plan by $620K |
-| Net revenue retention | 105% | 94% | -- | -11pp | Two enterprise churns drove below-100% NRR for first time |
+| Metric                | Plan     | Actual   | Variance ($) | Variance (%) | Commentary                                                       |
+| --------------------- | -------- | -------- | ------------ | ------------ | ---------------------------------------------------------------- |
+| Revenue               | $3.8M    | $3.1M    | -$700K       | -18%         | Two enterprise churns ($480K ARR) plus pipeline slowdown ($220K) |
+| Gross margin          | 74%      | 76%      | --           | +2pp         | Infrastructure cost optimization from Q1 project completed       |
+| Net burn              | $480K/mo | $520K/mo | -$40K/mo     | -8%          | Engineering headcount above plan; see cost narrative             |
+| Cash position         | --       | $7.8M    | --           | --           | 15 months at current burn; 21 months post-restructuring          |
+| ARR                   | $14.2M   | $13.1M   | -$1.1M       | -8%          | Net churn of $480K plus new ARR below plan by $620K              |
+| Net revenue retention | 105%     | 94%      | --           | -11pp        | Two enterprise churns drove below-100% NRR for first time        |
 
 ### Financial Narrative
 
@@ -487,13 +503,13 @@ Q2 revenue of $3.1M was 18% below the $3.8M plan, driven by the loss of two ente
 
 ## 4. Key Risks
 
-| # | Risk Description | Category | Probability | Impact | Mitigation | Status |
-|---|-----------------|---------|-----------|--------|-----------|--------|
-| 1 | Vortex Analytics pricing pressure accelerates enterprise churn and reduces new logo win rates | Market | High | High -- could reduce enterprise win rate from 67% to 40% | Segment focus on regulated industries; accelerate integration differentiation; do not match Vortex pricing | New |
-| 2 | Runway compression if restructuring is delayed or blocked | Financial | Medium | High -- every month of delay costs $520K vs. $370K post-restructuring | Board approval sought at this meeting; severance plan prepared | New |
-| 3 | Key engineer attrition during restructuring announcement | People | High | Medium -- 4 of 34 engineers are classified critical, 2 of whom are known flight risks | Retention packages for 4 critical engineers prepared; announcement sequencing planned to minimize uncertainty | New |
-| 4 | Extended enterprise procurement cycles persist through Q3 | Market | Medium | Medium -- affects Q3 revenue predictability; $1.1M in Q3 pipeline is timing-dependent | Three deals have verbal commitments; maintaining weekly executive sponsor contact | Ongoing |
-| 5 | Customer concentration risk -- top 3 customers represent 28% of ARR | Financial | Low | High -- loss of any top-3 customer is a material revenue event | Executive-level relationships maintained; QBRs completed with all three in June; all three renewed or expanding | Ongoing |
+| #   | Risk Description                                                                              | Category  | Probability | Impact                                                                                | Mitigation                                                                                                      | Status  |
+| --- | --------------------------------------------------------------------------------------------- | --------- | ----------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------- |
+| 1   | Vortex Analytics pricing pressure accelerates enterprise churn and reduces new logo win rates | Market    | High        | High -- could reduce enterprise win rate from 67% to 40%                              | Segment focus on regulated industries; accelerate integration differentiation; do not match Vortex pricing      | New     |
+| 2   | Runway compression if restructuring is delayed or blocked                                     | Financial | Medium      | High -- every month of delay costs $520K vs. $370K post-restructuring                 | Board approval sought at this meeting; severance plan prepared                                                  | New     |
+| 3   | Key engineer attrition during restructuring announcement                                      | People    | High        | Medium -- 4 of 34 engineers are classified critical, 2 of whom are known flight risks | Retention packages for 4 critical engineers prepared; announcement sequencing planned to minimize uncertainty   | New     |
+| 4   | Extended enterprise procurement cycles persist through Q3                                     | Market    | Medium      | Medium -- affects Q3 revenue predictability; $1.1M in Q3 pipeline is timing-dependent | Three deals have verbal commitments; maintaining weekly executive sponsor contact                               | Ongoing |
+| 5   | Customer concentration risk -- top 3 customers represent 28% of ARR                           | Financial | Low         | High -- loss of any top-3 customer is a material revenue event                        | Executive-level relationships maintained; QBRs completed with all three in June; all three renewed or expanding | Ongoing |
 
 **High-priority risk narrative -- Vortex Analytics competitive risk:** Vortex now has the capital and market presence to represent a sustained competitive threat, not a temporary new entrant dynamic. The High/High rating reflects both the probability (they are appearing in our pipeline deals and winning on price) and the potential impact (if we cannot arrest the enterprise win rate decline, our path to Series C is materially compromised). Management's proposed mitigation -- focused segmentation into regulated industries -- is the right strategic response, but it takes 2-3 quarters to execute. In the near term, we expect competitive pressure to continue and have built that assumption into the Q3 forecast range below. Board guidance on whether to invest in a direct pricing response or hold the differentiation strategy would be valuable at this meeting.
 
@@ -507,12 +523,12 @@ Q2 revenue of $3.1M was 18% below the $3.8M plan, driven by the loss of two ente
 
 **Key forecast assumptions:**
 
-| # | Assumption | Basis | If This Assumption Is Wrong |
-|---|-----------|-------|---------------------------|
-| 1 | Three enterprise deals with verbal commitments close in July | Signed LOIs from Ridgeline and Thornton; verbal from Cascade | Revenue risk of -$340K if all three slip to Q4; -$220K if two close |
-| 2 | Board approves restructuring at today's meeting | Management recommendation supported by financial analysis | Every month of delay costs $150K in additional burn vs. plan |
-| 3 | No additional enterprise churns in Q3 | Current churn risk flag: one customer (Bluewater, $140K ARR) on a 90-day PIP | Bluewater churn would reduce Q3 revenue by $35K and ARR by $140K |
-| 4 | Vortex does not launch additional enterprise features before Q3 end | Their public product roadmap has no Q3 enterprise feature releases announced | If they ship competitive real-time processing, our differentiation advantage narrows sooner than the 2-3 quarter timeline we are assuming |
+| #   | Assumption                                                          | Basis                                                                        | If This Assumption Is Wrong                                                                                                               |
+| --- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Three enterprise deals with verbal commitments close in July        | Signed LOIs from Ridgeline and Thornton; verbal from Cascade                 | Revenue risk of -$340K if all three slip to Q4; -$220K if two close                                                                       |
+| 2   | Board approves restructuring at today's meeting                     | Management recommendation supported by financial analysis                    | Every month of delay costs $150K in additional burn vs. plan                                                                              |
+| 3   | No additional enterprise churns in Q3                               | Current churn risk flag: one customer (Bluewater, $140K ARR) on a 90-day PIP | Bluewater churn would reduce Q3 revenue by $35K and ARR by $140K                                                                          |
+| 4   | Vortex does not launch additional enterprise features before Q3 end | Their public product roadmap has no Q3 enterprise feature releases announced | If they ship competitive real-time processing, our differentiation advantage narrows sooner than the 2-3 quarter timeline we are assuming |
 
 **Upside scenario ($3.4M):** All three LOI/verbal deals close in July, the Bluewater PIP succeeds, and one of the three remaining enterprise pipeline opportunities moves to contract by September. Probability estimate: 25%.
 
@@ -522,11 +538,11 @@ Q2 revenue of $3.1M was 18% below the $3.8M plan, driven by the loss of two ente
 
 ## 6. Board Approvals and Discussion Items
 
-| # | Item | Type | Management Recommendation | Supporting Materials |
-|---|------|------|--------------------------|---------------------|
-| 1 | Workforce restructuring -- reduction of 12 positions (10% of headcount) across enterprise sales (5 positions), general and administrative (4 positions), and engineering non-critical roles (3 positions) | Approval | The board hereby authorizes management to implement the workforce restructuring plan as described in the attached plan document, including severance payments in accordance with the severance policy adopted in March 2024 | Restructuring plan and financial model, Appendix C |
-| 2 | Vertical segmentation strategy -- reallocation of go-to-market resources toward financial services and healthcare verticals in response to Vortex Analytics competitive entry | Discussion | Management seeks board guidance on the proposed reallocation before finalizing Q3 OKRs. Specifically: does the board support exiting the general enterprise market, or does it prefer a hold-and-defend approach pending further Vortex data? | Competitive analysis, Appendix D |
-| 3 | Q3 operating budget revision -- updated revenue forecast and expense plan reflecting restructuring | Approval | The board hereby approves the revised Q3 operating budget as submitted, incorporating restructuring-adjusted headcount and burn assumptions | Revised budget, Appendix E |
+| #   | Item                                                                                                                                                                                                      | Type       | Management Recommendation                                                                                                                                                                                                                     | Supporting Materials                               |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 1   | Workforce restructuring -- reduction of 12 positions (10% of headcount) across enterprise sales (5 positions), general and administrative (4 positions), and engineering non-critical roles (3 positions) | Approval   | The board hereby authorizes management to implement the workforce restructuring plan as described in the attached plan document, including severance payments in accordance with the severance policy adopted in March 2024                   | Restructuring plan and financial model, Appendix C |
+| 2   | Vertical segmentation strategy -- reallocation of go-to-market resources toward financial services and healthcare verticals in response to Vortex Analytics competitive entry                             | Discussion | Management seeks board guidance on the proposed reallocation before finalizing Q3 OKRs. Specifically: does the board support exiting the general enterprise market, or does it prefer a hold-and-defend approach pending further Vortex data? | Competitive analysis, Appendix D                   |
+| 3   | Q3 operating budget revision -- updated revenue forecast and expense plan reflecting restructuring                                                                                                        | Approval   | The board hereby approves the revised Q3 operating budget as submitted, incorporating restructuring-adjusted headcount and burn assumptions                                                                                                   | Revised budget, Appendix E                         |
 
 **Executive session requested:** Compensation committee: CEO and CFO compensation review in the context of the restructuring and revised company performance. Duration estimate: 20 minutes. Attendees: Independent directors only.
 
@@ -534,7 +550,7 @@ Q2 revenue of $3.1M was 18% below the $3.8M plan, driven by the loss of two ente
 
 ## Appendix C: Workforce Restructuring Plan Summary
 
-*(Full plan document attached separately)*
+_(Full plan document attached separately)_
 
 **Total positions affected:** 12 (10% of 120 total headcount)
 **Breakdown:** 5 enterprise sales (general segment AEs and one sales manager), 4 G&A (2 finance operations, 1 HR coordinator, 1 office manager), 3 engineering (non-critical individual contributors)

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist typescript testing automation analysis networking"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist typescript testing automation analysis networking'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Layer 2 Specialist
 
 You are an expert in Ethereum Layer 2 scaling solutions, covering the architecture, trade-offs, security properties, and practical deployment considerations for optimistic rollups, ZK rollups, and related scaling technologies.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about layer2 specialist techniques or best practices
 - User needs guidance on layer2 specialist concepts
 - User wants to implement or improve their approach to layer2 specialist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of layer2 specialist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -76,18 +77,18 @@ Transaction Lifecycle:
 
 ### Rollup Type Comparison
 
-| Property | Optimistic Rollup | ZK Rollup |
-|----------|------------------|-----------|
-| Verification method | Fraud proof (challenge-response) | Validity proof (mathematical) |
-| Withdrawal to L1 | 7-day challenge period* | Minutes to hours (proof generation time) |
-| EVM compatibility | Full EVM equivalence | Varies (zkEVM types 1-4) |
-| Transaction cost | Lower calldata cost | Higher compute cost for proving |
-| Finality | 7 days (L1 finality) or instant with bridges | Proof submission time (~1-12 hours) |
-| Maturity | Production-ready, battle-tested | Rapidly maturing, some in production |
-| Complexity | Simpler architecture | More complex (ZK circuits) |
-| Examples | Arbitrum, Optimism, Base | zkSync Era, Starknet, Scroll, Polygon zkEVM |
+| Property            | Optimistic Rollup                            | ZK Rollup                                   |
+| ------------------- | -------------------------------------------- | ------------------------------------------- |
+| Verification method | Fraud proof (challenge-response)             | Validity proof (mathematical)               |
+| Withdrawal to L1    | 7-day challenge period\*                     | Minutes to hours (proof generation time)    |
+| EVM compatibility   | Full EVM equivalence                         | Varies (zkEVM types 1-4)                    |
+| Transaction cost    | Lower calldata cost                          | Higher compute cost for proving             |
+| Finality            | 7 days (L1 finality) or instant with bridges | Proof submission time (~1-12 hours)         |
+| Maturity            | Production-ready, battle-tested              | Rapidly maturing, some in production        |
+| Complexity          | Simpler architecture                         | More complex (ZK circuits)                  |
+| Examples            | Arbitrum, Optimism, Base                     | zkSync Era, Starknet, Scroll, Polygon zkEVM |
 
-*Optimistic rollup withdrawals can be accelerated using third-party bridges (fast bridges provide liquidity against pending withdrawals)
+\*Optimistic rollup withdrawals can be accelerated using third-party bridges (fast bridges provide liquidity against pending withdrawals)
 
 ---
 
@@ -95,18 +96,18 @@ Transaction Lifecycle:
 
 ### Major L2 Comparison Matrix
 
-| L2 | Type | EVM | TVL Tier | Ecosystem | Unique Strength |
-|----|------|-----|----------|-----------|----------------|
-| Arbitrum One | Optimistic | Full EVM | Top tier | Largest DeFi ecosystem on L2 | Stylus (Rust/C++ smart contracts) |
-| Optimism (OP Mainnet) | Optimistic | Full EVM | Top tier | Superchain ecosystem | OP Stack (fork-friendly L2 framework) |
-| Base | Optimistic (OP Stack) | Full EVM | Top tier | Coinbase-backed, growing fast | Onchain consumer apps, institutional backing |
-| zkSync Era | ZK | zkEVM (Type 4) | Upper mid | Growing DeFi, native AA | Native account abstraction, zkPorter DA |
-| Starknet | ZK | Cairo (not EVM) | Mid | Unique ecosystem | Cairo language, STARK proofs, gaming focus |
-| Scroll | ZK | zkEVM (Type 2) | Mid | Growing | Closest to EVM equivalence (Type 2 zkEVM) |
-| Polygon zkEVM | ZK | zkEVM (Type 2) | Mid | Polygon ecosystem | Polygon CDK, enterprise connections |
-| Linea | ZK | zkEVM (Type 2) | Mid | Consensys ecosystem | MetaMask integration, Consensys backing |
-| Blast | Optimistic | Full EVM | Mid | DeFi-focused | Native yield on ETH and stablecoins |
-| Mantle | Optimistic | Full EVM | Mid | BitDAO-backed | Modular DA (EigenDA integration) |
+| L2                    | Type                  | EVM             | TVL Tier  | Ecosystem                     | Unique Strength                              |
+| --------------------- | --------------------- | --------------- | --------- | ----------------------------- | -------------------------------------------- |
+| Arbitrum One          | Optimistic            | Full EVM        | Top tier  | Largest DeFi ecosystem on L2  | Stylus (Rust/C++ smart contracts)            |
+| Optimism (OP Mainnet) | Optimistic            | Full EVM        | Top tier  | Superchain ecosystem          | OP Stack (fork-friendly L2 framework)        |
+| Base                  | Optimistic (OP Stack) | Full EVM        | Top tier  | Coinbase-backed, growing fast | Onchain consumer apps, institutional backing |
+| zkSync Era            | ZK                    | zkEVM (Type 4)  | Upper mid | Growing DeFi, native AA       | Native account abstraction, zkPorter DA      |
+| Starknet              | ZK                    | Cairo (not EVM) | Mid       | Unique ecosystem              | Cairo language, STARK proofs, gaming focus   |
+| Scroll                | ZK                    | zkEVM (Type 2)  | Mid       | Growing                       | Closest to EVM equivalence (Type 2 zkEVM)    |
+| Polygon zkEVM         | ZK                    | zkEVM (Type 2)  | Mid       | Polygon ecosystem             | Polygon CDK, enterprise connections          |
+| Linea                 | ZK                    | zkEVM (Type 2)  | Mid       | Consensys ecosystem           | MetaMask integration, Consensys backing      |
+| Blast                 | Optimistic            | Full EVM        | Mid       | DeFi-focused                  | Native yield on ETH and stablecoins          |
+| Mantle                | Optimistic            | Full EVM        | Mid       | BitDAO-backed                 | Modular DA (EigenDA integration)             |
 
 ### Selection Decision Framework
 
@@ -137,12 +138,12 @@ Gaming with high throughput needs?
 
 ### zkEVM Type Classification
 
-| Type | EVM Compatibility | Performance | Examples |
-|------|-------------------|-------------|---------|
-| Type 1 | Fully Ethereum-equivalent | Slowest proving | Taiko (targeting) |
-| Type 2 | EVM-equivalent (minor differences) | Moderate proving | Scroll, Polygon zkEVM |
-| Type 3 | Almost EVM-equivalent (some opcodes differ) | Faster proving | (transitional stage) |
-| Type 4 | High-level language compatible (compiles differently) | Fastest proving | zkSync Era |
+| Type   | EVM Compatibility                                     | Performance      | Examples              |
+| ------ | ----------------------------------------------------- | ---------------- | --------------------- |
+| Type 1 | Fully Ethereum-equivalent                             | Slowest proving  | Taiko (targeting)     |
+| Type 2 | EVM-equivalent (minor differences)                    | Moderate proving | Scroll, Polygon zkEVM |
+| Type 3 | Almost EVM-equivalent (some opcodes differ)           | Faster proving   | (transitional stage)  |
+| Type 4 | High-level language compatible (compiles differently) | Fastest proving  | zkSync Era            |
 
 ```
 Compatibility vs. Performance Trade-off:
@@ -195,13 +196,13 @@ Post-EIP-4844 cost comparison (approximate, varies with L1 gas):
 
 ### Data Availability Options
 
-| DA Layer | Security | Cost | Used By |
-|----------|----------|------|---------|
-| Ethereum calldata | Highest (L1 security) | Highest | Pre-EIP-4844 rollups |
-| Ethereum blobs (EIP-4844) | Highest (L1 security) | Much lower | Most modern rollups |
-| Celestia | Moderate (separate consensus) | Very low | Eclipse, Manta, some OP chains |
-| EigenDA | Moderate (restaked security) | Low | Mantle, various OP chains |
-| DAC (Data Availability Committee) | Lowest (trusted committee) | Lowest | Validiums, some app-chains |
+| DA Layer                          | Security                      | Cost       | Used By                        |
+| --------------------------------- | ----------------------------- | ---------- | ------------------------------ |
+| Ethereum calldata                 | Highest (L1 security)         | Highest    | Pre-EIP-4844 rollups           |
+| Ethereum blobs (EIP-4844)         | Highest (L1 security)         | Much lower | Most modern rollups            |
+| Celestia                          | Moderate (separate consensus) | Very low   | Eclipse, Manta, some OP chains |
+| EigenDA                           | Moderate (restaked security)  | Low        | Mantle, various OP chains      |
+| DAC (Data Availability Committee) | Lowest (trusted committee)    | Lowest     | Validiums, some app-chains     |
 
 ```
 Security vs. Cost Spectrum:
@@ -219,12 +220,12 @@ balance of security and cost for general-purpose applications.
 
 ### Bridge Types
 
-| Bridge Type | Mechanism | Trust Model | Speed | Security |
-|-------------|-----------|-------------|-------|----------|
-| Canonical rollup bridge | L1 <-> L2 via rollup contracts | Trust rollup security | 7 days (optimistic) / hours (ZK) | Highest |
-| Liquidity network | Market makers provide instant liquidity | Trust bridge operators | Minutes | Medium-High |
-| Lock-and-mint | Lock on source, mint wrapped on destination | Trust bridge contract + validators | Minutes | Medium |
-| Intent-based | Solvers fill user intents, settle later | Trust solver network | Seconds-minutes | Medium-High |
+| Bridge Type             | Mechanism                                   | Trust Model                        | Speed                            | Security    |
+| ----------------------- | ------------------------------------------- | ---------------------------------- | -------------------------------- | ----------- |
+| Canonical rollup bridge | L1 <-> L2 via rollup contracts              | Trust rollup security              | 7 days (optimistic) / hours (ZK) | Highest     |
+| Liquidity network       | Market makers provide instant liquidity     | Trust bridge operators             | Minutes                          | Medium-High |
+| Lock-and-mint           | Lock on source, mint wrapped on destination | Trust bridge contract + validators | Minutes                          | Medium      |
+| Intent-based            | Solvers fill user intents, settle later     | Trust solver network               | Seconds-minutes                  | Medium-High |
 
 ### Bridge Security Checklist
 
@@ -239,12 +240,12 @@ balance of security and cost for general-purpose applications.
 
 ### Bridge Exploit History (Lessons Learned)
 
-| Incident | Loss | Root Cause | Lesson |
-|----------|------|-----------|--------|
-| Ronin Bridge (2022) | $624M | Compromised validator keys (5-of-9 multisig) | Distributed key management, higher thresholds |
-| Wormhole (2022) | $320M | Signature verification bypass | Audit critical verification logic |
-| Nomad (2022) | $190M | Initialization bug allowed arbitrary messages | Test initialization, formal verification |
-| Multichain (2023) | $130M+ | Centralized key compromise | Decentralize bridge control, avoid single points of failure |
+| Incident            | Loss   | Root Cause                                    | Lesson                                                      |
+| ------------------- | ------ | --------------------------------------------- | ----------------------------------------------------------- |
+| Ronin Bridge (2022) | $624M  | Compromised validator keys (5-of-9 multisig)  | Distributed key management, higher thresholds               |
+| Wormhole (2022)     | $320M  | Signature verification bypass                 | Audit critical verification logic                           |
+| Nomad (2022)        | $190M  | Initialization bug allowed arbitrary messages | Test initialization, formal verification                    |
+| Multichain (2023)   | $130M+ | Centralized key compromise                    | Decentralize bridge control, avoid single points of failure |
 
 ---
 
@@ -306,16 +307,16 @@ Deployment Options:
 
 ### Essential Tools
 
-| Tool | Purpose | L2 Support |
-|------|---------|------------|
-| Foundry | Contract development and testing | All EVM L2s |
-| Hardhat | Contract development with plugins | All EVM L2s |
-| Alchemy / Infura / QuickNode | RPC node providers | Most major L2s |
-| The Graph | Subgraph indexing | Arbitrum, Optimism, Base, Polygon, more |
-| Tenderly | Simulation, debugging, monitoring | Most major L2s |
-| Blockscout / Etherscan | Block explorers | Chain-specific instances |
-| Safe (Gnosis) | Multisig wallet | All major L2s |
-| Chainlink | Oracles, VRF, automation | Most major L2s |
+| Tool                         | Purpose                           | L2 Support                              |
+| ---------------------------- | --------------------------------- | --------------------------------------- |
+| Foundry                      | Contract development and testing  | All EVM L2s                             |
+| Hardhat                      | Contract development with plugins | All EVM L2s                             |
+| Alchemy / Infura / QuickNode | RPC node providers                | Most major L2s                          |
+| The Graph                    | Subgraph indexing                 | Arbitrum, Optimism, Base, Polygon, more |
+| Tenderly                     | Simulation, debugging, monitoring | Most major L2s                          |
+| Blockscout / Etherscan       | Block explorers                   | Chain-specific instances                |
+| Safe (Gnosis)                | Multisig wallet                   | All major L2s                           |
+| Chainlink                    | Oracles, VRF, automation          | Most major L2s                          |
 
 ### L2-Specific Development Considerations
 
@@ -332,12 +333,12 @@ const CHAIN_IDS = {
   scroll: 534352,
   polygon_zkevm: 1101,
   linea: 59144,
-  starknet: "SN_MAIN", // Starknet uses different ID format
+  starknet: 'SN_MAIN', // Starknet uses different ID format
 };
 
 // Multi-chain deployment with viem
-import { createPublicClient, http } from "viem";
-import { arbitrum, optimism, base } from "viem/chains";
+import { createPublicClient, http } from 'viem';
+import { arbitrum, optimism, base } from 'viem/chains';
 
 const clients = {
   arbitrum: createPublicClient({ chain: arbitrum, transport: http() }),
@@ -352,7 +353,7 @@ async function getBalanceAcrossChains(tokenAddress, userAddress) {
       const balance = await client.readContract({
         address: tokenAddress,
         abi: erc20Abi,
-        functionName: "balanceOf",
+        functionName: 'balanceOf',
         args: [userAddress],
       });
       return { chain, balance };
@@ -370,14 +371,14 @@ async function getBalanceAcrossChains(tokenAddress, userAddress) {
 
 L2Beat (l2beat.com) categorizes rollup maturity across key dimensions. Before committing to an L2, evaluate:
 
-| Dimension | What It Means | What to Look For |
-|-----------|--------------|-----------------|
-| State validation | How state transitions are verified | Fraud proofs (optimistic) or validity proofs (ZK) fully implemented |
-| Data availability | Where transaction data is stored | On Ethereum (most secure) vs. off-chain DA |
-| Sequencer failure | What happens if sequencer goes down | Users can force transactions through L1 |
-| Proposer failure | What happens if proposer stops | Anyone can propose state roots (permissionless) |
-| Exit window | Time to withdraw before an upgrade takes effect | Minimum 7 days for users to exit safely |
-| Upgradeability | Who can upgrade contracts and how | Security council with timelock, not instant upgrades |
+| Dimension         | What It Means                                   | What to Look For                                                    |
+| ----------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| State validation  | How state transitions are verified              | Fraud proofs (optimistic) or validity proofs (ZK) fully implemented |
+| Data availability | Where transaction data is stored                | On Ethereum (most secure) vs. off-chain DA                          |
+| Sequencer failure | What happens if sequencer goes down             | Users can force transactions through L1                             |
+| Proposer failure  | What happens if proposer stops                  | Anyone can propose state roots (permissionless)                     |
+| Exit window       | Time to withdraw before an upgrade takes effect | Minimum 7 days for users to exit safely                             |
+| Upgradeability    | Who can upgrade contracts and how               | Security council with timelock, not instant upgrades                |
 
 ### Decentralization Stages
 
@@ -412,7 +413,6 @@ Stage 2: "No Training Wheels"
 4. **Plan for multi-chain** from the architecture level, even if you launch on one chain
 5. **Use canonical bridges** for security-critical operations, fast bridges for UX
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -420,7 +420,6 @@ Stage 2: "No Training Wheels"
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -441,14 +440,12 @@ Stage 2: "No Training Wheels"
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -32,16 +32,25 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels, funnels-offer, funnels-tripwire, funnels-lead-magnet, funnels-continuity, funnels-high-ticket-call, funnels-build-campaign]
+    related_skills:
+      [
+        funnels,
+        funnels-offer,
+        funnels-tripwire,
+        funnels-lead-magnet,
+        funnels-continuity,
+        funnels-high-ticket-call,
+        funnels-build-campaign,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - The Ascension Ladder methodology fuses Brunson value-ladder + Hormozi continuum-of-belief + Kern mass-control product structure + Stu McLaren membership-tier ladder"
+  lineage: 'Wayland Business Suite (Original) - The Ascension Ladder methodology fuses Brunson value-ladder + Hormozi continuum-of-belief + Kern mass-control product structure + Stu McLaren membership-tier ladder'
 ---
 
 # Funnels Ascension Ladder - The Ascension Ladder
 
-> *"A flat business has one product. A profitable business has a ladder."*
+> _"A flat business has one product. A profitable business has a ladder."_
 
-This is the **architecture** skill for a tiered product portfolio - Wayland's fusion-named **The Ascension Ladder**. Where `funnels-offer` designs a single offer, this skill designs the *sequence* of offers a customer ascends across their lifecycle: free → tripwire → core → premium → continuity.
+This is the **architecture** skill for a tiered product portfolio - Wayland's fusion-named **The Ascension Ladder**. Where `funnels-offer` designs a single offer, this skill designs the _sequence_ of offers a customer ascends across their lifecycle: free → tripwire → core → premium → continuity.
 
 The Ascension Ladder is **Wayland-coined**. It synthesizes the value-ladder concept (popularized by Russell Brunson) + the continuum-of-belief structure (Hormozi) + Kern's mass-control product staging + Stu McLaren's membership-tier ladder mechanics into one buildable framework.
 
@@ -50,6 +59,7 @@ The Ascension Ladder is **Wayland-coined**. It synthesizes the value-ladder conc
 Trigger phrases: "value ladder", "ascension ladder", "product ladder", "design my product ladder", "tier my offers", "free to high-ticket", "my customers buy once and never come back", "missing rungs", "low LTV", `/funnel ascension-ladder <product>`.
 
 Use when:
+
 - The user has one product but no upgrade path for existing buyers
 - LTV is dramatically lower than first-purchase revenue
 - Customers buy once and disappear
@@ -57,6 +67,7 @@ Use when:
 - The user is launching a new business and wants to design the full portfolio upfront
 
 Do NOT use for:
+
 - Designing a single offer (use `funnels-offer`)
 - Designing a single rung in isolation (use `funnels-tripwire` for the tripwire rung, `funnels-continuity` for the continuity rung, `funnels-high-ticket-call` for the high-ticket rung)
 - Auditing an existing ladder for leaks (use `funnels-architecture-audit`)
@@ -82,7 +93,7 @@ The Ascension Ladder has five canonical rungs. Not every business needs all five
 **Conversion target (cold):** 15–30%
 **Format options:** PDF guide, swipe file, checklist, mini-course, quiz, calculator, audit, sample chapter, free training, discovery-call (no-cost)
 
-*The lead-magnet entry-point principle (popularized in Brunson's value-ladder; lineage to direct-mail bait-piece tradition; Halbert's "free book offer" cadence)*. Hand off to `funnels-lead-magnet` for full design of this rung.
+_The lead-magnet entry-point principle (popularized in Brunson's value-ladder; lineage to direct-mail bait-piece tradition; Halbert's "free book offer" cadence)_. Hand off to `funnels-lead-magnet` for full design of this rung.
 
 ### Rung 1 - Tripwire ($1–$47)
 
@@ -91,7 +102,7 @@ The Ascension Ladder has five canonical rungs. Not every business needs all five
 **Conversion target:** 5–15% of lead-magnet opt-ins
 **Format options:** mini-product (PDF + bonus), $1 trial, free-plus-shipping book, low-ticket course, paid quiz, $7 swipe-pack
 
-*The tripwire principle (popularized by Brunson; lineage to Halbert's "first-dollar" buyer-ID concept).* Hand off to `funnels-tripwire` for full design.
+_The tripwire principle (popularized by Brunson; lineage to Halbert's "first-dollar" buyer-ID concept)._ Hand off to `funnels-tripwire` for full design.
 
 The tripwire is the rung most operators skip. Cost: 30–50% lower long-term LTV. The buyer-ID effect - once a buyer has paid you anything, their probability of paying you more later is 5–10x a non-buyer subscriber. The tripwire's primary job is NOT revenue; it's qualification.
 
@@ -111,7 +122,7 @@ The core offer is the most-marketed asset. Most operators have only this rung. H
 **Conversion target:** 5–15% of core buyers
 **Format options:** premium course + 1-on-1, intensive cohort, done-with-you service, advisory retainer, deep mastermind
 
-*The premium-tier principle (Hormozi continuum-of-belief; lineage to Pagan's "moving the free line" extended to paid tiers).* Premium is the *first* high-margin rung - the rung where margin > $500 per buyer makes paid acquisition viable.
+_The premium-tier principle (Hormozi continuum-of-belief; lineage to Pagan's "moving the free line" extended to paid tiers)._ Premium is the _first_ high-margin rung - the rung where margin > $500 per buyer makes paid acquisition viable.
 
 ### Rung 4 - High-Ticket / Continuity ($5K+ one-time OR $97–$497/mo recurring)
 
@@ -119,6 +130,7 @@ The core offer is the most-marketed asset. Most operators have only this rung. H
 **Purpose:** stable LTV anchor; the rung that makes the whole ladder profitable
 **Conversion target:** 10–30% of premium buyers ascend (one-time) OR 25–50% adopt continuity
 **Format options:**
+
 - **One-time high-ticket:** $5K–$25K mastermind, intensive, retainer, done-for-you
 - **Continuity:** monthly community, software subscription, advisory retainer, content membership
 
@@ -126,9 +138,10 @@ Hand off to `funnels-high-ticket-call` for the one-time high-ticket version, `fu
 
 ### The "Two Rungs Behind" Rule
 
-*The two-rungs-behind principle (Wayland synthesis from Brunson + Stu McLaren membership-cadence work).* Every active rung should have the rung two-below it pre-built and pre-tested as the ascension feeder.
+_The two-rungs-behind principle (Wayland synthesis from Brunson + Stu McLaren membership-cadence work)._ Every active rung should have the rung two-below it pre-built and pre-tested as the ascension feeder.
 
 Example: if you're selling a $497 core offer, you should already have:
+
 - A **lead magnet** (Rung 0) feeding into the tripwire
 - A **tripwire** (Rung 1) feeding into the core offer
 
@@ -138,18 +151,18 @@ Don't try to build all 5 rungs simultaneously. Build the active rung + the two b
 
 Each rung-to-rung transition needs a **bridge offer** - the ascension trigger.
 
-| Transition | Bridge offer |
-|------------|-------------|
-| Rung 0 → Rung 1 | Order-form bump on lead-magnet thank-you page; or post-opt-in email sequence with tripwire CTA |
-| Rung 1 → Rung 2 | Order-form bump on tripwire OR OTO immediately post-tripwire-purchase OR 7-14 day nurture sequence |
-| Rung 2 → Rung 3 | OTO immediately post-core-purchase OR application-based ascension OR "graduate offer" inside the core deliverable |
+| Transition      | Bridge offer                                                                                                          |
+| --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Rung 0 → Rung 1 | Order-form bump on lead-magnet thank-you page; or post-opt-in email sequence with tripwire CTA                        |
+| Rung 1 → Rung 2 | Order-form bump on tripwire OR OTO immediately post-tripwire-purchase OR 7-14 day nurture sequence                    |
+| Rung 2 → Rung 3 | OTO immediately post-core-purchase OR application-based ascension OR "graduate offer" inside the core deliverable     |
 | Rung 3 → Rung 4 | Discovery call + application; OR mastermind invite-only ascension; OR continuity offer at the end of premium delivery |
 
-Bridge offers are NOT just upsells - they're *contextual* offers that make sense at the moment they're presented. A premium-tier ascension offered at the moment of buying the core offer (when the buyer is at peak excitement) converts 3–5x better than the same offer presented 30 days later via cold email.
+Bridge offers are NOT just upsells - they're _contextual_ offers that make sense at the moment they're presented. A premium-tier ascension offered at the moment of buying the core offer (when the buyer is at peak excitement) converts 3–5x better than the same offer presented 30 days later via cold email.
 
 ## The Continuum of Belief
 
-*The continuum-of-belief principle (Hormozi $100M Leads; lineage to Schwartz market sophistication).* Each rung requires a higher belief threshold than the prior:
+_The continuum-of-belief principle (Hormozi $100M Leads; lineage to Schwartz market sophistication)._ Each rung requires a higher belief threshold than the prior:
 
 - **Rung 0** - "this person might know something useful"
 - **Rung 1** - "this person delivers more than I expected for $7"
@@ -183,6 +196,7 @@ For each rung in the ladder, specify:
 ### Phase 2 - Design the bridge offers
 
 For each rung-to-rung transition:
+
 - The exact ascension trigger (post-purchase OTO, email sequence, discovery call, etc.)
 - The bridge-offer copy (handoff to `convert-cross-sell-page` or similar)
 - The conversion target
@@ -190,6 +204,7 @@ For each rung-to-rung transition:
 ### Phase 3 - Sequence the build order
 
 If 3+ rungs are missing, sequence the build:
+
 1. Build the active rung first (the one currently making most revenue)
 2. Build the rung directly below the active rung (the feeder)
 3. Build the rung directly above the active rung (the upsell)
@@ -210,13 +225,13 @@ Use the output template below.
 
 ## Current State
 
-| Rung | Status | Existing offer | Price | Notes |
-|------|--------|---------------|-------|-------|
-| 0 | <built/missing> | <name> | $0 | |
-| 1 | <built/missing> | <name> | $<X> | |
-| 2 | <built/missing> | <name> | $<X> | |
-| 3 | <built/missing> | <name> | $<X> | |
-| 4 | <built/missing> | <name> | $<X> | |
+| Rung | Status          | Existing offer | Price | Notes |
+| ---- | --------------- | -------------- | ----- | ----- |
+| 0    | <built/missing> | <name>         | $0    |       |
+| 1    | <built/missing> | <name>         | $<X>  |       |
+| 2    | <built/missing> | <name>         | $<X>  |       |
+| 3    | <built/missing> | <name>         | $<X>  |       |
+| 4    | <built/missing> | <name>         | $<X>  |       |
 
 **Active rung:** <X>
 **Estimated current LTV:** $<X>
@@ -225,6 +240,7 @@ Use the output template below.
 ## Designed Ladder
 
 ### Rung 0 - Lead Magnet
+
 - **Name:** <The X-Outcome Format>
 - **Price:** $0
 - **Format:** <PDF / quiz / mini-course / etc.>
@@ -232,6 +248,7 @@ Use the output template below.
 - **Skill handoff:** `funnels-lead-magnet`
 
 ### Rung 1 - Tripwire
+
 - **Name:** <product name>
 - **Price:** $<X>
 - **Format:** <format>
@@ -240,6 +257,7 @@ Use the output template below.
 - **Skill handoff:** `funnels-tripwire`
 
 ### Rung 2 - Core Offer
+
 - **Name:** <product name>
 - **Price:** $<X>
 - **Format:** <format>
@@ -248,6 +266,7 @@ Use the output template below.
 - **Skill handoff:** `funnels-offer` for full Irresistible Stack design
 
 ### Rung 3 - Premium
+
 - **Name:** <product name>
 - **Price:** $<X>
 - **Format:** <format>
@@ -256,6 +275,7 @@ Use the output template below.
 - **Skill handoff:** `funnels-offer` (for stack) + `convert-oto-page` (for ascension page)
 
 ### Rung 4 - High-Ticket / Continuity
+
 - **Name:** <product name>
 - **Price:** $<X> one-time OR $<Y>/month
 - **Format:** <format>
@@ -289,11 +309,12 @@ Use the output template below.
 ## Lineage
 
 The Ascension Ladder synthesizes:
-- *The value-ladder concept (popularized by Russell Brunson; lineage to direct-mail tier-offer tradition)* - the 5-rung structure
-- *The continuum-of-belief principle (popularized by Alex Hormozi)* - why each rung requires a higher belief threshold
-- *The mass-control product structure (Frank Kern)* - the bridge-offer mechanic between rungs
-- *The membership-tier ladder (Stu McLaren membership cadence work)* - the continuity rung mechanics
-- *Eben Pagan's "moving the free line"* - the ascension trigger psychology
+
+- _The value-ladder concept (popularized by Russell Brunson; lineage to direct-mail tier-offer tradition)_ - the 5-rung structure
+- _The continuum-of-belief principle (popularized by Alex Hormozi)_ - why each rung requires a higher belief threshold
+- _The mass-control product structure (Frank Kern)_ - the bridge-offer mechanic between rungs
+- _The membership-tier ladder (Stu McLaren membership cadence work)_ - the continuity rung mechanics
+- _Eben Pagan's "moving the free line"_ - the ascension trigger psychology
 
 The fusion is the value: no single canonical guru's ladder methodology covers all five rungs with bridge-offer mechanics + continuity-tier specifics + the two-rungs-behind build rule. Wayland's Ladder integrates them as one buildable framework.
 ```

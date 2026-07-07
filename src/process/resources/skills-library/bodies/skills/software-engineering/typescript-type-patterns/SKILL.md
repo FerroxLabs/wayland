@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'typescript best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # TypeScript Type Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to model a domain with multiple variants that share some fields but diverge on others (classic discriminated union territory)
 - The user wants to derive types from existing types rather than duplicating them -- mapped types, `Partial`, `Required`, `Pick`, `Omit`, and custom variants
 - The user needs a type that changes shape based on a type parameter -- conditional types with `extends`, `infer`, and distributive behavior
@@ -30,6 +32,7 @@ metadata:
 - The user asks about exhaustiveness checking, narrowing, type guards, assertion functions, or type predicates
 
 **Do NOT use this skill when:**
+
 - The user needs help configuring `tsconfig.json`, choosing a module resolution strategy, or setting up a TypeScript project (use `typescript-project-setup`)
 - The user needs runtime validation -- Zod, Valibot, io-ts, or schema-to-type bridges (use `typescript-runtime-safety`)
 - The question is primarily about JavaScript patterns, closures, prototypes, or async patterns with no type-system angle (use `javascript-idioms`)
@@ -96,16 +99,15 @@ Template literal types allow type-safe string manipulation and are essential for
 - Use TypeScript's built-in string manipulation types -- `Uppercase<S>`, `Lowercase<S>`, `Capitalize<S>`, `Uncapitalize<S>` -- to match casing conventions.
 - For dot-notation path accessors into nested objects, use recursive template literals with conditional types:
   ```ts
-  type DotPath<T, K extends keyof T = keyof T> =
-    K extends string
-      ? T[K] extends Record<string, unknown>
-        ? `${K}.${DotPath<T[K]>}` | K
-        : K
-      : never;
+  type DotPath<T, K extends keyof T = keyof T> = K extends string
+    ? T[K] extends Record<string, unknown>
+      ? `${K}.${DotPath<T[K]>}` | K
+      : K
+    : never;
   ```
   Cap recursion at known depth (3-4 levels) for realistic object schemas. Unlimited recursion on large schemas causes TypeScript to hit instantiation limits.
 - Use template literal types to derive event handler names, CSS property accessors, REST endpoint strings, or Redux action type constants from a single source-of-truth schema type.
-- Combine with `infer` to parse string patterns: `` T extends `${infer Head}.${infer Tail}` ? ... `` enables path splitting at the type level.
+- Combine with `infer` to parse string patterns: ``T extends `${infer Head}.${infer Tail}` ? ...`` enables path splitting at the type level.
 
 ### 6. Use `infer` and Higher-Order Type Patterns for Library APIs
 
@@ -133,12 +135,9 @@ Good TypeScript codebases treat types as first-class citizens with their own tes
 - The `Prettify` trick -- `type Prettify<T> = { [K in keyof T]: T[K] } & {}` -- forces TypeScript's display to expand intersections and mapped types into a flat object shape. Use it on exported API types to improve IDE hover text.
 - Write type-level unit tests using the `Equal` and `Expect` pattern:
   ```ts
-  type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false;
+  type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false;
   type Expect<T extends true> = T;
-  type _Tests = [
-    Expect<Equal<MyUtility<string>, ExpectedString>>,
-    Expect<Equal<MyUtility<never>, never>>,
-  ];
+  type _Tests = [Expect<Equal<MyUtility<string>, ExpectedString>>, Expect<Equal<MyUtility<never>, never>>];
   ```
   A compile error on `_Tests` is a failing type test. This technique requires no runtime and catches regressions.
 - Run `tsc --noEmit` in CI to catch type errors. Add `isolatedModules: true` in `tsconfig` for libraries to verify each file is independently importable.
@@ -214,24 +213,31 @@ When delivering TypeScript type pattern guidance, structure the response as foll
 ## Edge Cases
 
 ### Circular / Mutually Recursive Types
+
 TypeScript supports recursive type aliases since 4.1 (for object types) and recursive conditional types with careful tail-recursive patterns. However, two types that are mutually recursive (`type A = { b: B }; type B = { a: A }`) work for structural types but cause TS2615 in conditional types. Workaround: introduce an intermediate interface that breaks the cycle, since interfaces can be recursive without triggering the conditional-type recursion check. For JSON-like recursive types, use the canonical pattern: `type Json = string | number | boolean | null | Json[] | { [key: string]: Json }`.
 
 ### `never` Propagation Surprises in Unions and Mapped Types
+
 `never` is the identity element for unions: `string | never` simplifies to `string`. This is correct and useful -- but it means a conditional type that produces `never` for some branches silently removes those branches from a union result. When a mapped type filters keys using `as SomeConditional extends ... ? K : never`, testing with an all-filtered input produces `{}` (empty object type) not `never`. If downstream code checks `T extends never`, it will not match `{}`. Handle this explicitly: `keyof Result extends never ? never : Result`.
 
 ### TypeScript Version Compatibility for Library Authors
+
 Advanced patterns have version requirements. Template literal types require TS 4.1+. Recursive conditional types with the tail-recursive optimization require TS 4.5+. Variance annotations (`in`/`out` modifiers) require TS 4.7+. `satisfies` operator requires TS 4.9+. `const` type parameters require TS 5.0+. When authoring a shared library, declare the minimum TypeScript peer dependency in `package.json` (`"peerDependencies": { "typescript": ">=4.7" }`) and test against the minimum version in CI using `npm install typescript@4.7` in a separate CI matrix entry.
 
 ### Generic Constraints That Are Too Tight or Too Loose
+
 Over-constraining a generic (`T extends { id: string; name: string; status: "active" | "inactive" }`) forces callers to have exactly those fields and breaks structural compatibility with subtypes that have additional fields. Under-constraining (`T extends object`) provides no useful narrowing inside the function. The sweet spot is constraining only the fields the function actually accesses: `T extends { id: string }`. Use `keyof` constraints to make mapped utilities work: `K extends keyof T` ensures `T[K]` is always valid.
 
 ### Conditional Types Inside Mapped Types (and Vice Versa)
+
 Combining these two patterns is powerful but has a subtle interaction: a conditional type inside a mapped type's value position is evaluated eagerly only if `T` is fully resolved. When `T` is an unresolved generic, TypeScript defers evaluation. This means that `type X<T> = { [K in keyof T]: T[K] extends string ? "yes" : "no" }` will not simplify until `T` is known -- which is the desired behavior. But if you expect a concrete output from a generic type before it is instantiated, the type will appear as a deferred conditional in IDE hover text, which confuses users. Mitigate by providing concrete `@example` types in JSDoc or by creating named alias types for common instantiations.
 
 ### Exhaustiveness Checking Across Module Boundaries
+
 When a discriminated union is extended in a separate module (adding a new variant), all existing `switch` statements in other modules silently break exhaustiveness. TypeScript does not re-evaluate exhaustiveness after module-level changes unless the switch is in a function with an explicit return type. Mitigate by: (1) colocating the `assertNever` call in a utility that also exports the union type, (2) using a central handler registry that maps variant `kind` strings to handler functions -- a missing handler becomes a type error at registration time, not a runtime surprise.
 
 ### Performance Impact of Large Structural Types in Monorepos
+
 In a monorepo with 300+ files importing a complex mapped or conditional type, TypeScript's language service can degrade significantly. Symptoms: hover takes 5-10 seconds, autocomplete lags, `tsc` takes minutes. Diagnosis: run `tsc --diagnostics` and inspect `Instantiation count`. If a single type exceeds 100,000 instantiations, refactor it. Solutions: (1) break the type into smaller composable pieces, (2) use `interface` instead of `type` alias where possible (interfaces are cached by identity, type aliases by structure), (3) avoid unbounded cross-products in template literal types, (4) add a `// @ts-ignore` on a test file and compare language service speed to confirm the type is the culprit.
 
 ---
@@ -245,6 +251,7 @@ In a monorepo with 300+ files importing a complex mapped or conditional type, Ty
 **Output:**
 
 ## Problem Classification
+
 Generic API inference using a schema-constrained record type with key-indexed return type -- conditional types and indexed access types, no explicit type parameter at call site.
 
 ## Type Design
@@ -276,10 +283,10 @@ type FieldValue<K extends FieldName> = FormSchema[K];
 // FieldState<K> wraps the field value in runtime state.
 // The value type is fully inferred from K.
 type FieldState<K extends FieldName> = {
-  value: FieldValue<K>;                          // e.g., string for "email"
+  value: FieldValue<K>; // e.g., string for "email"
   error: string | null;
   touched: boolean;
-  onChange: (next: FieldValue<K>) => void;       // strongly typed setter
+  onChange: (next: FieldValue<K>) => void; // strongly typed setter
   onBlur: () => void;
 };
 ```
@@ -314,8 +321,8 @@ export type FieldState<K extends FieldName> = {
 
 // ---- use-field.ts ----
 
-import { useState, useCallback } from "react";
-import type { FieldName, FieldValue, FieldState, FormSchema } from "./schema";
+import { useState, useCallback } from 'react';
+import type { FieldName, FieldValue, FieldState, FormSchema } from './schema';
 
 // The internal store holds all field values.
 // Typed as FormSchema so each key is strongly typed.
@@ -359,16 +366,11 @@ To let library consumers define their own schema, parameterize on `Schema`:
 ```ts
 // Generic form hook factory -- the schema is supplied once,
 // and the returned useField is closed over it with correct types.
-export function createForm<Schema extends Record<string, unknown>>(
-  initialValues: Schema
-) {
+export function createForm<Schema extends Record<string, unknown>>(initialValues: Schema) {
   // FieldName and FieldValue are now relative to the user-supplied Schema.
   type K = keyof Schema & string;
 
-  function useField<F extends K>(
-    fieldName: F,
-    validate?: (value: Schema[F]) => string | null
-  ): FieldState<F, Schema> {
+  function useField<F extends K>(fieldName: F, validate?: (value: Schema[F]) => string | null): FieldState<F, Schema> {
     // implementation unchanged structurally
   }
 
@@ -389,36 +391,36 @@ Usage:
 
 ```ts
 const { useField } = createForm({
-  email: "",        // inferred as string
-  age: 0,           // inferred as number
-  acceptedTerms: false,  // inferred as boolean
+  email: '', // inferred as string
+  age: 0, // inferred as number
+  acceptedTerms: false, // inferred as boolean
   birthDate: new Date(), // inferred as Date
 });
 
 // K is inferred as "email", value is string -- no explicit type parameter.
-const emailField = useField("email");
-emailField.onChange("user@example.com"); // ✅ accepts string
+const emailField = useField('email');
+emailField.onChange('user@example.com'); // ✅ accepts string
 
 // K is inferred as "age", value is number.
-const ageField = useField("age");
-ageField.onChange(25);                   // ✅ accepts number
-ageField.onChange("25");                 // ❌ TS2345: Argument of type 'string' is not assignable to 'number'
+const ageField = useField('age');
+ageField.onChange(25); // ✅ accepts number
+ageField.onChange('25'); // ❌ TS2345: Argument of type 'string' is not assignable to 'number'
 
 // K is inferred as "acceptedTerms", value is boolean.
-const termsField = useField("acceptedTerms");
-termsField.onChange(true);               // ✅ accepts boolean
+const termsField = useField('acceptedTerms');
+termsField.onChange(true); // ✅ accepts boolean
 ```
 
 ## Key Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Schema as a type alias | `type FormSchema = {...}` | Simple, no class overhead, works directly with `keyof` |
-| Indexed access for value type | `Schema[K]` | Avoids conditional types entirely -- simpler and faster for TS to evaluate |
-| Factory function pattern | `createForm(initialValues)` | Closes over the schema so `useField` never needs an explicit type parameter |
-| `K extends keyof Schema & string` | Intersect with `string` | `keyof` can produce `string | number | symbol`; the `& string` narrows to string keys only for template literal and DOM safety |
-| `as const` not required | Initial values use type inference | Primitive literals (`""`, `0`, `false`) infer as `string`, `number`, `boolean` -- exactly what we want. `as const` would infer `""` as the literal type `""`, making `onChange` accept only the empty string. |
-| Validate callback typed | `(value: Schema[F]) => string | null` | The validator receives the correctly-typed value, preventing a string validator being passed to a number field |
+| Decision                          | Choice                            | Rationale                                                                                                                                                                                                     |
+| --------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Schema as a type alias            | `type FormSchema = {...}`         | Simple, no class overhead, works directly with `keyof`                                                                                                                                                        |
+| Indexed access for value type     | `Schema[K]`                       | Avoids conditional types entirely -- simpler and faster for TS to evaluate                                                                                                                                    |
+| Factory function pattern          | `createForm(initialValues)`       | Closes over the schema so `useField` never needs an explicit type parameter                                                                                                                                   |
+| `K extends keyof Schema & string` | Intersect with `string`           | `keyof` can produce `string                                                                                                                                                                                   | number                                                                                                         | symbol`; the `& string` narrows to string keys only for template literal and DOM safety |
+| `as const` not required           | Initial values use type inference | Primitive literals (`""`, `0`, `false`) infer as `string`, `number`, `boolean` -- exactly what we want. `as const` would infer `""` as the literal type `""`, making `onChange` accept only the empty string. |
+| Validate callback typed           | `(value: Schema[F]) => string     | null`                                                                                                                                                                                                         | The validator receives the correctly-typed value, preventing a string validator being passed to a number field |
 
 ## Usage at Call Sites
 
@@ -426,18 +428,18 @@ termsField.onChange(true);               // ✅ accepts boolean
 // All of these require zero explicit type parameters.
 // TypeScript infers F from the string literal argument.
 
-const emailField = useField("email");
+const emailField = useField('email');
 // emailField.value : string
 // emailField.onChange : (next: string) => void
 
-const ageField = useField("age", (v) => v < 0 ? "Age cannot be negative" : null);
+const ageField = useField('age', (v) => (v < 0 ? 'Age cannot be negative' : null));
 // v is inferred as number inside the validator -- no annotation needed
 
-const termsField = useField("acceptedTerms");
+const termsField = useField('acceptedTerms');
 // termsField.value : boolean
 
 // Invalid field names are caught at compile time:
-const bad = useField("nonexistent");
+const bad = useField('nonexistent');
 // ❌ TS2345: Argument of type '"nonexistent"' is not assignable to
 //    parameter of type '"email" | "age" | "acceptedTerms" | "birthDate"'
 ```
@@ -445,23 +447,23 @@ const bad = useField("nonexistent");
 ## Type Tests
 
 ```ts
-import type { Equal, Expect } from "@type-challenges/utils";
+import type { Equal, Expect } from '@type-challenges/utils';
 
 type Schema = { email: string; age: number; active: boolean };
 
 // FieldValue resolves correctly for each key
-type _T1 = Expect<Equal<FieldValue<"email">, string>>;      // passes
-type _T2 = Expect<Equal<FieldValue<"age">, number>>;        // passes
-type _T3 = Expect<Equal<FieldValue<"active">, boolean>>;    // passes
+type _T1 = Expect<Equal<FieldValue<'email'>, string>>; // passes
+type _T2 = Expect<Equal<FieldValue<'age'>, number>>; // passes
+type _T3 = Expect<Equal<FieldValue<'active'>, boolean>>; // passes
 
 // FieldState shapes are correct
-type EmailState = FieldState<"email", Schema>;
-type _T4 = Expect<Equal<EmailState["value"], string>>;
-type _T5 = Expect<Equal<Parameters<EmailState["onChange"]>[0], string>>;
+type EmailState = FieldState<'email', Schema>;
+type _T4 = Expect<Equal<EmailState['value'], string>>;
+type _T5 = Expect<Equal<Parameters<EmailState['onChange']>[0], string>>;
 
 // Invalid keys are rejected
 // @ts-expect-error -- "missing" is not a valid field name
-type _Bad = FieldValue<"missing">;
+type _Bad = FieldValue<'missing'>;
 ```
 
 ## Gotchas and Maintenance Notes

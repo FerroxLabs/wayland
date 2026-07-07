@@ -89,7 +89,7 @@ If composite AI-likelihood is 7+/10, recommend the rewrite mode. If under 4/10, 
 
 **Input draft:**
 
-> *Furthermore, our _cutting-edge_ platform _leverage_s robust analytics to navigate the intricate landscape of customer engagement. It is important to note that this multifaceted approach delivers comprehensive results across the digital ecosystem.*
+> _Furthermore, our *cutting-edge* platform \_leverage_s robust analytics to navigate the intricate landscape of customer engagement. It is important to note that this multifaceted approach delivers comprehensive results across the digital ecosystem._
 
 **Diagnostic output:**
 

@@ -74,11 +74,11 @@ Use `reference/styles/` for inspiration (palette + signature gesture), **not** f
 
 Morph decks are often viewed on stage or in projector-heavy settings where font weight carries farther than font choice. Two fonts max - one for headings, one for body.
 
-| Content Type | Primary Pair                            | Fallback                      |
-| ------------ | --------------------------------------- | ----------------------------- |
-| English      | Montserrat (title) + Inter (body)       | Segoe UI / Helvetica Neue     |
-| Chinese      | Source Han Sans (title + body)          | PingFang SC / Microsoft YaHei |
-| Mixed CN/EN  | Montserrat + Source Han Sans            | Segoe UI + System Font        |
+| Content Type | Primary Pair                      | Fallback                      |
+| ------------ | --------------------------------- | ----------------------------- |
+| English      | Montserrat (title) + Inter (body) | Segoe UI / Helvetica Neue     |
+| Chinese      | Source Han Sans (title + body)    | PingFang SC / Microsoft YaHei |
+| Mixed CN/EN  | Montserrat + Source Han Sans      | Segoe UI + System Font        |
 
 Avoid Georgia / Times for body on morph slides - serif terminals disappear when the shape interpolates mid-motion. Reserve serif for pptx base decks with no transition movement.
 

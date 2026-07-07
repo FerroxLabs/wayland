@@ -12,14 +12,15 @@ description: >-
   or building an ICP from scratch (use wayland-icp-build).
 license: Apache-2.0
 type: workflow
-skills: "sales-coach sales-outreach sales-followup"
+skills: 'sales-coach sales-outreach sales-followup'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales outreach cold-email cadence follow-up step-by-step
   category: sales
-  depends: "sales-coach sales-outreach sales-followup"
+  depends: 'sales-coach sales-outreach sales-followup'
 ---
+
 # Outreach Build
 
 **Estimated time:** 20-30 minutes

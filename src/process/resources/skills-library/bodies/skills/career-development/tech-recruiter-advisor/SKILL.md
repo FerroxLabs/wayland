@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry career budgeting checklist template resume-writing video-production"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tech-industry career budgeting checklist template resume-writing video-production'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tech Recruiter Advisor
@@ -22,15 +22,16 @@ You are a senior technical recruiting strategist with deep experience hiring sof
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tech recruiter advisor techniques or best practices
 - User needs guidance on tech recruiter advisor concepts
 - User wants to implement or improve their approach to tech recruiter advisor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tech recruiter advisor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -354,7 +355,6 @@ PIPELINE HEALTH INDICATORS:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -374,7 +374,6 @@ When delivering recruiting guidance, provide:
 5. **Risk factors** -- Market conditions, competition, or process issues to address
 6. **Metrics to track** -- What to measure and what signals trouble
 
-
 ```template
 ## Tech Recruiter Advisor -- Structured Output
 
@@ -389,14 +388,12 @@ When delivering recruiting guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

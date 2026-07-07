@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting relationships planning"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting relationships planning'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Difficult Conversations with Kids
 
 Talking to children about difficult topics requires age-calibrated language, developmentally informed timing, and an understanding of how children at different stages construct meaning from incomplete information. This skill draws on decades of research in developmental psychology, attachment theory, and trauma-informed communication. It produces structured, immediately usable conversation plans -- not generic reassurance. It does not replace the judgment of a licensed child psychologist, pediatric social worker, or grief therapist. When a child's response indicates significant distress beyond normative adjustment, professional referral is the right next step.
@@ -24,6 +25,7 @@ Talking to children about difficult topics requires age-calibrated language, dev
 ## When to Use
 
 **Use this skill when:**
+
 - A parent or caregiver needs to tell a child about a death -- of a grandparent, parent, sibling, pet, friend, or public figure the child was attached to
 - A parent needs to explain a divorce, separation, or parental breakup to a child in language the child can hold without being overwhelmed
 - A family is preparing a child for a major relocation -- moving across town or across the country -- and needs help addressing the child's fears about school, friends, and identity
@@ -35,6 +37,7 @@ Talking to children about difficult topics requires age-calibrated language, dev
 - A parent needs to explain why a family member is no longer in contact due to estrangement, addiction, or safety concerns
 
 **Do NOT use when:**
+
 - The child has disclosed abuse or is the subject of a child protective investigation -- refer to a child advocacy center and do not use conversation scripts that could interfere with forensic interviewing
 - The user is asking how to tell a child about sexual abuse they experienced -- this requires a trained forensic specialist, not a parent-scripted conversation
 - The user needs a clinical assessment of the child's grief response, anxiety level, or attachment disruption -- use a child therapist referral
@@ -64,6 +67,7 @@ Before generating anything, collect the following information. If the user has n
 Developmental stage determines language complexity, conceptual capacity, and the child's likely concerns. Do not conflate age with developmental stage for every child, but use age as the primary sorting mechanism.
 
 **Ages 2--4 (Preschool/Toddler)**
+
 - Children this age have no understanding of permanence for abstract concepts. Death, divorce, and illness are concrete events ("Daddy doesn't live here now"), not permanent conditions they can reason about.
 - Use 5-10 word sentences. Use the child's vocabulary, not adult vocabulary.
 - Expect and plan for repetition -- the same question asked 20 times in two weeks is developmentally normal, not pathological.
@@ -72,6 +76,7 @@ Developmental stage determines language complexity, conceptual capacity, and the
 - Key developmental limitation: Object permanence for people is established, but permanence of death is not yet conceptually available. They will ask "When is Grandma coming back?" and this is normal, not denial.
 
 **Ages 5--7 (Early School Age)**
+
 - Children this age understand that death is real and final but may believe it is reversible or selective (that their wishes or behavior could bring someone back).
 - They ask literal, direct questions: "What does a dead body look like?" "Where do you go when you die?" Answer factually at the level of the question -- do not over-explain or under-explain.
 - They commonly assume causal responsibility: "Did Grandpa die because I was bad?" "Did they divorce because I made them fight?" The "it is not your fault" message is non-negotiable at this stage.
@@ -79,6 +84,7 @@ Developmental stage determines language complexity, conceptual capacity, and the
 - They need concrete information about what changes and what stays the same in their daily life.
 
 **Ages 8--11 (Middle Childhood)**
+
 - Children this age have a fully adult understanding of death's permanence and universality and often begin to worry about their own death and the death of parents.
 - They can understand cause-and-effect explanations at a moderate level of complexity: "The cancer spread to too many parts of his body for the medicine to work."
 - They may ask questions that feel aggressive or cold: "How much did the funeral cost?" "Who gets Grandpa's car?" These are information-seeking attempts, not callousness.
@@ -87,6 +93,7 @@ Developmental stage determines language complexity, conceptual capacity, and the
 - Peer relationships become central -- they may worry about how to explain the situation to friends, or be embarrassed by crying in front of others.
 
 **Ages 12+ (Adolescent)**
+
 - Adolescents have adult cognitive capacity but are still developing emotional regulation and identity. They process difficult events in ways that often look like indifference, anger, or shutdown.
 - Do not mistake any of these for not caring. All three are legitimate and common.
 - Teens often need information and autonomy simultaneously -- they want to know the full picture but resent being managed or having information filtered from them. Partial truths with teens are high-risk.
@@ -100,12 +107,14 @@ Developmental stage determines language complexity, conceptual capacity, and the
 Different topics have non-negotiable content elements that must appear regardless of age. Apply these alongside the developmental framework.
 
 **Death**
+
 - Use the words "died" and "death" -- not "passed," "gone," "lost," "went to sleep," or "in a better place." Euphemisms create confusion, magical thinking, and sometimes new fears in children under 10.
 - Include factual cause of death at an age-appropriate level of complexity.
 - Address: permanence, the child's safety, what happens to the body (if asked), what happens next practically (the funeral, the family gathering).
 - Explain that grief looks different for everyone and will come in waves.
 
 **Divorce/Separation**
+
 - "This is not your fault" is mandatory -- include it explicitly in the script.
 - "You will always have two parents who love you" -- include this if true and appropriate.
 - Do not place children in loyalty conflicts. Do not name the other parent's failings.
@@ -113,6 +122,7 @@ Different topics have non-negotiable content elements that must appear regardles
 - Never make promises you cannot keep about custody, contact, or living arrangements. If you do not know, say so.
 
 **Serious Illness (Family Member)**
+
 - Name the illness clearly. Do not say "Daddy is a little sick." If it is cancer, say cancer.
 - Address contagion fears explicitly: "You cannot catch this by hugging him."
 - Address causation: "Nothing you did caused this."
@@ -120,12 +130,14 @@ Different topics have non-negotiable content elements that must appear regardles
 - For a parent's illness: be especially careful to address caregiving continuity. Who will take care of you? Who will drive you to school? These are the anchoring concerns.
 
 **Financial Change/Job Loss**
+
 - Do not burden the child with adult financial specifics -- they do not need to know account balances or debt amounts.
 - Do communicate what will change in their world: "We will not be going to Disney this year. We will need to move to a smaller house." Specificity prevents catastrophizing.
 - Reassure that basic needs are covered -- or be honest if they are at risk and you are working on it.
 - Normalize the situation developmentally appropriate to age: for younger children, "Sometimes grown-ups change jobs"; for teens, more honest economic framing is appropriate.
 
 **Incarceration**
+
 - This requires particular care around shame, misinformation from peers, and loyalty to the incarcerated parent.
 - Name the situation clearly but without gratuitous detail: "Dad is in a place called a jail/prison because he broke a law."
 - Address that this is not the child's fault and does not mean the incarcerated parent does not love them.
@@ -136,16 +148,19 @@ Different topics have non-negotiable content elements that must appear regardles
 Every conversation guide should have three distinct phases: the disclosure itself, the reaction management phase, and the closing. Do not conflate these into a single monologue. Children need pauses, space to respond, and structured re-anchoring.
 
 **Layer 1 -- The Disclosure**
+
 - Lead with a warning that difficult information is coming: "I need to tell you something sad/hard/important."
 - State the fact clearly in 1-3 sentences.
 - Then stop. Do not keep talking. The silence after the disclosure is not empty -- it is necessary.
 
 **Layer 2 -- The Reaction Space**
+
 - Prepare scripts for: crying, anger, silence, apparent indifference, physical responses (wanting to run, wanting to be held), and unexpected questions that seem off-topic.
 - The parent's job in this phase is to witness, not to fix.
 - Provide exact language for each reaction -- not just "validate their feelings" but what to actually say word for word.
 
 **Layer 3 -- The Anchoring Close**
+
 - Return the child to something stable and true: your love for them, the routines that will continue, what comes next.
 - Leave the door explicitly open: "You can always ask me more about this. There are no wrong questions."
 - Do not end with an adult emotional need. The parent can be visibly moved, but the close should center the child.
@@ -155,6 +170,7 @@ Every conversation guide should have three distinct phases: the disclosure itsel
 For every conversation guide, include a "What NOT to Say" section with specific phrases and explanations of why they are harmful. This section has high practical value -- parents are more likely to default to well-intentioned but damaging language under stress.
 
 Common harmful phrases by category:
+
 - **Minimizers:** "At least Grandpa lived a long life." "At least you have two homes now." These communicate that the child's grief is disproportionate.
 - **Emotional directives:** "Be brave." "Be strong for Mommy." "Don't cry." These instruct the child to suppress their authentic response and often create shame around grief.
 - **False promises:** "Everything will be exactly the same." "Nothing will change." "You'll love the new house." These may not be true, and when they are not, they damage trust in the parent's honesty.
@@ -165,12 +181,14 @@ Common harmful phrases by category:
 ### Step 6: Write the Specific Scripts
 
 Produce exact, usable language -- not summaries of what to say, but the words themselves. Scripts should:
+
 - Be written at the reading/speaking level appropriate to the child's age
 - Avoid jargon, abstraction, and conditional clauses for children under 8
 - Sound like a real person talking, not a textbook
 - Include where to pause, where to make eye contact, where to invite a response
 
 For each anticipated question, provide a response that is:
+
 - Honest
 - Bounded by what the parent actually knows
 - Appropriately brief (children do not need exhaustive explanations -- they need clear, calm answers)
@@ -181,16 +199,19 @@ For each anticipated question, provide a response that is:
 One conversation does not complete the task. The follow-up plan should include:
 
 **Short-term (24-72 hours):**
+
 - What to watch for: regression (bedwetting in a child who was previously dry, thumb-sucking, baby talk), sleep disruption, clinginess, eating changes. These are all normal adjustment responses in the first two weeks.
 - How to re-open the conversation naturally: not "Let's talk about Grandpa again" but "I was thinking about Grandpa today. I miss him. What are you thinking about?"
 - Maintain routines with high fidelity -- the predictability of meals, bedtime, and school is actively therapeutic.
 
 **Medium-term (1-4 weeks):**
+
 - Normalize the child's oscillating responses -- they will have good days and hard days, sometimes within the same hour.
 - Watch for social withdrawal, academic decline, or significant behavior change in settings outside the home (teacher feedback is valuable).
 - Introduce memory or processing activities appropriate to age: drawing, looking at photos, writing a letter to the person who died, building a memory box.
 
 **Long-term (4+ weeks):**
+
 - Know the indicators that differentiate normative grief and adjustment from clinical presentations requiring professional support. These are behavioral and specific, not vague.
 - Normative: intermittent sadness, questions about the person or event, some regression that gradually resolves, interest in talking about the topic.
 - Refer for evaluation: persistent sleep disruption beyond 4-6 weeks, regression that does not resolve, significant change in school functioning lasting more than a few weeks, separation anxiety that was not present before, expressed hopelessness, any statement suggesting self-harm, visible and sustained emotional blunting, or sudden loss of skills previously mastered.
@@ -334,6 +355,7 @@ Wait for the child to respond. Do not fill the silence.
 ## Edge Cases
 
 ### Child Has Already Heard the News From Another Source
+
 This is one of the most common and damaging scenarios -- a child learns about a divorce, death, or diagnosis from a peer, overheard conversation, or another adult before the parent intended to tell them. The approach must shift from disclosure to repair.
 
 Open with acknowledgment rather than disclosure: "I heard you found out about something that happened. I'm really glad you told me. I want to make sure you have the right information and that you know you can always come to me."
@@ -343,6 +365,7 @@ Then ask what the child believes they know before saying anything else. This all
 Follow the standard guide structure from that point, but weight the "anticipated questions" heavily toward clarifying misconceptions specific to what the child was told.
 
 ### Two Separated Parents with Conflicting Approaches
+
 When parents disagree on what to tell the child (one wants to tell the whole truth, the other wants to minimize; one wants to involve children in decision-making, the other does not), the conversation guide must work within constraints.
 
 Identify the core messages both parents can agree on and build the guide around those only. Do not write scripts that require the other parent's cooperation if that cooperation is uncertain. Recommend that the conversation happens simultaneously or with coordinated timing so the child does not receive contradictory messages within hours of each other -- this creates confusion and loyalty conflict.
@@ -350,6 +373,7 @@ Identify the core messages both parents can agree on and build the guide around 
 For divorce-specific situations: if both parents cannot agree on a joint disclosure, it is better for each parent to have a separate guide with the same 3 core messages than for the child to receive a united-front script that collapses immediately. The guide should note this explicitly.
 
 ### Child With Significant Anxiety Already Present
+
 A child who has diagnosed or apparent anxiety requires a modified approach:
 
 Give more advance notice, not less -- anxious children are more destabilized by sudden disclosure than by being told "we need to have an important conversation tonight." Give them several hours warning so they can prepare.
@@ -361,6 +385,7 @@ Provide the child with an explicit mechanism for coming back to the topic: "If y
 Watch more carefully for somatic complaints (stomach aches, headaches, refusal to go to school) as these are common anxiety presentations in children after difficult disclosures -- they may not say "I'm scared" but they will say "My stomach hurts."
 
 ### The Parent Is the Subject of the Difficult News (Parent's Own Illness or Job Loss)
+
 When the difficult information is about the parent themselves, the conversation has an additional emotional complexity: the parent is simultaneously the narrator and the subject. This is cognitively disorienting for the child and emotionally destabilizing for the parent.
 
 The parent should, if possible, have already processed the news enough to be calm during the conversation -- not fully resolved, but not in acute shock. Having another trusted adult (co-parent, grandparent) present provides the child with an additional stable presence and gives the parent emotional support.
@@ -370,6 +395,7 @@ The scripts in this scenario must be especially careful about tone -- a parent w
 A note on illness disclosure: if the prognosis is uncertain, do not manufacture false certainty to protect the child. "I don't know what will happen, but I'm getting good medical care and there are doctors who are helping me" is honest and does not transfer adult-level dread.
 
 ### Child Asks a Question the Parent Cannot or Does Not Know How to Answer
+
 This happens reliably. Children ask: "Why did God let Grandpa die?" "Are you going to get divorced again?" "Will we be poor forever?" "Did Daddy do something wrong to go to jail?"
 
 Scripts for these moments should model three things: honesty about not knowing, commitment to finding out or thinking together, and reassurance that the question itself is welcome. Exact language: "That is a really important question. I honestly don't know the answer to that. I will think about it, and you can keep asking me. There are no wrong questions here."
@@ -377,6 +403,7 @@ Scripts for these moments should model three things: honesty about not knowing, 
 Do not fabricate an answer to fill the silence. Children can tell when adults are guessing, and manufactured answers are often more frightening than admitted uncertainty.
 
 ### Multiple Children of Different Ages in the Same Household
+
 When the household includes children of significantly different ages (e.g., a 5-year-old and a 13-year-old), the initial disclosure should happen together so no child feels excluded or more informed than another -- this prevents the "I knew before you" dynamic that creates resentment and anxiety in the less-informed child.
 
 However, the initial disclosure should be pitched at the youngest child's developmental level for the first 3-5 minutes, then followed by individual age-appropriate follow-up conversations within the same day.
@@ -384,6 +411,7 @@ However, the initial disclosure should be pitched at the youngest child's develo
 Specific guidance for this scenario: prepare the older child in advance that the opening conversation will use simpler language. You can say to the teen: "I need to talk to all of you together, but some of what I'll say will be simple because your sister is young. I'll talk with you more afterward and answer your questions at your level." This prevents the teen from feeling condescended to and gives them a role.
 
 ### Discussing a Death by Suicide
+
 This topic requires specific guidance beyond the standard death framework and exceeds the scope of a standard conversation guide. However, parents will encounter it, so provide the following minimum guidance:
 
 For children under 8: "Uncle Tom died. He was very, very sick in a way that made his thoughts confused and hurt him so much that his body stopped working." Do not provide mechanism of death. Do not use "suicide" with children this young.
@@ -407,6 +435,7 @@ For any disclosure involving suicide, recommend concurrent consultation with a c
 ---
 
 ### Preparation Checklist
+
 - [ ] **Setting:** Home, in a comfortable, private room. The living room couch or the kitchen table -- somewhere neutral that the child associates with family time, not a parent's bedroom (which may already feel like contested territory).
 - [ ] **Timing:** Saturday or Sunday morning, after a normal breakfast. Not after school when he is tired. Not at night when he needs to sleep. Not within 24 hours of any other stressful event. Give him the afternoon to process before bedtime.
 - [ ] **Who should be present:** Both parents, together, sitting near each other -- not across the room. No grandparents, new partners, or other relatives present for the initial conversation. This is a family-of-three conversation first.
@@ -417,6 +446,7 @@ For any disclosure involving suicide, recommend concurrent consultation with a c
 ---
 
 ### Opening Words (Say This First)
+
 > "We want to talk to you about something important that affects our whole family. Come sit with us."
 
 Sit together. Make sure he is comfortable. Make eye contact. Let the room quiet down.
@@ -424,6 +454,7 @@ Sit together. Make sure he is comfortable. Make eye contact. Let the room quiet 
 ---
 
 ### The Disclosure (Say This Next)
+
 > "Mom and Dad have decided that we are not going to be married anymore. This is called a divorce. We are going to live in different homes. This does not mean our family is going away -- it means our family is going to look different. And the most important thing, the thing that will never change, is that we are both your mom and dad, and we love you exactly as much as we always have."
 
 Stop talking. Give him time to respond. Do not explain more until he asks or reacts.
@@ -431,6 +462,7 @@ Stop talking. Give him time to respond. Do not explain more until he asks or rea
 ---
 
 ### Key Messages for This Conversation (Repeat Throughout)
+
 1. "This is not your fault. Nothing you did or said or thought caused this."
 2. "You will always have two parents who love you. That part never changes."
 3. "We will tell you what is happening and answer all your questions honestly."
@@ -438,42 +470,46 @@ Stop talking. Give him time to respond. Do not explain more until he asks or rea
 ---
 
 ### What NOT to Say (And Why)
-| Phrase to Avoid | Why It Is Harmful | What to Say Instead |
-|-----------------|-------------------|---------------------|
-| "We just fell out of love" | Abstract concept; 8-year-olds worry they could "fall out of love" with their parents or vice versa | "Grown-up relationships are complicated, and ours didn't work the way we needed it to" |
-| "We're still a family, nothing changes" | It is not true -- things will change. When they do, he will not trust you | "Some things will change. We will tell you what they are. Some things will stay the same." |
-| "Your dad did this" or "your mom isn't happy" | Creates blame, loyalty conflict, and self-protective anger in the named parent | Do not name fault. If he asks why, say "This is a decision we made together as adults" |
-| "You're the man of the house now" | Parentification; recruits him into an adult support role | Nothing. He is 8. He is a child. He has no adult responsibilities to take on. |
-| "I don't know what I'd do without you" | Places adult emotional weight on the child | "I love you so much, and I will always take care of you" |
+
+| Phrase to Avoid                               | Why It Is Harmful                                                                                  | What to Say Instead                                                                        |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| "We just fell out of love"                    | Abstract concept; 8-year-olds worry they could "fall out of love" with their parents or vice versa | "Grown-up relationships are complicated, and ours didn't work the way we needed it to"     |
+| "We're still a family, nothing changes"       | It is not true -- things will change. When they do, he will not trust you                          | "Some things will change. We will tell you what they are. Some things will stay the same." |
+| "Your dad did this" or "your mom isn't happy" | Creates blame, loyalty conflict, and self-protective anger in the named parent                     | Do not name fault. If he asks why, say "This is a decision we made together as adults"     |
+| "You're the man of the house now"             | Parentification; recruits him into an adult support role                                           | Nothing. He is 8. He is a child. He has no adult responsibilities to take on.              |
+| "I don't know what I'd do without you"        | Places adult emotional weight on the child                                                         | "I love you so much, and I will always take care of you"                                   |
 
 ---
 
 ### Anticipated Questions and Response Scripts
-| He Might Ask | Respond With |
-|--------------|--------------|
-| "Is it my fault?" | "No. Absolutely not. This is a decision that adults make about their relationship with each other. You did not cause this, and there is nothing you could have done to stop it. None of this is your fault." |
-| "Where will I live?" | "You will have two homes -- one with Mom and one with Dad. We are still working out exactly what the schedule will look like. As soon as we know, we will tell you. You will always know where you are sleeping." |
-| "Will I still go to my same school?" | "Yes. [If true -- if not, be honest: 'We are trying to make sure of that. We'll let you know as soon as we know.']" |
-| "Are you going to get back together?" | "No. We know that is hard to hear. This decision is final." |
-| "Did you stop loving each other?" | "Our feelings about each other changed over time. But how we feel about you -- that has not changed at all and it never will." |
-| "Will you still both come to my games/birthday/school stuff?" | "Yes. We are both your parents and we both want to be there for the things that matter to you." [Only say this if it is true and both parents agree.] |
-| "Can I do anything to fix it?" | "This is not something you can fix, and it is not something you need to fix. That is our job as adults. Your job is just to be you." |
+
+| He Might Ask                                                  | Respond With                                                                                                                                                                                                      |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Is it my fault?"                                             | "No. Absolutely not. This is a decision that adults make about their relationship with each other. You did not cause this, and there is nothing you could have done to stop it. None of this is your fault."      |
+| "Where will I live?"                                          | "You will have two homes -- one with Mom and one with Dad. We are still working out exactly what the schedule will look like. As soon as we know, we will tell you. You will always know where you are sleeping." |
+| "Will I still go to my same school?"                          | "Yes. [If true -- if not, be honest: 'We are trying to make sure of that. We'll let you know as soon as we know.']"                                                                                               |
+| "Are you going to get back together?"                         | "No. We know that is hard to hear. This decision is final."                                                                                                                                                       |
+| "Did you stop loving each other?"                             | "Our feelings about each other changed over time. But how we feel about you -- that has not changed at all and it never will."                                                                                    |
+| "Will you still both come to my games/birthday/school stuff?" | "Yes. We are both your parents and we both want to be there for the things that matter to you." [Only say this if it is true and both parents agree.]                                                             |
+| "Can I do anything to fix it?"                                | "This is not something you can fix, and it is not something you need to fix. That is our job as adults. Your job is just to be you."                                                                              |
 
 ---
 
 ### Responding to Emotional Reactions
-| Reaction | What This Means at Age 8 | What to Do | What to Say |
-|----------|--------------------------|------------|-------------|
-| Crying | His grief response -- processed immediately and directly | Hold him if he wants it. Follow his lead. Do not tell him to stop. | "I know. It is really sad. I'm right here with you." |
-| Anger ("You're ruining everything!") | Healthy externalizing; he is processing loss and needs a target | Do not defend or correct. Do not get reactive. Stay calm. | "I hear how angry you are. That makes total sense. You can be angry." |
-| Silence | He is processing internally. This is common at 8. | Do not flood the silence with explanation. Sit with him. Let it rest. | After a few minutes: "You don't have to say anything right now. I'm just going to sit here with you." |
-| Apparent indifference ("Can I go play now?") | He is compartmentalizing -- protecting himself from overwhelm. Normal. | Let him go. Do not force sustained engagement. He will come back to it. | "Of course you can. We can talk more whenever you want -- today, tonight, anytime." |
-| Wanting to escape the room | Avoidance as emotional regulation -- completely normal | Do not physically restrain. Give him space. Check in after 15-20 minutes. | "You can take a break. We'll be here." |
-| Asking a rapid series of practical questions | Anchoring behavior -- he is trying to map his new reality concretely | Answer the questions he has patiently and honestly. This is a good sign. | Answer each one directly: "Good question. Here is what we know..." |
+
+| Reaction                                     | What This Means at Age 8                                               | What to Do                                                                | What to Say                                                                                           |
+| -------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Crying                                       | His grief response -- processed immediately and directly               | Hold him if he wants it. Follow his lead. Do not tell him to stop.        | "I know. It is really sad. I'm right here with you."                                                  |
+| Anger ("You're ruining everything!")         | Healthy externalizing; he is processing loss and needs a target        | Do not defend or correct. Do not get reactive. Stay calm.                 | "I hear how angry you are. That makes total sense. You can be angry."                                 |
+| Silence                                      | He is processing internally. This is common at 8.                      | Do not flood the silence with explanation. Sit with him. Let it rest.     | After a few minutes: "You don't have to say anything right now. I'm just going to sit here with you." |
+| Apparent indifference ("Can I go play now?") | He is compartmentalizing -- protecting himself from overwhelm. Normal. | Let him go. Do not force sustained engagement. He will come back to it.   | "Of course you can. We can talk more whenever you want -- today, tonight, anytime."                   |
+| Wanting to escape the room                   | Avoidance as emotional regulation -- completely normal                 | Do not physically restrain. Give him space. Check in after 15-20 minutes. | "You can take a break. We'll be here."                                                                |
+| Asking a rapid series of practical questions | Anchoring behavior -- he is trying to map his new reality concretely   | Answer the questions he has patiently and honestly. This is a good sign.  | Answer each one directly: "Good question. Here is what we know..."                                    |
 
 ---
 
 ### Closing the Conversation
+
 > "We want you to know that even though things are going to be different, we are going to take good care of you -- both of us, together. You can always ask us questions. You can talk to one of us, or both of us. There are no wrong questions and there is never a wrong time to bring this up. We love you more than anything."
 
 Give him a hug if he accepts it. Do not expect an emotional response. Let him lead.
@@ -483,23 +519,27 @@ Give him a hug if he accepts it. Do not expect an emotional response. Let him le
 ### Follow-Up Plan
 
 **Next 24 hours:**
+
 - Maintain the normal Saturday routine as much as possible. Same meals, same bedtime. Predictability is stabilizing.
 - If he comes back to the conversation with more questions, answer them without signaling that the topic is exhausting or repetitive. He may ask the same question multiple times -- this is normal processing.
 - Watch for: sleep difficulty that night, stomach complaints, increased clinginess, or conversely unusual quietness. All are normal.
 
 **Next 1-2 weeks:**
+
 - Check in gently and indirectly: "I've been thinking about our conversation. How are you doing with all of it?" -- then listen without directing.
 - Talk to his teacher privately and let her know what has happened, so she can watch for behavior or concentration changes at school and report back to you. Ask her not to make a big deal of it to him unless he brings it up.
 - Be consistent in your behavior toward each other when he can see you -- hostile or cold exchanges between parents in a child's presence are more distressing than the divorce itself for children this age.
 - Help him develop language for talking to friends if he wants to: "You can tell your friends that your parents are getting a divorce if you want to. You get to decide how much you share."
 
 **Ongoing:**
+
 - When arrangements are finalized, sit down with him again and walk through the schedule concretely. Use a calendar if it helps.
 - Continue mentioning both households as home without hierarchy: "What do you want to bring to Dad's house?" not "What do you want to take with you."
 - Expect the grief to resurface at transitions, holidays, and milestones. Plan for it rather than being surprised by it.
 - Never ask him to carry messages between parents, report on the other parent's behavior, or serve as emotional support for either parent's distress about the divorce.
 
 **Refer for professional support if:**
+
 - Persistent sleep disruption lasting more than 3-4 weeks that does not gradually improve
 - Significant academic decline: grades dropping, teacher reporting inability to concentrate, refusal to go to school
 - Loss of interest in activities (sports, friends, games) that he previously loved, lasting more than 4 weeks
@@ -510,4 +550,5 @@ Give him a hug if he accepts it. Do not expect an emotional response. Let him le
 ---
 
 ### A Note for the Parents
+
 What you are doing by having this conversation together, clearly and honestly, is already the most protective thing you can do for him. Children of divorce who receive honest, blame-free disclosures with consistent follow-through show significantly better long-term adjustment than those who receive minimized or loyalty-burdened narratives. After this conversation, take care of yourselves -- each of you. You cannot sustain this for him if you are not supported too.

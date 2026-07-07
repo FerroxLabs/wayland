@@ -223,8 +223,12 @@ export class TwitchPlugin extends BasePlugin {
       },
       logger: {
         info: (): void => undefined,
-        warn: (msg: string): void => { console.warn('[TwitchPlugin:tmi]', msg); },
-        error: (msg: string): void => { console.error('[TwitchPlugin:tmi]', msg); },
+        warn: (msg: string): void => {
+          console.warn('[TwitchPlugin:tmi]', msg);
+        },
+        error: (msg: string): void => {
+          console.error('[TwitchPlugin:tmi]', msg);
+        },
       },
     };
 
@@ -247,10 +251,7 @@ export class TwitchPlugin extends BasePlugin {
         } catch {
           // ignore
         }
-        this.setStatus(
-          'error',
-          'Token invalid or expired - re-generate at twitchtokengenerator.com',
-        );
+        this.setStatus('error', 'Token invalid or expired - re-generate at twitchtokengenerator.com');
         return;
       }
       console.warn('[TwitchPlugin] disconnected:', reasonStr, '- scheduling reconnect');
@@ -265,9 +266,7 @@ export class TwitchPlugin extends BasePlugin {
         self: self as boolean,
       });
       if (!unified) return;
-      void this.emitMessage(unified).catch((err) =>
-        console.error('[TwitchPlugin] emitMessage failed:', err),
-      );
+      void this.emitMessage(unified).catch((err) => console.error('[TwitchPlugin] emitMessage failed:', err));
     });
 
     // F-4: Surface send rejections from Twitch NOTICE. tmi.js's say() does
@@ -318,9 +317,7 @@ export class TwitchPlugin extends BasePlugin {
     });
     client.on('part', (channel: unknown, username: unknown, self: unknown) => {
       if (self === true) {
-        this.chattersByChannel.delete(
-          normalizeTwitchChannel(typeof channel === 'string' ? channel : String(channel)),
-        );
+        this.chattersByChannel.delete(normalizeTwitchChannel(typeof channel === 'string' ? channel : String(channel)));
         return;
       }
       const ch = normalizeTwitchChannel(typeof channel === 'string' ? channel : String(channel));
@@ -405,12 +402,11 @@ export class TwitchPlugin extends BasePlugin {
 
     // Audit gemini MED1 2026-05-18: jitter (0-1000ms) to avoid synchronized
     // chat reconnects during Twitch IRC server hiccups.
-    const delay = Math.min(
-      RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
-    ) + Math.floor(Math.random() * 1000);
+    const delay =
+      Math.min(RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1), RECONNECT_BACKOFF_CAP_MS) +
+      Math.floor(Math.random() * 1000);
     console.warn(
-      `[TwitchPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[TwitchPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`Twitch disconnected; retrying in ${delay}ms`);
 
@@ -436,7 +432,7 @@ export class TwitchPlugin extends BasePlugin {
    * Adapted from openclaw/extensions/twitch/src/probe.ts (MIT).
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let parsed: Record<string, unknown>;
     try {

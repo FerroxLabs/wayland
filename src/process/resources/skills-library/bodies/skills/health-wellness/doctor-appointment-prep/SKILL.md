@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness strategy time-management"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'mental-wellness strategy time-management'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Doctor Appointment Prep
 
 > **Disclaimer:** This skill provides general wellness and organizational information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a medical emergency, call emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a scheduled appointment and wants to arrive organized, articulate, and prepared to use limited provider time efficiently
 - The user asks what questions to bring to a primary care, specialist, urgent care, telehealth, or mental health appointment
 - The user wants help describing symptoms in a way their provider can act on -- not vague statements like "I just don't feel right"
@@ -35,6 +37,7 @@ metadata:
 - The user has had a frustrating history of leaving appointments feeling unheard or without the information they needed
 
 **Do NOT use when:**
+
 - The user describes an acute emergency: chest pain radiating to the arm or jaw, sudden confusion, one-sided facial drooping, sudden vision loss, difficulty breathing, signs of severe allergic reaction, uncontrolled bleeding -- advise calling emergency services immediately and stop the skill
 - The user is asking what their symptoms might mean or what condition they might have -- use a symptom-triage or general health information skill instead, and do not speculate even indirectly
 - The user is asking whether they should see a doctor for a specific symptom -- this is triage; the answer is always "if you are concerned, contact your provider" and nothing more
@@ -85,48 +88,56 @@ Providers have limited time. An unprioritized list of 15 questions will leave th
 
 **Tier 1 -- Must-Ask Questions (1-3 maximum)**
 These are the questions the appointment absolutely cannot end without answering. They should be identified and written first. Examples:
+
 - "I've had this symptom for 3 weeks -- what do you think is going on?"
 - "My father was recently diagnosed with colon cancer -- does that change what screenings I need?"
 - "I've been on this medication for 6 months and I'm still not feeling better -- what are our options?"
 
 **Tier 2 -- High-Value Questions (3-5)**
 These are important but could be addressed in a follow-up message through the patient portal, a nurse call, or a follow-up appointment if time runs out. Examples:
+
 - "What should I watch for that would mean I need to come in sooner?"
 - "Are there lifestyle changes that could help alongside any treatment?"
 - "What does this test actually measure, and what will the result tell us?"
 
 **Tier 3 -- Nice-to-Know Questions (0-3)**
 Low urgency, can be sent via portal message or saved for the next routine visit. Examples:
+
 - "Are there any new guidelines for my age group I should know about?"
 - "I read about a supplement -- is it safe with my current medications?"
 
 Tailor question categories to appointment type:
 
 **For annual physicals:**
+
 - Which screenings am I due for based on my age, sex, and family history? (Key thresholds: colorectal cancer screening at 45, mammography at 40-50 depending on guidelines, Pap smear every 3-5 years for adults 21-65, DEXA scan at 65 for women, AAA screening at 65-75 for male smokers)
 - Are my labs from this visit within normal range, and are any trends concerning?
 - Are my immunizations up to date? (Key adult vaccines: annual influenza, Tdap every 10 years, shingles vaccine at 50+, pneumococcal vaccine at 65+, RSV vaccine for eligible adults)
 - Are all my current prescriptions still the right choice?
 
 **For specialist consultations:**
+
 - What is the scope of your role vs. my primary care provider's role in managing this?
 - What information do you need from my primary care provider to give me the best evaluation?
 - What is the natural history of this condition if we do not intervene?
 - Are there subspecialty centers with higher volume experience in this condition that I should consider?
 
 **For chronic condition management:**
+
 - Are my target numbers being met? (HbA1c target <7.0% for most diabetics; blood pressure target <130/80 for most hypertensive adults; LDL-C targets vary by risk stratification)
 - Is there anything in my pattern of readings that concerns you?
 - Are there any new evidence-based treatments for my condition I am not using?
 - Are any of my medications due for reassessment in terms of dose or drug choice?
 
 **For mental health appointments:**
+
 - How will we measure progress -- what does improvement look like?
 - What is the plan if the current approach is not working in 4-6 weeks?
 - Are the side effects I am experiencing expected to resolve, or do they indicate a medication change?
 - Are there non-medication approaches we should combine with my current treatment?
 
 **For medication reviews:**
+
 - What is this medication treating, and how do we know it is working?
 - Is there a generic equivalent available?
 - At what point should we consider stopping it?
@@ -140,6 +151,7 @@ A provider who has complete, accurate information at the start of the visit spen
 
 **Medication List (complete)**
 Every medication requires four data points: name, dose (in mg or mcg or units), frequency, and prescribing provider. This applies to:
+
 - All prescription medications
 - Over-the-counter medications taken regularly (aspirin, antihistamines, proton pump inhibitors, NSAIDs)
 - Vitamins and supplements (dose matters: a standard B12 supplement vs. a therapeutic megadose are clinically different)
@@ -151,6 +163,7 @@ Every medication requires four data points: name, dose (in mg or mcg or units), 
 Distinguish true allergies (immune-mediated reactions: hives, throat swelling, anaphylaxis) from intolerances (nausea, GI upset, headache) and intolerances from medication side effects. This distinction affects clinical decision-making significantly. For each entry document: the allergen, the specific reaction, and the year it occurred if known.
 
 **Relevant Medical History**
+
 - Chronic conditions with diagnosis dates (Type 2 diabetes diagnosed 2018, hypertension diagnosed 2020)
 - Prior surgeries and procedures with approximate years (appendectomy 2005, knee arthroscopy 2019)
 - Hospitalizations with reasons (pneumonia 2022, fracture repair 2015)
@@ -203,6 +216,7 @@ A provider can scan a one-page timeline in 30 seconds and understand a 3-month s
 Logistics that derail otherwise well-prepared visits:
 
 **Before the appointment:**
+
 - Arrive 10-15 minutes early for intake paperwork and vitals; for new patient appointments, arrive 20-30 minutes early and complete new patient forms online in advance if the portal allows
 - Confirm whether fasting is required (fasting labs require 8-12 hours without food or caloric beverages)
 - Bring insurance card, photo ID, and any required referral authorizations
@@ -210,6 +224,7 @@ Logistics that derail otherwise well-prepared visits:
 - If imaging or records from other facilities are needed, request them 5-7 business days in advance -- not the day before
 
 **During the appointment:**
+
 - Ask the provider to write down diagnoses, test names, and medication names -- provider handwriting on a prescription pad is still the most reliable way to capture exact names
 - Ask at the end: "Can you summarize what we decided today?" -- this confirms mutual understanding before leaving the room
 - Ask about next steps explicitly: "What happens next, and how will I find out about the results?" -- ambiguity about who is responsible for follow-up is the most common source of care gaps
@@ -218,6 +233,7 @@ Logistics that derail otherwise well-prepared visits:
 - If note-taking is difficult, ask whether the provider objects to recording the conversation on a phone -- many do not
 
 **After the appointment:**
+
 - Log into the patient portal within 24-48 hours to check that any ordered labs, imaging, or referrals appear in the system
 - If results are expected within a defined window (blood panel in 24 hours, imaging in 2-3 days) and do not appear, call the office -- do not assume no news is good news
 - Complete any actions assigned to the patient (schedule specialist, begin medication, return for labs in 3 months) within 48 hours of the visit while the momentum is active
@@ -469,6 +485,7 @@ The OPQRST-A framework applies but requires translation into mental health langu
 - **Associated:** Sleep changes (insomnia, hypersomnia), appetite changes, concentration difficulties, energy level, thoughts of self-harm
 
 Add mental health-specific questions:
+
 - "How do we define treatment success for my situation?"
 - "What validated tools are you using to track my progress?" (PHQ-9 for depression, GAD-7 for anxiety, AUDIT for alcohol use are standard screeners)
 - "If I need to contact someone between sessions, what is the protocol?"
@@ -532,58 +549,53 @@ Medical appointment anxiety (sometimes called white coat anxiety) can interfere 
 
 Before your appointment, fill in as much of this as you can. Your answers will help your cardiologist get a complete picture quickly.
 
-| Element                  | Your Description -- Fill This In                                                       |
-|--------------------------|----------------------------------------------------------------------------------------|
-| Onset                    | Approximately 6 weeks ago. Was the first episode sudden or did you notice it gradually? Was anything different around that time -- new stress, illness, new medication, significant change in caffeine, alcohol, sleep, or activity? |
-| Provocation/Palliation   | Does anything seem to trigger the episodes? (Exertion, caffeine, stress, lying down, changing position, after eating?) Does anything make them stop sooner -- lying down, drinking water, holding your breath, bearing down? Have they been getting more frequent? |
-| Quality                  | During an episode, how would you describe the sensation? (Rapid and steady? Irregular or skipping? Fluttering? Pounding? Is it in your chest, throat, or both? Does it feel like your heart stops briefly before racing?) |
-| Region/Radiation         | Is the sensation only in your chest, or do you also feel it in your neck or throat? |
-| Severity                 | On a 0-10 scale, how disabling are the episodes while they are happening? Do you have to stop activity? Have you actually fainted or only felt like you might faint? If you felt like you might faint, did you have any warning beforehand (dizziness, vision narrowing, sudden nausea)? |
-| Timing                   | How many episodes in the past 6 weeks total? How long does each episode typically last -- seconds, minutes, longer? Is there any pattern (time of day, before meals, after exercise, at rest, at night)? |
-| Associated Symptoms      | During or just before/after episodes: shortness of breath, chest pain or pressure, dizziness, lightheadedness, vision changes, sudden weakness, sweating, sense of doom? Any episodes of actual loss of consciousness? |
+| Element                | Your Description -- Fill This In                                                                                                                                                                                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Onset                  | Approximately 6 weeks ago. Was the first episode sudden or did you notice it gradually? Was anything different around that time -- new stress, illness, new medication, significant change in caffeine, alcohol, sleep, or activity?                                                     |
+| Provocation/Palliation | Does anything seem to trigger the episodes? (Exertion, caffeine, stress, lying down, changing position, after eating?) Does anything make them stop sooner -- lying down, drinking water, holding your breath, bearing down? Have they been getting more frequent?                       |
+| Quality                | During an episode, how would you describe the sensation? (Rapid and steady? Irregular or skipping? Fluttering? Pounding? Is it in your chest, throat, or both? Does it feel like your heart stops briefly before racing?)                                                                |
+| Region/Radiation       | Is the sensation only in your chest, or do you also feel it in your neck or throat?                                                                                                                                                                                                      |
+| Severity               | On a 0-10 scale, how disabling are the episodes while they are happening? Do you have to stop activity? Have you actually fainted or only felt like you might faint? If you felt like you might faint, did you have any warning beforehand (dizziness, vision narrowing, sudden nausea)? |
+| Timing                 | How many episodes in the past 6 weeks total? How long does each episode typically last -- seconds, minutes, longer? Is there any pattern (time of day, before meals, after exercise, at rest, at night)?                                                                                 |
+| Associated Symptoms    | During or just before/after episodes: shortness of breath, chest pain or pressure, dizziness, lightheadedness, vision changes, sudden weakness, sweating, sense of doom? Any episodes of actual loss of consciousness?                                                                   |
 
 ---
 
 ### Section 2: Symptom Timeline
 
-| Time Period              | What Happened                                                                    |
-|--------------------------|----------------------------------------------------------------------------------|
-| Approximately 6 weeks ago| First episode noticed. Describe what you were doing and what it felt like.       |
-| Weeks 2-4                | How frequently were episodes occurring? Any change in character?                 |
-| Weeks 5-6 (recent)       | Are episodes more frequent, less frequent, or about the same as at the start?   |
-| Near-fainting episodes   | When did these occur? How many times? During an episode or separately?           |
-| Primary care visit       | When did you see your PCP? What did they say or do? Was an EKG done? Any other tests? Were you given any instructions? |
+| Time Period               | What Happened                                                                                                          |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Approximately 6 weeks ago | First episode noticed. Describe what you were doing and what it felt like.                                             |
+| Weeks 2-4                 | How frequently were episodes occurring? Any change in character?                                                       |
+| Weeks 5-6 (recent)        | Are episodes more frequent, less frequent, or about the same as at the start?                                          |
+| Near-fainting episodes    | When did these occur? How many times? During an episode or separately?                                                 |
+| Primary care visit        | When did you see your PCP? What did they say or do? Was an EKG done? Any other tests? Were you given any instructions? |
 
 ---
 
 ### Section 3: Questions for Your Cardiologist
 
 **TIER 1 -- Ask These First:**
+
 1. Based on how I've described these episodes, what are you considering as the most likely explanation for what I'm experiencing?
 2. What tests do you want to do today or order going forward, and what will each test tell us? (Note: your cardiologist may order an EKG, Holter monitor, echocardiogram, event recorder, or loop recorder depending on episode frequency -- ask what each one is looking for)
 3. Given that I've had near-fainting with these episodes -- is there anything I should avoid doing or restrict until we have more information?
 
-**TIER 2 -- Ask If Time Allows:**
-4. How does my blood pressure medication interact with what you're evaluating -- do you want to review or adjust anything while I'm here?
-5. If a specific cause is identified, what are the treatment options and how do I choose between them?
-6. What symptoms should trigger me to go to the emergency room rather than waiting for a follow-up?
-7. How long will it take to get results, and who contacts whom -- do I wait, or do I call?
+**TIER 2 -- Ask If Time Allows:** 4. How does my blood pressure medication interact with what you're evaluating -- do you want to review or adjust anything while I'm here? 5. If a specific cause is identified, what are the treatment options and how do I choose between them? 6. What symptoms should trigger me to go to the emergency room rather than waiting for a follow-up? 7. How long will it take to get results, and who contacts whom -- do I wait, or do I call?
 
-**TIER 3 -- Portal Message or Follow-Up Visit:**
-8. Are there lifestyle changes (caffeine, alcohol, sleep, exercise) that would be worth trying regardless of the findings?
-9. Does my statin need to be reviewed as part of this workup?
+**TIER 3 -- Portal Message or Follow-Up Visit:** 8. Are there lifestyle changes (caffeine, alcohol, sleep, exercise) that would be worth trying regardless of the findings? 9. Does my statin need to be reviewed as part of this workup?
 
-*(At the start of your appointment, say: "I have three main things I want to make sure we cover -- what might be causing these episodes, what tests you want to order, and whether I need to restrict anything in the meantime. Can we make sure we get to all three?")*
+_(At the start of your appointment, say: "I have three main things I want to make sure we cover -- what might be causing these episodes, what tests you want to order, and whether I need to restrict anything in the meantime. Can we make sure we get to all three?")_
 
 ---
 
 ### Section 4: Current Medications
 
-| Medication Name          | Dose       | Frequency | Prescribing Provider      | Taking as Prescribed? |
-|--------------------------|------------|-----------|---------------------------|-----------------------|
-| Blood pressure medication -- name unknown | Unknown | Unknown | Primary care provider | Unknown |
-| Statin -- name unknown   | Unknown    | Unknown   | Primary care provider     | Unknown               |
-| [Any OTC medications: aspirin, ibuprofen, antacids, decongestants, supplements] | | | Self-managed | |
+| Medication Name                                                                 | Dose    | Frequency | Prescribing Provider  | Taking as Prescribed? |
+| ------------------------------------------------------------------------------- | ------- | --------- | --------------------- | --------------------- |
+| Blood pressure medication -- name unknown                                       | Unknown | Unknown   | Primary care provider | Unknown               |
+| Statin -- name unknown                                                          | Unknown | Unknown   | Primary care provider | Unknown               |
+| [Any OTC medications: aspirin, ibuprofen, antacids, decongestants, supplements] |         |           | Self-managed          |                       |
 
 > **Action required before Thursday:** Call your pharmacy and ask them to print your current medication reconciliation list -- this takes under 5 minutes and gives you the exact drug names, doses, and frequencies for every medication. Alternatively, bring all of your medication bottles to the appointment. Your cardiologist will need this information to evaluate drug interactions and to make any prescribing decisions.
 
@@ -591,27 +603,31 @@ Before your appointment, fill in as much of this as you can. Your answers will h
 
 ### Section 5: Allergies and Adverse Reactions
 
-| Allergen                 | Reaction Type                 | Specific Reaction         | Year (approx.) |
-|--------------------------|-------------------------------|---------------------------|----------------|
-| [List all drug and food allergies] | [Allergy / Intolerance] | [Describe exactly what happens] | [Year] |
+| Allergen                           | Reaction Type           | Specific Reaction               | Year (approx.) |
+| ---------------------------------- | ----------------------- | ------------------------------- | -------------- |
+| [List all drug and food allergies] | [Allergy / Intolerance] | [Describe exactly what happens] | [Year]         |
 
 ---
 
 ### Section 6: Relevant Medical History
 
 **Chronic Conditions:**
+
 - Hypertension -- [Year diagnosed]
 - Hypercholesterolemia (high cholesterol) -- [Year diagnosed]
 - [Any other known conditions]
 
 **Prior Surgeries and Procedures:**
+
 - [Any cardiac or thoracic procedures: pacemaker, ablation, angiogram, cardiac surgery -- if none, state "none"]
 - [All other surgeries with approximate years]
 
 **Hospitalizations:**
+
 - [Any hospital admissions, especially for cardiac or cardiovascular reasons]
 
 **Family History (first-degree relatives):**
+
 - [Father / Mother / Sibling]: [Heart disease, arrhythmia, sudden cardiac death, stroke, heart failure -- note the age at which it occurred]
 - Flag particularly: any family member who had unexplained fainting, palpitations, or sudden death -- this is important information for your cardiologist
 
@@ -644,12 +660,14 @@ Before your appointment, fill in as much of this as you can. Your answers will h
 ### Section 9: Appointment Day Strategy
 
 **Logistics:**
+
 - [ ] Arrive 20-30 minutes early -- new cardiology patient intake paperwork is typically extensive
 - [ ] Complete any online new patient forms at least 24 hours before your appointment
 - [ ] Confirm fasting: call the cardiology office before Thursday to ask whether any ordered bloodwork will require fasting -- if yes, adjust your morning eating accordingly
 - [ ] Consider bringing a trusted companion -- they can take notes and help you remember what the cardiologist says
 
 **During the Visit:**
+
 - [ ] State your agenda at the start: "I have three things I most want to cover -- what might be causing my episodes, what tests you're recommending, and whether I need to restrict any activities until we know more."
 - [ ] When the cardiologist names any test, diagnosis, or medication -- ask them to write it down
 - [ ] At the end, ask: "Can you summarize what we found today and what happens next?"
@@ -660,6 +678,7 @@ Before your appointment, fill in as much of this as you can. Your answers will h
 It is completely understandable to feel anxious going into a cardiology consultation for the first time. Having this document means you do not need to hold all of this information in your head -- you can glance at your notes. The preparation itself is doing a lot of the work. If you feel overwhelmed in the room, it is completely appropriate to say: "I want to make sure I understand -- can you say that again?" or "Can you write that down for me?"
 
 **After the Visit:**
+
 - [ ] Log into the patient portal within 48 hours to confirm any ordered tests appear in the system
 - [ ] If a Holter monitor or event recorder is ordered, clarify exactly when and how you will receive the device and what to do when you have an episode
 - [ ] Complete any scheduled tests (echo, bloodwork, monitor pickup) within the timeframe the cardiologist specifies -- do not let these drop

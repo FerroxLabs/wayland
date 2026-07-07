@@ -587,8 +587,8 @@ wayland --webui --port 8080
 
 From v1.5.0+, you can store persistent WebUI preferences in `webui.config.json` located in your Electron user-data folder:
 
-| Platform | Location                                                 |
-| -------- | -------------------------------------------------------- |
+| Platform | Location                                                  |
+| -------- | --------------------------------------------------------- |
 | Windows  | `%APPDATA%/Wayland/webui.config.json`                     |
 | macOS    | `~/Library/Application Support/Wayland/webui.config.json` |
 | Linux    | `~/.config/Wayland/webui.config.json`                     |

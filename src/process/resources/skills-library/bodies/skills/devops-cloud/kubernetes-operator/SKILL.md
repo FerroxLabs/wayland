@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "containers-orchestration"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'containers-orchestration'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Kubernetes Operator
@@ -31,6 +31,7 @@ You are a Kubernetes orchestration expert with deep knowledge of workload manage
 ## Pod Design Patterns
 
 ### Sidecar Pattern
+
 A helper container runs alongside the main application container in the same pod.
 
 ```yaml
@@ -57,6 +58,7 @@ spec:
 ```
 
 ### Init Container Pattern
+
 Run setup tasks before the main container starts.
 
 ```yaml
@@ -77,6 +79,7 @@ spec:
 ```
 
 ### Ambassador Pattern
+
 A proxy container handles outbound communication.
 
 ```yaml
@@ -86,12 +89,12 @@ spec:
       image: myapp:1.0
       env:
         - name: DB_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: DB_PORT
-          value: "5432"
+          value: '5432'
     - name: cloud-sql-proxy
       image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
-      args: ["--port=5432", "project:region:instance"]
+      args: ['--port=5432', 'project:region:instance']
 ```
 
 ## Workload Controllers Decision Tree
@@ -137,13 +140,13 @@ spec:
 
 ## Service Types
 
-| Type | Use Case | Notes |
-|------|----------|-------|
-| `ClusterIP` | Internal communication | Default. Only accessible within cluster. |
-| `NodePort` | Development/testing | Exposes on each node's IP at a static port (30000-32767). |
-| `LoadBalancer` | External production traffic | Provisions cloud load balancer. Use with caution (cost). |
-| `ExternalName` | DNS alias to external service | Returns CNAME record. No proxying. |
-| `Headless` (ClusterIP: None) | StatefulSet DNS discovery | Returns pod IPs directly, no load balancing. |
+| Type                         | Use Case                      | Notes                                                     |
+| ---------------------------- | ----------------------------- | --------------------------------------------------------- |
+| `ClusterIP`                  | Internal communication        | Default. Only accessible within cluster.                  |
+| `NodePort`                   | Development/testing           | Exposes on each node's IP at a static port (30000-32767). |
+| `LoadBalancer`               | External production traffic   | Provisions cloud load balancer. Use with caution (cost).  |
+| `ExternalName`               | DNS alias to external service | Returns CNAME record. No proxying.                        |
+| `Headless` (ClusterIP: None) | StatefulSet DNS discovery     | Returns pod IPs directly, no load balancing.              |
 
 ## Ingress Configuration
 
@@ -153,21 +156,21 @@ kind: Ingress
 metadata:
   name: api-ingress
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rate-limit: "100"
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/rate-limit: '100'
+    nginx.ingress.kubernetes.io/proxy-body-size: '10m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '60'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '60'
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
   tls:
     # ... (condensed) ...
-            backend:
-              service:
-                name: api-server-v2
-                port:
-                  number: 8080
+    backend:
+      service:
+        name: api-server-v2
+        port:
+          number: 8080
 ```
 
 ## ConfigMaps and Secrets
@@ -181,9 +184,9 @@ metadata:
   name: api-config
   namespace: production
 data:
-  LOG_LEVEL: "info"
-  MAX_CONNECTIONS: "100"
-  CACHE_TTL: "300"
+  LOG_LEVEL: 'info'
+  MAX_CONNECTIONS: '100'
+  CACHE_TTL: '300'
   config.yaml: |
     server:
       port: 8080
@@ -262,11 +265,11 @@ spec:
   behavior:
     scaleUp:
       # ... (condensed) ...
-        metric:
-          name: http_requests_per_second
-        target:
-          type: AverageValue
-          averageValue: "1000"
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: '1000'
 ```
 
 ## Resource Limits Guidelines
@@ -387,8 +390,8 @@ spec:
   ingress:
     - from:
         # ... (condensed) ...
-            matchLabels:
-              k8s-app: kube-dns
+        matchLabels:
+          k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53
@@ -402,7 +405,7 @@ kind: PodDisruptionBudget
 metadata:
   name: api-server-pdb
 spec:
-  minAvailable: 2       # OR use maxUnavailable: 1
+  minAvailable: 2 # OR use maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: api-server
@@ -456,6 +459,7 @@ kubectl debug node/<node-name> -it --image=ubuntu
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing kubernetes operator solutions
 - Reviewing or improving existing kubernetes operator approaches
 - Making architectural or implementation decisions about kubernetes operator
@@ -463,6 +467,7 @@ kubectl debug node/<node-name> -it --image=ubuntu
 - Troubleshooting kubernetes operator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -473,21 +478,26 @@ kubectl debug node/<node-name> -it --image=ubuntu
 # Kubernetes Operator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

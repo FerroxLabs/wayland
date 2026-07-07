@@ -43,7 +43,11 @@ const EmailAgentMailSetup: React.FC = () => {
       displayName='Email (AgentMail)'
       pluginId={pluginStatus?.id ?? 'email-agentmail_default'}
     >
-      <EmailAgentMailConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <EmailAgentMailConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

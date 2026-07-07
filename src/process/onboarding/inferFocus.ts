@@ -32,11 +32,15 @@ const isFocusId = (s: string): s is FocusId => (FOCUS_IDS as readonly string[]).
  * Intentionally broad - this is the offline floor, not the primary path.
  */
 const KEYWORDS: Record<Exclude<FocusId, 'general'>, RegExp> = {
-  content: /\b(content|copy(writ)?|writ(e|er|ing)|blog|video|podcast|creative|social|brand|design|seo|newsletter|script|marketing)\b/i,
-  sales: /\b(sales|growth|lead(s|gen)?|outreach|prospect|deal|crm|pipeline|revenue|closer?|cold (call|email)|account exec|biz dev)\b/i,
-  business: /\b(business|found(er|ing)|ceo|coo|operations?|ops|startup|company|manage(r|ment)?|admin|strateg(y|ist)|consult(ant|ing)?|agency|owner)\b/i,
+  content:
+    /\b(content|copy(writ)?|writ(e|er|ing)|blog|video|podcast|creative|social|brand|design|seo|newsletter|script|marketing)\b/i,
+  sales:
+    /\b(sales|growth|lead(s|gen)?|outreach|prospect|deal|crm|pipeline|revenue|closer?|cold (call|email)|account exec|biz dev)\b/i,
+  business:
+    /\b(business|found(er|ing)|ceo|coo|operations?|ops|startup|company|manage(r|ment)?|admin|strateg(y|ist)|consult(ant|ing)?|agency|owner)\b/i,
   dev: /\b(dev(eloper)?|engineer(ing)?|cod(e|ing)|program(mer|ming)?|software|build(er|ing)?|api|app|technical|data scien(ce|tist)|ml|ai engineer|devops|backend|frontend|full[- ]?stack)\b/i,
-  finance: /\b(financ(e|ial)|account(ant|ing)?|money|invest(or|ing|ment)?|trad(e|er|ing)|stock|equit|budget|tax|bookkeep|analyst|econom(y|ist|ics)|fintech|wealth|portfolio|cfo)\b/i,
+  finance:
+    /\b(financ(e|ial)|account(ant|ing)?|money|invest(or|ing|ment)?|trad(e|er|ing)|stock|equit|budget|tax|bookkeep|analyst|econom(y|ist|ics)|fintech|wealth|portfolio|cfo)\b/i,
 };
 
 /** Deterministic keyword classification - the offline floor. */
@@ -73,9 +77,7 @@ export async function inferFocusFromText(work: string): Promise<FocusId[]> {
     const match = raw.match(/\[[^\]]*\]/);
     if (match) {
       const parsed: unknown = JSON.parse(match[0]);
-      const ids = (Array.isArray(parsed) ? parsed : [])
-        .map((v) => String(v).toLowerCase().trim())
-        .filter(isFocusId);
+      const ids = (Array.isArray(parsed) ? parsed : []).map((v) => String(v).toLowerCase().trim()).filter(isFocusId);
       const unique = [...new Set(ids)].slice(0, 3);
       if (unique.length > 0) return unique;
     }

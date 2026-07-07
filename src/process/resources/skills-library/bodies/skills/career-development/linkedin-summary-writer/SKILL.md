@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "linkedin career template writing"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'linkedin career template writing'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # LinkedIn Summary Writer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly wants to write, rewrite, or improve their LinkedIn About section from scratch or with existing content
 - The user says their LinkedIn profile is not attracting recruiter views, InMails, or connection requests and wants to fix the About section
 - The user is preparing for a job search and wants to optimize LinkedIn before applying so that inbound recruiter interest supplements outbound applications
@@ -34,6 +36,7 @@ metadata:
 - The user is a freelancer or consultant who needs the About section to function as a client-facing value proposition rather than a job-seeker narrative
 
 **Do NOT use this skill when:**
+
 - The user wants a resume summary paragraph -- use `resume-summary-writer`, which follows ATS conventions and third-person or noun-phrase formatting that would be wrong on LinkedIn
 - The user wants help writing or optimizing their LinkedIn headline (the 220-character line beneath their name) -- use `linkedin-headline-optimizer`, which handles keyword weighting and pipe-delimited formatting specific to that field
 - The user wants to message a recruiter who reached out -- use `recruiter-outreach`, which handles response tone, salary negotiation framing, and interest-level signaling
@@ -91,6 +94,7 @@ Four proven hook structures, in order of effectiveness for LinkedIn:
 4. **The Identity-Plus-Mission Statement:** Name who you are and what you are building toward in a way that goes beyond a job title. "I am a mechanical engineer turned climate tech founder who left aerospace to make grid-scale energy storage actually manufacturable." Works for career changers and founders.
 
 Avoid these common hook failures:
+
 - Starting with "I am a passionate..." -- the word "passionate" without immediate evidence is the most overused word on LinkedIn and triggers a credibility discount
 - Starting with the job title alone -- "I am a Senior Data Scientist at..." tells the reader nothing they could not see from the headline
 - Starting with a vague aspiration -- "I believe in the power of storytelling..." is meaningless without context
@@ -103,11 +107,13 @@ Avoid these common hook failures:
 The 3-6 lines after the hook explain why the user does what they do and how they came to do it well. This section is not a chronological resume recitation -- it is the narrative connective tissue that makes the rest of the summary feel earned rather than claimed.
 
 Effective origin stories answer one of these questions:
+
 - What unusual path led them to this work? (The "unexpected background" origin)
 - What problem did they encounter that made them choose this career? (The "motivated by a real challenge" origin)
 - What combination of skills or experiences gives them an unusual vantage point? (The "intersection" origin)
 
 Techniques that work:
+
 - Use a specific scene or moment rather than a generalization: "I spent three years as a night-shift ICU nurse before moving into health tech. That is where I learned that bad UX in clinical software is not an inconvenience -- it is a patient safety issue."
 - Name the professional tension or trade-off the user navigates -- it signals depth: "I sit at the intersection of data science and product strategy, which means I spend as much time asking 'should we build this?' as 'how should we build this?'"
 - If the origin story is straightforward (user has been in the same field since graduation), skip the origin section or compress it to one sentence and expand the proof section instead
@@ -135,6 +141,7 @@ Aim for 2-3 proof elements in this section. More than 3 starts to feel like a re
 After establishing credibility, the summary should tell the reader exactly what the user is doing today and who they are best positioned to help. This serves two functions: it signals current relevance (the summary is not frozen in the past) and it helps the right readers self-identify as potential opportunities.
 
 Effective current focus statements:
+
 - Name the type of problem, not just the job function: "Right now I am focused on helping Series A fintech companies build their first compliance infrastructure before the regulators come calling."
 - Reference the type of environment where the user thrives: "I do my best work in high-ambiguity environments where the roadmap does not exist yet and needs to be invented."
 - If the user is actively building something (a team, a product, a methodology), name it: "I am currently leading our expansion into the APAC market, which means I spend my days navigating a genuinely different set of consumer behavior assumptions."
@@ -168,6 +175,7 @@ Never end the call to action with a period and no instruction. The reader should
 LinkedIn's search algorithm uses keyword matching between what recruiters search for in Recruiter Lite and LinkedIn Recruiter and what appears in profiles. The About section is one of the indexed fields, but it carries less weight than the headline and current title. This means keywords in the About section must appear in complete sentences -- they cannot be a list.
 
 Keyword selection methodology:
+
 - Pull 5-10 job postings for the exact target role the user wants
 - Identify terms that appear in 3 or more postings -- these are the high-signal keywords
 - Distinguish between skill keywords (Python, Salesforce, financial modeling, user research) and role/seniority keywords (Director of Product, Senior Engineer, Head of Growth)
@@ -176,6 +184,7 @@ Keyword selection methodology:
 - Avoid repeating the same keyword more than twice -- it reads as stuffing and triggers skepticism in human readers
 
 Common keyword embedding errors to avoid:
+
 - Listing keywords at the end of the summary as a tag dump: "Skills: Python, SQL, Tableau, PowerBI, Snowflake" -- this looks like a spam attempt and reads as low-effort
 - Using keyword variations that recruiters do not actually search: "machine learning engineering" when the search term is "ML engineer" or "machine learning engineer"
 - Omitting the keyword form that matches the job posting: if postings say "account executive," do not only write "sales professional"
@@ -294,6 +303,7 @@ The rule is: the reader should be able to finish the proof section thinking "thi
 A user who has been a marine biologist, a software salesperson, and is now a climate policy analyst should not apologize for the path or try to hide it. Non-linear backgrounds, told well, are a differentiator -- not a liability.
 
 Strategy:
+
 - Find the single thread that runs through all the roles. It might be a skill (systems thinking, communication across audiences, rapid learning in new domains), a value (impact at scale, working at the frontier of a field), or a type of problem (translating complexity into action).
 - Name the thread explicitly in the origin story: "I have spent my career at the edge of fields that do not usually talk to each other -- and that is exactly where the most interesting problems live."
 - Front-load the current/target role identity in the hook so the reader immediately knows where the person is headed, and let the origin story explain how they got there.
@@ -306,6 +316,7 @@ Strategy:
 Standard proof-of-expertise language breaks down when the user does not have a career arc to draw from. The About section for an early-career professional should be forward-leaning, not a defensive explanation of limited experience.
 
 Adjustments:
+
 - The hook should signal intellectual engagement with the field rather than seniority: "I became obsessed with how cities price parking after writing a thesis on congestion pricing -- and I have not been able to look at transportation policy the same way since."
 - Replace employment achievements with project outcomes, academic research results, internship contributions, or self-directed work: "In my internship at a regional commercial real estate firm, I built the first automated rent comps model the team had used, cutting their analysis time from four hours to 45 minutes per deal."
 - Forward-oriented language is appropriate and honest: "I am building expertise in..." rather than "I have expertise in..."
@@ -318,6 +329,7 @@ Adjustments:
 The structural logic of the summary shifts when the reader is a potential client, not a recruiter or hiring manager. Clients have different concerns: can this person solve my specific problem, do they have relevant results for companies like mine, and is working with them going to be difficult?
 
 Adjustments:
+
 - Reframe the hook as a problem statement from the client's perspective: "Most e-commerce brands do not have a retention problem -- they have a segmentation problem that looks like a retention problem."
 - The proof section should emphasize client results and the range of company types served, not internal promotions or team-building
 - Replace "I am looking for roles" language with "I work with [type of company] on [type of problem]"
@@ -345,6 +357,7 @@ When the problem is isolated (e.g., only the hook is weak), make the targeted fi
 Senior executives face a paradox: the more senior the role, the less their personal brand should lead with individual technical achievements and the more it should lead with a philosophy, vision, or pattern of organizational impact.
 
 Adjustments:
+
 - The hook should be a bold point of view on the function, industry, or the nature of leadership itself: "The hardest part of scaling a sales organization is not hiring -- it is getting everyone to stop selling the product you built and start selling the one the customer actually needs."
 - Proof should emphasize organizational transformation, team building, and strategic decisions rather than individual contributor work: "I have taken three underperforming revenue organizations from declining NRR to category leadership -- each time by fixing the compensation model before touching the headcount."
 - The origin story is often optional at this level -- the career speaks for itself through the experience section. Use the origin story space for philosophy instead.
@@ -384,7 +397,7 @@ If you are working on supply chain transformation, operations strategy, or suppl
 ### Section Breakdown
 
 | Section        | Approximate Lines | What It Does                                                                      |
-|----------------|-------------------|-----------------------------------------------------------------------------------|
+| -------------- | ----------------- | --------------------------------------------------------------------------------- |
 | Hook           | Lines 1-2         | Provocative insight naming the specific failure mode the user is expert in fixing |
 | Origin Story   | Lines 3-5         | Consumer electronics context explains why the user understands high-stakes risk   |
 | Proof          | Lines 6-10        | 34% defect reduction + $4.2M savings with methodology (upstream, not inspection)  |
@@ -395,16 +408,16 @@ If you are working on supply chain transformation, operations strategy, or suppl
 
 ### Keywords Embedded
 
-| Keyword / Phrase            | Section       | Natural Context                                        | Search Intent                          |
-|-----------------------------|---------------|--------------------------------------------------------|----------------------------------------|
-| supply chain                | Hook, proof   | "...supply chain risk," "supply chain transformation"  | Primary role keyword                   |
-| supplier qualification      | Hook, proof   | "supplier qualification process," "...framework"       | Specialized operations term            |
-| S&OP                        | Current focus | "S&OP process design"                                  | Recruiter / consulting firm search     |
-| lean manufacturing          | Current focus | "lean manufacturing" in toolkit description            | Methodology keyword                    |
-| APICS CSCP                  | Proof         | Certification named in context of frameworks           | Credential-based recruiter filter      |
-| Six Sigma Black Belt        | Proof         | Certification paired with CSCP                         | Methodology credential search          |
-| operations strategy         | CTA           | "operations strategy...challenges in manufacturing"    | Consulting engagement type             |
-| supplier performance        | CTA           | "supplier performance challenges"                      | Niche consulting service keyword       |
+| Keyword / Phrase       | Section       | Natural Context                                       | Search Intent                      |
+| ---------------------- | ------------- | ----------------------------------------------------- | ---------------------------------- |
+| supply chain           | Hook, proof   | "...supply chain risk," "supply chain transformation" | Primary role keyword               |
+| supplier qualification | Hook, proof   | "supplier qualification process," "...framework"      | Specialized operations term        |
+| S&OP                   | Current focus | "S&OP process design"                                 | Recruiter / consulting firm search |
+| lean manufacturing     | Current focus | "lean manufacturing" in toolkit description           | Methodology keyword                |
+| APICS CSCP             | Proof         | Certification named in context of frameworks          | Credential-based recruiter filter  |
+| Six Sigma Black Belt   | Proof         | Certification paired with CSCP                        | Methodology credential search      |
+| operations strategy    | CTA           | "operations strategy...challenges in manufacturing"   | Consulting engagement type         |
+| supplier performance   | CTA           | "supplier performance challenges"                     | Niche consulting service keyword   |
 
 ---
 

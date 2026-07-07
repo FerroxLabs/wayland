@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing design"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'academic-writing writing design'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Academic Argument
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write a full argumentative essay for a course, journal submission, conference paper, or academic policy document -- where the deliverable is a structured argument with thesis, evidence, warrants, and counterargument engagement
 - A user wants to develop a position paper on a contested empirical or theoretical question in a specific discipline (education policy, bioethics, political science, economics, literary criticism, philosophy)
 - A user needs to construct a multi-premise logical argument and is unsure how to organize the claims into a coherent hierarchy that builds toward a single defensible conclusion
@@ -29,6 +31,7 @@ metadata:
 - A user is preparing for a formal debate, moot court, or policy testimony and needs to stress-test their argument against the strongest opposing position
 
 **Do NOT use this skill when:**
+
 - The user wants only a thesis statement generated -- use `thesis-statement`, which focuses on crafting the claim itself without building the full argumentative architecture
 - The user wants to structure an entire research paper with literature review, methodology, and findings sections -- use `research-paper-structure`, which addresses the organizational conventions of empirical research
 - The user wants persuasive marketing copy, a business case memo, or a pitch deck -- use business writing skills, which apply different standards for claim strength and evidence
@@ -59,6 +62,7 @@ Before drafting a single sentence, extract or ask for the following. These param
 Toulmin's model (Claim, Grounds, Warrant, Backing, Qualifier, Rebuttal) is the gold standard for academic argumentation. Apply it at two levels: the macro level (the whole argument) and the micro level (each sub-claim).
 
 **Macro-level Toulmin structure:**
+
 - **Claim (thesis):** The single central proposition the essay argues. Should be one sentence, specific, and qualified appropriately.
 - **Grounds:** The aggregate body of evidence -- the studies, data, cases, and texts that collectively support the claim.
 - **Warrant:** The bridging principle connecting the grounds to the claim. This is the most often omitted element. "The data shows X; therefore, my claim Y is true" is incomplete. The warrant explains WHY X supports Y: the underlying assumption, principle, or reasoning that makes the evidence relevant.
@@ -100,23 +104,27 @@ The most common failure in academic argument is strawmanning the counterargument
 Argumentation norms differ across academic disciplines. Using the wrong evidentiary standard for a discipline signals that the writer does not know the field.
 
 **Empirical sciences (biology, psychology, public health, economics):**
+
 - Quantitative evidence is primary. Report effect sizes, confidence intervals, and p-values where relevant. A study showing p < 0.05 with a tiny effect size (Cohen's d = 0.05) should not be treated as strong evidence.
 - Distinguish between association and causation explicitly. Causal claims require either randomized controlled trial evidence, natural experiments, or careful instrumental variable analysis. Observational correlation data supports "associated with" -- not "causes."
 - Cite systematic reviews and meta-analyses over individual studies where available. A meta-analysis of 40 studies is stronger evidence than any single study.
 - Replication is relevant. A finding that has not been replicated should be qualified accordingly.
 
 **Humanities (literature, history, philosophy, art history):**
+
 - Textual evidence is primary. Claims about meaning, interpretation, or historical causation must be anchored to specific primary texts, documents, or artifacts.
 - Interpretive warrants must be made explicit. "This passage reveals X" requires an explanation of the interpretive method being applied (close reading, historicism, psychoanalysis, postcolonialism) and why that method is appropriate for this text.
 - Engage with the existing critical conversation. A claim that has been made before must either refine the prior claim or argue why it was incomplete. Repeating an established interpretation is not argumentation.
 - Philosophical argument must address logical validity and soundness, not just plausibility. If an argument is deductive, test it for validity: do the premises logically entail the conclusion?
 
 **Social sciences (sociology, political science, anthropology, education research):**
+
 - Mixed-method evidence is often strongest. Quantitative data establishes patterns; qualitative data explains mechanisms. An argument that uses both is more persuasive than one that uses only one.
 - Context dependency must be acknowledged. Social science findings often do not generalize across cultures, time periods, or institutional contexts. Specify the population and context to which the claim applies.
 - Theory-evidence integration is expected. Claims should be located within a theoretical framework (rational choice, structuralism, institutional theory) and the framework's assumptions should be made explicit.
 
 **Law and policy:**
+
 - Precedent and statutory interpretation matter. Legal arguments reference prior cases and legislative history, not just abstract principle.
 - Burden of proof varies by context. In policy argument, the claim need not be proven beyond reasonable doubt -- a preponderance of evidence and a plausible causal mechanism are often sufficient.
 - Practical feasibility is a relevant consideration. A policy argument must address implementation: who enforces it, at what cost, with what institutional infrastructure.
@@ -128,22 +136,26 @@ Argumentation norms differ across academic disciplines. Using the wrong evidenti
 The essay draft must follow a structure in which every section has a clear argumentative function. Decorative prose that does not advance the argument should be cut.
 
 **Introduction (10-15% of total length):**
+
 - Hook: A specific, concrete example or empirical fact that illustrates the problem the argument addresses. Not a generic statement about how the topic is "important and complex."
 - Stakes: Why does this argument matter? What is at risk if the claim is wrong or if the question goes unresolved? Make the stakes concrete and specific.
 - Thesis statement: The claim itself, stated clearly in one to two sentences. Do not bury it. Academic audiences expect the thesis in the introduction.
 - Signposting: A brief indication of the argumentative structure (the sub-claims the paper will defend), especially for longer papers. This is not optional in policy or social science writing.
 
 **Body sections (70-80% of total length):**
+
 - One section per sub-claim. Begin each section with the sub-claim stated explicitly, not implied.
 - Present evidence, then the warrant connecting evidence to the sub-claim, then any complications or qualifications.
 - Counterarguments can be addressed locally (within the section where they are most relevant) or in a dedicated counterargument section. For papers longer than 2,000 words, a dedicated counterargument section is usually more effective. For shorter papers, address objections locally.
 - Transitions between sections should not just signal sequence ("Next, I will argue...") -- they should signal logical relationship ("Having established that X, I now turn to the evidence that Y, because both together are necessary to show that Z").
 
 **Counterargument and rebuttal section:**
+
 - Present the opposing view's best case first, before the rebuttal. The reader should understand why a reasonable person holds the opposing view.
 - The rebuttal should be proportionate to the counterargument's strength. A strong counterargument deserves a multi-paragraph response.
 
 **Conclusion (10-15% of total length):**
+
 - Do not merely summarize -- that is not a conclusion, it is a repetition. The conclusion should state the significance of the argument having been made: what follows if the reader accepts the thesis? What are the implications for policy, practice, theory, or further research?
 - Restate the thesis in light of the evidence presented -- it should feel more substantiated now than it did in the introduction.
 - Acknowledge the argument's limits honestly. No argument proves everything. State what questions remain open.
@@ -157,6 +169,7 @@ After drafting, conduct a systematic logical integrity audit. This is not option
 **Structural validity check:** Does the argument have the form of a valid logical argument? Map the premises and conclusion explicitly: "Premise 1: A. Premise 2: B. Therefore, C." If the conclusion does not follow from the premises, the argument is invalid regardless of how well-written it is.
 
 **Fallacy audit -- check for the following:**
+
 - **Ad hominem:** Attacking the credibility of a theorist instead of their argument ("Freud was personally dysfunctional, so his theory of repression is wrong"). Attack the argument, not the person.
 - **Straw man:** Misrepresenting the counterargument to make it easier to defeat. If your rebuttal is too easy, you may be strawmanning.
 - **False dichotomy:** "Either we implement this policy or the problem will never be solved." Identify whether a third option exists.
@@ -190,6 +203,7 @@ Before presenting the final argument, verify that the finished product matches t
 ## Academic Argument: [Topic]
 
 ### Thesis
+
 [Central claim -- one to two sentences, specific, qualified, contestable]
 
 ---
@@ -206,61 +220,67 @@ Before presenting the final argument, verify that the finished product matches t
 
 ### Argument Map
 
-| Level | Component | Content |
-|-------|-----------|---------|
-| Macro | **Main Claim** | [Thesis] |
-| Macro | **Qualifier** | [Scope and certainty level] |
-| Macro | **Warrant** | [Bridging principle connecting all evidence to thesis] |
-| Sub-claim 1 | **Claim** | [Supporting proposition 1] |
-| Sub-claim 1 | **Evidence** | [Source 1a, Source 1b] |
-| Sub-claim 1 | **Warrant** | [Why this evidence supports sub-claim 1] |
-| Sub-claim 1 | **Complication** | [Limitation or qualification] |
-| Sub-claim 2 | **Claim** | [Supporting proposition 2] |
-| Sub-claim 2 | **Evidence** | [Source 2a, Source 2b] |
-| Sub-claim 2 | **Warrant** | [Why this evidence supports sub-claim 2] |
-| Sub-claim 2 | **Complication** | [Limitation or qualification] |
-| Sub-claim 3 | **Claim** | [Supporting proposition 3] |
-| Sub-claim 3 | **Evidence** | [Source 3a, Source 3b] |
-| Sub-claim 3 | **Warrant** | [Why this evidence supports sub-claim 3] |
-| Sub-claim 3 | **Complication** | [Limitation or qualification] |
-| Counterargument | **Opposing Claim** | [Strongest opposing position] |
-| Counterargument | **Rebuttal Type** | [Refutation / Mitigation / Concession-redirect / Synthesis] |
-| Counterargument | **Rebuttal** | [Response with evidence and reasoning] |
+| Level           | Component          | Content                                                     |
+| --------------- | ------------------ | ----------------------------------------------------------- |
+| Macro           | **Main Claim**     | [Thesis]                                                    |
+| Macro           | **Qualifier**      | [Scope and certainty level]                                 |
+| Macro           | **Warrant**        | [Bridging principle connecting all evidence to thesis]      |
+| Sub-claim 1     | **Claim**          | [Supporting proposition 1]                                  |
+| Sub-claim 1     | **Evidence**       | [Source 1a, Source 1b]                                      |
+| Sub-claim 1     | **Warrant**        | [Why this evidence supports sub-claim 1]                    |
+| Sub-claim 1     | **Complication**   | [Limitation or qualification]                               |
+| Sub-claim 2     | **Claim**          | [Supporting proposition 2]                                  |
+| Sub-claim 2     | **Evidence**       | [Source 2a, Source 2b]                                      |
+| Sub-claim 2     | **Warrant**        | [Why this evidence supports sub-claim 2]                    |
+| Sub-claim 2     | **Complication**   | [Limitation or qualification]                               |
+| Sub-claim 3     | **Claim**          | [Supporting proposition 3]                                  |
+| Sub-claim 3     | **Evidence**       | [Source 3a, Source 3b]                                      |
+| Sub-claim 3     | **Warrant**        | [Why this evidence supports sub-claim 3]                    |
+| Sub-claim 3     | **Complication**   | [Limitation or qualification]                               |
+| Counterargument | **Opposing Claim** | [Strongest opposing position]                               |
+| Counterargument | **Rebuttal Type**  | [Refutation / Mitigation / Concession-redirect / Synthesis] |
+| Counterargument | **Rebuttal**       | [Response with evidence and reasoning]                      |
 
 ---
 
 ### Full Argumentative Essay
 
 #### Introduction
+
 [Hook -- specific example or concrete fact]
 [Stakes -- why this question matters concretely]
 [Thesis statement]
 [Signpost of argumentative structure]
 
 #### [Section Title for Sub-claim 1]
+
 [Sub-claim stated explicitly]
 [Evidence with citation placeholders]
 [Warrant: explicit reasoning connecting evidence to sub-claim]
 [Qualification or complication]
 
 #### [Section Title for Sub-claim 2]
+
 [Sub-claim stated explicitly]
 [Evidence with citation placeholders]
 [Warrant: explicit reasoning connecting evidence to sub-claim]
 [Qualification or complication]
 
 #### [Section Title for Sub-claim 3]
+
 [Sub-claim stated explicitly]
 [Evidence with citation placeholders]
 [Warrant: explicit reasoning connecting evidence to sub-claim]
 [Qualification or complication]
 
 #### Counterarguments and Rebuttals
+
 [Strongest opposing view, presented charitably and accurately]
 [Rebuttal with evidence and categorized strategy]
 [Concession if appropriate, with clear limitation of the concession]
 
 #### Conclusion
+
 [Significance of the argument having been made]
 [Implications for policy / practice / theory / further research]
 [Qualified restatement of thesis]
@@ -270,23 +290,24 @@ Before presenting the final argument, verify that the finished product matches t
 
 ### Logical Integrity Audit
 
-| Check | Status | Notes |
-|-------|--------|-------|
-| Logical validity (premises entail conclusion) | ✓ / ✗ | |
-| No ad hominem | ✓ / ✗ | |
-| No straw man | ✓ / ✗ | |
-| No false dichotomy | ✓ / ✗ | |
-| No circular reasoning | ✓ / ✗ | |
-| No hasty generalization | ✓ / ✗ | |
-| No correlation-causation conflation | ✓ / ✗ | |
-| All empirical claims cited | ✓ / ✗ | |
-| Qualifiers match evidence strength | ✓ / ✗ | |
-| Counterargument is steelmanned | ✓ / ✗ | |
-| Discipline-appropriate evidence standards | ✓ / ✗ | |
+| Check                                         | Status | Notes |
+| --------------------------------------------- | ------ | ----- |
+| Logical validity (premises entail conclusion) | ✓ / ✗  |       |
+| No ad hominem                                 | ✓ / ✗  |       |
+| No straw man                                  | ✓ / ✗  |       |
+| No false dichotomy                            | ✓ / ✗  |       |
+| No circular reasoning                         | ✓ / ✗  |       |
+| No hasty generalization                       | ✓ / ✗  |       |
+| No correlation-causation conflation           | ✓ / ✗  |       |
+| All empirical claims cited                    | ✓ / ✗  |       |
+| Qualifiers match evidence strength            | ✓ / ✗  |       |
+| Counterargument is steelmanned                | ✓ / ✗  |       |
+| Discipline-appropriate evidence standards     | ✓ / ✗  |       |
 
 ---
 
 ### Revision Flags
+
 [Any claims that need stronger evidence, any warrants that need more explicit development, any counterarguments that need deeper engagement]
 ```
 
@@ -379,6 +400,7 @@ Clarify the structure: a dialectical essay presents both positions fairly, evalu
 ## Academic Argument: Mandatory Voting and Democratic Legitimacy
 
 ### Thesis
+
 Mandatory voting laws -- legal requirements that eligible citizens participate in elections, with non-compliance carrying modest civil penalties -- strengthen democratic legitimacy by increasing electoral representativeness, reducing the participation gap between high-resource and low-resource populations, and producing governments whose mandates more accurately reflect the preferences of the full citizenry rather than the preferences of the mobilized minority.
 
 ---
@@ -395,26 +417,26 @@ Mandatory voting laws -- legal requirements that eligible citizens participate i
 
 ### Argument Map
 
-| Level | Component | Content |
-|-------|-----------|---------|
-| Macro | **Main Claim** | Mandatory voting laws strengthen democratic legitimacy in established liberal democracies |
-| Macro | **Qualifier** | Strongly supports -- based on natural experiment evidence from Australia (1924) and Belgium (1892), and cross-national comparative data |
-| Macro | **Warrant** | If democratic legitimacy requires that governing mandates reflect the full citizenry's preferences, and if voluntary systems systematically exclude low-resource populations, then a mechanism that closes the participation gap is instrumentally required by democratic legitimacy itself |
-| Sub-claim 1 | **Claim** | Voluntary voting systems produce unrepresentative electorates that systematically exclude low-income and low-education populations |
-| Sub-claim 1 | **Evidence** | Verba, Schlozman & Brady (1995): participation in U.S. elections is strongly predicted by socioeconomic resources; Leighley & Nagler (2013): non-voters in U.S. elections hold systematically different policy preferences from voters, particularly on economic redistribution |
-| Sub-claim 1 | **Warrant** | If the electorate is systematically unrepresentative -- not randomly so, but skewed toward high-resource populations -- then electoral outcomes reflect the preferences of a privileged subset, not the governed majority |
-| Sub-claim 1 | **Complication** | Representativeness of preferences does not guarantee quality of deliberation; higher turnout may bring in less-informed voters |
-| Sub-claim 2 | **Claim** | The introduction of compulsory voting closes the socioeconomic participation gap and shifts policy outcomes toward redistribution |
-| Sub-claim 2 | **Evidence** | Fowler (2013) natural experiment: Australia's adoption of compulsory voting in 1924 increased Labor Party vote share by approximately 7-9 percentage points, a shift consistent with the differential turnout effects on income groups; Lijphart (1997): cross-national analysis shows compulsory voting nations have smaller gaps between high- and low-income turnout |
-| Sub-claim 2 | **Warrant** | If compulsory voting demonstrably increases participation among previously excluded low-income groups, and if those groups have systematically different preferences, then compulsory voting causes electoral outcomes to more fully reflect the full population's preferences |
-| Sub-claim 2 | **Complication** | Fowler's natural experiment relies on historical Australian data; external validity to contemporary polarized democracies is uncertain |
-| Sub-claim 3 | **Claim** | Democratic legitimacy, understood as the consent-based authorization of state authority, requires not just the opportunity to participate but substantively representative participation |
-| Sub-claim 3 | **Evidence** | Estlund (2008) on epistemic proceduralism: legitimate democratic outcomes require fair procedures, not just formally open ones; Rawls (1993) on fair equality of opportunity as a precondition for legitimate political institutions |
-| Sub-claim 3 | **Warrant** | A system that is formally open but structurally excludes a systematically disadvantaged population fails the procedural fairness standard required for legitimacy, even if no individual is legally prohibited from voting |
-| Sub-claim 3 | **Complication** | Estlund's framework is contested; libertarian political philosophers (Nozick) argue that state compulsion in political participation violates negative liberty and cannot be justified by outcomes |
-| Counterargument | **Opposing Claim** | Compulsory voting violates individual liberty -- specifically, the freedom not to participate -- which is itself a democratic value; the state has no right to compel political expression |
-| Counterargument | **Rebuttal Type** | Concession-and-redirect: the liberty objection identifies a genuine tension but does not defeat the claim when compulsion is modest and the alternative is systematic disenfranchisement through structural exclusion |
-| Counterargument | **Rebuttal** | Compulsory voting mandates attendance at the ballot, not the casting of a substantive vote -- Australian law has permitted informal (blank) ballots since implementation. The liberty infringement is comparable to jury duty, a compelled civic participation broadly accepted in liberal democracies. The question is not liberty vs. no liberty but which liberty claim takes precedence: the liberty not to vote, or the liberty of systematically excluded groups to have their preferences reflected in government |
+| Level           | Component          | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Macro           | **Main Claim**     | Mandatory voting laws strengthen democratic legitimacy in established liberal democracies                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Macro           | **Qualifier**      | Strongly supports -- based on natural experiment evidence from Australia (1924) and Belgium (1892), and cross-national comparative data                                                                                                                                                                                                                                                                                                                                                                                  |
+| Macro           | **Warrant**        | If democratic legitimacy requires that governing mandates reflect the full citizenry's preferences, and if voluntary systems systematically exclude low-resource populations, then a mechanism that closes the participation gap is instrumentally required by democratic legitimacy itself                                                                                                                                                                                                                              |
+| Sub-claim 1     | **Claim**          | Voluntary voting systems produce unrepresentative electorates that systematically exclude low-income and low-education populations                                                                                                                                                                                                                                                                                                                                                                                       |
+| Sub-claim 1     | **Evidence**       | Verba, Schlozman & Brady (1995): participation in U.S. elections is strongly predicted by socioeconomic resources; Leighley & Nagler (2013): non-voters in U.S. elections hold systematically different policy preferences from voters, particularly on economic redistribution                                                                                                                                                                                                                                          |
+| Sub-claim 1     | **Warrant**        | If the electorate is systematically unrepresentative -- not randomly so, but skewed toward high-resource populations -- then electoral outcomes reflect the preferences of a privileged subset, not the governed majority                                                                                                                                                                                                                                                                                                |
+| Sub-claim 1     | **Complication**   | Representativeness of preferences does not guarantee quality of deliberation; higher turnout may bring in less-informed voters                                                                                                                                                                                                                                                                                                                                                                                           |
+| Sub-claim 2     | **Claim**          | The introduction of compulsory voting closes the socioeconomic participation gap and shifts policy outcomes toward redistribution                                                                                                                                                                                                                                                                                                                                                                                        |
+| Sub-claim 2     | **Evidence**       | Fowler (2013) natural experiment: Australia's adoption of compulsory voting in 1924 increased Labor Party vote share by approximately 7-9 percentage points, a shift consistent with the differential turnout effects on income groups; Lijphart (1997): cross-national analysis shows compulsory voting nations have smaller gaps between high- and low-income turnout                                                                                                                                                  |
+| Sub-claim 2     | **Warrant**        | If compulsory voting demonstrably increases participation among previously excluded low-income groups, and if those groups have systematically different preferences, then compulsory voting causes electoral outcomes to more fully reflect the full population's preferences                                                                                                                                                                                                                                           |
+| Sub-claim 2     | **Complication**   | Fowler's natural experiment relies on historical Australian data; external validity to contemporary polarized democracies is uncertain                                                                                                                                                                                                                                                                                                                                                                                   |
+| Sub-claim 3     | **Claim**          | Democratic legitimacy, understood as the consent-based authorization of state authority, requires not just the opportunity to participate but substantively representative participation                                                                                                                                                                                                                                                                                                                                 |
+| Sub-claim 3     | **Evidence**       | Estlund (2008) on epistemic proceduralism: legitimate democratic outcomes require fair procedures, not just formally open ones; Rawls (1993) on fair equality of opportunity as a precondition for legitimate political institutions                                                                                                                                                                                                                                                                                     |
+| Sub-claim 3     | **Warrant**        | A system that is formally open but structurally excludes a systematically disadvantaged population fails the procedural fairness standard required for legitimacy, even if no individual is legally prohibited from voting                                                                                                                                                                                                                                                                                               |
+| Sub-claim 3     | **Complication**   | Estlund's framework is contested; libertarian political philosophers (Nozick) argue that state compulsion in political participation violates negative liberty and cannot be justified by outcomes                                                                                                                                                                                                                                                                                                                       |
+| Counterargument | **Opposing Claim** | Compulsory voting violates individual liberty -- specifically, the freedom not to participate -- which is itself a democratic value; the state has no right to compel political expression                                                                                                                                                                                                                                                                                                                               |
+| Counterargument | **Rebuttal Type**  | Concession-and-redirect: the liberty objection identifies a genuine tension but does not defeat the claim when compulsion is modest and the alternative is systematic disenfranchisement through structural exclusion                                                                                                                                                                                                                                                                                                    |
+| Counterargument | **Rebuttal**       | Compulsory voting mandates attendance at the ballot, not the casting of a substantive vote -- Australian law has permitted informal (blank) ballots since implementation. The liberty infringement is comparable to jury duty, a compelled civic participation broadly accepted in liberal democracies. The question is not liberty vs. no liberty but which liberty claim takes precedence: the liberty not to vote, or the liberty of systematically excluded groups to have their preferences reflected in government |
 
 ---
 
@@ -470,22 +492,22 @@ Open questions this argument does not resolve: whether compulsory voting increas
 
 ### Logical Integrity Audit
 
-| Check | Status | Notes |
-|-------|--------|-------|
-| Logical validity (premises entail conclusion) | ✓ | Empirical + normative premises jointly entail the policy conclusion |
-| No ad hominem | ✓ | Lever's objection is engaged on its merits, not dismissed by attacking the author |
-| No straw man | ✓ | Liberty objection presented in its Lever (2010) formulation, not a weak version |
-| No false dichotomy | ✓ | Three alternative remedies acknowledged in conclusion |
-| No circular reasoning | ✓ | Legitimacy defined independently of mandatory voting before arguing mandatory voting serves it |
-| No hasty generalization | ✓ | Scope restricted to established liberal democracies with voluntary systems; Australia and Belgium used as natural experiments, not as universal proof |
-| No correlation-causation conflation | ✓ | Fowler's natural experiment design flagged as the basis for causal inference; cross-national data treated as correlational |
-| All empirical claims cited | ✓ | Verba et al., Leighley & Nagler, Fowler, Lijphart all cited at point of use |
-| Qualifiers match evidence strength | ✓ | "Strongly supports" used for natural experiment evidence; "suggests" used for cross-national comparisons |
-| Counterargument is steelmanned | ✓ | Lever (2010) cited as rigorous formulation of the liberty objection; informal ballot provision addressed directly |
-| Discipline-appropriate evidence standards | ✓ | Political science norms applied: comparative institutional analysis, natural experiments, formal theory |
+| Check                                         | Status | Notes                                                                                                                                                 |
+| --------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logical validity (premises entail conclusion) | ✓      | Empirical + normative premises jointly entail the policy conclusion                                                                                   |
+| No ad hominem                                 | ✓      | Lever's objection is engaged on its merits, not dismissed by attacking the author                                                                     |
+| No straw man                                  | ✓      | Liberty objection presented in its Lever (2010) formulation, not a weak version                                                                       |
+| No false dichotomy                            | ✓      | Three alternative remedies acknowledged in conclusion                                                                                                 |
+| No circular reasoning                         | ✓      | Legitimacy defined independently of mandatory voting before arguing mandatory voting serves it                                                        |
+| No hasty generalization                       | ✓      | Scope restricted to established liberal democracies with voluntary systems; Australia and Belgium used as natural experiments, not as universal proof |
+| No correlation-causation conflation           | ✓      | Fowler's natural experiment design flagged as the basis for causal inference; cross-national data treated as correlational                            |
+| All empirical claims cited                    | ✓      | Verba et al., Leighley & Nagler, Fowler, Lijphart all cited at point of use                                                                           |
+| Qualifiers match evidence strength            | ✓      | "Strongly supports" used for natural experiment evidence; "suggests" used for cross-national comparisons                                              |
+| Counterargument is steelmanned                | ✓      | Lever (2010) cited as rigorous formulation of the liberty objection; informal ballot provision addressed directly                                     |
+| Discipline-appropriate evidence standards     | ✓      | Political science norms applied: comparative institutional analysis, natural experiments, formal theory                                               |
 
 ---
 
 ### Revision Flags
 
-- **
+- \*\*

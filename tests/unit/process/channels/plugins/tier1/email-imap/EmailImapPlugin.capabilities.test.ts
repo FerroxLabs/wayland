@@ -45,15 +45,9 @@ describe('hasPluginCredentials for email-imap', () => {
   });
 
   it('returns false when one of imapHost / imapUser / imapPassword is missing', () => {
-    expect(
-      hasPluginCredentials('email-imap', { imapUser: 'a@b', imapPassword: 'pw' })
-    ).toBe(false);
-    expect(
-      hasPluginCredentials('email-imap', { imapHost: 'imap.example.com', imapPassword: 'pw' })
-    ).toBe(false);
-    expect(
-      hasPluginCredentials('email-imap', { imapHost: 'imap.example.com', imapUser: 'a@b' })
-    ).toBe(false);
+    expect(hasPluginCredentials('email-imap', { imapUser: 'a@b', imapPassword: 'pw' })).toBe(false);
+    expect(hasPluginCredentials('email-imap', { imapHost: 'imap.example.com', imapPassword: 'pw' })).toBe(false);
+    expect(hasPluginCredentials('email-imap', { imapHost: 'imap.example.com', imapUser: 'a@b' })).toBe(false);
   });
 
   it('returns true when host + user + password are all set', () => {
@@ -75,9 +69,7 @@ describe('EmailImapPlugin.testConnection (static)', () => {
   });
 
   it('returns success=false when imapHost is missing in the JSON payload', async () => {
-    const result = await EmailImapPlugin.testConnection(
-      JSON.stringify({ imapUser: 'a@b', imapPassword: 'pw' })
-    );
+    const result = await EmailImapPlugin.testConnection(JSON.stringify({ imapUser: 'a@b', imapPassword: 'pw' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/host is required/i);
   });

@@ -119,7 +119,14 @@ export class AuthMiddleware {
 
     // Preserve original error response shape and message ordering:
     // missing fields → "required", wrong type → "must be strings", too long → "Invalid input length".
-    if (body.username === undefined || body.username === null || body.username === '' || body.password === undefined || body.password === null || body.password === '') {
+    if (
+      body.username === undefined ||
+      body.username === null ||
+      body.username === '' ||
+      body.password === undefined ||
+      body.password === null ||
+      body.password === ''
+    ) {
       res.status(400).json({
         success: false,
         error: 'Username and password are required.',

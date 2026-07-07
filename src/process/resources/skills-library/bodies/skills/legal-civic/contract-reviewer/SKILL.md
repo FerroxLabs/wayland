@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Contract Reviewer
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to understand clauses in a contract before signing
 - User needs help identifying concerning terms in an agreement
 - User wants a plain-language explanation of contract language
 - User needs a checklist of what to look for in a specific contract type
 
 **Do NOT use this skill when:**
+
 - User needs legally binding contract drafted -- refer to qualified attorney
 - User needs legal advice on whether to sign -- this skill teaches literacy, not legal counsel
 - User has an active legal dispute about a contract -- refer to legal professional
@@ -83,12 +85,14 @@ STRUCTURAL REVIEW CHECKLIST
 ### Phase 2: Key Clause Examination
 
 #### 1. Definitions Section
+
 - Are all capitalized terms defined?
 - Are definitions overly broad or narrow?
 - Do definitions match your understanding of the deal?
 - Watch for: "including but not limited to" (expands scope dramatically)
 
 #### 2. Scope of Work / Services
+
 ```
 SCOPE REVIEW:
 - Deliverables clearly listed: YES / NO
@@ -99,6 +103,7 @@ SCOPE REVIEW:
 ```
 
 #### 3. Payment Terms
+
 ```
 PAYMENT REVIEW:
 - Total amount: {{AMOUNT}}
@@ -112,6 +117,7 @@ PAYMENT REVIEW:
 ```
 
 #### 4. Term and Termination
+
 ```
 TERMINATION REVIEW:
 - Start date: {{DATE}}
@@ -132,6 +138,7 @@ TERMINATION REVIEW:
 ```
 
 #### 5. Liability and Indemnification
+
 ```
 LIABILITY REVIEW:
 - Your liability cap: {{AMOUNT_OR_FORMULA}}
@@ -146,6 +153,7 @@ LIABILITY REVIEW:
 ```
 
 #### 6. Intellectual Property
+
 ```
 IP REVIEW:
 - Who owns pre-existing IP: {{TERMS}}
@@ -157,6 +165,7 @@ IP REVIEW:
 ```
 
 #### 7. Non-Compete / Non-Solicitation
+
 ```
 RESTRICTIVE COVENANT REVIEW:
 - Non-compete present: YES / NO
@@ -171,6 +180,7 @@ RESTRICTIVE COVENANT REVIEW:
 ```
 
 #### 8. Confidentiality
+
 ```
 CONFIDENTIALITY REVIEW:
 - Definition of confidential information: {{SCOPE}}
@@ -181,6 +191,7 @@ CONFIDENTIALITY REVIEW:
 ```
 
 #### 9. Dispute Resolution
+
 ```
 DISPUTE RESOLUTION REVIEW:
 - Method: LITIGATION / ARBITRATION / MEDIATION-THEN-ARBITRATION
@@ -194,6 +205,7 @@ DISPUTE RESOLUTION REVIEW:
 ```
 
 #### 10. Warranties and Representations
+
 ```
 WARRANTY REVIEW:
 - Warranties provided by them: {{LIST}}
@@ -208,6 +220,7 @@ WARRANTY REVIEW:
 ## Red Flags by Severity
 
 ### Critical Red Flags (Do Not Sign Without Resolution)
+
 1. **Unlimited personal liability** when you are an entity
 2. **Perpetual non-compete** with no geographic limitation
 3. **Unilateral amendment rights** without notice or consent
@@ -217,6 +230,7 @@ WARRANTY REVIEW:
 7. **Blank or "[TBD]" sections** in material terms
 
 ### Serious Red Flags (Negotiate Before Signing)
+
 1. **One-sided indemnification** -- you cover their losses but not vice versa
 2. **Arbitration in a distant venue** with costs borne by you
 3. **Broad definition of "cause"** that includes subjective standards
@@ -226,6 +240,7 @@ WARRANTY REVIEW:
 7. **Overly broad confidentiality** preventing you from discussing the relationship
 
 ### Caution Flags (Understand and Accept Knowingly)
+
 1. **Governing law** in a different state than yours
 2. **Non-solicitation of employees** (standard but verify scope)
 3. **Insurance requirements** that may require additional coverage
@@ -237,6 +252,7 @@ WARRANTY REVIEW:
 ## Negotiation Strategies by Clause
 
 ### General Negotiation Principles
+
 1. **Prioritize.** Pick 3-5 most important items; do not redline everything.
 2. **Propose alternatives.** Do not just reject; offer a counter.
 3. **Use standards.** "Industry standard is..." carries persuasive weight.
@@ -246,6 +262,7 @@ WARRANTY REVIEW:
 ### Specific Negotiation Scripts
 
 **For One-Sided Indemnification:**
+
 ```
 "We are comfortable with mutual indemnification for each party's own
 negligence or willful misconduct. We propose making Section {{X}}
@@ -253,6 +270,7 @@ reciprocal so both parties share proportional risk."
 ```
 
 **For Broad Non-Compete:**
+
 ```
 "We appreciate the business interest this protects. We propose narrowing
 the scope to [specific competitors/activities] within [specific geography]
@@ -260,6 +278,7 @@ for a period of [6-12 months] to make this enforceable and proportionate."
 ```
 
 **For Unlimited Liability:**
+
 ```
 "We propose capping each party's aggregate liability at [1-2x the total
 contract value or fees paid in the prior 12 months], with customary
@@ -268,6 +287,7 @@ confidentiality breaches."
 ```
 
 **For Missing Cure Period:**
+
 ```
 "We propose adding a [15-30] day cure period for any curable breach
 before the non-breaching party may terminate, with written notice
@@ -275,6 +295,7 @@ specifying the breach."
 ```
 
 **For Automatic Renewal:**
+
 ```
 "We propose that either party may opt out of renewal by providing
 written notice at least [60-90] days before the end of the current term,
@@ -424,6 +445,7 @@ Date: {{DATE}}                       Date: {{DATE}}
 ## Post-Signing Contract Management
 
 ### Immediate Actions After Signing
+
 1. Save a fully executed copy (signed by all parties)
 2. Calendar all key dates (renewal, notice deadlines, milestones)
 3. Share relevant terms with anyone who needs to comply
@@ -431,6 +453,7 @@ Date: {{DATE}}                       Date: {{DATE}}
 5. Store securely with your other legal documents
 
 ### Ongoing Monitoring
+
 - Track performance against obligations
 - Document any breaches or concerns in writing as they occur
 - Keep all correspondence related to the contract
@@ -475,8 +498,7 @@ NOTES:
 
 ---
 
-*This skill provides a contract review framework. For contracts with significant financial exposure or legal complexity, professional legal review is strongly recommended.*
-
+_This skill provides a contract review framework. For contracts with significant financial exposure or legal complexity, professional legal review is strongly recommended._
 
 ## Output Format
 
@@ -507,24 +529,26 @@ Section 3: Resources
 
 ### Critical Clauses to Find and Understand
 
-| Clause | What to Look For | Red Flag |
-|--------|-----------------|----------|
-| **Scope of Work** | Specific deliverables listed | Vague "all work as requested" language |
-| **Payment Terms** | Amount, schedule, milestones | No deposit required, payment on "satisfaction" |
-| **Revision Rounds** | Number of included revisions | Unlimited revisions with no additional cost |
-| **Timeline** | Deadlines for both parties | Only your deadlines, no client response deadlines |
-| **IP Ownership** | When ownership transfers | Ownership transfers before final payment |
-| **Termination** | How either party can exit | Only client can terminate, or no kill fee |
-| **Liability Cap** | Maximum you could owe | Unlimited liability or broad indemnification |
-| **Non-Compete** | Duration and geographic scope | Over 12 months or overly broad industry scope |
+| Clause              | What to Look For              | Red Flag                                          |
+| ------------------- | ----------------------------- | ------------------------------------------------- |
+| **Scope of Work**   | Specific deliverables listed  | Vague "all work as requested" language            |
+| **Payment Terms**   | Amount, schedule, milestones  | No deposit required, payment on "satisfaction"    |
+| **Revision Rounds** | Number of included revisions  | Unlimited revisions with no additional cost       |
+| **Timeline**        | Deadlines for both parties    | Only your deadlines, no client response deadlines |
+| **IP Ownership**    | When ownership transfers      | Ownership transfers before final payment          |
+| **Termination**     | How either party can exit     | Only client can terminate, or no kill fee         |
+| **Liability Cap**   | Maximum you could owe         | Unlimited liability or broad indemnification      |
+| **Non-Compete**     | Duration and geographic scope | Over 12 months or overly broad industry scope     |
 
 ### Questions to Ask Before Signing
+
 1. "What happens if the project scope changes mid-project?"
 2. "Is there a kill fee if the client cancels after work has begun?"
 3. "When exactly does IP transfer -- upon final payment or upon delivery?"
 4. "What constitutes 'acceptance' of a deliverable?"
 
 ### Clauses to Negotiate
+
 - Add: "Client will provide feedback within 5 business days of each deliverable"
 - Add: 50% deposit before work begins, milestone payments thereafter
 - Change: IP transfers upon FINAL PAYMENT, not upon delivery

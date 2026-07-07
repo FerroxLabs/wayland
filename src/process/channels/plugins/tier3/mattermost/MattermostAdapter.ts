@@ -86,7 +86,7 @@ export function extractPostFromEvent(payload: MattermostEventPayload): Mattermos
  */
 export function toUnifiedIncomingFromMattermost(
   payload: MattermostEventPayload,
-  selfUserId: string,
+  selfUserId: string
 ): IUnifiedIncomingMessage | null {
   if (payload.event !== 'posted') return null;
 
@@ -155,7 +155,7 @@ export function splitMattermostMessage(text: string, limit = MATTERMOST_MESSAGE_
 export function toMattermostPostPayload(
   channelId: string,
   message: IUnifiedOutgoingMessage,
-  rootId?: string,
+  rootId?: string
 ): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     channel_id: channelId,
@@ -168,10 +168,7 @@ export function toMattermostPostPayload(
 /**
  * Build the REST payload for PUT /api/v4/posts/{id} (edit).
  */
-export function toMattermostEditPayload(
-  postId: string,
-  message: IUnifiedOutgoingMessage,
-): Record<string, unknown> {
+export function toMattermostEditPayload(postId: string, message: IUnifiedOutgoingMessage): Record<string, unknown> {
   return {
     id: postId,
     message: message.text ?? '',

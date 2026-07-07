@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan step-by-step guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan step-by-step guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Classroom Activity
 
 ## When to Use
 
 **Use this skill when:**
+
 - An educator asks you to design a single, self-contained classroom activity for a specific topic, concept, or skill -- with procedures, timing, and a debrief ready to implement
 - A teacher wants to move students from passive note-taking into active engagement with a concept (e.g., "I want them to actually experience supply and demand, not just read about it")
 - An instructor needs a structured exercise to introduce a concept through discovery before direct instruction (anticipatory activity), or to consolidate understanding after direct instruction (practice/synthesis activity)
@@ -29,6 +31,7 @@ metadata:
 - An educator identifies a specific student misconception and needs an activity designed to surface, confront, and correct it through direct student experience
 
 **Do NOT use when:**
+
 - The user wants a complete lesson plan with multiple instructional segments -- opening, instruction, activity, closure, and assessment (use `lesson-plan-design` instead)
 - The user wants a curated set of discussion questions without procedural scaffolding (use `discussion-questions` instead)
 - The user is building an asynchronous online module with self-paced navigation, multimedia embeds, and platform-specific features (use `online-course-design` instead)
@@ -46,6 +49,7 @@ metadata:
 Never design an activity without first establishing these parameters. If any are missing, ask explicitly -- activities designed without this information will require complete revision and may be unusable.
 
 **Required information to collect:**
+
 - **Subject and specific topic:** Not "science" but "exothermic vs. endothermic reactions" -- the narrower, the better
 - **Learning objective with cognitive level:** Ask the teacher what students should be able to DO after the activity, not just "understand." Map to Bloom's taxonomy level (remember, understand, apply, analyze, evaluate, create) -- activities must match the cognitive demand of the objective
 - **Grade level and course type:** Middle school general education and AP/IB classes on the same topic require entirely different activity structures, vocabulary scaffolding, and time allocations
@@ -66,13 +70,13 @@ Matching activity type to learning objective is the single most important design
 
 **Match cognitive level to format:**
 
-| Bloom's Level | Learning Goal | Best Activity Formats |
-|---|---|---|
-| Remember / Understand | Recall, recognize, explain | Game-based review (quiz bowl, card sort, flashcard race), gallery walk with annotations |
-| Apply | Use a concept in a new context | Structured problem-solving, case study rotation, lab procedure |
-| Analyze | Break apart, compare, distinguish | Jigsaw, concept mapping, sorting/categorization with justification, fishbowl discussion |
-| Evaluate | Judge, critique, defend a position | Socratic seminar structure, debate, devil's advocate rotation, human barometer |
-| Create | Produce, design, construct | Design challenge, simulation with open-ended outputs, product creation stations |
+| Bloom's Level         | Learning Goal                      | Best Activity Formats                                                                   |
+| --------------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| Remember / Understand | Recall, recognize, explain         | Game-based review (quiz bowl, card sort, flashcard race), gallery walk with annotations |
+| Apply                 | Use a concept in a new context     | Structured problem-solving, case study rotation, lab procedure                          |
+| Analyze               | Break apart, compare, distinguish  | Jigsaw, concept mapping, sorting/categorization with justification, fishbowl discussion |
+| Evaluate              | Judge, critique, defend a position | Socratic seminar structure, debate, devil's advocate rotation, human barometer          |
+| Create                | Produce, design, construct         | Design challenge, simulation with open-ended outputs, product creation stations         |
 
 **Match activity type to social/structural need:**
 
@@ -100,6 +104,7 @@ Vague procedures produce chaotic classrooms. Every phase must be specific enough
 - **Phase 5 -- Debrief (never less than 5 min for any activity over 15 min):** See Step 4.
 
 **Precision requirements for procedures:**
+
 - Assign specific time values to every sub-phase -- never use "approximately" without a number
 - Write student-facing instructions in second person ("Read the scenario. Identify the three factors. With your partner, rank them by importance and write one sentence explaining your top choice") -- these can be posted or read aloud
 - Specify the physical mechanics: Do students stay seated? Move to new locations? Write on shared paper? Speak to partners or to the whole group?
@@ -118,6 +123,7 @@ The debrief is not optional and not a summary. It is where learning is consolida
 **Level 3 -- Connect/Transfer (1 question):** How does this connect to real life, prior learning, or what we will study next? This question is the bridge from the activity to the curriculum. Example: "We saw supply and demand interact in our simulation. Where have you personally experienced this in your own life in the past week?"
 
 **Debrief delivery mechanics:**
+
 - For activities with group products, have groups share before the teacher synthesizes -- never let the teacher's synthesis replace student-to-student exchange
 - Use a class-visible capture mechanism: whiteboard chart, class document on projector, sticky note gallery -- the act of recording answers signals that the thinking matters
 - Budget at least 5 minutes for a 20-minute activity debrief, 7-10 minutes for a 30-45 minute activity debrief
@@ -130,6 +136,7 @@ The debrief is not optional and not a summary. It is where learning is consolida
 Incomplete materials lists create last-minute scrambles. Ambiguous room setup instructions produce wasted instructional minutes.
 
 **Materials list rules:**
+
 - Every item requires a quantity -- not "index cards" but "72 index cards (3 per student, 24 students)"
 - Identify items that require advance preparation (pre-cut cards, pre-written prompts, printed handouts) separately from off-the-shelf items
 - Flag any item that has a lead time (items requiring printing, laminating, or ordering)
@@ -137,6 +144,7 @@ Incomplete materials lists create last-minute scrambles. Ambiguous room setup in
 - List items in order of use, not alphabetically
 
 **Room setup precision:**
+
 - State the exact furniture arrangement: "Move desks into groups of 4, facing each other, with a 3-foot aisle between groups for teacher circulation" -- not "arrange desks for group work"
 - Note whether the room setup changes during the activity (e.g., desks start in groups, reconvene in whole-class circle for debrief)
 - Specify where materials are staged: "Place one envelope per group face-down in the center of each group's desks before students enter"
@@ -149,17 +157,20 @@ Incomplete materials lists create last-minute scrambles. Ambiguous room setup in
 Differentiation is not an add-on -- it must be built into the activity structure. Design for the full range of learners in a typical mixed classroom.
 
 **Scaffolding for students who need support:**
-- Sentence starters for discussion ("I noticed that ___," "I think this happened because ___," "This connects to ___ because ___")
+
+- Sentence starters for discussion ("I noticed that **_," "I think this happened because _**," "This connects to **_ because _**")
 - Graphic organizers that mirror the activity's cognitive work (a T-chart for comparison activities, a flowchart for sequence activities)
 - Assign roles within groups that allow access points at different cognitive levels (a recorder role lets a student participate meaningfully without having to generate all the reasoning independently)
 - Pre-teach 2-3 key vocabulary terms before the activity if they are non-negotiable for participation
 
 **Extensions for advanced students:**
+
 - Design a "challenge card" that introduces a constraint, exception, or complicating variable after the main task is completed
 - Assign the "connector" role: this student's job is to explicitly link what the group is doing to a prior unit concept or a real-world application
 - Add a written synthesis requirement: a 3-sentence argument summarizing what the group found and why it matters
 
 **Language support for ELL students:**
+
 - Pair written instructions with visual icons or diagrams
 - Allow bilingual pair work where students can discuss in their home language before reporting to the group in English
 - Provide a bilingual vocabulary card for 5-8 key terms if the activity language is content-heavy
@@ -367,14 +378,18 @@ Teacher says: "[1-2 sentence statement explicitly naming the connection between 
 ## Edge Cases
 
 ### Very Short Time Window (Under 15 Minutes)
+
 When the available time is under 15 minutes, station rotation, jigsaw, and multi-round simulations are not viable -- they require setup and transition time that exceeds the instructional window. Use these formats instead:
+
 - **Extended Think-Pair-Share:** 2 minutes individual writing, 3 minutes structured partner discussion with a specific protocol ("Partner A shares first for 1 minute, Partner B responds for 1 minute, then switch"), 3 minutes whole-class share, 3 minutes debrief. Total: 11 minutes. Works for any cognitive level with a strong prompt.
 - **Card Sort (Rapid):** Pre-cut 6-8 cards per pair. Students sort into categories in 4-5 minutes, justify one sorting decision in writing (2 minutes), one pair shares reasoning (2 minutes). Total: 9-12 minutes.
 - **Whiteboard Challenge:** Each student or pair gets a small whiteboard or large paper. Teacher poses a problem, students work independently for 4-5 minutes, hold up boards simultaneously (preventing copying before the reveal), teacher selects 2-3 responses to discuss. Total: 10-12 minutes. Especially effective for math, grammar, and diagram completion.
-Never design a debrief-free activity even at this length. The debrief for a sub-15-minute activity should be 2-3 minutes: one Level 2 question and one explicit connection to the objective.
+  Never design a debrief-free activity even at this length. The debrief for a sub-15-minute activity should be 2-3 minutes: one Level 2 question and one explicit connection to the objective.
 
 ### Very Large Class (35+ Students)
+
 Classes of 35 or more require structural safeguards that prevent whole-class attention management from dominating instructional time:
+
 - **Assign group roles with written accountability.** Every student must produce something individually during the activity (even if the task is collaborative) -- individual recording sheets, observation logs, or individual written responses prevent free-riding.
 - **Use visible, shared timers.** Project a countdown timer or write time checkpoints on the board. Large classes need external pacing signals because the teacher cannot reach every group to prompt transitions.
 - **Stage materials distribution before class.** Distributing materials to 35+ students mid-class can consume 3-5 minutes. Pre-place all materials on desks before students arrive, or assign one materials manager per group who retrieves pre-sorted kits from a central table.
@@ -382,33 +397,43 @@ Classes of 35 or more require structural safeguards that prevent whole-class att
 - **For gallery walks:** Limit to 6-8 stations maximum and stagger group start positions to prevent clustering. Assign 4-5 students per station at a time.
 
 ### No Materials Available (Zero-Resource Constraint)
+
 Some classrooms have no access to printed materials, markers, or manipulatives. Several activity formats work with only the human body and voice:
+
 - **Human Barometer / Four Corners:** Post (or announce) four positions in the room: Strongly Agree, Agree, Disagree, Strongly Disagree. Teacher reads a statement. Students physically move to their position. Teacher calls on 2-3 students at each corner to explain. Students can switch positions after hearing arguments. This is a genuine analysis-level activity requiring zero materials.
 - **Structured Academic Controversy (SAC):** Pairs of students are assigned a position (pro or con) on a controversial or contested claim. They argue their assigned position for 3 minutes, then switch positions and argue the opposite. Then pairs drop assigned positions and find the most defensible actual position. Requires only the teacher posting or reading the claim.
 - **Stand and Share Circle:** Students stand in a circle (or stay at desks). Teacher poses a synthesis question. Each student has 15-20 seconds to contribute one new idea -- they cannot repeat what has been said. The activity ends when the circle completes or ideas are exhausted. Effective for review and synthesis.
 - **Socratic Seminar (mini):** 10-15 students form an inner circle, the rest observe. The inner circle discusses an open question for 8-10 minutes while outer circle students record observations about argument quality. Groups switch. Requires only a posted discussion question.
 
 ### Concept Requiring Student Misconception Correction
+
 When the activity's purpose is to surface and correct a known misconception (e.g., students believe heavier objects fall faster, or that the US was the only country involved in World War II), activity design must be explicitly confrontational:
+
 - **Prediction before experience:** Before the activity, have students write a specific prediction based on their current (likely incorrect) understanding. This commits them to a position that the activity will challenge.
 - **Anomaly-first design:** Design the activity to produce a result that violates the misconception early -- if students predict incorrectly and the activity shows them a contradictory result within the first 5 minutes, cognitive dissonance drives engagement more than any motivational framing.
-- **Debrief must name the misconception explicitly.** The teacher must say (or prompt students to say): "Many of us thought ___. The activity showed us ___. Why do you think the original idea felt true even though it is not?" Never let a misconception-correction activity end without the misconception being stated and refuted by name.
+- **Debrief must name the misconception explicitly.** The teacher must say (or prompt students to say): "Many of us thought **_. The activity showed us _**. Why do you think the original idea felt true even though it is not?" Never let a misconception-correction activity end without the misconception being stated and refuted by name.
 - **Do not use game-based or competitive formats for misconception correction.** When students are uncertain, competition increases anxiety and reduces the willingness to expose incorrect thinking. Use low-stakes pair and small-group structures.
 
 ### Activity Across Multiple Subject Areas or Interdisciplinary Contexts
+
 When a teacher requests an activity that spans two subjects (e.g., using data analysis in a history class, or using historical context in an English class), design challenges increase:
+
 - **Establish which subject owns the learning objective.** The activity must serve one primary learning objective -- interdisciplinary connections are enrichments, not the core purpose. Clarify this with the educator before designing.
 - **Identify prerequisite knowledge from the secondary discipline.** Students may have strong history knowledge but weak data literacy, or strong writing skills but thin scientific background. The activity must not assume expertise in the secondary discipline.
 - **Scaffold the non-primary discipline.** If students are analyzing data in a history class, provide the data analysis framework explicitly (a provided model or a step-by-step data interpretation protocol) rather than assuming students will transfer skills from math class.
 
 ### Remote or Hybrid Classroom Adaptations
+
 When a teacher specifies that the activity will be delivered in a hybrid setting (some students in person, some remote) or fully remote (synchronous video call):
+
 - **Every physical manipulation must have a digital equivalent.** Card sorts become drag-and-drop digital slides. Gallery walks become comment threads on shared slides. Physical position-taking (human barometer) becomes polling features or responses in chat.
 - **Group work in hybrid settings requires deliberate equity design.** Remote students are systematically disadvantaged in hybrid small-group activities unless assigned to all-remote breakout groups rather than mixed in-person/remote groups. Recommend all-remote breakout rooms for remote students with a parallel in-person group structure.
 - **Synchronous debrief must use a visible capture mechanism.** In remote settings, whiteboard or chart-paper responses are invisible to online students. Use a shared document projected and editable, a polling tool, or typed responses visible in the chat for all participants.
 
 ### High-Stakes or Test-Prep Context
+
 When a teacher explicitly states the activity is for test preparation or is tied to a standardized assessment format:
+
 - **Maintain active learning structures -- avoid worksheet-in-disguise activities.** Test-prep activities should still require student reasoning and discussion, not just individual practice. A "question clinic" activity where pairs analyze why wrong answers are wrong is more cognitively demanding and more effective than individual practice tests.
 - **Use authentic test-format language and structure.** If the test uses specific terminology (e.g., "textual evidence," "primary source analysis," "multi-step problem"), embed that language in the activity's prompts and debrief questions.
 - **Include self-assessment.** After a test-prep activity, students should be able to identify which specific skills they demonstrated confidently and which they need to practice. Build a brief self-assessment into the debrief: "Write one thing you did well and one thing you want to practice before the test."
@@ -440,12 +465,14 @@ When a teacher explicitly states the activity is for test preparation or is tied
 ### Materials
 
 **Pre-prepared by teacher:**
+
 - 7 "Habitat Cards" (half-sheet paper, each showing one environment: dark forest floor, sandy beach, green meadow, rocky shoreline, snowy ground, dry desert, autumn leaf litter) -- print or hand-draw one per group before class (5 minutes prep)
 - 7 "Population Envelopes" per group -- each envelope contains 10 red paper squares, 10 blue paper squares, 10 green paper squares, and 10 yellow paper squares (cut from colored construction paper -- 20 minutes prep; 28 squares per color per envelope is not right -- see quantities below)
   - Actual quantities needed: 70 red, 70 blue, 70 green, 70 yellow paper squares, approximately 1.5" x 1.5", divided into 7 envelopes of 10 each per color
 - 7 "Data Recording Sheets" (one per group) -- a table with columns for Generation 1, 2, and 3; rows for Red, Blue, Green, Yellow populations surviving and reproducing (print before class, 3 minutes)
 
 **Standard classroom supplies needed:**
+
 - Pencils (1 per student -- students carry their own)
 - 1 sheet of blank paper per group (serve as the "habitat" surface during the simulation)
 
@@ -454,9 +481,11 @@ When a teacher explicitly states the activity is for test preparation or is tied
 ---
 
 ### Room Setup
+
 Group desks into 7 clusters of 4, with at least 2 feet between clusters. Before students arrive, place one Habitat Card face-down, one Population Envelope (sealed), and one Data Recording Sheet at the center of each cluster. Each cluster's Habitat Card is different -- place them in the same arrangement each class period so you can reference groups by habitat name ("Forest Floor group," "Sandy Beach group") during the debrief.
 
 ### Preparation Checklist (25 minutes before class)
+
 - [ ] Print or draw 7 Habitat Cards on half-sheets -- one unique environment per card (5 min)
 - [ ] Cut 280 colored paper squares (70 of each color) from construction paper -- 1.5" x 1.5" each, or use a paper cutter for speed (15 min)
 - [ ] Sort into 7 envelopes, 10 of each color per envelope, seal with a paper clip (3 min)
@@ -474,6 +503,7 @@ Group desks into 7 clusters of 4, with at least 2 feet between clusters. Before 
 
 **Directions given to students (read aloud, then post on board):**
 "In your group, you are predators hunting prey. Here are your rules:
+
 1. Open your envelope and spread all prey squares face-up on your blank paper sheet.
 2. Flip over your Habitat Card and look at your environment.
 3. In 10 seconds, each person picks up as many squares as they can -- you must use only two fingers (index and thumb) to pick up one square at a time. At the signal, stop.
@@ -493,40 +523,45 @@ Group desks into 7 clusters of 4, with at least 2 feet between clusters. Before 
 **What each student receives:** Data Recording Sheet (shared -- one per group), access to the Population Envelope and Habitat Card at their cluster.
 
 **Roles assigned:**
+
 - **Predator 1 (left side of habitat):** Hunts during selection rounds; also reads the Habitat Card aloud to the group
 - **Predator 2 (right side of habitat):** Hunts during selection rounds
 - **Data Recorder:** Counts surviving squares and records numbers in the table after each generation; does not hunt
 - **Population Manager:** Adds new squares from the reserve bag during the reproduction phase; calls "Ready" when the habitat is set for the next generation
 
-*Note: In groups where engagement is uneven, the Data Recorder and Population Manager roles are critical -- they ensure students who do not want to compete in the hunting mechanic are still cognitively engaged in the data.*
+_Note: In groups where engagement is uneven, the Data Recorder and Population Manager roles are critical -- they ensure students who do not want to compete in the hunting mechanic are still cognitively engaged in the data._
 
 ---
 
 #### Phase 3: Core Activity (20 min)
 
 **Generation 1 (Minutes 0-5):**
+
 - Students: Open envelope, spread squares on blank paper sheet. Flip Habitat Card and note the environment. Predators position themselves on opposite sides of the "habitat" (paper sheet). On teacher's signal, hunt for 10 seconds.
 - Teacher: Stand at the front and give the signal ("Ready -- Hunt -- Stop"). Walk to two groups and observe which colors are being selected against. Note which habitats produce the most dramatic selection (forest floor will select heavily against red squares; snowy ground will select heavily against non-white squares). These groups will anchor the debrief.
 
 **Reproduction Phase 1 (Minutes 5-6):**
+
 - Students: Data Recorder counts surviving squares by color, records Generation 1 survival numbers. Population Manager doubles each surviving color by adding squares from the reserve bag (if 3 red survived, add 3 more red; if 8 green survived, add 8 more green). If a color is completely eliminated, it stays eliminated -- no new squares added.
 - Teacher: Circulate to verify Data Recorders are counting correctly. Prompt: "If you have 4 blue survivors, how many blue prey should be in Generation 2?"
 
 ---
 
-*Checkpoint at Minute 7:* Ask the class: "Show me with your fingers how many different colors are still in your habitat after Generation 1." Scan the room. Groups with high habitat contrast (forest floor, snowy ground) should already show dramatic color loss. If any group has not yet completed data recording, prompt: "Data Recorders, call out your Generation 1 counts to your group -- write them now."
+_Checkpoint at Minute 7:_ Ask the class: "Show me with your fingers how many different colors are still in your habitat after Generation 1." Scan the room. Groups with high habitat contrast (forest floor, snowy ground) should already show dramatic color loss. If any group has not yet completed data recording, prompt: "Data Recorders, call out your Generation 1 counts to your group -- write them now."
 
 ---
 
 **Generations 2 and 3 (Minutes 7-17):**
+
 - Repeat the same selection and reproduction cycle two more times. Run each generation in approximately 4-5 minutes (10-second hunt + counting + recording + reproduction).
 - Teacher: During Generation 2, circulate specifically to the "Sandy Beach" and "Green Meadow" groups, prompting: "Which color is surviving most? Why? What does your habitat look like?" During Generation 3, begin selecting 2-3 groups whose data you will display in the debrief -- look for dramatic population shifts and groups who can articulate the mechanism clearly.
 
 **Written Synthesis (Minutes 17-20):**
+
 - Students: As a group, write a 3-5 sentence explanation on the back of the Data Recording Sheet answering: "Why did the trait frequency in your population change? Use the four conditions of natural selection in your explanation."
 - Teacher: Circulate and read groups' drafts. Identify one strong explanation and one that is missing a condition to use as comparison examples in the debrief.
 
-*On-track indicator:* By minute 18, every group should have data for all three generations recorded and should be writing or finishing their explanation. Groups that are still on Generation 2 can be verbally prompted to complete their data and skip to the written synthesis.
+_On-track indicator:_ By minute 18, every group should have data for all three generations recorded and should be writing or finishing their explanation. Groups that are still on Generation 2 can be verbally prompted to complete their data and skip to the written synthesis.
 
 ---
 
@@ -544,19 +579,20 @@ Group desks into 7 clusters of 4, with at least 2 feet between clusters. Before 
 
 **Debrief Question 1 -- Describe (2 min):**
 "Data Recorders: call out what color survived best in your habitat, and name your habitat environment."
-*Capture method:* Teacher records each group's response on the board in a quick two-column table: Habitat | Dominant Survivor. Students can see all seven results simultaneously.
-*Expected outcomes:* Forest Floor groups → green survives. Sandy Beach → yellow survives. Snowy Ground → white (if white was included) or yellow survives. This variation across habitats is the key visual evidence.
+_Capture method:_ Teacher records each group's response on the board in a quick two-column table: Habitat | Dominant Survivor. Students can see all seven results simultaneously.
+_Expected outcomes:_ Forest Floor groups → green survives. Sandy Beach → yellow survives. Snowy Ground → white (if white was included) or yellow survives. This variation across habitats is the key visual evidence.
 
 **Debrief Question 2 -- Analyze (3 min):**
 "Every group started with the same four colors in equal numbers. Why did different habitats end up with completely different dominant colors by Generation 3?"
-*Anticipated student responses:*
+_Anticipated student responses:_
+
 - "Because the habitat made some colors harder to see" → Build on this: "That is selection pressure -- what determines which traits are 'harder to see' in a real population?"
 - "Because the surviving ones reproduced more" → Build on this: "That's differential reproduction -- which condition of natural selection does that reflect?"
-*Teacher note:* If students describe the process without naming the conditions (heritable variation, differential survival, differential reproduction, change over time), explicitly ask: "Who can match what happened in our simulation to the four conditions from the reading?"
+  _Teacher note:_ If students describe the process without naming the conditions (heritable variation, differential survival, differential reproduction, change over time), explicitly ask: "Who can match what happened in our simulation to the four conditions from the reading?"
 
 **Debrief Question 3 -- Connect (2 min):**
 "In our simulation, selection happened in 10 seconds per generation. In a real population -- say, peppered moths in industrialized England, or beak size in Galápagos finches -- what would change about the timeline and the mechanism? What stays the same?"
-*Target insight:* The mechanism (selection pressure favoring heritable traits that increase survival/reproduction) is identical; the timescale and the source of variation (mutation, recombination) differ. If students raise this unprompted, validate it explicitly.
+_Target insight:_ The mechanism (selection pressure favoring heritable traits that increase survival/reproduction) is identical; the timescale and the source of variation (mutation, recombination) differ. If students raise this unprompted, validate it explicitly.
 
 **Closing synthesis (1 min):**
 Teacher says: "Our objective today was to analyze how selection pressure changes trait frequency across generations. You did not just see that happen -- you caused it, measured it, and explained it using the four conditions. That IS natural selection operating in real time. The only difference between our simulation and a real population is millions of years and actual death instead of picked-up paper squares."
@@ -566,15 +602,18 @@ Teacher says: "Our objective today was to analyze how selection pressure changes
 ### Differentiation
 
 **Scaffolds (for students who need support):**
+
 - Provide a "Four Conditions Reference Card" on the desk before the activity begins: "1. Heritable variation exists in the population. 2. More offspring are produced than can survive. 3. Survival is not random -- traits affect it. 4. Survivors pass traits to offspring." This card lets students participate in the synthesis paragraph without having to retrieve all four conditions from memory while also managing the simulation mechanics.
 - Assign struggling students the Data Recorder role -- the concrete act of counting and recording keeps them engaged with the data without requiring them to simultaneously manage the competitive hunting mechanic and the conceptual analysis.
-- For the written synthesis, provide this sentence frame: "Our population changed because ___. The color that survived best was ___ because in our habitat, that color ___. This connects to the condition of natural selection called ___ because ___."
+- For the written synthesis, provide this sentence frame: "Our population changed because **_. The color that survived best was _** because in our habitat, that color **_. This connects to the condition of natural selection called _** because \_\_\_."
 
 **Extensions (for advanced students):**
+
 - After Generation 3, give advanced students a "Mutation Event" card: "A new mutation produces white-spotted squares. You have 5 of them entering the population in Generation 3. Re-run Generation 3 with these 5 new squares added. What happens to the mutation?" This introduces genetic drift, mutation introduction, and the effect of starting population size on selection -- concepts that preview the next unit.
 - Add a written challenge: "If the habitat environment suddenly changed -- your forest experienced a wildfire and is now covered in ash -- what would you predict would happen to the population in the next 5 generations? Justify your prediction using the four conditions."
 
 **ELL support:**
+
 - Provide the Four Conditions Reference Card in both English and the student's home language if possible. The simulation itself is highly visual and tactile -- most ELL students can participate in the hunting mechanic and data recording without language-heavy scaffolding.
 - Allow ELL pairs to discuss the written synthesis in their home language before writing in English. The conceptual reasoning should happen before the language production -- the translation is the last step, not the first.
 

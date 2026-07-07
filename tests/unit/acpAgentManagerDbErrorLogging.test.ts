@@ -173,16 +173,18 @@ describe('AcpAgentManager DB-error honesty (S6)', () => {
     mockAgent.setModelByConfigOption = vi.fn().mockResolvedValue({ currentModelId: 'm1', availableModels: [] });
 
     // Same-routing, non-flux switch so the `await this.saveModelId(...)` line runs.
-    vi.spyOn(manager as unknown as { computeFluxRouting: () => Promise<{ routing: string }> }, 'computeFluxRouting')
-      .mockResolvedValue({ routing: 'unknown' });
+    vi.spyOn(
+      manager as unknown as { computeFluxRouting: () => Promise<{ routing: string }> },
+      'computeFluxRouting'
+    ).mockResolvedValue({ routing: 'unknown' });
     (manager as unknown as { lastRouting: string }).lastRouting = 'unknown';
     const saveSpy = vi
       .spyOn(manager as unknown as { saveModelId: (id: string) => Promise<void> }, 'saveModelId')
       .mockRejectedValue(new Error('persist failed'));
 
-    await expect(
-      (manager as unknown as { setModel: (id: string) => Promise<unknown> }).setModel('m1')
-    ).rejects.toThrow('persist failed');
+    await expect((manager as unknown as { setModel: (id: string) => Promise<unknown> }).setModel('m1')).rejects.toThrow(
+      'persist failed'
+    );
     expect(saveSpy).toHaveBeenCalledWith('m1');
   });
 });

@@ -30,13 +30,7 @@ describe('LaunchpadPicker', () => {
 
   it('renders the drawer with the search input and a populated grid', () => {
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     expect(screen.getByTestId('launchpad-picker')).toBeInTheDocument();
@@ -65,13 +59,7 @@ describe('LaunchpadPicker', () => {
   it('clicking an unpinned card calls onPick with the assistantId', () => {
     const onPick = vi.fn();
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={onPick}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={onPick} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     const forge = screen.getByTestId('launchpad-picker-card-ext-forge');
@@ -98,13 +86,7 @@ describe('LaunchpadPicker', () => {
 
   it('search filters the visible cards', () => {
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.change(screen.getByTestId('launchpad-picker-search'), { target: { value: 'forge' } });
@@ -116,13 +98,7 @@ describe('LaunchpadPicker', () => {
 
   it('shows the empty state when the filter matches nothing', () => {
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.change(screen.getByTestId('launchpad-picker-search'), {
@@ -134,13 +110,7 @@ describe('LaunchpadPicker', () => {
   it('close button fires onClose', () => {
     const onClose = vi.fn();
     render(
-      <LaunchpadPicker
-        onClose={onClose}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={onClose} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.click(screen.getByTestId('launchpad-picker-close'));
@@ -151,13 +121,7 @@ describe('LaunchpadPicker', () => {
     const onPick = vi.fn();
     const pinned = Array.from({ length: LAUNCHPAD_MAX_ENTRIES }, (_, i) => `placeholder-${i}`);
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={onPick}
-        pinnedIds={pinned}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={onPick} pinnedIds={pinned} assistants={assistants} localeKey='en-US' />
     );
 
     expect(screen.getByTestId('launchpad-picker-cap-banner')).toBeInTheDocument();
@@ -187,13 +151,7 @@ describe('LaunchpadPicker', () => {
   it('Esc key fires onClose', () => {
     const onClose = vi.fn();
     render(
-      <LaunchpadPicker
-        onClose={onClose}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={onClose} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.keyDown(window, { key: 'Escape' });

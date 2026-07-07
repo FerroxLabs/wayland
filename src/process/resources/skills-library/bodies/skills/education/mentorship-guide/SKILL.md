@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching step-by-step guide"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching step-by-step guide'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Mentorship Guide
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when the user is a mentor or mentee who wants to build structured, outcome-driven mentorship sessions rather than unstructured conversations.
 
 **Use when:**
+
 - A mentor asks how to structure their upcoming session with a mentee, including agenda design, time allocation, and focus areas
 - A mentee wants a preparation framework before meeting with their mentor so they arrive with focused questions and progress documentation
 - A mentorship pair wants to design a multi-session arc covering a defined period (6 weeks, 3 months, or a full program cycle)
@@ -31,6 +33,7 @@ Use this skill when the user is a mentor or mentee who wants to build structured
 - A mentor asks how to handle a specific relational dynamic -- such as a mentee who is disengaged, a session that went off-track, or a relationship that has reached its natural conclusion
 
 **Do NOT use when:**
+
 - The user wants a personalized learning curriculum or skill-building roadmap -- use `learning-path` instead
 - The user is asking what skills they are missing or where their gaps lie -- use `skill-gap-analysis` before using this skill
 - The user wants executive coaching, therapy, performance management, or 360-degree feedback facilitation -- these are coaching or HR disciplines, not mentorship facilitation
@@ -125,10 +128,10 @@ Reflection questions are the most leveraged component of the session guide. Gene
   4. On a scale of 1-10, how well did I use this session? What would make it a 10?
 
 - **Session-type-specific questions** (add 2-3 of these based on the session's primary purpose):
-  - *For challenge-processing sessions:* "What assumptions was I making about this situation that the conversation challenged?" and "What did I avoid saying or asking today, and why?"
-  - *For skill-building sessions:* "What is the earliest opportunity I have to practice what I learned today, and what specifically will I try?" and "What part of this skill feels most uncomfortable, and what does that discomfort tell me?"
-  - *For feedback and accountability sessions:* "What pattern do I see across the feedback I've received over multiple sessions?" and "What am I consistently not doing that I say I will do -- and what is the real reason?"
-  - *For transition sessions:* "What is the version of myself that emerged from this mentorship relationship, and how is it different from who I was when we started?" and "What would I tell my mentor-from-the-beginning that I wish I had known at the start?"
+  - _For challenge-processing sessions:_ "What assumptions was I making about this situation that the conversation challenged?" and "What did I avoid saying or asking today, and why?"
+  - _For skill-building sessions:_ "What is the earliest opportunity I have to practice what I learned today, and what specifically will I try?" and "What part of this skill feels most uncomfortable, and what does that discomfort tell me?"
+  - _For feedback and accountability sessions:_ "What pattern do I see across the feedback I've received over multiple sessions?" and "What am I consistently not doing that I say I will do -- and what is the real reason?"
+  - _For transition sessions:_ "What is the version of myself that emerged from this mentorship relationship, and how is it different from who I was when we started?" and "What would I tell my mentor-from-the-beginning that I wish I had known at the start?"
 
 - **One reflection question for the mentor** (asked every session): "What did I learn or notice in this session that I want to carry forward in how I mentor?" This models vulnerability and mutual learning for the mentee.
 
@@ -587,19 +590,19 @@ Bring or describe a current or recent design doc (or a project where one was nee
 
 ### Multi-Session Arc Overview (6 months, biweekly)
 
-| Session | Phase | Session Type | Primary Focus |
-|---------|-------|--------------|---------------|
-| 1 | Foundation | Check-in & Goal-Setting | Relationship charter; articulate 3 goals using GROW |
-| 2 | Foundation → Development | Skill-Building | Staff-level design doc quality (three dimensions) |
-| 3 | Development | Feedback & Accountability | Goal health check; design doc draft review |
-| 4 | Development | Network & Opportunity | Cross-team visibility strategy; who to target and how |
-| 5 | Development | Skill-Building | Executive communication: the 5-minute brief format |
-| 6 | Development | Feedback & Accountability | Midpoint goal health check (formal); adjust arc |
-| 7 | Development | Skill-Building | Technical leadership presence in meetings |
-| 8 | Development | Challenge-Processing | Mentee brings current cross-team friction or political obstacle |
-| 9 | Development | Skill-Building | Written communication for non-technical audiences |
-| 10 | Mastery | Feedback & Accountability | Full progress review; promotion readiness assessment |
-| 11 | Transition | Network & Opportunity | Personal board of advisors; post-mentorship independence plan |
-| 12 | Transition | Closure | Growth ledger; relationship celebration; independence commitments |
+| Session | Phase                    | Session Type              | Primary Focus                                                     |
+| ------- | ------------------------ | ------------------------- | ----------------------------------------------------------------- |
+| 1       | Foundation               | Check-in & Goal-Setting   | Relationship charter; articulate 3 goals using GROW               |
+| 2       | Foundation → Development | Skill-Building            | Staff-level design doc quality (three dimensions)                 |
+| 3       | Development              | Feedback & Accountability | Goal health check; design doc draft review                        |
+| 4       | Development              | Network & Opportunity     | Cross-team visibility strategy; who to target and how             |
+| 5       | Development              | Skill-Building            | Executive communication: the 5-minute brief format                |
+| 6       | Development              | Feedback & Accountability | Midpoint goal health check (formal); adjust arc                   |
+| 7       | Development              | Skill-Building            | Technical leadership presence in meetings                         |
+| 8       | Development              | Challenge-Processing      | Mentee brings current cross-team friction or political obstacle   |
+| 9       | Development              | Skill-Building            | Written communication for non-technical audiences                 |
+| 10      | Mastery                  | Feedback & Accountability | Full progress review; promotion readiness assessment              |
+| 11      | Transition               | Network & Opportunity     | Personal board of advisors; post-mentorship independence plan     |
+| 12      | Transition               | Closure                   | Growth ledger; relationship celebration; independence commitments |
 
-*Sessions 3, 6, and 10 are designated Goal Health Check sessions -- agenda is modified to include a full 20-minute goal review block.*
+_Sessions 3, 6, and 10 are designated Goal Health Check sessions -- agenda is modified to include a full 20-minute goal review block._

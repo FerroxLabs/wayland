@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Astronomy Observer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on astronomy observer
 - User asks about astronomy observer best practices or techniques
 - User wants a structured approach to astronomy observer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of astronomy observer
 
@@ -56,6 +57,7 @@ Before recommending equipment or an observing strategy:
 ## Understanding the Night Sky
 
 ### Light Pollution
+
 - **Bortle Scale**: Rates sky darkness from 1 (pristine) to 9 (inner city)
 - Use lightpollutionmap.info to check your location's Bortle class
 - Bortle 1-3: Milky Way easily visible, faint nebulae visible
@@ -64,6 +66,7 @@ Before recommending equipment or an observing strategy:
 - Bortle 8-9: Urban, limited to Moon, planets, double stars, bright clusters
 
 ### What You Can See by Category
+
 - **Naked eye**: Constellations, Milky Way (dark skies), meteor showers, bright planets, ISS passes
 - **Binoculars**: Moon craters, Jupiter's moons, star clusters (Pleiades), Andromeda Galaxy, Orion Nebula
 - **Small telescope (4-6")**: Saturn's rings, Mars surface features, dozens of galaxies, nebulae, clusters
@@ -75,18 +78,21 @@ Before recommending equipment or an observing strategy:
 ### Telescope Types
 
 #### Refractor (Lens-based)
+
 - **Pros**: Sharp images, low maintenance, no collimation needed, good for planets and Moon
 - **Cons**: More expensive per aperture, chromatic aberration in cheaper models
 - **Best for**: Beginners who want grab-and-go simplicity, lunar/planetary viewing
 - **Recommended**: 80-100mm achromatic or 60-80mm apochromatic (APO)
 
 #### Reflector (Mirror-based, Newtonian)
+
 - **Pros**: Best aperture per dollar, no chromatic aberration, excellent for deep sky
 - **Cons**: Needs periodic collimation, open tube can dew up, coma at edges
 - **Best for**: Deep sky visual observing, budget-conscious observers
 - **Recommended**: 8" Dobsonian (best value in all of astronomy)
 
 #### Catadioptric (SCT - Schmidt-Cassegrain)
+
 - **Pros**: Compact for aperture, versatile, excellent for astrophotography
 - **Cons**: Expensive, slower focal ratio, can have focus shift
 - **Best for**: Astrophotography, observers wanting portability with aperture
@@ -95,12 +101,14 @@ Before recommending equipment or an observing strategy:
 ### Mount Types
 
 #### Alt-Azimuth (Up-Down, Left-Right)
+
 - Simple, intuitive movement
 - Great for visual observing
 - Dobsonian mount = alt-az for reflectors (cheapest per aperture)
 - Cannot track stars for long-exposure photography without field rotator
 
 #### Equatorial (Aligned to Earth's Axis)
+
 - One axis aligned to celestial pole
 - Tracks objects with single-axis motor
 - Required for astrophotography
@@ -108,6 +116,7 @@ Before recommending equipment or an observing strategy:
 - German Equatorial Mount (GEM) most common
 
 #### GoTo / Computerized
+
 - Built-in computer finds objects automatically
 - Align on 2-3 known stars, then slew to any cataloged object
 - Great for beginners in light-polluted areas
@@ -116,22 +125,27 @@ Before recommending equipment or an observing strategy:
 ### Recommended First Telescopes by Budget
 
 **Under $300**:
+
 - Apertura AD8 / Sky-Watcher 8" Dobsonian (~$300) - Best overall first telescope
 - Zhumell Z130 tabletop reflector (~$180) - Budget portable option
 
 **$300-800**:
+
 - Sky-Watcher 10" Dobsonian (~$500) - More aperture
 - Celestron NexStar 6SE (~$800) - GoTo SCT, very versatile
 
 **$800-2000**:
+
 - Sky-Watcher 12" Dobsonian (~$700) - Serious visual
 - Celestron NexStar Evolution 8 (~$1800) - WiFi GoTo, astrophotography capable
 
 **Astrophotography-specific**:
+
 - Sky-Watcher HEQ5 or EQ6-R mount ($1000-1600) + separate telescope
 - ZWO ASI cameras or DSLR
 
 ### Eyepiece Selection
+
 - Telescopes typically include 1-2 basic eyepieces
 - **Magnification** = Telescope focal length / Eyepiece focal length
 - **Useful range**: 30x to 2x per mm of aperture (e.g., 8" = 400x max in perfect conditions)
@@ -142,6 +156,7 @@ Before recommending equipment or an observing strategy:
 ## Finding Objects
 
 ### Star Hopping (Manual Method)
+
 1. Learn major constellations first: Big Dipper, Orion, Cassiopeia, Scorpius
 2. Use star atlas or app to identify "hop" patterns from bright stars to targets
 3. Use finderscope (aligned to main telescope) to center on starting star
@@ -149,6 +164,7 @@ Before recommending equipment or an observing strategy:
 5. Practice makes this faster; experienced observers hop to objects in seconds
 
 ### GoTo / Digital Setting Circles
+
 1. Level tripod, power on mount
 2. Perform star alignment (typically 2-3 bright stars)
 3. Enter object catalog number (M31, NGC7000, etc.)
@@ -156,6 +172,7 @@ Before recommending equipment or an observing strategy:
 5. Center in eyepiece, adjust focus
 
 ### Essential Star Atlases and References
+
 - **Turn Left at Orion** (book) - Best beginner guide, sketches match eyepiece view
 - **Sky & Telescope Pocket Sky Atlas** - Detailed paper atlas
 - **Stellarium** (free software) - Planetarium on your computer
@@ -165,6 +182,7 @@ Before recommending equipment or an observing strategy:
 ## Observing Calendar Highlights
 
 ### Monthly Targets (Northern Hemisphere)
+
 - **January**: Orion Nebula (M42), Pleiades (M45), Crab Nebula (M1)
 - **February**: Winter galaxy season begins, M81/M82 pair, Eskimo Nebula
 - **March-April**: Galaxy season peak - Virgo Cluster, Leo Triplet, M51 Whirlpool
@@ -174,6 +192,7 @@ Before recommending equipment or an observing strategy:
 - **November-December**: Return to Orion season, meteor showers (Leonids, Geminids)
 
 ### Annual Events to Watch
+
 - **Meteor showers**: Perseids (August 11-13), Geminids (December 13-14), Quadrantids (January 3-4)
 - **Eclipses**: Check NASA eclipse page for dates and locations
 - **Planet oppositions**: When outer planets are closest and brightest (annual for each)
@@ -183,18 +202,21 @@ Before recommending equipment or an observing strategy:
 ## Astrophotography Basics
 
 ### Level 1: Smartphone Through Eyepiece
+
 - Hold phone camera to eyepiece (called afocal photography)
 - Use phone adapter bracket for stability ($15-25)
 - Works for Moon and bright planets
 - Use phone's pro/manual mode: low ISO, manual focus
 
 ### Level 2: DSLR Piggyback / Widefield
+
 - Mount DSLR on tripod, wide lens (18-55mm)
 - Use "500 Rule" for max exposure without star trails: 500 / focal length = seconds
 - Stack multiple exposures using free software (DeepSkyStacker, Siril)
 - Captures: Milky Way, constellations, bright nebulae with fast lenses
 
 ### Level 3: DSLR Through Telescope (Prime Focus)
+
 - Remove camera lens, attach T-ring adapter to telescope
 - Telescope becomes the camera lens
 - Requires equatorial tracking mount
@@ -202,12 +224,14 @@ Before recommending equipment or an observing strategy:
 - Captures: Galaxies, nebulae, clusters with detail
 
 ### Level 4: Dedicated Astronomy Camera
+
 - Cooled CMOS cameras (ZWO ASI, QHY) for deep sky
 - High-speed cameras for planetary imaging (stacking thousands of frames)
 - Narrowband filters for emission nebulae (works from cities)
 - Full imaging train: camera, filter wheel, off-axis guider, software control
 
 ### Processing Software
+
 - **DeepSkyStacker** (free) - Image stacking
 - **Siril** (free) - Full processing pipeline
 - **PixInsight** ($230) - Professional-grade processing
@@ -218,12 +242,14 @@ Before recommending equipment or an observing strategy:
 ## Dark Sky Locations
 
 ### Finding Dark Skies
+
 - lightpollutionmap.info - Interactive Bortle scale map
 - International Dark-Sky Association (darksky.org) - Certified dark sky places
 - Many national and state parks have dark sky programs
 - Drive 1-2 hours from major cities to reach Bortle 3-4 skies
 
 ### Observing Site Tips
+
 - Arrive before dark to set up and let eyes adapt (20-30 minutes for full dark adaptation)
 - Use only red light (flashlight with red filter) to preserve night vision
 - Avoid car headlights and phone screens
@@ -234,6 +260,7 @@ Before recommending equipment or an observing strategy:
 ## Sketching and Logging
 
 ### Observing Log Template
+
 - Date, time, location
 - Conditions: Bortle class, transparency, seeing (1-5 scale), temperature
 - Equipment used: Telescope, eyepiece, magnification, filters
@@ -242,6 +269,7 @@ Before recommending equipment or an observing strategy:
 - Sketch: Circle representing eyepiece view, mark stars and features
 
 ### Why Keep a Log
+
 - Track what you have observed (essential for observing programs)
 - Improve observing skills through deliberate practice
 - Compare views over time as skills improve
@@ -250,6 +278,7 @@ Before recommending equipment or an observing strategy:
 ## Community and Events
 
 ### Getting Involved
+
 - **Local astronomy club**: Find via Astronomical League (astroleague.org) directory
 - **Star parties**: Multi-night observing events with experienced observers sharing telescopes
 - **Astronomical League programs**: Structured observing lists with certificates (Messier, Herschel 400, Lunar)
@@ -257,6 +286,7 @@ Before recommending equipment or an observing strategy:
 - **Online communities**: Cloudy Nights forum, r/telescopes, r/astrophotography
 
 ### Star Party Etiquette
+
 - Use only red lights
 - Ask before touching anyone's equipment
 - Don't use phone screens near telescopes (ruins dark adaptation for everyone)
@@ -282,7 +312,6 @@ Before recommending equipment or an observing strategy:
 5. **Phase 5 - Astrophotography**: Capture your first deep sky image, process and share
 6. **Phase 6 - Advanced**: Specialized pursuits - variable stars, asteroid discovery, outreach, mentoring
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -295,13 +324,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with astronomy observer for a mid-size project."
 
 **Output:** A complete astronomy observer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

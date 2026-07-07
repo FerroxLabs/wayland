@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness workout-planning step-by-step"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness workout-planning step-by-step'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Running Coach
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about running coach
 - User needs guidance on running coach topics
 - User wants a structured approach to running coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -49,13 +51,13 @@ metadata:
 
 ### Heart Rate Zone System
 
-| Zone | Name | % Max HR | Perceived Effort | Purpose |
-|------|------|----------|-------------------|---------|
-| 1 | Recovery | 50-60% | Very easy, conversational | Active recovery |
-| 2 | Easy/Aerobic | 60-70% | Easy, can hold full conversation | Base building, fat oxidation |
-| 3 | Tempo | 70-80% | Comfortably hard, short sentences | Lactate threshold improvement |
-| 4 | Threshold | 80-90% | Hard, few words at a time | VO2max improvement |
-| 5 | Interval/Max | 90-100% | All-out, cannot speak | Speed and power |
+| Zone | Name         | % Max HR | Perceived Effort                  | Purpose                       |
+| ---- | ------------ | -------- | --------------------------------- | ----------------------------- |
+| 1    | Recovery     | 50-60%   | Very easy, conversational         | Active recovery               |
+| 2    | Easy/Aerobic | 60-70%   | Easy, can hold full conversation  | Base building, fat oxidation  |
+| 3    | Tempo        | 70-80%   | Comfortably hard, short sentences | Lactate threshold improvement |
+| 4    | Threshold    | 80-90%   | Hard, few words at a time         | VO2max improvement            |
+| 5    | Interval/Max | 90-100%  | All-out, cannot speak             | Speed and power               |
 
 ### Estimating Max Heart Rate
 
@@ -80,6 +82,7 @@ Zone 5: 167-185 bpm
 ## Program: Couch to 5K (8 Weeks)
 
 ### Prerequisites
+
 - Medical clearance
 - Proper running shoes
 - Ability to walk briskly for 30 minutes
@@ -118,6 +121,7 @@ Run 30 min continuous (approx. 5K at easy pace)
 ## Program: 5K Improvement (8 Weeks)
 
 ### Prerequisites
+
 - Can run 5K continuously
 - Running 10-15 miles/week comfortably
 
@@ -164,6 +168,7 @@ Reduce volume by 50%, 2 short easy runs, race on weekend
 ## Program: 10K Training (10 Weeks)
 
 ### Prerequisites
+
 - Can run 5K comfortably
 - Running 12-18 miles/week
 
@@ -189,6 +194,7 @@ Week 9: 20 mi (taper) | Week 10: 15 mi (race week)
 ## Program: Half Marathon (12 Weeks)
 
 ### Prerequisites
+
 - Can run 10K comfortably
 - Running 20-25 miles/week base
 
@@ -216,6 +222,7 @@ Week  | Easy | Speed | Tempo | Long | Total
 ## Program: Marathon (16-18 Weeks)
 
 ### Prerequisites
+
 - Have completed a half marathon or run 13+ miles
 - Running 25-35 miles/week base
 - At least 1 year of consistent running
@@ -261,25 +268,25 @@ Marathon: ~4:05:00
 
 ### Pacing Strategy by Race
 
-| Race | Strategy | Details |
-|------|----------|---------|
-| 5K | Even or slight negative split | Start controlled, push last mile |
-| 10K | Even splits | Consistent pace throughout |
-| Half Marathon | Slight negative split | First half 10-15 sec/mi slower than goal |
-| Marathon | Conservative start | First 10K at goal+15 sec/mi, settle into pace, push last 10K |
+| Race          | Strategy                      | Details                                                      |
+| ------------- | ----------------------------- | ------------------------------------------------------------ |
+| 5K            | Even or slight negative split | Start controlled, push last mile                             |
+| 10K           | Even splits                   | Consistent pace throughout                                   |
+| Half Marathon | Slight negative split         | First half 10-15 sec/mi slower than goal                     |
+| Marathon      | Conservative start            | First 10K at goal+15 sec/mi, settle into pace, push last 10K |
 
 ### Treadmill Pace Conversion
 
 | Pace (min/mi) | Speed (mph) | Pace (min/km) |
-|----------------|-------------|----------------|
-| 12:00 | 5.0 | 7:27 |
-| 10:00 | 6.0 | 6:13 |
-| 9:00 | 6.7 | 5:35 |
-| 8:00 | 7.5 | 4:58 |
-| 7:30 | 8.0 | 4:39 |
-| 7:00 | 8.6 | 4:21 |
-| 6:30 | 9.2 | 4:02 |
-| 6:00 | 10.0 | 3:43 |
+| ------------- | ----------- | ------------- |
+| 12:00         | 5.0         | 7:27          |
+| 10:00         | 6.0         | 6:13          |
+| 9:00          | 6.7         | 5:35          |
+| 8:00          | 7.5         | 4:58          |
+| 7:30          | 8.0         | 4:39          |
+| 7:00          | 8.6         | 4:21          |
+| 6:30          | 9.2         | 4:02          |
+| 6:00          | 10.0        | 3:43          |
 
 ---
 
@@ -287,14 +294,14 @@ Marathon: ~4:05:00
 
 ### Common Running Injuries
 
-| Injury | Symptoms | Common Cause | Prevention |
-|--------|----------|-------------|------------|
-| Runner's Knee | Pain around kneecap | Overuse, weak quads/glutes | Strengthen quads, reduce mileage increases |
-| Shin Splints | Pain along shin bone | Too much too soon, hard surfaces | Gradual mileage increase, proper shoes |
-| IT Band Syndrome | Pain outside of knee | Weak hips, tight IT band | Hip strengthening, foam rolling |
-| Plantar Fasciitis | Heel/arch pain (worse AM) | Tight calves, unsupportive shoes | Calf stretches, arch support, rolling |
-| Achilles Tendinitis | Pain above heel | Tight calves, sudden mileage increase | Eccentric heel drops, gradual progression |
-| Stress Fracture | Localized bone pain | Overtraining, low bone density | Rest days, calcium/vitamin D, gradual increase |
+| Injury              | Symptoms                  | Common Cause                          | Prevention                                     |
+| ------------------- | ------------------------- | ------------------------------------- | ---------------------------------------------- |
+| Runner's Knee       | Pain around kneecap       | Overuse, weak quads/glutes            | Strengthen quads, reduce mileage increases     |
+| Shin Splints        | Pain along shin bone      | Too much too soon, hard surfaces      | Gradual mileage increase, proper shoes         |
+| IT Band Syndrome    | Pain outside of knee      | Weak hips, tight IT band              | Hip strengthening, foam rolling                |
+| Plantar Fasciitis   | Heel/arch pain (worse AM) | Tight calves, unsupportive shoes      | Calf stretches, arch support, rolling          |
+| Achilles Tendinitis | Pain above heel           | Tight calves, sudden mileage increase | Eccentric heel drops, gradual progression      |
+| Stress Fracture     | Localized bone pain       | Overtraining, low bone density        | Rest days, calcium/vitamin D, gradual increase |
 
 ### Pre-Run Dynamic Warm-Up (5-7 minutes)
 
@@ -347,11 +354,11 @@ Hydration: Half your body weight in ounces daily + 16-24 oz per hour of running
 
 ### Pre-Run Fueling
 
-| Timing | What to Eat | Examples |
-|--------|-------------|---------|
-| 3-4 hours before | Full meal, moderate carbs | Oatmeal with banana, toast with PB |
+| Timing           | What to Eat                 | Examples                             |
+| ---------------- | --------------------------- | ------------------------------------ |
+| 3-4 hours before | Full meal, moderate carbs   | Oatmeal with banana, toast with PB   |
 | 1-2 hours before | Light snack, easy to digest | Banana, energy bar, toast with honey |
-| 30 min before | Simple carbs if needed | Sports drink, gel, few crackers |
+| 30 min before    | Simple carbs if needed      | Sports drink, gel, few crackers      |
 
 ### During-Run Fueling (Runs > 60 minutes)
 
@@ -446,11 +453,11 @@ Types:
 
 ### Essential Gear by Season
 
-| Season | Key Gear |
-|--------|----------|
-| Spring | Light layers, rain jacket, cap |
-| Summer | Moisture-wicking shorts/singlet, sunscreen, hydration vest |
-| Fall | Arm sleeves, light vest, gloves |
+| Season | Key Gear                                                              |
+| ------ | --------------------------------------------------------------------- |
+| Spring | Light layers, rain jacket, cap                                        |
+| Summer | Moisture-wicking shorts/singlet, sunscreen, hydration vest            |
+| Fall   | Arm sleeves, light vest, gloves                                       |
 | Winter | Thermal base layer, windproof jacket, beanie, gloves, reflective gear |
 
 ### Temperature Dressing Guide

@@ -13,11 +13,7 @@
 // end-to-end coverage lands in the e2e harness in W5.2 per TRIAGE H11.
 
 import { describe, it, expect } from 'vitest';
-import {
-  buildCapabilityGrants,
-  isSandboxedAfterImport,
-  previewImport,
-} from '@process/team/importExport/importTeam';
+import { buildCapabilityGrants, isSandboxedAfterImport, previewImport } from '@process/team/importExport/importTeam';
 import { TeamExportSchema } from '@process/team/importExport/TeamExportSchema';
 
 function payload(overrides: Record<string, unknown> = {}) {
@@ -49,10 +45,7 @@ describe('previewImport', () => {
   });
 
   it('returns specialistsAvailable=true when every referenced skill is in the catalog', async () => {
-    const result = await previewImport(
-      payload(),
-      async () => new Set(['affiliate-site-engine', 'research', 'copy'])
-    );
+    const result = await previewImport(payload(), async () => new Set(['affiliate-site-engine', 'research', 'copy']));
     expect(result.specialistsAvailable).toBe(true);
     expect(result.missingSpecialists).toEqual([]);
   });
@@ -145,10 +138,7 @@ describe('isSandboxedAfterImport - legacy helper kept for historical coverage', 
 
   it('returns true when the payload declares a cap that the user did NOT grant', () => {
     expect(
-      isSandboxedAfterImport(
-        { ...allFalseCaps, canReadFiles: true },
-        { canReadFiles: false, canWriteFiles: true }
-      )
+      isSandboxedAfterImport({ ...allFalseCaps, canReadFiles: true }, { canReadFiles: false, canWriteFiles: true })
     ).toBe(true);
   });
 });

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning strategy guide checklist"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template planning strategy guide checklist'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Performance Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - A manager needs to write an annual, mid-year, or quarterly performance review for a direct report and wants a structured, evidence-based document
 - A user needs to evaluate an employee across multiple behavioral and output dimensions and is unsure how to weight or present the assessment
 - A manager has informal notes, project outcomes, and impressions and needs to convert them into a coherent, defensible written review
@@ -28,6 +30,7 @@ metadata:
 - A user needs to document performance that supports a compensation decision (merit increase, bonus, promotion) and needs the evidence trail to be airtight
 
 **Do NOT use this skill when:**
+
 - The employee is already on a formal performance improvement plan -- use the `performance-improvement-plan` skill, which handles structured remediation timelines, required documentation, and legal risk framing
 - The user wants to evaluate a candidate during or after an interview process -- use the `interview-guide` skill, which covers structured scoring against job requirements rather than period-over-period performance
 - The user is writing their own self-assessment or preparing to advocate for their own promotion -- this skill is written from the evaluating manager's perspective
@@ -56,6 +59,7 @@ Gather the following inputs before producing any assessment language. Without th
 Choose 4-7 dimensions that match the role. More than 7 dimensions dilutes the assessment and makes calibration difficult. Fewer than 4 misses important facets of performance.
 
 **Universal dimensions** (use for almost every role):
+
 - **Delivery / Goal Achievement** -- did the employee accomplish what they committed to? This includes output quality, timeliness, and completeness against stated goals
 - **Quality of Work** -- accuracy, craftsmanship, thoroughness, fitness-for-purpose; a lawyer's "quality" is different from an engineer's, but the concept applies universally
 - **Communication and Collaboration** -- clarity of communication, responsiveness, cross-functional effectiveness, constructive participation in team dynamics
@@ -63,11 +67,13 @@ Choose 4-7 dimensions that match the role. More than 7 dimensions dilutes the as
 - **Growth and Learning** -- how effectively does the employee incorporate feedback, develop new skills, and increase their contribution over time?
 
 **Add for people managers:**
+
 - **People Development** -- coaching effectiveness, career development of direct reports, performance management execution
 - **Strategic Thinking** -- ability to translate organizational objectives into team priorities; contribution to planning beyond immediate deliverables
 - **Organizational Effectiveness** -- cross-team influence, managing up, representing the team and its work credibly in broader forums
 
 **Add for client-facing or revenue roles:**
+
 - **Client Relationship Management** -- quality of relationships, retention signals, escalation handling
 - **Revenue Impact** -- quantified contribution to pipeline, closed revenue, or account growth
 
@@ -78,11 +84,13 @@ Choose 4-7 dimensions that match the role. More than 7 dimensions dilutes the as
 Evidence collection is the highest-stakes step. Weak evidence produces ratings that cannot survive a calibration challenge or, worse, a legal challenge.
 
 **The SBI Framework (Situation-Behavior-Impact):**
+
 - **Situation:** When and where did this occur? Be specific -- "During the Q2 product launch in April" is better than "earlier this year"
 - **Behavior:** What exactly did the person do or say? Behavior is observable and factual -- "Alex delivered the final integration layer two weeks before the deadline" is behavior; "Alex is passionate about quality" is an interpretation
 - **Impact:** What resulted from the behavior? Quantify when possible -- "which reduced post-launch defects by 60% compared to the prior release" is stronger than "which the team appreciated"
 
 **Evidence quality checklist for each dimension:**
+
 - At least one example per dimension; two is better for high-stakes ratings (exceptional or does not meet)
 - Examples must span the full review period -- document the date range of examples before writing; if all examples are from the last 60 days, recency bias is distorting the assessment
 - Both strengths and development areas should have evidence, not just the areas where you have concerns
@@ -90,6 +98,7 @@ Evidence collection is the highest-stakes step. Weak evidence produces ratings t
 - For development areas in particular: evidence must describe the specific behavior and its specific impact, not the manager's emotional reaction to the behavior
 
 **Common evidence failures to avoid:**
+
 - **Recency bias:** The last 4-6 weeks dominate the assessment because they are freshest. Counter this by reviewing commit histories, Jira/project tickets, email threads, or prior check-in notes from earlier in the period before writing anything.
 - **Halo effect:** One very visible success (a high-profile project delivery) inflates all other dimension ratings. Rate each dimension independently, using dimension-specific evidence.
 - **Horn effect:** One visible failure (a missed deadline, a difficult meeting) deflates all other ratings. Same solution -- dimension-specific evidence.
@@ -99,6 +108,7 @@ Evidence collection is the highest-stakes step. Weak evidence produces ratings t
 ### Step 4: Assign Ratings Accurately and Defensibly
 
 **Standard 5-point scale:**
+
 - **5 -- Exceptional:** Performance that would be recognized as outstanding even in a higher-level role. Rare by definition -- fewer than 10% of employees in a healthy organization should receive this rating. Requires documented impact beyond the immediate role.
 - **4 -- Exceeds Expectations:** Consistently delivers above the stated bar for the role and level. This is the "strong performer" rating. In most organizations, 20-30% of employees receive this rating at any given cycle.
 - **3 -- Meets Expectations:** Fully competent and reliable delivery at the expected level. "Meets" is not a negative rating -- it describes someone doing their job well. 40-50% of employees in a healthy team should cluster here.
@@ -106,6 +116,7 @@ Evidence collection is the highest-stakes step. Weak evidence produces ratings t
 - **1 -- Does Not Meet:** Significant performance gaps. This rating should not appear without prior documentation of the issues -- if this is the first time the employee is hearing about these gaps in writing, the review process has already failed. Fewer than 5% of employees should be at this level; if a team has many 1s, the manager may be failing at ongoing feedback.
 
 **Rating calibration principles:**
+
 - A "3 -- Meets Expectations" at Google means something different than a "3 -- Meets Expectations" at a startup with no defined level expectations. Always anchor ratings to the written role expectations or level guide if one exists.
 - Never rate up to soften the conversation. A 3 that should be a 2 is not kindness -- it deprives the employee of accurate information they need to improve and creates an undocumentable decision if termination becomes necessary later.
 - Forced distribution (e.g., "no more than 10% can receive a 5") is imposed at the calibration level, not the writing level. Write the honest assessment; let the calibration process adjust if needed.
@@ -115,12 +126,14 @@ Evidence collection is the highest-stakes step. Weak evidence produces ratings t
 Narrative quality separates reviews that are actually useful from reviews that are legally compliant but developmentally useless. Apply these standards:
 
 **Structure for each dimension:**
+
 1. **Opening sentence:** State the overall assessment for this dimension directly -- "Communication is Alex's primary development area this cycle" or "Jordan delivered exceptional results on the infrastructure reliability initiative"
 2. **Strength evidence:** One or two SBI examples showing what the employee did well in this dimension
 3. **Development evidence (if applicable):** One or two SBI examples showing where gaps appeared; include the specific impact of the gap
 4. **Forward bridge:** For development areas, end with a specific and constructive path -- what the employee should do differently, not just a description of the problem
 
 **Language standards:**
+
 - Use the employee's preferred name and pronouns consistently throughout the document
 - Use active voice: "Morgan led the migration" not "the migration was led by Morgan"
 - Avoid coded language that has documented bias patterns: "aggressive" for assertive behavior in some employees but not others; "articulate" as a compliment that implies surprise; "cultural fit" as a reason for lower ratings without specificity
@@ -135,6 +148,7 @@ Narrative quality separates reviews that are actually useful from reviews that a
 Development goals in a performance review are not aspirations -- they are commitments. Each goal must answer four questions: what, how, measured by what, and by when.
 
 **Goal construction framework:**
+
 - **What:** Name the specific skill, behavior, or capability to develop -- "Improve executive communication" is too vague; "Develop the ability to present technical architecture decisions to non-technical stakeholders in 10 minutes or less" is specific
 - **How:** Name the mechanism -- options include: stretch assignment (lead this type of project), formal training (complete this course or certification), mentoring/coaching (meet biweekly with a named person), peer feedback (solicit structured input after specific events), deliberate practice (apply this technique in the next 5 client meetings)
 - **Measured by:** Name the observable indicator of success -- not "improve" but "demonstrate by" -- "receives unsolicited positive feedback from at least two cross-functional partners," "presents to VP-level audience with no follow-up clarification requests," "achieves AWS Solutions Architect certification"
@@ -357,16 +371,16 @@ An employee who performed at a 4/5 level for the first seven months and then had
 
 ### Review Information
 
-| Field             | Detail                                        |
-|-------------------|-----------------------------------------------|
-| **Employee**      | Jordan Chen                                   |
-| **Role / Level**  | Senior Product Manager                        |
-| **Department**    | Product                                       |
-| **Manager**       | [Manager Name]                                |
-| **Review Period** | January 2025 to December 2025                 |
-| **Review Type**   | Annual                                        |
-| **Prepared by**   | [Manager Name]                                |
-| **Prepared on**   | [Date]                                        |
+| Field             | Detail                        |
+| ----------------- | ----------------------------- |
+| **Employee**      | Jordan Chen                   |
+| **Role / Level**  | Senior Product Manager        |
+| **Department**    | Product                       |
+| **Manager**       | [Manager Name]                |
+| **Review Period** | January 2025 to December 2025 |
+| **Review Type**   | Annual                        |
+| **Prepared by**   | [Manager Name]                |
+| **Prepared on**   | [Date]                        |
 
 ---
 
@@ -380,32 +394,32 @@ Jordan delivered two of the team's highest-impact product initiatives this year 
 
 ### Dimension Ratings Summary
 
-| Dimension                   | Rating | Summary                                                                 |
-|-----------------------------|--------|-------------------------------------------------------------------------|
-| Delivery / Goal Achievement | 4/5    | Both major initiatives shipped on time and hit primary success metrics. |
+| Dimension                   | Rating | Summary                                                                       |
+| --------------------------- | ------ | ----------------------------------------------------------------------------- |
+| Delivery / Goal Achievement | 4/5    | Both major initiatives shipped on time and hit primary success metrics.       |
 | Quality of Work             | 4/5    | Specifications were thorough and well-researched; edge cases well-documented. |
-| Communication               | 4/5    | Strong written and verbal communication; excellent stakeholder updates. |
-| Collaboration               | 4/5    | Engineering and design partnerships are effective and trust-based.      |
-| Prioritization / Strategy   | 2/5    | Roadmap scope crept mid-quarter three times due to unfiltered scope intake. |
-| Initiative                  | 3/5    | Responds well to defined problems; proactively defines fewer problems.  |
-| Growth and Learning         | 3/5    | Applies tactical feedback well; ready to develop more strategic instincts. |
+| Communication               | 4/5    | Strong written and verbal communication; excellent stakeholder updates.       |
+| Collaboration               | 4/5    | Engineering and design partnerships are effective and trust-based.            |
+| Prioritization / Strategy   | 2/5    | Roadmap scope crept mid-quarter three times due to unfiltered scope intake.   |
+| Initiative                  | 3/5    | Responds well to defined problems; proactively defines fewer problems.        |
+| Growth and Learning         | 3/5    | Applies tactical feedback well; ready to develop more strategic instincts.    |
 
 **Overall Rating: 3.5/5 -- Meets to Exceeds Expectations**
 
-*Note: A 3/5 on this scale represents fully effective performance at the Senior PM level. Jordan's score reflects strong delivery tempered by a specific and addressable gap in prioritization discipline.*
+_Note: A 3/5 on this scale represents fully effective performance at the Senior PM level. Jordan's score reflects strong delivery tempered by a specific and addressable gap in prioritization discipline._
 
 ---
 
 ### Goal Review: 2025
 
-| Goal                                           | Target                                        | Actual Result                                          | Status   |
-|------------------------------------------------|-----------------------------------------------|--------------------------------------------------------|----------|
-| Launch enterprise SSO integration              | GA by end of Q2; 20 enterprise customers onboarded by Q3 | GA in Q2; 27 enterprise customers onboarded by Q3 end | Exceeded |
-| Launch self-serve onboarding flow              | Reduce onboarding time-to-value from 14 days to 7 days avg | Average time-to-value reached 6.2 days by Q4          | Exceeded |
-| Maintain engineering team satisfaction ≥ 8/10 (internal survey) | ≥ 8/10 in H1 and H2 engineering surveys | H1: 8.3/10; H2: 7.1/10 -- declined in H2 survey      | Partially Met |
-| Establish quarterly roadmap review process     | Documented process shared with stakeholders by Q1 | Process documented in Q1; not consistently followed in Q3-Q4 | Partially Met |
+| Goal                                                            | Target                                                     | Actual Result                                                | Status        |
+| --------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
+| Launch enterprise SSO integration                               | GA by end of Q2; 20 enterprise customers onboarded by Q3   | GA in Q2; 27 enterprise customers onboarded by Q3 end        | Exceeded      |
+| Launch self-serve onboarding flow                               | Reduce onboarding time-to-value from 14 days to 7 days avg | Average time-to-value reached 6.2 days by Q4                 | Exceeded      |
+| Maintain engineering team satisfaction ≥ 8/10 (internal survey) | ≥ 8/10 in H1 and H2 engineering surveys                    | H1: 8.3/10; H2: 7.1/10 -- declined in H2 survey              | Partially Met |
+| Establish quarterly roadmap review process                      | Documented process shared with stakeholders by Q1          | Process documented in Q1; not consistently followed in Q3-Q4 | Partially Met |
 
-*The H2 engineering satisfaction decline aligns with the period of highest roadmap volatility (Q3) and is addressed in the Prioritization dimension assessment below.*
+_The H2 engineering satisfaction decline aligns with the period of highest roadmap volatility (Q3) and is addressed in the Prioritization dimension assessment below._
 
 ---
 
@@ -544,13 +558,13 @@ Jordan tends to seek feedback on execution decisions (should I do X or Y on this
 
 ### Employee Comments
 
-*Jordan Chen is invited to add comments after reviewing this document. Comments should be added before [date, 5-7 business days from review conversation] and will be included in the finalized record.*
+_Jordan Chen is invited to add comments after reviewing this document. Comments should be added before [date, 5-7 business days from review conversation] and will be included in the finalized record._
 
 ---
 
 ### Acknowledgment
 
-*Employee signature acknowledges that the performance review discussion occurred and that this document has been reviewed. It does not indicate agreement with all assessments. Disagreements may be noted in the Employee Comments section above.*
+_Employee signature acknowledges that the performance review discussion occurred and that this document has been reviewed. It does not indicate agreement with all assessments. Disagreements may be noted in the Employee Comments section above._
 
-Manager: ___________________________ Date: ___________
-Employee: __________________________ Date: ___________
+Manager: ************\_\_\_************ Date: ****\_\_\_****
+Employee: ************\_\_************ Date: ****\_\_\_****

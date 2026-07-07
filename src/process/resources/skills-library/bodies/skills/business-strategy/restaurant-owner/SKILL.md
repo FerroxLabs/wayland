@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Restaurant Owner
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to open or operate an independent restaurant and needs menu engineering or food cost management
 - The user needs help with staffing models, health code compliance, POS selection, or inventory control
 - The user wants restaurant marketing strategy, seasonal planning, or operational efficiency improvements
 - The user needs financial planning, break-even analysis, or vendor management for a restaurant
 
 **Do NOT use this skill when:**
+
 - The user is starting a food truck rather than a restaurant (use food-truck-operator instead)
 - The user wants home cooking or recipe development guidance (use relevant home-household skill)
 - The user needs general business planning not specific to restaurants (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on restaurant owner
 - User asks about restaurant owner best practices or techniques
 - User wants a structured approach to restaurant owner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of restaurant owner
 
@@ -123,13 +127,13 @@ CONTRIBUTION MARGIN:                      $________
 
 ### Target Food Cost Percentages by Type
 
-| Restaurant Type      | Target Food Cost % | Target Labor % | Target Prime Cost % |
-|---------------------|--------------------|----------------|---------------------|
-| Fine Dining         | 28-32%             | 30-35%         | 60-65%              |
-| Casual Dining       | 28-35%             | 25-30%         | 55-65%              |
-| Fast Casual         | 25-30%             | 22-28%         | 50-58%              |
-| Quick Service       | 25-32%             | 20-25%         | 48-55%              |
-| Bar/Nightclub       | 20-25% (food)      | 18-24%         | 40-48%              |
+| Restaurant Type | Target Food Cost % | Target Labor % | Target Prime Cost % |
+| --------------- | ------------------ | -------------- | ------------------- |
+| Fine Dining     | 28-32%             | 30-35%         | 60-65%              |
+| Casual Dining   | 28-35%             | 25-30%         | 55-65%              |
+| Fast Casual     | 25-30%             | 22-28%         | 50-58%              |
+| Quick Service   | 25-32%             | 20-25%         | 48-55%              |
+| Bar/Nightclub   | 20-25% (food)      | 18-24%         | 40-48%              |
 
 ### Food Cost Formula
 
@@ -221,14 +225,14 @@ Labor Per Cover Targets:
 
 ### Critical Control Points
 
-| Risk Area            | Standard                        | Frequency      |
-|---------------------|---------------------------------|----------------|
-| Cooler temps        | 41F or below                    | 2x daily       |
-| Freezer temps       | 0F or below                     | 2x daily       |
-| Hot holding         | 135F or above                   | Continuous      |
-| Cooking temps       | Varies by protein (see below)   | Every batch     |
-| Sanitizer strength  | 200 ppm quat / 50-100 ppm bleach| Every 2 hours  |
-| Handwashing         | 20 seconds, soap, warm water    | Continuous      |
+| Risk Area          | Standard                         | Frequency     |
+| ------------------ | -------------------------------- | ------------- |
+| Cooler temps       | 41F or below                     | 2x daily      |
+| Freezer temps      | 0F or below                      | 2x daily      |
+| Hot holding        | 135F or above                    | Continuous    |
+| Cooking temps      | Varies by protein (see below)    | Every batch   |
+| Sanitizer strength | 200 ppm quat / 50-100 ppm bleach | Every 2 hours |
+| Handwashing        | 20 seconds, soap, warm water     | Continuous    |
 
 ### Minimum Internal Cooking Temperatures
 
@@ -257,8 +261,8 @@ Reheated foods:              165F for 15 seconds within 2 hours
 
 ### Evaluation Criteria
 
-| Feature              | Must-Have | Nice-to-Have | Weight |
-|---------------------|-----------|--------------|--------|
+| Feature             | Must-Have | Nice-to-Have | Weight |
+| ------------------- | --------- | ------------ | ------ |
 | Menu modification   | X         |              | 10     |
 | Table management    | X         |              | 9      |
 | Inventory tracking  |           | X            | 7      |
@@ -403,7 +407,6 @@ Target: 10-15% for independent restaurants
 9. Neglecting equipment maintenance schedules
 10. Failing to build a cash reserve (target 3 months of fixed costs)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -416,13 +419,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with restaurant owner for a mid-size project."
 
 **Output:** A complete restaurant owner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

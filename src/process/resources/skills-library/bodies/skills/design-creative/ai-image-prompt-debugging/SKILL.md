@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation analysis design"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation analysis design'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # AI Image Prompt Debugging
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user provides an existing prompt and describes a gap between what they expected and what the model produced (wrong style, wrong subject, wrong composition, wrong mood, artifacts, missing elements)
 - A user asks why their prompt "used to work" in an older model version but produces degraded results after a model update
 - A user describes specific visual failure patterns: anatomy errors, style bleed, background dominance, color casts, texture corruption, or compositional collapse
@@ -30,6 +32,7 @@ metadata:
 - A user's weighted terms are causing visible artifacts, halos, or oversaturated focal points
 
 **Do NOT use when:**
+
 - The user has no prompt yet and wants to build one from scratch -- use a model-specific prompting skill instead
 - The user wants to migrate a working Midjourney prompt to Stable Diffusion or vice versa -- use a prompt-translation skill
 - The user wants to apply a specific visual style to a new subject they have not yet prompted -- use ai-image-style-transfer
@@ -65,6 +68,7 @@ Before diagnosing, collect every variable that affects output. Missing even one 
 Different models process prompts through fundamentally different architectures. Diagnosis must start by confirming which paradigm governs this prompt.
 
 **Stable Diffusion 1.x (CLIP ViT-L/14 encoder):**
+
 - Hard token limit of 77 tokens per pass. Tokens are not words -- a word like "photorealistic" may be 3 tokens. Punctuation costs tokens.
 - Terms beyond token 77 are passed to a second CLIP pass with reduced influence. Many implementations simply truncate.
 - Comma-separated keyword style works best. Natural language sentences are processed less reliably.
@@ -73,6 +77,7 @@ Different models process prompts through fundamentally different architectures. 
 - Highly sensitive to quality booster tags: "masterpiece, best quality, ultra-detailed" strongly bias SD 1.5 models trained on Danbooru/e621 datasets.
 
 **Stable Diffusion XL (two CLIP encoders: ViT-L and ViT-bigG):**
+
 - Two separate 77-token passes: one to each CLIP encoder. The ViT-bigG encoder (second) carries more semantic weight.
 - Responds better to natural language phrases within keyword strings.
 - Quality booster tags ("masterpiece") have less effect on SDXL than on SD 1.5.
@@ -81,6 +86,7 @@ Different models process prompts through fundamentally different architectures. 
 - VAE bakes into output quality -- the official SDXL VAE (madebyollin fp16 fix) is required to prevent washed-out colors.
 
 **Flux.1 [dev] / Flux.1 [schnell]:**
+
 - Transformer-based (not UNet). CLIP + T5-XXL dual text encoder architecture.
 - T5-XXL processes natural language with high fidelity -- full sentences work. Comma-separated tags are less optimal than in SD.
 - No attention weighting syntax in baseline Flux. Weights like `(term:1.5)` are either ignored or parsed inconsistently.
@@ -89,6 +95,7 @@ Different models process prompts through fundamentally different architectures. 
 - Strong anatomy and hand quality at default settings compared to SD 1.x.
 
 **Midjourney v5/v6/v6.1:**
+
 - No explicit token limit, but prompt weighting uses `::` multi-prompt syntax and `--s` (stylize) control.
 - Earlier terms in the prompt carry more weight than later terms.
 - `--style raw` reduces aesthetic stylization. `--s 0` eliminates it almost entirely (often too flat). `--s 100-250` is the photorealism-to-artistic spectrum.
@@ -97,6 +104,7 @@ Different models process prompts through fundamentally different architectures. 
 - `--no` is the primary negative mechanism. It is less precise than SD negative prompts but works for broad style exclusion.
 
 **DALL-E 3:**
+
 - Responds to natural language descriptions only. Tags and keyword syntax produce worse results.
 - ChatGPT/system prompt context affects output even when invisible to the user.
 - Has built-in safety and copyright filters that silently modify prompts ("prompt revision"). The user may not be prompting what they think they are prompting.
@@ -111,52 +119,58 @@ Evaluate the prompt against all seven categories systematically. Do not skip cat
 
 **Category 1 -- Conflicting Descriptors**
 Look for pairs or groups of terms that encode opposing visual properties:
+
 - Medium conflicts: "watercolor" + "photorealistic" + "sharp focus" -- a medium (watercolor) that implies softness, combined with photographic precision
 - Lighting conflicts: "dramatic shadows" + "bright, even lighting" -- these are mutually exclusive lighting setups
 - Temporal conflicts: "sunset" + "golden hour" + "midday sun" -- pick one
 - Tone conflicts: "dark, gritty, noir" + "vibrant, colorful, cheerful"
 - Resolution conflicts: "painterly, impressionistic" + "4K, ultra-detailed, sharp"
 - Composition conflicts: "minimalist" + "highly detailed, intricate, busy"
-Each conflict forces the model to average two opposing instructions, producing a muddy or inconsistent result. Fix: identify the dominant intent, remove the contradicting term, and if both are genuinely desired (e.g., a detailed minimalist composition is actually possible), rewrite with precise spatial control.
+  Each conflict forces the model to average two opposing instructions, producing a muddy or inconsistent result. Fix: identify the dominant intent, remove the contradicting term, and if both are genuinely desired (e.g., a detailed minimalist composition is actually possible), rewrite with precise spatial control.
 
 **Category 2 -- Style Paradigm Mismatch**
 The style descriptors do not belong to the same visual language family:
+
 - Mixing artistic-medium terms ("oil painting," "impasto texture") with photographic terms ("85mm lens," "bokeh," "ISO 800") -- these belong to incompatible visual paradigms
 - Mixing era/movement terms without coherence: "Art Deco Baroque cyberpunk" -- three unrelated style languages
 - Using film/photography jargon on a model that was not trained on photographic data (some SD 1.5 anime checkpoints do not respond to camera specs at all)
 - Using anime quality tags ("best quality, masterpiece") on photorealistic checkpoints -- these terms activate anime training data, not photo training data
-Fix: map all style descriptors to a single visual paradigm. Choose medium OR photography OR illustration OR 3D render, then use only the vocabulary of that paradigm.
+  Fix: map all style descriptors to a single visual paradigm. Choose medium OR photography OR illustration OR 3D render, then use only the vocabulary of that paradigm.
 
 **Category 3 -- Underspecified Composition**
 The prompt lacks the spatial and structural cues needed to constrain the layout:
+
 - Subject with no positioning: "a warrior" -- foreground or background? Facing camera or turned? Close-up or full-body?
 - No depth cues: no near/far relationship, no layering, no atmospheric perspective reference
 - No lighting source: models default to flat ambient lighting when no light source is specified
 - No frame: "a forest" could be an aerial shot, a ground-level path view, a canopy shot, or a clearing -- the model picks randomly
 - Ambiguous subject count: "wolves in the snow" -- one wolf? Three? A pack of twenty?
-Severity: medium-to-high for subjects. Low for abstract or texture-only generations.
-Fix: add the minimum compositional triangle: (1) viewpoint/angle, (2) subject scale/framing, (3) light source.
+  Severity: medium-to-high for subjects. Low for abstract or texture-only generations.
+  Fix: add the minimum compositional triangle: (1) viewpoint/angle, (2) subject scale/framing, (3) light source.
 
 **Category 4 -- Overcrowded Token Budget / Adjective Flooding**
 Too many descriptors that compete for influence:
+
 - More than 8-12 meaningful descriptors in an SD 1.5 prompt exceeds the useful density threshold
 - Subjective adjectives ("beautiful," "stunning," "amazing," "perfect," "incredible") consume tokens without adding visual information -- they are evaluative, not descriptive
 - Redundant synonyms: "majestic, epic, grand, imposing" all instruct the model toward the same quality -- one strong term is more effective
 - In Midjourney, long adjective chains reduce the coherence of the core subject
-Token budget rule of thumb for SD: every comma-separated term uses approximately 1-3 tokens. A 30-word prompt may already be 50-60 tokens, leaving little budget for quality tags, style, and negative guidance.
-Fix: apply the "cut-by-half" test -- remove every term that does not directly describe a visible, physical quality. If the image would look the same without it, cut it.
+  Token budget rule of thumb for SD: every comma-separated term uses approximately 1-3 tokens. A 30-word prompt may already be 50-60 tokens, leaving little budget for quality tags, style, and negative guidance.
+  Fix: apply the "cut-by-half" test -- remove every term that does not directly describe a visible, physical quality. If the image would look the same without it, cut it.
 
 **Category 5 -- Negative Prompt Issues (SD-specific)**
 Negative prompts introduce their own failure modes:
+
 - Over-long negatives (100+ tokens) cut into the effective influence of the positive prompt because total attention is shared
 - Generic mega-negatives copied from the internet ("worst quality, low quality, normal quality, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, blurry, text, error") applied to every prompt regardless of subject -- for a landscape, "bad anatomy" and "missing fingers" are irrelevant and waste token budget
 - Negating the subject accidentally: a portrait prompt with "face" in the negative will suppress facial features
 - Negating style you want: "painting" in the negative when the prompt asks for an "oil painting" style
 - Contradictory negatives: "no people" in the negative when the positive prompt features a character
-Fix: audit every term in the negative prompt against the positive. Remove any term that could match a desired element. Keep negatives focused and relevant to the specific content type.
+  Fix: audit every term in the negative prompt against the positive. Remove any term that could match a desired element. Keep negatives focused and relevant to the specific content type.
 
 **Category 6 -- Parameter Misconfiguration**
 Settings interact with the prompt in ways that can override even well-written text:
+
 - **CFG scale:**
   - SD 1.5: optimal 6-9. Below 4: prompt ignored, random output. Above 14: oversaturated colors, burned highlights, artifacts.
   - SDXL: optimal 6-8. More sensitive than SD 1.5 -- 10+ causes noticeable degradation.
@@ -180,12 +194,13 @@ Settings interact with the prompt in ways that can override even well-written te
 
 **Category 7 -- Weight and Emphasis Imbalance (SD-specific)**
 Prompt weighting syntax must be used conservatively:
+
 - `(term:1.0)` -- no change. `(term:1.2)` -- modest emphasis. `(term:1.5)` -- strong emphasis, approaching artifact risk. `(term:2.0)` -- very likely to cause artifacts, bleed, or hallucinations.
 - Stacking weights additively: `((term))` in some implementations equals `(term:1.21)`. `(((term)))` equals approximately `(term:1.33)`. More than two stacked parentheses approaches artifact territory.
 - Competing high-weight terms: `(red hair:1.5), (blue eyes:1.5), (green dress:1.5)` forces the model to simultaneously oversaturate three competing attributes -- color artifacts result.
 - Under-weighting the subject while over-weighting modifiers: `a woman, (detailed background:1.5), (intricate texture:1.5)` can cause the background to dominate and the subject to become unclear.
 - SDXL: the dual encoder means weights propagate differently. Keep weights between 0.8 and 1.3 for reliable results.
-Fix: use weighting sparingly, only for the one or two most important elements. Reduce conflicting high weights. Use negative prompt suppression rather than weight reduction below 0.5.
+  Fix: use weighting sparingly, only for the one or two most important elements. Reduce conflicting high weights. Use negative prompt suppression rather than weight reduction below 0.5.
 
 ---
 
@@ -232,6 +247,7 @@ Some problems cannot be fixed with prompt changes. These must be identified hone
 ### Step 7 -- Compile the Full Debug Report
 
 Assemble all findings into the structured output format. Include:
+
 - Original prompt, exact
 - All issues detected, categorized and severity-rated
 - A diagnostic explanation in natural language that explains the causal chain
@@ -347,27 +363,35 @@ None identified. The issues above are addressable through prompt and parameter c
 ## Edge Cases
 
 ### Same prompt works in one model version but fails in a newer one
+
 Model version updates frequently retrain attention weighting and change how tags resolve to training data clusters. Midjourney v5 style keyword chains ("intricate, detailed, cinematic lighting, octane render") work less well in v6 because v6 was trained to respond to natural language, making keyword-style prompts produce flatter, more literal results. Diagnosis: identify whether the prompt was written for the older version's syntax conventions, then translate to the current version's paradigm. For Midjourney v5-to-v6 migration, convert comma-separated keyword strings to descriptive sentences while preserving all specific visual attributes.
 
 ### Prompt produces extremely inconsistent results across seeds (good 1 in 10 times)
+
 This is not primarily a prompt quality issue -- it is a CFG-and-sampler convergence issue. At mid-range CFG (7-9 for SD 1.5), certain prompt configurations create a wide attractor basin in the diffusion latent space, meaning many different visual interpretations satisfy the prompt constraints equally. Fix: first lock the seed of a "good" result to confirm what parameters produced it. Then identify what structural element in the prompt allows multiple valid interpretations (usually an underspecified subject or a conflicting descriptor pair). Tighten those terms. If inconsistency persists, try Euler a vs DPM++ 2M Karras -- Euler a is intentionally more variable, DPM++ 2M Karras converges more deterministically. Reducing CFG by 1-2 points can also narrow the attractor basin.
 
 ### Correct style but wrong subject (or correct subject but wrong style)
+
 These two failure modes have opposite causes. Correct style + wrong subject means the style terms are overpowering the subject terms. Fix: move the subject description earlier in the prompt, add specificity to the subject (species, clothing, pose, expression -- any precise physical attribute), and reduce style term density or weight. Correct subject + wrong style means the subject description is displacing the style terms. Fix: for SD, use `(style:1.2)` weight on the style terms. For Midjourney, use multi-prompt syntax to give the style its own emphasis weight: `photorealistic portrait::2 oil painting::0` -- the style gets direct weighting independent of the subject description.
 
 ### LoRA or embedding is overriding the prompt
+
 A LoRA with trigger word activated will bias output heavily toward its training distribution regardless of prompt content. If the user is using a checkpoint + LoRA combination and cannot achieve a style or subject that contradicts the LoRA's training data, the LoRA is the bottleneck, not the prompt. Diagnosis: ask whether the same prompt without the LoRA produces the expected result. If yes, the LoRA is suppressing the prompt. Fix options: reduce the LoRA weight (from 1.0 to 0.5-0.7), remove the LoRA trigger word from the prompt, or try a different LoRA with a narrower training scope. Some textual inversion embeddings also have this behavior -- "EasyNegative" for example contains a compressed set of negative concepts that can suppress positive prompt terms if the concepts overlap.
 
 ### Image has correct composition but color or lighting is wrong
+
 The compositional terms (angle, framing, depth) are working but the lighting/color terms are not resolving correctly. This often indicates that the lighting terms are either: (1) positioned too late in the prompt (beyond token 50 in SD), (2) too abstract ("moody lighting" instead of "single directional key light from camera left, hard shadow, color temperature 3200K tungsten"), or (3) conflicting with a style term that implies its own lighting (e.g., "high key portrait" combined with "dramatic noir lighting"). Fix: describe lighting in concrete physical terms -- direction, quality (hard vs. soft), color temperature, and a reference image descriptor ("lit like a Vermeer interior," "like a golden hour landscape by Albert Bierstadt").
 
 ### Negative prompt is causing the subject to disappear or distort
+
 If the negative prompt contains terms that are semantically related to the subject, the model will suppress those concepts even in the positive prompt. Common examples: "person" in the negative when generating a character; "face" or "eyes" in the negative causing portraits to lose facial features; "building" in the negative when generating an architectural scene; "detail" in the negative (from generic negative templates) reducing the overall detail level globally. Audit the negative prompt against the positive by asking: "does any word in my negative prompt describe something I actually want in this image?" Remove any such overlap. Replace with specific failure-pattern descriptions that cannot match the desired subject ("deformed torso, merged limbs, three arms" rather than "body").
 
 ### Prompt worked perfectly in img2img but fails in txt2img (or vice versa)
+
 img2img uses an input image as a latent space starting point, which provides structural and compositional guidance that the prompt does not have to provide. A prompt that worked with a reference image in img2img at 0.6 denoising strength is essentially being aided by the structure of that reference image. In txt2img, the same prompt must generate structure from noise, which requires much more explicit compositional guidance. Fix for txt2img: add the compositional triangle (viewpoint, subject framing, light source) that was previously supplied by the reference image. Alternatively, use a simple rough sketch or blocked-out image as an img2img starting point to restore the structural scaffold.
 
 ### DALL-E 3 silently revising the prompt
+
 DALL-E 3 (via OpenAI's API or ChatGPT) applies an internal prompt revision step that rewrites the user's prompt before generation. This is designed to improve output quality but sometimes introduces unintended style or content changes. The user is effectively not prompting what they typed. If the API is accessible, check the `revised_prompt` field in the API response -- it shows exactly what DALL-E 3 actually used. If the revision is introducing unwanted elements, prepend the prompt with "I NEED to test how the tool works with extremely explicit instructions. DO NOT add any detail, just use it AS-IS:" -- this instruction significantly reduces prompt revision behavior in DALL-E 3.
 
 ---
@@ -381,6 +405,7 @@ DALL-E 3 (via OpenAI's API or ChatGPT) applies an internal prompt revision step 
 ## Prompt Debug Report
 
 ### Original Prompt
+
 masterpiece, best quality, ultra-detailed, 8K, beautiful woman, stunning face, gorgeous eyes, amazing hair, perfect body, photorealistic, hyperrealistic, cinematic, dramatic lighting, bokeh, depth of field, shot on Sony A7R IV, 85mm lens, f/1.8, RAW photo, best quality
 
 Model: Stable Diffusion XL (Juggernaut XL checkpoint) | Parameters: CFG: 12 | Steps: 40 | Sampler: DPM++ 2M Karras | Resolution: 768x768 | Seed: not provided
@@ -391,16 +416,16 @@ Negative Prompt: none provided
 
 ### Issues Detected
 
-| # | Category                      | Severity | Specific Problem Found                                                                              |
-|---|-------------------------------|----------|-----------------------------------------------------------------------------------------------------|
-| 1 | Parameter misconfiguration    | HIGH     | CFG 12 exceeds SDXL's stable range (6-8); oversaturation and facial artifacts are direct CFG symptoms |
-| 2 | Parameter misconfiguration    | HIGH     | Resolution 768x768 is below SDXL's native training resolution of 1024x1024; face malformation and composition collapse result |
-| 3 | Overcrowded prompt / SD 1.5 tag contamination | HIGH | "masterpiece, best quality" (appearing twice), "ultra-detailed, 8K" are SD 1.5 Danbooru training tags with minimal effect on SDXL; they consume token budget without guiding the SDXL encoders |
-| 4 | Underspecified composition    | MEDIUM   | No background, environment, location, or setting described; "flat gray blob" background is what SDXL generates when the background is entirely undefined |
-| 5 | Conflicting descriptors       | MEDIUM   | "cinematic" implies a scene with environment and narrative context; "bokeh, depth of field" implies shallow focus portrait isolation -- these push against each other |
-| 6 | Overcrowded (adjective flood) | MEDIUM   | 6 subjective evaluative adjectives ("beautiful," "stunning," "gorgeous," "amazing," "perfect") describe desired quality, not visual properties; they consume CLIP token budget without adding visual specificity |
-| 7 | Negative prompt issues        | LOW      | No negative prompt provided; without at least basic quality and artifact negatives for SDXL, the model has no guidance to exclude common failure patterns |
-| 8 | Overcrowded (duplicate term)  | LOW      | "best quality" appears twice in the same prompt; this wastes 2-3 tokens with zero additional benefit |
+| #   | Category                                      | Severity | Specific Problem Found                                                                                                                                                                                           |
+| --- | --------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Parameter misconfiguration                    | HIGH     | CFG 12 exceeds SDXL's stable range (6-8); oversaturation and facial artifacts are direct CFG symptoms                                                                                                            |
+| 2   | Parameter misconfiguration                    | HIGH     | Resolution 768x768 is below SDXL's native training resolution of 1024x1024; face malformation and composition collapse result                                                                                    |
+| 3   | Overcrowded prompt / SD 1.5 tag contamination | HIGH     | "masterpiece, best quality" (appearing twice), "ultra-detailed, 8K" are SD 1.5 Danbooru training tags with minimal effect on SDXL; they consume token budget without guiding the SDXL encoders                   |
+| 4   | Underspecified composition                    | MEDIUM   | No background, environment, location, or setting described; "flat gray blob" background is what SDXL generates when the background is entirely undefined                                                         |
+| 5   | Conflicting descriptors                       | MEDIUM   | "cinematic" implies a scene with environment and narrative context; "bokeh, depth of field" implies shallow focus portrait isolation -- these push against each other                                            |
+| 6   | Overcrowded (adjective flood)                 | MEDIUM   | 6 subjective evaluative adjectives ("beautiful," "stunning," "gorgeous," "amazing," "perfect") describe desired quality, not visual properties; they consume CLIP token budget without adding visual specificity |
+| 7   | Negative prompt issues                        | LOW      | No negative prompt provided; without at least basic quality and artifact negatives for SDXL, the model has no guidance to exclude common failure patterns                                                        |
+| 8   | Overcrowded (duplicate term)                  | LOW      | "best quality" appears twice in the same prompt; this wastes 2-3 tokens with zero additional benefit                                                                                                             |
 
 Severity key: HIGH = primary cause | MEDIUM = contributing factor | LOW = quality improvement
 
@@ -429,18 +454,18 @@ deformed face, asymmetrical eyes, bad anatomy, watermark, signature, oversaturat
 
 ### Changes Made
 
-| # | Original Term or Setting                            | Revised To                                                    | Reason                                                                                                              |
-|---|-----------------------------------------------------|---------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| 1 | CFG: 12                                             | CFG: 7                                                        | SDXL's stable range is 6-8; CFG 12 is the primary cause of oversaturation and facial melting on SDXL                |
-| 2 | Resolution: 768x768                                 | Resolution: 1024x1024                                         | SDXL native training resolution; sub-native resolution causes facial malformation and composition collapse           |
-| 3 | Steps: 40                                           | Steps: 30                                                     | 40 steps on DPM++ 2M Karras with SDXL is diminishing-return territory; 25-30 is optimal                            |
-| 4 | "masterpiece, best quality, ultra-detailed, 8K"    | "RAW photo" (kept as SDXL-compatible quality anchor)          | Danbooru tags have minimal effect on SDXL's CLIP encoders; "RAW photo" activates photographic quality concepts in SDXL |
-| 5 | "best quality" (duplicate)                          | Removed second instance                                       | Duplicate term wastes 2-3 tokens with zero additional effect                                                        |
-| 6 | "beautiful woman, stunning face, gorgeous eyes, amazing hair, perfect body" | "a woman in her late twenties with sharp cheekbones and dark brown eyes" + specific physical attributes | Subjective evaluative adjectives replaced with physical descriptors that provide actual visual constraints           |
-| 7 | No background or environment specified              | "standing near a large window... warm-toned interior with blurred bookshelves" | Eliminates the undefined-background default (flat gray); gives SDXL a specific spatial context to render             |
-| 8 | "dramatic lighting" (abstract)                      | "soft directional daylight falling from camera left"          | Concrete lighting direction and quality replaces an abstract mood tag; specifies direction, hardness, and color temp |
-| 9 | "cinematic, dramatic lighting, bokeh, depth of field" (stacked) | "shallow depth of field, cinematic color grade" (separated)  | Separated the lens effect (depth of field) from the color treatment (cinematic grade); removed redundancy            |
-| 10 | No negative prompt                                  | Added targeted negative prompt                                | SDXL without any negative guidance cannot exclude common failure patterns; targeted negatives are more effective than generic mega-negatives |
+| #   | Original Term or Setting                                                    | Revised To                                                                                              | Reason                                                                                                                                       |
+| --- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | CFG: 12                                                                     | CFG: 7                                                                                                  | SDXL's stable range is 6-8; CFG 12 is the primary cause of oversaturation and facial melting on SDXL                                         |
+| 2   | Resolution: 768x768                                                         | Resolution: 1024x1024                                                                                   | SDXL native training resolution; sub-native resolution causes facial malformation and composition collapse                                   |
+| 3   | Steps: 40                                                                   | Steps: 30                                                                                               | 40 steps on DPM++ 2M Karras with SDXL is diminishing-return territory; 25-30 is optimal                                                      |
+| 4   | "masterpiece, best quality, ultra-detailed, 8K"                             | "RAW photo" (kept as SDXL-compatible quality anchor)                                                    | Danbooru tags have minimal effect on SDXL's CLIP encoders; "RAW photo" activates photographic quality concepts in SDXL                       |
+| 5   | "best quality" (duplicate)                                                  | Removed second instance                                                                                 | Duplicate term wastes 2-3 tokens with zero additional effect                                                                                 |
+| 6   | "beautiful woman, stunning face, gorgeous eyes, amazing hair, perfect body" | "a woman in her late twenties with sharp cheekbones and dark brown eyes" + specific physical attributes | Subjective evaluative adjectives replaced with physical descriptors that provide actual visual constraints                                   |
+| 7   | No background or environment specified                                      | "standing near a large window... warm-toned interior with blurred bookshelves"                          | Eliminates the undefined-background default (flat gray); gives SDXL a specific spatial context to render                                     |
+| 8   | "dramatic lighting" (abstract)                                              | "soft directional daylight falling from camera left"                                                    | Concrete lighting direction and quality replaces an abstract mood tag; specifies direction, hardness, and color temp                         |
+| 9   | "cinematic, dramatic lighting, bokeh, depth of field" (stacked)             | "shallow depth of field, cinematic color grade" (separated)                                             | Separated the lens effect (depth of field) from the color treatment (cinematic grade); removed redundancy                                    |
+| 10  | No negative prompt                                                          | Added targeted negative prompt                                                                          | SDXL without any negative guidance cannot exclude common failure patterns; targeted negatives are more effective than generic mega-negatives |
 
 ---
 

@@ -35,17 +35,11 @@ const ProjectDropdown: React.FC<ProjectDropdownProps> = ({ projects, selected, o
   const { t } = useTranslation('memory');
   const [search, setSearch] = useState('');
 
-  const maxCount = useMemo(
-    () => Math.max(...projects.map((p) => p.count), 1),
-    [projects],
-  );
+  const maxCount = useMemo(() => Math.max(...projects.map((p) => p.count), 1), [projects]);
 
   const filtered = useMemo(
-    () =>
-      projects.filter((p) =>
-        p.basename.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [projects, search],
+    () => projects.filter((p) => p.basename.toLowerCase().includes(search.toLowerCase())),
+    [projects, search]
   );
 
   const selectedLabel = useMemo(() => {
@@ -58,7 +52,7 @@ const ProjectDropdown: React.FC<ProjectDropdownProps> = ({ projects, selected, o
     (key: string) => {
       onSelect(key === '__all' ? null : key);
     },
-    [onSelect],
+    [onSelect]
   );
 
   const dropdownContent = (
@@ -73,11 +67,7 @@ const ProjectDropdown: React.FC<ProjectDropdownProps> = ({ projects, selected, o
           data-testid='project-dropdown-search'
         />
       </div>
-      <Menu
-        className={styles.menu}
-        onClickMenuItem={handleMenuClick}
-        selectedKeys={selected ? [selected] : ['__all']}
-      >
+      <Menu className={styles.menu} onClickMenuItem={handleMenuClick} selectedKeys={selected ? [selected] : ['__all']}>
         <Menu.Item key='__all' data-testid='project-option-all'>
           <span className={styles.allOption}>{t('archive.filter.allProjects', 'All projects')}</span>
         </Menu.Item>
@@ -105,18 +95,16 @@ const ProjectDropdown: React.FC<ProjectDropdownProps> = ({ projects, selected, o
   );
 
   return (
-    <Dropdown
-      droplist={dropdownContent}
-      trigger='click'
-      position='bl'
-    >
+    <Dropdown droplist={dropdownContent} trigger='click' position='bl'>
       <button
         type='button'
         className={`${styles.trigger}${selected ? ` ${styles.triggerActive}` : ''}`}
         data-testid='project-dropdown-btn'
       >
         {selectedLabel}
-        <span className={styles.arrow} aria-hidden>▾</span>
+        <span className={styles.arrow} aria-hidden>
+          ▾
+        </span>
       </button>
     </Dropdown>
   );

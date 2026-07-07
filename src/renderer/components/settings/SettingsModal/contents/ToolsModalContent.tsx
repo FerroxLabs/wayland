@@ -551,7 +551,10 @@ export const SpeechToTextSettingsSection: React.FC<{
               ) : null}
             </Form.Item>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextBaseUrl', 'optional')}>
-              <Input value={config.openai?.baseUrl} onChange={(value) => handleOpenAIChange('baseUrl', value)} />
+              <div className='flex flex-col gap-4px'>
+                <Input value={config.openai?.baseUrl} onChange={(value) => handleOpenAIChange('baseUrl', value)} />
+                <span className='text-12px text-t-tertiary'>{t('settings.speechToTextBaseUrlHint')}</span>
+              </div>
             </Form.Item>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextModel', 'optional')}>
               <Input value={config.openai?.model} onChange={(value) => handleOpenAIChange('model', value)} />

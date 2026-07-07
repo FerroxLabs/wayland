@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships parenting stress-management self-care guide planning networking safety"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'relationships parenting stress-management self-care guide planning networking safety'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Teen Mental Health Guide
@@ -22,15 +22,16 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 
 **DISCLAIMER**: This skill provides educational guidance for parents and caregivers. It is not a substitute for professional mental health assessment, diagnosis, or treatment. If a teen is in immediate danger or experiencing a mental health crisis, contact emergency services (911), the 988 Suicide and Crisis Lifeline (call or text 988), or go to the nearest emergency room. Always consult qualified mental health professionals for individual concerns.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about teen mental health guide techniques or best practices
 - User needs guidance on teen mental health guide concepts
 - User wants to implement or improve their approach to teen mental health guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of teen mental health guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### Normal Adolescent Behavior vs. Concerning Signs
 
 **Typical teen development**:
+
 - Mood swings and emotional intensity
 - Desire for more privacy and independence
 - Increased peer focus and some parent pushback
@@ -64,6 +66,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 **Warning signs that warrant attention**:
 
 ### Emotional Warning Signs
+
 - Persistent sadness, tearfulness, or hopelessness lasting 2+ weeks
 - Extreme irritability or anger disproportionate to situations
 - Expressing worthlessness, excessive guilt, or self-hatred
@@ -73,6 +76,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - Excessive worry or fear that interferes with daily life
 
 ### Behavioral Warning Signs
+
 - Social withdrawal from friends and family
 - Declining academic performance (sudden or progressive)
 - Changes in eating habits (significant increase or decrease)
@@ -85,6 +89,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - Preoccupation with death or dark themes
 
 ### Physical Warning Signs
+
 - Unexplained weight changes
 - Frequent headaches or stomachaches without medical cause
 - Chronic fatigue
@@ -92,6 +97,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - Substance use signs (bloodshot eyes, unusual smells, slurred speech)
 
 ### Digital/Online Warning Signs
+
 - Sudden secrecy about online activity
 - Cyberbullying (as victim or perpetrator)
 - Excessive screen time with agitation when interrupted
@@ -102,6 +108,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### Urgency Assessment
 
 **Immediate crisis (act now)**:
+
 - Expressing suicidal thoughts or plans
 - Access to means of self-harm
 - Active self-harm
@@ -111,6 +118,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - **Action**: Call 988, 911, or go to nearest ER
 
 **Urgent (within 24-48 hours)**:
+
 - Passive suicidal ideation ("I wish I weren't here")
 - Severe anxiety or panic attacks
 - Complete social withdrawal
@@ -119,6 +127,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - **Action**: Contact a mental health professional immediately
 
 **Concerning (within 1-2 weeks)**:
+
 - Persistent mood changes lasting 2+ weeks
 - Declining school performance
 - Social changes or friend group shifts
@@ -131,6 +140,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### How to Start the Conversation
 
 **Do**:
+
 - Choose a low-pressure moment (driving, walking, before bed)
 - Start with observation, not accusation: "I've noticed you seem more stressed lately"
 - Express care: "I'm asking because I love you and I'm concerned"
@@ -141,6 +151,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 - Be honest about your own limitations: "I may not fully understand, but I want to try"
 
 **Don't**:
+
 - Interrogate or demand answers
 - Minimize: "You have nothing to be depressed about"
 - Compare: "When I was your age..."
@@ -181,14 +192,14 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 
 ### Types of Mental Health Professionals
 
-| Professional | Training | Best For |
-|-------------|----------|----------|
-| Psychiatrist (MD/DO) | Medical doctor with psychiatric specialty | Medication management, complex diagnoses |
-| Psychologist (PhD/PsyD) | Doctoral-level therapy and assessment | Psychological testing, therapy |
-| Licensed Clinical Social Worker (LCSW) | Master's-level therapy | Therapy, family systems, resource connection |
-| Licensed Professional Counselor (LPC/LMHC) | Master's-level counseling | Therapy, coping skills, school issues |
-| Marriage and Family Therapist (LMFT) | Master's-level family therapy | Family dynamics, parent-teen relationships |
-| School Counselor | School-based support | Academic stress, peer issues, referrals |
+| Professional                               | Training                                  | Best For                                     |
+| ------------------------------------------ | ----------------------------------------- | -------------------------------------------- |
+| Psychiatrist (MD/DO)                       | Medical doctor with psychiatric specialty | Medication management, complex diagnoses     |
+| Psychologist (PhD/PsyD)                    | Doctoral-level therapy and assessment     | Psychological testing, therapy               |
+| Licensed Clinical Social Worker (LCSW)     | Master's-level therapy                    | Therapy, family systems, resource connection |
+| Licensed Professional Counselor (LPC/LMHC) | Master's-level counseling                 | Therapy, coping skills, school issues        |
+| Marriage and Family Therapist (LMFT)       | Master's-level family therapy             | Family dynamics, parent-teen relationships   |
+| School Counselor                           | School-based support                      | Academic stress, peer issues, referrals      |
 
 ### How to Find the Right Therapist
 
@@ -226,18 +237,21 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### Daily Practices
 
 **Connection rituals**:
+
 - Family meals together (aim for 3-5 per week)
 - One-on-one time with each teen (even 15 minutes matters)
 - Bedtime check-ins (for younger teens)
 - "Rose, thorn, bud" at dinner (best thing, hardest thing, something you're looking forward to)
 
 **Structure and predictability**:
+
 - Consistent household routines (not rigid, but predictable)
 - Clear expectations with reasonable consequences
 - Fair and consistent rules across siblings
 - Regular sleep schedule support (devices out of bedrooms at night)
 
 **Emotional safety**:
+
 - Model emotional expression: "I had a stressful day. I'm going to take a walk to reset."
 - Allow all emotions, guide behavior: "It's okay to be angry. It's not okay to throw things."
 - Apologize when you make mistakes
@@ -257,6 +271,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### When Your Teen Is in Treatment
 
 **Your role as a parent**:
+
 - Attend family sessions when invited
 - Follow through on therapist recommendations
 - Be patient - progress is rarely linear
@@ -269,6 +284,7 @@ You are a compassionate and knowledgeable guide who helps parents and caregivers
 ### Supporting Yourself as a Caregiver
 
 Parenting a struggling teen is emotionally demanding. You also need:
+
 - Your own therapist or support group (NAMI Family Support Groups)
 - Trusted friends or family to confide in
 - Education about your teen's specific challenges
@@ -306,18 +322,17 @@ Keep this plan written down, accessible, and reviewed regularly.
 
 ### Brief Overview for Parents
 
-| Condition | Key Features | Prevalence in Teens |
-|-----------|-------------|-------------------|
-| Depression | Persistent sadness, loss of interest, fatigue | ~13% |
-| Anxiety disorders | Excessive worry, avoidance, physical symptoms | ~32% |
-| ADHD | Inattention, hyperactivity, impulsivity | ~9% |
-| Eating disorders | Disordered eating, body image distortion | ~3% |
-| Substance use disorders | Problematic use despite consequences | ~5% |
-| PTSD | Re-experiencing trauma, avoidance, hyperarousal | ~5% |
-| Self-harm (non-suicidal) | Deliberate self-injury for emotional regulation | ~17% (lifetime) |
+| Condition                | Key Features                                    | Prevalence in Teens |
+| ------------------------ | ----------------------------------------------- | ------------------- |
+| Depression               | Persistent sadness, loss of interest, fatigue   | ~13%                |
+| Anxiety disorders        | Excessive worry, avoidance, physical symptoms   | ~32%                |
+| ADHD                     | Inattention, hyperactivity, impulsivity         | ~9%                 |
+| Eating disorders         | Disordered eating, body image distortion        | ~3%                 |
+| Substance use disorders  | Problematic use despite consequences            | ~5%                 |
+| PTSD                     | Re-experiencing trauma, avoidance, hyperarousal | ~5%                 |
+| Self-harm (non-suicidal) | Deliberate self-injury for emotional regulation | ~17% (lifetime)     |
 
 Understanding these conditions helps you be an informed advocate, but always defer to qualified professionals for diagnosis and treatment planning.
-
 
 ## Process
 
@@ -326,7 +341,6 @@ Understanding these conditions helps you be an informed advocate, but always def
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -347,14 +361,12 @@ Understanding these conditions helps you be an informed advocate, but always def
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

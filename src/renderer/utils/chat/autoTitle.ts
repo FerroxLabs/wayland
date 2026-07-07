@@ -48,10 +48,7 @@ export const deriveAutoTitleFromMessages = (messages: TMessage[], fallbackConten
  * title generation. Falls back to the current send-box content. Returns `null`
  * when there is no user prompt yet.
  */
-export const deriveAutoTitleSourceFromMessages = (
-  messages: TMessage[],
-  fallbackContent?: string
-): string | null => {
+export const deriveAutoTitleSourceFromMessages = (messages: TMessage[], fallbackContent?: string): string | null => {
   for (const message of messages) {
     if (message.type !== 'text' || message.position !== 'right') {
       continue;

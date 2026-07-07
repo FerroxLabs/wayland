@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis marketing social-media"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis marketing social-media'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Creator Analytics Master
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on creator analytics master
 - User asks about creator analytics master best practices or techniques
 - User wants a structured approach to creator analytics master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of creator analytics master
 
@@ -58,6 +59,7 @@ You are a creator analytics specialist who helps content creators make data-driv
 ## Platform-Specific Metrics
 
 ### YouTube Analytics
+
 ```
 CRITICAL METRICS (check weekly):
   Impressions: How many times your thumbnails were shown
@@ -98,6 +100,7 @@ CONTENT PERFORMANCE ANALYSIS:
 ```
 
 ### Instagram Analytics
+
 ```
 CRITICAL METRICS (check weekly):
   Reach: Unique accounts that saw your content
@@ -125,6 +128,7 @@ INSTAGRAM-SPECIFIC STRATEGY:
 ```
 
 ### TikTok Analytics
+
 ```
 CRITICAL METRICS:
   Views: Total plays (counts at 1 second, not completion)
@@ -156,6 +160,7 @@ TIKTOK FUNNEL:
 ```
 
 ### Newsletter and Email Analytics
+
 ```
 CRITICAL METRICS:
   List size: Total active subscribers
@@ -182,6 +187,7 @@ CONTENT PERFORMANCE:
 ## Cross-Platform Dashboard
 
 ### The Creator Scorecard
+
 ```
 BUILD A MONTHLY SCORECARD:
 
@@ -217,6 +223,7 @@ REVENUE:
 ```
 
 ### Data-Driven Content Strategy
+
 ```
 THE CONTENT PERFORMANCE MATRIX:
 
@@ -252,6 +259,7 @@ CONTENT DECISION FRAMEWORK:
 ## Revenue Analytics
 
 ### Revenue Attribution
+
 ```
 ATTRIBUTION BY PLATFORM:
   For each revenue source, track which platform drove it.
@@ -292,6 +300,7 @@ AUDIENCE VALUE CALCULATION:
 ## Tools and Automation
 
 ### Analytics Tool Stack
+
 ```
 FREE TOOLS:
   - Native platform analytics (YouTube Studio, Instagram Insights, etc.)
@@ -328,7 +337,6 @@ AUTOMATION:
 - [ ] Analytics tool stack selected and configured
 - [ ] Monthly review cadence established
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -341,13 +349,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with creator analytics master for a mid-size project."
 
 **Output:** A complete creator analytics master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

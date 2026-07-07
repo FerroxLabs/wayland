@@ -62,10 +62,12 @@ function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
   } as TeamAgent;
 }
 
-function renderRail(props: {
-  agents?: TeamAgent[];
-  statusMap?: Map<string, { status: TeammateStatus }>;
-} = {}) {
+function renderRail(
+  props: {
+    agents?: TeamAgent[];
+    statusMap?: Map<string, { status: TeammateStatus }>;
+  } = {}
+) {
   return render(
     <TeamRightRail
       agents={props.agents ?? [makeAgent()]}

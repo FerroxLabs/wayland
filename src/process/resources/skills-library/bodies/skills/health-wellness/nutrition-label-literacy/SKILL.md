@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition guide analysis"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition guide analysis'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Nutrition Label Literacy
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to decode a nutrition facts panel and does not know where to start -- they see numbers but do not know what those numbers mean in practice
 - A user wants to compare two or more food products side-by-side (two cereals, two yogurts, two bread loaves) and needs a fair comparison methodology
 - A user asks what a specific label element means: serving size, %DV, added sugars, DV footnote, the nutrient list order, or the ingredients section
@@ -32,6 +34,7 @@ metadata:
 - A user asks about the ingredient list specifically: what the ordering means, how to spot hidden sugars, what certain additives are, or how to interpret ingredient groupings and sub-lists
 
 **Do NOT use when:**
+
 - The user needs clinical dietary targets set for a medical condition such as type 2 diabetes, chronic kidney disease, hypertension, or heart disease -- refer them to a registered dietitian (RD) or physician for individualized guidance
 - The user has a known or suspected food allergy and needs to evaluate cross-contamination risk, manufacturing facility warnings, or allergen thresholds -- refer them to a board-certified allergist; the label's allergen statement is only a starting point, not a clinical safety guarantee
 - The user wants macronutrient targets calculated for a fitness, body composition, or weight goal -- use the `macro-calculation` skill for that workflow
@@ -75,22 +78,26 @@ Serving size is the single most misunderstood element of nutrition labels. Every
 Work from the top of the label downward. Each element builds on the one before it.
 
 **Calories:**
+
 - Total calories per serving -- the most prominent number on the panel.
 - FDA quick reference for a single food item (not a meal): 40 calories = low, 100 = moderate, 400+ = high. This is not a judgment about the food -- dense foods like nuts have 160+ calories per serving and are nutritionally valuable.
 - Calories from fat no longer appears on modern U.S. labels (removed in the 2016 label update). If a user sees it, they are looking at an older product.
 
 **Total Fat and Fat Subcategories:**
+
 - Total fat includes saturated fat, trans fat, polyunsaturated fat, and monounsaturated fat.
 - Saturated fat has a %DV (limit: 20g/day on a 2,000-calorie diet, so 1g = 5% DV).
 - Trans fat has no %DV because there is no safe threshold -- the goal is as close to 0g as possible. The FDA banned partially hydrogenated oils (the primary source), but 0.5g per serving or less can legally be listed as 0g. Check the ingredient list for "partially hydrogenated" oils to detect this.
 - Polyunsaturated and monounsaturated fats have no %DV -- they are listed as informational only.
 
 **Sodium:**
+
 - Daily Value reference: 2,300 mg/day. Every 1% DV = 23 mg of sodium.
 - FDA regulatory thresholds: "sodium free" = less than 5 mg/serving; "very low sodium" = 35 mg or less/serving; "low sodium" = 140 mg or less/serving; "reduced sodium" = at least 25% less than the regular version.
 - Canned and processed foods are the dominant sodium sources in most diets -- a single can of broth, soup, or beans can contain 700--900 mg per serving.
 
 **Total Carbohydrates, Dietary Fiber, Total Sugars, and Added Sugars:**
+
 - Total carbohydrates includes everything: fiber, starches, total sugars.
 - Dietary fiber: Daily Value is 28g/day. Less than 3g per serving is low fiber; 3g = "good source" (10%+ DV); 5g+ = "excellent source" (20%+ DV). Soluble vs. insoluble fiber is not required on the label but may appear voluntarily.
 - Total sugars includes both naturally occurring sugars (lactose in dairy, fructose in whole fruit) and added sugars.
@@ -98,10 +105,12 @@ Work from the top of the label downward. Each element builds on the one before i
 - Sugar alcohols (sorbitol, xylitol, erythritol, maltitol): may appear voluntarily. They have fewer calories per gram than sugar (1.5--3 calories/gram vs. 4 for sugar) but can cause gastrointestinal distress in some individuals at high doses. They are not required to be listed as added sugars.
 
 **Protein:**
+
 - No %DV is required for protein on standard labels (it is required only on foods marketed for infants and children under 4, or when a protein content claim is made).
 - Compare protein density across products by calculating grams of protein per 100 calories: divide protein grams by calories and multiply by 100.
 
 **Vitamins and Minerals:**
+
 - The 2016 FDA label update mandated Vitamin D, Calcium, Iron, and Potassium with %DV. Vitamins A and C are now voluntary.
 - These are the nutrients of public health concern -- many Americans are consistently under-consuming Vitamin D, Calcium, and Potassium.
 - %DV for these should trend toward 20%+ for a food to be considered a "good source."
@@ -139,6 +148,7 @@ The ingredient list is a different kind of information than the nutrition facts 
 Once the foundational framework is established, apply it to the user's specific focus nutrient. Each nutrient has its own practical reading strategy:
 
 **Sodium focus:**
+
 - Know the thresholds: under 5% DV (115 mg) = low, 20%+ DV (460 mg) = high per serving.
 - Always multiply by actual servings consumed. A bowl of canned soup typically means the whole can (2--2.5 servings), not one serving.
 - Check ingredient list for: salt, sea salt, sodium chloride, monosodium glutamate (MSG), sodium benzoate, sodium nitrate/nitrite, sodium bicarbonate (baking soda), disodium inosinate, disodium guanylate, sodium phosphate.
@@ -146,23 +156,27 @@ Once the foundational framework is established, apply it to the user's specific 
 - "Lightly salted" means at least 50% less sodium than the regular version.
 
 **Added sugars focus:**
+
 - The Added Sugars line is the critical number -- not Total Sugars.
 - For a single food item, 5% DV (2.5g) is low; 20% DV (10g) is high. Many flavored yogurts, cereals, and sauces contain 20--50% of the daily added sugar reference in a single serving.
 - Check the ingredient list for multiple sugar aliases -- count how many appear, and note their positions.
 - Plain versions of products (plain oatmeal, plain yogurt, unsweetened almond milk) will have 0g or near-0g added sugars and can be sweetened at home with measurable amounts.
 
 **Dietary fiber focus:**
+
 - Look for "good source" (3g, 10%+ DV) or "excellent source" (5g+, 20%+ DV) per serving.
 - First ingredient should be a whole grain (whole wheat, whole oats, brown rice, quinoa) for grain products -- "enriched" or "bleached" flour in the first position indicates refined grain.
 - Psyllium husk, inulin, chicory root fiber, and oat bran are functional fibers sometimes added to boost the fiber count. These are not the same as intact fiber from whole foods, though they do count toward the total.
 - Watch for "isolated fiber" additions in products that would not naturally be high-fiber -- fiber-added white bread, for example, uses added fiber to compensate for refined grain.
 
 **Saturated fat focus:**
+
 - Daily Value: 20g/day. Every 1g = 5% DV.
 - Sources to check on ingredient list: butter, cream, coconut oil, palm oil, palm kernel oil, lard, tallow, partially hydrogenated oils.
 - Compare saturated fat as %DV per serving across similar products (two cheeses, two crackers, two soups).
 
 **Protein density focus:**
+
 - Use the protein-per-calorie formula: (protein grams ÷ calories per serving) × 100. A food scoring 8+ grams of protein per 100 calories is considered protein-dense (e.g., canned tuna, Greek yogurt, egg whites, legumes).
 - High-calorie protein sources like peanut butter score lower on this ratio even though the absolute grams of protein look reasonable.
 
@@ -314,27 +328,35 @@ Always include a note when the user's question approaches clinical territory (ma
 ## Edge Cases
 
 ### Multi-Serving Packages Consumed as a Single Serving
+
 This is the most common and consequential label misread. A 20 oz bottle of iced tea may list "serving size: 8 fl oz" and "2.5 servings per container." At 34g of added sugars per serving, consuming the full bottle delivers 85g of added sugars -- 170% of the daily reference value. The per-serving number (34g, 68% DV) is alarming enough on its own, but the full-package reality is far more striking. When this pattern appears, always calculate and present both values in the output. The FDA now requires "dual-column" labeling for packages between 1 and 3 servings that could reasonably be consumed in one sitting -- if the user describes a product in this range, note that a compliant label should already show the per-package column.
 
 ### Two Products with Different Serving Sizes
+
 Direct comparison of label values across different serving sizes produces false conclusions. If whole wheat bread A has a 43g serving (2 slices) and whole wheat bread B has a 28g serving (1 thinner slice), bread A will appear to have more of every nutrient simply because the reference amount is larger. Normalize both to per-100g by dividing each nutrient value by its serving size in grams and multiplying by 100. Example: Bread A has 6g fiber per 43g serving → 6 ÷ 43 × 100 = 14g fiber per 100g. Bread B has 4g fiber per 28g serving → 4 ÷ 28 × 100 = 14.3g fiber per 100g. After normalization, they are nearly identical in fiber density -- a conclusion the raw label numbers would completely obscure. Always show this math in the output.
 
 ### Front-of-Package Claims That Seem to Contradict the Nutrition Facts Panel
+
 A user may see "reduced fat" on a product and assume it is a nutritionally superior option. The FDA defines "reduced fat" as at least 25% less fat than the regular version -- but the reduced-fat version may still contain 30% DV saturated fat per serving, and manufacturers frequently compensate for fat reduction by adding more sugar or sodium to restore palatability. When a user asks about a front-of-package claim, always cross-reference it against the actual nutrition facts panel data. Provide the regulatory definition of the claim term, then show what the nutrition facts panel actually says, and let the user draw their own conclusion. Do not imply the product is better or worse overall -- just provide the full picture.
 
 ### Ingredient List Shows a Food Marketed as "Whole Grain" But Whole Grain Is Not the First Ingredient
+
 This is a widespread issue in the bread, cracker, cereal, and pasta categories. A product can legally use the "made with whole grain" claim if it contains any amount of whole grain -- even if whole grain is the sixth ingredient and enriched refined flour is the first. The gold standard is that the first ingredient should be a whole grain (whole wheat flour, whole oats, whole rye, brown rice, quinoa). If "enriched flour," "wheat flour" (without "whole" preceding it), or "bleached flour" appears first, it is a refined grain product regardless of any whole grain claims. When this pattern appears, explain the regulatory gap between the marketing claim and the ingredient list reality without condemning the product -- just clarify what the ingredient list actually shows.
 
 ### User Is Managing a Nutrient for an Apparent Medical Condition
+
 A user may say "I need to reduce my sodium because my doctor told me my blood pressure is high" or "I was told my A1C is elevated so I am watching my carbs." These are valid label-reading contexts that this skill can address -- monitoring sodium or added sugars from a food label is a legitimate and useful skill regardless of whether a medical condition is present. However, the specific daily target (e.g., "my doctor told me to stay under 1,500 mg sodium") should come from their healthcare provider. Provide the label-reading methodology (how to identify, calculate, and compare sodium from labels) while explicitly noting that the 2,300 mg/day DV reference on the label is a population reference, and that their individual target has been set by their doctor for their specific situation. Do not attempt to validate or contradict their doctor's instructions.
 
 ### Sugar Alcohols and Novel Sweeteners Listed on the Label
+
 Sugar alcohols (erythritol, xylitol, sorbitol, maltitol, mannitol, lactitol, isomalt, hydrogenated starch hydrolysates) are partially absorbed and contribute fewer calories per gram than sugar (1.5--3 calories/gram vs. 4 for sucrose). They are not counted as added sugars. They are voluntarily listed on the label when present and may have a sub-line under Total Sugars. Some users confuse them with regular sugars; others are concerned about gastrointestinal effects (especially sorbitol and maltitol, which have the strongest laxative effect at high doses -- typically above 10--15g in a single sitting). Novel high-intensity sweeteners (stevia, monk fruit, allulose) appear in the ingredient list but have negligible caloric contribution. Allulose is unique: it must be listed as a carbohydrate but the FDA permits manufacturers to exclude allulose calories from the calorie count and exclude it from total and added sugars. If a user is confused by why a product's sugar count seems inconsistent with its ingredient list, check for these compounds.
 
 ### Label for a Product Marketed Primarily to Children
+
 Children's nutritional needs differ substantially from adult needs and do not scale linearly with the 2,000-calorie adult reference. The %DV on all food labels -- including products marketed to children -- is based on adult reference values. A 4-year-old child eating a food with 15% DV sodium per serving is not consuming 15% of their sodium needs -- their daily sodium limit is approximately 1,200--1,500 mg (compared to the 2,300 mg adult reference), so the same serving could represent a much higher proportion of their appropriate daily intake. When users are reading labels for children, note this limitation explicitly and recommend discussing appropriate nutrient targets for their child's age with their pediatrician.
 
 ### User Has Conflicting Information From Multiple Label Claims
+
 A user may present a product where the "light" claim conflicts with what they see on the label, or where "no sugar added" appears on a product that still has 15g of total sugars per serving. Explain the regulatory definitions precisely: "Light" means either 1/3 fewer calories or 50% less fat than the reference food. "No sugar added" means no sugar or sugar-containing ingredient was added during processing, but the product may still contain naturally occurring sugars from fruit, dairy, or other ingredients. "Unsweetened" means no sweeteners of any kind were added. "Sugar free" means less than 0.5g of sugar per serving. Walk through each claim with its specific regulatory definition, then show how the nutrition facts panel either confirms or contextualizes that claim.
 
 ---
@@ -354,20 +376,20 @@ A user may present a product where the "light" claim conflicts with what they se
 
 ### Section 1: Serving Size Reference and Normalization
 
-| Field                  | Bar A               | Bar B               | Normalization              |
-|------------------------|---------------------|---------------------|----------------------------|
-| Serving size           | 42g (1 bar)         | 47g (1 bar)         | Convert both to per-100g   |
-| Normalization factor   | 100 ÷ 42 = 2.381   | 100 ÷ 47 = 2.128   | Multiply each nutrient by this factor |
-| Servings per container | 1 (1 bar = 1 serving)| 1 (1 bar = 1 serving)| No full-package issue here |
+| Field                  | Bar A                 | Bar B                 | Normalization                         |
+| ---------------------- | --------------------- | --------------------- | ------------------------------------- |
+| Serving size           | 42g (1 bar)           | 47g (1 bar)           | Convert both to per-100g              |
+| Normalization factor   | 100 ÷ 42 = 2.381      | 100 ÷ 47 = 2.128      | Multiply each nutrient by this factor |
+| Servings per container | 1 (1 bar = 1 serving) | 1 (1 bar = 1 serving) | No full-package issue here            |
 
-*If you eat one full bar of either product, you consume 100% of the listed per-serving values. No multiplication needed for actual consumption -- the normalization is only for comparison.*
+_If you eat one full bar of either product, you consume 100% of the listed per-serving values. No multiplication needed for actual consumption -- the normalization is only for comparison._
 
 ---
 
 ### Section 2: Calorie and Macronutrient Summary -- Per 1 Bar (as-consumed)
 
 | Nutrient            | Bar A (42g, 1 bar) | Bar B (47g, 1 bar) |
-|---------------------|--------------------|--------------------|
+| ------------------- | ------------------ | ------------------ |
 | Calories            | 190                | 220                |
 | Total fat           | 7g (9% DV)         | 9g (12% DV)        |
 | Saturated fat       | 1g (5% DV)         | 1.5g (8% DV)       |
@@ -383,17 +405,17 @@ A user may present a product where the "light" claim conflicts with what they se
 
 ### Section 3: Added Sugars Analysis -- Normalized to Per-100g
 
-*Because Bar B is 12% heavier per serving, direct comparison of per-serving values overstates Bar B's added sugar. Per-100g normalization corrects for this.*
+_Because Bar B is 12% heavier per serving, direct comparison of per-serving values overstates Bar B's added sugar. Per-100g normalization corrects for this._
 
-| Nutrient         | Bar A (per 100g) | Bar B (per 100g) | Interpretation                            |
-|------------------|------------------|------------------|-------------------------------------------|
-| Calories         | 452              | 468              | Nearly identical caloric density          |
-| Added sugars     | **23.8g**        | **12.8g**        | Bar A has 86% more added sugar per gram of food |
-| Total sugars     | 28.6g            | 31.9g            | Bar B higher in total -- but more naturally occurring sugars (see below) |
-| Dietary fiber    | 7.1g             | 4.3g             | Bar A higher in fiber at equal weight     |
-| Protein          | 9.5g             | 10.6g            | Bar B slightly more protein-dense         |
+| Nutrient      | Bar A (per 100g) | Bar B (per 100g) | Interpretation                                                           |
+| ------------- | ---------------- | ---------------- | ------------------------------------------------------------------------ |
+| Calories      | 452              | 468              | Nearly identical caloric density                                         |
+| Added sugars  | **23.8g**        | **12.8g**        | Bar A has 86% more added sugar per gram of food                          |
+| Total sugars  | 28.6g            | 31.9g            | Bar B higher in total -- but more naturally occurring sugars (see below) |
+| Dietary fiber | 7.1g             | 4.3g             | Bar A higher in fiber at equal weight                                    |
+| Protein       | 9.5g             | 10.6g            | Bar B slightly more protein-dense                                        |
 
-*Normalization math: Bar A -- divide each value by 42, multiply by 100. Bar B -- divide each value by 47, multiply by 100.*
+_Normalization math: Bar A -- divide each value by 42, multiply by 100. Bar B -- divide each value by 47, multiply by 100._
 
 **The key finding:** Bar B has 15g total sugars per bar vs. Bar A's 12g, which looks worse at first glance. But Bar A has 10g of added sugars (20% DV) versus Bar B's 6g (12% DV). Bar B's higher total sugar count likely reflects naturally occurring sugars from almonds and any fruit-based ingredients -- not added sugar. This is exactly the distinction the added sugars line was designed to reveal.
 
@@ -403,13 +425,13 @@ A user may present a product where the "light" claim conflicts with what they se
 
 **Bar A -- First five ingredients:** Rolled oats, brown rice syrup, cane sugar, canola oil, honey
 
-| Position | Ingredient        | Classification         | Observation                                     |
-|----------|-------------------|------------------------|-------------------------------------------------|
-| 1        | Rolled oats       | Whole grain            | Good -- grain base is intact whole grain        |
-| 2        | Brown rice syrup  | **Sugar alias**        | High-glycemic added sugar, position 2 = abundant|
-| 3        | Cane sugar        | **Added sugar**        | Second sugar source in top 3                    |
-| 4        | Canola oil        | Fat source             | Neutral                                         |
-| 5        | Honey             | **Sugar alias**        | Third sugar source in top 5                     |
+| Position | Ingredient       | Classification  | Observation                                      |
+| -------- | ---------------- | --------------- | ------------------------------------------------ |
+| 1        | Rolled oats      | Whole grain     | Good -- grain base is intact whole grain         |
+| 2        | Brown rice syrup | **Sugar alias** | High-glycemic added sugar, position 2 = abundant |
+| 3        | Cane sugar       | **Added sugar** | Second sugar source in top 3                     |
+| 4        | Canola oil       | Fat source      | Neutral                                          |
+| 5        | Honey            | **Sugar alias** | Third sugar source in top 5                      |
 
 **Pattern:** Three distinct added sugar sources appear in the first five ingredients of Bar A. Brown rice syrup (position 2), cane sugar (position 3), and honey (position 5) are all added sugars. By spreading them across multiple positions, no single sugar is the "dominant" ingredient -- but their combined contribution makes added sugar the most abundant ingredient class after oats. This is exactly the multi-alias pattern to watch for.
 
@@ -417,13 +439,13 @@ A user may present a product where the "light" claim conflicts with what they se
 
 **Bar B -- First five ingredients:** Whole grain oats, almonds, chicory root fiber, tapioca syrup, honey
 
-| Position | Ingredient         | Classification              | Observation                                      |
-|----------|--------------------|-----------------------------|--------------------------------------------------|
-| 1        | Whole grain oats   | Whole grain                 | First ingredient is intact whole grain -- strong |
-| 2        | Almonds            | Nuts (protein, healthy fat) | Contributes to higher protein and fat content    |
+| Position | Ingredient         | Classification              | Observation                                                                 |
+| -------- | ------------------ | --------------------------- | --------------------------------------------------------------------------- |
+| 1        | Whole grain oats   | Whole grain                 | First ingredient is intact whole grain -- strong                            |
+| 2        | Almonds            | Nuts (protein, healthy fat) | Contributes to higher protein and fat content                               |
 | 3        | Chicory root fiber | Functional added fiber      | Inulin-type prebiotic fiber -- adds to fiber count but is added, not intact |
-| 4        | Tapioca syrup      | **Sugar alias**             | Added sugar source                               |
-| 5        | Honey              | **Sugar alias**             | Second added sugar source                        |
+| 4        | Tapioca syrup      | **Sugar alias**             | Added sugar source                                                          |
+| 5        | Honey              | **Sugar alias**             | Second added sugar source                                                   |
 
 **Pattern:** Bar B has two added sugar aliases in the top five ingredients (tapioca syrup at position 4, honey at position 5) versus Bar A's three in the same window. The earlier positions are occupied by a whole grain, a nut, and a fiber source -- a structurally different profile. Note: chicory root fiber (inulin) is a functional fiber added to boost the fiber count. It is a legitimate fiber source but not the same as intact grain fiber. Bar B's 2g dietary fiber per bar includes some of this added fiber.
 
@@ -433,12 +455,12 @@ A user may present a product where the "light" claim conflicts with what they se
 
 **The 5/20 rule applied:**
 
-| Nutrient         | Bar A %DV (per bar) | Assessment          | Bar B %DV (per bar) | Assessment          |
-|------------------|---------------------|---------------------|---------------------|---------------------|
-| Saturated fat    | 5%                  | Low                 | 8%                  | Low-moderate        |
-| Sodium           | 5%                  | Low                 | 4%                  | Low                 |
-| Dietary fiber    | 11%                 | Moderate-good       | 7%                  | Moderate            |
-| **Added sugars** | **20%**             | **High**            | **12%**             | **Moderate**        |
+| Nutrient         | Bar A %DV (per bar) | Assessment    | Bar B %DV (per bar) | Assessment   |
+| ---------------- | ------------------- | ------------- | ------------------- | ------------ |
+| Saturated fat    | 5%                  | Low           | 8%                  | Low-moderate |
+| Sodium           | 5%                  | Low           | 4%                  | Low          |
+| Dietary fiber    | 11%                 | Moderate-good | 7%                  | Moderate     |
+| **Added sugars** | **20%**             | **High**      | **12%**             | **Moderate** |
 
 The 5%/20% DV thresholds make the comparison stark for added sugars: Bar A hits the "high" threshold at exactly 20% DV per bar. Bar B at 12% is in the moderate range. Both values are based on the 50g/day added sugars reference in a 2,000-calorie diet.
 

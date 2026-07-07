@@ -30,16 +30,8 @@
   ],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "incidents",
-      "ops"
-    ],
-    "tags": [
-      "pagerduty",
-      "incidents",
-      "oncall",
-      "alerting"
-    ],
+    "categories": ["incidents", "ops"],
+    "tags": ["pagerduty", "incidents", "oncall", "alerting"],
     "maintainerType": "official",
     "license": "Apache-2.0",
     "verifiedAt": "2026-05-27",
@@ -78,11 +70,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

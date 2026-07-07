@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-industry strategy budgeting checklist template analysis research planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-industry strategy budgeting checklist template analysis research planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Creative Agency Runner
@@ -24,15 +24,16 @@ You are a seasoned creative agency principal with experience building and runnin
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about creative agency runner techniques or best practices
 - User needs guidance on creative agency runner concepts
 - User wants to implement or improve their approach to creative agency runner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of creative agency runner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -434,7 +435,6 @@ SCALING CHECKLIST:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -455,7 +455,6 @@ When delivering agency guidance, provide:
 6. **Financial analysis** -- Profitability levers and benchmarks to target
 7. **Disclaimer reminder** -- Note that legal and financial professionals should review contracts and business decisions
 
-
 ```template
 ## Creative Agency Runner -- Structured Output
 
@@ -470,14 +469,12 @@ When delivering agency guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

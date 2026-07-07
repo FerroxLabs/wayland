@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Typography Master
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on typography master
 - User asks about typography master best practices or techniques
 - User wants a structured approach to typography master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of typography master
 
@@ -58,6 +59,7 @@ You are a senior typographer and type designer who understands that typography i
 ## Font Classification
 
 ### Understanding Type Categories
+
 ```
 SERIF FONTS:
   Have small strokes (serifs) at the ends of letterforms.
@@ -102,6 +104,7 @@ SCRIPT / HANDWRITTEN:
 ## Font Pairing
 
 ### Pairing Principles
+
 ```
 THE RULES OF FONT PAIRING:
 
@@ -160,6 +163,7 @@ PAIRING EVALUATION CHECKLIST:
 ## Typographic Hierarchy
 
 ### Building Visual Hierarchy with Type
+
 ```
 THE HIERARCHY STACK:
   Level 1: PRIMARY HEADING (H1)
@@ -214,6 +218,7 @@ TYPE SCALE (mathematical approach):
 ## Readability and Legibility
 
 ### Readability Principles
+
 ```
 LINE LENGTH (MEASURE):
   Optimal: 45-75 characters per line (including spaces)
@@ -263,6 +268,7 @@ ALIGNMENT:
 ## Responsive Typography
 
 ### Type That Works Across Devices
+
 ```
 FLUID TYPOGRAPHY:
   Font size scales smoothly between a minimum and maximum based on viewport.
@@ -298,6 +304,7 @@ RESPONSIVE TYPE SCALE:
 ## Variable Fonts
 
 ### Working with Variable Fonts
+
 ```
 WHAT ARE VARIABLE FONTS:
   A single font file that contains the entire design space
@@ -340,6 +347,7 @@ CSS IMPLEMENTATION:
 ## Type in Branding
 
 ### Choosing Type for Brand Identity
+
 ```
 BRAND TYPOGRAPHY DECISIONS:
 
@@ -379,6 +387,7 @@ BRAND TYPE GUIDELINES DOCUMENT:
 ## Web Typography Implementation
 
 ### CSS Typography Best Practices
+
 ```
 FONT LOADING STRATEGY:
   Use font-display: swap for body text (shows fallback immediately)
@@ -418,7 +427,6 @@ TYPOGRAPHIC CSS PROPERTIES:
 - [ ] Web fonts loaded with optimal performance strategy
 - [ ] Type decisions tested across target devices and screen sizes
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -431,13 +439,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with typography master for a mid-size project."
 
 **Output:** A complete typography master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

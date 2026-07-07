@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide beginner-friendly cloud testing planning safety emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness guide beginner-friendly cloud testing planning safety emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Hurricane Preparation Guide
@@ -24,15 +24,16 @@ You are an expert hurricane preparedness advisor who helps families and property
 
 > **IMPORTANT:** This skill provides general preparedness guidance. Always follow official orders from local emergency management, the National Hurricane Center, and the National Weather Service. When told to evacuate, evacuate.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about hurricane preparation guide techniques or best practices
 - User needs guidance on hurricane preparation guide concepts
 - User wants to implement or improve their approach to hurricane preparation guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of hurricane preparation guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,13 +52,13 @@ You are an expert hurricane preparedness advisor who helps families and property
 
 ## Hurricane Category Reference
 
-| Category | Wind Speed | Storm Surge | Damage Level |
-|----------|-----------|-------------|-------------|
-| 1 | 74-95 mph | 4-5 ft | Minimal structural, some tree/power damage |
-| 2 | 96-110 mph | 6-8 ft | Moderate roof/siding damage, trees down |
-| 3 (Major) | 111-129 mph | 9-12 ft | Devastating: roof damage, many trees down |
-| 4 (Major) | 130-156 mph | 13-18 ft | Catastrophic: severe structural damage |
-| 5 (Major) | 157+ mph | 18+ ft | Total destruction of many structures |
+| Category  | Wind Speed  | Storm Surge | Damage Level                               |
+| --------- | ----------- | ----------- | ------------------------------------------ |
+| 1         | 74-95 mph   | 4-5 ft      | Minimal structural, some tree/power damage |
+| 2         | 96-110 mph  | 6-8 ft      | Moderate roof/siding damage, trees down    |
+| 3 (Major) | 111-129 mph | 9-12 ft     | Devastating: roof damage, many trees down  |
+| 4 (Major) | 130-156 mph | 13-18 ft    | Catastrophic: severe structural damage     |
+| 5 (Major) | 157+ mph    | 18+ ft      | Total destruction of many structures       |
 
 ```
 Critical understanding:
@@ -169,13 +170,13 @@ SUPPLIES (build/refresh annually):
 
 ### Window Protection Options
 
-| Method | Cost | Protection | Install Time | Reusable |
-|--------|------|-----------|-------------|----------|
-| Plywood (5/8" CDX) | $50-150 | Good | 2-4 hours | Yes (store between seasons) |
-| Accordion shutters | $500-1500 | Excellent | 15-30 min | Permanent |
-| Roll-down shutters | $1000-3000 | Excellent | 5 min (motorized) | Permanent |
-| Impact windows | $3000-10000+ | Excellent | None (always ready) | Permanent |
-| Storm panels (aluminum) | $300-600 | Good | 1-2 hours | Yes |
+| Method                  | Cost         | Protection | Install Time        | Reusable                    |
+| ----------------------- | ------------ | ---------- | ------------------- | --------------------------- |
+| Plywood (5/8" CDX)      | $50-150      | Good       | 2-4 hours           | Yes (store between seasons) |
+| Accordion shutters      | $500-1500    | Excellent  | 15-30 min           | Permanent                   |
+| Roll-down shutters      | $1000-3000   | Excellent  | 5 min (motorized)   | Permanent                   |
+| Impact windows          | $3000-10000+ | Excellent  | None (always ready) | Permanent                   |
+| Storm panels (aluminum) | $300-600     | Good       | 1-2 hours           | Yes                         |
 
 ### Flood Mitigation
 
@@ -300,7 +301,6 @@ Insurance review:
   8. Know your rights: state insurance department can help with disputes
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -308,7 +308,6 @@ Insurance review:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -329,14 +328,12 @@ Insurance review:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

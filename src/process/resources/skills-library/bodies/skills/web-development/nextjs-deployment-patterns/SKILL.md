@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks devops cloud"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks devops cloud'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Next.js Deployment Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is deciding between Vercel, AWS, Google Cloud, Azure, or self-hosted Kubernetes for deploying a Next.js application and needs a concrete recommendation with trade-offs
 - The user is configuring output modes (`standalone`, `export`, `default`) and needs to understand which mode fits their infrastructure constraints
 - The user is experiencing cold start latency, function timeout limits, or bundle size issues in a serverless Next.js deployment and needs optimization strategies
@@ -30,6 +32,7 @@ metadata:
 - The user needs to configure custom cache-control headers, CDN edge caching, or stale-while-revalidate behavior for a Next.js app behind CloudFront, Fastly, or Cloudflare
 
 **Do NOT use this skill when:**
+
 - The user needs help with Next.js routing logic, data fetching patterns, or component architecture -- use the next.js application architecture skill
 - The user is asking about general CI/CD pipeline design without a Next.js-specific context -- use the ci-cd pipeline design skill
 - The user needs help with database connection pooling or ORM configuration for Next.js API routes -- use the backend database patterns skill
@@ -266,15 +269,15 @@ Diagnosis: Measure cold start duration with AWS X-Ray or Lambda Power Tuning. Id
 
 ### Rendering Matrix
 
-| Route Pattern           | Rendering Mode | Revalidation | Notes                                               |
-|-------------------------|----------------|--------------|-----------------------------------------------------|
-| `/`                     | ISR            | 3600s        | Editorial content, daily changes, CDN-safe          |
-| `/products`             | ISR            | 1800s        | Catalog listing, changes infrequently               |
-| `/products/[slug]`      | ISR            | 900s         | Individual product pages, 8,000 paths               |
-| `/dashboard/*`          | SSR            | --           | Auth-gated, session-dependent, never cache          |
-| `/checkout/*`           | SSR            | --           | Cart state, payment, never cache                    |
-| `/api/webhooks/*`       | Route Handler  | --           | CMS webhooks for on-demand revalidation             |
-| `/_next/static/*`       | Static         | Immutable    | Content-hashed, 1-year CDN TTL                      |
+| Route Pattern      | Rendering Mode | Revalidation | Notes                                      |
+| ------------------ | -------------- | ------------ | ------------------------------------------ |
+| `/`                | ISR            | 3600s        | Editorial content, daily changes, CDN-safe |
+| `/products`        | ISR            | 1800s        | Catalog listing, changes infrequently      |
+| `/products/[slug]` | ISR            | 900s         | Individual product pages, 8,000 paths      |
+| `/dashboard/*`     | SSR            | --           | Auth-gated, session-dependent, never cache |
+| `/checkout/*`      | SSR            | --           | Cart state, payment, never cache           |
+| `/api/webhooks/*`  | Route Handler  | --           | CMS webhooks for on-demand revalidation    |
+| `/_next/static/*`  | Static         | Immutable    | Content-hashed, 1-year CDN TTL             |
 
 ### Deployment Target Recommendation
 
@@ -325,8 +328,8 @@ const nextConfig: NextConfig = {
 
     // Enable per-page ISR cache invalidation via revalidateTag
     staleTimes: {
-      dynamic: 0,   // SSR pages: never cache in router cache
-      static: 300,  // ISR pages: 5-minute client-side router cache
+      dynamic: 0, // SSR pages: never cache in router cache
+      static: 300, // ISR pages: 5-minute client-side router cache
     },
   },
 };
@@ -447,6 +450,7 @@ app.prepare().then(() => {
 ### Environment Variable Checklist
 
 **Server-only secrets (inject at ECS task definition runtime -- never in Dockerfile):**
+
 - `DATABASE_URL` -- Postgres connection string with connection pooler (PgBouncer/RDS Proxy)
 - `STRIPE_SECRET_KEY` -- Stripe server-side key
 - `REVALIDATION_SECRET` -- Random 32-byte hex string for webhook revalidation authentication
@@ -454,15 +458,18 @@ app.prepare().then(() => {
 - `REDIS_URL` -- Required for shared ISR cache across ECS tasks (see below)
 
 **`NEXT_PUBLIC_*` build-time variables (set as Docker build args in CI):**
+
 - `NEXT_PUBLIC_CDN_URL` -- e.g., `https://d1234abcd.cloudfront.net`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` -- Stripe public key
 
 **Runtime variables (no rebuild needed, set in ECS task definition):**
+
 - `PORT` -- 3000
 - `HOSTNAME` -- 0.0.0.0
 - `NODE_ENV` -- production
 
 **Validation (add to `src/env.ts`, imported in `instrumentation.ts`):**
+
 ```typescript
 import { z } from 'zod';
 
@@ -527,12 +534,12 @@ const nextConfig = {
 
 Create three CloudFront cache behaviors in this priority order:
 
-| Path Pattern         | Origin               | Cache Policy                          | TTL                          |
-|----------------------|----------------------|---------------------------------------|------------------------------|
-| `/_next/static/*`    | ALB (ECS)            | CachingOptimized (AWS managed)        | min: 86400s, max: 31536000s  |
-| `/api/*`             | ALB (ECS)            | CachingDisabled (AWS managed)         | TTL=0, forward all headers   |
-| `/_next/image*`      | ALB (ECS)            | Custom: forward Accept, query strings | min: 60s, max: 86400s        |
-| `*` (default)        | ALB (ECS)            | Custom (see below)                    | min: 0s, default: 60s        |
+| Path Pattern      | Origin    | Cache Policy                          | TTL                         |
+| ----------------- | --------- | ------------------------------------- | --------------------------- |
+| `/_next/static/*` | ALB (ECS) | CachingOptimized (AWS managed)        | min: 86400s, max: 31536000s |
+| `/api/*`          | ALB (ECS) | CachingDisabled (AWS managed)         | TTL=0, forward all headers  |
+| `/_next/image*`   | ALB (ECS) | Custom: forward Accept, query strings | min: 60s, max: 86400s       |
+| `*` (default)     | ALB (ECS) | Custom (see below)                    | min: 0s, default: 60s       |
 
 Custom default behavior: Enable Brotli + Gzip compression. Forward `Host` header. Forward `CloudFront-Viewer-Country` header for geo-personalization. Do NOT forward `Cookie` or `Authorization` headers to the cache key unless the route requires it -- this is the most common cause of CloudFront serving 0% cache hits.
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security forensics guide"
-  category: "security"
-  subcategory: "incident-response"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security forensics guide'
+  category: 'security'
+  subcategory: 'incident-response'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SOC Analyst
@@ -254,67 +254,67 @@ playbook:
   id: PB-PHISH-001
   severity: medium
   estimated_time: 30 minutes
-  trigger: "User-reported phishing or email security alert"
+  trigger: 'User-reported phishing or email security alert'
 
   steps:
     - step: 1
-      action: "Collect email artifacts"
+      action: 'Collect email artifacts'
       details:
-        - "Get original email (EML format, not screenshot)"
-        - "Extract: sender, reply-to, return-path, X-headers"
+        - 'Get original email (EML format, not screenshot)'
+        - 'Extract: sender, reply-to, return-path, X-headers'
         - "Extract: all URLs (hover, don't click)"
-        - "Extract: attachment hashes (SHA256)"
-        - "Note: receiving time, number of recipients"
-      automation: "SOAR: auto-extract IOCs from reported email"
+        - 'Extract: attachment hashes (SHA256)'
+        - 'Note: receiving time, number of recipients'
+      automation: 'SOAR: auto-extract IOCs from reported email'
 
     - step: 2
-      action: "Analyze sender"
+      action: 'Analyze sender'
       details:
-        - "Check SPF/DKIM/DMARC authentication results"
-        - "Verify sender domain age and reputation"
-        - "Compare envelope sender vs display name"
-        - "Check if domain is typosquat of known brand"
+        - 'Check SPF/DKIM/DMARC authentication results'
+        - 'Verify sender domain age and reputation'
+        - 'Compare envelope sender vs display name'
+        - 'Check if domain is typosquat of known brand'
       decision:
-        spoofed: "Continue to step 3, mark as confirmed phishing"
-        legitimate: "May be compromised account, check step 3"
+        spoofed: 'Continue to step 3, mark as confirmed phishing'
+        legitimate: 'May be compromised account, check step 3'
 
     - step: 3
-      action: "Analyze payload"
+      action: 'Analyze payload'
       details:
-        - "URLs: Expand shortened URLs, check against threat intel"
-        - "URLs: Screenshot with urlscan.io (DO NOT visit directly)"
-        - "Attachments: Submit hash to VT, run in sandbox"
-        - "Check for credential harvesting page"
+        - 'URLs: Expand shortened URLs, check against threat intel'
+        - 'URLs: Screenshot with urlscan.io (DO NOT visit directly)'
+        - 'Attachments: Submit hash to VT, run in sandbox'
+        - 'Check for credential harvesting page'
       decision:
-        malicious: "Escalate to step 4 immediately"
-        suspicious: "Continue analysis with 15 min timebox"
-        benign: "Close as spam/marketing, update user"
+        malicious: 'Escalate to step 4 immediately'
+        suspicious: 'Continue analysis with 15 min timebox'
+        benign: 'Close as spam/marketing, update user'
 
     - step: 4
-      action: "Scope the impact"
+      action: 'Scope the impact'
       details:
-        - "Search email gateway: How many recipients got this email?"
-        - "Check proxy/DNS logs: Did anyone click the URL?"
-        - "Check EDR: Did anyone open the attachment?"
-        - "Check auth logs: Any credential use from phishing IP?"
-      automation: "SOAR: auto-search email gateway for message-id"
+        - 'Search email gateway: How many recipients got this email?'
+        - 'Check proxy/DNS logs: Did anyone click the URL?'
+        - 'Check EDR: Did anyone open the attachment?'
+        - 'Check auth logs: Any credential use from phishing IP?'
+      automation: 'SOAR: auto-search email gateway for message-id'
 
     - step: 5
-      action: "Contain"
+      action: 'Contain'
       details:
-        - "Block sender domain in email gateway"
-        - "Block malicious URLs in proxy/DNS"
-        - "Delete email from all mailboxes (admin purge)"
-        - "If credentials compromised: force password reset + revoke sessions"
-        - "If malware executed: isolate endpoint, trigger IR playbook"
+        - 'Block sender domain in email gateway'
+        - 'Block malicious URLs in proxy/DNS'
+        - 'Delete email from all mailboxes (admin purge)'
+        - 'If credentials compromised: force password reset + revoke sessions'
+        - 'If malware executed: isolate endpoint, trigger IR playbook'
 
     - step: 6
-      action: "Document and close"
+      action: 'Document and close'
       details:
-        - "Record all IOCs in threat intel platform"
-        - "Update detection rules if new pattern found"
-        - "Notify affected users"
-        - "Log investigation in case management"
+        - 'Record all IOCs in threat intel platform'
+        - 'Update detection rules if new pattern found'
+        - 'Notify affected users'
+        - 'Log investigation in case management'
 ```
 
 ## Alert Fatigue Reduction
@@ -324,33 +324,33 @@ playbook:
 ```yaml
 tuning_approach:
   1_baseline_false_positives:
-    - "Track false positive rate per detection rule for 2 weeks"
-    - "Rules with > 80% FP rate: immediate tuning or disable"
-    - "Rules with 50-80% FP rate: add exclusions or context"
-    - "Target: < 20% FP rate per rule"
+    - 'Track false positive rate per detection rule for 2 weeks'
+    - 'Rules with > 80% FP rate: immediate tuning or disable'
+    - 'Rules with 50-80% FP rate: add exclusions or context'
+    - 'Target: < 20% FP rate per rule'
 
   2_context_enrichment:
-    - "Add asset criticality to alerts (crown jewel vs dev box)"
-    - "Add user context (admin vs regular, VPN vs office)"
-    - "Add historical baseline (normal for this user/host?)"
-    - "Auto-close alerts that match known benign patterns"
+    - 'Add asset criticality to alerts (crown jewel vs dev box)'
+    - 'Add user context (admin vs regular, VPN vs office)'
+    - 'Add historical baseline (normal for this user/host?)'
+    - 'Auto-close alerts that match known benign patterns'
 
   3_alert_correlation:
-    - "Correlate related alerts into single incident"
-    - "Example: failed logins + successful login + privilege escalation = one case"
-    - "Reduce 50 alerts to 1 actionable investigation"
+    - 'Correlate related alerts into single incident'
+    - 'Example: failed logins + successful login + privilege escalation = one case'
+    - 'Reduce 50 alerts to 1 actionable investigation'
 
   4_tiered_response:
-    - "Tier 1: Automated response (SOAR) for known patterns"
-    - "Tier 2: Junior analyst for low-medium alerts with runbook"
-    - "Tier 3: Senior analyst for complex/high-severity only"
-    - "Goal: 70% automated, 20% tier 2, 10% tier 3"
+    - 'Tier 1: Automated response (SOAR) for known patterns'
+    - 'Tier 2: Junior analyst for low-medium alerts with runbook'
+    - 'Tier 3: Senior analyst for complex/high-severity only'
+    - 'Goal: 70% automated, 20% tier 2, 10% tier 3'
 
   5_detection_engineering:
-    - "Review top 10 noisiest rules monthly"
-    - "Replace signature-based with behavioral detections"
-    - "Implement detection-as-code (version controlled rules)"
-    - "A/B test detection rules before production deployment"
+    - 'Review top 10 noisiest rules monthly'
+    - 'Replace signature-based with behavioral detections'
+    - 'Implement detection-as-code (version controlled rules)'
+    - 'A/B test detection rules before production deployment'
 ```
 
 ## Threat Hunting
@@ -359,7 +359,7 @@ tuning_approach:
 
 ```yaml
 hunt:
-  name: "Living Off the Land Binary (LOLBin) Usage"
+  name: 'Living Off the Land Binary (LOLBin) Usage'
   hypothesis: >
     Attackers may be using legitimate Windows binaries to download
     and execute malicious payloads, bypassing endpoint protection.
@@ -367,7 +367,7 @@ hunt:
     - Windows Security Event Logs (4688)
     - Sysmon Process Creation (Event 1)
     - EDR telemetry
-  timeframe: "Last 30 days"
+  timeframe: 'Last 30 days'
 
   # NOTE: The indicator strings in the queries below are intentionally
   # defanged for safe distribution (some endpoint scanners flag raw
@@ -377,7 +377,7 @@ hunt:
   # again (rejoin the bracketed letter or dot into the surrounding word).
   queries:
     certutil_download:
-      description: "certutil[.]exe used to fetch remote files (LOLBin download cradle)"
+      description: 'certutil[.]exe used to fetch remote files (LOLBin download cradle)'
       spl: |
         index=windows (process_name=certutil.exe OR original_file_name=CertUtil.exe)
         AND (command_line="*url[c]ache*" OR command_line="*verifyctl*"
@@ -386,7 +386,7 @@ hunt:
         | sort -count
 
     mshta_execution:
-      description: "mshta[.]exe executing remote content"
+      description: 'mshta[.]exe executing remote content'
       spl: |
         index=windows process_name=mshta.exe
         AND (command_line="*h[t]tp*" OR command_line="*javascript*"
@@ -394,7 +394,7 @@ hunt:
         | table _time Computer user parent_process command_line
 
     rundll32_unusual:
-      description: "rundll32.exe with unusual DLL paths"
+      description: 'rundll32.exe with unusual DLL paths'
       spl: |
         index=windows process_name=rundll32.exe
         | where NOT match(command_line, "(?i)(shell32|setupapi|advpack|syssetup)")
@@ -402,58 +402,59 @@ hunt:
         | where count < 5
 
   analysis_steps:
-    - "Review results for anomalous command-line patterns"
-    - "Correlate with known LOLBin techniques from LOLBAS project"
-    - "Check parent process chain for suspicious ancestry"
-    - "Pivot on user accounts and machines for additional activity"
-    - "If finding confirmed: create detection rule and document TTP"
+    - 'Review results for anomalous command-line patterns'
+    - 'Correlate with known LOLBin techniques from LOLBAS project'
+    - 'Check parent process chain for suspicious ancestry'
+    - 'Pivot on user accounts and machines for additional activity'
+    - 'If finding confirmed: create detection rule and document TTP'
 ```
 
 ## Shift Handoff Template
 
 ```yaml
 shift_handoff:
-  date: "2024-06-15"
-  outgoing_shift: "Day shift (08:00-16:00)"
-  incoming_shift: "Evening shift (16:00-00:00)"
-  analyst: "Jane Smith"
+  date: '2024-06-15'
+  outgoing_shift: 'Day shift (08:00-16:00)'
+  incoming_shift: 'Evening shift (16:00-00:00)'
+  analyst: 'Jane Smith'
 
   active_incidents:
     - id: INC-2024-0892
       severity: high
-      summary: "Possible credential stuffing against customer portal"
-      status: "Investigating - waiting for WAF logs from vendor"
-      next_steps: "Review WAF logs when received, correlate with auth failures"
-      escalated_to: "Incident Commander (Bob)"
+      summary: 'Possible credential stuffing against customer portal'
+      status: 'Investigating - waiting for WAF logs from vendor'
+      next_steps: 'Review WAF logs when received, correlate with auth failures'
+      escalated_to: 'Incident Commander (Bob)'
 
   open_investigations:
     - alert_id: ALT-45892
-      summary: "Unusual PowerShell activity on FINANCE-SRV-01"
-      status: "Gathering additional EDR data"
+      summary: 'Unusual PowerShell activity on FINANCE-SRV-01'
+      status: 'Gathering additional EDR data'
       priority: medium
-      context: "Finance team confirmed no planned maintenance"
+      context: 'Finance team confirmed no planned maintenance'
 
   notable_events:
-    - "Microsoft released out-of-band patch for CVE-2024-XXXXX (critical RCE)"
-    - "New phishing campaign targeting our industry reported by FS-ISAC"
-    - "Scheduled maintenance on SIEM cluster tonight 22:00-23:00"
+    - 'Microsoft released out-of-band patch for CVE-2024-XXXXX (critical RCE)'
+    - 'New phishing campaign targeting our industry reported by FS-ISAC'
+    - 'Scheduled maintenance on SIEM cluster tonight 22:00-23:00'
 
   metrics:
     alerts_received: 142
     alerts_closed: 128
     incidents_opened: 2
     incidents_closed: 1
-    average_triage_time: "4.2 minutes"
+    average_triage_time: '4.2 minutes'
 
   action_items_for_next_shift:
-    - "Follow up on INC-2024-0892 WAF logs"
-    - "Review overnight scan results from vulnerability assessment"
-    - "Check if phishing IOCs from FS-ISAC alert appear in our logs"
+    - 'Follow up on INC-2024-0892 WAF logs'
+    - 'Review overnight scan results from vulnerability assessment'
+    - 'Check if phishing IOCs from FS-ISAC alert appear in our logs'
 ```
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing soc analyst solutions
 - Reviewing or improving existing soc analyst approaches
 - Making architectural or implementation decisions about soc analyst
@@ -461,6 +462,7 @@ shift_handoff:
 - Troubleshooting soc analyst-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -471,21 +473,26 @@ shift_handoff:
 # Soc Analyst Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

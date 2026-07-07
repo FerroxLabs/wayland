@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making strategy frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making strategy frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Mental Model Toolkit
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is facing a high-stakes decision and needs a structured thinking framework -- career change, investment, business strategy, hiring, architectural trade-offs
 - A user describes being "stuck" or "paralyzed" on a problem and needs a new perspective that breaks the cognitive loop
 - A user explicitly asks about mental models, frameworks for thinking, or how to reason through uncertainty
@@ -28,6 +30,7 @@ metadata:
 - A user wants to build better thinking habits over time and needs a practice framework, not just a one-time answer
 
 **Do NOT use this skill when:**
+
 - The user needs a specific decision-making process for financial investing -- use a dedicated investment analysis skill instead
 - The user is asking about cognitive biases specifically -- that is a distinct domain requiring the cognitive bias inventory skill
 - The user needs project management frameworks (Agile, RACI, OKRs) -- those have their own methodology skills
@@ -69,62 +72,73 @@ metadata:
 ### Step 4: Apply Each Selected Model With Explicit Reasoning Steps
 
 **For Inversion:**
+
 - Write the goal explicitly ("succeed at X")
 - Flip: "What would guarantee failure at X?" Generate at least 5 specific failure modes
 - Check: Is the user currently doing any of these? Identify the most dangerous ones
 - Prescribe: Concrete things to stop doing or actively prevent
 
 **For Second-Order Thinking:**
+
 - Map the action, then trace consequences three levels deep using the "and then?" method
 - Use the template: Action -> 1st-order (who benefits, when, obviously) -> 2nd-order (who is affected indirectly, 6-18 months out) -> 3rd-order (systemic, 2-5 years, often surprising)
 - Flag where 2nd or 3rd order effects could negate the 1st-order benefit entirely
 
 **For Occam's Razor:**
+
 - List all candidate explanations
 - Count the assumptions each requires
 - Default to the fewest-assumption explanation unless evidence specifically rules it out
 - The test: "Does adding this hypothesis explain evidence that simpler hypotheses cannot?" If no, discard it
 
 **For Hanlon's Razor:**
+
 - Generate the "malice" interpretation explicitly
 - Generate at least 3 benign alternative explanations (ignorance, miscommunication, incentive misalignment, distraction, error)
 - Ask: "What is the prior probability of malice vs. incompetence in this population?" For most workplace interactions, incompetence or miscommunication is 10-20x more common than deliberate harm
 - Issue a caveat: Hanlon's razor is a Bayesian prior, not a conclusion -- update if evidence accumulates
 
 **For Circle of Competence:**
+
 - Ask the user to locate themselves on the three zones: inside (can explain simply to a novice), edge (know vocabulary but can't distinguish good from bad practitioners), outside (limited exposure)
 - The critical test for "inside": Can you identify what makes a practitioner in this field excellent vs. mediocre? If not, you're at the edge at best
 - Prescribe: what to do when inside (proceed with confidence), at edge (pair with an expert, widen the circle before committing), outside (do not decide without consultation)
 
 **For Map vs. Territory:**
+
 - Identify the specific maps being used (business plan, financial model, org chart, user research, metrics dashboard)
 - Ask: "When was this map last validated against the territory?" If more than 90 days ago for a fast-moving situation, treat it as suspect
 - Ask: "What would you observe in the territory that would confirm or contradict this map?"
 
 **For Opportunity Cost:**
+
 - Name the best alternative explicitly -- most people leave opportunity cost abstract, which makes it invisible
 - Quantify: If the user commits 10 hours/week to this initiative, what specifically cannot happen? Name it
 - Apply the "Buffett 25/5 rule" as a prompt: List 25 things you could pursue. Circle the top 5. Treat the other 20 not as second-tier priorities but as active avoidances
 
 **For Margin of Safety:**
+
 - Identify the failure point: what is the minimum that must be true for this plan to work?
 - Calculate the gap: how far is the current plan from that minimum?
 - Recommend a buffer: for time estimates, add 30-50% for routine projects, 100% for anything novel or complex; for financial estimates, require 2x more resources than the point-estimate suggests; for revenue concentration, flag if any single source exceeds 20% of total
 - Ask: "Does this plan work if the most optimistic assumption is wrong?"
 
 **For Via Negativa:**
+
 - Generate a complete list of current activities, commitments, tools, or habits
 - For each item, ask: "If this disappeared tomorrow, would outcomes be better, worse, or the same?"
 - Items rated "same" or "better" are candidates for elimination
 - The rule: remove the highest-friction, lowest-value item first and observe for 30 days before removing the next
 
 **For the Lindy Effect:**
+
 - Identify the age of the technology, strategy, or idea under consideration
 - Apply the heuristic: if it has survived 10 years, expect it to survive at least another 10; if 50 years, another 50
 - Contrast with new entrants: new options have not yet demonstrated survival; the burden of proof is on them to displace Lindy-tested alternatives for critical systems
 - Identify what class the item belongs to: perishable (biological, fashion, trending topics) where Lindy does not apply; non-perishable (ideas, practices, infrastructure) where Lindy does
 
 **For Antifragility:**
+
 - Classify the current system: fragile (harms from volatility -- a single client, a single revenue stream, a team with no redundancy), robust (stable under stress), antifragile (benefits from stress -- a learning culture, a portfolio strategy with many small bets)
 - Identify single points of failure and concentration risks
 - Apply the barbell: identify what should be made ultra-safe (core operations, cash reserves, foundational relationships) and what should be made experimental (side projects, innovation budget, pilot programs). Move risk away from the middle.
@@ -180,16 +194,19 @@ Classify as one of: Decision Under Uncertainty / Conflict Interpretation / Syste
 **Model Applications**
 
 **[Model 1 Name]**
+
 - Application: [What you did with the model for this specific situation]
 - Key finding: [What the model reveals]
 - Implication: [What it means for the decision]
 
 **[Model 2 Name]**
+
 - Application: [What you did with the model for this specific situation]
 - Key finding: [What the model reveals]
 - Implication: [What it means for the decision]
 
 **[Model 3 Name]**
+
 - Application: [What you did with the model for this specific situation]
 - Key finding: [What the model reveals]
 - Implication: [What it means for the decision]
@@ -209,11 +226,11 @@ Classify as one of: Decision Under Uncertainty / Conflict Interpretation / Syste
 
 **Prescriptions**
 
-| Priority | Action | Reversible? | Deadline |
-|---|---|---|---|
-| 1 | [Specific action] | No / Yes | [Time] |
-| 2 | [Specific action] | No / Yes | [Time] |
-| 3 | [Specific action] | No / Yes | [Time] |
+| Priority | Action            | Reversible? | Deadline |
+| -------- | ----------------- | ----------- | -------- |
+| 1        | [Specific action] | No / Yes    | [Time]   |
+| 2        | [Specific action] | No / Yes    | [Time]   |
+| 3        | [Specific action] | No / Yes    | [Time]   |
 
 **Critical Question to Answer Before Deciding**
 [One question the user must answer before acting. This should be the thing the models reveal is most unknown and most consequential.]
@@ -222,17 +239,17 @@ Classify as one of: Decision Under Uncertainty / Conflict Interpretation / Syste
 
 **Quick Reference: Model Selection by Situation**
 
-| Situation | Primary Models | Supporting Models |
-|---|---|---|
-| Big decision with high stakes | Second-order thinking, Inversion | Opportunity cost, Margin of safety |
-| Evaluating a plan for failure | Inversion, Pre-mortem | Margin of safety, Map vs. territory |
-| Interpreting someone's behavior | Hanlon's razor | Circle of competence, Map vs. territory |
-| Simplifying a complex system | Occam's razor, Via negativa | First principles |
-| Managing uncertainty and risk | Antifragility, Margin of safety | Lindy effect |
-| Choosing what to pursue | Opportunity cost, Circle of competence | Via negativa |
-| Long-term strategy | Lindy effect, Antifragility | Second-order thinking |
-| Conflict or disagreement | Hanlon's razor, Inversion | Map vs. territory |
-| Feeling overwhelmed | Via negativa, Opportunity cost | Circle of competence |
+| Situation                       | Primary Models                         | Supporting Models                       |
+| ------------------------------- | -------------------------------------- | --------------------------------------- |
+| Big decision with high stakes   | Second-order thinking, Inversion       | Opportunity cost, Margin of safety      |
+| Evaluating a plan for failure   | Inversion, Pre-mortem                  | Margin of safety, Map vs. territory     |
+| Interpreting someone's behavior | Hanlon's razor                         | Circle of competence, Map vs. territory |
+| Simplifying a complex system    | Occam's razor, Via negativa            | First principles                        |
+| Managing uncertainty and risk   | Antifragility, Margin of safety        | Lindy effect                            |
+| Choosing what to pursue         | Opportunity cost, Circle of competence | Via negativa                            |
+| Long-term strategy              | Lindy effect, Antifragility            | Second-order thinking                   |
+| Conflict or disagreement        | Hanlon's razor, Inversion              | Map vs. territory                       |
+| Feeling overwhelmed             | Via negativa, Opportunity cost         | Circle of competence                    |
 
 ---
 
@@ -329,18 +346,19 @@ Decision Under Uncertainty with High Reversal Cost
 
 **Models Selected**
 
-| Model | Why Selected for This Situation |
-|---|---|
-| Inversion | The user is already leaning toward yes; inversion forces examination of failure modes before commitment |
-| Second-Order Thinking | Microservices migrations have well-documented 2nd and 3rd order effects that contradict the first-order promise |
-| Circle of Competence | The user has read about microservices; unclear if they have implementation experience -- this is the edge-zone danger |
-| Map vs. Territory | "Microservices make deployment faster" is a widely held map; the territory shows this is only true given specific organizational prerequisites |
+| Model                 | Why Selected for This Situation                                                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inversion             | The user is already leaning toward yes; inversion forces examination of failure modes before commitment                                        |
+| Second-Order Thinking | Microservices migrations have well-documented 2nd and 3rd order effects that contradict the first-order promise                                |
+| Circle of Competence  | The user has read about microservices; unclear if they have implementation experience -- this is the edge-zone danger                          |
+| Map vs. Territory     | "Microservices make deployment faster" is a widely held map; the territory shows this is only true given specific organizational prerequisites |
 
 ---
 
 **Model Applications**
 
 **Inversion**
+
 - Application: "What would guarantee this migration fails?" Generated failure modes specific to microservices migrations at this company size.
 - Key findings:
   - Starting migration without first decomposing the domain model -- you get distributed monolith, which is worse than a monolith (you get the complexity of microservices with none of the benefits)
@@ -351,6 +369,7 @@ Decision Under Uncertainty with High Reversal Cost
 - Implication: At least three of these five failure modes are currently unconfirmed. The migration could produce a distributed monolith that is slower to deploy and harder to debug than what you have today.
 
 **Second-Order Thinking**
+
 - Application: Traced consequences three levels deep for "migrate to microservices."
 - 1st-order effect: Service teams can deploy independently, unblocking parallel feature development -- this is the benefit the user sees and the engineers want
 - 2nd-order effects (6-18 months):
@@ -365,12 +384,14 @@ Decision Under Uncertainty with High Reversal Cost
 - Key finding: The 2nd-order effects may fully negate the 1st-order benefit unless organizational prerequisites are in place first.
 
 **Circle of Competence**
+
 - Application: The user says they have been "reading about microservices" -- this is the classic edge-zone signal. Reading about a technology is not the same as having navigated a migration at scale.
 - The critical test: Can the user answer these questions? (1) What is the difference between a distributed monolith and a genuine service-oriented architecture, and how would you prevent the former? (2) How do you handle distributed transactions when two services need to write atomically? (3) What does a reasonable SLO structure look like across 20 microservices, and who owns it?
 - If these questions feel uncertain, the user is at the competence edge, not inside the circle.
 - Key finding: This is not a reason to not migrate -- it is a reason to either hire or partner with someone who has successfully completed this migration at comparable scale before making the commitment.
 
 **Map vs. Territory**
+
 - Application: The user is operating from the "microservices = faster delivery" map, which is a widespread and frequently incorrect application.
 - The map says: microservices allow independent deployment, therefore faster feature delivery.
 - The territory says: Netflix, Amazon, and Google achieved faster delivery with microservices AFTER building massive platform engineering investments (Spinnaker, internal Kubernetes clusters, sophisticated observability tooling) and AFTER restructuring teams along service boundaries.
@@ -382,10 +403,10 @@ Decision Under Uncertainty with High Reversal Cost
 
 **Convergence and Contradiction Analysis**
 
-| Signal Type | What It Shows | Strength |
-|---|---|---|
-| Convergence | All four models point to "do not commit to full migration without validating prerequisites first" | Strong |
-| Convergence | Circle of competence and map vs. territory both point to "the decision-maker may be reasoning from an unvalidated mental model" | Strong |
+| Signal Type        | What It Shows                                                                                                                                                                                                        | Strength           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Convergence        | All four models point to "do not commit to full migration without validating prerequisites first"                                                                                                                    | Strong             |
+| Convergence        | Circle of competence and map vs. territory both point to "the decision-maker may be reasoning from an unvalidated mental model"                                                                                      | Strong             |
 | Productive Tension | Inversion says avoid the migration (too many failure modes unaddressed); second-order thinking says the long-term cost of NOT migrating may also be high (deepening technical debt). Neither model alone is correct. | Productive tension |
 
 **The Key Insight**
@@ -396,12 +417,12 @@ The engineers are asking for microservices, and the user is hearing "microservic
 
 **Prescriptions**
 
-| Priority | Action | Reversible? | Deadline |
-|---|---|---|---|
-| 1 | Conduct a 2-week deployment friction audit: instrument and measure where time is lost in the current deployment pipeline. Build times, test times, manual steps, approval gates. Most deployment slowness is in the pipeline, not the architecture. | Yes | 2 weeks |
-| 2 | Hire or contract one engineer who has successfully led a monolith-to-services migration at 100-500 person scale. Get their assessment before committing to a path. This costs $20-30k as a short engagement; the migration itself will cost $2-5M+ in engineering time. | Yes | 4 weeks |
-| 3 | Extract one bounded service -- the most isolated, least coupled part of the codebase -- as a proof of concept. Measure the actual operational overhead. Use this as a calibration for the full migration cost estimate. Do not announce this as "the migration starting." | Yes | 8 weeks |
-| 4 | Address the CEO's feature velocity concern directly with data from the pipeline audit. If deployment pipeline improvements (better CI/CD, feature flags, trunk-based development) can deliver 50% faster deployment in 6 weeks, that is a far faster path to the CEO's goal than a multi-year migration. | Yes | 6 weeks |
+| Priority | Action                                                                                                                                                                                                                                                                                                   | Reversible? | Deadline |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | -------- |
+| 1        | Conduct a 2-week deployment friction audit: instrument and measure where time is lost in the current deployment pipeline. Build times, test times, manual steps, approval gates. Most deployment slowness is in the pipeline, not the architecture.                                                      | Yes         | 2 weeks  |
+| 2        | Hire or contract one engineer who has successfully led a monolith-to-services migration at 100-500 person scale. Get their assessment before committing to a path. This costs $20-30k as a short engagement; the migration itself will cost $2-5M+ in engineering time.                                  | Yes         | 4 weeks  |
+| 3        | Extract one bounded service -- the most isolated, least coupled part of the codebase -- as a proof of concept. Measure the actual operational overhead. Use this as a calibration for the full migration cost estimate. Do not announce this as "the migration starting."                                | Yes         | 8 weeks  |
+| 4        | Address the CEO's feature velocity concern directly with data from the pipeline audit. If deployment pipeline improvements (better CI/CD, feature flags, trunk-based development) can deliver 50% faster deployment in 6 weeks, that is a far faster path to the CEO's goal than a multi-year migration. | Yes         | 6 weeks  |
 
 **Critical Question to Answer Before Deciding**
 

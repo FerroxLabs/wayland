@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide research"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide research'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Estate Tax Basics
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Tax law changes frequently, and specific numbers cited here may be outdated. Always consult a qualified estate planning attorney and CPA licensed in your jurisdiction for advice on your specific situation.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how the federal estate tax works and wants a conceptual foundation before consulting a professional
 - A user has just experienced a family member's death and wants to understand whether the estate might owe taxes
 - A user has heard the term "estate tax exemption" -- from a financial advisor, attorney, or news article -- and wants to understand what it means
@@ -38,6 +40,7 @@ metadata:
 - A user asks why the estate tax is sometimes called the "death tax" and wants a neutral explanation of the policy debate
 
 **Do NOT use when:**
+
 - The user asks for specific tax reduction strategies (irrevocable life insurance trusts, intentionally defective grantor trusts, grantor retained annuity trusts, family limited partnerships) -- those require a licensed estate planning attorney and are beyond educational overview
 - The user asks for a calculation of estate tax owed on a specific estate -- refer to a CPA with estate tax expertise
 - The user asks about the mechanics of filing Form 706 (the federal estate tax return) -- refer to a CPA or tax attorney; this is a highly technical filing
@@ -88,6 +91,7 @@ Portability is one of the most consequential and most frequently misunderstood c
 This is one of the most important conceptual corrections to make -- the taxable estate is much broader than "what goes through probate."
 
 **Included in the gross estate (IRC Sections 2031 through 2044):**
+
 - All property owned outright at death: real estate, investment accounts, bank accounts, business interests, personal property, vehicles, collectibles, jewelry, cryptocurrency
 - **Life insurance death benefits:** If the deceased owned the policy at death (was the "owner" of record) or had any "incident of ownership" (the right to change beneficiaries, borrow against the policy, or surrender it), the death benefit is included in the gross estate -- even though it passes directly to beneficiaries outside of probate
 - **Retirement accounts:** The full account balance of IRAs, 401(k)s, 403(b)s, and other qualified plans is included in the gross estate. These assets do not get a step-up in basis and are also subject to income tax when withdrawn -- a phenomenon known as "double taxation" that affects large retirement accounts in taxable estates
@@ -97,6 +101,7 @@ This is one of the most important conceptual corrections to make -- the taxable 
 - **Certain transfers made during lifetime:** Transfers where the deceased retained control, income rights, or the power to revoke (IRC Sections 2035 through 2038) can pull assets back into the gross estate. The classic trap is the "three-year rule" for life insurance -- transferring a life insurance policy to an irrevocable trust within 3 years of death causes the proceeds to be included in the estate
 
 **Common deductions that reduce the gross estate to the taxable estate:**
+
 - Debts of the deceased (mortgages, credit card balances, car loans, medical bills)
 - Funeral and burial expenses
 - Administrative expenses of the estate (attorney fees, executor commissions, court costs)
@@ -108,6 +113,7 @@ This is one of the most important conceptual corrections to make -- the taxable 
 This is one of the most frequently confused areas for non-specialists. There are up to three separate transfer taxes that could apply: federal estate tax, state estate tax, and state inheritance tax.
 
 **State estate taxes:**
+
 - Approximately 12 states (plus the District of Columbia) impose their own estate tax, separate from the federal estate tax
 - States with their own estate tax typically have exemption thresholds significantly lower than the federal exemption -- often in the $1 million to $2 million range, though this varies by state and changes with legislation
 - An estate that owes zero federal estate tax may still owe substantial state estate tax
@@ -115,6 +121,7 @@ This is one of the most frequently confused areas for non-specialists. There are
 - Some state estate taxes are designed to absorb federal estate tax credits (the old "pick-up tax" model) while others are standalone taxes with their own rate schedules
 
 **State inheritance taxes:**
+
 - Inheritance taxes are levied on the beneficiary, not the estate. The beneficiary pays based on what they receive
 - Approximately 6 states impose an inheritance tax: Iowa (being phased out), Kentucky, Maryland, Nebraska, New Jersey, and Pennsylvania (this list changes -- always verify)
 - Maryland is notable for imposing BOTH a state estate tax and a state inheritance tax on the same transfer
@@ -127,14 +134,14 @@ This is one of the most frequently confused areas for non-specialists. There are
 
 **Summary comparison table:**
 
-| Feature | Federal Estate Tax | State Estate Tax | State Inheritance Tax |
-|---|---|---|---|
-| Payer | Estate (before distribution) | Estate (before distribution) | Beneficiary (after receiving) |
-| Basis of tax | Total gross estate minus deductions | Total estate value (state rules) | Amount received by each beneficiary |
-| Who imposes | IRS / federal government | State government only | State government only |
-| Exemption level | High (verify current; historically millions per person) | Much lower; often $1M--$2M range | Varies by relationship; spouses often exempt |
-| Number of states | All U.S. estates | Approximately 12 states + D.C. | Approximately 6 states |
-| Returns | Form 706 | State estate tax return | Varies by state |
+| Feature          | Federal Estate Tax                                      | State Estate Tax                 | State Inheritance Tax                        |
+| ---------------- | ------------------------------------------------------- | -------------------------------- | -------------------------------------------- |
+| Payer            | Estate (before distribution)                            | Estate (before distribution)     | Beneficiary (after receiving)                |
+| Basis of tax     | Total gross estate minus deductions                     | Total estate value (state rules) | Amount received by each beneficiary          |
+| Who imposes      | IRS / federal government                                | State government only            | State government only                        |
+| Exemption level  | High (verify current; historically millions per person) | Much lower; often $1M--$2M range | Varies by relationship; spouses often exempt |
+| Number of states | All U.S. estates                                        | Approximately 12 states + D.C.   | Approximately 6 states                       |
+| Returns          | Form 706                                                | State estate tax return          | Varies by state                              |
 
 ### Step 6: Address the Unified Gift and Estate Tax System
 
@@ -239,13 +246,15 @@ Flag any time-sensitive issues (e.g., portability deadline).]
 ### Portability Decision Framework (Married Couples)
 
 ```
+
 Did the first spouse die with an estate BELOW the federal exemption?
-    ├── YES → DSUE may be available. Has Form 706 been filed?
-    │       ├── NO, and it has been < 9 months since death → File immediately
-    │       ├── NO, and 9-15 months have passed → File Form 4768 extension NOW
-    │       ├── NO, and it has been < 5 years → Explore simplified late election
-    │       └── YES → Confirm DSUE amount with CPA; it is locked in
-    └── NO → Estate was taxable; DSUE is whatever exemption remained after tax
+├── YES → DSUE may be available. Has Form 706 been filed?
+│ ├── NO, and it has been < 9 months since death → File immediately
+│ ├── NO, and 9-15 months have passed → File Form 4768 extension NOW
+│ ├── NO, and it has been < 5 years → Explore simplified late election
+│ └── YES → Confirm DSUE amount with CPA; it is locked in
+└── NO → Estate was taxable; DSUE is whatever exemption remained after tax
+
 ```
 
 ---
@@ -439,6 +448,7 @@ The unlimited marital deduction (IRC Section 2056) allows an unlimited amount of
 This is not permanent tax elimination -- it is deferral. The deferred tax becomes relevant when your father eventually dies and his estate is calculated.
 
 **However, three important questions must be answered:**
+
 1. Does all $4 million actually pass to your father? If any portion passes to children, other individuals, or non-marital trusts, those amounts do not qualify for the marital deduction and are subject to estate tax to the extent they exceed the exemption.
 2. Does the state where your mother was domiciled impose a state estate or inheritance tax? State rules may apply at lower thresholds and are separate from the federal analysis.
 3. **Has anyone filed Form 706 to elect portability?** (See below -- this is urgent.)
@@ -447,15 +457,15 @@ This is not permanent tax elimination -- it is deferral. The deferred tax become
 
 ### Core Concept Summary
 
-| Concept | What It Means | How It Applies to Your Situation |
-|---|---|---|
-| Federal estate tax | Tax on transfers at death, paid from estate assets | Potentially $0 due to marital deduction if all assets pass to your father |
-| Basic Exclusion Amount (BEA) | Per-person exemption shielding estate from federal tax | Verify current amount; your mother has her own BEA that may be unused |
-| Marital deduction | Unlimited transfer to U.S. citizen spouse: no federal tax at first death | Applies here -- assets to your father are federally tax-free |
-| Portability / DSUE | Your mother's unused BEA can transfer to your father, but only if Form 706 is filed | **TIME SENSITIVE: You have approximately 8 months remaining from date of death** |
-| State estate tax | Some states tax estates at lower thresholds than federal law | Must verify the rules in your mother's state of domicile |
-| State inheritance tax | Some states tax beneficiaries on what they receive | Check your state -- rates often depend on relationship to deceased |
-| Gross estate | All assets: home, accounts, retirement accounts, life insurance, revocable trusts | The $4 million should include all of these, not just probate assets |
+| Concept                      | What It Means                                                                       | How It Applies to Your Situation                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Federal estate tax           | Tax on transfers at death, paid from estate assets                                  | Potentially $0 due to marital deduction if all assets pass to your father        |
+| Basic Exclusion Amount (BEA) | Per-person exemption shielding estate from federal tax                              | Verify current amount; your mother has her own BEA that may be unused            |
+| Marital deduction            | Unlimited transfer to U.S. citizen spouse: no federal tax at first death            | Applies here -- assets to your father are federally tax-free                     |
+| Portability / DSUE           | Your mother's unused BEA can transfer to your father, but only if Form 706 is filed | **TIME SENSITIVE: You have approximately 8 months remaining from date of death** |
+| State estate tax             | Some states tax estates at lower thresholds than federal law                        | Must verify the rules in your mother's state of domicile                         |
+| State inheritance tax        | Some states tax beneficiaries on what they receive                                  | Check your state -- rates often depend on relationship to deceased               |
+| Gross estate                 | All assets: home, accounts, retirement accounts, life insurance, revocable trusts   | The $4 million should include all of these, not just probate assets              |
 
 ---
 
@@ -464,6 +474,7 @@ This is not permanent tax elimination -- it is deferral. The deferred tax become
 Make sure the $4 million estimate includes all of the following (not just assets going through probate):
 
 **Likely included:**
+
 - Home and any other real estate (at current fair market value)
 - Investment and brokerage accounts
 - Bank accounts
@@ -485,6 +496,7 @@ Because your mother likely has a federal estate tax exemption (the Basic Exclusi
 **This effectively gives your father up to double the individual exemption.**
 
 **To claim this benefit, your father's estate executor must:**
+
 1. File Form 706 (the federal estate tax return) for your mother's estate
 2. Make the portability election on that form
 3. File within 9 months of your mother's date of death (with a 6-month extension available if Form 4768 is filed before the 9-month deadline)
@@ -497,14 +509,15 @@ Because your mother likely has a federal estate tax exemption (the Basic Exclusi
 
 ### Federal Estate Tax vs. State-Level Taxes
 
-| Feature | Federal Estate Tax | State Estate Tax | State Inheritance Tax |
-|---|---|---|---|
-| Who pays | Estate (executor) | Estate (executor) | Beneficiary (your family members) |
-| Applies to this estate | Likely $0 due to marital deduction | Depends on your mother's state -- verify | Depends on the state -- verify |
-| Exemption level | High (verify current amount) | Often $1M--$2M range | Often exempt for children/spouse |
-| Key action | File Form 706 for portability | File state return if required | Beneficiaries should check their obligation |
+| Feature                | Federal Estate Tax                 | State Estate Tax                         | State Inheritance Tax                       |
+| ---------------------- | ---------------------------------- | ---------------------------------------- | ------------------------------------------- |
+| Who pays               | Estate (executor)                  | Estate (executor)                        | Beneficiary (your family members)           |
+| Applies to this estate | Likely $0 due to marital deduction | Depends on your mother's state -- verify | Depends on the state -- verify              |
+| Exemption level        | High (verify current amount)       | Often $1M--$2M range                     | Often exempt for children/spouse            |
+| Key action             | File Form 706 for portability      | File state return if required            | Beneficiaries should check their obligation |
 
 **What to check for your state:**
+
 - Was your mother domiciled in a state with its own estate tax? Some states have exemptions as low as $1 million
 - Did she own real property in a different state from where she lived? That state's tax may apply to the real estate
 - Does your state impose an inheritance tax on amounts received by children? In states with inheritance taxes, direct descendants are often exempt or taxed at low rates -- but verify

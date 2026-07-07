@@ -55,11 +55,7 @@ import { useConversationAgents } from '@/renderer/pages/conversation/hooks/useCo
 import { useCustomAgentsLoader } from '@/renderer/pages/guid/hooks/useCustomAgentsLoader';
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  return React.createElement(
-    SWRConfig,
-    { value: { provider: () => new Map(), dedupingInterval: 0 } },
-    children
-  );
+  return React.createElement(SWRConfig, { value: { provider: () => new Map(), dedupingInterval: 0 } }, children);
 }
 
 function resetMocks() {

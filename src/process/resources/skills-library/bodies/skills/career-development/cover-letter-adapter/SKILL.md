@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart career checklist template guide analysis research freelancing"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart career checklist template guide analysis research freelancing'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cover Letter Adapter
 
 You are a cover letter customization specialist. Help the user adapt a cover letter to each specific job posting quickly. Provide a base template and a systematic method for customization. The goal is a compelling letter in 20 minutes, not 2 hours.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cover letter adapter techniques or best practices
 - User needs guidance on cover letter adapter concepts
 - User wants to implement or improve their approach to cover letter adapter
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cover letter adapter
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -207,27 +208,27 @@ Best regards,
 
 ### How to Mirror Job Description Language
 
-| Job Description Says | Your Cover Letter Says |
-|---------------------|----------------------|
+| Job Description Says             | Your Cover Letter Says                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
 | "Cross-functional collaboration" | "I led cross-functional collaboration between engineering, design, and product teams..." |
-| "Data-driven decision making" | "I used data-driven decision making to identify that..." |
-| "Fast-paced environment" | "Thriving in fast-paced environments, I managed..." |
-| "Stakeholder management" | "My stakeholder management approach involved..." |
-| "End-to-end ownership" | "I took end-to-end ownership of the project from..." |
+| "Data-driven decision making"    | "I used data-driven decision making to identify that..."                                 |
+| "Fast-paced environment"         | "Thriving in fast-paced environments, I managed..."                                      |
+| "Stakeholder management"         | "My stakeholder management approach involved..."                                         |
+| "End-to-end ownership"           | "I took end-to-end ownership of the project from..."                                     |
 
 ## Company Research Quick Guide
 
 Where to find things to reference in your letter:
 
-| Source | What to Look For |
-|--------|-----------------|
-| Company "About" page | Mission, values, founding story |
-| Recent press releases | New products, expansions, milestones |
-| Company blog | Culture, engineering approach, priorities |
-| LinkedIn company page | Recent posts, employee count, growth |
-| Glassdoor | Culture insights, interview process |
-| Annual report | Revenue, strategy, goals |
-| CEO/founder interviews | Vision, challenges, priorities |
+| Source                 | What to Look For                          |
+| ---------------------- | ----------------------------------------- |
+| Company "About" page   | Mission, values, founding story           |
+| Recent press releases  | New products, expansions, milestones      |
+| Company blog           | Culture, engineering approach, priorities |
+| LinkedIn company page  | Recent posts, employee count, growth      |
+| Glassdoor              | Culture insights, interview process       |
+| Annual report          | Revenue, strategy, goals                  |
+| CEO/founder interviews | Vision, challenges, priorities            |
 
 **Use this template:** "I was particularly drawn to [Company]'s commitment to [specific thing from research], and I see the [Job Title] role as an opportunity to contribute to [specific goal]."
 
@@ -249,16 +250,15 @@ BEFORE SENDING
 
 ## Common Mistakes
 
-| Mistake | Fix |
-|---------|-----|
-| Starting with "To Whom It May Concern" | Find a name or use "Dear Hiring Team" |
-| Restating your resume | Add NEW context and narrative |
-| "I'm a hard worker" | Show, don't tell - use examples |
-| Generic company praise | Reference specific product, news, or value |
-| Apologizing for gaps or weaknesses | Focus on what you bring |
-| Writing more than one page | Cut to 250-350 words |
-| Same letter for every application | Customize using the 3-step method above |
-
+| Mistake                                | Fix                                        |
+| -------------------------------------- | ------------------------------------------ |
+| Starting with "To Whom It May Concern" | Find a name or use "Dear Hiring Team"      |
+| Restating your resume                  | Add NEW context and narrative              |
+| "I'm a hard worker"                    | Show, don't tell - use examples            |
+| Generic company praise                 | Reference specific product, news, or value |
+| Apologizing for gaps or weaknesses     | Focus on what you bring                    |
+| Writing more than one page             | Cut to 250-350 words                       |
+| Same letter for every application      | Customize using the 3-step method above    |
 
 ## Process
 
@@ -267,7 +267,6 @@ BEFORE SENDING
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -288,14 +287,12 @@ BEFORE SENDING
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

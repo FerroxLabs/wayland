@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'csharp best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Csharp Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to initialize a new C# library, console app, worker service, or class library project with `dotnet new` or manually
 - User asks how to structure a multi-project solution file (`.sln`) with shared tooling
 - User asks about `Directory.Build.props`, `Directory.Build.targets`, or `Directory.Packages.props` for centralized configuration
@@ -30,6 +32,7 @@ metadata:
 - User asks how to configure a project for NuGet package publishing, SourceLink, deterministic builds, or package metadata
 
 **Do NOT use this skill when:**
+
 - User asks about C# language features, pattern matching, records, or modern idioms -- use `csharp-modern-idioms`
 - User asks about writing unit tests, test project setup, xUnit, NUnit, or Moq -- use `csharp-testing-patterns`
 - User asks about ASP.NET Core Minimal API, controllers, middleware, or Blazor -- use `csharp-aspnet-patterns`
@@ -118,6 +121,7 @@ An SDK-style `.csproj` is declarative and minimal. Avoid the verbose legacy form
 ```
 
 Key property decisions:
+
 - `<Nullable>enable</Nullable>` -- mandatory for all new projects. Nullable reference types eliminate entire classes of null-dereference bugs
 - `<ImplicitUsings>enable</ImplicitUsings>` -- adds a generated `GlobalUsings.g.cs` with `System`, `System.Collections.Generic`, `System.Linq`, etc. Do not fight this feature; add additional global usings in a `GlobalUsings.cs` file
 - `<LangVersion>latest</LangVersion>` -- tracks the latest stable C# version for the SDK. Use `preview` only for experimental work
@@ -179,6 +183,7 @@ Key property decisions:
 For repositories with 3 or more projects, Central Package Management (CPM) eliminates version drift across projects:
 
 **Directory.Packages.props** (repository root):
+
 ```xml
 <Project>
   <PropertyGroup>
@@ -208,11 +213,13 @@ For repositories with 3 or more projects, Central Package Management (CPM) elimi
 ```
 
 In each `.csproj` with CPM enabled, omit `Version` from `<PackageReference>`:
+
 ```xml
 <PackageReference Include="Serilog" />  <!-- version resolved from Directory.Packages.props -->
 ```
 
 **NuGet.Config** -- required when using a private feed or package source mapping:
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -323,6 +330,7 @@ dotnet format MyRepo.sln --verify-no-changes --verbosity diagnostic
 ```
 
 Minimum `.gitignore` entries for a .NET repository:
+
 ```
 # Build outputs
 **/bin/
@@ -544,13 +552,13 @@ Set `<IsPackable>false</IsPackable>` explicitly on all test projects and sample 
 
 ### Context Summary
 
-| Dimension        | Assessment                                 |
-|------------------|--------------------------------------------|
-| Project type     | classlib (2 projects) + test project       |
-| Target framework | net8.0 (LTS, suitable for OSS library)     |
-| NuGet strategy   | Central Package Management (3 projects)    |
-| Mono-repo        | No -- standalone library repository        |
-| Publishing       | NuGet.org package + snupkg symbols         |
+| Dimension        | Assessment                              |
+| ---------------- | --------------------------------------- |
+| Project type     | classlib (2 projects) + test project    |
+| Target framework | net8.0 (LTS, suitable for OSS library)  |
+| NuGet strategy   | Central Package Management (3 projects) |
+| Mono-repo        | No -- standalone library repository     |
+| Publishing       | NuGet.org package + snupkg symbols      |
 
 ---
 
@@ -621,6 +629,7 @@ dotnet test Conduit.sln --no-build -c Release
 ### File Contents
 
 #### global.json
+
 ```json
 {
   "sdk": {
@@ -632,6 +641,7 @@ dotnet test Conduit.sln --no-build -c Release
 ```
 
 #### Directory.Build.props
+
 ```xml
 <Project>
 
@@ -677,6 +687,7 @@ dotnet test Conduit.sln --no-build -c Release
 ```
 
 #### Directory.Packages.props
+
 ```xml
 <Project>
   <PropertyGroup>
@@ -701,6 +712,7 @@ dotnet test Conduit.sln --no-build -c Release
 ```
 
 #### NuGet.Config
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -717,6 +729,7 @@ dotnet test Conduit.sln --no-build -c Release
 ```
 
 #### .editorconfig
+
 ```ini
 root = true
 
@@ -772,6 +785,7 @@ indent_size = 2
 ```
 
 #### src/Conduit.Abstractions/Conduit.Abstractions.csproj
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -801,6 +815,7 @@ indent_size = 2
 ```
 
 #### src/Conduit.Core/Conduit.Core.csproj
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -829,6 +844,7 @@ indent_size = 2
 ```
 
 #### tests/Conduit.Core.Tests/Conduit.Core.Tests.csproj
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -857,6 +873,7 @@ indent_size = 2
 ```
 
 #### src/Conduit.Abstractions/GlobalUsings.cs
+
 ```csharp
 // Global usings for Conduit.Abstractions
 // System.* usings are provided by ImplicitUsings; add domain-specific usings here.
@@ -868,15 +885,15 @@ global using System.Threading.Tasks;
 
 ### Decisions Log
 
-| Decision                        | Choice                         | Rationale                                                                 |
-|---------------------------------|--------------------------------|---------------------------------------------------------------------------|
-| Target framework                | net8.0 only                    | LTS release; no .NET Framework consumers identified; avoids multi-target  |
-| Nullable reference types        | enabled (error severity)       | OSS library must have airtight null safety before consumers depend on it  |
-| Central Package Management      | enabled                        | 3 projects sharing test dependencies; prevents version drift              |
-| TreatWarningsAsErrors           | true                           | Enforces nullable and analyzer compliance; required for quality OSS       |
-| SourceLink                      | GitHub / snupkg                | Enables debugger step-through for library consumers without source access |
-| File-scoped namespaces          | enforced via .editorconfig     | C# 10+ standard; reduces indentation; consistent with modern OSS projects |
-| Version location                | CI-injected (`-p:Version=...`) | Prevents accidental publish of hardcoded version; enables GitVersion/MinVer|
-| NuGet.Config with `<clear />`   | yes                            | Prevents implicit machine-level feed injection in CI environments         |
-| EnforceCodeStyleInBuild         | true                           | .editorconfig violations become build errors, not silent IDE suggestions  |
-| GenerateDocumentationFile       | true                           | Produces XML docs for IntelliSense in downstream consumers                |
+| Decision                      | Choice                         | Rationale                                                                   |
+| ----------------------------- | ------------------------------ | --------------------------------------------------------------------------- |
+| Target framework              | net8.0 only                    | LTS release; no .NET Framework consumers identified; avoids multi-target    |
+| Nullable reference types      | enabled (error severity)       | OSS library must have airtight null safety before consumers depend on it    |
+| Central Package Management    | enabled                        | 3 projects sharing test dependencies; prevents version drift                |
+| TreatWarningsAsErrors         | true                           | Enforces nullable and analyzer compliance; required for quality OSS         |
+| SourceLink                    | GitHub / snupkg                | Enables debugger step-through for library consumers without source access   |
+| File-scoped namespaces        | enforced via .editorconfig     | C# 10+ standard; reduces indentation; consistent with modern OSS projects   |
+| Version location              | CI-injected (`-p:Version=...`) | Prevents accidental publish of hardcoded version; enables GitVersion/MinVer |
+| NuGet.Config with `<clear />` | yes                            | Prevents implicit machine-level feed injection in CI environments           |
+| EnforceCodeStyleInBuild       | true                           | .editorconfig violations become build errors, not silent IDE suggestions    |
+| GenerateDocumentationFile     | true                           | Produces XML docs for IntelliSense in downstream consumers                  |

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming beginner-friendly testing"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming beginner-friendly testing'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Computational Geometry Solver
 
 You are an expert competitive programmer specializing in computational geometry. You implement geometrically correct, numerically robust solutions for contest problems involving points, lines, polygons, convex hulls, sweep line algorithms, and spatial queries.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about computational geometry solver techniques or best practices
 - User needs guidance on computational geometry solver concepts
 - User wants to implement or improve their approach to computational geometry solver
 
 **Do NOT use when:**
+
 - The request falls outside the scope of computational geometry solver
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -461,17 +462,17 @@ bool eq(ld a, ld b) { return abs(a - b) < EPS; }
 
 ## Contest Problem Pattern Recognition
 
-| Keyword/Pattern | Likely Algorithm | Time Complexity |
-|----------------|-----------------|-----------------|
-| "Maximum distance between points" | Convex hull + rotating calipers | O(N log N) |
-| "Closest pair of points" | Divide & conquer or sweep line | O(N log N) |
-| "Point inside polygon" | Ray casting or winding number | O(N) per query |
-| "Area of union" | Sweep line + segment tree | O(N log N) |
-| "Enclosing circle" | Welzl's algorithm (randomized) | O(N) expected |
-| "Number of intersections" | Sweep line (Bentley-Ottmann) | O((N+K) log N) |
-| "Convex polygon queries" | Convex hull + binary search | O(log N) per query |
-| "Shortest path with obstacles" | Visibility graph + Dijkstra | O(N^2 log N) |
-| "Minimum spanning tree of points" | Delaunay triangulation + MST | O(N log N) |
+| Keyword/Pattern                   | Likely Algorithm                | Time Complexity    |
+| --------------------------------- | ------------------------------- | ------------------ |
+| "Maximum distance between points" | Convex hull + rotating calipers | O(N log N)         |
+| "Closest pair of points"          | Divide & conquer or sweep line  | O(N log N)         |
+| "Point inside polygon"            | Ray casting or winding number   | O(N) per query     |
+| "Area of union"                   | Sweep line + segment tree       | O(N log N)         |
+| "Enclosing circle"                | Welzl's algorithm (randomized)  | O(N) expected      |
+| "Number of intersections"         | Sweep line (Bentley-Ottmann)    | O((N+K) log N)     |
+| "Convex polygon queries"          | Convex hull + binary search     | O(log N) per query |
+| "Shortest path with obstacles"    | Visibility graph + Dijkstra     | O(N^2 log N)       |
+| "Minimum spanning tree of points" | Delaunay triangulation + MST    | O(N log N)         |
 
 ### Common Mistakes in Geometry Contests
 
@@ -482,7 +483,6 @@ bool eq(ld a, ld b) { return abs(a - b) < EPS; }
 5. **Floating point comparisons** without epsilon tolerance
 6. **Off-by-one in polygon traversal** (skipping to close the polygon)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -490,7 +490,6 @@ bool eq(ld a, ld b) { return abs(a - b) < EPS; }
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -511,14 +510,12 @@ bool eq(ld a, ld b) { return abs(a - b) < EPS; }
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

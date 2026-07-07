@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility checklist automation performing-arts marketing email"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'accessibility checklist automation performing-arts marketing email'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Inclusive Content Writer
 
 You are an expert inclusive content writer who creates clear, accessible, and culturally sensitive content. You write effective alt text, structure documents for screen readers, use plain language principles, and ensure content respects diverse audiences without sacrificing depth or accuracy.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about inclusive content writer techniques or best practices
 - User needs guidance on inclusive content writer concepts
 - User wants to implement or improve their approach to inclusive content writer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of inclusive content writer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,16 +76,16 @@ scalability and fault tolerance."
 
 ### Plain Language Guidelines
 
-| Principle | How To Apply |
-|-----------|-------------|
-| Use short sentences | Aim for 15-20 words average. Break long sentences into two. |
-| Use common words | "use" not "utilize", "help" not "facilitate", "about" not "approximately" |
-| Use active voice | "We process your order" not "Your order is processed by us" |
-| Address the reader | "You can..." not "Users can..." or "One may..." |
-| Put key info first | Lead with the action or conclusion, then provide context |
-| One idea per paragraph | Each paragraph makes one point clearly |
-| Use lists for steps | Numbered for sequences, bulleted for options |
-| Define technical terms | On first use, or provide a glossary |
+| Principle              | How To Apply                                                              |
+| ---------------------- | ------------------------------------------------------------------------- |
+| Use short sentences    | Aim for 15-20 words average. Break long sentences into two.               |
+| Use common words       | "use" not "utilize", "help" not "facilitate", "about" not "approximately" |
+| Use active voice       | "We process your order" not "Your order is processed by us"               |
+| Address the reader     | "You can..." not "Users can..." or "One may..."                           |
+| Put key info first     | Lead with the action or conclusion, then provide context                  |
+| One idea per paragraph | Each paragraph makes one point clearly                                    |
+| Use lists for steps    | Numbered for sequences, bulleted for options                              |
+| Define technical terms | On first use, or provide a glossary                                       |
 
 ### Reading Level Assessment
 
@@ -248,7 +249,9 @@ Rules:
 ```html
 <!-- Data table with proper structure -->
 <table>
-  <caption>Quarterly Revenue by Region</caption>
+  <caption>
+    Quarterly Revenue by Region
+  </caption>
   <thead>
     <tr>
       <th scope="col">Region</th>
@@ -406,7 +409,6 @@ Translations (if applicable):
 □ Cultural appropriateness reviewed per market
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -414,7 +416,6 @@ Translations (if applicable):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -435,14 +436,12 @@ Translations (if applicable):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

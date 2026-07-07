@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "version-control devops automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'version-control devops automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Release Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design or implement a versioning and release workflow for a software project -- including choosing between trunk-based development, GitFlow, GitHub Flow, or release branching strategies
 - A user asks how to automate changelog generation, semantic versioning, or release tagging in their CI/CD pipeline
 - A user needs to manage multiple concurrent release trains (e.g., a v2.x maintenance branch alongside a v3.x active development line)
@@ -30,6 +32,7 @@ metadata:
 - A user is operating in a regulated environment (SOC 2, FDA, HIPAA, PCI-DSS) and needs change control traceability baked into their release process
 
 **Do NOT use this skill when:**
+
 - The user is asking specifically about CI/CD pipeline configuration (build steps, test parallelization, artifact storage) -- use the CI/CD pipeline skill instead
 - The user needs help with infrastructure deployment orchestration (Kubernetes rollouts, Helm chart management, canary deploys) -- use the deployment strategy skill
 - The user is asking about feature flag management as a runtime toggle system (LaunchDarkly, Flagsmith) -- use the feature flag skill
@@ -131,7 +134,7 @@ Release management is a process that requires ongoing calibration.
 
 When responding to a release management request, deliver output in this structure:
 
-```
+````
 ## Release Management Recommendation: [Project Name or Context]
 
 ### Context Summary
@@ -194,20 +197,20 @@ on:
     branches:
       - main
       - 'release/**'
-```
+````
 
 ---
 
 ### Release Pipeline Stages
 
-| Stage              | Tool / Mechanism          | Success Criteria                        |
-|--------------------|---------------------------|-----------------------------------------|
-| Validate           | CI checks on release tag  | All status checks green                 |
+| Stage              | Tool / Mechanism           | Success Criteria                       |
+| ------------------ | -------------------------- | -------------------------------------- |
+| Validate           | CI checks on release tag   | All status checks green                |
 | Publish artifacts  | registry push (Docker/npm) | Artifact digest logged, signed         |
-| Create release     | release-please / GitHub   | Release notes published, tag created   |
-| Deploy to prod     | Deployment pipeline       | Deployment health checks pass          |
-| Post-release smoke | Synthetic tests           | P0 user journeys passing in production |
-| Rollback standby   | Previous tag re-deployed  | Rollback rehearsed in staging          |
+| Create release     | release-please / GitHub    | Release notes published, tag created   |
+| Deploy to prod     | Deployment pipeline        | Deployment health checks pass          |
+| Post-release smoke | Synthetic tests            | P0 user journeys passing in production |
+| Rollback standby   | Previous tag re-deployed   | Rollback rehearsed in staging          |
 
 ---
 
@@ -224,13 +227,13 @@ on:
 
 ### Release Cadence and Code Freeze Schedule
 
-| Event              | Timing Before Release | Responsible          |
-|--------------------|-----------------------|----------------------|
-| Feature freeze     | T-5 days              | Engineering lead     |
-| Code freeze        | T-2 days              | Release manager      |
-| Release candidate  | T-1 day               | QA / Automation      |
-| Production deploy  | T-0                   | Release manager      |
-| Post-release review| T+1 day               | Full team            |
+| Event               | Timing Before Release | Responsible      |
+| ------------------- | --------------------- | ---------------- |
+| Feature freeze      | T-5 days              | Engineering lead |
+| Code freeze         | T-2 days              | Release manager  |
+| Release candidate   | T-1 day               | QA / Automation  |
+| Production deploy   | T-0                   | Release manager  |
+| Post-release review | T+1 day               | Full team        |
 
 ---
 
@@ -240,24 +243,31 @@ on:
 ## [x.y.z] - YYYY-MM-DD
 
 ### Breaking Changes
+
 - [Description of breaking change and migration path]
 
 ### Added
+
 - [New feature description]
 
 ### Changed
+
 - [Behavior change description]
 
 ### Deprecated
+
 - [Deprecated feature, removal target version]
 
 ### Removed
+
 - [Removed capability, replacement]
 
 ### Fixed
+
 - [Bug description and impact]
 
 ### Security
+
 - [CVE identifier if applicable, severity, patched behavior]
 ```
 
@@ -265,16 +275,17 @@ on:
 
 ### DORA Metrics Targets
 
-| Metric                     | Elite        | High         | Medium        | Low           |
-|----------------------------|--------------|--------------|---------------|---------------|
-| Deployment frequency       | Multiple/day | Weekly       | Monthly       | < Monthly     |
-| Lead time for changes      | < 1 hour     | 1 day--1 wk  | 1 wk--1 mo    | > 1 month     |
-| Change failure rate        | 0--5%        | 5--10%       | 10--15%       | > 15%         |
-| Mean time to recovery      | < 1 hour     | < 1 day      | < 1 week      | > 1 week      |
+| Metric                | Elite        | High        | Medium     | Low       |
+| --------------------- | ------------ | ----------- | ---------- | --------- |
+| Deployment frequency  | Multiple/day | Weekly      | Monthly    | < Monthly |
+| Lead time for changes | < 1 hour     | 1 day--1 wk | 1 wk--1 mo | > 1 month |
+| Change failure rate   | 0--5%        | 5--10%      | 10--15%    | > 15%     |
+| Mean time to recovery | < 1 hour     | < 1 day     | < 1 week   | > 1 week  |
 
 Current estimated tier: [Elite / High / Medium / Low]
 Target tier in 90 days: [tier]
-```
+
+````
 
 ---
 
@@ -431,7 +442,7 @@ jobs:
       - uses: wagoid/commitlint-github-action@v5
         with:
           configFile: .commitlintrc.json
-```
+````
 
 ```json
 // .commitlintrc.json
@@ -450,21 +461,24 @@ jobs:
 ```yaml
 # release-please-config.json
 {
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "changelog-sections": [
-        {"type": "feat", "section": "Features"},
-        {"type": "fix", "section": "Bug Fixes"},
-        {"type": "perf", "section": "Performance Improvements"},
-        {"type": "revert", "section": "Reverts"},
-        {"type": "docs", "section": "Documentation", "hidden": false},
-        {"type": "chore", "section": "Miscellaneous", "hidden": true}
-      ],
-      "extra-files": ["src/version.js"]
-    }
-  },
-  "bump-minor-pre-major": true
+  'packages':
+    {
+      '.':
+        {
+          'release-type': 'node',
+          'changelog-sections':
+            [
+              { 'type': 'feat', 'section': 'Features' },
+              { 'type': 'fix', 'section': 'Bug Fixes' },
+              { 'type': 'perf', 'section': 'Performance Improvements' },
+              { 'type': 'revert', 'section': 'Reverts' },
+              { 'type': 'docs', 'section': 'Documentation', 'hidden': false },
+              { 'type': 'chore', 'section': 'Miscellaneous', 'hidden': true },
+            ],
+          'extra-files': ['src/version.js'],
+        },
+    },
+  'bump-minor-pre-major': true,
 }
 ```
 
@@ -527,17 +541,17 @@ Tag protection:
 
 ### Release Pipeline Stages
 
-| Stage                  | Tool / Mechanism                         | Success Criteria                                               |
-|------------------------|------------------------------------------|----------------------------------------------------------------|
-| PR validation          | commitlint, Jest, ESLint, npm audit      | All checks green; 0 high/critical CVEs in npm audit           |
-| Release PR review      | release-please PR + 2 human approvers    | Version bump and CHANGELOG reviewed and approved              |
-| Artifact build         | GitHub Actions on tag push               | Docker image built, pushed with semver tag and SHA label      |
-| Artifact signing       | cosign (keyless via GitHub OIDC)         | Image digest signed and logged to Rekor transparency log      |
-| Staging deployment     | AWS ECS task definition update           | Health check endpoint returns 200 within 90 seconds           |
-| Integration smoke test | Playwright API tests against staging     | All P0 API endpoints respond correctly with test data         |
-| Production deployment  | AWS ECS rolling update                   | < 5% 5xx rate during rollout; health checks pass             |
-| Post-deploy validation | Datadog synthetic monitor                | P0 journeys healthy for 10 minutes post-deploy                |
-| Release notes publish  | GitHub Release created by release-please | Release notes visible, CHANGELOG.md updated in repo          |
+| Stage                  | Tool / Mechanism                         | Success Criteria                                         |
+| ---------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| PR validation          | commitlint, Jest, ESLint, npm audit      | All checks green; 0 high/critical CVEs in npm audit      |
+| Release PR review      | release-please PR + 2 human approvers    | Version bump and CHANGELOG reviewed and approved         |
+| Artifact build         | GitHub Actions on tag push               | Docker image built, pushed with semver tag and SHA label |
+| Artifact signing       | cosign (keyless via GitHub OIDC)         | Image digest signed and logged to Rekor transparency log |
+| Staging deployment     | AWS ECS task definition update           | Health check endpoint returns 200 within 90 seconds      |
+| Integration smoke test | Playwright API tests against staging     | All P0 API endpoints respond correctly with test data    |
+| Production deployment  | AWS ECS rolling update                   | < 5% 5xx rate during rollout; health checks pass         |
+| Post-deploy validation | Datadog synthetic monitor                | P0 journeys healthy for 10 minutes post-deploy           |
+| Release notes publish  | GitHub Release created by release-please | Release notes visible, CHANGELOG.md updated in repo      |
 
 ---
 
@@ -557,28 +571,28 @@ When enterprise customers on `release/v2.x` need a security patch:
 
 ### Migration Timeline (from current state to target state)
 
-| Week    | Milestone                                                                 | Risk Level |
-|---------|---------------------------------------------------------------------------|------------|
-| 1--2    | Install commitlint in CI as warnings only. Team practices commit format.   | Low        |
-| 3       | Enable release-please in dry-run mode. Review what would have been tagged. | Low        |
-| 4       | Enable branch protection on `main`. Require 1 PR review (start with 1).   | Medium     |
-| 5       | Enable release-please for real. First automated release tag created.       | Medium     |
-| 6       | Increase required reviews to 2. Couple deployment pipeline to tags.        | Medium     |
-| 7       | Cut first `release/v1.x` maintenance branch for current enterprise customers.| Low      |
-| 8       | Run hotfix fire drill against `release/v1.x`. Document lessons learned.   | Low        |
-| 9--10   | Enable cosign artifact signing. Publish SBOM (Software Bill of Materials). | Low        |
-| Month 3 | Retrospective: measure cycle time, change failure rate. Set DORA targets. | Low        |
+| Week    | Milestone                                                                     | Risk Level |
+| ------- | ----------------------------------------------------------------------------- | ---------- |
+| 1--2    | Install commitlint in CI as warnings only. Team practices commit format.      | Low        |
+| 3       | Enable release-please in dry-run mode. Review what would have been tagged.    | Low        |
+| 4       | Enable branch protection on `main`. Require 1 PR review (start with 1).       | Medium     |
+| 5       | Enable release-please for real. First automated release tag created.          | Medium     |
+| 6       | Increase required reviews to 2. Couple deployment pipeline to tags.           | Medium     |
+| 7       | Cut first `release/v1.x` maintenance branch for current enterprise customers. | Low        |
+| 8       | Run hotfix fire drill against `release/v1.x`. Document lessons learned.       | Low        |
+| 9--10   | Enable cosign artifact signing. Publish SBOM (Software Bill of Materials).    | Low        |
+| Month 3 | Retrospective: measure cycle time, change failure rate. Set DORA targets.     | Low        |
 
 ---
 
 ### DORA Metrics Baseline and Targets
 
-| Metric                  | Current (estimated) | 90-Day Target | 12-Month Target |
-|-------------------------|---------------------|---------------|-----------------|
-| Deployment frequency    | Ad-hoc (< monthly) | Weekly        | Multiple/week   |
-| Lead time for changes   | Unknown, likely > 1 week | < 3 days | < 1 day       |
-| Change failure rate     | Unknown             | < 10%         | < 5%            |
-| Mean time to recovery   | Unknown             | < 4 hours     | < 1 hour        |
+| Metric                | Current (estimated)      | 90-Day Target | 12-Month Target |
+| --------------------- | ------------------------ | ------------- | --------------- |
+| Deployment frequency  | Ad-hoc (< monthly)       | Weekly        | Multiple/week   |
+| Lead time for changes | Unknown, likely > 1 week | < 3 days      | < 1 day         |
+| Change failure rate   | Unknown                  | < 10%         | < 5%            |
+| Mean time to recovery | Unknown                  | < 4 hours     | < 1 hour        |
 
 Begin tracking these metrics immediately using deployment timestamps from GitHub Actions run logs and incident records from your on-call tool (PagerDuty, OpsGenie, or equivalent). Without a baseline, improvement cannot be measured.
 
@@ -590,25 +604,31 @@ Begin tracking these metrics immediately using deployment timestamps from GitHub
 ## [4.3.0] - 2024-03-15
 
 ### Breaking Changes
+
 - Removed support for API v1 authentication token format (deprecated since v4.1.0).
   Migration: Use the v2 token format. See docs/auth-migration.md for step-by-step instructions.
 
 ### Added
+
 - New `/v2/reports/scheduled` endpoint for asynchronous report generation (#412)
 - Rate limit headers now included on all API responses (X-RateLimit-Limit, X-RateLimit-Remaining)
 
 ### Changed
+
 - Webhook delivery timeout increased from 10s to 30s to accommodate slow customer endpoints
 
 ### Deprecated
+
 - `GET /v2/users/:id/permissions` is deprecated. Use `GET /v2/users/:id/roles` instead.
   Will be removed in v5.0.0.
 
 ### Fixed
+
 - Fixed incorrect pagination cursors when filtering by date range and status simultaneously (#398)
 - Fixed 500 error when webhook payload exceeded 256KB (now returns 422 with descriptive message)
 
 ### Security
+
 - Updated `jsonwebtoken` from 8.5.1 to 9.0.2 to address CVE-2022-23529 (High severity).
   No user action required; fix is server-side.
 ```

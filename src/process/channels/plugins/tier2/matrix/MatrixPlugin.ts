@@ -59,11 +59,7 @@ type MatrixClientLike = {
   startClient: (opts: { initialSyncLimit: number }) => Promise<void>;
   stopClient: () => void;
   sendTextMessage: (roomId: string, body: string) => Promise<{ event_id: string }>;
-  sendEvent: (
-    roomId: string,
-    eventType: string,
-    content: object
-  ) => Promise<{ event_id: string }>;
+  sendEvent: (roomId: string, eventType: string, content: object) => Promise<{ event_id: string }>;
   sendTyping: (roomId: string, isTyping: boolean, timeoutMs: number) => Promise<unknown>;
   sendEmoteMessage?: (roomId: string, body: string) => Promise<{ event_id: string }>;
   whoami: () => Promise<{ user_id: string }>;
@@ -110,9 +106,11 @@ export class MatrixPlugin extends BasePlugin {
     // matrix-js-sdk's createClient is synchronous - it only constructs the
     // client; no network IO until startClient(). Cast through the SDK module's
     // shape so the unit tests can swap it with a vi.hoisted mock.
-    const createClient = (sdk as unknown as {
-      createClient: (opts: { baseUrl: string; accessToken: string; userId: string }) => MatrixClientLike;
-    }).createClient;
+    const createClient = (
+      sdk as unknown as {
+        createClient: (opts: { baseUrl: string; accessToken: string; userId: string }) => MatrixClientLike;
+      }
+    ).createClient;
     this.client = createClient({
       baseUrl: homeserverUrl,
       accessToken,
@@ -139,14 +137,15 @@ export class MatrixPlugin extends BasePlugin {
       }
       if (me.user_id !== this.selfUserId) {
         console.warn(
-          `[MatrixPlugin] whoami() returned ${me.user_id} but credentials said ${this.selfUserId}; adopting server value`,
+          `[MatrixPlugin] whoami() returned ${me.user_id} but credentials said ${this.selfUserId}; adopting server value`
         );
         this.selfUserId = me.user_id;
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Matrix whoami() failed; refusing to start without confirmed identity (echo-filter safety): ${message}`, { cause: error },
+        `Matrix whoami() failed; refusing to start without confirmed identity (echo-filter safety): ${message}`,
+        { cause: error }
       );
     }
     this.setupHandlers();
@@ -207,11 +206,7 @@ export class MatrixPlugin extends BasePlugin {
    *   - m.new_content = the canonical replacement content
    *   - m.relates_to = { rel_type: 'm.replace', event_id }
    */
-  async editMessage(
-    chatId: string,
-    messageId: string,
-    message: IUnifiedOutgoingMessage
-  ): Promise<void> {
+  async editMessage(chatId: string, messageId: string, message: IUnifiedOutgoingMessage): Promise<void> {
     if (!this.client) throw new Error('Matrix client not initialized');
     const body = message.text ?? '';
     if (!body.trim()) return;
@@ -226,9 +221,7 @@ export class MatrixPlugin extends BasePlugin {
       const original = await this.client.fetchRoomEvent(chatId, messageId);
       const originalType = original?.content?.msgtype;
       if (originalType && originalType !== 'm.text') {
-        throw new Error(
-          'Matrix editing media messages is not supported; only text edits work',
-        );
+        throw new Error('Matrix editing media messages is not supported; only text edits work');
       }
     }
 
@@ -287,9 +280,7 @@ export class MatrixPlugin extends BasePlugin {
       if (!unified) return;
 
       this.activeUsers.add(unified.user.id);
-      void this.emitMessage(unified).catch((err) =>
-        console.error('[MatrixPlugin] Room.timeline handler failed:', err)
-      );
+      void this.emitMessage(unified).catch((err) => console.error('[MatrixPlugin] Room.timeline handler failed:', err));
     });
 
     this.client.on('sync', (...args: unknown[]) => {
@@ -332,12 +323,9 @@ export class MatrixPlugin extends BasePlugin {
       return;
     }
 
-    const delay = Math.min(
-      SYNC_BACKOFF_INITIAL_MS * 2 ** (this.syncFailureCount - 1),
-      SYNC_BACKOFF_CAP_MS,
-    );
+    const delay = Math.min(SYNC_BACKOFF_INITIAL_MS * 2 ** (this.syncFailureCount - 1), SYNC_BACKOFF_CAP_MS);
     console.warn(
-      `[MatrixPlugin] sync ERROR (attempt ${this.syncFailureCount}/${SYNC_BACKOFF_MAX_ATTEMPTS}); restarting in ${delay}ms`,
+      `[MatrixPlugin] sync ERROR (attempt ${this.syncFailureCount}/${SYNC_BACKOFF_MAX_ATTEMPTS}); restarting in ${delay}ms`
     );
     try {
       this.client.stopClient();
@@ -349,15 +337,13 @@ export class MatrixPlugin extends BasePlugin {
     this.syncRetryTimer = setTimeout(() => {
       this.syncRetryTimer = null;
       if (!this.client) return;
-      this.client
-        .startClient({ initialSyncLimit: INITIAL_SYNC_LIMIT })
-        .catch((error: unknown) => {
-          const message = error instanceof Error ? error.message : String(error);
-          console.error('[MatrixPlugin] startClient during backoff failed:', message);
-          // Treat a failed restart like another sync ERROR so the next attempt
-          // schedules with the doubled delay.
-          this.handleSyncError();
-        });
+      this.client.startClient({ initialSyncLimit: INITIAL_SYNC_LIMIT }).catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('[MatrixPlugin] startClient during backoff failed:', message);
+        // Treat a failed restart like another sync ERROR so the next attempt
+        // schedules with the doubled delay.
+        this.handleSyncError();
+      });
     }, delay);
   }
 
@@ -374,7 +360,7 @@ export class MatrixPlugin extends BasePlugin {
    * the renderer can persist it as credentials.userId.
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let parsed: { homeserverUrl?: string; accessToken?: string };
     try {
@@ -388,9 +374,11 @@ export class MatrixPlugin extends BasePlugin {
     if (!accessToken) return { success: false, error: 'Access token is required' };
 
     try {
-      const createClient = (sdk as unknown as {
-        createClient: (opts: { baseUrl: string; accessToken: string }) => MatrixClientLike;
-      }).createClient;
+      const createClient = (
+        sdk as unknown as {
+          createClient: (opts: { baseUrl: string; accessToken: string }) => MatrixClientLike;
+        }
+      ).createClient;
       const probe = createClient({ baseUrl, accessToken });
       const me = await probe.whoami();
       // whoami() returns user_id on success; matrix-js-sdk does not require a

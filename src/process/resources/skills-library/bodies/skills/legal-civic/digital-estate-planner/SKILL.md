@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist template"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist template'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Digital Estate Planner
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about planning for their digital assets after death or incapacity
 - User wants to create an inventory of online accounts and digital property
 - User asks what happens to email, social media, or cloud accounts when someone dies
@@ -37,6 +38,7 @@ metadata:
 - User asks about digital legacy planning or digital estate management
 
 **Do NOT use when:**
+
 - User asks about physical document organization (use `estate-document-organizer`)
 - User asks about creating a will or trust (use `will-preparation-checklist` or `trust-basics-explainer`)
 - User asks about cryptocurrency trading or investment strategies (refer to a financial advisor)
@@ -262,7 +264,9 @@ metadata:
 ## Digital Estate Inventory
 
 ### Owner: [Your Name]
+
 ### Last Updated: [Today's Date]
+
 ### Access Plan Location: [To be determined -- see Access Credential Plan section below]
 
 Your goal is to make sure your wife can find and access what matters. Let us build the inventory category by category. Do NOT put actual passwords in this document -- we will address access separately.
@@ -270,47 +274,54 @@ Your goal is to make sure your wife can find and access what matters. Let us bui
 ---
 
 ### Category 1: Email Accounts
-| Account           | Provider     | Recovery Email | Legacy Contact Set? | Notes           |
-|-------------------|-------------|----------------|---------------------|-----------------|
-| [your primary email] | [provider] | [recovery email] | [set one up if available] | This is the key to everything -- if your wife can access this email, she can reset most other passwords |
-| [any secondary emails] | | | | |
+
+| Account                | Provider   | Recovery Email   | Legacy Contact Set?       | Notes                                                                                                   |
+| ---------------------- | ---------- | ---------------- | ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [your primary email]   | [provider] | [recovery email] | [set one up if available] | This is the key to everything -- if your wife can access this email, she can reset most other passwords |
+| [any secondary emails] |            |                  |                           |                                                                                                         |
 
 ### Category 2: Financial and Banking
-| Account           | Institution  | Has Beneficiary? | Linked Email     | Notes           |
-|-------------------|-------------|------------------|------------------|-----------------|
-| [bank portal]     | [bank name] | [check POD status] | [email]        |                 |
-| [investment account] | [institution] | [check TOD status] | [email]    |                 |
-| [digital wallet/payment service] | [name] | [no -- transfer balance] | [email] | Has balance of $[amount]? |
+
+| Account                          | Institution   | Has Beneficiary?         | Linked Email | Notes                     |
+| -------------------------------- | ------------- | ------------------------ | ------------ | ------------------------- |
+| [bank portal]                    | [bank name]   | [check POD status]       | [email]      |                           |
+| [investment account]             | [institution] | [check TOD status]       | [email]      |                           |
+| [digital wallet/payment service] | [name]        | [no -- transfer balance] | [email]      | Has balance of $[amount]? |
 
 ### Category 3: Social Media
-| Platform          | Username     | Legacy Contact Set? | Preferred Action     |
-|-------------------|-------------|---------------------|----------------------|
-| [platform 1]      | [handle]    | [check settings]    | [memorialize or delete?] |
-| [platform 2]      | [handle]    | [check settings]    | [your preference?]   |
+
+| Platform     | Username | Legacy Contact Set? | Preferred Action         |
+| ------------ | -------- | ------------------- | ------------------------ |
+| [platform 1] | [handle] | [check settings]    | [memorialize or delete?] |
+| [platform 2] | [handle] | [check settings]    | [your preference?]       |
 
 ### Category 4: Cloud Storage -- YOUR PHOTOS LIVE HERE
-| Service           | Storage Used | Irreplaceable Content? | Backup Exists? | Notes |
-|-------------------|-------------|------------------------|----------------|-------|
-| [photo storage service] | [GB] | YES -- family photos  | [do you have a second copy?] | **Priority: your wife should know this exists** |
-| [cloud storage]   | [GB]        | [documents? yes/no]   | [backup?]      |       |
+
+| Service                 | Storage Used | Irreplaceable Content? | Backup Exists?               | Notes                                           |
+| ----------------------- | ------------ | ---------------------- | ---------------------------- | ----------------------------------------------- |
+| [photo storage service] | [GB]         | YES -- family photos   | [do you have a second copy?] | **Priority: your wife should know this exists** |
+| [cloud storage]         | [GB]         | [documents? yes/no]    | [backup?]                    |                                                 |
 
 **Recommendation:** If irreplaceable photos exist only in one cloud account, consider creating a shared album or granting your wife direct access to the account now, rather than relying on post-death access procedures.
 
 ### Category 5: Subscriptions
-| Service           | Monthly Cost | Payment Method | Action After Death    |
-|-------------------|-------------|----------------|-----------------------|
-| [streaming 1]     | $[amount]   | [card ending xxxx] | Cancel             |
-| [streaming 2]     | $[amount]   | [card ending xxxx] | Cancel             |
-| [software 1]      | $[amount]   | [card ending xxxx] | Cancel             |
-| **Total monthly** | $[sum]      |                | **These will keep billing until cancelled** |
+
+| Service           | Monthly Cost | Payment Method     | Action After Death                          |
+| ----------------- | ------------ | ------------------ | ------------------------------------------- |
+| [streaming 1]     | $[amount]    | [card ending xxxx] | Cancel                                      |
+| [streaming 2]     | $[amount]    | [card ending xxxx] | Cancel                                      |
+| [software 1]      | $[amount]    | [card ending xxxx] | Cancel                                      |
+| **Total monthly** | $[sum]       |                    | **These will keep billing until cancelled** |
 
 ### Category 7: Cryptocurrency -- HIGHEST PRIORITY
-| Asset             | Location         | Approx. Value | Access Method         |
-|-------------------|-----------------|---------------|------------------------|
-| [crypto asset 1]  | [exchange name]  | $[amount]     | See secure access doc  |
-| [crypto asset 2]  | [hardware wallet brand] | $[amount] | Physical device + PIN |
+
+| Asset            | Location                | Approx. Value | Access Method         |
+| ---------------- | ----------------------- | ------------- | --------------------- |
+| [crypto asset 1] | [exchange name]         | $[amount]     | See secure access doc |
+| [crypto asset 2] | [hardware wallet brand] | $[amount]     | Physical device + PIN |
 
 **CRITICAL:** If you hold cryptocurrency in a hardware wallet or self-custody wallet, the seed phrase and PIN are the ONLY way to access those funds. There is no recovery process. No customer service to call. Document the following in your secure access plan (NOT here):
+
 - Seed phrase (12 or 24 words) for each wallet
 - Hardware wallet physical location
 - Hardware wallet PIN
@@ -319,13 +330,15 @@ Your goal is to make sure your wife can find and access what matters. Let us bui
 ---
 
 ### Access Credential Plan
-| Method                    | Location              | Who Has Access         |
-|--------------------------|----------------------|------------------------|
-| Password manager         | [do you use one? set up emergency access for your wife] | |
-| Secure credential document | [create one: encrypted file or sealed envelope] | [store with attorney or in home safe] |
-| Legacy contact features  | [set up on email and social media platforms that support it] | [designate your wife] |
+
+| Method                     | Location                                                     | Who Has Access                        |
+| -------------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| Password manager           | [do you use one? set up emergency access for your wife]      |                                       |
+| Secure credential document | [create one: encrypted file or sealed envelope]              | [store with attorney or in home safe] |
+| Legacy contact features    | [set up on email and social media platforms that support it] | [designate your wife]                 |
 
 ### Immediate Action Items
+
 - [ ] Set up legacy contact on your primary email account
 - [ ] Set up legacy contact on social media platforms that offer it
 - [ ] Create a secure credential access document (sealed envelope or password manager emergency access)

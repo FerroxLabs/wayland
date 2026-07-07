@@ -80,7 +80,10 @@ const ProjectMemoryPanel: React.FC<{
     if (!draft.trim()) return;
     setSaving(true);
     try {
-      const { decisions: updated } = await ipcBridge.project.appendDecision.invoke({ id: projectId, text: draft.trim() });
+      const { decisions: updated } = await ipcBridge.project.appendDecision.invoke({
+        id: projectId,
+        text: draft.trim(),
+      });
       setDecisions(updated);
       setDraft('');
       setAdding(false);
@@ -148,7 +151,13 @@ const ProjectMemoryPanel: React.FC<{
             >
               {t('common.cancel')}
             </Button>
-            <Button size='small' type='primary' loading={saving} disabled={!draft.trim()} onClick={() => void addDecision()}>
+            <Button
+              size='small'
+              type='primary'
+              loading={saving}
+              disabled={!draft.trim()}
+              onClick={() => void addDecision()}
+            >
               {t('projects.memory.save')}
             </Button>
           </div>

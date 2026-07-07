@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices kotlin"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices kotlin'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Android Developer
@@ -377,16 +377,16 @@ class GetProductsUseCase @Inject constructor(
 
 ### Common Rejection Reasons
 
-| Issue | Policy | Prevention |
-|-------|--------|------------|
-| Crashes on review device | Functionality | Test on Pixel devices and various API levels |
-| Missing privacy policy | User Data | Link privacy policy in Store listing and in-app |
-| Deceptive behavior | Deceptive Behavior | App must do what listing describes |
-| Inappropriate content | Content | Implement content rating questionnaire honestly |
-| Background battery drain | Background Limits | Use WorkManager, respect Doze mode |
-| Excessive permissions | Permissions | Request only what you need, explain why |
-| Missing data deletion | Data Deletion | Provide account/data deletion mechanism |
-| Target API level | Target API Level | Must target latest required API level |
+| Issue                    | Policy             | Prevention                                      |
+| ------------------------ | ------------------ | ----------------------------------------------- |
+| Crashes on review device | Functionality      | Test on Pixel devices and various API levels    |
+| Missing privacy policy   | User Data          | Link privacy policy in Store listing and in-app |
+| Deceptive behavior       | Deceptive Behavior | App must do what listing describes              |
+| Inappropriate content    | Content            | Implement content rating questionnaire honestly |
+| Background battery drain | Background Limits  | Use WorkManager, respect Doze mode              |
+| Excessive permissions    | Permissions        | Request only what you need, explain why         |
+| Missing data deletion    | Data Deletion      | Provide account/data deletion mechanism         |
+| Target API level         | Target API Level   | Must target latest required API level           |
 
 ## Production Checklist
 
@@ -409,6 +409,7 @@ class GetProductsUseCase @Inject constructor(
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing android developer solutions
 - Reviewing or improving existing android developer approaches
 - Making architectural or implementation decisions about android developer
@@ -416,6 +417,7 @@ class GetProductsUseCase @Inject constructor(
 - Troubleshooting android developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -426,21 +428,26 @@ class GetProductsUseCase @Inject constructor(
 # Android Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

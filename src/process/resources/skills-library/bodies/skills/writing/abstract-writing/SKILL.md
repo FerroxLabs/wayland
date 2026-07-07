@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing research"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing writing research'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Abstract Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write, draft, or improve an abstract for an empirical research paper (quantitative, qualitative, or mixed methods)
 - A user needs a conference abstract for submission to an academic conference, symposium, or workshop
 - A user is writing a thesis or dissertation abstract (Masters or PhD level)
@@ -29,6 +31,7 @@ metadata:
 - A user needs a short-form abstract (under 150 words) for a poster presentation, extended abstract proceedings, or grant summary
 
 **Do NOT use this skill when:**
+
 - The user wants an executive summary for a business, policy, or government report -- these follow a different structure with different conventions (use `executive-summary`)
 - The user wants to write a paper introduction -- introductions are 500-1500 words with literature review content and are not abstracts (use `research-paper-structure`)
 - The user wants to summarize a paper they are reviewing or citing -- that is a literature synthesis task, not abstract writing (use `literature-review`)
@@ -215,7 +218,9 @@ Deliver the abstract using the following complete template. Adjust the structura
 ## Edge Cases
 
 ### Paper Is Not Yet Written (Prospective Conference Abstract)
+
 When the user is submitting a conference abstract before completing the study, the abstract is prospective -- it describes what the study will do, not what it found. Handle this carefully:
+
 - Use future or conditional tense in the findings section: "We expect to find," "Preliminary analyses suggest," or "The study will test whether."
 - If any preliminary data exists (pilot study, first wave of data collection), include those specific numbers and clearly label them as preliminary.
 - Focus the methods section on design rigor -- reviewers of prospective conference abstracts evaluate whether the methodology is credible and whether the question is important.
@@ -223,13 +228,17 @@ When the user is submitting a conference abstract before completing the study, t
 - After the study is complete, a full revision of the abstract will be required before any journal submission.
 
 ### Null Results or Non-Significant Findings
+
 Null results require the same specificity as positive findings, and the abstract must not obscure or minimize them:
+
 - Report the test statistic, degrees of freedom or sample size, and p-value even for non-significant results: "No significant difference was found between the intervention and control groups (t(198) = 1.12, p = .26, d = 0.16)."
 - The implication section for null results typically addresses what the null finding rules out, what it confirms, or what methodological limitations might explain the null. "These null findings do not support the proposed mechanism and suggest the effect, if present, is smaller than the d = 0.5 threshold this study was powered to detect."
 - Never convert a null result into a borderline positive by using only one-tailed language, selective reporting, or omitting confidence intervals that include zero.
 
 ### User Has Multiple Studies in a Single Paper (Multi-Study Paper)
+
 Multi-study papers (common in psychology, education, and medicine) require the abstract to synthesize across studies rather than summarize each:
+
 - Lead with the overall cross-study finding or conclusion, not with Study 1's finding.
 - Name each study briefly by method type ("In Study 1, an online experiment (N = 312)...") -- do not use sequential numbering without content.
 - If studies converge, say so explicitly: "Three pre-registered experiments consistently found..."
@@ -237,7 +246,9 @@ Multi-study papers (common in psychology, education, and medicine) require the a
 - Allocate findings-section space proportionally to each study's importance to the overall argument, not equally.
 
 ### Very Short Word Limit (100-150 Words) -- Poster Abstracts and Extended Abstract Proceedings
+
 At 150 words or fewer, every component must be compressed to its minimum viable content:
+
 - Problem: 1 sentence maximum, most specific version possible.
 - Method: Design + N only. No measures, no analysis details.
 - Findings: 2 sentences maximum. Only the primary finding with its single most important statistic.
@@ -246,7 +257,9 @@ At 150 words or fewer, every component must be compressed to its minimum viable 
 - Acronyms are more acceptable at very short lengths -- spell out only those a non-specialist would not recognize.
 
 ### Qualitative Research -- Findings Without Statistics
+
 Qualitative abstracts face the highest risk of vagueness because researchers sometimes believe "themes emerged" is a sufficient finding statement. It is not:
+
 - Name every primary theme, category, construct, or narrative structure identified: "Analysis revealed four themes: (1) institutional betrayal, (2) informal support networks as protective, (3) disclosure as double-edged, and (4) the role of time in meaning-making."
 - Include participant-count anchoring where appropriate: "The majority of participants (N = 18/24) described..."
 - For grounded theory abstracts, name the core category and the substantive theory proposed.
@@ -254,14 +267,18 @@ Qualitative abstracts face the highest risk of vagueness because researchers som
 - Method description for qualitative work must include: approach (thematic analysis, grounded theory, phenomenology, discourse analysis, ethnography), sample characteristics (not just N but purposive criteria), and data type (semi-structured interviews, focus groups, archival documents).
 
 ### Abstract Needs to Be Revised Because It Was Rejected or Criticized
+
 When a user brings an existing abstract that reviewers or supervisors criticized:
+
 - First, diagnose the specific failure type before revising: coverage abstract (no findings stated), findings buried (background too long), missing data (findings without numbers), word limit violation, structural mismatch (structured submitted as unstructured), or accuracy mismatch (abstract doesn't match paper).
 - Address each criticism explicitly. Do not simply reword the existing abstract -- restructure it based on the failure diagnosis.
 - If the reviewer criticized vagueness, locate every vague term in the existing abstract and replace each with a specific value or named construct.
 - If the reviewer said "the abstract doesn't match the paper," ask the user to provide the paper's actual results section, then rewrite from the source data.
 
 ### Systematic Review or Meta-Analysis Abstract
+
 Systematic reviews and meta-analyses have distinct abstract requirements because they synthesize evidence rather than report a single study:
+
 - Methods must include: the databases searched (do not list every one -- name the primary databases and the date range), the PICO parameters (Population, Intervention, Comparison, Outcome), the number of studies initially retrieved and the number ultimately included after screening, and the risk of bias assessment tool used (Cochrane RoB, GRADE, Newcastle-Ottawa).
 - Findings must include: the number of included studies, the total N across studies, the pooled effect estimate with 95% confidence interval, and the heterogeneity statistic (I²). I² ≥ 75% is substantial heterogeneity and must be noted -- it changes interpretation.
 - Example findings sentence: "Fifteen RCTs (N = 3,847) were included. Meta-analysis showed a moderate positive effect of the intervention (d = 0.52, 95% CI [0.38, 0.66]), with substantial heterogeneity (I² = 71%)."
@@ -279,9 +296,9 @@ Systematic reviews and meta-analyses have distinct abstract requirements because
 
 ## Abstract
 
-*Word count: 238 / 250*
-*Format: Structured -- APA (Objective / Method / Results / Conclusions)*
-*Venue: Journal of Educational Psychology*
+_Word count: 238 / 250_
+_Format: Structured -- APA (Objective / Method / Results / Conclusions)_
+_Venue: Journal of Educational Psychology_
 
 ---
 
@@ -297,23 +314,24 @@ Systematic reviews and meta-analyses have distinct abstract requirements because
 
 ### Abstract Quality Check
 
-| Criterion | Status | Notes |
-|---|---|---|
-| Specific problem/gap stated (not just a topic) | Pass | Gap: lab-to-classroom translation and extended retention intervals both identified |
-| Study design named | Pass | Cluster-randomized controlled trial |
-| Sample described (N, key characteristics) | Pass | N = 276, Grades 6-8, four schools, both group sizes |
-| At least one specific finding with data | Pass | d = 0.94 primary; d = 0.61 at 1 week; d = 1.12 for low prior knowledge subgroup |
-| Implication is specific (not "further research is needed") | Pass | Schedules retrieval throughout units; no specialist training required |
-| Word count within limit | Pass | 238 / 250 |
-| No findings in abstract absent from paper | Pass | All values provided by user from paper data |
-| No coverage language ("this paper examines...") | Pass | All sentences state world-facts, not paper-facts |
-| Appropriate register for target audience | Pass | JEP readership: quantitative educational psychologists; d and t statistics appropriate without further explanation |
+| Criterion                                                  | Status | Notes                                                                                                              |
+| ---------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| Specific problem/gap stated (not just a topic)             | Pass   | Gap: lab-to-classroom translation and extended retention intervals both identified                                 |
+| Study design named                                         | Pass   | Cluster-randomized controlled trial                                                                                |
+| Sample described (N, key characteristics)                  | Pass   | N = 276, Grades 6-8, four schools, both group sizes                                                                |
+| At least one specific finding with data                    | Pass   | d = 0.94 primary; d = 0.61 at 1 week; d = 1.12 for low prior knowledge subgroup                                    |
+| Implication is specific (not "further research is needed") | Pass   | Schedules retrieval throughout units; no specialist training required                                              |
+| Word count within limit                                    | Pass   | 238 / 250                                                                                                          |
+| No findings in abstract absent from paper                  | Pass   | All values provided by user from paper data                                                                        |
+| No coverage language ("this paper examines...")            | Pass   | All sentences state world-facts, not paper-facts                                                                   |
+| Appropriate register for target audience                   | Pass   | JEP readership: quantitative educational psychologists; d and t statistics appropriate without further explanation |
 
 ---
 
 ### Revision Notes
 
 The following elements were available from the user's data and were used. If any of these values change during final paper revision, the abstract must be updated to match:
+
 - The effect size growth pattern (d = 0.61 at 1 week → d = 0.94 at 8 weeks) is the abstract's most compelling finding and should not be cut if word count pressure emerges -- cut from the Conclusions section instead.
 - The subgroup finding (d = 1.12 for below-median prior knowledge students) was included because it substantially strengthens the practical implication and was already in the user's data. If this subgroup analysis was exploratory rather than pre-registered, the user should consider noting this in the paper's method section (though the abstract space does not permit this caveat).
 - The 4-week assessment point result was omitted from the abstract due to word limits -- the 1-week and 8-week endpoints tell the retention trajectory story sufficiently.

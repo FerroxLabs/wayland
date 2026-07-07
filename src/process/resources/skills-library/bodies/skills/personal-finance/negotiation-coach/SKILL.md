@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance salary-negotiation guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance salary-negotiation guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Negotiation Coach
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to negotiate a salary, raise, or job offer
 - User wants to negotiate a major purchase price (car, home, services)
 - User needs negotiation strategy for a business deal or contract
 - User wants to learn general negotiation principles and tactics
 
 **Do NOT use this skill when:**
+
 - User needs legal contract review -- use contract-reviewer skill
 - User needs conflict mediation in a relationship -- use communication skills
 - User wants to manipulate or deceive someone -- this skill teaches ethical negotiation only
@@ -99,6 +101,7 @@ IMPROVING YOUR BATNA:
 The first number put on the table heavily influences the final outcome. This is called anchoring.
 
 **Rules of anchoring:**
+
 1. Make the first offer when you have good information about market value
 2. Anchor aggressively but credibly (extreme anchors backfire)
 3. Always justify your anchor with data or reasoning
@@ -312,6 +315,7 @@ STEP 5: CONFIRM EVERYTHING
 ### Specific Bill Strategies
 
 **Cable/Internet:**
+
 - Call every 12 months when promotional rates expire
 - Always ask for the retention department
 - Mention specific competitor offers
@@ -319,6 +323,7 @@ STEP 5: CONFIRM EVERYTHING
 - Savings potential: $20-60/month
 
 **Auto Insurance:**
+
 - Shop quotes from 3-5 companies every renewal period
 - Ask about bundling (home + auto)
 - Increase deductible from $500 to $1,000 (if you have emergency fund)
@@ -326,12 +331,14 @@ STEP 5: CONFIRM EVERYTHING
 - Savings potential: $50-200/month
 
 **Cell Phone:**
+
 - Consider MVNOs (Mint Mobile, Visible, Google Fi) -- same networks, lower cost
 - Evaluate actual data usage vs. plan
 - Family plans are almost always cheaper per line
 - Savings potential: $20-80/month
 
 **Medical Bills:**
+
 - Always request an itemized bill (errors are common)
 - Ask for the cash-pay discount (often 20-50% off)
 - Request a payment plan (usually interest-free)
@@ -388,16 +395,16 @@ STEP 5: PAYMENT PLAN (if lump sum does not work)
 
 ### Items Worth Negotiating
 
-| Item | Negotiable? | Typical Savings | Strategy |
-|------|------------|----------------|----------|
-| Car purchase | Always | $1,000-5,000+ | Research invoice price, get competing offers |
-| Furniture | Usually | 10-25% | Ask for floor model discount, holiday sales |
-| Rent | Often | $25-100/month | Long lease, pay upfront, comparable rentals |
-| Home purchase | Always | Varies widely | Contingencies, closing costs, repairs |
-| Contractor work | Always | 10-20% | Get 3+ quotes, ask for cash discount |
-| Medical bills | Usually | 20-50% | See medical bill script above |
-| Hotel rates | Often | 10-30% | Call directly, mention competitor rates, AAA/AARP |
-| Electronics | Sometimes | 5-15% | Price match guarantees, open-box deals |
+| Item            | Negotiable? | Typical Savings | Strategy                                          |
+| --------------- | ----------- | --------------- | ------------------------------------------------- |
+| Car purchase    | Always      | $1,000-5,000+   | Research invoice price, get competing offers      |
+| Furniture       | Usually     | 10-25%          | Ask for floor model discount, holiday sales       |
+| Rent            | Often       | $25-100/month   | Long lease, pay upfront, comparable rentals       |
+| Home purchase   | Always      | Varies widely   | Contingencies, closing costs, repairs             |
+| Contractor work | Always      | 10-20%          | Get 3+ quotes, ask for cash discount              |
+| Medical bills   | Usually     | 20-50%          | See medical bill script above                     |
+| Hotel rates     | Often       | 10-30%          | Call directly, mention competitor rates, AAA/AARP |
+| Electronics     | Sometimes   | 5-15%           | Price match guarantees, open-box deals            |
 
 ---
 
@@ -461,6 +468,7 @@ When coaching a negotiation, provide:
 **Offer:** $85,000 | **Your target:** $95,000-$100,000 | **Walk-away point:** $90,000
 
 ### Pre-Negotiation Checklist
+
 - [ ] Confirm market data: Glassdoor, Levels.fyi, Payscale for role + location
 - [ ] List your unique value: specific skills, achievements, certifications
 - [ ] Identify your BATNA: other offers, current job, freelance income
@@ -478,6 +486,7 @@ When coaching a negotiation, provide:
 "I understand budget constraints. Can we explore other areas -- signing bonus, additional PTO, remote flexibility, or an accelerated review timeline?"
 
 ### Key Rules
+
 1. Never give your number first if you can avoid it (let them anchor)
 2. Always negotiate on base salary first (it compounds over your career)
 3. Never accept or reject on the spot -- say "Thank you, I would like a day to review"

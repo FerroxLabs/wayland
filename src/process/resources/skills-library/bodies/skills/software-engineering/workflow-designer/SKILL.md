@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Workflow Designer
@@ -69,72 +69,73 @@ import { proxyActivities, sleep, condition, defineSignal, setHandler } from '@te
 import type * as activities from '../activities';
 
 const {
-    validateOrder,
-    processPayment,
-    reserveInventory,
-    createShipment,
-    sendConfirmation,
-    refundPayment,
-    releaseInventory,
+  validateOrder,
+  processPayment,
+  reserveInventory,
+  createShipment,
+  sendConfirmation,
+  refundPayment,
+  releaseInventory,
 } = proxyActivities<typeof activities>({
-    startToCloseTimeout: '30s',
-    retry: {
-        initialInterval: '1s',
-        backoffCoefficient: 2,
-        maximumAttempts: 3,
-        maximumInterval: '30s',
-        nonRetryableErrorTypes: ['ValidationError', 'InsufficientFundsError'],
-    },
+  startToCloseTimeout: '30s',
+  retry: {
+    initialInterval: '1s',
+    backoffCoefficient: 2,
+    maximumAttempts: 3,
+    maximumInterval: '30s',
+    nonRetryableErrorTypes: ['ValidationError', 'InsufficientFundsError'],
+  },
 });
 
 // Signals for human-in-the-loop
 const approvalSignal = defineSignal<[boolean]>('approval');
 
 export async function orderWorkflow(order: Order): Promise<OrderResult> {
-    // Step 1: Validate
-    const validationResult = await validateOrder(order);
-    if (!validationResult.valid) {
-        return { status: 'rejected', reason: validationResult.errors };
+  // Step 1: Validate
+  const validationResult = await validateOrder(order);
+  if (!validationResult.valid) {
+    return { status: 'rejected', reason: validationResult.errors };
+  }
+
+  // Step 2: Human approval for high-value orders
+  if (order.total > 10000) {
+    let approved: boolean | undefined;
+    setHandler(approvalSignal, (isApproved) => {
+      approved = isApproved;
+    });
+
+    // Wait up to 24 hours for approval
+    const gotApproval = await condition(() => approved !== undefined, '24h');
+    if (!gotApproval || !approved) {
+      return { status: 'rejected', reason: 'Approval timeout or denied' };
     }
+  }
 
-    // Step 2: Human approval for high-value orders
-    if (order.total > 10000) {
-        let approved: boolean | undefined;
-        setHandler(approvalSignal, (isApproved) => { approved = isApproved; });
+  // Step 3: Process payment (with compensation)
+  const paymentResult = await processPayment(order);
 
-        // Wait up to 24 hours for approval
-        const gotApproval = await condition(() => approved !== undefined, '24h');
-        if (!gotApproval || !approved) {
-            return { status: 'rejected', reason: 'Approval timeout or denied' };
-        }
-    }
-
-    // Step 3: Process payment (with compensation)
-    const paymentResult = await processPayment(order);
+  try {
+    // Step 4: Reserve inventory
+    const reservation = await reserveInventory(order);
 
     try {
-        // Step 4: Reserve inventory
-        const reservation = await reserveInventory(order);
+      // Step 5: Create shipment
+      const shipment = await createShipment(order, reservation);
 
-        try {
-            // Step 5: Create shipment
-            const shipment = await createShipment(order, reservation);
+      // Step 6: Send confirmation
+      await sendConfirmation(order, shipment);
 
-            // Step 6: Send confirmation
-            await sendConfirmation(order, shipment);
-
-            return { status: 'completed', shipmentId: shipment.id };
-
-        } catch (shipmentError) {
-            // Compensate: release inventory
-            await releaseInventory(reservation.id);
-            throw shipmentError;
-        }
-    } catch (error) {
-        // Compensate: refund payment
-        await refundPayment(paymentResult.transactionId);
-        return { status: 'failed', reason: String(error) };
+      return { status: 'completed', shipmentId: shipment.id };
+    } catch (shipmentError) {
+      // Compensate: release inventory
+      await releaseInventory(reservation.id);
+      throw shipmentError;
     }
+  } catch (error) {
+    // Compensate: refund payment
+    await refundPayment(paymentResult.transactionId);
+    return { status: 'failed', reason: String(error) };
+  }
 }
 ```
 
@@ -145,39 +146,39 @@ export async function orderWorkflow(order: Order): Promise<OrderResult> {
 import { ApplicationFailure } from '@temporalio/activity';
 
 export async function validateOrder(order: Order): Promise<ValidationResult> {
-    const errors: string[] = [];
+  const errors: string[] = [];
 
-    if (!order.items?.length) errors.push('Order must have at least one item');
-    if (order.total <= 0) errors.push('Order total must be positive');
-    if (!order.shippingAddress) errors.push('Shipping address is required');
+  if (!order.items?.length) errors.push('Order must have at least one item');
+  if (order.total <= 0) errors.push('Order total must be positive');
+  if (!order.shippingAddress) errors.push('Shipping address is required');
 
-    return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors };
 }
 
 export async function processPayment(order: Order): Promise<PaymentResult> {
-    try {
-        const result = await paymentGateway.charge({
-            amount: order.total,
-            currency: order.currency,
-            customerId: order.customerId,
-        });
-        return { transactionId: result.id, status: 'charged' };
-    } catch (error) {
-        if (error.code === 'INSUFFICIENT_FUNDS') {
-            // Non-retryable error
-            throw ApplicationFailure.nonRetryable('Insufficient funds', 'InsufficientFundsError');
-        }
-        throw error; // Retryable
+  try {
+    const result = await paymentGateway.charge({
+      amount: order.total,
+      currency: order.currency,
+      customerId: order.customerId,
+    });
+    return { transactionId: result.id, status: 'charged' };
+  } catch (error) {
+    if (error.code === 'INSUFFICIENT_FUNDS') {
+      // Non-retryable error
+      throw ApplicationFailure.nonRetryable('Insufficient funds', 'InsufficientFundsError');
     }
+    throw error; // Retryable
+  }
 }
 
 export async function reserveInventory(order: Order): Promise<Reservation> {
-    // Idempotent: use order ID as reservation key
-    return await inventoryService.reserve({
-        reservationId: `res-${order.id}`,
-        items: order.items,
-        expiresIn: '30m',
-    });
+  // Idempotent: use order ID as reservation key
+  return await inventoryService.reserve({
+    reservationId: `res-${order.id}`,
+    items: order.items,
+    expiresIn: '30m',
+  });
 }
 ```
 
@@ -192,10 +193,10 @@ const client = new Client({ connection });
 
 // Start a workflow
 const handle = await client.workflow.start(orderWorkflow, {
-    taskQueue: 'order-processing',
-    workflowId: `order-${orderId}`,  // Idempotency key
-    args: [orderData],
-    workflowExecutionTimeout: '24h',
+  taskQueue: 'order-processing',
+  workflowId: `order-${orderId}`, // Idempotency key
+  args: [orderData],
+  workflowExecutionTimeout: '24h',
 });
 
 // Query workflow status
@@ -218,51 +219,51 @@ await handle.cancel();
 ```json
 // n8n workflow structure
 {
-    "name": "Customer Onboarding",
-    "nodes": [
-        {
-            "name": "Webhook Trigger",
-            "type": "n8n-nodes-base.webhook",
-            "parameters": {
-                "path": "new-customer",
-                "method": "POST"
-            }
-        },
-        {
-            "name": "Validate Data",
-            "type": "n8n-nodes-base.function",
-            "parameters": {
-                "functionCode": "const { name, email } = $input.all()[0].json;\nif (!name || !email) throw new Error('Missing fields');\nreturn $input.all();"
-            }
-        },
-        {
-            "name": "Create CRM Contact",
-            "type": "n8n-nodes-base.hubspot",
-            "parameters": {
-                "operation": "create",
-                "email": "={{ $json.email }}",
-                "firstname": "={{ $json.name.split(' ')[0] }}",
-                "lastname": "={{ $json.name.split(' ').slice(1).join(' ') }}"
-            }
-        },
-        {
-            "name": "Send Welcome Email",
-            "type": "n8n-nodes-base.sendGrid",
-            "parameters": {
-                "to": "={{ $json.email }}",
-                "templateId": "d-abc123",
-                "dynamicTemplateData": "={{ JSON.stringify({name: $json.name}) }}"
-            }
-        },
-        {
-            "name": "Add to Slack Channel",
-            "type": "n8n-nodes-base.slack",
-            "parameters": {
-                "channel": "#new-customers",
-                "text": "New customer: {{ $json.name }} ({{ $json.email }})"
-            }
-        }
-    ]
+  "name": "Customer Onboarding",
+  "nodes": [
+    {
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "new-customer",
+        "method": "POST"
+      }
+    },
+    {
+      "name": "Validate Data",
+      "type": "n8n-nodes-base.function",
+      "parameters": {
+        "functionCode": "const { name, email } = $input.all()[0].json;\nif (!name || !email) throw new Error('Missing fields');\nreturn $input.all();"
+      }
+    },
+    {
+      "name": "Create CRM Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "parameters": {
+        "operation": "create",
+        "email": "={{ $json.email }}",
+        "firstname": "={{ $json.name.split(' ')[0] }}",
+        "lastname": "={{ $json.name.split(' ').slice(1).join(' ') }}"
+      }
+    },
+    {
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "parameters": {
+        "to": "={{ $json.email }}",
+        "templateId": "d-abc123",
+        "dynamicTemplateData": "={{ JSON.stringify({name: $json.name}) }}"
+      }
+    },
+    {
+      "name": "Add to Slack Channel",
+      "type": "n8n-nodes-base.slack",
+      "parameters": {
+        "channel": "#new-customers",
+        "text": "New customer: {{ $json.name }} ({{ $json.email }})"
+      }
+    }
+  ]
 }
 ```
 
@@ -294,79 +295,79 @@ await handle.cancel();
 ```typescript
 // State machine for order processing
 type OrderState =
-    | 'created'
-    | 'validated'
-    | 'payment_pending'
-    | 'payment_confirmed'
-    | 'fulfilling'
-    | 'shipped'
-    | 'delivered'
-    | 'cancelled'
-    | 'refunded';
+  | 'created'
+  | 'validated'
+  | 'payment_pending'
+  | 'payment_confirmed'
+  | 'fulfilling'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'refunded';
 
 type OrderEvent =
-    | { type: 'VALIDATE'; data: ValidationData }
-    | { type: 'PAYMENT_RECEIVED'; transactionId: string }
-    | { type: 'PAYMENT_FAILED'; reason: string }
-    | { type: 'START_FULFILLMENT' }
-    | { type: 'SHIP'; trackingNumber: string }
-    | { type: 'DELIVER' }
-    | { type: 'CANCEL'; reason: string }
-    | { type: 'REFUND' };
+  | { type: 'VALIDATE'; data: ValidationData }
+  | { type: 'PAYMENT_RECEIVED'; transactionId: string }
+  | { type: 'PAYMENT_FAILED'; reason: string }
+  | { type: 'START_FULFILLMENT' }
+  | { type: 'SHIP'; trackingNumber: string }
+  | { type: 'DELIVER' }
+  | { type: 'CANCEL'; reason: string }
+  | { type: 'REFUND' };
 
 const orderStateMachine = {
-    created: {
-        VALIDATE: (ctx, event) => ({
-            state: event.data.valid ? 'validated' : 'cancelled',
-            actions: event.data.valid ? [] : [{ type: 'NOTIFY_INVALID' }],
-        }),
-        CANCEL: () => ({ state: 'cancelled' }),
-    },
-    validated: {
-        PAYMENT_RECEIVED: (ctx, event) => ({
-            state: 'payment_confirmed',
-            actions: [{ type: 'RECORD_PAYMENT', transactionId: event.transactionId }],
-        }),
-        PAYMENT_FAILED: () => ({
-            state: 'cancelled',
-            actions: [{ type: 'NOTIFY_PAYMENT_FAILED' }],
-        }),
-        CANCEL: () => ({ state: 'cancelled' }),
-    },
-    payment_confirmed: {
-        START_FULFILLMENT: () => ({
-            state: 'fulfilling',
-            actions: [{ type: 'RESERVE_INVENTORY' }],
-        }),
-        CANCEL: () => ({
-            state: 'refunded',
-            actions: [{ type: 'PROCESS_REFUND' }],
-        }),
-    },
-    fulfilling: {
-        SHIP: (ctx, event) => ({
-            state: 'shipped',
-            actions: [{ type: 'SEND_SHIPPING_NOTIFICATION', trackingNumber: event.trackingNumber }],
-        }),
-        CANCEL: () => ({
-            state: 'refunded',
-            actions: [{ type: 'RELEASE_INVENTORY' }, { type: 'PROCESS_REFUND' }],
-        }),
-    },
-    shipped: {
-        DELIVER: () => ({
-            state: 'delivered',
-            actions: [{ type: 'SEND_DELIVERY_CONFIRMATION' }],
-        }),
-    },
+  created: {
+    VALIDATE: (ctx, event) => ({
+      state: event.data.valid ? 'validated' : 'cancelled',
+      actions: event.data.valid ? [] : [{ type: 'NOTIFY_INVALID' }],
+    }),
+    CANCEL: () => ({ state: 'cancelled' }),
+  },
+  validated: {
+    PAYMENT_RECEIVED: (ctx, event) => ({
+      state: 'payment_confirmed',
+      actions: [{ type: 'RECORD_PAYMENT', transactionId: event.transactionId }],
+    }),
+    PAYMENT_FAILED: () => ({
+      state: 'cancelled',
+      actions: [{ type: 'NOTIFY_PAYMENT_FAILED' }],
+    }),
+    CANCEL: () => ({ state: 'cancelled' }),
+  },
+  payment_confirmed: {
+    START_FULFILLMENT: () => ({
+      state: 'fulfilling',
+      actions: [{ type: 'RESERVE_INVENTORY' }],
+    }),
+    CANCEL: () => ({
+      state: 'refunded',
+      actions: [{ type: 'PROCESS_REFUND' }],
+    }),
+  },
+  fulfilling: {
+    SHIP: (ctx, event) => ({
+      state: 'shipped',
+      actions: [{ type: 'SEND_SHIPPING_NOTIFICATION', trackingNumber: event.trackingNumber }],
+    }),
+    CANCEL: () => ({
+      state: 'refunded',
+      actions: [{ type: 'RELEASE_INVENTORY' }, { type: 'PROCESS_REFUND' }],
+    }),
+  },
+  shipped: {
+    DELIVER: () => ({
+      state: 'delivered',
+      actions: [{ type: 'SEND_DELIVERY_CONFIRMATION' }],
+    }),
+  },
 };
 
 function transition(currentState: OrderState, event: OrderEvent, context: any) {
-    const handler = orderStateMachine[currentState]?.[event.type];
-    if (!handler) {
-        throw new Error(`Invalid transition: ${currentState} + ${event.type}`);
-    }
-    return handler(context, event);
+  const handler = orderStateMachine[currentState]?.[event.type];
+  if (!handler) {
+    throw new Error(`Invalid transition: ${currentState} + ${event.type}`);
+  }
+  return handler(context, event);
 }
 ```
 
@@ -375,35 +376,35 @@ function transition(currentState: OrderState, event: OrderEvent, context: any) {
 ```typescript
 // Temporal: Wait for human decision with timeout
 export async function approvalWorkflow(request: ApprovalRequest): Promise<string> {
-    // Send notification to approver
-    await sendApprovalRequest(request);
+  // Send notification to approver
+  await sendApprovalRequest(request);
 
-    // Wait for signal
-    let decision: 'approved' | 'rejected' | undefined;
-    const approveSignal = defineSignal<['approved' | 'rejected', string]>('decide');
-    let comment = '';
+  // Wait for signal
+  let decision: 'approved' | 'rejected' | undefined;
+  const approveSignal = defineSignal<['approved' | 'rejected', string]>('decide');
+  let comment = '';
 
-    setHandler(approveSignal, (d, c) => {
-        decision = d;
-        comment = c;
-    });
+  setHandler(approveSignal, (d, c) => {
+    decision = d;
+    comment = c;
+  });
 
-    // Escalation: if no response in 4 hours, notify manager
-    const timer = sleep('4h').then(() => {
-        if (!decision) {
-            sendEscalation(request, request.managerEmail);
-        }
-    });
-
-    // Wait for decision or timeout
-    const responded = await condition(() => decision !== undefined, '24h');
-
-    if (!responded) {
-        return 'auto-rejected: no response within 24 hours';
+  // Escalation: if no response in 4 hours, notify manager
+  const timer = sleep('4h').then(() => {
+    if (!decision) {
+      sendEscalation(request, request.managerEmail);
     }
+  });
 
-    await recordDecision(request.id, decision, comment);
-    return `${decision}: ${comment}`;
+  // Wait for decision or timeout
+  const responded = await condition(() => decision !== undefined, '24h');
+
+  if (!responded) {
+    return 'auto-rejected: no response within 24 hours';
+  }
+
+  await recordDecision(request.id, decision, comment);
+  return `${decision}: ${comment}`;
 }
 ```
 
@@ -412,18 +413,19 @@ export async function approvalWorkflow(request: ApprovalRequest): Promise<string
 ```typescript
 // Temporal retry configuration
 const activities = proxyActivities({
-    startToCloseTimeout: '30s',
-    retry: {
-        initialInterval: '1s',          // First retry after 1s
-        backoffCoefficient: 2,           // Double delay each retry
-        maximumInterval: '1m',           // Cap delay at 1 minute
-        maximumAttempts: 5,              // Give up after 5 attempts
-        nonRetryableErrorTypes: [        // Don't retry these
-            'ValidationError',
-            'AuthenticationError',
-            'NotFoundError',
-        ],
-    },
+  startToCloseTimeout: '30s',
+  retry: {
+    initialInterval: '1s', // First retry after 1s
+    backoffCoefficient: 2, // Double delay each retry
+    maximumInterval: '1m', // Cap delay at 1 minute
+    maximumAttempts: 5, // Give up after 5 attempts
+    nonRetryableErrorTypes: [
+      // Don't retry these
+      'ValidationError',
+      'AuthenticationError',
+      'NotFoundError',
+    ],
+  },
 });
 ```
 
@@ -434,25 +436,25 @@ const activities = proxyActivities({
 import { patched } from '@temporalio/workflow';
 
 export async function orderWorkflow(order: Order): Promise<OrderResult> {
-    await validateOrder(order);
-    await processPayment(order);
+  await validateOrder(order);
+  await processPayment(order);
 
-    // Version gate: add new step without breaking running workflows
-    if (patched('add-fraud-check')) {
-        await checkFraud(order);
-    }
+  // Version gate: add new step without breaking running workflows
+  if (patched('add-fraud-check')) {
+    await checkFraud(order);
+  }
 
-    await reserveInventory(order);
-    await createShipment(order);
+  await reserveInventory(order);
+  await createShipment(order);
 
-    // Another version: change notification method
-    if (patched('use-new-notification-system')) {
-        await sendNotificationV2(order);
-    } else {
-        await sendConfirmation(order);
-    }
+  // Another version: change notification method
+  if (patched('use-new-notification-system')) {
+    await sendNotificationV2(order);
+  } else {
+    await sendConfirmation(order);
+  }
 
-    return { status: 'completed' };
+  return { status: 'completed' };
 }
 ```
 
@@ -488,6 +490,7 @@ Alerting Rules:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing workflow designer solutions
 - Reviewing or improving existing workflow designer approaches
 - Making architectural or implementation decisions about workflow designer
@@ -495,6 +498,7 @@ Alerting Rules:
 - Troubleshooting workflow designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -505,21 +509,26 @@ Alerting Rules:
 # Workflow Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -28,28 +28,39 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-proof, convert-three-locks, convert-above-fold, convert-scroll-rhythm, convert-mobile, convert-sales-page]
+    related_skills:
+      [
+        convert,
+        convert-proof,
+        convert-three-locks,
+        convert-above-fold,
+        convert-scroll-rhythm,
+        convert-mobile,
+        convert-sales-page,
+      ]
 attribution:
   lineage: "The Donahoe Method - Conversational Proof + 5 proof types (Wayland-owned operating system); Cialdini's social-proof principle (Influence, 1984/2021); Aristotle's three rhetorical appeals (ethos / pathos / logos, c. 350 BCE) for the proof-type hierarchy"
 ---
 
 # Convert Proof-Stack - Visual Stacking of the 5 Donahoe Proof Types
 
-> *"Proof in Donahoe copy never announces itself. It doesn't feel like 'evidence.' It feels like conversation."* - The Donahoe Method, Framework 2
+> _"Proof in Donahoe copy never announces itself. It doesn't feel like 'evidence.' It feels like conversation."_ - The Donahoe Method, Framework 2
 
-This skill takes the 5 Donahoe proof types - Anecdote / Receipt / Drive-By / Namecheck / Because - and engineers their visual rendering across the page. Every proof block is mapped to a layout pattern that preserves the Method's *conversational* feel while exploiting visual hierarchy to maximize believability.
+This skill takes the 5 Donahoe proof types - Anecdote / Receipt / Drive-By / Namecheck / Because - and engineers their visual rendering across the page. Every proof block is mapped to a layout pattern that preserves the Method's _conversational_ feel while exploiting visual hierarchy to maximize believability.
 
 ## When to Use
 
 Trigger phrases: "proof stack", "testimonial layout", "social proof design", "logo bar", "video testimonial", "case study card", "donahoe proof stack", "visual proof", "trust signals", `/convert proof-stack <product>`.
 
 Use when:
+
 - Designing the visual proof zones of a long-form sales page or VSL page (Sections 7 + 9 in `convert-scroll-rhythm`'s skeleton)
 - Translating the output of `/convert proof` (which writes the proof copy) into specific layout patterns
 - Adding a logo bar, testimonial grid, video testimonial block, or case-study card section
 - Diagnosing why an existing proof zone reads as "marketing" instead of "conversation"
 
 Do NOT use for:
+
 - Writing testimonial copy from scratch - use `/convert proof` (this skill renders that output)
 - Generating fake testimonials - Wayland never fabricates proof; if no proof exists, omit the block
 - Auditing an existing live page's proof section - use `/market landing <url>`
@@ -59,27 +70,27 @@ Do NOT use for:
 
 Proof in Donahoe copy is woven throughout, not isolated to a "proof section." Five types, used in priority order:
 
-| # | Type | What it looks like | Visual pattern |
-|---|------|--------------------|-----------------|
-| 1 | **The Anecdote** | "Here's what happened when..." - story-form proof | Quote card with photo, name, location, specific result |
-| 2 | **The Receipt** | Numbers, dates, exact amounts ("$14,327 in 11 days") | Numerical proof block with the number large + context line |
-| 3 | **The Drive-By** | Credentials mentioned in passing | Inline byline / "About me" sliver / passing footnote |
-| 4 | **The Namecheck** | "A guy named Mike sent me an email..." | Conversational quote (no formal testimonial block) inline with body copy |
-| 5 | **The Because** | "The reason this works is..." - logical mechanism | Mechanism diagram or sub-headed explainer with simple iconography |
+| #   | Type              | What it looks like                                   | Visual pattern                                                           |
+| --- | ----------------- | ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1   | **The Anecdote**  | "Here's what happened when..." - story-form proof    | Quote card with photo, name, location, specific result                   |
+| 2   | **The Receipt**   | Numbers, dates, exact amounts ("$14,327 in 11 days") | Numerical proof block with the number large + context line               |
+| 3   | **The Drive-By**  | Credentials mentioned in passing                     | Inline byline / "About me" sliver / passing footnote                     |
+| 4   | **The Namecheck** | "A guy named Mike sent me an email..."               | Conversational quote (no formal testimonial block) inline with body copy |
+| 5   | **The Because**   | "The reason this works is..." - logical mechanism    | Mechanism diagram or sub-headed explainer with simple iconography        |
 
 Each type wants a different visual treatment. A logo bar of recognizable companies is a Receipt + Authority hybrid. A case study card with before/after numbers is an Anecdote + Receipt fusion. The patterns below map proof type → layout.
 
 ## Temperature-based decision rule: Conversational vs Blocked Proof
 
-The Method's Conversational Proof rule says proof should never *announce itself* - it should feel like the rest of the body copy with subtle attribution. But high-temperature audiences (Hot, Boiling) on commerce surfaces (e-commerce product pages, OTOs, post-purchase cross-sells) actually expect blocked testimonials and treat their absence as a missing trust signal. The Method bends, slightly, on those surfaces.
+The Method's Conversational Proof rule says proof should never _announce itself_ - it should feel like the rest of the body copy with subtle attribution. But high-temperature audiences (Hot, Boiling) on commerce surfaces (e-commerce product pages, OTOs, post-purchase cross-sells) actually expect blocked testimonials and treat their absence as a missing trust signal. The Method bends, slightly, on those surfaces.
 
-| Temperature | Default proof framing | Notes |
-|-------------|------------------------|-------|
-| Ice Cold | **Conversational always** | Blocked testimonials trigger "this is marketing" defenses; conversational proof slips past them |
-| Cool | **Conversational always** | Same. Pull-quote inline, attribution as inline figcaption, no card framing |
-| Warm | **Conversational by default; blocked sparingly** | One blocked testimonial card near the CTA stack is fine; more than that drifts into brochure-territory |
-| Hot | **Blocked OK** | They're already comparing offers; blocked testimonials read as expected proof furniture |
-| Boiling | **Blocked OK / expected** | Post-purchase / e-commerce surfaces expect testimonial blocks |
+| Temperature | Default proof framing                            | Notes                                                                                                  |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Ice Cold    | **Conversational always**                        | Blocked testimonials trigger "this is marketing" defenses; conversational proof slips past them        |
+| Cool        | **Conversational always**                        | Same. Pull-quote inline, attribution as inline figcaption, no card framing                             |
+| Warm        | **Conversational by default; blocked sparingly** | One blocked testimonial card near the CTA stack is fine; more than that drifts into brochure-territory |
+| Hot         | **Blocked OK**                                   | They're already comparing offers; blocked testimonials read as expected proof furniture                |
+| Boiling     | **Blocked OK / expected**                        | Post-purchase / e-commerce surfaces expect testimonial blocks                                          |
 
 **Implementation in the page-builder HTML/CSS:**
 
@@ -111,6 +122,7 @@ Source: direct-response canon + Cialdini social proof (1984/2021) + folklore-lea
 ```
 
 Rules:
+
 - Poster image shows the person's face - never a logo or product screenshot
 - Play on tap; no autoplay (mobile-bandwidth hostile)
 - Caption with name + title + company under the video
@@ -136,8 +148,9 @@ Rules:
 ```
 
 Rules:
+
 - Photo is a real headshot (square, 64-96px); no stock, no avatar generator
-- Name + title + company present (anonymized testimonials *hurt* conversion vs no testimonial)
+- Name + title + company present (anonymized testimonials _hurt_ conversion vs no testimonial)
 - Quote includes a specific number, date, or before/after
 - Star row optional but benign; never replaces the quote
 
@@ -153,6 +166,7 @@ Rules:
 ```
 
 Rules:
+
 - Logos are real and recognizable to the target reader
 - Grayscale or 50-70% opacity (low-key visual presence)
 - 3-7 logos; more than 7 = vanity, fewer than 3 = thin
@@ -173,8 +187,9 @@ Rules:
 ```
 
 Rules:
+
 - 3-4 numbers max - more reads as desperate
-- Numbers are *specific, not rounded* ("1,847" beats "1,800+" beats "thousands")
+- Numbers are _specific, not rounded_ ("1,847" beats "1,800+" beats "thousands")
 - Each number gets a one-line context label
 - Numbers live in a row on desktop, stacked column on mobile
 - Numbers are real and verifiable
@@ -202,6 +217,7 @@ Rules:
 ```
 
 Rules:
+
 - Headline names the person + role + location ("Mike, plumber, Ohio")
 - Two-column before/after with specific numbers
 - Quote in voice (Donahoe Voice Rules - first person, contractions, no marketing-speak)
@@ -220,6 +236,7 @@ Rules:
 ```
 
 Rules:
+
 - Real badges only with link to source
 - Live counts preferred over static numbers
 - 1-2 badges; rotating "G2 Leader Spring 2025" type seals add authority halo
@@ -237,6 +254,7 @@ Rules:
 ```
 
 Rules:
+
 - Real coverage only - link out to the article when possible
 - Outlets recognizable to the target reader (Forbes for B2C, TechCrunch for tech, etc.)
 - 3-5 outlets; row format
@@ -257,11 +275,13 @@ Rules:
 ## Inputs
 
 Required:
+
 1. **Asset type** - sales page / VSL / squeeze / OTO / lead-magnet (changes proof zone size)
 2. **Real proof inventory** - what proof exists and is shippable? Customer names, photos, quotes, specific results, logos, numbers, press mentions, case studies. Wayland never invents.
 3. **Method skill output** - output of `/convert proof` (the actual proof copy) is the source content this skill renders
 
 Optional:
+
 - **Visual brand constraints** - colors, photo style, typography
 - **Existing proof zone** - for redesign / compression
 - **Audience temperature** (Ice Cold / Cool / Warm / Hot / Boiling) - informs proof stack density
@@ -269,41 +289,42 @@ Optional:
 
 ## Stack Composition Rules
 
-Proof is woven through, not concentrated. The skill emits a *full-page proof map*, not just one block.
+Proof is woven through, not concentrated. The skill emits a _full-page proof map_, not just one block.
 
 ### Composition by zone (from `convert-scroll-rhythm`)
 
-| Scroll zone | Proof types | Patterns | Density |
-|-------------|-------------|----------|---------|
-| Hero (Want) | Trust strip | Compressed numerical + logo (3-4 items) + 1 star rating | Tight |
-| Open body (Want) | Drive-By | Inline credential mentioned in passing | One pass |
-| Pain agitate (Want) | Anecdote (yours) | Inline first-person micro-story | 1-2 sentences |
-| Mechanism (Trust) | Because | Mechanism diagram or sub-headed explainer | Visual |
-| Proof Block 1 (Trust) | Anecdote + Receipt | Pattern 2 (text testimonial + photo + result) ×2-3 | Card grid |
-| Bullets (Trust) | Snapshot bullets (output of `convert-bullets`) | Inline; no new visual | Mixed inline |
-| Proof Block 2 (Trust) | Case Study | Pattern 5 (before/after card) ×1-2 | Wide card |
-| Stack close (Excuse) | Receipt | Pattern 4 (numerical proof block) | Row |
-| Math close (Excuse) | Because | Mechanism / value-math callout | Highlighted box |
-| Safety Net (Excuse) | Receipt + Anecdote | Money-back guarantee + redemption story | Card |
-| FAQ (Excuse) | Namecheck | "A guy named Mike asked me..." inline within answer | Conversational |
+| Scroll zone           | Proof types                                    | Patterns                                                | Density         |
+| --------------------- | ---------------------------------------------- | ------------------------------------------------------- | --------------- |
+| Hero (Want)           | Trust strip                                    | Compressed numerical + logo (3-4 items) + 1 star rating | Tight           |
+| Open body (Want)      | Drive-By                                       | Inline credential mentioned in passing                  | One pass        |
+| Pain agitate (Want)   | Anecdote (yours)                               | Inline first-person micro-story                         | 1-2 sentences   |
+| Mechanism (Trust)     | Because                                        | Mechanism diagram or sub-headed explainer               | Visual          |
+| Proof Block 1 (Trust) | Anecdote + Receipt                             | Pattern 2 (text testimonial + photo + result) ×2-3      | Card grid       |
+| Bullets (Trust)       | Snapshot bullets (output of `convert-bullets`) | Inline; no new visual                                   | Mixed inline    |
+| Proof Block 2 (Trust) | Case Study                                     | Pattern 5 (before/after card) ×1-2                      | Wide card       |
+| Stack close (Excuse)  | Receipt                                        | Pattern 4 (numerical proof block)                       | Row             |
+| Math close (Excuse)   | Because                                        | Mechanism / value-math callout                          | Highlighted box |
+| Safety Net (Excuse)   | Receipt + Anecdote                             | Money-back guarantee + redemption story                 | Card            |
+| FAQ (Excuse)          | Namecheck                                      | "A guy named Mike asked me..." inline within answer     | Conversational  |
 
 Each zone gets its proof. The page never feels like one big "PROOF" chunk; it feels like proof keeps showing up.
 
 ### Composition by temperature
 
-| Temperature | Total proof items | Pattern emphasis |
-|-------------|--------------------|------------------|
-| Ice Cold | 8-12 | Anecdote (their pain) + Because (mechanism) heavy |
-| Cool | 6-10 | Anecdote + Receipt mix |
-| Warm | 5-8 | Receipt + Case Study heavy (differentiation) |
-| Hot | 4-6 | Numerical proof + Safety Net heavy (commitment) |
-| Boiling | 2-4 | Final reminder + redemption story only |
+| Temperature | Total proof items | Pattern emphasis                                  |
+| ----------- | ----------------- | ------------------------------------------------- |
+| Ice Cold    | 8-12              | Anecdote (their pain) + Because (mechanism) heavy |
+| Cool        | 6-10              | Anecdote + Receipt mix                            |
+| Warm        | 5-8               | Receipt + Case Study heavy (differentiation)      |
+| Hot         | 4-6               | Numerical proof + Safety Net heavy (commitment)   |
+| Boiling     | 2-4               | Final reminder + redemption story only            |
 
 ## Proof Rhythm (claim → proof → claim → proof)
 
 The Method's proof rhythm: every major claim gets at least one layer of proof within 2-3 sentences. Visually, this means the proof patterns above are not just in dedicated proof blocks - they are sprinkled inline through the body copy.
 
 Visual implementation:
+
 - **Inline pull-quotes** - pulled-out lines of text from a testimonial, set in larger type / colored, breaking the body copy column
 - **Inline result chips** - small inline badges ("$47K in 90 days") placed beside a claim
 - **Inline photo + caption** - small photo (32-48px) placed in margin or inline-flow with the body, captioning a Namecheck
@@ -314,7 +335,7 @@ These keep proof density high without creating "proof sections" that feel market
 
 ### Step 1 - Inventory the real proof
 
-Ask the user: *"What real proof do you have?"* Map their answers to the 5 proof types and the 7 patterns. If a category is empty, mark it; never invent to fill it. Common categories:
+Ask the user: _"What real proof do you have?"_ Map their answers to the 5 proof types and the 7 patterns. If a category is empty, mark it; never invent to fill it. Common categories:
 
 - Customer testimonials (text + photo + named) - count, quality, specificity
 - Video testimonials - count, length, faced/named
@@ -336,6 +357,7 @@ For each proof block, emit a wireframe + the specific copy (pulled from `/conver
 ### Step 4 - Mobile compression check
 
 For every pattern, define the mobile rendering:
+
 - Pattern 1 (video): 9:16 if vertical, full-width 16:9 if horizontal
 - Pattern 2 (text + photo): single column, photo above quote OR small inline
 - Pattern 3 (logo bar): wraps to 2-3 rows
@@ -347,6 +369,7 @@ For every pattern, define the mobile rendering:
 ### Step 5 - Anti-pattern audit
 
 Pass the proof stack through the anti-pattern filter:
+
 - Any anonymous testimonials? Remove or chase the real attribution.
 - Any invented logos / press? Remove.
 - Any rounded "thousands of customers" numbers? Replace with exact count or remove.
@@ -356,7 +379,7 @@ Pass the proof stack through the anti-pattern filter:
 
 ## Output Template
 
-```markdown
+````markdown
 # Proof Stack: <Product>
 
 **Asset:** <type>
@@ -365,24 +388,24 @@ Pass the proof stack through the anti-pattern filter:
 
 ## Inventory mapping (5 proof types → real items)
 
-| Type | Real items available | Used in zones |
-|------|----------------------|----------------|
-| Anecdote | <list> | Pain / Proof Block 1 / FAQ |
-| Receipt | <list of numbers, amounts> | Hero trust strip / Proof Block 1 / Stack close |
-| Drive-By | <credentials> | Open body / Founder anchor |
-| Namecheck | <quoted conversational refs> | Body / FAQ |
-| Because | <mechanism explanations> | Mechanism / Math close |
+| Type      | Real items available         | Used in zones                                  |
+| --------- | ---------------------------- | ---------------------------------------------- |
+| Anecdote  | <list>                       | Pain / Proof Block 1 / FAQ                     |
+| Receipt   | <list of numbers, amounts>   | Hero trust strip / Proof Block 1 / Stack close |
+| Drive-By  | <credentials>                | Open body / Founder anchor                     |
+| Namecheck | <quoted conversational refs> | Body / FAQ                                     |
+| Because   | <mechanism explanations>     | Mechanism / Math close                         |
 
 ## Page-level proof map
 
-| # | Section | Pattern | Proof type | Specific item |
-|---|---------|---------|------------|----------------|
-| 1 | Hero trust strip | Pattern 3 (compressed) | Receipt + logo | ⭐ 4.9 / 312 + 3 logos |
-| ... | ... | ... | ... | ... |
-| 7 | Proof Block 1 | Pattern 2 ×3 | Anecdote + Receipt | Mike (Cleveland), Sarah (Phoenix), Dan (Austin) |
-| 9 | Proof Block 2 | Pattern 5 ×1 | Case Study | Mike - full before/after |
-| 13 | Math close | numerical callout | Receipt + Because | $1.27/day vs $200/mo SaaS |
-| 14 | Safety Net | redemption story | Anecdote | "Three guys returned in year one - here's what happened" |
+| #   | Section          | Pattern                | Proof type         | Specific item                                            |
+| --- | ---------------- | ---------------------- | ------------------ | -------------------------------------------------------- |
+| 1   | Hero trust strip | Pattern 3 (compressed) | Receipt + logo     | ⭐ 4.9 / 312 + 3 logos                                   |
+| ... | ...              | ...                    | ...                | ...                                                      |
+| 7   | Proof Block 1    | Pattern 2 ×3           | Anecdote + Receipt | Mike (Cleveland), Sarah (Phoenix), Dan (Austin)          |
+| 9   | Proof Block 2    | Pattern 5 ×1           | Case Study         | Mike - full before/after                                 |
+| 13  | Math close       | numerical callout      | Receipt + Because  | $1.27/day vs $200/mo SaaS                                |
+| 14  | Safety Net       | redemption story       | Anecdote           | "Three guys returned in year one - here's what happened" |
 
 ## Pattern specs (one block each - example: Pattern 2)
 
@@ -395,6 +418,7 @@ Pass the proof stack through the anti-pattern filter:
 [wireframe - single column, photo above quote]
 
 **Copy:**
+
 - Quote: "<exact quote, voice-checked>"
 - Star row: ⭐⭐⭐⭐⭐
 - Photo: <filename / source>
@@ -403,6 +427,7 @@ Pass the proof stack through the anti-pattern filter:
 - Result chip: "<specific number>"
 
 **HTML/CSS:**
+
 ```html
 <figure class="testimonial">
   <div class="testimonial__stars">★★★★★</div>
@@ -410,7 +435,7 @@ Pass the proof stack through the anti-pattern filter:
     "Quote text with specific nerve hit and outcome - 3-5 sentences of voice."
   </blockquote>
   <figcaption class="testimonial__attribution">
-    <img class="testimonial__photo" src="mike.jpg" alt="Mike R., Cleveland">
+    <img class="testimonial__photo" src="mike.jpg" alt="Mike R., Cleveland" />
     <div>
       <div class="testimonial__name">Mike R.</div>
       <div class="testimonial__title">Plumber, Cleveland Ohio</div>
@@ -422,36 +447,65 @@ Pass the proof stack through the anti-pattern filter:
 <style>
   .testimonial {
     background: #fff;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 16px;
     padding: 28px;
     margin: 0;
     max-width: 560px;
   }
-  .testimonial__stars { color: #f5a623; font-size: 14px; letter-spacing: 2px; }
+  .testimonial__stars {
+    color: #f5a623;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
   .testimonial__quote {
-    font-size: 18px; line-height: 1.55; margin: 16px 0 24px;
-    border: 0; padding: 0; quotes: '"' '"';
+    font-size: 18px;
+    line-height: 1.55;
+    margin: 16px 0 24px;
+    border: 0;
+    padding: 0;
+    quotes: '"' '"';
   }
   .testimonial__attribution {
-    display: flex; align-items: center; gap: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
   .testimonial__photo {
-    width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
   }
-  .testimonial__name { font-weight: 700; font-size: 15px; }
-  .testimonial__title { font-size: 14px; opacity: 0.7; }
+  .testimonial__name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .testimonial__title {
+    font-size: 14px;
+    opacity: 0.7;
+  }
   .testimonial__result {
-    margin-top: 4px; display: inline-block;
-    background: rgba(34,197,94,0.12); color: #15803d;
-    font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
   }
   @media (max-width: 600px) {
-    .testimonial { padding: 20px; }
-    .testimonial__quote { font-size: 17px; }
+    .testimonial {
+      padding: 20px;
+    }
+    .testimonial__quote {
+      font-size: 17px;
+    }
   }
 </style>
 ```
+````
 
 ### Pattern 4 - Numerical Proof Block (Section 11 / Stack close)
 
@@ -479,6 +533,7 @@ Pass the proof stack through the anti-pattern filter:
 3. Pair with `/convert scroll-rhythm` - proof rhythm follows the zone allocations.
 4. Pair with `/convert mobile` - every pattern's mobile compression is specced above.
 5. Run `/convert audit` once the page is assembled - proof rhythm scoring lives there.
+
 ```
 
 ## Pitfalls
@@ -509,3 +564,4 @@ Pass the proof stack through the anti-pattern filter:
 - Mobile rendering is non-optional. Specify it for every pattern.
 - This skill is downstream of `/convert proof` (which writes the actual proof copy) and upstream of `/convert sales-page` (which uses this map as the proof zone). It composes with `/convert scroll-rhythm` for placement and `/convert mobile` for compression.
 - Real beats designed. Real beats polished. Real beats abundant. One real, specific, named, faced testimonial converts better than ten polished anonymous ones.
+```

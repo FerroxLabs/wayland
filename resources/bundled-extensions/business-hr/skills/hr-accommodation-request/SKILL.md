@@ -2,9 +2,9 @@
 name: hr-accommodation-request
 description: Document the ADA / PWFA / religious accommodation interactive process - request intake, undue-hardship analysis framework, response letter (grant / alternative / deny), and appeal process. Templates only - not employment-law advice.
 slash_command: false
-argument-hint: "<accommodation type - medical, pregnancy, religious - and request>"
+argument-hint: '<accommodation type - medical, pregnancy, religious - and request>'
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [ada, accommodation, hr, people-ops, smb]
@@ -14,7 +14,7 @@ metadata:
 
 # HR - Accommodation Request (Interactive Process)
 
-Document the legally-required interactive process for medical (ADA), pregnancy (PWFA), or religious (Title VII / *Groff v. DeJoy*) accommodation requests.
+Document the legally-required interactive process for medical (ADA), pregnancy (PWFA), or religious (Title VII / _Groff v. DeJoy_) accommodation requests.
 
 ## Pre-flight (REQUIRED)
 
@@ -27,12 +27,12 @@ Document the legally-required interactive process for medical (ADA), pregnancy (
 
 ## Statute snapshot
 
-| Statute | Coverage | Trigger | Standard |
-|---------|----------|---------|----------|
-| **ADA (1990)** + state | 15+ EE federal; lower in many states | Qualified individual with disability requests accommodation | "Reasonable accommodation" unless "undue hardship" (significant difficulty or expense) |
-| **PWFA (June 2023)** | 15+ EE | Pregnancy, childbirth, related medical conditions | Reasonable accommodation; cannot require leave if other accommodation works |
-| **Title VII religious** + state | 15+ EE | Sincerely held religious belief | Post-*Groff v. DeJoy* (2023): "substantial increased costs in relation to the conduct of the business" - replaces old "de minimis" |
-| **State equivalents** | Varies (CA FEHA, NY HRL, IL HRA, NJ LAD, MA c. 151B, etc.) | Often lower headcount thresholds and broader definitions |
+| Statute                         | Coverage                                                   | Trigger                                                     | Standard                                                                                                                           |
+| ------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **ADA (1990)** + state          | 15+ EE federal; lower in many states                       | Qualified individual with disability requests accommodation | "Reasonable accommodation" unless "undue hardship" (significant difficulty or expense)                                             |
+| **PWFA (June 2023)**            | 15+ EE                                                     | Pregnancy, childbirth, related medical conditions           | Reasonable accommodation; cannot require leave if other accommodation works                                                        |
+| **Title VII religious** + state | 15+ EE                                                     | Sincerely held religious belief                             | Post-_Groff v. DeJoy_ (2023): "substantial increased costs in relation to the conduct of the business" - replaces old "de minimis" |
+| **State equivalents**           | Varies (CA FEHA, NY HRL, IL HRA, NJ LAD, MA c. 151B, etc.) | Often lower headcount thresholds and broader definitions    |
 
 ## The interactive process - required steps
 
@@ -49,20 +49,25 @@ Document the legally-required interactive process for medical (ADA), pregnancy (
 
 ```markdown
 ## Accommodation Request - Interactive Process Record
+
 **Employee:** [Name] | **Role:** [Title] | **State:** [State] | **Date Request Received:** [Date]
 **Type:** [ADA medical / PWFA pregnancy / Title VII religious]
 **HR Owner:** [Name]
 
 ### 1. Initial Request
+
 - Date received: [Date]
 - How received: [verbal in 1:1 / email / formal HR submission]
 - Verbatim or summary: "[Employee's request as stated]"
 
 ### 2. Acknowledgment
+
 - Acknowledgment letter sent: [Date - within 1-2 business days]
 
 ### 3. Essential Functions Review
+
 Pull from current job description:
+
 - [Essential function 1]
 - [Essential function 2]
 - [Essential function 3]
@@ -70,29 +75,30 @@ Pull from current job description:
 Affected by limitation: [which essential functions are impacted by the disability/condition/belief]
 
 ### 4. Limitations / Need for Accommodation
+
 - Employee's stated limitation: [As described - DO NOT speculate about diagnosis]
 - Documentation requested: [If ADA - limited scope: confirm disability + need + functional limitations + duration. NEVER request full medical records or specific diagnosis.]
 - Documentation received: [Date, source - provider name not employee diagnosis]
 
 ### 5. Possible Accommodations (Generated Together)
 
-| Option | Description | Cost / Difficulty | Effect on essential functions | Source |
-|--------|-------------|-------------------|-------------------------------|--------|
-| [Employee-proposed] | [Description] | [Estimate] | [Effect] | Employee |
-| [Alternative 1] | [Description] | [Estimate] | [Effect] | HR / askjan.org |
-| [Alternative 2] | [Description] | [Estimate] | [Effect] | Manager |
+| Option              | Description   | Cost / Difficulty | Effect on essential functions | Source          |
+| ------------------- | ------------- | ----------------- | ----------------------------- | --------------- |
+| [Employee-proposed] | [Description] | [Estimate]        | [Effect]                      | Employee        |
+| [Alternative 1]     | [Description] | [Estimate]        | [Effect]                      | HR / askjan.org |
+| [Alternative 2]     | [Description] | [Estimate]        | [Effect]                      | Manager         |
 
 ### 6. Undue-Hardship Analysis (if denial considered)
 
-| Factor | Assessment |
-|--------|-----------|
-| Cost | [$X - net of tax credits, vendor accommodations] |
-| Resources of employer | [Headcount, budget, ability to absorb] |
-| Type of operation | [Nature of work, structure] |
-| Impact on operations | [Specific operational disruption] |
-| Impact on co-workers | [Note: co-worker preference is NOT undue hardship] |
-| Alternatives considered | [List] |
-| Pre-Groff vs post-Groff (religious only) | [Substantial increased costs - not de minimis] |
+| Factor                                   | Assessment                                         |
+| ---------------------------------------- | -------------------------------------------------- |
+| Cost                                     | [$X - net of tax credits, vendor accommodations]   |
+| Resources of employer                    | [Headcount, budget, ability to absorb]             |
+| Type of operation                        | [Nature of work, structure]                        |
+| Impact on operations                     | [Specific operational disruption]                  |
+| Impact on co-workers                     | [Note: co-worker preference is NOT undue hardship] |
+| Alternatives considered                  | [List]                                             |
+| Pre-Groff vs post-Groff (religious only) | [Substantial increased costs - not de minimis]     |
 
 **Undue hardship conclusion**: [Yes / No - with specific reasoning]
 
@@ -124,8 +130,8 @@ If the employee disagrees with the disposition, they may appeal to [HR lead / ne
 
 ### 12. Signatures
 
-HR: __________________________ Date: __________
-Employee acknowledgment: ___________________ Date: __________
+HR: ************\_\_************ Date: ****\_\_****
+Employee acknowledgment: ********\_\_\_******** Date: ****\_\_****
 (Acknowledgment of receipt; not agreement)
 ```
 
@@ -200,7 +206,7 @@ days] of this letter. Retaliation for requesting accommodation is prohibited.
 - **Treating the employee's preferred accommodation as the only option** - alternatives are part of the dialogue
 - **Discussing the request in front of co-workers** - confidentiality required
 - **Considering accommodation in performance review** - separate processes
-- **Pre-*Groff* "de minimis"** for religious accommodation - overruled in 2023; standard is now "substantial increased costs"
+- **Pre-_Groff_ "de minimis"** for religious accommodation - overruled in 2023; standard is now "substantial increased costs"
 - **PWFA: requiring leave when another accommodation works** - PWFA explicitly prohibits this
 
 ## Output Path

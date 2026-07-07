@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tutoring teaching step-by-step research"
-  category: "education"
-  subcategory: "tutoring"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tutoring teaching step-by-step research'
+  category: 'education'
+  subcategory: 'tutoring'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # History Analysis
 
 ## When to Use
@@ -48,6 +49,7 @@ Use this skill when a student needs guided historical thinking development -- no
 This skill NEVER delivers historical answers as lectures. Every step is structured around guided discovery. The student must do the intellectual work. The AI's role is to create the conditions for that work through precise, well-sequenced questions.
 
 The core loop:
+
 1. Assess what the student already knows
 2. Identify the specific gap between current and target understanding
 3. Ask ONE leading question targeted at that gap
@@ -254,7 +256,7 @@ Archive silence identified: [Which group's perspective is missing from the histo
 ### Student Summary (In Their Own Words)
 "[Student's final summary of the historical question -- quoted directly from the session]"
 
-**Accuracy Assessment:** [Accurate / Partially accurate -- note specific gaps] 
+**Accuracy Assessment:** [Accurate / Partially accurate -- note specific gaps]
 
 ---
 
@@ -322,6 +324,7 @@ Archive silence identified: [Which group's perspective is missing from the histo
 ## Edge Cases
 
 ### The Student Has Memorized Facts but Cannot Analyze Them
+
 This is common among students who have studied for multiple-choice exams and are now facing essay-based assessments. They can recite dates, names, and events but cannot explain causation or significance.
 
 Diagnosis signal: The student answers context questions with lists of facts but cannot connect them ("There was the Treaty of Versailles, and Hitler rose to power, and Germany was suffering") without explaining the causal chain.
@@ -442,14 +445,14 @@ Tutor: "Now you're making a sophisticated argument that distinguishes structural
 
 **Causation Summary:**
 
-| Cause Type | Identified Cause | Domain (PERSIAN) |
-|------------|------------------|-----------------|
-| Long-term structural | Nationalist fragmentation of multi-ethnic empires (esp. Austria-Hungary) | Political / Social |
-| Long-term structural | European alliance system creating escalation chains | Political |
-| Long-term structural | Imperial rivalry among Great Powers over colonial territories | Political / Economic |
-| Medium-term | Military buildup and arms race (Anglo-German naval rivalry, Franco-German land forces) | Political / Military |
-| Medium-term | Schlieffen Plan creating automated mobilization trigger | Military / Political |
-| Immediate trigger | Assassination of Archduke Franz Ferdinand in Sarajevo, June 28, 1914 | Political |
+| Cause Type           | Identified Cause                                                                       | Domain (PERSIAN)     |
+| -------------------- | -------------------------------------------------------------------------------------- | -------------------- |
+| Long-term structural | Nationalist fragmentation of multi-ethnic empires (esp. Austria-Hungary)               | Political / Social   |
+| Long-term structural | European alliance system creating escalation chains                                    | Political            |
+| Long-term structural | Imperial rivalry among Great Powers over colonial territories                          | Political / Economic |
+| Medium-term          | Military buildup and arms race (Anglo-German naval rivalry, Franco-German land forces) | Political / Military |
+| Medium-term          | Schlieffen Plan creating automated mobilization trigger                                | Military / Political |
+| Immediate trigger    | Assassination of Archduke Franz Ferdinand in Sarajevo, June 28, 1914                   | Political            |
 
 ---
 
@@ -457,13 +460,13 @@ Tutor: "Now you're making a sophisticated argument that distinguishes structural
 
 **Source Under Analysis:** Kaiser Wilhelm II's "Blank Check" telegram to Austria-Hungary, July 5, 1914 (paraphrase: Germany offers Austria-Hungary unconditional support for action against Serbia)
 
-| HAPP-C Dimension | Student's Analysis | Tutor Guidance Given |
-|------------------|--------------------|---------------------|
-| Historical Context | "Written right after the assassination, when everyone was deciding what to do" | "Can you be more specific -- what was the diplomatic window? Austria-Hungary was deciding whether to issue an ultimatum to Serbia. Germany's decision here would determine whether Austria-Hungary felt safe going to war." |
-| Audience | "It was sent to Austria-Hungary's leaders privately" | "Does the private nature of the communication change how you read it? Would Wilhelm have written differently if he knew France and Britain would read it?" |
-| Purpose | "To encourage Austria-Hungary to act aggressively against Serbia" | Confirmed. Tutor added: "And what does that tell us about Germany's war aims and willingness to risk escalation?" |
-| Point of View | "Germany wants to support its ally and maybe weaken Russia's influence in the Balkans before Russia becomes too strong" | "Excellent. That's sophisticated -- you've identified both the alliance loyalty motive and the strategic window Germany saw." |
-| Corroboration | "It fits with other evidence that Germany was pushing for a short war" | "Can you name a specific piece of corroborating evidence? Think about the Schlieffen Plan, or German military planning documents." |
+| HAPP-C Dimension   | Student's Analysis                                                                                                      | Tutor Guidance Given                                                                                                                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Historical Context | "Written right after the assassination, when everyone was deciding what to do"                                          | "Can you be more specific -- what was the diplomatic window? Austria-Hungary was deciding whether to issue an ultimatum to Serbia. Germany's decision here would determine whether Austria-Hungary felt safe going to war." |
+| Audience           | "It was sent to Austria-Hungary's leaders privately"                                                                    | "Does the private nature of the communication change how you read it? Would Wilhelm have written differently if he knew France and Britain would read it?"                                                                  |
+| Purpose            | "To encourage Austria-Hungary to act aggressively against Serbia"                                                       | Confirmed. Tutor added: "And what does that tell us about Germany's war aims and willingness to risk escalation?"                                                                                                           |
+| Point of View      | "Germany wants to support its ally and maybe weaken Russia's influence in the Balkans before Russia becomes too strong" | "Excellent. That's sophisticated -- you've identified both the alliance loyalty motive and the strategic window Germany saw."                                                                                               |
+| Corroboration      | "It fits with other evidence that Germany was pushing for a short war"                                                  | "Can you name a specific piece of corroborating evidence? Think about the Schlieffen Plan, or German military planning documents."                                                                                          |
 
 **Evidence Insight:** The Blank Check is useful not as proof that Germany single-handedly caused WWI, but as evidence of German willingness to risk general European war in July 1914. Its private audience makes it unusually candid about actual intent rather than diplomatic posturing. Corroborated by German military planning that assumed a two-front war was winnable in 1914 but not in 1917 (the "window of opportunity" argument).
 
@@ -474,6 +477,7 @@ Tutor: "Now you're making a sophisticated argument that distinguishes structural
 Primary perspective analyzed: German and Austrian leadership (the most documented in the "blank check" source)
 
 Additional perspectives considered:
+
 - **Serbian nationalist perspective (Black Hand, Yugoslav Committee):** Saw Austria-Hungary as an oppressive imperial power denying Slavic peoples self-determination. The assassination was a political act within a broader liberation movement, not an isolated terrorist attack.
 - **Russian imperial perspective:** Saw itself as the protector of Slavic peoples and could not allow Austria-Hungary to crush Serbia without losing credibility as a Great Power. Russia's mobilization was defensive in its own framing, even though Germany experienced it as an offensive threat.
 - **French perspective:** Bound by alliance to Russia; had its own revanchist motivations stemming from the loss of Alsace-Lorraine in 1871. War offered an opportunity to recover lost territory and prestige.
@@ -484,11 +488,11 @@ Archive silence identified: The perspectives of ordinary soldiers, especially th
 
 **Significance and Continuity-Change Phase**
 
-| Dimension | What Changed | What Stayed the Same |
-|-----------|-------------|---------------------|
-| Political | Four empires collapsed (Austro-Hungarian, Ottoman, Russian, German); Wilsonian self-determination principle shaped new map of Europe | Great Power competition for dominance continued; the peace settlement itself created new grievances that fueled the next conflict |
-| Economic | War accelerated US economic dominance; devastated European productive capacity; war debts restructured global finance | Capitalist economic systems remained in place in Western democracies; underlying inequality within nations largely unchanged |
-| Social | Mass mobilization of women in industrial labor; high casualties created a "lost generation" in France and Britain; colonial soldiers' service complicated imperial hierarchies | Racial hierarchies in empires remained; women's suffrage was not granted universally; class structures in most countries were modified but not overturned |
+| Dimension | What Changed                                                                                                                                                                   | What Stayed the Same                                                                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Political | Four empires collapsed (Austro-Hungarian, Ottoman, Russian, German); Wilsonian self-determination principle shaped new map of Europe                                           | Great Power competition for dominance continued; the peace settlement itself created new grievances that fueled the next conflict                         |
+| Economic  | War accelerated US economic dominance; devastated European productive capacity; war debts restructured global finance                                                          | Capitalist economic systems remained in place in Western democracies; underlying inequality within nations largely unchanged                              |
+| Social    | Mass mobilization of women in industrial labor; high casualties created a "lost generation" in France and Britain; colonial soldiers' service complicated imperial hierarchies | Racial hierarchies in empires remained; women's suffrage was not granted universally; class structures in most countries were modified but not overturned |
 
 **Turning point assessment (student's argument):** "WWI was a turning point because it destroyed the old imperial order in Europe and created the conditions -- through the Versailles settlement and the economic disruptions -- that made WWII possible. But it wasn't a clean break because the underlying problems of nationalism, inequality, and imperial competition weren't actually solved."
 
@@ -504,14 +508,14 @@ Archive silence identified: The perspectives of ordinary soldiers, especially th
 
 ### Historical Thinking Skills Assessment
 
-| Skill | Demonstrated | Needs Work | Notes |
-|-------|-------------|-----------|-------|
-| Contextualization | ✓ | -- | Can explain WHY the context made events volatile, not just describe the era |
-| Causation | ✓ | -- | Distinguishes structural / medium / immediate causes; weighs agency vs. structure |
-| Evidence Evaluation | ✓ | partial | Strong on Historical Context, Audience, Purpose; needs practice naming specific corroborating sources |
-| Perspective-Taking | ✓ | -- | Identified three non-German perspectives and explained each with a specific motivation |
-| Continuity and Change | partial | ✓ | Identifies change well; continuity analysis is underdeveloped -- needs to articulate more precisely what did NOT change |
-| Argumentation | ✓ | -- | Student summary demonstrates thesis-level thinking with evidence and qualification |
+| Skill                 | Demonstrated | Needs Work | Notes                                                                                                                   |
+| --------------------- | ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Contextualization     | ✓            | --         | Can explain WHY the context made events volatile, not just describe the era                                             |
+| Causation             | ✓            | --         | Distinguishes structural / medium / immediate causes; weighs agency vs. structure                                       |
+| Evidence Evaluation   | ✓            | partial    | Strong on Historical Context, Audience, Purpose; needs practice naming specific corroborating sources                   |
+| Perspective-Taking    | ✓            | --         | Identified three non-German perspectives and explained each with a specific motivation                                  |
+| Continuity and Change | partial      | ✓          | Identifies change well; continuity analysis is underdeveloped -- needs to articulate more precisely what did NOT change |
+| Argumentation         | ✓            | --         | Student summary demonstrates thesis-level thinking with evidence and qualification                                      |
 
 ---
 
@@ -530,6 +534,7 @@ Archive silence identified: The perspectives of ordinary soldiers, especially th
 3. **Longer-term goal:** Be able to construct a full DBQ essay independently -- thesis, context paragraph, evidence paragraphs using HAPP-C analysis, and a complexity paragraph -- without prompting. Target timeline: 2-3 additional practice sessions.
 
 ### Recommended Follow-Up
+
 - For drafting the actual DBQ essay: use a writing category skill for essay structure
 - For deeper work on WWI historiography (Fischer controversy, revisionist debates, Sleepwalkers argument): schedule another history-analysis session focused on historiographical interpretation
 - For building a systematic review of AP European or AP World content: use `lesson-plan-design` to create a structured review schedule

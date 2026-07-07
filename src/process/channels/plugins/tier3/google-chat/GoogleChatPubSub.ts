@@ -27,10 +27,7 @@
 
 import type { Message, Subscription } from '@google-cloud/pubsub';
 
-import {
-  googleChatEventToUnified,
-  type GoogleChatEvent,
-} from './GoogleChatAdapter';
+import { googleChatEventToUnified, type GoogleChatEvent } from './GoogleChatAdapter';
 import type { IUnifiedIncomingMessage } from '../../../types';
 
 /** Subscription path: `projects/<project>/subscriptions/<sub>`. */
@@ -161,17 +158,14 @@ export class GoogleChatPubSubSubscriber {
    */
   async start(): Promise<void> {
     if (!isValidSubscriptionPath(this.options.subscriptionName)) {
-      throw new Error(
-        "Google Chat: subscriptionName must match 'projects/<project>/subscriptions/<sub>'",
-      );
+      throw new Error("Google Chat: subscriptionName must match 'projects/<project>/subscriptions/<sub>'");
     }
     this.stopped = false;
 
     // Lazy import: keeps the ~30MB gRPC/google-cloud stack out of the eval
     // path for instances that use the webhook transport.
     const { PubSub } = await import('@google-cloud/pubsub');
-    const projectId =
-      this.options.subscriptionName.split('/')[1] ?? this.options.credentials.project_id;
+    const projectId = this.options.subscriptionName.split('/')[1] ?? this.options.credentials.project_id;
     this.pubsub = new PubSub({
       projectId,
       credentials: {
@@ -237,9 +231,7 @@ export class GoogleChatPubSubSubscriber {
       message.ack();
     } catch (err) {
       console.error(
-        `[google-chatPlugin] Pub/Sub message handling failed: ${
-          err instanceof Error ? err.message : String(err)
-        }`,
+        `[google-chatPlugin] Pub/Sub message handling failed: ${err instanceof Error ? err.message : String(err)}`
       );
       // Ack to avoid an infinite redelivery storm on a persistent fault.
       try {
@@ -260,10 +252,7 @@ export class GoogleChatPubSubSubscriber {
       this.options.onFatal?.(reason);
       return;
     }
-    const delay = Math.min(
-      RECONNECT_MAX_DELAY_MS,
-      RECONNECT_BASE_DELAY_MS * 2 ** (this.reconnectAttempts - 1),
-    );
+    const delay = Math.min(RECONNECT_MAX_DELAY_MS, RECONNECT_BASE_DELAY_MS * 2 ** (this.reconnectAttempts - 1));
     // Full jitter to avoid thundering-herd reconnects across instances.
     const sleep = Math.random() * delay;
     void this.closeSubscriptionOnly();

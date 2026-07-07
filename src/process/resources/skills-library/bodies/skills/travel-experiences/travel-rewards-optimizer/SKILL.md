@@ -14,19 +14,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning personal-finance research"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning personal-finance research'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Travel Rewards Optimizer
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to maximize the value of an existing points or miles balance for a specific trip or class of service
 - The user wants to know which credit card or loyalty program to use for each spending category given their actual monthly spend
 - The user asks about transferring flexible points (e.g., from a bank transferable currency) to an airline or hotel loyalty program and wants to know if it is worth it
@@ -37,6 +39,7 @@ metadata:
 - The user wants to understand the cents-per-point (cpp) value of their current balances and whether holding vs. redeeming now is advisable
 
 **Do NOT use when:**
+
 - The user wants a general credit card comparison for cash-back, balance transfers, or non-travel rewards -- use a personal finance skill
 - The user wants travel insurance evaluation, trip cancellation coverage, or credit card travel protections analyzed -- use `travel-insurance-evaluator`
 - The user wants a travel budget or cost estimate for an upcoming trip -- use `budget-travel-planner`
@@ -288,6 +291,7 @@ Add a "Program-Specific Notes" section if any critical caveats apply -- expiring
 ### User Has Only One Card and One Program
 
 Simplify the earning strategy to a single card. Do not build a multi-program table. Focus on:
+
 - Maximizing use of that card's bonus categories across all eligible spending
 - Enrolling in any available dining network or shopping portal for that program
 - Identifying the single highest-value redemption method available to that program
@@ -297,6 +301,7 @@ Simplify the earning strategy to a single card. Do not build a multi-program tab
 ### User Wants Premium Cabin (Business or First Class)
 
 Premium cabin is the highest-value use of transferable points and the most operationally complex. Apply the following:
+
 - **Award availability:** Premium cabin award seats are released by airlines in very limited quantities. Most carriers release 2-4 business class award seats per flight. International routes from major hubs have better availability than spoke cities.
 - **Booking window:** Most availability appears at the 330-365 day mark when the schedule opens. Some carriers load a second wave of award space 21-30 days before departure as a revenue hedge. Booking at either window is advisable; middle-window booking (2-6 months out) has the worst availability.
 - **Cpp range:** Business class awards to Europe typically deliver 4-7 cpp on the right program. First class awards (where available) can reach 8-12 cpp. These values depend heavily on the carrier pairing -- some carriers do not release first class to partner programs at all.
@@ -306,6 +311,7 @@ Premium cabin is the highest-value use of transferable points and the most opera
 ### User Has Points Spread Across Many Programs With No Clear Leader
 
 This is a consolidation problem before it is an optimization problem.
+
 - First, identify which programs have transfer partnerships with each other. Some airline alliances allow points to be pooled across member carriers; some bank programs transfer to multiple partners.
 - Identify the program that has the most transfer partners or the best coverage for the user's travel goals. This becomes the consolidation target for future earning.
 - Calculate whether any program has a balance large enough to be useful on its own. A balance below 10,000-15,000 points in most programs is too small for meaningful award redemptions and should either be spent on low-cost redemptions (magazine subscriptions, ancillary fees) or supplemented.
@@ -315,6 +321,7 @@ This is a consolidation problem before it is an optimization problem.
 ### User Has a Hard Travel Date and Insufficient Points
 
 This is a point shortfall scenario. The response must include a clear gap analysis.
+
 - Calculate the shortfall: target point cost minus current balance.
 - Project how many months of organic earning are needed to close the gap.
 - If the timeline does not allow organic earning to close the gap in time, present three paths:
@@ -326,6 +333,7 @@ This is a point shortfall scenario. The response must include a clear gap analys
 ### User's Target Program Uses Dynamic Pricing (No Fixed Award Chart)
 
 Several major airline and hotel programs have moved to dynamic pricing, where award costs fluctuate with the underlying cash fare rather than following a fixed chart.
+
 - Do not state a specific point cost for dynamic programs. Instead, provide a range observed across similar routes and dates (e.g., "This route on this carrier's dynamic pricing model typically ranges from 20,000-60,000 points for economy, depending on fare demand").
 - Emphasize that award prices in dynamic programs can spike sharply during peak travel periods, holidays, and events. The user should search award prices across multiple dates and use the flexible date tool if available.
 - Note that dynamic programs have effectively eliminated sweet-spot redemptions -- there are no more anomalously cheap routes because the price tracks cash fares. The cpp value ceiling is roughly the same as the portal, often 1.2-1.8 cpp for economy. The strongest argument for using these programs is simplicity and status earning, not cpp value.
@@ -334,6 +342,7 @@ Several major airline and hotel programs have moved to dynamic pricing, where aw
 ### User Asks About Hotel Points Specifically
 
 Hotel award redemptions require different benchmarks than airline awards.
+
 - **Standard value range:** Most hotel programs deliver 0.5-1.5 cpp for typical properties. The highest value is at aspirational properties -- luxury urban hotels and resort properties where nightly rates exceed $400-600. A hotel program that pegs its Category 8 award at 95,000 points per night against a property with $800/night cash rates delivers 0.84 cpp -- below average -- but the experience value may be high.
 - **Fifth night free:** Several hotel programs offer a fifth night free on award stays of 5+ consecutive nights at the same property. This effectively adds 20% to the cpp value of a 5-night stay and is one of the strongest value propositions in hotel loyalty.
 - **Off-peak pricing:** Programs with tiered award pricing (standard, off-peak, peak) can deliver meaningfully better value if the user's travel dates qualify as off-peak. Off-peak rates are typically 10-30% below standard rates.
@@ -343,6 +352,7 @@ Hotel award redemptions require different benchmarks than airline awards.
 ### User's Earning Situation Includes a Small Business or Side Income
 
 Self-employed users and small business owners have access to business credit cards that often carry higher earn rates and larger sign-up bonuses than personal cards, with entirely separate eligibility criteria from personal card rules. Note this distinction without recommending specific products:
+
 - Business card spending does not appear on personal credit reports at most issuers, though the application does generate a personal inquiry.
 - Business cards for self-employed individuals can include sole proprietors, freelancers, and independent contractors -- the user does not need to have a formal business entity.
 - Business categories that often carry elevated earn rates include advertising, shipping, office supplies, and internet/phone services -- categories that are low or zero bonus on most personal cards.
@@ -360,10 +370,10 @@ Self-employed users and small business owners have access to business credit car
 
 **Current balances:**
 
-| Program                        | Balance        | Expiry Risk                          |
-|--------------------------------|----------------|--------------------------------------|
-| Flexible bank points program   | 85,000 points  | None (active card, continuous earn)  |
-| Airline mileage program        | 22,000 miles   | Moderate -- verify last activity date; most programs expire after 12-24 months of inactivity. If the last activity was your trip two years ago, check your account now and make a small qualifying transaction (even an award magazine subscription) to reset the clock. |
+| Program                      | Balance       | Expiry Risk                                                                                                                                                                                                                                                              |
+| ---------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Flexible bank points program | 85,000 points | None (active card, continuous earn)                                                                                                                                                                                                                                      |
+| Airline mileage program      | 22,000 miles  | Moderate -- verify last activity date; most programs expire after 12-24 months of inactivity. If the last activity was your trip two years ago, check your account now and make a small qualifying transaction (even an award magazine subscription) to reset the clock. |
 
 **Target redemption:** Round-trip business class, Italy (Rome or Milan), 2 passengers
 **Cash price benchmark:** ~$4,500-7,000 per person for business class to Italy in May/June, depending on carrier and booking timing (~$9,000-14,000 total for two)
@@ -373,20 +383,22 @@ Self-employed users and small business owners have access to business credit car
 
 ### Earning Strategy
 
-| Spending Category | Monthly Spend | Best Program/Card       | Earn Rate | Monthly Points |
-|-------------------|---------------|-------------------------|-----------|----------------|
-| Dining            | $1,400        | Primary flexible card   | 3x        | 4,200          |
-| Groceries         | $600          | Primary flexible card   | 2x        | 1,200          |
-| Travel            | $250          | Primary flexible card   | 2x        | 500            |
-| Gas               | $150          | Primary flexible card   | 1x        | 150            |
-| General spending  | $900          | Primary flexible card   | 1x        | 900            |
-| **Total**         | **$3,300**    |                         |           | **6,950/month** |
+| Spending Category | Monthly Spend | Best Program/Card     | Earn Rate | Monthly Points  |
+| ----------------- | ------------- | --------------------- | --------- | --------------- |
+| Dining            | $1,400        | Primary flexible card | 3x        | 4,200           |
+| Groceries         | $600          | Primary flexible card | 2x        | 1,200           |
+| Travel            | $250          | Primary flexible card | 2x        | 500             |
+| Gas               | $150          | Primary flexible card | 1x        | 150             |
+| General spending  | $900          | Primary flexible card | 1x        | 900             |
+| **Total**         | **$3,300**    |                       |           | **6,950/month** |
 
 **Effective earn rate:** 2.11 points per dollar (weighted average)
+
 - Dining ($1,400 at 3x) anchors the earn rate well above the 1x base
 - Gas ($150 at 1x) is the clearest earning gap -- a no-fee card with 3-4x on gas could add ~$300-450 of additional monthly points at no cost if the user wants to optimize further
 
 **Earning accelerators available:**
+
 - **Dining network enrollment:** Free to join. If your flexible bank program has a linked dining rewards network, enrolling your primary card earns bonus points (typically 3-5 points per dollar) at enrolled restaurants, stacking on top of your card's 3x earn. On $1,400/month dining, this could add 4,200-7,000 additional points per month -- effectively doubling your dining earn rate at no cost.
 - **Shopping portal:** Check the program's shopping portal before any online purchase of $50+. Portal rates at electronics, clothing, and home goods retailers commonly range from 3x-12x on top of your card's base earn.
 - **Transfer bonus monitoring:** Watch for transfer bonus promotions from your bank program to European airline alliance partners. A 25% transfer bonus on a 170,000-point transfer would yield an additional 42,500 miles -- potentially covering one full business class award.
@@ -395,15 +407,16 @@ Self-employed users and small business owners have access to business credit car
 
 ### Earning Projection
 
-| Timeframe    | Monthly Earn | Cumulative Earned | Running Balance (bank points) |
-|--------------|--------------|-------------------|-------------------------------|
-| Current      | --           | --                | 85,000 points                 |
-| +3 months    | 6,950        | 20,850            | 105,850 points                |
-| +6 months    | 6,950        | 41,700            | 126,700 points                |
-| +9 months    | 6,950        | 62,550            | 147,550 points                |
-| +12 months   | 6,950        | 83,400            | 168,400 points                |
+| Timeframe  | Monthly Earn | Cumulative Earned | Running Balance (bank points) |
+| ---------- | ------------ | ----------------- | ----------------------------- |
+| Current    | --           | --                | 85,000 points                 |
+| +3 months  | 6,950        | 20,850            | 105,850 points                |
+| +6 months  | 6,950        | 41,700            | 126,700 points                |
+| +9 months  | 6,950        | 62,550            | 147,550 points                |
+| +12 months | 6,950        | 83,400            | 168,400 points                |
 
 **Point threshold for target redemption (two business class round-trips to Italy):**
+
 - Low end (most favorable partner program, off-peak availability): ~130,000-160,000 points total
 - Mid range (typical transatlantic business class, major alliance carrier): ~160,000-200,000 points total
 - High end (premium carrier, peak dates): ~200,000-260,000 points total
@@ -416,15 +429,16 @@ Note: The 22,000 airline miles are in a separate program and cannot be directly 
 
 ### Redemption Comparison (Round-Trip Business Class, Italy, 2 Passengers)
 
-| Redemption Method                                    | Points Required    | Cash Equivalent | Cpp   | Verdict                  |
-|------------------------------------------------------|--------------------|-----------------|-------|--------------------------|
-| Statement credit (2 tickets x $5,000 avg)            | ~1,000,000 pts     | ~$10,000        | 1.0   | Avoid -- never use for this goal |
-| Travel portal booking (business class)               | ~666,000 pts       | ~$10,000        | 1.5   | Not viable -- exceeds balance by far |
-| Transfer to Partner A (major European carrier, economy) | ~90,000-120,000 pts | ~$2,000-3,000 | 2.0-2.5 | Good for economy fallback |
-| Transfer to Partner B (transatlantic carrier, business via partner chart) | ~130,000-160,000 pts | ~$10,000+ | 6.0-7.7 | **Best value -- primary path** |
-| Transfer to Partner C (alliance member, business, partner pricing) | ~150,000-200,000 pts | ~$10,000+ | 5.0-6.7 | Strong alt path |
+| Redemption Method                                                         | Points Required      | Cash Equivalent | Cpp     | Verdict                              |
+| ------------------------------------------------------------------------- | -------------------- | --------------- | ------- | ------------------------------------ |
+| Statement credit (2 tickets x $5,000 avg)                                 | ~1,000,000 pts       | ~$10,000        | 1.0     | Avoid -- never use for this goal     |
+| Travel portal booking (business class)                                    | ~666,000 pts         | ~$10,000        | 1.5     | Not viable -- exceeds balance by far |
+| Transfer to Partner A (major European carrier, economy)                   | ~90,000-120,000 pts  | ~$2,000-3,000   | 2.0-2.5 | Good for economy fallback            |
+| Transfer to Partner B (transatlantic carrier, business via partner chart) | ~130,000-160,000 pts | ~$10,000+       | 6.0-7.7 | **Best value -- primary path**       |
+| Transfer to Partner C (alliance member, business, partner pricing)        | ~150,000-200,000 pts | ~$10,000+       | 5.0-6.7 | Strong alt path                      |
 
 **Transfer ratio notes:**
+
 - Confirm the transfer ratio from your specific bank program to each partner. Most major bank-to-airline transfers are 1:1. A 2:1 ratio would double the effective point cost and reduce cpp by 50%.
 - Partner B and Partner C above refer to alliance carriers that price transatlantic business class awards through their own award charts rather than the operating carrier's chart -- these are often where the most favorable pricing appears for European routes.
 
@@ -438,6 +452,7 @@ Note: The 22,000 airline miles are in a separate program and cannot be directly 
 Many airline alliance programs price transatlantic business class awards through their own fixed award charts at rates significantly lower than the operating carrier's own program would charge. A round-trip business class award from North America to Europe (which Italy falls within) is often structured as a single "region pair" on these charts, meaning Rome and Milan cost the same as London or Paris. This chart pricing, combined with your flexible bank points' transferability, is the core of the value proposition here. At 65,000-80,000 points per person round-trip (low-end partner chart pricing) for a seat worth $5,000+ in cash, you are achieving 6-8 cpp -- six to eight times the value of using these points as statement credit.
 
 **Booking requirements:**
+
 - Verify award seat availability for two business class seats on the same flight before transferring any points. Two seats on the same flight is harder to find than one -- search for "2 passengers" specifically.
 - Transfer processing time for most major bank-to-airline partnerships: typically instant to 2 business days. Use a conservative estimate of 3 days when planning.
 - Minimum transfer: typically 1,000 points per transfer.
@@ -450,18 +465,18 @@ Many airline alliance programs price transatlantic business class awards through
 
 ### Recommended Action Plan
 
-| Step | Action                                                                          | Deadline              | Points Impact                  |
-|------|---------------------------------------------------------------------------------|-----------------------|--------------------------------|
-| 1    | Check the expiry status of your 22,000 airline miles -- log in and verify last activity date | This week        | Prevents losing 22,000 miles   |
-| 2    | Enroll your primary card in the bank's dining rewards network                   | This week             | +4,200-7,000 pts/month (est.)  |
-| 3    | Confirm whether your bank program transfers to your airline mileage program -- if yes, those 22,000 miles may be usable for this trip | This week | Clarifies available war chest |
-| 4    | Identify which transfer partners of your bank serve Italy routes in business class and pull their award charts | This month | Identifies primary & backup paths |
-| 5    | Set a calendar alert for 330 days before your earliest possible travel date (e.g., if targeting May 1, alert for June 5 this year) | Now -- set the date | Opens at the best availability window |
-| 6    | Monitor for transfer bonus promotions to your target partner programs            | Ongoing               | Potential +20-40% on transfers |
-| 7    | At the 330-day mark: search award availability for 2 business seats, both partners, flexible date range | Per calendar alert | Identifies bookable award |
-| 8    | Once two seats confirmed: transfer the required points to the partner program    | Same day as confirmation | Points land in ~1-3 days     |
-| 9    | Book award tickets immediately when transfer clears -- do not wait              | Same day transfer clears | Secures the two seats         |
-| 10   | Assess remaining balance after booking -- use surplus for hotel awards or airport lounge access | Post-booking   | Maximizes total trip value     |
+| Step | Action                                                                                                                                | Deadline                 | Points Impact                         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------- |
+| 1    | Check the expiry status of your 22,000 airline miles -- log in and verify last activity date                                          | This week                | Prevents losing 22,000 miles          |
+| 2    | Enroll your primary card in the bank's dining rewards network                                                                         | This week                | +4,200-7,000 pts/month (est.)         |
+| 3    | Confirm whether your bank program transfers to your airline mileage program -- if yes, those 22,000 miles may be usable for this trip | This week                | Clarifies available war chest         |
+| 4    | Identify which transfer partners of your bank serve Italy routes in business class and pull their award charts                        | This month               | Identifies primary & backup paths     |
+| 5    | Set a calendar alert for 330 days before your earliest possible travel date (e.g., if targeting May 1, alert for June 5 this year)    | Now -- set the date      | Opens at the best availability window |
+| 6    | Monitor for transfer bonus promotions to your target partner programs                                                                 | Ongoing                  | Potential +20-40% on transfers        |
+| 7    | At the 330-day mark: search award availability for 2 business seats, both partners, flexible date range                               | Per calendar alert       | Identifies bookable award             |
+| 8    | Once two seats confirmed: transfer the required points to the partner program                                                         | Same day as confirmation | Points land in ~1-3 days              |
+| 9    | Book award tickets immediately when transfer clears -- do not wait                                                                    | Same day transfer clears | Secures the two seats                 |
+| 10   | Assess remaining balance after booking -- use surplus for hotel awards or airport lounge access                                       | Post-booking             | Maximizes total trip value            |
 
 ---
 

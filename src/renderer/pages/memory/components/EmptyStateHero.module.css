@@ -52,7 +52,9 @@
   padding: 16px;
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -60,7 +62,7 @@
 
 .card:hover {
   background: var(--color-fill-2);
-  border-color: var(--color-primary-6, #FF7A45);
+  border-color: var(--color-primary-6, #ff7a45);
 }
 
 .card:disabled {

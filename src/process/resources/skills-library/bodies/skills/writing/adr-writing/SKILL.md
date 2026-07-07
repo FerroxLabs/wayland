@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation writing"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation writing'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # ADR Writing
 
 ## When to Use
@@ -226,20 +227,20 @@ to a specific force from the Context section.]
 
 ## Related Decisions
 
-| ADR | Title | Relationship |
-|-----|-------|-------------|
+| ADR     | Title   | Relationship                                         |
+| ------- | ------- | ---------------------------------------------------- |
 | ADR-NNN | [Title] | [depends on / supersedes / enables / conflicts with] |
-| ADR-NNN | [Title] | [relationship] |
+| ADR-NNN | [Title] | [relationship]                                       |
 
-*(Omit this section if there are no related decisions.)*
+_(Omit this section if there are no related decisions.)_
 
 ---
 
 ## Notes
 
-*(Optional. Use for time-bounded flags: "Re-evaluate by 2025-Q2 when vendor pricing
+_(Optional. Use for time-bounded flags: "Re-evaluate by 2025-Q2 when vendor pricing
 tier changes." Or validation plans for Proposed ADRs: "Accept this ADR if load testing
-shows p99 < 10ms under 5,000 concurrent users." Omit if not needed.)*
+shows p99 < 10ms under 5,000 concurrent users." Omit if not needed.)_
 ```
 
 ---
@@ -444,11 +445,11 @@ operational expertise. This decision should be revisited if order volume exceeds
 
 ## Related Decisions
 
-| ADR | Title | Relationship |
-|-----|-------|-------------|
+| ADR     | Title                                           | Relationship                                                                      |
+| ------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
 | ADR-004 | Use PostgreSQL as the Primary Persistence Store | This ADR depends on ADR-004; the event store is implemented as a PostgreSQL table |
-| ADR-021 | Adopt Outbox Pattern for Event Publishing | Enabled by this ADR; event sourcing makes the outbox pattern natural |
-| ADR-009 | Use CQRS for the Inventory Service | Architectural sibling; the Order Service now uses a stronger form of CQRS |
+| ADR-021 | Adopt Outbox Pattern for Event Publishing       | Enabled by this ADR; event sourcing makes the outbox pattern natural              |
+| ADR-009 | Use CQRS for the Inventory Service              | Architectural sibling; the Order Service now uses a stronger form of CQRS         |
 
 ---
 

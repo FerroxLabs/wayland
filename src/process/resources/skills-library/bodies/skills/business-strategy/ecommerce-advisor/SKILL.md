@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy seo marketing"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy seo marketing'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Ecommerce Advisor
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to launch or optimize an e-commerce store with platform selection, product listings, or conversion rate optimization
 - The user needs help with cart abandonment strategies, payment processing, or shipping logistics
 - The user wants guidance on e-commerce analytics KPIs, customer retention, or inventory management
 - The user needs to choose between Shopify, WooCommerce, BigCommerce, or other e-commerce platforms
 
 **Do NOT use this skill when:**
+
 - The user is running a dropshipping business specifically (use dropshipping-guide instead)
 - The user is selling handmade goods on Etsy or craft fairs (use handmade-seller instead)
 - The user is building a two-sided marketplace rather than a single-seller store (use marketplace-builder instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on ecommerce advisor
 - User asks about ecommerce advisor best practices or techniques
 - User wants a structured approach to ecommerce advisor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of ecommerce advisor
+
 ## Questions to Ask the User First
 
 1. **What are you selling?** (Physical products, digital products, services, subscriptions)
@@ -61,10 +66,13 @@ metadata:
 8. **What is your current tech stack?** (Platform, tools, integrations)
 9. **What is your biggest challenge?** (Traffic, conversion, operations, retention)
 10. **What is your marketing budget?** (Monthly)
+
 ---
+
 ## Step 1: Platform Selection
 
 ### Platform Comparison Matrix
+
 ```
 E-COMMERCE PLATFORM DECISION MATRIX
 
@@ -84,6 +92,7 @@ Score each platform 1-5 for your specific needs:
 ```
 
 ### Platform Recommendations by Business Type
+
 ```
 QUICK PLATFORM GUIDE:
 
@@ -112,10 +121,13 @@ High customization needs, tech team available:
   Options: Medusa, Saleor, or headless Shopify + custom frontend
   Cost: $500-5000/month infrastructure + development costs
 ```
+
 ---
+
 ## Step 2: Product Listing Optimization
 
 ### Product Page Template
+
 ```
 PRODUCT PAGE OPTIMIZATION CHECKLIST
 PRODUCT TITLE:
@@ -165,6 +177,7 @@ CALLS TO ACTION:
 ```
 
 ### SEO for Product Pages
+
 ```
 PRODUCT PAGE SEO CHECKLIST
 
@@ -183,10 +196,13 @@ CONTENT:
 - [ ] FAQ section with common questions
 - [ ] Keyword variations used naturally throughout
 ```
+
 ---
+
 ## Step 3: Conversion Rate Optimization (CRO)
 
 ### CRO Audit Framework
+
 ```
 CONVERSION RATE OPTIMIZATION AUDIT
 CURRENT METRICS:
@@ -239,6 +255,7 @@ CHECKOUT AUDIT:
 ```
 
 ### CRO Testing Roadmap
+
 ```
 CRO TEST PRIORITY MATRIX
 
@@ -257,8 +274,11 @@ CRO TEST PRIORITY MATRIX
 | Add urgency indicators              | Low    | Low    | LOW      |
 | Redesign homepage                   | Medium | High   | LOW      |
 ```
+
 ---
+
 ## Step 4: Cart Abandonment Strategy
+
 ```
 CART ABANDONMENT RECOVERY PLAN
 AVERAGE CART ABANDONMENT RATE: 70% (industry average)
@@ -302,10 +322,13 @@ EXIT-INTENT POPUP:
   Or: "Free shipping on your first order"
   Capture: Email address for follow-up
 ```
+
 ---
+
 ## Step 5: Payment & Shipping Strategy
 
 ### Payment Processing
+
 ```
 PAYMENT STRATEGY
 
@@ -342,6 +365,7 @@ FRAUD PREVENTION:
 ```
 
 ### Shipping Strategy
+
 ```
 SHIPPING STRATEGY
 
@@ -377,8 +401,11 @@ SHIPPING PAGE CONTENT:
 - [ ] Tracking information provided via email
 - [ ] Holiday/peak season shipping deadlines
 ```
+
 ---
+
 ## Step 6: Inventory Management
+
 ```
 INVENTORY MANAGEMENT BASICS
 
@@ -411,8 +438,11 @@ INVENTORY TOOLS:
   Cin7: Warehouse management
   ShipBob: 3PL with inventory management
 ```
+
 ---
+
 ## Step 7: Customer Retention
+
 ```
 CUSTOMER RETENTION STRATEGY
 RETENTION METRICS:
@@ -448,8 +478,11 @@ RETENTION TACTICS:
    - Generous return/exchange policy
    - Surprise and delight moments
 ```
+
 ---
+
 ## Step 8: Analytics & KPIs
+
 ```
 E-COMMERCE KPI DASHBOARD
 TRAFFIC METRICS:
@@ -494,8 +527,11 @@ TOOLS:
   Email: Klaviyo, Mailchimp
   Reviews: Yotpo, Judge.me, Stamped.io
 ```
+
 ---
+
 ## E-Commerce Launch Checklist
+
 ```
 PRE-LAUNCH (2-4 weeks before):
 - [ ] Platform set up and configured
@@ -528,7 +564,9 @@ POST-LAUNCH (first 30 days):
 - [ ] Start collecting reviews
 - [ ] Plan first retention campaign
 ```
+
 ---
+
 ## Output Checklist
 
 - [ ] Platform recommendation matches business needs and technical capability
@@ -539,7 +577,6 @@ POST-LAUNCH (first 30 days):
 - [ ] Retention plan addresses email, loyalty, and post-purchase experience
 - [ ] KPI dashboard tracks the right metrics at the right frequency
 - [ ] All recommendations are prioritized by impact and effort
-
 
 ## Output Format
 
@@ -553,13 +590,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with ecommerce advisor for a mid-size project."
 
 **Output:** A complete ecommerce advisor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

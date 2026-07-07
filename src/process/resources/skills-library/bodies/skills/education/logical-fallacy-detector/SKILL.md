@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills budgeting analysis safety game-design sustainability time-management"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills budgeting analysis safety game-design sustainability time-management'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Logical Fallacy Detector
@@ -22,15 +22,16 @@ You are an expert in logic, argumentation theory, and critical thinking. You hel
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about logical fallacy detector techniques or best practices
 - User needs guidance on logical fallacy detector concepts
 - User wants to implement or improve their approach to logical fallacy detector
 
 **Do NOT use when:**
+
 - The request falls outside the scope of logical fallacy detector
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -374,7 +375,6 @@ CONSTRUCTING A SOUND ARGUMENT
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -395,7 +395,6 @@ When analyzing arguments, provide:
 6. **Alternative interpretations** -- Other conclusions the evidence could support
 7. **Discussion questions** -- Questions to deepen critical thinking about the topic
 
-
 ```template
 ## Logical Fallacy Detector -- Structured Output
 
@@ -410,14 +409,12 @@ When analyzing arguments, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -115,7 +115,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
           case 'claude-mem': {
             const r = await memoryBridge.import.claudeMem.invoke();
             Message.success(
-              t('archive.import.claudeMem.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+              t('archive.import.claudeMem.success', `Imported ${r.count} entries · ${r.errors.length} errors`)
             );
             if (r.count > 0) onImportComplete?.();
             break;
@@ -123,7 +123,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
           case 'obsidian': {
             const r = await memoryBridge.import.obsidianVault.invoke({ vaultPath: vaultPath as string });
             Message.success(
-              t('archive.import.obsidian.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+              t('archive.import.obsidian.success', `Imported ${r.count} entries · ${r.errors.length} errors`)
             );
             if (r.count > 0) onImportComplete?.();
             break;
@@ -131,7 +131,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
           case 'drop': {
             const r = await memoryBridge.import.processDropFolder.invoke();
             Message.success(
-              t('archive.import.dropFolder.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+              t('archive.import.dropFolder.success', `Imported ${r.count} entries · ${r.errors.length} errors`)
             );
             if (r.count > 0) onImportComplete?.();
             break;
@@ -139,7 +139,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
           case 'dev-scan': {
             const r = await memoryBridge.import.scanDevDir.invoke();
             Message.success(
-              t('archive.import.devScan.success', `Imported ${r.count} entries from ${r.projectsFound ?? 0} projects`),
+              t('archive.import.devScan.success', `Imported ${r.count} entries from ${r.projectsFound ?? 0} projects`)
             );
             if (r.count > 0) onImportComplete?.();
             break;
@@ -152,7 +152,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
         setLoading((prev) => ({ ...prev, [key]: false }));
       }
     },
-    [onImportComplete, t],
+    [onImportComplete, t]
   );
 
   return (
@@ -170,7 +170,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
 
       {/* Headline */}
       <h2 className={styles.headline} data-testid='empty-hero-headline'>
-        {t('archive.empty.headline', 'Your memory is empty. Let\'s fix that.')}
+        {t('archive.empty.headline', "Your memory is empty. Let's fix that.")}
       </h2>
       <p className={styles.subline} data-testid='empty-hero-subline'>
         {t('archive.empty.subline', 'Import from a source below or add your first memory.')}
@@ -181,9 +181,10 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
         {CARDS.map((card) => {
           const detectedCount = counts[card.key];
           const isLoading = loading[card.key] === true;
-          const subline = detectedCount !== undefined
-            ? t('archive.import.detectedEntries', '~{{n}} entries detected', { n: detectedCount })
-            : card.defaultSubline;
+          const subline =
+            detectedCount !== undefined
+              ? t('archive.import.detectedEntries', '~{{n}} entries detected', { n: detectedCount })
+              : card.defaultSubline;
 
           return (
             <button
@@ -197,9 +198,7 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
               <div className={styles.cardIcon} aria-hidden>
                 {card.icon}
               </div>
-              <div className={styles.cardTitle}>
-                {t(card.titleKey, card.titleFallback)}
-              </div>
+              <div className={styles.cardTitle}>{t(card.titleKey, card.titleFallback)}</div>
               <div className={styles.cardSubline}>
                 {isLoading ? t('archive.import.importing', 'Importing…') : subline}
               </div>

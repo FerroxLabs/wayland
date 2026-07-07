@@ -20,9 +20,7 @@
       "recommendBackend": "gemini"
     }
   ],
-  "rituals": [
-    { "name": "Weekly review", "cadence": "weekly" }
-  ],
+  "rituals": [{ "name": "Weekly review", "cadence": "weekly" }],
   "capabilities": {
     "canReadFiles": false,
     "canWriteFiles": false,

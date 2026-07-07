@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition fitness strategy"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'nutrition fitness strategy'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Sports Nutrition Basics
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment, clinical assessment, or individualized prescription. Always consult a qualified healthcare professional -- ideally a registered dietitian with sports nutrition credentials -- before making significant changes to your diet or exercise program. If you have a medical condition, are pregnant, or have a history of disordered eating, do not rely on this skill for guidance.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks what to eat before, during, or after workouts and wants a structured framework rather than a one-line answer
 - Wants to understand why nutrition timing affects performance and recovery -- not just what to eat but the physiological rationale
 - Is a recreational or amateur athlete (gym-goer, weekend runner, recreational cyclist, recreational team sport player) trying to optimize fueling without professional coaching
@@ -35,6 +37,7 @@ metadata:
 - Asks general questions about the "anabolic window," glycogen replenishment, or muscle protein synthesis as they relate to exercise
 
 **Do NOT use this skill when:**
+
 - The user is a competitive or elite athlete needing periodized, competition-phase nutrition plans -- refer them to a sports dietitian (use `performance-periodization` if available)
 - The user is asking about specific supplement protocols, ergogenic aids, creatine loading, beta-alanine dosing, or caffeine optimization -- this skill does not cover supplementation
 - The user has a diagnosed medical condition (diabetes, kidney disease, celiac disease, irritable bowel syndrome) that directly affects exercise nutrition -- defer to their healthcare team
@@ -126,11 +129,13 @@ The most commonly misapplied window. Most recreational exercisers do not need in
 **Exception -- the window does matter:** For athletes training in a fasted state, training twice per day with under 8 hours between sessions, or training very early and who will not eat for 3+ more hours, post-workout nutrition timing becomes more urgent. In these cases, eating within 30-60 minutes post-exercise produces meaningfully better recovery than waiting.
 
 **Protein targets:**
+
 - Minimum effective dose: 20g of leucine-rich protein (achievable with high-quality animal protein, soy, or carefully selected combinations)
 - Optimal range: 30-40g for most individuals; 40g shows marginal benefit over 20g for larger individuals (over 80-90 kg) and older adults (over 40 years, who have anabolic resistance and benefit from larger single-meal protein doses)
 - Upper effective limit per meal: approximately 40-50g for MPS purposes -- consuming 80g post-workout does not double MPS; the excess is oxidized or stored as fat/glucose
 
 **Carbohydrate targets:**
+
 - Strength/resistance training: 0.5-0.8 g/kg -- moderate carbohydrate needed for glycogen replenishment (resistance training depletes glycogen approximately 30-40% per session)
 - Endurance (60-90 min): 0.8-1.2 g/kg -- higher priority, as endurance exercise depletes glycogen more completely
 - Endurance (90+ min with significant depletion): 1.0-1.5 g/kg -- prioritize rapid resynthesis, especially if another session occurs within 24 hours
@@ -186,23 +191,27 @@ For individuals doing 30-45 minute gym sessions, walks, light cycling, or yoga:
 Dehydration of as little as 2% of body weight reduces aerobic performance by approximately 10-20% and impairs cognitive function measurably. Dehydration of 3-5% significantly impairs both strength and endurance performance.
 
 **Pre-exercise hydration:**
+
 - Drink 400-600 mL (approximately 14-20 oz) 2-3 hours before exercise
 - Drink an additional 200-400 mL (approximately 7-14 oz) 15-20 minutes before exercise if urine is not pale yellow at the 2-hour mark
 - Practical check: urine should be pale straw yellow (color 1-3 on the Armstrong urine color scale) before exercise begins. Dark amber (color 5-6) indicates 3-5% dehydration.
 
 **During exercise:**
+
 - General starting point: 400-800 mL (14-27 oz) per hour, consumed in regular sips rather than boluses
 - Sweat rate varies dramatically: a sedentary individual in cool conditions may lose 400-500 mL/hour; a large athlete training in hot humid conditions may lose 1500-2000 mL/hour
 - Practical self-regulation: drink to thirst during exercise lasting under 90 minutes in cool conditions. For sessions over 90 minutes or in heat, use a structured intake schedule because thirst is not a sufficient stimulus during high-intensity exercise.
 - Do not overdrink: consuming fluid at a rate that exceeds sweat rate in endurance events causes hyponatremia. The goal is to replace, not exceed, sweat losses.
 
 **Post-exercise rehydration:**
+
 - Standard guideline: 1.25-1.5 L of fluid per kilogram of body weight lost during exercise
 - Practical measurement: weigh (without clothing) before and after exercise. Each kilogram of body weight lost equals approximately 1 liter of fluid deficit.
 - Rehydration should occur over 2-6 hours, not as a single bolus, to allow retention
 - Post-exercise sodium intake (from food or electrolyte drinks) enhances rehydration by stimulating thirst and reducing urine output
 
 **Electrolytes:**
+
 - Sodium is the primary electrolyte lost in sweat (250-1500 mg per liter of sweat -- highly individual)
 - For sessions under 60 minutes in cool conditions: plain water is adequate
 - For sessions over 60 minutes, especially in heat: sodium intake of 300-700 mg per hour maintains plasma sodium and prevents hyponatremia
@@ -219,6 +228,7 @@ Many recreational athletes have simultaneous goals of improving performance and 
 - The goal is to achieve a body composition change while minimizing muscle loss and maintaining training quality
 
 **Practical framework for body composition-focused athletes:**
+
 - Maintain protein at the upper range of recommendations (2.0-2.4 g/kg/day) in a caloric deficit to preserve muscle mass. This is the most evidence-supported intervention for preventing muscle loss during weight loss.
 - Do not reduce pre-workout carbohydrates to zero -- this impairs training quality and therefore reduces the training stimulus, undermining the goal. Keep 0.5-0.8 g/kg pre-workout carbohydrates even when dieting.
 - Post-workout protein is non-negotiable even in a deficit. Skipping post-workout protein to "save calories" does not improve fat loss and directly impairs MPS, accelerating muscle loss.
@@ -366,6 +376,7 @@ After presenting the framework, synthesize into 4-6 takeaways specific to the us
 Fasted training -- exercise performed before any food intake after an overnight fast -- is a common practice and physiologically feasible for moderate-intensity sessions under 60 minutes. Liver glycogen is partially depleted overnight (approximately 30-40% of stores), but muscle glycogen remains largely intact from the prior day's nutrition.
 
 **Guidance:**
+
 - Moderate-intensity steady-state exercise under 60 minutes (easy run, cycling): fasted is tolerable. Post-workout nutrition becomes the priority meal of the day -- eat within 60 minutes of finishing.
 - High-intensity or long sessions (intervals, heavy lifting over 45 minutes, sessions over 60 minutes): fasted state meaningfully impairs performance. A small pre-workout carbohydrate source consumed 20-30 minutes before (15-30g of fast-digesting carbohydrates -- ripe banana, white toast, dilute juice) provides sufficient fuel without heavy digestion burden and attenuates the performance deficit.
 - Body composition note: the idea that fasted cardio burns more fat is partially true (a higher percentage of fuel comes from fat fasted) but the total fat oxidation over 24 hours does not meaningfully differ from fed-state training when total calories are controlled. Performance is lower fasted, which may reduce total training stimulus.
@@ -375,6 +386,7 @@ Fasted training -- exercise performed before any food intake after an overnight 
 When two training sessions occur within 8 hours of each other, the post-workout nutrition after the first session is no longer optional -- it is critical for performance in the second session.
 
 **Guidance:**
+
 - Consume 1.0-1.2 g/kg carbohydrates immediately post-session 1 (within 30 minutes) to initiate rapid glycogen resynthesis. Glycogen resynthesis rate in the first 30-60 minutes post-exercise is approximately 2x the baseline rate if carbohydrates are consumed; waiting 2+ hours reduces this rate significantly.
 - Combine with 20-30g protein to begin recovery and protect muscle.
 - High glycemic index carbohydrates are specifically appropriate here (white rice, bread, sports drinks) because resynthesis speed matters more than sustained energy delivery.
@@ -386,6 +398,7 @@ When two training sessions occur within 8 hours of each other, the post-workout 
 This is the most common conflict in recreational sports nutrition. Users want to lose fat while maintaining or building performance. The nutritional tension is real and must be addressed honestly.
 
 **Guidance:**
+
 - A deficit of 250-500 kcal/day is the recommended range for preserving muscle during fat loss. Deficits above 500-750 kcal/day accelerate muscle loss even with high protein intake.
 - Protein at 2.0-2.4 g/kg/day is the most important lever for preserving muscle in a deficit -- higher than maintenance recommendations (1.6-2.2 g/kg) because dietary protein partly replaces the muscle-sparing effect of carbohydrate energy availability.
 - Do not eliminate peri-workout carbohydrates entirely. A user in a 400 kcal/day deficit who skips their pre-workout carbohydrates to "save calories" will train at reduced intensity, reducing the training stimulus and ultimately slowing both fat loss and muscle retention.
@@ -397,6 +410,7 @@ This is the most common conflict in recreational sports nutrition. Users want to
 GI distress (nausea, cramping, bloating, diarrhea, reflux) during exercise is one of the leading performance limiters in endurance sports and is reported by 30-50% of endurance athletes in competition. It is almost always nutrition-related and almost always manageable.
 
 **Common causes and corrections:**
+
 - High-fiber or high-fat foods consumed too close to exercise: shift the pre-exercise meal to 3+ hours before, or reduce portion size and fat/fiber content in the closer meal
 - Too much concentrated sugar or high-osmolality solutions during exercise: switch from full-strength sports drink to 50-75% dilution, or switch from gels to solid food sources with lower osmolality (banana, rice cakes, boiled salted potatoes used by many endurance athletes)
 - Intra-workout carbohydrate intake exceeding intestinal absorption capacity: reduce to 30-45g/hour and build up slowly over several weeks. Intestinal glucose transporter upregulation with training (gut training) is a real, trainable adaptation.
@@ -409,6 +423,7 @@ GI distress (nausea, cramping, bloating, diarrhea, reflux) during exercise is on
 Plant-based athletes can achieve all protein targets and perform at the highest levels. The practical challenges are real but solvable with knowledge.
 
 **Key adjustments:**
+
 - Most plant proteins have lower leucine content than animal proteins. Leucine is the primary trigger amino acid for MPS. Soy protein and pea protein have the highest leucine content among plant sources; wheat protein and rice protein are lower. A practical strategy: target the upper range of protein recommendations (2.0-2.4 g/kg/day) to compensate for lower leucine density per gram.
 - The digestibility-adjusted amino acid score (DIAAS) of most plant proteins is 60-85% compared to 95-110% for most animal proteins. This means a given amount of plant protein delivers fewer bioavailable amino acids. Increasing total protein intake corrects for this.
 - Complete amino acid profiles from combined sources: rice + legumes (complementary limiting amino acids), whole grains + soy, bread + seeds. Combination does not need to occur in a single meal -- adequate distribution across the day is sufficient.
@@ -420,6 +435,7 @@ Plant-based athletes can achieve all protein targets and perform at the highest 
 Users who train immediately after work, eat lunch at 12 PM and train at 5:30 PM, or otherwise have no practical opportunity for a pre-workout meal in the standard timing windows.
 
 **Guidance:**
+
 - Lunch at 12 PM provides meaningful glycogen and amino acids for a 5:30 PM session. This is equivalent to the 3-hour pre-workout meal timing and is physiologically adequate if lunch contained adequate carbohydrates and protein.
 - A small snack at 4:00-4:30 PM (30-45g carbohydrates, 10-15g protein, low fat and fiber -- yogurt and fruit, toast and eggs, oatmeal with milk) bridges the gap effectively without requiring a full meal.
 - If no snack is possible, the 12 PM lunch still provides the primary fuel source. Hydration status becomes more important -- ensure fluid intake in the afternoon.
@@ -430,6 +446,7 @@ Users who train immediately after work, eat lunch at 12 PM and train at 5:30 PM,
 Older adults experience anabolic resistance -- a blunted MPS response to the same protein dose that maximally stimulates MPS in younger adults. This is a physiological reality with direct nutritional implications.
 
 **Adjustments for this population:**
+
 - Single-meal protein target for MPS: 35-45g (compared to 20-40g for younger adults). Research suggests older adults benefit more from larger, less frequent protein doses rather than smaller, more frequent ones, specifically because the threshold for MPS activation is higher.
 - Leucine supplementation or leucine-rich protein sources (dairy, eggs, meat) are specifically beneficial for older adults due to the higher leucine threshold required to trigger MPS.
 - Post-workout protein timing becomes relatively more important for older adults because the anabolic window is shorter and the response is more time-sensitive. Eating within 60 minutes post-resistance exercise is a reasonable guideline for this group.
@@ -471,23 +488,24 @@ Two nutritional interventions will almost certainly resolve this: (1) a small pr
 
 #### Weekday Runs (45-50 minutes, moderate pace)
 
-| Window          | Timing                  | Carbohydrates           | Protein        | Fat & Fiber       | Priority Level |
-|-----------------|-------------------------|-------------------------|----------------|-------------------|----------------|
-| Pre-workout     | 6:00-6:15 AM            | 15-25g (small snack)    | Minimal        | Very low          | Moderate       |
-| Intra-workout   | During session          | None needed             | Not needed     | None              | Low (N/A)      |
-| Post-workout    | 7:30-8:30 AM            | 45-70g (0.7-1.0 g/kg)   | 20-30g         | Normal            | High           |
+| Window        | Timing         | Carbohydrates         | Protein    | Fat & Fiber | Priority Level |
+| ------------- | -------------- | --------------------- | ---------- | ----------- | -------------- |
+| Pre-workout   | 6:00-6:15 AM   | 15-25g (small snack)  | Minimal    | Very low    | Moderate       |
+| Intra-workout | During session | None needed           | Not needed | None        | Low (N/A)      |
+| Post-workout  | 7:30-8:30 AM   | 45-70g (0.7-1.0 g/kg) | 20-30g     | Normal      | High           |
 
 For 45-50 minute moderate runs, a small pre-run snack of 15-25g of easily digested carbohydrates is sufficient to restore liver glycogen. No intra-workout fueling is needed. Post-workout breakfast is the priority.
 
 #### Saturday Long Run (90-100 minutes)
 
-| Window          | Timing                  | Carbohydrates           | Protein        | Fat & Fiber       | Priority Level |
-|-----------------|-------------------------|-------------------------|----------------|-------------------|----------------|
-| Pre-workout     | 6:00-6:15 AM            | 30-40g (small meal)     | 10-15g         | Very low          | High           |
-| Intra-workout   | Starting at 45-50 min   | 30-45g per hour         | Not needed     | None              | Critical       |
-| Post-workout    | 8:30-9:30 AM            | 55-80g (0.8-1.2 g/kg)   | 20-30g         | Normal            | High           |
+| Window        | Timing                | Carbohydrates         | Protein    | Fat & Fiber | Priority Level |
+| ------------- | --------------------- | --------------------- | ---------- | ----------- | -------------- |
+| Pre-workout   | 6:00-6:15 AM          | 30-40g (small meal)   | 10-15g     | Very low    | High           |
+| Intra-workout | Starting at 45-50 min | 30-45g per hour       | Not needed | None        | Critical       |
+| Post-workout  | 8:30-9:30 AM          | 55-80g (0.8-1.2 g/kg) | 20-30g     | Normal      | High           |
 
 For your 68 kg body weight:
+
 - Pre-workout: 30-40g carbohydrates = approximately half a cup of cooked oatmeal, a medium banana, or a slice of toast with a thin spread
 - Intra-workout target: 30-45g carbohydrates per hour = approximately 1 energy gel every 30-35 minutes, or a banana at 45 minutes and another source at 75 minutes
 - Post-workout: 55-80g carbohydrates (0.8-1.2 g/kg × 68 kg) + 20-30g protein
@@ -501,11 +519,13 @@ For your 68 kg body weight:
 The key constraint here is timing: you have 15-20 minutes, not 2 hours. This window requires fast-digesting, low-fiber, low-fat carbohydrates only. Protein and fat delay gastric emptying and may cause nausea mid-run.
 
 Weekday runs (15-25g carbs, minimal protein and fat):
+
 - Half a ripe banana (approximately 12-15g carbs, essentially no fat or fiber)
 - One slice of white toast with a thin scrape of honey (approximately 15-20g carbs)
 - A small glass (150-200 mL) of dilute orange juice (approximately 15g carbs)
 
 Saturday long run (30-40g carbs, with a small amount of protein tolerable):
+
 - One whole ripe banana + a small glass of milk or plant milk (banana ≈ 25g carbs, milk ≈ 12g carbs + 8g protein)
 - Bowl of white rice (100g cooked) with a drizzle of honey -- used by many endurance athletes for its high carbohydrate content and extremely low fiber
 - Oatmeal (half cup dry, cooked) with no added fat -- approximately 27g carbs, 5g protein (eat this at 6:00 AM for a 6:30 AM start to give 30 minutes digestion time)
@@ -519,6 +539,7 @@ Target: 30-45g carbohydrates per hour, which means your first intake should occu
 Do not wait until you feel the bonk -- by then, blood glucose is already declining and it takes approximately 10-15 minutes for ingested carbohydrates to reach the bloodstream. Preventive fueling is the entire strategy.
 
 Suitable sources for running (considerations: portability, no chewing required if fatigued, fast absorption):
+
 - Energy gels (most contain 20-25g carbohydrates -- take one at 45 min and one at 80 min with 100-150 mL water)
 - Ripe banana carried in a pocket (approximately 25-30g carbs for a medium banana)
 - Medjool dates (2 dates ≈ 30-35g carbs, easy to eat while running)

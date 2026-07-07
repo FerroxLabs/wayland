@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "food-truck-operator business-planner pricing-strategist social-media-strategist budget-builder"
+skills: 'food-truck-operator business-planner pricing-strategist social-media-strategist budget-builder'
 trigger_phrases: >-
   I want to start a food truck help me launch a food truck food truck business
   plan how to start a mobile food business food truck guide open a food truck
@@ -21,8 +21,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship step-by-step planning
   category: business-operations
-  depends: "food-truck-operator business-planner pricing-strategist social-media-strategist budget-builder"
+  depends: 'food-truck-operator business-planner pricing-strategist social-media-strategist budget-builder'
 ---
+
 # Launch Food Truck
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -158,6 +159,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -168,7 +170,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Too many menu items:** Start with 6-10 items maximum. Simplify until you have speed of service dialed in.
 - **Ignoring food cost tracking:** Track food costs weekly. Small leaks in food cost destroy profitability.
 - **Relying on one location:** Diversify locations. A great spot can disappear due to construction, permits, or competition.
-
 
 ### Timeline Considerations
 

@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning checklist health-wellness"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel planning checklist health-wellness'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Jet Lag Recovery Plan
@@ -197,75 +197,79 @@ metadata:
 
 ### Jet Lag Profile
 
-| Factor | Detail |
-|--------|--------|
-| Zones crossed | 14 eastbound (or equivalently, 10 westbound) |
-| Direction | Eastbound -- but at 14 zones, the body may adapt westbound (delaying the clock by 10 hours is easier than advancing by 14) |
-| Flight duration | ~14 hours |
-| Departure (New York) | 1:00 PM EST |
-| Arrival (Tokyo) | 4:00 PM JST (next day) |
-| Body clock on arrival | 2:00 AM EST (you will feel like it is 2 AM) |
-| Adjustment rate | ~1-1.5 hours per day = 7-10 days for full adjustment |
+| Factor                | Detail                                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Zones crossed         | 14 eastbound (or equivalently, 10 westbound)                                                                               |
+| Direction             | Eastbound -- but at 14 zones, the body may adapt westbound (delaying the clock by 10 hours is easier than advancing by 14) |
+| Flight duration       | ~14 hours                                                                                                                  |
+| Departure (New York)  | 1:00 PM EST                                                                                                                |
+| Arrival (Tokyo)       | 4:00 PM JST (next day)                                                                                                     |
+| Body clock on arrival | 2:00 AM EST (you will feel like it is 2 AM)                                                                                |
+| Adjustment rate       | ~1-1.5 hours per day = 7-10 days for full adjustment                                                                       |
 
 **Key insight:** Your body does not know "east" or "west" -- it takes the shortest path. Advancing your clock 14 hours is harder than delaying it 10 hours. Your body will likely adapt by delaying (shifting bedtime later and later) rather than advancing (trying to sleep earlier and earlier). The plan below supports this natural westbound-style adaptation.
 
 ### Pre-Travel Adjustment (3 Days Before)
 
-| Day | Wake Time | Bedtime | Light Exposure | Meals | Notes |
-|-----|-----------|---------|----------------|-------|-------|
-| Day -3 | Normal (your usual) | 30 min later than usual | Bright light in the evening (7-9 PM) | Dinner 30 min later | Start shifting your body clock later |
-| Day -2 | 30 min later | 60 min later than usual | Bright light in the evening (7-9 PM) | All meals 30 min later | Continue the shift |
-| Day -1 | 60 min later | 90 min later than usual | Evening light, dim morning light | All meals 60 min later | Pack with the lights on to maintain evening alertness |
+| Day    | Wake Time           | Bedtime                 | Light Exposure                       | Meals                  | Notes                                                 |
+| ------ | ------------------- | ----------------------- | ------------------------------------ | ---------------------- | ----------------------------------------------------- |
+| Day -3 | Normal (your usual) | 30 min later than usual | Bright light in the evening (7-9 PM) | Dinner 30 min later    | Start shifting your body clock later                  |
+| Day -2 | 30 min later        | 60 min later than usual | Bright light in the evening (7-9 PM) | All meals 30 min later | Continue the shift                                    |
+| Day -1 | 60 min later        | 90 min later than usual | Evening light, dim morning light     | All meals 60 min later | Pack with the lights on to maintain evening alertness |
 
-*Since you are not a morning person, delaying your schedule will feel natural.*
+_Since you are not a morning person, delaying your schedule will feel natural._
 
 ### In-Flight Protocol
 
-| Phase | Destination Time (JST) | Your Body Clock (EST) | Action |
-|-------|------------------------|-----------------------|--------|
-| Boarding (1 PM EST) | 3:00 AM JST | 1:00 PM | Stay awake -- it is your body's afternoon. Watch a movie, read. |
-| First meal service (3 PM EST) | 5:00 AM JST | 3:00 PM | Eat the meal -- treat it as your lunch (body clock agrees) |
-| 6:00 PM EST | 8:00 AM JST | 6:00 PM | Put on eye mask. Try to sleep for 4-6 hours. This aligns with your body's evening/night. |
-| 12:00 AM EST (in flight) | 2:00 PM JST | 12:00 AM | If awake, keep lights dim. Sip water. Try to rest even if not sleeping. |
-| Second meal service (~3 AM EST) | 5:00 PM JST (pre-landing) | 3:00 AM | Wake up, eat the meal. Begin treating it as late afternoon. Splash water on face, use eye drops. |
-| Landing (4:00 PM JST) | 4:00 PM JST | 2:00 AM | Your body thinks it is 2 AM. You will be exhausted. This is expected. |
+| Phase                           | Destination Time (JST)    | Your Body Clock (EST) | Action                                                                                           |
+| ------------------------------- | ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
+| Boarding (1 PM EST)             | 3:00 AM JST               | 1:00 PM               | Stay awake -- it is your body's afternoon. Watch a movie, read.                                  |
+| First meal service (3 PM EST)   | 5:00 AM JST               | 3:00 PM               | Eat the meal -- treat it as your lunch (body clock agrees)                                       |
+| 6:00 PM EST                     | 8:00 AM JST               | 6:00 PM               | Put on eye mask. Try to sleep for 4-6 hours. This aligns with your body's evening/night.         |
+| 12:00 AM EST (in flight)        | 2:00 PM JST               | 12:00 AM              | If awake, keep lights dim. Sip water. Try to rest even if not sleeping.                          |
+| Second meal service (~3 AM EST) | 5:00 PM JST (pre-landing) | 3:00 AM               | Wake up, eat the meal. Begin treating it as late afternoon. Splash water on face, use eye drops. |
+| Landing (4:00 PM JST)           | 4:00 PM JST               | 2:00 AM               | Your body thinks it is 2 AM. You will be exhausted. This is expected.                            |
 
 **Hydration target:** 250 mL (8 oz) per waking hour = approximately 2 liters during the flight. Avoid alcohol entirely.
 
 ### Arrival Adaptation (Day-by-Day)
 
 #### Day 1: Arrival Day (Body Clock: 2 AM when it is 4 PM local)
-| Time (Local JST) | Body Clock (EST) | Action | Purpose |
-|-------------------|-------------------|--------|---------|
-| 4:00 PM | 2:00 AM | Land. Get through immigration and to accommodation. | Minimize decisions -- have transfer pre-arranged |
-| 5:30 PM | 3:30 AM | Arrive at accommodation. Do NOT lie down on the bed. | Lying down triggers sleep you cannot afford yet |
-| 6:00-7:30 PM | 4:00-5:30 AM | Go outside for a short walk (30-45 min). Get light exposure. Have a light dinner. | Evening light delays body clock (desired direction). Fresh air + activity combat fatigue. |
-| 8:00 PM | 6:00 AM | Return to accommodation. Begin wind-down. Dim lights. | Your body is starting to wake up -- resist the urge to stay up late |
-| 9:00-9:30 PM | 7:00-7:30 AM | Go to bed. Eye mask, dark room, cool temperature. | You are sleeping during your body's morning -- use blackout and mask |
 
-*You will likely wake up at 2-4 AM local time (12-2 PM body clock). This is normal. Stay in bed in the dark. If still awake after 30 minutes, read in dim light until drowsy.*
+| Time (Local JST) | Body Clock (EST) | Action                                                                            | Purpose                                                                                   |
+| ---------------- | ---------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 4:00 PM          | 2:00 AM          | Land. Get through immigration and to accommodation.                               | Minimize decisions -- have transfer pre-arranged                                          |
+| 5:30 PM          | 3:30 AM          | Arrive at accommodation. Do NOT lie down on the bed.                              | Lying down triggers sleep you cannot afford yet                                           |
+| 6:00-7:30 PM     | 4:00-5:30 AM     | Go outside for a short walk (30-45 min). Get light exposure. Have a light dinner. | Evening light delays body clock (desired direction). Fresh air + activity combat fatigue. |
+| 8:00 PM          | 6:00 AM          | Return to accommodation. Begin wind-down. Dim lights.                             | Your body is starting to wake up -- resist the urge to stay up late                       |
+| 9:00-9:30 PM     | 7:00-7:30 AM     | Go to bed. Eye mask, dark room, cool temperature.                                 | You are sleeping during your body's morning -- use blackout and mask                      |
+
+_You will likely wake up at 2-4 AM local time (12-2 PM body clock). This is normal. Stay in bed in the dark. If still awake after 30 minutes, read in dim light until drowsy._
 
 #### Day 2: First Full Day (Body Clock: Shifted ~1-2 hours)
-| Time (Local JST) | Body Clock (approx) | Action | Purpose |
-|-------------------|---------------------|--------|---------|
-| 6:00-7:00 AM | ~4:00-5:00 PM (previous day feel) | Wake up. Even if awake since 3 AM, get up by 7:00. | Anchoring wake time is the most powerful adaptation tool |
-| 7:00-8:00 AM | -- | Go outside into bright morning light for 30+ minutes. Walk, explore the neighborhood, get breakfast. | Morning light advances your clock (now working both directions) |
-| 8:00 AM-12:00 PM | -- | Light activities only. Visit nearby sites. Stay outdoors as much as possible. | Light exposure + gentle activity. Avoid anything requiring sharp focus. |
-| 12:00-1:00 PM | -- | Lunch at local time | Meal timing reinforces clock |
-| 1:00-2:00 PM | -- | If severely fatigued: take ONE nap, 20-30 minutes maximum. Set an alarm. | Short nap restores function without disrupting night sleep |
-| 2:00-6:00 PM | -- | Continue light activities. Stay outside when possible. No caffeine after 2 PM. | Afternoon light continues adaptation |
-| 6:00-7:00 PM | -- | Dinner | Eat at local time |
-| 9:00-10:00 PM | -- | Bedtime | Aim for 10 PM. You may fall asleep easily (fatigue accumulation) |
+
+| Time (Local JST) | Body Clock (approx)               | Action                                                                                               | Purpose                                                                 |
+| ---------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 6:00-7:00 AM     | ~4:00-5:00 PM (previous day feel) | Wake up. Even if awake since 3 AM, get up by 7:00.                                                   | Anchoring wake time is the most powerful adaptation tool                |
+| 7:00-8:00 AM     | --                                | Go outside into bright morning light for 30+ minutes. Walk, explore the neighborhood, get breakfast. | Morning light advances your clock (now working both directions)         |
+| 8:00 AM-12:00 PM | --                                | Light activities only. Visit nearby sites. Stay outdoors as much as possible.                        | Light exposure + gentle activity. Avoid anything requiring sharp focus. |
+| 12:00-1:00 PM    | --                                | Lunch at local time                                                                                  | Meal timing reinforces clock                                            |
+| 1:00-2:00 PM     | --                                | If severely fatigued: take ONE nap, 20-30 minutes maximum. Set an alarm.                             | Short nap restores function without disrupting night sleep              |
+| 2:00-6:00 PM     | --                                | Continue light activities. Stay outside when possible. No caffeine after 2 PM.                       | Afternoon light continues adaptation                                    |
+| 6:00-7:00 PM     | --                                | Dinner                                                                                               | Eat at local time                                                       |
+| 9:00-10:00 PM    | --                                | Bedtime                                                                                              | Aim for 10 PM. You may fall asleep easily (fatigue accumulation)        |
 
 #### Day 3: Building Adaptation (~3 hours shifted)
-| Time (Local JST) | Action | Notes |
-|-------------------|--------|-------|
-| 6:30-7:00 AM | Wake up, morning light outside | You may sleep slightly longer tonight -- progress |
-| Morning | Moderate activity -- sightseeing, walking | Energy improving |
-| Afternoon | Normal activity level. Short nap only if necessary (by Day 3, try to skip it). | Push through afternoon fatigue |
-| 9:30-10:00 PM | Bedtime | Sleep should be more consolidated |
+
+| Time (Local JST) | Action                                                                         | Notes                                             |
+| ---------------- | ------------------------------------------------------------------------------ | ------------------------------------------------- |
+| 6:30-7:00 AM     | Wake up, morning light outside                                                 | You may sleep slightly longer tonight -- progress |
+| Morning          | Moderate activity -- sightseeing, walking                                      | Energy improving                                  |
+| Afternoon        | Normal activity level. Short nap only if necessary (by Day 3, try to skip it). | Push through afternoon fatigue                    |
+| 9:30-10:00 PM    | Bedtime                                                                        | Sleep should be more consolidated                 |
 
 #### Day 4-5: Significant Improvement (~5-7 hours shifted)
+
 - Wake at 6:30-7:00 AM consistently
 - Morning light for 20+ minutes
 - Normal activity levels through the day
@@ -273,6 +277,7 @@ metadata:
 - Bedtime at 10:00-10:30 PM
 
 #### Day 6-7: Near-Full Adaptation (~8-10 hours shifted)
+
 - Sleep should feel nearly normal
 - Occasional early waking (5 AM) may persist -- get up and use the time
 - Energy through the day is close to normal
@@ -280,13 +285,13 @@ metadata:
 
 ### Light Exposure Schedule
 
-| Day | Seek Bright Light (outdoor, 30+ min) | Avoid Bright Light | Why |
-|-----|--------------------------------------|-------------------|-----|
-| Day 1 (arrival PM) | 6:00-7:30 PM | After 8:00 PM (dim lights) | Evening light delays clock (desired) |
-| Day 2 | 7:00-9:00 AM + afternoon outdoors | Before 6:00 AM (stay in dark room) | Morning light begins advancing clock to local |
-| Day 3 | 7:00-8:30 AM | Before 5:30 AM | Continue morning advance |
-| Day 4-5 | 7:00-8:00 AM (normal morning exposure) | No restriction needed | Clock is approaching local alignment |
-| Day 6+ | Normal outdoor activity | Normal | Adapted |
+| Day                | Seek Bright Light (outdoor, 30+ min)   | Avoid Bright Light                 | Why                                           |
+| ------------------ | -------------------------------------- | ---------------------------------- | --------------------------------------------- |
+| Day 1 (arrival PM) | 6:00-7:30 PM                           | After 8:00 PM (dim lights)         | Evening light delays clock (desired)          |
+| Day 2              | 7:00-9:00 AM + afternoon outdoors      | Before 6:00 AM (stay in dark room) | Morning light begins advancing clock to local |
+| Day 3              | 7:00-8:30 AM                           | Before 5:30 AM                     | Continue morning advance                      |
+| Day 4-5            | 7:00-8:00 AM (normal morning exposure) | No restriction needed              | Clock is approaching local alignment          |
+| Day 6+             | Normal outdoor activity                | Normal                             | Adapted                                       |
 
 ### Nap Rules
 
@@ -297,24 +302,24 @@ metadata:
 
 ### Caffeine Strategy
 
-| Day | Caffeine OK Window (local time) | No Caffeine After | Notes |
-|-----|--------------------------------|-------------------|-------|
-| Day 1 (arrival PM) | 4:00-6:00 PM | 6:00 PM | One coffee on arrival to stay awake until bedtime |
-| Day 2 | 7:00 AM-1:00 PM | 1:00 PM | Morning caffeine only; strict afternoon cutoff |
-| Day 3 | 7:00 AM-2:00 PM | 2:00 PM | Slightly relaxed cutoff as sleep improves |
-| Day 4+ | Normal (7:00 AM-2:00 PM) | 2:00 PM | Standard caffeine hygiene |
+| Day                | Caffeine OK Window (local time) | No Caffeine After | Notes                                             |
+| ------------------ | ------------------------------- | ----------------- | ------------------------------------------------- |
+| Day 1 (arrival PM) | 4:00-6:00 PM                    | 6:00 PM           | One coffee on arrival to stay awake until bedtime |
+| Day 2              | 7:00 AM-1:00 PM                 | 1:00 PM           | Morning caffeine only; strict afternoon cutoff    |
+| Day 3              | 7:00 AM-2:00 PM                 | 2:00 PM           | Slightly relaxed cutoff as sleep improves         |
+| Day 4+             | Normal (7:00 AM-2:00 PM)        | 2:00 PM           | Standard caffeine hygiene                         |
 
 ### Recovery Timeline
 
-| Day | Expected Adjustment | How You Will Feel |
-|-----|--------------------|--------------------|
-| Day 1 | 0 hours (arrival) | Exhausted, disoriented, fighting to stay awake. Everything feels surreal. This is the hardest day. |
-| Day 2 | 1-2 hours | Very tired but functional. Alert in the morning, crashing by 2-4 PM. Sleep may be fragmented (wake at 3-4 AM). |
-| Day 3 | 3-4 hours | Noticeably better. Morning energy good. Afternoon dip still present. Sleep improving -- may wake at 4-5 AM. |
-| Day 4 | 5-6 hours | Good energy most of the day. Mild tiredness in late afternoon. Sleeping closer to full night. |
-| Day 5 | 6-7 hours | Near-normal energy. Sleep timing approaching local schedule. |
-| Day 6-7 | 8-9 hours | Feeling almost fully adjusted. Minor residual effects (early waking). |
-| Day 8-10 | Full adaptation | Normal sleep-wake cycle on Tokyo time. Enjoy the remainder of the trip fully adjusted. |
+| Day      | Expected Adjustment | How You Will Feel                                                                                              |
+| -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Day 1    | 0 hours (arrival)   | Exhausted, disoriented, fighting to stay awake. Everything feels surreal. This is the hardest day.             |
+| Day 2    | 1-2 hours           | Very tired but functional. Alert in the morning, crashing by 2-4 PM. Sleep may be fragmented (wake at 3-4 AM). |
+| Day 3    | 3-4 hours           | Noticeably better. Morning energy good. Afternoon dip still present. Sleep improving -- may wake at 4-5 AM.    |
+| Day 4    | 5-6 hours           | Good energy most of the day. Mild tiredness in late afternoon. Sleeping closer to full night.                  |
+| Day 5    | 6-7 hours           | Near-normal energy. Sleep timing approaching local schedule.                                                   |
+| Day 6-7  | 8-9 hours           | Feeling almost fully adjusted. Minor residual effects (early waking).                                          |
+| Day 8-10 | Full adaptation     | Normal sleep-wake cycle on Tokyo time. Enjoy the remainder of the trip fully adjusted.                         |
 
 ### Return Trip Note
 

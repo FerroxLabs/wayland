@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Build And Launch Game
 
 **Estimated time:** 3-12 months
@@ -121,7 +122,7 @@ plan the launch timeline: store page setup, marketing materials, trailer, press 
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 2**: Pivot the mechanic or try a different concept
   - If **After Step 3**: Continue iterating until fun is proven
   - If **After Step 4**: Cut content scope to fit available time
@@ -172,6 +173,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

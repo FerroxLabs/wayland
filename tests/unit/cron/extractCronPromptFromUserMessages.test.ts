@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { extractCronPromptFromUserMessages, __test } from '../../../src/renderer/utils/cron/extractCronPromptFromUserMessages';
+import {
+  extractCronPromptFromUserMessages,
+  __test,
+} from '../../../src/renderer/utils/cron/extractCronPromptFromUserMessages';
 import type { TMessage } from '../../../src/common/chat/chatLib';
 
 const { MIN_USER_MSG_LENGTH, ACK_PATTERN } = __test;

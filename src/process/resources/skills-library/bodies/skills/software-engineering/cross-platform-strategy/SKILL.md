@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile architecture best-practices"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile architecture best-practices'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cross-Platform Mobile Strategy
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is deciding between React Native, Flutter, Kotlin Multiplatform Mobile (KMM), Ionic/Capacitor, or native iOS/Android development for a new project
 - A user needs to evaluate whether to migrate an existing native app to a cross-platform framework or vice versa
 - A user wants a structured framework matrix to justify a technology recommendation to engineering leadership or stakeholders
@@ -29,6 +31,7 @@ metadata:
 - A user is designing a feature strategy that involves platform-specific native modules alongside shared cross-platform code
 
 **Do NOT use this skill when:**
+
 - The user needs detailed guidance on React Native-specific APIs, layout engine debugging, or Metro bundler configuration -- use the React Native skill in this subcategory
 - The user needs Flutter widget lifecycle, Dart null-safety, or Flutter DevTools profiling -- use the Flutter-specific skill
 - The user needs native iOS Swift/SwiftUI architecture guidance without a cross-platform component -- use the iOS native skill
@@ -143,6 +146,7 @@ Produce a structured Cross-Platform Strategy Report using the following template
 # Cross-Platform Mobile Strategy Report
 
 ## Project Context Summary
+
 - **App name / codename:** [name]
 - **Target platforms:** [iOS / Android / Both]
 - **Feature tier breakdown:** Tier 1: X% | Tier 2: Y% | Tier 3: Z%
@@ -160,20 +164,21 @@ Produce a structured Cross-Platform Strategy Report using the following template
 
 ### Decision Matrix
 
-| Criterion                        | React Native | Flutter | KMM  | Native |
-|----------------------------------|:------------:|:-------:|:----:|:------:|
-| Team familiarity                 | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| UI consistency requirement       | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| Tier 3 feature volume            | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| Existing codebase integration    | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| Startup performance              | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| Ecosystem maturity               | [H/M/L]      | [H/M/L] | [H/M/L] | [H/M/L] |
-| **Total fit score (H=3,M=2,L=1)**| [X/18]       | [X/18]  | [X/18]  | [X/18] |
+| Criterion                         | React Native | Flutter |   KMM   | Native  |
+| --------------------------------- | :----------: | :-----: | :-----: | :-----: |
+| Team familiarity                  |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| UI consistency requirement        |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| Tier 3 feature volume             |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| Existing codebase integration     |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| Startup performance               |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| Ecosystem maturity                |   [H/M/L]    | [H/M/L] | [H/M/L] | [H/M/L] |
+| **Total fit score (H=3,M=2,L=1)** |    [X/18]    | [X/18]  | [X/18]  | [X/18]  |
 
 H = High fit | M = Medium fit | L = Low fit
 
 ### Rationale
-[2--4 sentences explaining the primary factors that drove the recommendation, 
+
+[2--4 sentences explaining the primary factors that drove the recommendation,
 referencing specific scores from the matrix and project constraints.]
 
 ---
@@ -182,37 +187,39 @@ referencing specific scores from the matrix and project constraints.]
 
 ### Layer Map
 
-| Layer              | Sharing %  | Technology Choice        | Rationale                        |
-|--------------------|:----------:|--------------------------|----------------------------------|
-| Domain/Business    | 90--100%   | [TypeScript/Dart/Kotlin] | [reason]                         |
-| Data / Repository  | 70--90%    | [Ktor/Dio/Axios/SQLite]  | [reason]                         |
-| State Management   | 60--80%    | [Zustand/Riverpod/BLoC]  | [reason]                         |
-| Navigation         | 50--70%    | [React Nav/GoRouter]     | [reason]                         |
-| UI Components      | 30--60%    | [shared + platform split]| [reason]                         |
-| Native Bridges     | 0%         | [Swift/Kotlin modules]   | [platform-specific interfaces]   |
+| Layer             | Sharing % | Technology Choice         | Rationale                      |
+| ----------------- | :-------: | ------------------------- | ------------------------------ |
+| Domain/Business   | 90--100%  | [TypeScript/Dart/Kotlin]  | [reason]                       |
+| Data / Repository |  70--90%  | [Ktor/Dio/Axios/SQLite]   | [reason]                       |
+| State Management  |  60--80%  | [Zustand/Riverpod/BLoC]   | [reason]                       |
+| Navigation        |  50--70%  | [React Nav/GoRouter]      | [reason]                       |
+| UI Components     |  30--60%  | [shared + platform split] | [reason]                       |
+| Native Bridges    |    0%     | [Swift/Kotlin modules]    | [platform-specific interfaces] |
 
 ### Directory Structure
 ```
+
 [project-name]/
 ├── src/ (or lib/)
-│   ├── core/
-│   │   ├── api/         # HTTP client, interceptors, base models
-│   │   ├── storage/     # Local DB, secure storage wrappers
-│   │   ├── navigation/  # Route definitions, navigator configuration
-│   │   └── theme/       # Design tokens, colors, typography
-│   ├── features/
-│   │   ├── [feature-1]/
-│   │   │   ├── data/    # Repository impl, DTOs, data sources
-│   │   │   ├── domain/  # Use cases, entities, repository interfaces
-│   │   │   └── ui/      # Screens, components, view models/hooks
-│   │   └── [feature-2]/
-│   └── shared/
-│       ├── components/  # Reusable UI components
-│       └── utils/       # Pure utility functions
-├── android/             # Platform-specific Android code
-├── ios/                 # Platform-specific iOS code
+│ ├── core/
+│ │ ├── api/ # HTTP client, interceptors, base models
+│ │ ├── storage/ # Local DB, secure storage wrappers
+│ │ ├── navigation/ # Route definitions, navigator configuration
+│ │ └── theme/ # Design tokens, colors, typography
+│ ├── features/
+│ │ ├── [feature-1]/
+│ │ │ ├── data/ # Repository impl, DTOs, data sources
+│ │ │ ├── domain/ # Use cases, entities, repository interfaces
+│ │ │ └── ui/ # Screens, components, view models/hooks
+│ │ └── [feature-2]/
+│ └── shared/
+│ ├── components/ # Reusable UI components
+│ └── utils/ # Pure utility functions
+├── android/ # Platform-specific Android code
+├── ios/ # Platform-specific iOS code
 └── docs/
-    └── adr/             # Architecture Decision Records
+└── adr/ # Architecture Decision Records
+
 ```
 
 ---
@@ -253,27 +260,27 @@ referencing specific scores from the matrix and project constraints.]
 
 ## Architecture Decision Record (ADR-001)
 
-**Title:** Cross-Platform Framework Selection  
-**Status:** Accepted  
+**Title:** Cross-Platform Framework Selection
+**Status:** Accepted
 **Date:** [YYYY-MM-DD]
 
-**Context:**  
+**Context:**
 [Describe the business problem, team constraints, and feature requirements that necessitate this decision.]
 
-**Decision:**  
+**Decision:**
 [State the chosen framework and the specific conditions that determined the choice.]
 
-**Consequences:**  
+**Consequences:**
 - Accepted trade-offs: [list 2--3]
 - Advantages gained: [list 2--3]
 
-**Alternatives Considered:**  
+**Alternatives Considered:**
 | Alternative | Rejected Because |
 |-------------|-----------------|
 | [Framework] | [Specific reason with data] |
 | [Framework] | [Specific reason with data] |
 
-**Revisit Condition:**  
+**Revisit Condition:**
 [Specific measurable condition under which this decision should be reconsidered, e.g., "If Tier 3 features exceed 25% of the backlog or if team Dart/Flutter expertise exceeds JS expertise."]
 ```
 
@@ -345,6 +352,7 @@ When a team has partially migrated from native to cross-platform (or chosen the 
 # Cross-Platform Mobile Strategy Report
 
 ## Project Context Summary
+
 - **App name / codename:** B2C E-Commerce App
 - **Target platforms:** iOS first, Android 2 months later
 - **Feature tier breakdown:** Tier 1: 65% (catalog, search, cart, checkout UI, order history) | Tier 2: 30% (push notifications, biometric auth, WebSocket real-time updates) | Tier 3: 5% (Face ID hardware integration -- manageable via expo-local-authentication)
@@ -362,15 +370,15 @@ When a team has partially migrated from native to cross-platform (or chosen the 
 
 ### Decision Matrix
 
-| Criterion                        | React Native | Flutter | KMM  | Native |
-|----------------------------------|:------------:|:-------:|:----:|:------:|
-| Team familiarity                 | H (4 seniors)| L       | L    | L      |
-| UI consistency requirement       | M            | H       | M    | H      |
-| Tier 3 feature volume            | H (5%)       | H (5%)  | H    | H      |
-| Existing codebase integration    | H (none)     | H       | M    | H      |
-| Startup performance              | M (Hermes)   | H       | H    | H      |
-| Ecosystem maturity               | H            | H       | M    | H      |
-| **Total fit score (H=3,M=2,L=1)**| **16/18**   | 13/18   | 12/18| 13/18  |
+| Criterion                         | React Native  | Flutter |  KMM  | Native |
+| --------------------------------- | :-----------: | :-----: | :---: | :----: |
+| Team familiarity                  | H (4 seniors) |    L    |   L   |   L    |
+| UI consistency requirement        |       M       |    H    |   M   |   H    |
+| Tier 3 feature volume             |    H (5%)     | H (5%)  |   H   |   H    |
+| Existing codebase integration     |   H (none)    |    H    |   M   |   H    |
+| Startup performance               |  M (Hermes)   |    H    |   H   |   H    |
+| Ecosystem maturity                |       H       |    H    |   M   |   H    |
+| **Total fit score (H=3,M=2,L=1)** |   **16/18**   |  13/18  | 12/18 | 13/18  |
 
 H = High fit | M = Medium fit | L = Low fit
 
@@ -384,16 +392,17 @@ The team's dominant React/TypeScript skillset makes React Native the decisive ch
 
 ### Layer Map
 
-| Layer              | Sharing %  | Technology Choice                          | Rationale                                       |
-|--------------------|:----------:|--------------------------------------------|--------------------------------------------------|
-| Domain/Business    | 95%        | TypeScript, Zod for validation             | Pure business rules, no platform dependencies    |
-| Data / Repository  | 85%        | Axios + React Query, MMKV, WatermelonDB    | React Query handles caching; MMKV for fast KV storage |
-| State Management   | 80%        | Zustand (cart, auth, UI state)             | Lightweight, no boilerplate; fits team's React mental model |
-| Navigation         | 70%        | React Navigation 6 (Stack + Bottom Tabs)  | Industry standard; robust deep-link support       |
-| UI Components      | 55%        | Custom design system + platform splits    | Shared components; platform-specific safe areas, gestures |
-| Native Bridges     | 0%         | expo-local-authentication, expo-notifications | Abstract interface defined in shared code |
+| Layer             | Sharing % | Technology Choice                             | Rationale                                                   |
+| ----------------- | :-------: | --------------------------------------------- | ----------------------------------------------------------- |
+| Domain/Business   |    95%    | TypeScript, Zod for validation                | Pure business rules, no platform dependencies               |
+| Data / Repository |    85%    | Axios + React Query, MMKV, WatermelonDB       | React Query handles caching; MMKV for fast KV storage       |
+| State Management  |    80%    | Zustand (cart, auth, UI state)                | Lightweight, no boilerplate; fits team's React mental model |
+| Navigation        |    70%    | React Navigation 6 (Stack + Bottom Tabs)      | Industry standard; robust deep-link support                 |
+| UI Components     |    55%    | Custom design system + platform splits        | Shared components; platform-specific safe areas, gestures   |
+| Native Bridges    |    0%     | expo-local-authentication, expo-notifications | Abstract interface defined in shared code                   |
 
 ### Directory Structure
+
 ```
 ecommerce-app/
 ├── src/
@@ -457,28 +466,29 @@ ecommerce-app/
 
 ## Platform-Specific Handling Plan
 
-| Concern              | iOS Approach                                          | Android Approach                                           |
-|----------------------|--------------------------------------------------------|-------------------------------------------------------------|
-| Navigation gestures  | Enable swipe-back on stack screens (default in RN 6)  | Intercept hardware back button with `BackHandler` in cart/checkout |
-| Safe area insets     | `SafeAreaProvider` + `useSafeAreaInsets()` universally | Same library; test on gesture-nav Android 10+ devices        |
-| Biometric login      | Face ID / Touch ID via `expo-local-authentication`     | Fingerprint / Face via same API (BiometricPrompt backing)    |
-| Push notifications   | APNs via `expo-notifications`; register in app launch  | FCM via same API; test FCM on physical device, not emulator  |
-| WebSocket (orders)   | Background to foreground re-connect on `AppState` change | Same pattern; test app resume on aggressive OEM killers (Samsung) |
-| Permissions          | NSCameraUsageDescription (not needed for this app)     | `POST_NOTIFICATIONS` permission required for API 33+ at runtime |
+| Concern             | iOS Approach                                             | Android Approach                                                   |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------------------------------ |
+| Navigation gestures | Enable swipe-back on stack screens (default in RN 6)     | Intercept hardware back button with `BackHandler` in cart/checkout |
+| Safe area insets    | `SafeAreaProvider` + `useSafeAreaInsets()` universally   | Same library; test on gesture-nav Android 10+ devices              |
+| Biometric login     | Face ID / Touch ID via `expo-local-authentication`       | Fingerprint / Face via same API (BiometricPrompt backing)          |
+| Push notifications  | APNs via `expo-notifications`; register in app launch    | FCM via same API; test FCM on physical device, not emulator        |
+| WebSocket (orders)  | Background to foreground re-connect on `AppState` change | Same pattern; test app resume on aggressive OEM killers (Samsung)  |
+| Permissions         | NSCameraUsageDescription (not needed for this app)       | `POST_NOTIFICATIONS` permission required for API 33+ at runtime    |
 
 ---
 
 ## Performance Targets and Testing Protocol
 
-| Metric                | Target          | Measurement Method                         | Test Device                          |
-|-----------------------|-----------------|--------------------------------------------|--------------------------------------|
-| Cold start TTI        | < 2.0 seconds   | Flipper plugin + manual stopwatch          | Samsung Galaxy A32 (SD 720G, 4 GB)   |
-| Catalog scroll        | 60 fps sustained| Android Studio CPU profiler, Instruments   | A32 + iPhone 12 (2-year-old device)  |
-| Memory (steady state) | < 160 MB RSS    | Android Studio Memory Profiler             | A32 as worst-case                    |
-| Order WebSocket       | < 1s reconnect  | Manual test: background app 30s, foreground| Both platforms                        |
-| Checkout flow         | < 3s end-to-end | Detox E2E test with performance assertion  | Both reference devices                |
+| Metric                | Target           | Measurement Method                          | Test Device                         |
+| --------------------- | ---------------- | ------------------------------------------- | ----------------------------------- |
+| Cold start TTI        | < 2.0 seconds    | Flipper plugin + manual stopwatch           | Samsung Galaxy A32 (SD 720G, 4 GB)  |
+| Catalog scroll        | 60 fps sustained | Android Studio CPU profiler, Instruments    | A32 + iPhone 12 (2-year-old device) |
+| Memory (steady state) | < 160 MB RSS     | Android Studio Memory Profiler              | A32 as worst-case                   |
+| Order WebSocket       | < 1s reconnect   | Manual test: background app 30s, foreground | Both platforms                      |
+| Checkout flow         | < 3s end-to-end  | Detox E2E test with performance assertion   | Both reference devices              |
 
 Key implementation notes for this project:
+
 - Use `FlashList` (Shopify's virtualized list) instead of React Native's `FlatList` for the product catalog -- FlashList is 5--10x faster for large datasets and handles variable-height product cards better.
 - Enable Hermes JavaScript engine (default in Expo SDK 48+). Verify it is active by checking `global.HermesInternal !== null` in startup code.
 - Lazy-load all feature screens except the initial tab (catalog). Use `React.lazy` with Suspense at the navigator level.
@@ -495,7 +505,7 @@ Key implementation notes for this project:
 - **Device farm:** Firebase Test Lab for Android matrix (Pixel 6, Galaxy A32, Pixel 4a); BrowserStack for iOS (iPhone 14 Pro, iPhone 12)
 - **OTA update policy (Expo Updates):**
   - OTA eligible: bug fixes in JS business logic, copy changes, style adjustments, non-permission API changes
-  - Store submission required: adding native modules, modifying app.json permissions, changing minimum OS version, adding new expo-* plugins that modify native code
+  - Store submission required: adding native modules, modifying app.json permissions, changing minimum OS version, adding new expo-\* plugins that modify native code
 - **Release automation:** fastlane `deliver` (iOS) and `supply` (Android) for store submissions from CI; build numbers auto-incremented from CI run number
 
 ---
@@ -513,16 +523,17 @@ We are building a greenfield B2C e-commerce app targeting iOS and Android with a
 React Native with Expo managed workflow (migrating to bare workflow by month 3 when the team needs more control over native configuration). This choice is driven primarily by the team's React/TypeScript expertise, which eliminates a framework learning curve and is essential for meeting the 4-month deadline.
 
 **Consequences:**
+
 - Accepted trade-offs: React Native's JS bridge (mitigated by Hermes and New Architecture adoption); slightly longer cold start than Flutter on low-end Android (mitigated by Hermes, lazy loading); 20--25% of effort still required for platform-specific polish and native module configuration
 - Advantages gained: 4 senior engineers productive in < 3 weeks; single TypeScript codebase for domain/data layer; Expo managed workflow eliminates Xcode/Gradle configuration complexity for the first 3 months; unified push notification API (APNs + FCM) via expo-notifications
 
 **Alternatives Considered:**
 
-| Alternative | Rejected Because |
-|-------------|-----------------|
-| Flutter | Zero Dart experience on team; 3--6 month learning curve incompatible with 4-month deadline; superior rendering consistency not decisive for standard e-commerce UI |
+| Alternative                 | Rejected Because                                                                                                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Flutter                     | Zero Dart experience on team; 3--6 month learning curve incompatible with 4-month deadline; superior rendering consistency not decisive for standard e-commerce UI        |
 | Native iOS + Native Android | Would require the 4 senior JS engineers to learn Swift/Kotlin; effectively doubles UI feature work; 2 junior iOS developers alone cannot deliver full iOS app in 4 months |
-| KMM | Requires Kotlin expertise the team does not have; best suited for teams migrating existing native apps, not greenfield with JS-dominant team |
+| KMM                         | Requires Kotlin expertise the team does not have; best suited for teams migrating existing native apps, not greenfield with JS-dominant team                              |
 
 **Revisit Condition:**
 Revisit this decision if: (1) Tier 3 feature requirements are added that exceed 20% of the backlog (e.g., AR product visualization, custom payment hardware integration), or (2) scroll performance on the catalog screen cannot be maintained at 60 fps on the Galaxy A32 reference device after optimization, or (3) team composition shifts to > 50% native iOS/Android engineers within the next 12 months.

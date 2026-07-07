@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript best-practices debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript best-practices debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # TypeScript Runtime Safety
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Designing Zod schemas for API request/response validation, including nested objects, discriminated unions, and recursive schemas
 - Runtime validation at application boundaries -- HTTP handlers, WebSocket messages, environment variable parsing, localStorage reads, third-party API responses
 - Branded types (nominal types) to distinguish values that share a primitive representation, such as `UserId` vs `OrderId` both being `string`
@@ -31,6 +33,7 @@ metadata:
 - Runtime safety patterns for environment configuration (`process.env` validation with Zod)
 
 **Do NOT use this skill when:**
+
 - The user is asking about TypeScript's compile-time type system features -- conditional types, mapped types, template literal types, infer keyword -- use `typescript-type-patterns` instead
 - The user needs TypeScript project configuration -- `tsconfig.json`, module resolution, path aliases, build tooling -- use `typescript-project-setup` instead
 - The user is asking about testing strategies -- unit tests, integration tests, mocking, test coverage -- use `javascript-testing-patterns` instead
@@ -76,9 +79,9 @@ Write schemas that reflect the domain, not the wire format. The wire format is a
 - Use `.strict()` on object schemas at external boundaries to reject unknown keys. Use `.passthrough()` only when you intentionally forward unknown properties. Omit the modifier for internal schemas where you control both ends.
 - Use `z.discriminatedUnion()` instead of `z.union()` when a shared literal field identifies the variant -- it is faster (O(1) vs O(n) checks) and produces better error messages:
   ```typescript
-  const EventSchema = z.discriminatedUnion("type", [
-    z.object({ type: z.literal("created"), userId: UuidSchema }),
-    z.object({ type: z.literal("deleted"), userId: UuidSchema, reason: z.string() }),
+  const EventSchema = z.discriminatedUnion('type', [
+    z.object({ type: z.literal('created'), userId: UuidSchema }),
+    z.object({ type: z.literal('deleted'), userId: UuidSchema, reason: z.string() }),
   ]);
   ```
 - Use `.transform()` inside schemas to normalize data at parse time -- lowercase emails, trim strings, parse ISO dates to `Date` objects -- rather than post-processing after validation
@@ -116,14 +119,17 @@ The parse-not-validate pattern means: call `schema.parse(unknown)` or `schema.sa
 TypeScript's structural type system cannot distinguish `UserId` from `ProductId` if both are `string`. Branded types add a phantom compile-time tag to enforce correct usage without any runtime overhead.
 
 - Define brands using Zod's `.brand()` method, which integrates with Zod's parsing and produces a branded type automatically:
+
   ```typescript
-  const UserIdSchema = z.string().uuid().brand<"UserId">();
+  const UserIdSchema = z.string().uuid().brand<'UserId'>();
   export type UserId = z.infer<typeof UserIdSchema>; // string & { __brand: "UserId" }
 
-  const ProductIdSchema = z.string().uuid().brand<"ProductId">();
+  const ProductIdSchema = z.string().uuid().brand<'ProductId'>();
   export type ProductId = z.infer<typeof ProductIdSchema>;
   ```
+
 - Brand every domain ID. Functions that accept `UserId` cannot accidentally receive a raw `string` or a `ProductId`:
+
   ```typescript
   function getUser(id: UserId): Promise<User> { ... }
 
@@ -131,11 +137,12 @@ TypeScript's structural type system cannot distinguish `UserId` from `ProductId`
   getUser(productId);     // TS error: brand mismatch
   getUser(UserIdSchema.parse(rawId)); // Correct -- parse produces branded type
   ```
+
 - Use brands for other semantically distinct primitives: `PositiveDollars` (cents as number), `SafeHtml` (sanitized string), `HashedPassword` (never a plaintext string), `AbsoluteUrl`
 - When creating branded values without Zod (e.g., for values created inside the domain, not parsed from external input), use a module-level factory:
   ```typescript
   export type Branded<T, Brand> = T & { readonly __brand: Brand };
-  export type UserId = Branded<string, "UserId">;
+  export type UserId = Branded<string, 'UserId'>;
   export const UserId = (id: string): UserId => id as UserId; // Internal use only
   ```
 - Do not over-brand. Brand identifiers and semantically critical primitives. Do not brand every string in the system -- `FirstName` and `LastName` as separate brands adds noise without safety benefit unless your domain truly requires them to be non-interchangeable.
@@ -145,6 +152,7 @@ TypeScript's structural type system cannot distinguish `UserId` from `ProductId`
 Type guards narrow the type of a value within a conditional block. Zod's `.safeParse()` is the most reliable source of type guards, but hand-written guards are necessary for runtime checks that have no schema.
 
 - A hand-written type guard must actually check the property it claims:
+
   ```typescript
   // WRONG -- always returns true, dangerous
   function isUser(value: unknown): value is User {
@@ -154,15 +162,16 @@ Type guards narrow the type of a value within a conditional block. Zod's `.safeP
   // CORRECT -- checks every discriminating property
   function isUser(value: unknown): value is User {
     return (
-      typeof value === "object" &&
+      typeof value === 'object' &&
       value !== null &&
-      "id" in value &&
-      typeof (value as any).id === "string" &&
-      "email" in value &&
-      typeof (value as any).email === "string"
+      'id' in value &&
+      typeof (value as any).id === 'string' &&
+      'email' in value &&
+      typeof (value as any).email === 'string'
     );
   }
   ```
+
 - Prefer Zod-backed guards over hand-written guards for complex types -- Zod's validation is tested and handles edge cases:
   ```typescript
   function isUser(value: unknown): value is User {
@@ -190,21 +199,23 @@ Type guards narrow the type of a value within a conditional block. Zod's `.safeP
 `process.env` is the most commonly under-validated application boundary. Failures here cause runtime crashes with cryptic messages hours after deployment.
 
 - Create a dedicated `src/config.ts` (or `src/env.ts`) file. Import this in the application entry point before anything else:
+
   ```typescript
-  import { z } from "zod";
+  import { z } from 'zod';
 
   const EnvSchema = z.object({
-    NODE_ENV: z.enum(["development", "production", "test"]),
+    NODE_ENV: z.enum(['development', 'production', 'test']),
     PORT: z.coerce.number().int().min(1024).max(65535).default(3000),
     DATABASE_URL: z.string().url(),
     JWT_SECRET: z.string().min(32),
     REDIS_URL: z.string().url().optional(),
-    LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   });
 
   export const env = EnvSchema.parse(process.env);
   export type Env = z.infer<typeof EnvSchema>;
   ```
+
 - Note `z.coerce.number()` -- this is critical for environment variables, which are always strings. Without coerce, `PORT: z.number()` will always fail because `process.env.PORT` is `"3000"`, not `3000`.
 - Export the validated `env` object. Never access `process.env` directly anywhere else in the codebase. Enforce this with an ESLint rule: `no-process-env`.
 - Include a `.env.example` file listing all required variables. Validate it in CI by running the config parse against the example file -- this catches schema drift early.
@@ -233,10 +244,10 @@ Zod's raw `ZodError` is a deeply nested structure. Users and API consumers need 
   ```typescript
   export function formatZodError(error: z.ZodError): ApiErrorBody {
     return {
-      code: "VALIDATION_ERROR",
-      message: "Request validation failed",
+      code: 'VALIDATION_ERROR',
+      message: 'Request validation failed',
       details: error.issues.map((issue) => ({
-        path: issue.path.join("."),
+        path: issue.path.join('.'),
         message: issue.message,
         code: issue.code,
       })),
@@ -251,9 +262,10 @@ Zod's raw `ZodError` is a deeply nested structure. Users and API consumers need 
 Validation should be infrastructure-level, not scattered through route handlers. Set it up once, use everywhere.
 
 - For Express, create a `validateBody`, `validateQuery`, and `validateParams` middleware factory:
+
   ```typescript
-  import { RequestHandler } from "express";
-  import { z, ZodSchema } from "zod";
+  import { RequestHandler } from 'express';
+  import { z, ZodSchema } from 'zod';
 
   export function validateBody<T>(schema: ZodSchema<T>): RequestHandler {
     return (req, res, next) => {
@@ -266,6 +278,7 @@ Validation should be infrastructure-level, not scattered through route handlers.
     };
   }
   ```
+
 - For Next.js App Router, validate in route handlers with an async wrapper that catches parse failures
 - For tRPC, use Zod schemas directly as the `input` validator -- tRPC has native Zod integration and will surface errors to the client automatically
 - For Fastify, use `fastify-zod` or the native schema plugin to define Zod schemas as route schemas -- Fastify will validate before the handler runs
@@ -336,7 +349,9 @@ When helping a user implement TypeScript runtime safety, structure the response 
 ## Edge Cases
 
 ### Recursive and Self-Referential Schemas
+
 Zod cannot infer the type of recursive schemas automatically -- TypeScript's type inference bottoms out. Use `z.lazy()` and provide an explicit type annotation:
+
 ```typescript
 interface Category {
   id: string;
@@ -349,69 +364,86 @@ const CategorySchema: z.ZodType<Category> = z.object({
   children: z.lazy(() => CategorySchema.array()),
 });
 ```
+
 Performance note: `z.lazy()` schemas re-evaluate on every call. For deeply recursive structures with many levels, benchmark the parse time. A 10-level deep tree with 100 nodes per level may take 50--200ms to validate -- consider validating only the first 2--3 levels and treating deeper nodes as `unknown` if performance demands it.
 
 ### Schema Evolution and Backward Compatibility During Deployment
+
 When deploying schema changes, a rolling deployment means old and new instances run simultaneously. A field added as required (`z.string()`) on the new instance will fail requests from the old instance that don't include the field. Strategies:
+
 - Add new required fields as `.optional()` first, deploy, then make them required in a subsequent deployment
 - Use feature flags to control which schema version a request is validated against
 - Version your API routes (`/v1/`, `/v2/`) rather than making breaking changes in place
 - Use `.passthrough()` temporarily during migration to avoid rejecting valid legacy payloads
 
 ### Large Payload Validation Performance
+
 Zod validation is synchronous and has measurable overhead on large payloads. Benchmarks show approximately 1--3ms per 100 fields on a modern server. For endpoints receiving arrays with thousands of items:
+
 - Move bulk upload endpoints behind a queue -- validate items asynchronously in workers
 - Use `z.array(ItemSchema)` on the whole array, not `ItemSchema.parse()` in a loop -- Zod optimizes the array case
 - Consider validating a statistical sample (1%) of internal high-volume streams where you control both ends
 - For CSV imports exceeding 10,000 rows, validate the header row and first 10 data rows synchronously, then stream-validate the rest asynchronously with `safeParseAsync`
 
 ### Third-Party API Response Schemas That Change Without Notice
+
 External APIs (payment providers, social auth, data vendors) change response shapes without versioning. Your `z.object({ ... }).strict()` will start rejecting responses when the vendor adds a new field.
+
 - Use `.strip()` (the default) not `.strict()` for external API response schemas
 - Use `.partial()` on optional fields from external APIs -- vendors often make fields optional without notice
 - Add an integration test that fetches a real response from the staging API and runs it through the schema weekly. Failing tests catch schema drift before production does.
 - Log `result.error.issues` when `safeParse` fails on an external response, even if you have a fallback. Schema failures on external APIs are signals that require investigation.
 
 ### Discriminated Unions with Shared Optional Fields
+
 `z.discriminatedUnion()` requires the discriminant field to be a literal in every member. If some variants share large amounts of structure, avoid repeating them -- use `.extend()` on a base schema:
+
 ```typescript
 const BaseEventSchema = z.object({
   id: z.string().uuid(),
   timestamp: z.string().datetime(),
   userId: UserIdSchema,
 });
-const EventSchema = z.discriminatedUnion("type", [
-  BaseEventSchema.extend({ type: z.literal("login"), ipAddress: z.string().ip() }),
-  BaseEventSchema.extend({ type: z.literal("logout") }),
-  BaseEventSchema.extend({ type: z.literal("purchase"), orderId: OrderIdSchema }),
+const EventSchema = z.discriminatedUnion('type', [
+  BaseEventSchema.extend({ type: z.literal('login'), ipAddress: z.string().ip() }),
+  BaseEventSchema.extend({ type: z.literal('logout') }),
+  BaseEventSchema.extend({ type: z.literal('purchase'), orderId: OrderIdSchema }),
 ]);
 ```
+
 Do not use `.merge()` here -- `.merge()` creates a new object type and loses the base type's inference context. Use `.extend()` which preserves the prototype chain.
 
 ### Async Validation and Database Refinements
+
 When validation requires an async check (does this email already exist in the database?), use `z.superRefine()` with an async refinement and `schema.parseAsync()`:
+
 ```typescript
-const UserCreateSchema = z.object({
-  email: EmailSchema,
-  username: z.string().min(3).max(20),
-}).superRefine(async (data, ctx) => {
-  const existing = await db.user.findUnique({ where: { email: data.email } });
-  if (existing) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["email"],
-      message: "An account with this email already exists",
-    });
-  }
-});
+const UserCreateSchema = z
+  .object({
+    email: EmailSchema,
+    username: z.string().min(3).max(20),
+  })
+  .superRefine(async (data, ctx) => {
+    const existing = await db.user.findUnique({ where: { email: data.email } });
+    if (existing) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email'],
+        message: 'An account with this email already exists',
+      });
+    }
+  });
 
 // In handler:
 const result = await UserCreateSchema.safeParseAsync(req.body);
 ```
+
 Caution: async refinements run N database queries for N refinements. If you have 3 async refinements and 100 concurrent requests, that is up to 300 extra database queries per second. Use `Promise.all()` inside a single `superRefine` to parallelize checks. Do not add async refinements to schemas used in high-throughput paths without load testing.
 
 ### Testing Zod Schemas Independently
+
 Schemas are logic and should be tested independently of the routes that use them:
+
 - Test that valid inputs parse correctly -- use `expect(() => Schema.parse(validInput)).not.toThrow()`
 - Test that invalid inputs fail with the expected issue codes and paths -- check `result.error.issues[0].path` and `result.error.issues[0].code`
 - Test transform behavior -- coercion, defaulting, normalization -- by asserting on `result.data`
@@ -432,11 +464,11 @@ Schemas are logic and should be tested independently of the routes that use them
 
 ### Boundary Inventory
 
-| Boundary | Data Source | Schema Strategy | Error Handling |
-|----------|-------------|-----------------|----------------|
-| `req.params.orgId` | URL path segment | `OrgIdSchema` (branded UUID) | 400 Bad Request |
-| `req.body` | JSON body | `InviteMemberSchema.strict()` | 422 Unprocessable Entity |
-| Auth token (assumed upstream) | JWT middleware | Handled by auth middleware | 401 Unauthorized |
+| Boundary                      | Data Source      | Schema Strategy               | Error Handling           |
+| ----------------------------- | ---------------- | ----------------------------- | ------------------------ |
+| `req.params.orgId`            | URL path segment | `OrgIdSchema` (branded UUID)  | 400 Bad Request          |
+| `req.body`                    | JSON body        | `InviteMemberSchema.strict()` | 422 Unprocessable Entity |
+| Auth token (assumed upstream) | JWT middleware   | Handled by auth middleware    | 401 Unauthorized         |
 
 ---
 
@@ -444,15 +476,15 @@ Schemas are logic and should be tested independently of the routes that use them
 
 ```typescript
 // src/schemas/common.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 // Reusable branded UUID for all entity IDs
-const UuidSchema = z.string().uuid("Must be a valid UUID v4");
+const UuidSchema = z.string().uuid('Must be a valid UUID v4');
 
-export const OrgIdSchema = UuidSchema.brand<"OrgId">();
+export const OrgIdSchema = UuidSchema.brand<'OrgId'>();
 export type OrgId = z.infer<typeof OrgIdSchema>;
 
-export const UserIdSchema = UuidSchema.brand<"UserId">();
+export const UserIdSchema = UuidSchema.brand<'UserId'>();
 export type UserId = z.infer<typeof UserIdSchema>;
 
 // URL params schema for this route
@@ -464,32 +496,29 @@ export type OrgMemberParams = z.infer<typeof OrgMemberParamsSchema>;
 
 ```typescript
 // src/schemas/member.ts
-import { z } from "zod";
+import { z } from 'zod';
 
-const MemberRoleSchema = z.enum(["admin", "member", "viewer"], {
-  errorMap: () => ({ message: "Role must be one of: admin, member, viewer" }),
+const MemberRoleSchema = z.enum(['admin', 'member', 'viewer'], {
+  errorMap: () => ({ message: 'Role must be one of: admin, member, viewer' }),
 });
 
 // Invite expiry must be in the future, max 90 days out
 const FutureISODateSchema = z
   .string()
-  .datetime({ offset: true, message: "Must be a valid ISO 8601 datetime with timezone offset" })
-  .refine(
-    (val) => new Date(val) > new Date(),
-    { message: "Expiry date must be in the future" }
-  )
+  .datetime({ offset: true, message: 'Must be a valid ISO 8601 datetime with timezone offset' })
+  .refine((val) => new Date(val) > new Date(), { message: 'Expiry date must be in the future' })
   .refine(
     (val) => {
       const ninetyDaysFromNow = new Date();
       ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
       return new Date(val) <= ninetyDaysFromNow;
     },
-    { message: "Expiry date cannot be more than 90 days in the future" }
+    { message: 'Expiry date cannot be more than 90 days in the future' }
   );
 
 export const InviteMemberSchema = z
   .object({
-    email: z.string().email("Must be a valid email address").max(254).toLowerCase(),
+    email: z.string().email('Must be a valid email address').max(254).toLowerCase(),
     role: MemberRoleSchema,
     expiresAt: FutureISODateSchema.optional(),
   })
@@ -516,12 +545,12 @@ export type MemberInviteResponse = z.infer<typeof MemberInviteResponseSchema>;
 // OrgId and UserId are now distinct branded types.
 // The service layer cannot accidentally swap them.
 
-import { OrgId, UserId } from "../schemas/common";
+import { OrgId, UserId } from '../schemas/common';
 
 // This function signature is now protected from id mix-ups
 async function inviteMember(
-  orgId: OrgId,        // branded -- cannot pass a raw string or UserId
-  invitedBy: UserId,   // branded -- cannot pass an OrgId
+  orgId: OrgId, // branded -- cannot pass a raw string or UserId
+  invitedBy: UserId, // branded -- cannot pass an OrgId
   input: InviteMemberInput
 ): Promise<MemberInviteResponse> {
   // ...
@@ -534,10 +563,10 @@ async function inviteMember(
 
 ```typescript
 // src/lib/validation.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export interface ApiValidationError {
-  code: "VALIDATION_ERROR";
+  code: 'VALIDATION_ERROR';
   message: string;
   details: Array<{
     path: string;
@@ -548,10 +577,10 @@ export interface ApiValidationError {
 
 export function formatZodError(error: z.ZodError): ApiValidationError {
   return {
-    code: "VALIDATION_ERROR",
-    message: "Request validation failed",
+    code: 'VALIDATION_ERROR',
+    message: 'Request validation failed',
     details: error.issues.map((issue) => ({
-      path: issue.path.join(".") || "(root)",
+      path: issue.path.join('.') || '(root)',
       message: issue.message,
       code: issue.code,
     })),
@@ -565,9 +594,9 @@ export function formatZodError(error: z.ZodError): ApiValidationError {
 
 ```typescript
 // src/middleware/validate.ts
-import { RequestHandler } from "express";
-import { ZodSchema } from "zod";
-import { formatZodError } from "../lib/validation";
+import { RequestHandler } from 'express';
+import { ZodSchema } from 'zod';
+import { formatZodError } from '../lib/validation';
 
 export function validateBody<T>(schema: ZodSchema<T>): RequestHandler {
   return (req, res, next) => {
@@ -600,16 +629,16 @@ export function validateParams<T>(schema: ZodSchema<T>): RequestHandler {
 
 ```typescript
 // src/routes/members.ts
-import { Router } from "express";
-import { validateBody, validateParams } from "../middleware/validate";
-import { InviteMemberSchema } from "../schemas/member";
-import { OrgMemberParamsSchema, OrgIdSchema } from "../schemas/common";
-import { inviteMember } from "../services/member.service";
+import { Router } from 'express';
+import { validateBody, validateParams } from '../middleware/validate';
+import { InviteMemberSchema } from '../schemas/member';
+import { OrgMemberParamsSchema, OrgIdSchema } from '../schemas/common';
+import { inviteMember } from '../services/member.service';
 
 const router = Router();
 
 router.post(
-  "/organizations/:orgId/members",
+  '/organizations/:orgId/members',
   validateParams(OrgMemberParamsSchema),
   validateBody(InviteMemberSchema),
   async (req, res, next) => {
@@ -634,14 +663,14 @@ export { router as memberRouter };
 
 ### What This Fixes and Why
 
-| Problem | Root Cause | Fix Applied |
-|---------|-----------|-------------|
-| Runtime crash on bad `orgId` | No param validation | `OrgMemberParamsSchema` with `validateParams` middleware |
-| Crash on missing `email` | `req.body` typed as `any`, no validation | `InviteMemberSchema.strict()` with `validateBody` middleware |
-| Role accepted as any string | No enum enforcement | `z.enum(["admin", "member", "viewer"])` |
-| Past dates accepted as expiry | No temporal validation | `.refine()` checking `new Date(val) > new Date()` |
-| OrgId/UserId mix-up in service | Both were raw `string` | Branded types via `.brand<"OrgId">()` and `.brand<"UserId">()` |
-| Raw ZodError leaking to client | No error formatter | `formatZodError()` utility, consistently applied |
+| Problem                        | Root Cause                               | Fix Applied                                                    |
+| ------------------------------ | ---------------------------------------- | -------------------------------------------------------------- |
+| Runtime crash on bad `orgId`   | No param validation                      | `OrgMemberParamsSchema` with `validateParams` middleware       |
+| Crash on missing `email`       | `req.body` typed as `any`, no validation | `InviteMemberSchema.strict()` with `validateBody` middleware   |
+| Role accepted as any string    | No enum enforcement                      | `z.enum(["admin", "member", "viewer"])`                        |
+| Past dates accepted as expiry  | No temporal validation                   | `.refine()` checking `new Date(val) > new Date()`              |
+| OrgId/UserId mix-up in service | Both were raw `string`                   | Branded types via `.brand<"OrgId">()` and `.brand<"UserId">()` |
+| Raw ZodError leaking to client | No error formatter                       | `formatZodError()` utility, consistently applied               |
 
 ### Trade-off Notes
 

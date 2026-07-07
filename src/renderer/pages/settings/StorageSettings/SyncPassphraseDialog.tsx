@@ -22,8 +22,7 @@ const SyncPassphraseDialog: React.FC<Props> = ({ open, onClose, onEnabled }) => 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const passphraseValid =
-    passphrase.length >= MIN_PASSPHRASE_LEN && passphrase === confirmPassphrase;
+  const passphraseValid = passphrase.length >= MIN_PASSPHRASE_LEN && passphrase === confirmPassphrase;
 
   const reset = () => {
     setStep('passphrase');
@@ -83,9 +82,7 @@ const SyncPassphraseDialog: React.FC<Props> = ({ open, onClose, onEnabled }) => 
             {t('settings.storagePage.sync.passphraseWarning')}
           </div>
           <div className='flex flex-col gap-4px'>
-            <div className='text-13px text-[var(--text-primary)]'>
-              {t('settings.storagePage.sync.passphrase')}
-            </div>
+            <div className='text-13px text-[var(--text-primary)]'>{t('settings.storagePage.sync.passphrase')}</div>
             <Input.Password
               value={passphrase}
               onChange={setPassphrase}
@@ -107,9 +104,7 @@ const SyncPassphraseDialog: React.FC<Props> = ({ open, onClose, onEnabled }) => 
               </div>
             )}
             {confirmPassphrase.length > 0 && passphrase !== confirmPassphrase && (
-              <div className='text-12px text-[var(--danger)]'>
-                {t('settings.storagePage.sync.passphraseMismatch')}
-              </div>
+              <div className='text-12px text-[var(--danger)]'>{t('settings.storagePage.sync.passphraseMismatch')}</div>
             )}
           </div>
           <div className='flex justify-end gap-8px'>
@@ -123,9 +118,7 @@ const SyncPassphraseDialog: React.FC<Props> = ({ open, onClose, onEnabled }) => 
 
       {step === 'backend' && (
         <div className='flex flex-col gap-12px'>
-          <div className='text-13px text-[var(--text-secondary)]'>
-            {t('settings.storagePage.sync.backendIntro')}
-          </div>
+          <div className='text-13px text-[var(--text-secondary)]'>{t('settings.storagePage.sync.backendIntro')}</div>
           <Radio.Group value={backendType} direction='vertical'>
             <Radio value='local-file'>{t('settings.storagePage.sync.backendLocalFile')}</Radio>
             <Radio value='cloud-relay' disabled>
@@ -133,9 +126,7 @@ const SyncPassphraseDialog: React.FC<Props> = ({ open, onClose, onEnabled }) => 
             </Radio>
           </Radio.Group>
           <div className='flex flex-col gap-4px'>
-            <div className='text-13px text-[var(--text-primary)]'>
-              {t('settings.storagePage.sync.folderPath')}
-            </div>
+            <div className='text-13px text-[var(--text-primary)]'>{t('settings.storagePage.sync.folderPath')}</div>
             <div className='flex gap-8px'>
               <Input value={backendPath} readOnly className='flex-1' />
               <Button onClick={pickFolder}>{t('settings.storagePage.sync.pickFolder')}</Button>

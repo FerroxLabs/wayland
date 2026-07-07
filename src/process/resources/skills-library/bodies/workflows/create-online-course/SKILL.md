@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching curriculum step-by-step planning"
-  category: "creative-project"
-  depends: "online-course-design curriculum-mapping video-script-writing video-storyboard slide-deck-structure product-launch-checklist student-feedback"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching curriculum step-by-step planning'
+  category: 'creative-project'
+  depends: 'online-course-design curriculum-mapping video-script-writing video-storyboard slide-deck-structure product-launch-checklist student-feedback'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Create an Online Course

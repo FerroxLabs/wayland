@@ -7,12 +7,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops beginner-friendly step-by-step guide"
-  category: "software-development"
-  depends: "python-project-setup git-branching-strategy docker-compose-patterns ci-cd-pipeline-design"
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'devops beginner-friendly step-by-step guide'
+  category: 'software-development'
+  depends: 'python-project-setup git-branching-strategy docker-compose-patterns ci-cd-pipeline-design'
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Set Up a Development Environment
@@ -186,7 +186,7 @@ project-root/
 Initialize the project with pyenv setting Python 3.12, create a virtual environment, install FastAPI, uvicorn, SQLAlchemy, alembic, and pytest as dependencies pinned in pyproject.toml. Set up directory structure: src/app/ for application code, src/app/api/ for route handlers, src/app/models/ for SQLAlchemy models, tests/ for pytest tests. Configure ruff for linting and formatting. Create a Makefile with targets: install (editable package installation via pyproject.toml), dev (uvicorn with reload on port 8000), test (pytest with verbose output), lint (ruff check), format (ruff format). Add a smoke test in tests/test_app.py that verifies the FastAPI app can start and respond to a health check.
 
 **Step 2 (git-branching-strategy):**
-Initialize Git repository with an initial commit containing the project skeleton. Configure .gitignore for Python (.venv, __pycache__, .pytest_cache, .env, .coverage, dist, build, *.egg-info) and IDE files (.vscode, .idea, *.swp). Choose trunk-based development with short-lived feature branches. Create a pull request template that requires: description of change, test instructions, and link to related issue. Document the branching strategy and commit conventions in CONTRIBUTING.md. Commit convention: conventional commits (feat:, fix:, chore:, docs:, test:).
+Initialize Git repository with an initial commit containing the project skeleton. Configure .gitignore for Python (.venv, **pycache**, .pytest_cache, .env, .coverage, dist, build, _.egg-info) and IDE files (.vscode, .idea, _.swp). Choose trunk-based development with short-lived feature branches. Create a pull request template that requires: description of change, test instructions, and link to related issue. Document the branching strategy and commit conventions in CONTRIBUTING.md. Commit convention: conventional commits (feat:, fix:, chore:, docs:, test:).
 
 **Step 3 (docker-compose-patterns):**
 Create docker-compose.yml with two services: app (Python container with source code mounted as volume, uvicorn with hot-reload, exposed on port 8000, depends_on db with health check condition) and db (PostgreSQL 16 with persistent volume named pgdata, exposed on port 5432, health check using pg_isready). Create .env.example with DATABASE_URL=postgresql://user:password@db:5432/appdb, SECRET_KEY=change-me-in-production, DEBUG=true. Create multi-stage Dockerfile: development stage installs all dependencies including dev tools, production stage installs only runtime dependencies. Application connects to the database using the service name "db" as hostname.

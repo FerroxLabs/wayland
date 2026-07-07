@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "networking-coach linkedin-optimizer communication-coach relationship-builder personal-brand-architect"
+skills: 'networking-coach linkedin-optimizer communication-coach relationship-builder personal-brand-architect'
 trigger_phrases: >-
   I want to build my professional network how to network effectively networking
   strategy guide build professional connections grow my network networking for
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: networking career relationships linkedin step-by-step planning
   category: career
-  depends: "networking-coach linkedin-optimizer communication-coach relationship-builder personal-brand-architect"
+  depends: 'networking-coach linkedin-optimizer communication-coach relationship-builder personal-brand-architect'
 ---
+
 # Build Professional Network
 
 **Estimated time:** 4-12 weeks setup + ongoing
@@ -165,6 +166,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices optimization"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices optimization'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Load Tester
@@ -31,12 +31,12 @@ Verify that the system works under minimal load. Baseline health check.
 ```javascript
 // k6 smoke test
 export const options = {
-    vus: 1,
-    duration: '1m',
-    thresholds: {
-        http_req_duration: ['p(99)<1500'],
-        http_req_failed: ['rate<0.01'],
-    },
+  vus: 1,
+  duration: '1m',
+  thresholds: {
+    http_req_duration: ['p(99)<1500'],
+    http_req_failed: ['rate<0.01'],
+  },
 };
 ```
 
@@ -46,15 +46,15 @@ Test the system under expected normal and peak load.
 
 ```javascript
 export const options = {
-    stages: [
-        { duration: '5m', target: 100 },   // Ramp up to 100 users
-        { duration: '30m', target: 100 },   // Steady state at 100
-        { duration: '5m', target: 0 },      // Ramp down
-    ],
-    thresholds: {
-        http_req_duration: ['p(95)<500', 'p(99)<1000'],
-        http_req_failed: ['rate<0.01'],
-    },
+  stages: [
+    { duration: '5m', target: 100 }, // Ramp up to 100 users
+    { duration: '30m', target: 100 }, // Steady state at 100
+    { duration: '5m', target: 0 }, // Ramp down
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500', 'p(99)<1000'],
+    http_req_failed: ['rate<0.01'],
+  },
 };
 ```
 
@@ -64,17 +64,17 @@ Push the system beyond normal capacity to find breaking points.
 
 ```javascript
 export const options = {
-    stages: [
-        { duration: '2m', target: 100 },
-        { duration: '5m', target: 100 },
-        { duration: '2m', target: 200 },
-        { duration: '5m', target: 200 },
-        { duration: '2m', target: 400 },
-        { duration: '5m', target: 400 },
-        { duration: '2m', target: 800 },    // Push to breaking point
-        { duration: '5m', target: 800 },
-        { duration: '5m', target: 0 },       // Recovery
-    ],
+  stages: [
+    { duration: '2m', target: 100 },
+    { duration: '5m', target: 100 },
+    { duration: '2m', target: 200 },
+    { duration: '5m', target: 200 },
+    { duration: '2m', target: 400 },
+    { duration: '5m', target: 400 },
+    { duration: '2m', target: 800 }, // Push to breaking point
+    { duration: '5m', target: 800 },
+    { duration: '5m', target: 0 }, // Recovery
+  ],
 };
 ```
 
@@ -84,14 +84,14 @@ Test sudden bursts of traffic.
 
 ```javascript
 export const options = {
-    stages: [
-        { duration: '2m', target: 50 },    // Normal load
-        { duration: '10s', target: 1000 },  // Spike!
-        { duration: '3m', target: 1000 },   // Hold spike
-        { duration: '10s', target: 50 },    // Drop back
-        { duration: '5m', target: 50 },     // Recovery
-        { duration: '2m', target: 0 },
-    ],
+  stages: [
+    { duration: '2m', target: 50 }, // Normal load
+    { duration: '10s', target: 1000 }, // Spike!
+    { duration: '3m', target: 1000 }, // Hold spike
+    { duration: '10s', target: 50 }, // Drop back
+    { duration: '5m', target: 50 }, // Recovery
+    { duration: '2m', target: 0 },
+  ],
 };
 ```
 
@@ -101,15 +101,15 @@ Run at normal load for extended period to detect memory leaks, connection pool e
 
 ```javascript
 export const options = {
-    stages: [
-        { duration: '5m', target: 100 },
-        { duration: '8h', target: 100 },   // 8 hours at normal load
-        { duration: '5m', target: 0 },
-    ],
-    thresholds: {
-        http_req_duration: ['p(95)<500'],
-        http_req_failed: ['rate<0.005'],
-    },
+  stages: [
+    { duration: '5m', target: 100 },
+    { duration: '8h', target: 100 }, // 8 hours at normal load
+    { duration: '5m', target: 0 },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'],
+    http_req_failed: ['rate<0.005'],
+  },
 };
 ```
 
@@ -318,16 +318,16 @@ Real users pause between actions. Model this to simulate realistic load.
 
 ```javascript
 // k6: Variable think time
-sleep(randomBetween(1, 5));   // 1-5 seconds between actions
+sleep(randomBetween(1, 5)); // 1-5 seconds between actions
 
 // Lognormal distribution (more realistic)
 function lognormalSleep(median, sigma) {
-    const u = Math.random();
-    const v = Math.random();
-    const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-    sleep(Math.exp(Math.log(median) + sigma * z));
+  const u = Math.random();
+  const v = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  sleep(Math.exp(Math.log(median) + sigma * z));
 }
-lognormalSleep(2, 0.5);  // Median 2s, some users faster, some slower
+lognormalSleep(2, 0.5); // Median 2s, some users faster, some slower
 ```
 
 ### User Profiles
@@ -364,37 +364,37 @@ export const options = {
 
 ### Key Metrics
 
-| Metric | Good | Acceptable | Poor |
-|--------|------|------------|------|
-| Response time (p50) | < 200ms | < 500ms | > 1s |
-| Response time (p95) | < 500ms | < 1s | > 2s |
-| Response time (p99) | < 1s | < 2s | > 5s |
-| Error rate | < 0.1% | < 1% | > 5% |
-| Throughput | Meets SLA | 80% SLA | < 50% SLA |
+| Metric              | Good      | Acceptable | Poor      |
+| ------------------- | --------- | ---------- | --------- |
+| Response time (p50) | < 200ms   | < 500ms    | > 1s      |
+| Response time (p95) | < 500ms   | < 1s       | > 2s      |
+| Response time (p99) | < 1s      | < 2s       | > 5s      |
+| Error rate          | < 0.1%    | < 1%       | > 5%      |
+| Throughput          | Meets SLA | 80% SLA    | < 50% SLA |
 
 ### Setting Thresholds in k6
 
 ```javascript
 export const options = {
-    thresholds: {
-        // Global thresholds
-        http_req_duration: [
-            'p(50)<200',   // 50th percentile under 200ms
-            'p(95)<500',   // 95th percentile under 500ms
-            'p(99)<1500',  // 99th percentile under 1500ms
-            'max<5000',    // No request over 5 seconds
-        ],
-        http_req_failed: ['rate<0.01'],  // Less than 1% failure
+  thresholds: {
+    // Global thresholds
+    http_req_duration: [
+      'p(50)<200', // 50th percentile under 200ms
+      'p(95)<500', // 95th percentile under 500ms
+      'p(99)<1500', // 99th percentile under 1500ms
+      'max<5000', // No request over 5 seconds
+    ],
+    http_req_failed: ['rate<0.01'], // Less than 1% failure
 
-        // Per-endpoint thresholds
-        'http_req_duration{name:homepage}': ['p(95)<300'],
-        'http_req_duration{name:checkout}': ['p(95)<2000'],
-        'http_req_duration{name:api_search}': ['p(95)<800'],
+    // Per-endpoint thresholds
+    'http_req_duration{name:homepage}': ['p(95)<300'],
+    'http_req_duration{name:checkout}': ['p(95)<2000'],
+    'http_req_duration{name:api_search}': ['p(95)<800'],
 
-        // Custom metrics
-        'checkout_duration': ['p(95)<3000'],
-        'orders_created': ['count>50'],
-    },
+    // Custom metrics
+    checkout_duration: ['p(95)<3000'],
+    orders_created: ['count>50'],
+  },
 };
 ```
 
@@ -457,17 +457,17 @@ Periodic spikes in response time
 ```javascript
 // Run from multiple geographic locations
 export const options = {
-    ext: {
-        loadimpact: {
-            projectID: 12345,
-            name: 'Production Load Test',
-            distribution: {
-                'amazon:us:ashburn': { loadZone: 'amazon:us:ashburn', percent: 50 },
-                'amazon:eu:dublin': { loadZone: 'amazon:eu:dublin', percent: 30 },
-                'amazon:ap:tokyo': { loadZone: 'amazon:ap:tokyo', percent: 20 },
-            },
-        },
+  ext: {
+    loadimpact: {
+      projectID: 12345,
+      name: 'Production Load Test',
+      distribution: {
+        'amazon:us:ashburn': { loadZone: 'amazon:us:ashburn', percent: 50 },
+        'amazon:eu:dublin': { loadZone: 'amazon:eu:dublin', percent: 30 },
+        'amazon:ap:tokyo': { loadZone: 'amazon:ap:tokyo', percent: 20 },
+      },
     },
+  },
 };
 
 // Run: k6 cloud script.js
@@ -508,6 +508,7 @@ k6 run --out influxdb=[reference URL] script.js
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing load tester solutions
 - Reviewing or improving existing load tester approaches
 - Making architectural or implementation decisions about load tester
@@ -515,6 +516,7 @@ k6 run --out influxdb=[reference URL] script.js
 - Troubleshooting load tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -525,21 +527,26 @@ k6 run --out influxdb=[reference URL] script.js
 # Load Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

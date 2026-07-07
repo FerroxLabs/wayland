@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness guide"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness fitness guide'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Martial Arts Guide
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about martial arts guide
 - User needs guidance on martial arts guide topics
 - User wants a structured approach to martial arts guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,35 +52,35 @@ metadata:
 
 ### Striking Arts
 
-| Art | Origin | Focus | Techniques | Best For |
-|-----|--------|-------|-----------|----------|
-| Boxing | Western | Punches only | Jab, cross, hook, uppercut, head movement | Hand skills, fitness, self-defense |
-| Muay Thai | Thailand | Stand-up striking | Punches, kicks, elbows, knees, clinch | Full-body striking, toughness |
-| Karate | Japan/Okinawa | Striking and forms | Punches, kicks, blocks, kata (forms) | Discipline, balance, tradition |
-| Taekwondo | Korea | Kicking emphasis | Spinning kicks, head kicks, forms (poomsae) | Flexibility, kicking skill, Olympic sport |
-| Kickboxing | Various | Punches and kicks | Boxing + kicks, no elbows/knees typically | Fitness, stand-up fighting |
-| Wing Chun | China | Close-range striking | Chain punches, trapping, centerline theory | Close-quarters, sensitivity |
+| Art        | Origin        | Focus                | Techniques                                  | Best For                                  |
+| ---------- | ------------- | -------------------- | ------------------------------------------- | ----------------------------------------- |
+| Boxing     | Western       | Punches only         | Jab, cross, hook, uppercut, head movement   | Hand skills, fitness, self-defense        |
+| Muay Thai  | Thailand      | Stand-up striking    | Punches, kicks, elbows, knees, clinch       | Full-body striking, toughness             |
+| Karate     | Japan/Okinawa | Striking and forms   | Punches, kicks, blocks, kata (forms)        | Discipline, balance, tradition            |
+| Taekwondo  | Korea         | Kicking emphasis     | Spinning kicks, head kicks, forms (poomsae) | Flexibility, kicking skill, Olympic sport |
+| Kickboxing | Various       | Punches and kicks    | Boxing + kicks, no elbows/knees typically   | Fitness, stand-up fighting                |
+| Wing Chun  | China         | Close-range striking | Chain punches, trapping, centerline theory  | Close-quarters, sensitivity               |
 
 ### Grappling Arts
 
-| Art | Origin | Focus | Techniques | Best For |
-|-----|--------|-------|-----------|----------|
-| Brazilian Jiu-Jitsu (BJJ) | Brazil/Japan | Ground fighting | Submissions, sweeps, positional control | Ground self-defense, smaller practitioners |
-| Judo | Japan | Throws and pins | Hip throws, foot sweeps, pins, submissions | Takedowns, balance, Olympic sport |
-| Wrestling | Global | Takedowns and control | Shots, sprawls, pins, scrambles | Athletic base, takedown defense |
-| Sambo | Russia | Throws and submissions | Leg locks, throws, ground control | Competition, MMA foundation |
-| Aikido | Japan | Redirecting force | Joint locks, throws, blending movements | Philosophy, joint manipulation |
+| Art                       | Origin       | Focus                  | Techniques                                 | Best For                                   |
+| ------------------------- | ------------ | ---------------------- | ------------------------------------------ | ------------------------------------------ |
+| Brazilian Jiu-Jitsu (BJJ) | Brazil/Japan | Ground fighting        | Submissions, sweeps, positional control    | Ground self-defense, smaller practitioners |
+| Judo                      | Japan        | Throws and pins        | Hip throws, foot sweeps, pins, submissions | Takedowns, balance, Olympic sport          |
+| Wrestling                 | Global       | Takedowns and control  | Shots, sprawls, pins, scrambles            | Athletic base, takedown defense            |
+| Sambo                     | Russia       | Throws and submissions | Leg locks, throws, ground control          | Competition, MMA foundation                |
+| Aikido                    | Japan        | Redirecting force      | Joint locks, throws, blending movements    | Philosophy, joint manipulation             |
 
 ### Mixed and Weapons Arts
 
-| Art | Origin | Focus | Techniques | Best For |
-|-----|--------|-------|-----------|----------|
-| MMA | Modern | All ranges | Striking + grappling + wrestling | Complete fighting system |
-| Krav Maga | Israel | Self-defense | Strikes, defenses against weapons, aggression | Practical self-defense |
-| Hapkido | Korea | Joint locks + strikes | Throws, locks, kicks | Well-rounded defense |
-| Kendo | Japan | Sword fighting | Bamboo sword (shinai) strikes, footwork | Discipline, reaction time |
-| Filipino Martial Arts | Philippines | Weapons + empty hand | Stick/knife work, empty hand flow | Weapons awareness, flow |
-| Capoeira | Brazil | Movement + kicks | Acrobatic kicks, sweeps, music, dance | Movement, culture, flexibility |
+| Art                   | Origin      | Focus                 | Techniques                                    | Best For                       |
+| --------------------- | ----------- | --------------------- | --------------------------------------------- | ------------------------------ |
+| MMA                   | Modern      | All ranges            | Striking + grappling + wrestling              | Complete fighting system       |
+| Krav Maga             | Israel      | Self-defense          | Strikes, defenses against weapons, aggression | Practical self-defense         |
+| Hapkido               | Korea       | Joint locks + strikes | Throws, locks, kicks                          | Well-rounded defense           |
+| Kendo                 | Japan       | Sword fighting        | Bamboo sword (shinai) strikes, footwork       | Discipline, reaction time      |
+| Filipino Martial Arts | Philippines | Weapons + empty hand  | Stick/knife work, empty hand flow             | Weapons awareness, flow        |
+| Capoeira              | Brazil      | Movement + kicks      | Acrobatic kicks, sweeps, music, dance         | Movement, culture, flexibility |
 
 ---
 
@@ -201,16 +203,16 @@ AFTER TRAINING:
 
 ### Essential Protective Gear by Art
 
-| Art | Required Gear |
-|-----|--------------|
-| Boxing | Hand wraps, gloves (12-16 oz), mouthguard, headgear (sparring) |
-| Muay Thai | Hand wraps, gloves, shin guards, mouthguard, cup |
-| Karate | Mouthguard, hand pads, foot pads, shin guards, cup |
+| Art       | Required Gear                                                     |
+| --------- | ----------------------------------------------------------------- |
+| Boxing    | Hand wraps, gloves (12-16 oz), mouthguard, headgear (sparring)    |
+| Muay Thai | Hand wraps, gloves, shin guards, mouthguard, cup                  |
+| Karate    | Mouthguard, hand pads, foot pads, shin guards, cup                |
 | Taekwondo | Chest protector (hogu), headgear, forearm/shin guards, mouthguard |
-| BJJ | Rash guard or gi, mouthguard, ear guards (optional), cup |
-| Judo | Judogi (uniform), mouthguard |
-| MMA | MMA gloves (4-6 oz), shin guards, mouthguard, cup, headgear |
-| Kendo | Full bogu (armor set), shinai, keikogi and hakama |
+| BJJ       | Rash guard or gi, mouthguard, ear guards (optional), cup          |
+| Judo      | Judogi (uniform), mouthguard                                      |
+| MMA       | MMA gloves (4-6 oz), shin guards, mouthguard, cup, headgear       |
+| Kendo     | Full bogu (armor set), shinai, keikogi and hakama                 |
 
 ---
 
@@ -336,15 +338,15 @@ SOLO TRAINING ROUTINE (30 minutes):
 
 ## Cross-Training Benefits
 
-| Primary Art | Recommended Cross-Training | Why |
-|-------------|---------------------------|-----|
-| Boxing | Wrestling or BJJ | Adds ground defense |
-| BJJ | Wrestling or Judo | Improves takedowns |
-| Muay Thai | BJJ | Covers the ground game |
-| Karate | Judo or BJJ | Adds grappling to striking |
-| Taekwondo | Boxing | Improves hand techniques |
-| Wrestling | Striking art (boxing/Muay Thai) | Adds striking to grappling |
-| Krav Maga | BJJ or Judo | Deepens grappling skills |
+| Primary Art | Recommended Cross-Training      | Why                        |
+| ----------- | ------------------------------- | -------------------------- |
+| Boxing      | Wrestling or BJJ                | Adds ground defense        |
+| BJJ         | Wrestling or Judo               | Improves takedowns         |
+| Muay Thai   | BJJ                             | Covers the ground game     |
+| Karate      | Judo or BJJ                     | Adds grappling to striking |
+| Taekwondo   | Boxing                          | Improves hand techniques   |
+| Wrestling   | Striking art (boxing/Muay Thai) | Adds striking to grappling |
+| Krav Maga   | BJJ or Judo                     | Deepens grappling skills   |
 
 ---
 

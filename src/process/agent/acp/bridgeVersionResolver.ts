@@ -27,7 +27,10 @@ const versionCache = new Map<string, CacheEntry>();
 /** Allow an explicit pin via env to override discovery (e.g. when a latest release breaks). */
 function envOverride(pkgName: string): string | null {
   // CLAUDE_AGENT_ACP_VERSION style: uppercase, non-alnum -> underscore, suffix _VERSION.
-  const key = `${pkgName.replace(/[^a-z0-9]+/gi, '_').toUpperCase().replace(/^_+|_+$/g, '')}_VERSION`;
+  const key = `${pkgName
+    .replace(/[^a-z0-9]+/gi, '_')
+    .toUpperCase()
+    .replace(/^_+|_+$/g, '')}_VERSION`;
   const v = process.env[key];
   return typeof v === 'string' && v.trim().length > 0 ? v.trim() : null;
 }

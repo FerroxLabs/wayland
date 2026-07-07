@@ -78,9 +78,7 @@ describe('deriveThreadName', () => {
   });
 
   it('extracts thread from a replyToMessageId that encodes one', () => {
-    expect(
-      deriveThreadName('spaces/AAA', 'spaces/AAA/threads/TTT/messages/M1'),
-    ).toBe('spaces/AAA/threads/TTT');
+    expect(deriveThreadName('spaces/AAA', 'spaces/AAA/threads/TTT/messages/M1')).toBe('spaces/AAA/threads/TTT');
   });
 
   it('returns null when chatId is space-only and replyTo has no thread segment', () => {

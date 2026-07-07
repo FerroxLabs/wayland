@@ -62,7 +62,7 @@ export function resolveVoiceAsset(asset: VoiceAsset): VoiceAsset {
 
   const baseDir = path.join(getPlatformServices().paths.getDataDir(), 'voice');
   const resolvedDest = asset.destPath?.trim() ? asset.destPath : path.join(baseDir, entry.destSubpath);
-  const resolvedSha = asset.sha256?.trim() ? asset.sha256 : entry.sha256 ?? '';
+  const resolvedSha = asset.sha256?.trim() ? asset.sha256 : (entry.sha256 ?? '');
   const resolvedUrl = asset.url?.trim() ? asset.url : entry.url;
 
   return {

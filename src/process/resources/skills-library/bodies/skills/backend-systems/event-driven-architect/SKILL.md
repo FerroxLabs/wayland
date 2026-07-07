@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design architecture"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'backend api-design architecture'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Event-Driven Architect
@@ -41,25 +41,25 @@ USE SYNCHRONOUS (HTTP/gRPC) WHEN:
 
 ### Event-Driven vs Request-Driven
 
-| Aspect | Event-Driven | Request-Driven (HTTP/gRPC) |
-|--------|-------------|---------------------------|
-| Coupling | Loose (producer doesn't know consumers) | Tight (caller knows the callee) |
-| Latency | Higher (async, eventual) | Lower (synchronous) |
-| Reliability | Higher (messages persisted in broker) | Lower (if callee is down, call fails) |
-| Debugging | Harder (distributed traces needed) | Easier (single call stack) |
-| Scaling | Independent (consumer scales separately) | Coupled (both must handle load) |
-| Ordering | Needs explicit handling | Natural (sequential calls) |
+| Aspect      | Event-Driven                             | Request-Driven (HTTP/gRPC)            |
+| ----------- | ---------------------------------------- | ------------------------------------- |
+| Coupling    | Loose (producer doesn't know consumers)  | Tight (caller knows the callee)       |
+| Latency     | Higher (async, eventual)                 | Lower (synchronous)                   |
+| Reliability | Higher (messages persisted in broker)    | Lower (if callee is down, call fails) |
+| Debugging   | Harder (distributed traces needed)       | Easier (single call stack)            |
+| Scaling     | Independent (consumer scales separately) | Coupled (both must handle load)       |
+| Ordering    | Needs explicit handling                  | Natural (sequential calls)            |
 
 ## Event Design
 
 ### Event Types
 
-| Type | Description | Example | Mutability |
-|------|------------|---------|------------|
-| **Domain event** | Something that happened in the business | `OrderPlaced`, `PaymentReceived` | Immutable fact |
-| **Integration event** | Cross-service communication | `UserCreated` (published for other services) | Immutable fact |
-| **Command** | Request for action | `ProcessPayment`, `SendEmail` | Can be rejected |
-| **Notification** | Fire-and-skip alert | `LowInventoryWarning` | No response expected |
+| Type                  | Description                             | Example                                      | Mutability           |
+| --------------------- | --------------------------------------- | -------------------------------------------- | -------------------- |
+| **Domain event**      | Something that happened in the business | `OrderPlaced`, `PaymentReceived`             | Immutable fact       |
+| **Integration event** | Cross-service communication             | `UserCreated` (published for other services) | Immutable fact       |
+| **Command**           | Request for action                      | `ProcessPayment`, `SendEmail`                | Can be rejected      |
+| **Notification**      | Fire-and-skip alert                     | `LowInventoryWarning`                        | No response expected |
 
 ### Event Schema Best Practices
 
@@ -67,13 +67,13 @@ USE SYNCHRONOUS (HTTP/gRPC) WHEN:
 // GOOD: Well-designed event
 interface OrderPlacedEvent {
   // Metadata (every event should have these)
-  eventId: string;           // Unique identifier for idempotency
-  eventType: 'OrderPlaced';  // Discriminator for routing
-  timestamp: string;         // ISO 8601
-  version: 1;                // Schema version for evolution
-  source: 'order-service';   // Which service emitted it
-  correlationId: string;     // Links related events across services
-  causationId: string;       // Which event/command caused this one
+  eventId: string; // Unique identifier for idempotency
+  eventType: 'OrderPlaced'; // Discriminator for routing
+  timestamp: string; // ISO 8601
+  version: 1; // Schema version for evolution
+  source: 'order-service'; // Which service emitted it
+  correlationId: string; // Links related events across services
+  causationId: string; // Which event/command caused this one
 
   // Payload (domain-specific data)
   data: {
@@ -82,7 +82,7 @@ interface OrderPlacedEvent {
     items: Array<{
       productId: string;
       quantity: number;
-      priceAtOrder: number;   // Snapshot the price at order time
+      priceAtOrder: number; // Snapshot the price at order time
     }>;
     totalAmount: number;
     currency: string;
@@ -91,9 +91,9 @@ interface OrderPlacedEvent {
 
 // BAD: Common event design mistakes
 interface BadEvent {
-  type: 'order';            // Too vague. What happened to the order?
+  type: 'order'; // Too vague. What happened to the order?
   data: {
-    order: Order;           // Entire entity. Too much data. Tight coupling.
+    order: Order; // Entire entity. Too much data. Tight coupling.
     // No event ID (can't deduplicate)
     // No timestamp (can't order events)
     // No version (can't evolve schema)
@@ -132,15 +132,15 @@ RULES FOR BACKWARDS-COMPATIBLE EVOLUTION:
 
 ### Broker Comparison
 
-| Feature | Kafka | RabbitMQ | AWS SQS/SNS | Redis Streams |
-|---------|-------|----------|-------------|---------------|
-| **Model** | Log-based | Queue-based | Cloud-managed queue | In-memory log |
-| **Ordering** | Per partition | Per queue | Best-effort (FIFO available) | Per stream |
-| **Retention** | Configurable (days/forever) | Until consumed | 14 days max | Configurable |
-| **Throughput** | Very high (millions/sec) | High (10K-50K/sec) | High (auto-scaled) | Very high |
-| **Replay** | Yes (seek to offset) | No (consumed = gone) | No | Yes (seek to ID) |
-| **Consumer groups** | Built-in | Plugin | Built-in | Built-in |
-| **Best for** | High-volume event streaming | Task queues, RPC | Serverless, AWS-native | Simple streaming, caching layer |
+| Feature             | Kafka                       | RabbitMQ             | AWS SQS/SNS                  | Redis Streams                   |
+| ------------------- | --------------------------- | -------------------- | ---------------------------- | ------------------------------- |
+| **Model**           | Log-based                   | Queue-based          | Cloud-managed queue          | In-memory log                   |
+| **Ordering**        | Per partition               | Per queue            | Best-effort (FIFO available) | Per stream                      |
+| **Retention**       | Configurable (days/forever) | Until consumed       | 14 days max                  | Configurable                    |
+| **Throughput**      | Very high (millions/sec)    | High (10K-50K/sec)   | High (auto-scaled)           | Very high                       |
+| **Replay**          | Yes (seek to offset)        | No (consumed = gone) | No                           | Yes (seek to ID)                |
+| **Consumer groups** | Built-in                    | Plugin               | Built-in                     | Built-in                        |
+| **Best for**        | High-volume event streaming | Task queues, RPC     | Serverless, AWS-native       | Simple streaming, caching layer |
 
 ### Kafka Architecture
 
@@ -178,7 +178,7 @@ const kafka = new Kafka({
 
 const producer = kafka.producer({
   createPartitioner: Partitioners.DefaultPartitioner,
-  idempotent: true,        // Exactly-once within partition
+  idempotent: true, // Exactly-once within partition
   maxInFlightRequests: 5,
   retry: { retries: 5 },
 });
@@ -188,19 +188,21 @@ await producer.connect();
 // Publish event with ordering guarantee
 await producer.send({
   topic: 'order-events',
-  messages: [{
-    key: order.id,          // Same orderId always goes to same partition
-    value: JSON.stringify({
-      eventId: uuid(),
-      eventType: 'OrderPlaced',
-      timestamp: new Date().toISOString(),
-      data: { orderId: order.id, items: order.items },
-    }),
-    headers: {
-      'correlation-id': correlationId,
-      'content-type': 'application/json',
+  messages: [
+    {
+      key: order.id, // Same orderId always goes to same partition
+      value: JSON.stringify({
+        eventId: uuid(),
+        eventType: 'OrderPlaced',
+        timestamp: new Date().toISOString(),
+        data: { orderId: order.id, items: order.items },
+      }),
+      headers: {
+        'correlation-id': correlationId,
+        'content-type': 'application/json',
+      },
     },
-  }],
+  ],
 });
 ```
 
@@ -383,7 +385,7 @@ class OrderSaga {
     for (const step of this.steps) {
       try {
         const result = await step.execute(context);
-        Object.assign(context, result);  // Merge result into context
+        Object.assign(context, result); // Merge result into context
         completedSteps.push(step);
       } catch (error) {
         // Compensate all completed steps in reverse order
@@ -497,21 +499,26 @@ DLQ HANDLING:
 # Event Driven Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'rust best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Rust Project Setup
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks how to initialize a new Rust project or Cargo workspace, including monorepo layouts with multiple crates
 - Asks about structuring `Cargo.toml` -- workspace members, dependency inheritance, resolver version, or package metadata
 - Asks about defining or consuming feature flags, including optional dependencies, additive feature design, and `cfg` attribute usage
@@ -30,6 +32,7 @@ metadata:
 - Asks about structuring library crates for distribution on crates.io, including documentation, `[lib]` section, and publish metadata
 
 **Do NOT use this skill when:**
+
 - The user asks about Rust ownership, borrowing, or lifetime annotation -- use `rust-ownership-patterns`
 - The user asks about writing unit tests, integration tests, or property-based testing -- use `rust-testing-patterns`
 - The user asks about async runtimes, tokio configuration, or async/await patterns -- use `rust-async-patterns`
@@ -71,6 +74,7 @@ Use `cargo new` or `cargo init` as the starting point, then reshape it.
 The `Cargo.toml` is the most consequential file in a Rust project. Treat it with the same care as source code.
 
 **Root workspace `Cargo.toml`:**
+
 ```toml
 [workspace]
 members = ["crates/core", "crates/api", "crates/cli"]
@@ -89,6 +93,7 @@ tracing = "0.1"
 ```
 
 **Per-crate `Cargo.toml`:**
+
 ```toml
 [package]
 name = "myproject-core"
@@ -124,18 +129,20 @@ Feature flags in Rust are additive by design -- a feature should only enable mor
 
 - Name features descriptively: `serde-support`, `async-std-runtime`, `tracing-integration` -- not `feature1` or `extra`.
 - Gate dependencies behind features:
+
   ```toml
   [features]
   default = ["std"]
   std = []
   serde-support = ["dep:serde", "dep:serde_json"]
   async = ["dep:tokio", "tokio/rt-multi-thread"]
-  
+
   [dependencies]
   serde = { version = "1.0", features = ["derive"], optional = true }
   serde_json = { version = "1.0", optional = true }
   tokio = { version = "1.36", optional = true }
   ```
+
 - Use the `dep:` prefix (Rust 1.60+) to avoid the dependency name being automatically treated as a feature. Without `dep:`, `serde = { optional = true }` implicitly creates a `serde` feature, which is confusing and can leak into the public API surface.
 - Avoid mutually exclusive features -- Cargo has no built-in mechanism to enforce them and users will combine them. Design the code so combining `async-std-runtime` and `tokio-runtime` produces a compile error with a clear `compile_error!()` message guarded by `cfg` attributes.
 - In `src/lib.rs`, gate implementations with `#[cfg(feature = "serde-support")]` -- not `#[cfg_attr]` unless you specifically need the attribute form on an item.
@@ -144,7 +151,7 @@ Feature flags in Rust are additive by design -- a feature should only enable mor
   - `cargo test --no-default-features`
   - `cargo test --all-features`
   - `cargo test --features serde-support`
-  These four invocations catch the majority of feature-gating bugs.
+    These four invocations catch the majority of feature-gating bugs.
 - Document every feature in the crate-level rustdoc with `//! ## Feature Flags` and a table listing each feature, what it enables, and whether it is on by default.
 
 ---
@@ -154,12 +161,14 @@ Feature flags in Rust are additive by design -- a feature should only enable mor
 `build.rs` runs before compilation. Use it for specific, justified purposes -- not as a general scripting escape hatch.
 
 **Legitimate `build.rs` uses:**
+
 - Linking a native C library: emit `cargo:rustc-link-lib=static=sodium`, `cargo:rustc-link-search=native=/usr/local/lib`
 - Compile-time code generation: invoke `prost-build` for protobuf, `bindgen` for C headers, or a custom codegen step that writes to `OUT_DIR`
 - Injecting build metadata: read `GIT_HASH` from the environment or call `git rev-parse HEAD` and emit it as `cargo:rustc-env=BUILD_GIT_HASH=abc123` so code can access it via `env!("BUILD_GIT_HASH")`
 - Detecting target platform features: check `std::env::var("CARGO_CFG_TARGET_OS")` to conditionally link platform libraries
 
 **`build.rs` rules:**
+
 - Always print `cargo:rerun-if-changed=build.rs` as the first line. Add `cargo:rerun-if-changed=src/protos/` for any external files you consume. Without these, Cargo will re-run `build.rs` on every build, destroying incremental compilation.
 - Write generated code to `std::env::var("OUT_DIR").unwrap()` -- never to `src/`. Generated files in `src/` should never be committed.
 - Include generated code with `include!(concat!(env!("OUT_DIR"), "/generated.rs"))` inside the consuming module.
@@ -206,6 +215,7 @@ strip = "symbols"
 ```
 
 **Profile decision guidance:**
+
 - `lto = "thin"` reduces build time by 30--50% vs. `lto = true` (fat LTO) with about 5--10% worse runtime performance. For most server-side applications, `thin` is the right choice.
 - `codegen-units = 1` is mandatory if you use `lto = true`. Fat LTO with multiple codegen units is redundant and wastes link time.
 - `panic = "abort"` breaks any code that catches panics via `std::panic::catch_unwind`. Check your dependencies: some testing and retry logic crates rely on this. If uncertain, leave at `"unwind"`.
@@ -219,6 +229,7 @@ strip = "symbols"
 Lock down the toolchain and quality tools at the repository level so every developer and CI run uses identical configurations.
 
 **`rust-toolchain.toml` (committed to the repo root):**
+
 ```toml
 [toolchain]
 channel = "stable"
@@ -229,6 +240,7 @@ targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown"]
 ```
 
 **`rustfmt.toml` (committed to the repo root):**
+
 ```toml
 edition = "2021"
 max_width = 100
@@ -242,6 +254,7 @@ format_macro_bodies = true
 ```
 
 **`clippy.toml` (committed to the repo root):**
+
 ```toml
 msrv = "1.74"
 cognitive-complexity-threshold = 25
@@ -249,6 +262,7 @@ too-many-arguments-threshold = 7
 ```
 
 **`.cargo/config.toml` (committed to the repo root):**
+
 ```toml
 [alias]
 xt = "run --package xtask --"
@@ -271,6 +285,7 @@ RUST_BACKTRACE = { value = "1", force = false }
 **Clippy configuration in `Cargo.toml` (for workspace-wide deny lints):**
 
 Add this to each crate's `src/lib.rs` or `src/main.rs`:
+
 ```rust
 #![deny(
     clippy::all,
@@ -313,7 +328,7 @@ When producing output for a user, structure the response as follows depending on
 
 ### For Workspace Setup Requests
 
-```
+````
 ## Project Structure
 
 <directory tree with file names and one-line description of each>
@@ -322,7 +337,7 @@ When producing output for a user, structure the response as follows depending on
 
 ```toml
 <complete workspace Cargo.toml>
-```
+````
 
 ## Crate-Level Cargo.toml (crates/<name>/Cargo.toml)
 
@@ -339,11 +354,13 @@ When producing output for a user, structure the response as follows depending on
 ## Quality Configuration
 
 ### rustfmt.toml
+
 ```toml
 <complete rustfmt.toml>
 ```
 
 ### .cargo/config.toml
+
 ```toml
 <complete .cargo/config.toml>
 ```
@@ -356,22 +373,24 @@ When producing output for a user, structure the response as follows depending on
 
 ## Decision Rationale
 
-| Decision | Choice | Reason |
-|----------|--------|--------|
-| Resolver | 2 | Avoids feature unification bugs from old resolver |
-| LTO | thin | 50% faster link time vs. fat LTO, ~5% perf cost |
-| ... | ... | ... |
+| Decision | Choice | Reason                                            |
+| -------- | ------ | ------------------------------------------------- |
+| Resolver | 2      | Avoids feature unification bugs from old resolver |
+| LTO      | thin   | 50% faster link time vs. fat LTO, ~5% perf cost   |
+| ...      | ...    | ...                                               |
+
 ```
 
 ### For Feature Flag Requests
 
 ```
+
 ## Feature Flag Design
 
-| Feature Name | Enabled by Default | Enables Dependencies | Notes |
-|--------------|-------------------|---------------------|-------|
-| std          | yes               | (none)              | Required for std types |
-| serde-support| no                | serde, serde_json   | Opt-in serialization |
+| Feature Name  | Enabled by Default | Enables Dependencies | Notes                  |
+| ------------- | ------------------ | -------------------- | ---------------------- |
+| std           | yes                | (none)               | Required for std types |
+| serde-support | no                 | serde, serde_json    | Opt-in serialization   |
 
 ## Cargo.toml [features] Section
 
@@ -390,11 +409,13 @@ When producing output for a user, structure the response as follows depending on
 ```sh
 <explicit cargo test invocations for each feature combination>
 ```
+
 ```
 
 ### For build.rs Requests
 
 ```
+
 ## Build Script Purpose
 
 <one paragraph explaining what this build.rs does and why>
@@ -416,7 +437,8 @@ When producing output for a user, structure the response as follows depending on
 ```rust
 <how to consume the output of build.rs in source code>
 ```
-```
+
+````
 
 ---
 
@@ -467,7 +489,8 @@ When a project outgrows a single crate, migrating to a workspace requires carefu
   [target.thumbv7em-none-eabihf]
   runner = "probe-run --chip STM32F429ZITx"
   rustflags = ["-C", "link-arg=-Tlink.x"]
-  ```
+````
+
 - Never add the embedded crate to the `default-members` of the workspace -- it requires a cross-compiler that most developers will not have. Keep it in `members` (so workspace-wide commands find it) but use `cargo build --package myproject-embedded --target thumbv7em-none-eabihf` for explicit builds.
 
 ### Conditional Compilation for Platform-Specific Dependencies
@@ -803,15 +826,15 @@ All eight steps must pass before the first feature branch is opened. Encode them
 
 ### Decision Rationale
 
-| Decision | Choice | Reason |
-|----------|--------|--------|
-| Resolver | `2` | Eliminates feature unification bugs; required for workspace clarity |
-| Workspace structure | Separate `core` and `cli` crates | Core is embeddable without CLI deps; tests isolation is cleaner |
-| LTO | `"thin"` | 50% faster link time vs. fat LTO; acceptable 5% perf tradeoff |
-| `codegen-units` | `1` | Required for meaningful LTO inlining across module boundaries |
-| `panic` | `"unwind"` | Preserves `catch_unwind` compatibility; revisit after dependency audit |
-| `strip` | `"debuginfo"` | Reduces binary size; retain unstripped artifact in CI for profiling |
-| Feature naming | `serde-support` not `serde` | Avoids implicit feature name from dependency, makes intent explicit |
-| `xtask` | Dedicated crate | Replaces Makefile; written in Rust; no external tool dependency |
-| Linker | `mold` | 5--10x faster than GNU ld in development; transparent to release builds |
-| Clippy lints | Source-level `#![deny]` | Version-controlled; consistent across all developer environments |
+| Decision            | Choice                           | Reason                                                                  |
+| ------------------- | -------------------------------- | ----------------------------------------------------------------------- |
+| Resolver            | `2`                              | Eliminates feature unification bugs; required for workspace clarity     |
+| Workspace structure | Separate `core` and `cli` crates | Core is embeddable without CLI deps; tests isolation is cleaner         |
+| LTO                 | `"thin"`                         | 50% faster link time vs. fat LTO; acceptable 5% perf tradeoff           |
+| `codegen-units`     | `1`                              | Required for meaningful LTO inlining across module boundaries           |
+| `panic`             | `"unwind"`                       | Preserves `catch_unwind` compatibility; revisit after dependency audit  |
+| `strip`             | `"debuginfo"`                    | Reduces binary size; retain unstripped artifact in CI for profiling     |
+| Feature naming      | `serde-support` not `serde`      | Avoids implicit feature name from dependency, makes intent explicit     |
+| `xtask`             | Dedicated crate                  | Replaces Makefile; written in Rust; no external tool dependency         |
+| Linker              | `mold`                           | 5--10x faster than GNU ld in development; transparent to release builds |
+| Clippy lints        | Source-level `#![deny]`          | Version-controlled; consistent across all developer environments        |

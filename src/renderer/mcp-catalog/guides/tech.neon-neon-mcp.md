@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Neon
     estSeconds: 45
-    primaryAction: { label: "Sign in with Neon", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Neon', action: 'oauth-flow' }
     warning: |
       The Neon MCP can **create branches, run arbitrary SQL, and drop
       databases**. Wayland surfaces a confirmation prompt before destructive

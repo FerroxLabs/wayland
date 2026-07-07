@@ -55,6 +55,6 @@ Wrong move: draft a 12-step playbook covering contract, kickoff, asset collectio
 >
 > User: "Last month we sent the kickoff deck to the wrong stakeholder. The decision-maker showed up confused."
 >
-> SOP: *"Kickoff prep — preventing wrong-stakeholder error."* Step 1: confirm decision-maker in signed proposal. Step 2: send kickoff deck to that named person (cc signing contact). Step 3: 24-hour confirm-receipt before scheduling. Decision: no response in 48h → escalate to account owner. Exception: mid-engagement decision-maker change → halt and re-run step 1.
+> SOP: _"Kickoff prep — preventing wrong-stakeholder error."_ Step 1: confirm decision-maker in signed proposal. Step 2: send kickoff deck to that named person (cc signing contact). Step 3: 24-hour confirm-receipt before scheduling. Decision: no response in 48h → escalate to account owner. Exception: mid-engagement decision-maker change → halt and re-run step 1.
 >
 > One failure, one page, one owner. Run three times. A different failure mode is a different SOP — not an addition.

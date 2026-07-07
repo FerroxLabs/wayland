@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml deep-learning guide"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml deep-learning guide'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # RAG Architect
@@ -45,14 +45,14 @@ Retrieval-Augmented Generation (RAG) enhances LLM outputs by grounding them in e
 
 ### Strategy Comparison
 
-| Strategy | Chunk Size | Overlap | Best For | Drawback |
-|----------|-----------|---------|----------|----------|
-| Fixed-size | 256-1024 tokens | 10-20% | General purpose | Breaks mid-sentence |
-| Sentence-based | Variable | 1-2 sentences | Factual content | Uneven chunk sizes |
-| Paragraph-based | Variable | 0-1 paragraph | Well-structured docs | Large chunks |
-| Recursive character | 500-1000 chars | 100-200 chars | Mixed content | Heuristic boundaries |
-| Semantic | Variable | None | Technical docs | Computationally expensive |
-| Document-specific | Varies | Varies | PDFs, HTML, code | Requires per-format logic |
+| Strategy            | Chunk Size      | Overlap       | Best For             | Drawback                  |
+| ------------------- | --------------- | ------------- | -------------------- | ------------------------- |
+| Fixed-size          | 256-1024 tokens | 10-20%        | General purpose      | Breaks mid-sentence       |
+| Sentence-based      | Variable        | 1-2 sentences | Factual content      | Uneven chunk sizes        |
+| Paragraph-based     | Variable        | 0-1 paragraph | Well-structured docs | Large chunks              |
+| Recursive character | 500-1000 chars  | 100-200 chars | Mixed content        | Heuristic boundaries      |
+| Semantic            | Variable        | None          | Technical docs       | Computationally expensive |
+| Document-specific   | Varies          | Varies        | PDFs, HTML, code     | Requires per-format logic |
 
 ### Recursive Character Splitting (Most Common)
 
@@ -116,14 +116,14 @@ Do you need broad context understanding?
 
 ### Model Comparison
 
-| Model | Dimensions | Max Tokens | Speed | Quality | Cost |
-|-------|-----------|------------|-------|---------|------|
-| text-embedding-3-small (OpenAI) | 1536 | 8191 | Fast | Good | $0.02/1M |
-| text-embedding-3-large (OpenAI) | 3072 | 8191 | Medium | Excellent | $0.13/1M |
-| voyage-3 (Voyage AI) | 1024 | 32000 | Fast | Excellent | $0.06/1M |
-| all-MiniLM-L6-v2 (OSS) | 384 | 256 | Very Fast | Good | Free |
-| bge-large-en-v1.5 (OSS) | 1024 | 512 | Medium | Very Good | Free |
-| Cohere embed-v3 | 1024 | 512 | Fast | Excellent | $0.10/1M |
+| Model                           | Dimensions | Max Tokens | Speed     | Quality   | Cost     |
+| ------------------------------- | ---------- | ---------- | --------- | --------- | -------- |
+| text-embedding-3-small (OpenAI) | 1536       | 8191       | Fast      | Good      | $0.02/1M |
+| text-embedding-3-large (OpenAI) | 3072       | 8191       | Medium    | Excellent | $0.13/1M |
+| voyage-3 (Voyage AI)            | 1024       | 32000      | Fast      | Excellent | $0.06/1M |
+| all-MiniLM-L6-v2 (OSS)          | 384        | 256        | Very Fast | Good      | Free     |
+| bge-large-en-v1.5 (OSS)         | 1024       | 512        | Medium    | Very Good | Free     |
+| Cohere embed-v3                 | 1024       | 512        | Fast      | Excellent | $0.10/1M |
 
 ### Selection Criteria
 
@@ -174,15 +174,15 @@ class EmbeddingPipeline:
 
 ### Comparison Matrix
 
-| Feature | Pinecone | Weaviate | Chroma | pgvector | Qdrant | Milvus |
-|---------|----------|----------|--------|----------|--------|--------|
-| Hosting | Managed | Both | Self/Cloud | Self | Both | Both |
-| Scaling | Automatic | Manual | Limited | Manual | Manual | Manual |
-| Filtering | Excellent | Excellent | Good | Excellent | Excellent | Good |
-| Hybrid Search | Yes | Yes (BM25) | No | No (need ext) | Yes | Yes |
-| Max Vectors | Billions | Billions | Millions | Millions | Billions | Billions |
-| Latency (p99) | <50ms | <100ms | <50ms | <100ms | <50ms | <100ms |
-| Setup Effort | Low | Medium | Low | Low | Medium | High |
+| Feature       | Pinecone  | Weaviate   | Chroma     | pgvector      | Qdrant    | Milvus   |
+| ------------- | --------- | ---------- | ---------- | ------------- | --------- | -------- |
+| Hosting       | Managed   | Both       | Self/Cloud | Self          | Both      | Both     |
+| Scaling       | Automatic | Manual     | Limited    | Manual        | Manual    | Manual   |
+| Filtering     | Excellent | Excellent  | Good       | Excellent     | Excellent | Good     |
+| Hybrid Search | Yes       | Yes (BM25) | No         | No (need ext) | Yes       | Yes      |
+| Max Vectors   | Billions  | Billions   | Millions   | Millions      | Billions  | Billions |
+| Latency (p99) | <50ms     | <100ms     | <50ms      | <100ms        | <50ms     | <100ms   |
+| Setup Effort  | Low       | Medium     | Low        | Low           | Medium    | High     |
 
 ### Decision Guide
 
@@ -372,13 +372,13 @@ Cite your sources using [Source N] notation.
 
 ### RAG Quality Metrics
 
-| Metric | Measures | How to Compute |
-|--------|----------|----------------|
-| Faithfulness | Is answer grounded in context? | LLM judge: check each claim |
-| Answer Relevance | Does answer address the question? | LLM judge or embedding similarity |
-| Context Relevance | Are retrieved docs relevant? | LLM judge or human annotation |
-| Context Recall | Were all needed docs retrieved? | Compare to reference answers |
-| Answer Correctness | Is the answer factually correct? | Compare to ground truth |
+| Metric             | Measures                          | How to Compute                    |
+| ------------------ | --------------------------------- | --------------------------------- |
+| Faithfulness       | Is answer grounded in context?    | LLM judge: check each claim       |
+| Answer Relevance   | Does answer address the question? | LLM judge or embedding similarity |
+| Context Relevance  | Are retrieved docs relevant?      | LLM judge or human annotation     |
+| Context Recall     | Were all needed docs retrieved?   | Compare to reference answers      |
+| Answer Correctness | Is the answer factually correct?  | Compare to ground truth           |
 
 ### Faithfulness Checking
 
@@ -486,6 +486,7 @@ Need consistency guarantees?
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing rag architect solutions
 - Reviewing or improving existing rag architect approaches
 - Making architectural or implementation decisions about rag architect
@@ -493,6 +494,7 @@ Need consistency guarantees?
 - Troubleshooting rag architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -503,21 +505,26 @@ Need consistency guarantees?
 # Rag Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

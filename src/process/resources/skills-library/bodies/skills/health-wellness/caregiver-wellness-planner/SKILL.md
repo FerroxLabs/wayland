@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare health-wellness checklist template planning performing-arts sleep investing"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare health-wellness checklist template planning performing-arts sleep investing'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Caregiver Wellness Planner
@@ -22,15 +22,16 @@ You are a caregiver wellness specialist who helps both healthcare professionals 
 
 > **DISCLAIMER**: This skill provides general wellness and self-care guidance for educational and planning purposes only. It does not constitute medical advice, mental health treatment, or a substitute for professional clinical care. If you or someone you know is experiencing a mental health crisis, suicidal thoughts, or severe burnout, please contact a qualified healthcare provider, your employee assistance program, or a crisis helpline immediately. Individual wellness strategies should complement, not replace, professional support when needed.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about caregiver wellness planner techniques or best practices
 - User needs guidance on caregiver wellness planner concepts
 - User wants to implement or improve their approach to caregiver wellness planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of caregiver wellness planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,20 +52,20 @@ Before developing a wellness plan:
 
 ### Burnout Dimensions
 
-| Dimension | Description | Signs |
-|-----------|-------------|-------|
-| **Emotional exhaustion** | Feeling drained, depleted, and unable to cope | Chronic fatigue, dreading work or caregiving, crying easily, feeling numb |
-| **Depersonalization / Cynicism** | Emotional distance from those you care for | Negative attitudes about patients or care recipients, sarcasm, detachment |
-| **Reduced personal accomplishment** | Feeling ineffective and questioning your contribution | Self-doubt, feeling nothing you do matters, loss of purpose |
+| Dimension                           | Description                                           | Signs                                                                     |
+| ----------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Emotional exhaustion**            | Feeling drained, depleted, and unable to cope         | Chronic fatigue, dreading work or caregiving, crying easily, feeling numb |
+| **Depersonalization / Cynicism**    | Emotional distance from those you care for            | Negative attitudes about patients or care recipients, sarcasm, detachment |
+| **Reduced personal accomplishment** | Feeling ineffective and questioning your contribution | Self-doubt, feeling nothing you do matters, loss of purpose               |
 
 ### Burnout vs. Compassion Fatigue vs. Moral Injury
 
-| Concept | Description | Key Distinction |
-|---------|-------------|----------------|
-| **Burnout** | Chronic workplace stress that has not been managed | Gradual depletion from sustained demand |
-| **Compassion fatigue** | Secondary traumatic stress from exposure to others' suffering | Emotional cost of caring; can onset suddenly after a specific event |
-| **Moral injury** | Distress from actions or inactions that violate one's moral code | Occurs when you are unable to provide the care you believe is right (often systemic) |
-| **Vicarious trauma** | Shift in worldview from repeated exposure to trauma | Changes how you see the world, not just how you feel |
+| Concept                | Description                                                      | Key Distinction                                                                      |
+| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Burnout**            | Chronic workplace stress that has not been managed               | Gradual depletion from sustained demand                                              |
+| **Compassion fatigue** | Secondary traumatic stress from exposure to others' suffering    | Emotional cost of caring; can onset suddenly after a specific event                  |
+| **Moral injury**       | Distress from actions or inactions that violate one's moral code | Occurs when you are unable to provide the care you believe is right (often systemic) |
+| **Vicarious trauma**   | Shift in worldview from repeated exposure to trauma              | Changes how you see the world, not just how you feel                                 |
 
 Understanding which you are experiencing helps target the right support. Burnout often responds to workload and recovery changes. Moral injury requires systemic or organizational change. Compassion fatigue and vicarious trauma benefit from processing and meaning-making.
 
@@ -75,6 +76,7 @@ Understanding which you are experiencing helps target the right support. Burnout
 Rate each item from 0 (never) to 4 (always) as experienced over the past month:
 
 **Emotional Indicators**
+
 - [ ] Feeling drained at the end of the day
 - [ ] Dreading going to work or beginning caregiving tasks
 - [ ] Feeling emotionally numb or detached
@@ -83,6 +85,7 @@ Rate each item from 0 (never) to 4 (always) as experienced over the past month:
 - [ ] Difficulty experiencing joy or satisfaction
 
 **Physical Indicators**
+
 - [ ] Persistent fatigue not resolved by rest
 - [ ] Frequent headaches, muscle tension, or stomach problems
 - [ ] Changes in sleep patterns (too much or too little)
@@ -91,6 +94,7 @@ Rate each item from 0 (never) to 4 (always) as experienced over the past month:
 - [ ] Neglecting your own health appointments
 
 **Behavioral Indicators**
+
 - [ ] Withdrawing from colleagues, friends, or family
 - [ ] Increased use of alcohol, food, or other coping mechanisms
 - [ ] Calling in sick more often
@@ -151,53 +155,53 @@ Emergency Self-Care Plan (when I am in crisis):
 
 **Physical**
 
-| Strategy | Time Required | Frequency | Notes |
-|----------|-------------|-----------|-------|
-| Sleep hygiene routine | 30 min wind-down | Daily | Consistent bedtime, no screens 30 min before, cool dark room |
-| Movement / exercise | 20-30 min | 3-5x per week | Any enjoyable activity counts; consistency matters more than intensity |
-| Nutrition basics | Meal prep: 1-2 hours weekly | Daily | Regular meals, adequate hydration, limit excessive caffeine |
-| Health maintenance | Variable | As scheduled | Keep your own medical and dental appointments |
-| Stretching or body scan | 5-10 min | Daily | Especially important for physically demanding caregiving |
+| Strategy                | Time Required               | Frequency     | Notes                                                                  |
+| ----------------------- | --------------------------- | ------------- | ---------------------------------------------------------------------- |
+| Sleep hygiene routine   | 30 min wind-down            | Daily         | Consistent bedtime, no screens 30 min before, cool dark room           |
+| Movement / exercise     | 20-30 min                   | 3-5x per week | Any enjoyable activity counts; consistency matters more than intensity |
+| Nutrition basics        | Meal prep: 1-2 hours weekly | Daily         | Regular meals, adequate hydration, limit excessive caffeine            |
+| Health maintenance      | Variable                    | As scheduled  | Keep your own medical and dental appointments                          |
+| Stretching or body scan | 5-10 min                    | Daily         | Especially important for physically demanding caregiving               |
 
 **Emotional**
 
-| Strategy | Time Required | Frequency | Notes |
-|----------|-------------|-----------|-------|
-| Journaling | 10-15 min | Daily or several times weekly | Write freely; no need for structure or performance |
-| Emotional check-in | 2 min | Multiple times daily | Name the emotion; notice it without judgment |
-| Therapy or counseling | 50 min | Weekly or bi-weekly | Professional support for processing difficult experiences |
-| Crying or emotional release | Variable | As needed | Give yourself permission; find a private space |
-| Gratitude practice | 5 min | Daily | Note 3 specific things, even small ones |
+| Strategy                    | Time Required | Frequency                     | Notes                                                     |
+| --------------------------- | ------------- | ----------------------------- | --------------------------------------------------------- |
+| Journaling                  | 10-15 min     | Daily or several times weekly | Write freely; no need for structure or performance        |
+| Emotional check-in          | 2 min         | Multiple times daily          | Name the emotion; notice it without judgment              |
+| Therapy or counseling       | 50 min        | Weekly or bi-weekly           | Professional support for processing difficult experiences |
+| Crying or emotional release | Variable      | As needed                     | Give yourself permission; find a private space            |
+| Gratitude practice          | 5 min         | Daily                         | Note 3 specific things, even small ones                   |
 
 **Social**
 
-| Strategy | Time Required | Frequency | Notes |
-|----------|-------------|-----------|-------|
-| Meaningful connection | 15-60 min | Weekly minimum | One genuine conversation with someone who understands |
-| Peer support group | 60-90 min | Weekly or monthly | Shared experience reduces isolation |
-| Boundary-setting | Ongoing | As needed | Saying no to protect your capacity is not selfish |
-| Asking for help | Variable | As needed | Specific requests are easier for others to fulfill than vague ones |
-| Social activities unrelated to caregiving | Variable | Weekly | Maintain identity outside the caregiving role |
+| Strategy                                  | Time Required | Frequency         | Notes                                                              |
+| ----------------------------------------- | ------------- | ----------------- | ------------------------------------------------------------------ |
+| Meaningful connection                     | 15-60 min     | Weekly minimum    | One genuine conversation with someone who understands              |
+| Peer support group                        | 60-90 min     | Weekly or monthly | Shared experience reduces isolation                                |
+| Boundary-setting                          | Ongoing       | As needed         | Saying no to protect your capacity is not selfish                  |
+| Asking for help                           | Variable      | As needed         | Specific requests are easier for others to fulfill than vague ones |
+| Social activities unrelated to caregiving | Variable      | Weekly            | Maintain identity outside the caregiving role                      |
 
 **Professional (for healthcare workers)**
 
-| Strategy | Time Required | Frequency | Notes |
-|----------|-------------|-----------|-------|
-| Debriefing after difficult events | 15-30 min | After critical events | With a colleague or in a structured program |
-| Setting workload boundaries | Ongoing | Daily | Communicate limits proactively, not just reactively |
-| Seeking mentorship | 30-60 min | Monthly | Learn from others who have navigated similar challenges |
-| Celebrating small wins | 2 min | Daily | Acknowledge what went well, not just what went wrong |
-| Professional development | Variable | Quarterly | Invest in growth to counter stagnation |
+| Strategy                          | Time Required | Frequency             | Notes                                                   |
+| --------------------------------- | ------------- | --------------------- | ------------------------------------------------------- |
+| Debriefing after difficult events | 15-30 min     | After critical events | With a colleague or in a structured program             |
+| Setting workload boundaries       | Ongoing       | Daily                 | Communicate limits proactively, not just reactively     |
+| Seeking mentorship                | 30-60 min     | Monthly               | Learn from others who have navigated similar challenges |
+| Celebrating small wins            | 2 min         | Daily                 | Acknowledge what went well, not just what went wrong    |
+| Professional development          | Variable      | Quarterly             | Invest in growth to counter stagnation                  |
 
 **Spiritual/Meaning-Making**
 
-| Strategy | Time Required | Frequency | Notes |
-|----------|-------------|-----------|-------|
-| Reflection on purpose | 10-15 min | Weekly | Why do you do this work? What gives it meaning? |
-| Mindfulness or meditation | 5-20 min | Daily | Start small; use guided options if new to practice |
-| Nature time | 15-60 min | Weekly | Even brief outdoor time has measurable stress-reduction effects |
-| Creative expression | Variable | Weekly | Art, music, writing, cooking, anything creative |
-| Spiritual or faith practice | Variable | Per personal tradition | Community connection and meaning-making |
+| Strategy                    | Time Required | Frequency              | Notes                                                           |
+| --------------------------- | ------------- | ---------------------- | --------------------------------------------------------------- |
+| Reflection on purpose       | 10-15 min     | Weekly                 | Why do you do this work? What gives it meaning?                 |
+| Mindfulness or meditation   | 5-20 min      | Daily                  | Start small; use guided options if new to practice              |
+| Nature time                 | 15-60 min     | Weekly                 | Even brief outdoor time has measurable stress-reduction effects |
+| Creative expression         | Variable      | Weekly                 | Art, music, writing, cooking, anything creative                 |
+| Spiritual or faith practice | Variable      | Per personal tradition | Community connection and meaning-making                         |
 
 ## Burnout Prevention Strategies
 
@@ -221,18 +225,18 @@ Emergency Self-Care Plan (when I am in crisis):
 
 ### Organizational Strategies (for leaders)
 
-| Strategy | Implementation |
-|----------|---------------|
-| Adequate staffing | Match staffing to patient acuity and volume; use data to justify needs |
-| Workload management | Monitor workload distribution; redistribute when imbalanced |
-| Schedule flexibility | Offer self-scheduling, shift swaps, or compressed schedules where feasible |
-| Peer support programs | Formalize peer support with trained peer supporters |
-| Employee assistance program | Ensure EAP is accessible, confidential, and well-publicized |
-| Debriefing after critical events | Normalize and schedule debriefing; make it opt-out rather than opt-in |
-| Recognition and appreciation | Specific, timely, genuine recognition (not just awards ceremonies) |
-| Reducing administrative burden | Streamline documentation, reduce unnecessary meetings, eliminate low-value tasks |
-| Psychological safety | Leaders model vulnerability; staff can speak up without fear |
-| Wellness as a performance metric | Track wellness indicators alongside productivity and quality |
+| Strategy                         | Implementation                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| Adequate staffing                | Match staffing to patient acuity and volume; use data to justify needs           |
+| Workload management              | Monitor workload distribution; redistribute when imbalanced                      |
+| Schedule flexibility             | Offer self-scheduling, shift swaps, or compressed schedules where feasible       |
+| Peer support programs            | Formalize peer support with trained peer supporters                              |
+| Employee assistance program      | Ensure EAP is accessible, confidential, and well-publicized                      |
+| Debriefing after critical events | Normalize and schedule debriefing; make it opt-out rather than opt-in            |
+| Recognition and appreciation     | Specific, timely, genuine recognition (not just awards ceremonies)               |
+| Reducing administrative burden   | Streamline documentation, reduce unnecessary meetings, eliminate low-value tasks |
+| Psychological safety             | Leaders model vulnerability; staff can speak up without fear                     |
+| Wellness as a performance metric | Track wellness indicators alongside productivity and quality                     |
 
 ### For Family Caregivers
 
@@ -240,12 +244,12 @@ Emergency Self-Care Plan (when I am in crisis):
 
 Respite care (temporary relief from caregiving) is essential, not a luxury.
 
-| Respite Type | Description | How to Access |
-|-------------|-------------|--------------|
-| In-home respite | Someone comes to your home to provide care | Home health agencies, volunteers, family, friends |
-| Adult day programs | Structured daytime programs for care recipients | Community organizations, healthcare systems |
-| Short-term residential | Temporary stay in a facility | Nursing homes, assisted living with respite beds |
-| Informal respite | Help from family, friends, neighbors | Ask specifically; create a schedule; accept imperfection |
+| Respite Type           | Description                                     | How to Access                                            |
+| ---------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| In-home respite        | Someone comes to your home to provide care      | Home health agencies, volunteers, family, friends        |
+| Adult day programs     | Structured daytime programs for care recipients | Community organizations, healthcare systems              |
+| Short-term residential | Temporary stay in a facility                    | Nursing homes, assisted living with respite beds         |
+| Informal respite       | Help from family, friends, neighbors            | Ask specifically; create a schedule; accept imperfection |
 
 **Caregiver Bill of Rights**
 
@@ -349,7 +353,6 @@ Resilience is not a fixed trait. It is built through practice:
 6. **Protect joy**: Actively seek out moments of pleasure, humor, and beauty, even small ones
 7. **Ask for help early**: Waiting until crisis makes everything harder
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -357,7 +360,6 @@ Resilience is not a fixed trait. It is built through practice:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -378,14 +380,12 @@ Resilience is not a fixed trait. It is built through practice:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

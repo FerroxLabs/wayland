@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql analysis"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql analysis'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Analytics Engineer
@@ -223,17 +223,17 @@ Level 3: Dimensional Breakdown (bottom)
 
 ### Chart Selection Guide
 
-| Data Pattern | Chart Type | When to Use |
-|-------------|------------|-------------|
-| Trend over time | Line chart | Continuous metrics over sequential time |
-| Comparison | Bar chart (horizontal) | Comparing categories |
-| Composition | Stacked bar | Part-to-whole over categories |
-| Distribution | Histogram / box plot | Understanding data spread |
-| Relationship | Scatter plot | Correlation between two measures |
-| Part-to-whole (static) | Donut / treemap | Showing proportions at one point in time |
-| Geographic | Choropleth map | Regional variation |
-| Progress to goal | Bullet chart / gauge | KPI vs target |
-| Funnel | Funnel chart | Sequential step conversion |
+| Data Pattern           | Chart Type             | When to Use                              |
+| ---------------------- | ---------------------- | ---------------------------------------- |
+| Trend over time        | Line chart             | Continuous metrics over sequential time  |
+| Comparison             | Bar chart (horizontal) | Comparing categories                     |
+| Composition            | Stacked bar            | Part-to-whole over categories            |
+| Distribution           | Histogram / box plot   | Understanding data spread                |
+| Relationship           | Scatter plot           | Correlation between two measures         |
+| Part-to-whole (static) | Donut / treemap        | Showing proportions at one point in time |
+| Geographic             | Choropleth map         | Regional variation                       |
+| Progress to goal       | Bullet chart / gauge   | KPI vs target                            |
+| Funnel                 | Funnel chart           | Sequential step conversion               |
 
 ### Design Anti-Patterns
 
@@ -440,6 +440,7 @@ ORDER BY 1, 2
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing analytics engineer solutions
 - Reviewing or improving existing analytics engineer approaches
 - Making architectural or implementation decisions about analytics engineer
@@ -447,6 +448,7 @@ ORDER BY 1, 2
 - Troubleshooting analytics engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -457,21 +459,26 @@ ORDER BY 1, 2
 # Analytics Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

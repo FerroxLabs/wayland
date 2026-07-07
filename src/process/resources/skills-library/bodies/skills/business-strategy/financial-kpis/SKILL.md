@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning strategy report spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning strategy report spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Financial KPIs
 
 ## When to Use
 
 **Use this skill when:**
+
 - A founder, CFO, or finance lead asks to define, document, or redesign the financial KPIs their business tracks
 - A user wants to build a board-ready financial scorecard or monthly financial dashboard with metric definitions, formulas, and targets
 - A user needs to establish which financial metrics to track for a specific business model (SaaS, e-commerce, marketplace, professional services, manufacturing, media)
@@ -28,6 +30,7 @@ metadata:
 - A user wants to add financial alert thresholds (red/yellow/green) so the team knows when a metric requires immediate action versus monitoring
 
 **Do NOT use this skill when:**
+
 - The user needs product engagement metrics, activation rates, feature adoption, or DAU/MAU analysis -- use `metrics-framework` instead
 - The user wants to analyze an existing P&L line by line, identify expense anomalies, or reconcile budget versus actuals -- use `pl-analysis` instead
 - The user needs personal finance tracking, household budgeting, or individual investment tracking -- use `budget-planning` instead
@@ -56,24 +59,28 @@ Never present a generic list of KPIs without understanding the business first. A
 Choose KPIs from the following categories, weighted by business model relevance. The total set should be 10-15 metrics for operational dashboards and 6-8 for board packages. More metrics are a sign of unclear priorities.
 
 **Revenue metrics** (every business):
+
 - Total revenue (GAAP) -- recognize when earned, not when invoiced or collected
 - Revenue growth rate (MoM for early stage, YoY for mature stage)
 - Recurring vs. non-recurring revenue split (critical for valuation multiple)
 - Revenue by segment or product line (required once multiple offerings exist)
 
 **Profitability metrics** (every business):
+
 - Gross profit and gross margin % -- this is the single most important margin metric; anything below 40% signals a structural cost problem in software businesses
 - Contribution margin by segment -- revenue minus directly attributable variable costs
 - EBITDA and EBITDA margin -- most relevant for businesses with >$5M revenue
 - Net income margin -- GAAP net profit divided by total revenue
 
 **Unit economics** (required for venture-backed or high-growth businesses):
+
 - Customer Acquisition Cost (CAC) -- all S&M spend divided by new customers acquired in the same period (match the time period)
 - LTV (Lifetime Value) -- for SaaS: ARPU divided by monthly churn rate; for transactional: average order value × purchase frequency × gross margin × customer lifespan
 - LTV/CAC ratio -- target >3x for SaaS, >2x for e-commerce; below 1x means you are destroying value with each customer acquired
 - CAC payback period -- months of gross profit needed to recover the cost to acquire the customer; target <12 months for SaaS, <6 months for high-velocity e-commerce
 
 **Cash and liquidity metrics** (every business, especially startups):
+
 - Cash balance (point in time)
 - Net burn rate -- total cash out minus total cash in per month; do not confuse with gross burn (total cash out only)
 - Runway months -- current cash divided by net burn rate; minimum safe threshold is 12 months, comfortable is 18+ months
@@ -81,12 +88,14 @@ Choose KPIs from the following categories, weighted by business model relevance.
 - Days Sales Outstanding (DSO) -- average receivables divided by average daily revenue; high DSO in B2B means collections are lagging
 
 **Efficiency and capital metrics** (growth and mature stage):
+
 - Burn multiple -- net burn divided by net new ARR; below 1.0 is exceptional, above 2.0 requires explanation at Series B+
 - Revenue per employee -- total revenue divided by full-time headcount; $150K-$200K is a reasonable Series A target, $300K+ is excellent
 - Rule of 40 -- ARR growth rate % plus EBITDA margin %; the combined score should exceed 40 for healthy SaaS businesses
 - CapEx as % of revenue -- relevant for businesses with physical assets; above 10% in a software company signals infrastructure overcapitalization
 
 **SaaS-specific retention metrics:**
+
 - MRR and ARR -- MRR is total monthly recurring revenue; ARR is MRR × 12 (not the sum of annual contracts, which is a common error)
 - Net Revenue Retention (NRR) -- the single most important SaaS growth metric after ARR growth; measures expansion minus churn as a % of prior period ARR; above 120% is world-class, 100-110% is healthy, below 95% is a red flag
 - Gross Revenue Retention (GRR) -- NRR excluding expansion revenue; measures pure churn; should be >85% for B2B SaaS, >75% for B2C SaaS
@@ -94,6 +103,7 @@ Choose KPIs from the following categories, weighted by business model relevance.
 - Expansion MRR rate -- net new MRR from upsell/cross-sell as % of starting MRR; a healthy expansion engine means the sales team does not need to find all growth from new customers
 
 **E-commerce and marketplace-specific metrics:**
+
 - Average Order Value (AOV) -- total revenue divided by total orders
 - Repeat purchase rate -- % of customers who make a second purchase within 90 days or within a defined window
 - Inventory turnover -- COGS divided by average inventory; below 4x annually in retail is concerning
@@ -159,6 +169,7 @@ Every target must have a source. There are four acceptable target-setting method
 4. **Investor / covenant requirement:** For debt-financed companies, revenue or EBITDA covenants from lenders may define hard targets. These must be tracked separately with red thresholds set at the covenant level.
 
 Red/Yellow/Green thresholds should be set as follows:
+
 - Green: At or above target
 - Yellow: Within 10-20% below target (the exact band should be set based on volatility -- for a metric that normally moves 5% per month, a 10% miss is significant; for one that moves 20%, a 10% miss is noise)
 - Red: More than 20% below target OR at a level that creates business risk regardless of target (e.g., runway below 9 months is red regardless of plan)
@@ -168,11 +179,13 @@ Red/Yellow/Green thresholds should be set as follows:
 Cadence design is as important as metric selection. A well-defined metric that is never reviewed in a structured forum does not drive decisions.
 
 **Daily (operational teams only):**
+
 - Cash balance -- relevant for companies with less than 6 months runway or active fundraise
 - Revenue bookings -- relevant for high-velocity sales teams closing multiple deals per day
 - Refund rate / fraud rate -- relevant for high-volume e-commerce or fintech
 
 **Weekly (leadership team):**
+
 - MRR or revenue run rate (for high-growth companies)
 - New customer count / logo adds
 - Net burn rate
@@ -180,6 +193,7 @@ Cadence design is as important as metric selection. A well-defined metric that i
 - Assigned to: leadership standup or weekly operating review; owner presents their metric
 
 **Monthly (executive team + board materials):**
+
 - Full P&L review with budget variance
 - All operating KPIs (full 10-15 metric set)
 - Department-level budget versus actual
@@ -187,6 +201,7 @@ Cadence design is as important as metric selection. A well-defined metric that i
 - Assigned to: monthly finance review meeting; CFO or finance lead presents; executive team attends
 
 **Quarterly (board and investors):**
+
 - Full KPI dashboard with trend (trailing 4 quarters minimum)
 - Benchmark comparisons against industry quartiles
 - Target versus actual for the quarter with variance explanation
@@ -195,6 +210,7 @@ Cadence design is as important as metric selection. A well-defined metric that i
 - Assigned to: board meeting; CEO and CFO present
 
 **Annually:**
+
 - Full KPI target reset for the coming year
 - Benchmark refresh (new data published annually for most benchmark sources)
 - Metric set review -- retire metrics that are no longer decision-relevant, add metrics for new business lines
@@ -205,6 +221,7 @@ Cadence design is as important as metric selection. A well-defined metric that i
 The document must serve two purposes simultaneously: a reference document that can be read by anyone to understand how a metric is defined, and an action document that tells the reader what to do when a metric is off track.
 
 Structure the document in three sections:
+
 1. **Dashboard summary table** -- all KPIs with current value, target, status (red/yellow/green), and trend. This is what goes in the board deck.
 2. **KPI definition cards** -- one card per metric with all attributes. This is the reference document.
 3. **Review calendar** -- a table showing what is reviewed when, by whom, and in what meeting.
@@ -360,6 +377,7 @@ Replace revenue growth and profitability metrics with mission-delivery efficienc
 ---
 
 ## Financial KPI Framework: [Company]
+
 **Prepared for:** Board of Directors (2 VC members, 1 independent director)
 **As of:** October 2024
 **Business model:** B2B SaaS, subscription
@@ -370,23 +388,24 @@ Replace revenue growth and profitability metrics with mission-delivery efficienc
 
 ### Part 1: KPI Dashboard Summary
 
-| # | Category | Metric | Current | Target (EOY) | Status | Trend (3-mo) |
-|---|----------|--------|---------|-------------|--------|--------------|
-| 1 | Revenue | ARR | $1.4M | $2.4M | 🟡 | ↑ |
-| 2 | Revenue | MRR Growth (MoM) | 12% | 12% | 🟢 | → |
-| 3 | Profitability | Gross Margin | 74% | 78% | 🟡 | ↑ |
-| 4 | Retention | Net Revenue Retention | 108% | 115% | 🟡 | ↑ |
-| 5 | Retention | Gross Revenue Retention | 87% | 90% | 🟡 | → |
-| 6 | Unit Economics | CAC (blended) | $5,100 | <$4,000 | 🔴 | → |
-| 7 | Unit Economics | CAC Payback Period | 14 months | <12 months | 🔴 | → |
-| 8 | Unit Economics | LTV/CAC | 2.4x | >3.0x | 🟡 | ↑ |
-| 9 | Cash | Net Burn Rate | $82K/mo | <$70K/mo | 🟡 | ↑ improving |
-| 10 | Cash | Cash Runway | 21 months | >18 months | 🟢 | Stable |
-| 11 | Efficiency | Burn Multiple | 1.9x | <1.5x | 🟡 | Improving |
-| 12 | Efficiency | ARR per Employee | $50K | $70K | 🟡 | ↑ |
-| 13 | Efficiency | Rule of 40 | 44 | >40 | 🟢 | ↑ |
+| #   | Category       | Metric                  | Current   | Target (EOY) | Status | Trend (3-mo) |
+| --- | -------------- | ----------------------- | --------- | ------------ | ------ | ------------ |
+| 1   | Revenue        | ARR                     | $1.4M     | $2.4M        | 🟡     | ↑            |
+| 2   | Revenue        | MRR Growth (MoM)        | 12%       | 12%          | 🟢     | →            |
+| 3   | Profitability  | Gross Margin            | 74%       | 78%          | 🟡     | ↑            |
+| 4   | Retention      | Net Revenue Retention   | 108%      | 115%         | 🟡     | ↑            |
+| 5   | Retention      | Gross Revenue Retention | 87%       | 90%          | 🟡     | →            |
+| 6   | Unit Economics | CAC (blended)           | $5,100    | <$4,000      | 🔴     | →            |
+| 7   | Unit Economics | CAC Payback Period      | 14 months | <12 months   | 🔴     | →            |
+| 8   | Unit Economics | LTV/CAC                 | 2.4x      | >3.0x        | 🟡     | ↑            |
+| 9   | Cash           | Net Burn Rate           | $82K/mo   | <$70K/mo     | 🟡     | ↑ improving  |
+| 10  | Cash           | Cash Runway             | 21 months | >18 months   | 🟢     | Stable       |
+| 11  | Efficiency     | Burn Multiple           | 1.9x      | <1.5x        | 🟡     | Improving    |
+| 12  | Efficiency     | ARR per Employee        | $50K      | $70K         | 🟡     | ↑            |
+| 13  | Efficiency     | Rule of 40              | 44        | >40          | 🟢     | ↑            |
 
 **Metrics requiring immediate attention:**
+
 - **CAC ($5,100 vs. $4,000 target):** S&M spend increased 35% in Q3 ahead of a new market segment push; new customer volume has not yet increased proportionally. Next review point: November CAC with full Q3 cohort reflected.
 - **CAC Payback (14 months vs. 12-month target):** Directly tied to elevated CAC above. Gross margin improvement on track to bring payback period down as CAC normalizes.
 
@@ -396,157 +415,157 @@ Replace revenue growth and profitability metrics with mission-delivery efficienc
 
 #### 1. Annual Recurring Revenue (ARR)
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Revenue |
-| **Formula** | ARR = Sum of all active subscription MRRs as of the last calendar day of the month × 12 |
-| **Inclusions** | All active recurring subscription fees; multi-year contracts recognized at the annualized monthly amount |
-| **Exclusions** | One-time implementation fees; professional services fees; usage-based overages above the subscription floor; refunded amounts |
-| **Data source** | Stripe Dashboard > Revenue Recognition > Subscription MRR Report, pulled on the last business day of each month. Reconcile monthly to QuickBooks deferred revenue schedule. |
-| **Calculation frequency** | Monthly snapshot (last day of month), reported at every board meeting |
-| **Target** | $2.4M ARR by December 31, 2024 |
-| **Target rationale** | Board-approved Series A operating plan; represents 71% ARR growth from January 2024 starting ARR of $1.4M |
-| **Green** | ARR growth on or above the monthly milestone path to $2.4M EOY |
-| **Yellow** | ARR trailing EOY milestone by 5-15% |
-| **Red** | ARR trailing EOY milestone by more than 15%, or negative net ARR change in any month |
-| **Owner** | CEO (strategic accountability); CFO (data integrity) |
-| **Review meeting** | Monthly: Finance review meeting (CFO presents); Quarterly: Board meeting (CEO presents) |
-| **Alert action** | Red status triggers an unscheduled CFO + CEO call within 48 hours and a board memo within one week |
+| Attribute                 | Specification                                                                                                                                                               |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Category**              | Revenue                                                                                                                                                                     |
+| **Formula**               | ARR = Sum of all active subscription MRRs as of the last calendar day of the month × 12                                                                                     |
+| **Inclusions**            | All active recurring subscription fees; multi-year contracts recognized at the annualized monthly amount                                                                    |
+| **Exclusions**            | One-time implementation fees; professional services fees; usage-based overages above the subscription floor; refunded amounts                                               |
+| **Data source**           | Stripe Dashboard > Revenue Recognition > Subscription MRR Report, pulled on the last business day of each month. Reconcile monthly to QuickBooks deferred revenue schedule. |
+| **Calculation frequency** | Monthly snapshot (last day of month), reported at every board meeting                                                                                                       |
+| **Target**                | $2.4M ARR by December 31, 2024                                                                                                                                              |
+| **Target rationale**      | Board-approved Series A operating plan; represents 71% ARR growth from January 2024 starting ARR of $1.4M                                                                   |
+| **Green**                 | ARR growth on or above the monthly milestone path to $2.4M EOY                                                                                                              |
+| **Yellow**                | ARR trailing EOY milestone by 5-15%                                                                                                                                         |
+| **Red**                   | ARR trailing EOY milestone by more than 15%, or negative net ARR change in any month                                                                                        |
+| **Owner**                 | CEO (strategic accountability); CFO (data integrity)                                                                                                                        |
+| **Review meeting**        | Monthly: Finance review meeting (CFO presents); Quarterly: Board meeting (CEO presents)                                                                                     |
+| **Alert action**          | Red status triggers an unscheduled CFO + CEO call within 48 hours and a board memo within one week                                                                          |
 
 ---
 
 #### 2. MRR Growth Rate (Month over Month)
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Revenue |
-| **Formula** | MRR Growth % = (MRR This Month -- MRR Last Month) / MRR Last Month × 100 |
-| **Inclusions** | New MRR from new customers; expansion MRR from existing customers upgrading; contraction and churn reduce MRR and are reflected in the net figure |
-| **Exclusions** | One-time fees; non-recurring revenue |
-| **Data source** | Stripe MRR report, month-end; reconcile to QuickBooks monthly revenue recognition |
-| **Calculation frequency** | Monthly |
-| **Target** | 12% MoM growth, sustained through EOY 2024 |
-| **Target rationale** | 12% MoM = approximately 290% ARR growth on an annualized basis; required to reach $2.4M EOY from $1.4M today |
-| **Green** | ≥12% MoM |
-| **Yellow** | 8-11.9% MoM |
-| **Red** | Below 8% MoM for two consecutive months |
-| **Owner** | VP Sales (new MRR); VP Customer Success (expansion and retention impact) |
-| **Review meeting** | Weekly: Leadership standup (CEO reviews); Monthly: Finance review; Quarterly: Board |
-| **Alert action** | Two consecutive red months trigger a sales pipeline and retention deep-dive review |
+| Attribute                 | Specification                                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Category**              | Revenue                                                                                                                                           |
+| **Formula**               | MRR Growth % = (MRR This Month -- MRR Last Month) / MRR Last Month × 100                                                                          |
+| **Inclusions**            | New MRR from new customers; expansion MRR from existing customers upgrading; contraction and churn reduce MRR and are reflected in the net figure |
+| **Exclusions**            | One-time fees; non-recurring revenue                                                                                                              |
+| **Data source**           | Stripe MRR report, month-end; reconcile to QuickBooks monthly revenue recognition                                                                 |
+| **Calculation frequency** | Monthly                                                                                                                                           |
+| **Target**                | 12% MoM growth, sustained through EOY 2024                                                                                                        |
+| **Target rationale**      | 12% MoM = approximately 290% ARR growth on an annualized basis; required to reach $2.4M EOY from $1.4M today                                      |
+| **Green**                 | ≥12% MoM                                                                                                                                          |
+| **Yellow**                | 8-11.9% MoM                                                                                                                                       |
+| **Red**                   | Below 8% MoM for two consecutive months                                                                                                           |
+| **Owner**                 | VP Sales (new MRR); VP Customer Success (expansion and retention impact)                                                                          |
+| **Review meeting**        | Weekly: Leadership standup (CEO reviews); Monthly: Finance review; Quarterly: Board                                                               |
+| **Alert action**          | Two consecutive red months trigger a sales pipeline and retention deep-dive review                                                                |
 
 ---
 
 #### 3. Gross Margin
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Profitability |
-| **Formula** | Gross Margin % = (Net Revenue -- COGS) / Net Revenue × 100 |
-| **Inclusions in COGS** | AWS/GCP/Azure hosting and infrastructure; third-party SaaS tools embedded in product delivery (e.g., Twilio, SendGrid, Segment); customer support salaries and benefits (support engineers, onboarding specialists); customer success manager time directly attributable to implementation and onboarding (not ongoing relationship management) |
-| **Exclusions from COGS** | Sales salaries; marketing spend; G&A; R&D/engineering salaries for new product development; customer success relationship management costs (these belong in S&M) |
-| **Data source** | QuickBooks Profit & Loss report, accrual basis, month-to-date. Infrastructure costs pulled from AWS Cost Explorer monthly. |
-| **Calculation frequency** | Monthly |
-| **Target** | 78% gross margin by December 2024 |
-| **Target rationale** | Current 74%; improvement driven by infrastructure cost optimization project underway and revenue scaling over fixed infrastructure. Top-quartile B2B SaaS gross margin is 78-82% per OpenView 2023 SaaS Benchmarks. |
-| **Green** | ≥78% |
-| **Yellow** | 72-77.9% |
-| **Red** | Below 72% (signals structural COGS issue or revenue recognition problem) |
-| **Owner** | CFO (overall); VP Engineering (infrastructure cost component) |
-| **Review meeting** | Monthly: Finance review meeting; Quarterly: Board |
-| **Alert action** | Red status triggers COGS line-item review by CFO and VP Engineering within two weeks |
+| Attribute                 | Specification                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Category**              | Profitability                                                                                                                                                                                                                                                                                                                                   |
+| **Formula**               | Gross Margin % = (Net Revenue -- COGS) / Net Revenue × 100                                                                                                                                                                                                                                                                                      |
+| **Inclusions in COGS**    | AWS/GCP/Azure hosting and infrastructure; third-party SaaS tools embedded in product delivery (e.g., Twilio, SendGrid, Segment); customer support salaries and benefits (support engineers, onboarding specialists); customer success manager time directly attributable to implementation and onboarding (not ongoing relationship management) |
+| **Exclusions from COGS**  | Sales salaries; marketing spend; G&A; R&D/engineering salaries for new product development; customer success relationship management costs (these belong in S&M)                                                                                                                                                                                |
+| **Data source**           | QuickBooks Profit & Loss report, accrual basis, month-to-date. Infrastructure costs pulled from AWS Cost Explorer monthly.                                                                                                                                                                                                                      |
+| **Calculation frequency** | Monthly                                                                                                                                                                                                                                                                                                                                         |
+| **Target**                | 78% gross margin by December 2024                                                                                                                                                                                                                                                                                                               |
+| **Target rationale**      | Current 74%; improvement driven by infrastructure cost optimization project underway and revenue scaling over fixed infrastructure. Top-quartile B2B SaaS gross margin is 78-82% per OpenView 2023 SaaS Benchmarks.                                                                                                                             |
+| **Green**                 | ≥78%                                                                                                                                                                                                                                                                                                                                            |
+| **Yellow**                | 72-77.9%                                                                                                                                                                                                                                                                                                                                        |
+| **Red**                   | Below 72% (signals structural COGS issue or revenue recognition problem)                                                                                                                                                                                                                                                                        |
+| **Owner**                 | CFO (overall); VP Engineering (infrastructure cost component)                                                                                                                                                                                                                                                                                   |
+| **Review meeting**        | Monthly: Finance review meeting; Quarterly: Board                                                                                                                                                                                                                                                                                               |
+| **Alert action**          | Red status triggers COGS line-item review by CFO and VP Engineering within two weeks                                                                                                                                                                                                                                                            |
 
 ---
 
 #### 4. Net Revenue Retention (NRR)
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Retention |
-| **Formula** | NRR = (Starting ARR of 12-month-ago cohort + Expansion -- Contraction -- Churn from that cohort) / Starting ARR of that cohort × 100 |
-| **Inclusions** | All ARR changes from customers who were active 12 months ago: upsells to higher tiers, seat expansions, add-on modules, price increases; minus downgrades, seat reductions, and full cancellations |
-| **Exclusions** | ARR from customers acquired in the past 12 months (this is the most critical exclusion -- mixing new customer revenue inflates NRR) |
-| **Data source** | Stripe subscription history export, processed in CFO's NRR tracking spreadsheet (Google Sheets link: [internal link]) reconciled quarterly to QuickBooks |
-| **Calculation frequency** | Monthly, reported as trailing 12-month figure |
-| **Target** | 115% NRR |
-| **Target rationale** | Current 108%; 115% is the median for high-performing Series A B2B SaaS companies per SaaS Capital 2023 data. At 115% NRR, revenue from the existing customer base grows 15% annually with zero new customer acquisition. |
-| **Green** | ≥115% |
-| **Yellow** | 100-114.9% (growing, but below target) |
-| **Red** | Below 100% (existing customer base is contracting in revenue terms -- structurally dangerous regardless of new customer growth) |
-| **Owner** | VP Customer Success |
-| **Review meeting** | Monthly: CS team weekly review (VP CS presents); Monthly: Finance review; Quarterly: Board |
-| **Alert action** | Red status immediately triggers a full customer health audit and executive escalation process |
+| Attribute                 | Specification                                                                                                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Category**              | Retention                                                                                                                                                                                                                |
+| **Formula**               | NRR = (Starting ARR of 12-month-ago cohort + Expansion -- Contraction -- Churn from that cohort) / Starting ARR of that cohort × 100                                                                                     |
+| **Inclusions**            | All ARR changes from customers who were active 12 months ago: upsells to higher tiers, seat expansions, add-on modules, price increases; minus downgrades, seat reductions, and full cancellations                       |
+| **Exclusions**            | ARR from customers acquired in the past 12 months (this is the most critical exclusion -- mixing new customer revenue inflates NRR)                                                                                      |
+| **Data source**           | Stripe subscription history export, processed in CFO's NRR tracking spreadsheet (Google Sheets link: [internal link]) reconciled quarterly to QuickBooks                                                                 |
+| **Calculation frequency** | Monthly, reported as trailing 12-month figure                                                                                                                                                                            |
+| **Target**                | 115% NRR                                                                                                                                                                                                                 |
+| **Target rationale**      | Current 108%; 115% is the median for high-performing Series A B2B SaaS companies per SaaS Capital 2023 data. At 115% NRR, revenue from the existing customer base grows 15% annually with zero new customer acquisition. |
+| **Green**                 | ≥115%                                                                                                                                                                                                                    |
+| **Yellow**                | 100-114.9% (growing, but below target)                                                                                                                                                                                   |
+| **Red**                   | Below 100% (existing customer base is contracting in revenue terms -- structurally dangerous regardless of new customer growth)                                                                                          |
+| **Owner**                 | VP Customer Success                                                                                                                                                                                                      |
+| **Review meeting**        | Monthly: CS team weekly review (VP CS presents); Monthly: Finance review; Quarterly: Board                                                                                                                               |
+| **Alert action**          | Red status immediately triggers a full customer health audit and executive escalation process                                                                                                                            |
 
 ---
 
 #### 5. Customer Acquisition Cost (CAC)
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Unit Economics |
-| **Formula** | CAC = Total Sales & Marketing Spend (2 months prior) / New Customers Acquired (this month) |
-| **Inclusions in S&M spend** | All sales salaries and commissions; all marketing salaries; paid advertising; events and conferences; marketing software (HubSpot subscription); sales tools (LinkedIn Sales Navigator, Outreach, etc.); agency fees for marketing |
-| **Exclusions from S&M spend** | Customer success costs (post-sale); product marketing costs allocated to retention |
-| **Time-lag adjustment** | Given average sales cycle of approximately 2 months (from HubSpot closed-won stage timestamps), divide S&M spend from 2 months prior by new customers acquired this month. Recalibrate the lag quarterly using actual average deal close time from HubSpot. |
-| **Data source** | QuickBooks S&M expense report for the lag period; HubSpot for new customer count (closed-won, this month) |
-| **Calculation frequency** | Monthly |
-| **Target** | CAC below $4,000 by EOY 2024 |
-| **Target rationale** | Current $5,100; target based on achieving LTV/CAC of 3.0x with current LTV of ~$12,000 |
-| **Green** | ≤$4,000 |
-| **Yellow** | $4,001-$5,000 |
-| **Red** | Above $5,000 (current level; requires active management) |
-| **Owner** | VP Sales (sales efficiency component); VP Marketing (demand generation efficiency component) |
-| **Review meeting** | Monthly: Finance review; Quarterly: Board with trend chart |
-| **Alert action** | Red status for two consecutive months triggers S&M spend audit and channel-level CAC breakdown |
+| Attribute                     | Specification                                                                                                                                                                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Category**                  | Unit Economics                                                                                                                                                                                                                                              |
+| **Formula**                   | CAC = Total Sales & Marketing Spend (2 months prior) / New Customers Acquired (this month)                                                                                                                                                                  |
+| **Inclusions in S&M spend**   | All sales salaries and commissions; all marketing salaries; paid advertising; events and conferences; marketing software (HubSpot subscription); sales tools (LinkedIn Sales Navigator, Outreach, etc.); agency fees for marketing                          |
+| **Exclusions from S&M spend** | Customer success costs (post-sale); product marketing costs allocated to retention                                                                                                                                                                          |
+| **Time-lag adjustment**       | Given average sales cycle of approximately 2 months (from HubSpot closed-won stage timestamps), divide S&M spend from 2 months prior by new customers acquired this month. Recalibrate the lag quarterly using actual average deal close time from HubSpot. |
+| **Data source**               | QuickBooks S&M expense report for the lag period; HubSpot for new customer count (closed-won, this month)                                                                                                                                                   |
+| **Calculation frequency**     | Monthly                                                                                                                                                                                                                                                     |
+| **Target**                    | CAC below $4,000 by EOY 2024                                                                                                                                                                                                                                |
+| **Target rationale**          | Current $5,100; target based on achieving LTV/CAC of 3.0x with current LTV of ~$12,000                                                                                                                                                                      |
+| **Green**                     | ≤$4,000                                                                                                                                                                                                                                                     |
+| **Yellow**                    | $4,001-$5,000                                                                                                                                                                                                                                               |
+| **Red**                       | Above $5,000 (current level; requires active management)                                                                                                                                                                                                    |
+| **Owner**                     | VP Sales (sales efficiency component); VP Marketing (demand generation efficiency component)                                                                                                                                                                |
+| **Review meeting**            | Monthly: Finance review; Quarterly: Board with trend chart                                                                                                                                                                                                  |
+| **Alert action**              | Red status for two consecutive months triggers S&M spend audit and channel-level CAC breakdown                                                                                                                                                              |
 
 ---
 
 #### 6. Cash Runway
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Cash & Liquidity |
-| **Formula** | Runway Months = Current Cash Balance / Projected Monthly Net Burn Rate (forward-looking, not trailing average) |
-| **Inclusions in net burn** | All cash outflows from operations; cash inflows from customer payments; excludes one-time financing events (fundraise proceeds) from the denominator |
+| Attribute                      | Specification                                                                                                                                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Category**                   | Cash & Liquidity                                                                                                                                                                                                                                       |
+| **Formula**                    | Runway Months = Current Cash Balance / Projected Monthly Net Burn Rate (forward-looking, not trailing average)                                                                                                                                         |
+| **Inclusions in net burn**     | All cash outflows from operations; cash inflows from customer payments; excludes one-time financing events (fundraise proceeds) from the denominator                                                                                                   |
 | **Forward-looking adjustment** | Runway is calculated using projected burn for each of the next 6 months based on committed headcount, known vendor contracts, and approved budget. Not a simple trailing 3-month average -- that method overstates runway when hiring is accelerating. |
-| **Data source** | QuickBooks cash balance (bank reconciliation, as of last business day of month); 6-month burn projection maintained in CFO's rolling cash model (Google Sheets) |
-| **Calculation frequency** | Monthly; updated weekly if runway drops below 12 months |
-| **Target** | Maintain ≥18 months runway at all times |
-| **Target rationale** | 18 months provides enough time to either achieve profitability or raise the next round without distressed fundraising. Board-established minimum. |
-| **Green** | ≥18 months |
-| **Yellow** | 12-17.9 months (initiate next fundraise planning) |
-| **Red** | Below 12 months (fundraise must be active, not planned) |
-| **Owner** | CFO |
-| **Review meeting** | Weekly: Leadership standup; Monthly: Finance review; Quarterly: Board |
-| **Alert action** | Yellow status triggers fundraise readiness review with CEO and board chair within 30 days |
+| **Data source**                | QuickBooks cash balance (bank reconciliation, as of last business day of month); 6-month burn projection maintained in CFO's rolling cash model (Google Sheets)                                                                                        |
+| **Calculation frequency**      | Monthly; updated weekly if runway drops below 12 months                                                                                                                                                                                                |
+| **Target**                     | Maintain ≥18 months runway at all times                                                                                                                                                                                                                |
+| **Target rationale**           | 18 months provides enough time to either achieve profitability or raise the next round without distressed fundraising. Board-established minimum.                                                                                                      |
+| **Green**                      | ≥18 months                                                                                                                                                                                                                                             |
+| **Yellow**                     | 12-17.9 months (initiate next fundraise planning)                                                                                                                                                                                                      |
+| **Red**                        | Below 12 months (fundraise must be active, not planned)                                                                                                                                                                                                |
+| **Owner**                      | CFO                                                                                                                                                                                                                                                    |
+| **Review meeting**             | Weekly: Leadership standup; Monthly: Finance review; Quarterly: Board                                                                                                                                                                                  |
+| **Alert action**               | Yellow status triggers fundraise readiness review with CEO and board chair within 30 days                                                                                                                                                              |
 
 ---
 
 #### 7. Burn Multiple
 
-| Attribute | Specification |
-|-----------|--------------|
-| **Category** | Efficiency |
-| **Formula** | Burn Multiple = Net Cash Burn (monthly) / Net New ARR (monthly) |
-| **Net cash burn definition** | Total cash out from operations minus total cash in from customer payments for the same month (not gross burn) |
-| **Net new ARR definition** | New ARR from new customers + expansion ARR -- churned ARR -- contracted ARR for the same month |
-| **Interpretation** | A burn multiple of 1.5x means the company spends $1.50 in net cash to generate $1.00 of net new ARR. Below 1.0x is capital-efficient. Above 2.0x requires explanation at Series B and above. |
-| **Data source** | Net burn: QuickBooks cash flow statement, operating activities only; Net new ARR: Stripe MRR movement report |
-| **Calculation frequency** | Monthly; reported as trailing 3-month average to smooth volatility |
-| **Target** | <1.5x burn multiple |
-| **Target rationale** | Current 1.9x; 1.5x is the Series A benchmark for capital efficiency per Bessemer Cloud benchmarks. At 1.5x with $82K net burn, net new ARR should be approximately $55K/month ($660K net new ARR annually). |
-| **Green** | ≤1.5x |
-| **Yellow** | 1.5-2.0x |
-| **Red** | Above 2.0x |
-| **Owner** | CFO (overall); CEO (strategic allocation of capital between growth and efficiency) |
-| **Review meeting** | Monthly: Finance review; Quarterly: Board |
-| **Alert action** | Red status triggers a headcount and S&M spend review to identify efficiency improvements |
+| Attribute                    | Specification                                                                                                                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Category**                 | Efficiency                                                                                                                                                                                                  |
+| **Formula**                  | Burn Multiple = Net Cash Burn (monthly) / Net New ARR (monthly)                                                                                                                                             |
+| **Net cash burn definition** | Total cash out from operations minus total cash in from customer payments for the same month (not gross burn)                                                                                               |
+| **Net new ARR definition**   | New ARR from new customers + expansion ARR -- churned ARR -- contracted ARR for the same month                                                                                                              |
+| **Interpretation**           | A burn multiple of 1.5x means the company spends $1.50 in net cash to generate $1.00 of net new ARR. Below 1.0x is capital-efficient. Above 2.0x requires explanation at Series B and above.                |
+| **Data source**              | Net burn: QuickBooks cash flow statement, operating activities only; Net new ARR: Stripe MRR movement report                                                                                                |
+| **Calculation frequency**    | Monthly; reported as trailing 3-month average to smooth volatility                                                                                                                                          |
+| **Target**                   | <1.5x burn multiple                                                                                                                                                                                         |
+| **Target rationale**         | Current 1.9x; 1.5x is the Series A benchmark for capital efficiency per Bessemer Cloud benchmarks. At 1.5x with $82K net burn, net new ARR should be approximately $55K/month ($660K net new ARR annually). |
+| **Green**                    | ≤1.5x                                                                                                                                                                                                       |
+| **Yellow**                   | 1.5-2.0x                                                                                                                                                                                                    |
+| **Red**                      | Above 2.0x                                                                                                                                                                                                  |
+| **Owner**                    | CFO (overall); CEO (strategic allocation of capital between growth and efficiency)                                                                                                                          |
+| **Review meeting**           | Monthly: Finance review; Quarterly: Board                                                                                                                                                                   |
+| **Alert action**             | Red status triggers a headcount and S&M spend review to identify efficiency improvements                                                                                                                    |
 
 ---
 
 ### Part 3: Review Calendar
 
-| Cadence | Metrics | Meeting Name | Timing | Presenter | Attendees | Output |
-|---------|---------|-------------|--------|-----------|-----------|--------|
-| Weekly | MRR, net burn, new customer count | Leadership Standup | Every Monday, 9am | VP Sales (MRR), CFO (burn) | CEO, CFO, VP Sales, VP CS, VP Eng | Verbal update; red flags escalated to CEO same day |
-| Monthly | All 13 KPIs + budget variance | Monthly Finance Review | First Tuesday of month, 2pm | CFO | Executive team | Written memo + KPI dashboard; distributed to board within 5 business days |
-| Quarterly | All 13 KPIs + trailing 4Q trends + benchmarks | Board Meeting | Quarterly per board calendar | CEO (strategy narrative), CFO (metrics) | Board + executives | Board deck; KPI slides in standard format; updated benchmark
+| Cadence   | Metrics                                       | Meeting Name           | Timing                       | Presenter                               | Attendees                         | Output                                                                    |
+| --------- | --------------------------------------------- | ---------------------- | ---------------------------- | --------------------------------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| Weekly    | MRR, net burn, new customer count             | Leadership Standup     | Every Monday, 9am            | VP Sales (MRR), CFO (burn)              | CEO, CFO, VP Sales, VP CS, VP Eng | Verbal update; red flags escalated to CEO same day                        |
+| Monthly   | All 13 KPIs + budget variance                 | Monthly Finance Review | First Tuesday of month, 2pm  | CFO                                     | Executive team                    | Written memo + KPI dashboard; distributed to board within 5 business days |
+| Quarterly | All 13 KPIs + trailing 4Q trends + benchmarks | Board Meeting          | Quarterly per board calendar | CEO (strategy narrative), CFO (metrics) | Board + executives                | Board deck; KPI slides in standard format; updated benchmark              |

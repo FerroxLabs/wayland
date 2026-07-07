@@ -10,5 +10,4 @@
  * our resource URL schemes.
  */
 export const isImageAvatar = (resolved: string): boolean =>
-  /\.(svg|png|jpe?g|webp|gif)$/i.test(resolved) ||
-  /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(resolved);
+  /\.(svg|png|jpe?g|webp|gif)$/i.test(resolved) || /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(resolved);

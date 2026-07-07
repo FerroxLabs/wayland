@@ -92,10 +92,7 @@ describe('NostrPlugin.testConnection - happy path', () => {
       setTimeout(() => {
         mockWsInstance.emit('open');
         setTimeout(() => {
-          mockWsInstance.emit(
-            'message',
-            Buffer.from(JSON.stringify(['EVENT', 'sub1', { id: 'x', kind: 4 }])),
-          );
+          mockWsInstance.emit('message', Buffer.from(JSON.stringify(['EVENT', 'sub1', { id: 'x', kind: 4 }])));
         }, 10);
       }, 0);
       return mockWsInstance;

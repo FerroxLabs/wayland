@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python best-practices database"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python best-practices database'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Data Modeling
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to define or redesign Pydantic models, including field constraints, validators, model configuration, or schema customization in Pydantic v2
 - The user is deciding between `@dataclass`, `Pydantic BaseModel`, `TypedDict`, `NamedTuple`, or plain dicts for a specific use case and needs a principled recommendation
 - The user wants to validate data arriving from an external source -- API requests, webhooks, CSV uploads, config files, environment variables, or third-party API responses
@@ -30,6 +32,7 @@ metadata:
 - The user wants to define reusable validation types using `Annotated` and share them across multiple models in a codebase
 
 **Do NOT use this skill when:**
+
 - The user wants to set up a Python project from scratch, configure `pyproject.toml`, or install dependencies → use `python-project-setup`
 - The user is asking about Python's type system at the generic/parametric level: `TypeVar`, `Generic[T]`, `Protocol`, covariance, or type narrowing → use `python-type-system`
 - The user wants general Python idioms and code style: comprehensions, context managers, decorators as language features → use `python-idioms`
@@ -136,6 +139,7 @@ State which modeling approach is appropriate and why, citing the specific factor
 ### Model Architecture
 
 Describe the model layer structure before showing code:
+
 - Inbound/request models and their validation purpose
 - Domain models and what invariants they enforce
 - Response/output models and what they expose
@@ -256,11 +260,11 @@ def handle_create_request(raw_payload: dict) -> EntityResponse:
 
 ### Key Design Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Model type | Pydantic BaseModel | External data with validation |
-| Alias strategy | `to_camel` alias generator | API uses camelCase |
-| Serialization | `model_dump_json()` | Performance, single Rust pass |
+| Decision               | Choice                          | Rationale                        |
+| ---------------------- | ------------------------------- | -------------------------------- |
+| Model type             | Pydantic BaseModel              | External data with validation    |
+| Alias strategy         | `to_camel` alias generator      | API uses camelCase               |
+| Serialization          | `model_dump_json()`             | Performance, single Rust pass    |
 | Cross-field validation | `model_validator(mode="after")` | Needs all fields validated first |
 
 ---
@@ -338,11 +342,13 @@ When a field is being removed, do not remove it immediately. Apply a two-phase d
 TypedDict has zero runtime overhead (it is erased at runtime) and is the right choice for typing the return shape of functions that already return plain dicts (e.g., Django REST Framework serializers, third-party library responses). Pydantic response models carry runtime overhead but offer `model_dump(by_alias=True)` and `model_dump_json()`.
 
 Use TypedDict when:
+
 - You're adding types to an existing codebase that already returns dicts and you cannot change the return type
 - You're typing function parameters that accept dict-like data from a library with its own serialization
 - You need to interop with `json.dumps` without any conversion step
 
 Use Pydantic response models when:
+
 - You control the serialization path and want a single `model_dump_json()` call
 - You need field-level serialization customization (`field_serializer`, alias generation)
 - The response model benefits from computed properties or from-domain factory methods
@@ -669,3 +675,4 @@ def process_webhook_payload(raw_bytes: bytes) -> StoredEvent:
 
     if isinstance(event, PaymentSucceededEvent):
         return StoredEvent.from_payment_succeeded(
+```

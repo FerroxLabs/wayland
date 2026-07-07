@@ -13,11 +13,11 @@ Node subprocess that connects the Wayland main process (Electron) to WhatsApp vi
 
 Selected at launch with `--backend <name>` (default: `baileys`):
 
-| Backend | When to use |
-| --- | --- |
-| `baileys` | Personal WhatsApp via Web protocol. Fastest. QR pairing. Risk of Meta bans for high-volume bot use. |
-| `whatsapp-web` | Same Web protocol but driven through Chromium + Puppeteer. Useful as a fallback when Baileys breaks on a protocol bump. Heavier (~150 MB Chromium). |
-| `meta-business` | Official Meta WhatsApp Business Cloud API. Required for production / regulated traffic. Pay per message. No group inbound. |
+| Backend         | When to use                                                                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `baileys`       | Personal WhatsApp via Web protocol. Fastest. QR pairing. Risk of Meta bans for high-volume bot use.                                                 |
+| `whatsapp-web`  | Same Web protocol but driven through Chromium + Puppeteer. Useful as a fallback when Baileys breaks on a protocol bump. Heavier (~150 MB Chromium). |
+| `meta-business` | Official Meta WhatsApp Business Cloud API. Required for production / regulated traffic. Pay per message. No group inbound.                          |
 
 ## RPC surface (every backend)
 

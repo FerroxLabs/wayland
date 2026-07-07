@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management journaling habits template guide testing research planning"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management journaling habits template guide testing research planning'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Task Management Master
 
 You are an expert in personal and team task management systems. You help people move from overwhelm to clarity by implementing proven methodologies like Getting Things Done (GTD, created by David Allen), the Eisenhower Matrix, personal Kanban, and hybrid approaches. You guide tool selection, workflow design, and the habits that make systems sustainable.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about task management master techniques or best practices
 - User needs guidance on task management master concepts
 - User wants to implement or improve their approach to task management master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of task management master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,6 +52,7 @@ You are an expert in personal and team task management systems. You help people 
 The most comprehensive personal productivity system. Five stages:
 
 **1. Capture** - Get everything out of your head into a trusted inbox
+
 - Physical inbox, email inbox, note-taking app, voice memo
 - Rule: If it is on your mind, capture it. Do not try to organize while capturing.
 
@@ -79,6 +81,7 @@ Can it be done in 2 minutes?
 ```
 
 **3. Organize** - Put clarified items in the right buckets:
+
 - **Next Actions**: Single next steps, organized by context (@computer, @phone, @office, @errands)
 - **Projects**: Any outcome requiring more than one action step
 - **Waiting For**: Things you have delegated or are waiting on
@@ -87,10 +90,12 @@ Can it be done in 2 minutes?
 - **Reference**: Non-actionable information you may need
 
 **4. Reflect** - Review your system regularly:
+
 - **Daily**: Check calendar and next actions list
 - **Weekly Review** (30-60 min): Process all inboxes, review all lists, update projects, identify next actions
 
 **5. Engage** - Choose what to do based on:
+
 - Context (where you are, tools available)
 - Time available
 - Energy level
@@ -115,6 +120,7 @@ NOT IMPORTANT |    DELEGATE       |    ELIMINATE       |
 ```
 
 **Usage rules:**
+
 - Quadrant 2 (Important, Not Urgent) is where your highest-value work lives. Protect time for it.
 - If everything feels urgent and important, you are in reactive mode. Step back and reassess.
 - Review the matrix weekly. Tasks migrate between quadrants as deadlines approach.
@@ -133,6 +139,7 @@ Visualize your work in progress and limit it:
 ```
 
 **Key principles:**
+
 - **Visualize work**: Every task is visible on the board
 - **Limit WIP (Work in Progress)**: Cap the "Doing" column at 2-4 items. This is the most important rule.
 - **Pull, not push**: Only pull a new task into "Doing" when one moves to "Done"
@@ -141,6 +148,7 @@ Visualize your work in progress and limit it:
 ### Time Boxing / Pomodoro Technique
 
 Structure work sessions:
+
 - **Standard Pomodoro**: 25 min work, 5 min break. After 4 rounds, 15-30 min break.
 - **Deep Work blocks**: 90-120 min focused sessions for cognitively demanding tasks
 - **Admin blocks**: Batch email, Slack, and small tasks into 30-min blocks
@@ -158,33 +166,34 @@ Most people benefit from combining elements:
 
 ### Individual Task Management
 
-| Tool | Best For | Methodology | Price |
-|------|----------|-------------|-------|
-| Todoist | GTD, projects, natural language input | GTD, labels as contexts | Free / $4-6/mo |
-| Things 3 | Apple ecosystem, elegant simplicity | GTD-inspired areas and projects | $50 one-time (Mac) |
-| TickTick | All-in-one (tasks, habits, calendar, pomodoro) | Flexible | Free / $3/mo |
-| Obsidian + Tasks plugin | Knowledge workers who live in Obsidian | Flexible, markdown-based | Free |
-| Notion | People who want tasks in their workspace | Flexible, database-driven | Free / $8-10/mo |
-| Apple Reminders | Casual, low-maintenance | Simple lists | Free |
-| Google Tasks | Gmail-centric workflow | Simple, integrated | Free |
-| pen and paper | Tactile preference, minimal system | Bullet Journal, simple lists | Cost of supplies |
+| Tool                    | Best For                                       | Methodology                     | Price              |
+| ----------------------- | ---------------------------------------------- | ------------------------------- | ------------------ |
+| Todoist                 | GTD, projects, natural language input          | GTD, labels as contexts         | Free / $4-6/mo     |
+| Things 3                | Apple ecosystem, elegant simplicity            | GTD-inspired areas and projects | $50 one-time (Mac) |
+| TickTick                | All-in-one (tasks, habits, calendar, pomodoro) | Flexible                        | Free / $3/mo       |
+| Obsidian + Tasks plugin | Knowledge workers who live in Obsidian         | Flexible, markdown-based        | Free               |
+| Notion                  | People who want tasks in their workspace       | Flexible, database-driven       | Free / $8-10/mo    |
+| Apple Reminders         | Casual, low-maintenance                        | Simple lists                    | Free               |
+| Google Tasks            | Gmail-centric workflow                         | Simple, integrated              | Free               |
+| pen and paper           | Tactile preference, minimal system             | Bullet Journal, simple lists    | Cost of supplies   |
 
 ### Team Task Management
 
-| Tool | Best For | Methodology | Price per user |
-|------|----------|-------------|---------------|
-| Linear | Engineering teams | Cycles, issues, roadmaps | Free / $8/mo |
-| Jira | Large enterprise, complex workflows | Scrum, Kanban, custom | Free / $8-16/mo |
-| Asana | Cross-functional teams | Lists, boards, timelines | Free / $11-25/mo |
-| Trello | Visual thinkers, small teams | Kanban boards | Free / $5-10/mo |
-| Notion | Teams who want everything in one place | Flexible databases | Free / $8-10/mo |
-| GitHub/GitLab Issues | Developer teams | Issues, milestones | Free / varies |
-| Basecamp | Small teams, simple projects | To-dos, message boards | $15/user/mo |
-| Monday.com | Non-technical teams | Flexible boards | $9-19/mo |
+| Tool                 | Best For                               | Methodology              | Price per user   |
+| -------------------- | -------------------------------------- | ------------------------ | ---------------- |
+| Linear               | Engineering teams                      | Cycles, issues, roadmaps | Free / $8/mo     |
+| Jira                 | Large enterprise, complex workflows    | Scrum, Kanban, custom    | Free / $8-16/mo  |
+| Asana                | Cross-functional teams                 | Lists, boards, timelines | Free / $11-25/mo |
+| Trello               | Visual thinkers, small teams           | Kanban boards            | Free / $5-10/mo  |
+| Notion               | Teams who want everything in one place | Flexible databases       | Free / $8-10/mo  |
+| GitHub/GitLab Issues | Developer teams                        | Issues, milestones       | Free / varies    |
+| Basecamp             | Small teams, simple projects           | To-dos, message boards   | $15/user/mo      |
+| Monday.com           | Non-technical teams                    | Flexible boards          | $9-19/mo         |
 
 ### Selection Criteria
 
 Choose based on these factors:
+
 1. **Methodology fit**: Does the tool support how you want to work?
 2. **Capture speed**: How fast can you add a task? (Critical for adoption)
 3. **Platform coverage**: Does it work on all your devices?
@@ -200,6 +209,7 @@ Choose based on these factors:
 Write down everything on your mind. Every task, project, commitment, idea, worry.
 
 Categories to prompt:
+
 - Work projects and tasks
 - Personal errands and chores
 - Financial items (bills, taxes, investments)
@@ -214,6 +224,7 @@ Categories to prompt:
 ### Step 2: Process and Organize (60-90 minutes)
 
 For each item from the brain dump:
+
 1. Is it actionable? If no, trash it, file it, or put it in Someday/Maybe
 2. Does it require more than one step? If yes, it is a project. Define the project outcome.
 3. What is the very next physical action? Write that as the task.
@@ -225,6 +236,7 @@ For each item from the brain dump:
 Configure your chosen tool with these lists/views:
 
 **Essential:**
+
 - Inbox (capture bucket)
 - Next Actions (optionally filtered by context)
 - Projects (list of active multi-step outcomes)
@@ -232,34 +244,35 @@ Configure your chosen tool with these lists/views:
 - Someday/Maybe
 
 **Optional:**
+
 - Eisenhower Matrix view
 - Kanban board view
 - Calendar view for date-specific tasks
 
 ### Step 4: Establish Review Rhythms
 
-| Review | Frequency | Duration | What to Do |
-|--------|-----------|----------|-----------|
-| Daily scan | Every morning | 5-10 min | Review calendar, pick top 3 tasks for today |
-| Inbox processing | 1-3 times daily | 5-15 min | Clarify and organize new captures |
-| Weekly review | Once per week | 30-60 min | Full system review (see Weekly Review template) |
-| Monthly review | Once per month | 60 min | Review goals, Someday/Maybe, adjust priorities |
+| Review           | Frequency        | Duration  | What to Do                                          |
+| ---------------- | ---------------- | --------- | --------------------------------------------------- |
+| Daily scan       | Every morning    | 5-10 min  | Review calendar, pick top 3 tasks for today         |
+| Inbox processing | 1-3 times daily  | 5-15 min  | Clarify and organize new captures                   |
+| Weekly review    | Once per week    | 30-60 min | Full system review (see Weekly Review template)     |
+| Monthly review   | Once per month   | 60 min    | Review goals, Someday/Maybe, adjust priorities      |
 | Quarterly review | Once per quarter | 2-3 hours | Review areas of responsibility, set quarterly goals |
 
 ### Step 5: Define Your Contexts
 
 Contexts are tags or labels for where/how you can do the task:
 
-| Context | When to Use |
-|---------|-------------|
-| @computer | Requires a computer with internet |
-| @phone | Can be done from phone (calls, quick messages) |
-| @office | Must be done at the office |
-| @home | Must be done at home |
-| @errands | Must be done while out |
-| @deep-work | Requires focused, uninterrupted time |
+| Context     | When to Use                                        |
+| ----------- | -------------------------------------------------- |
+| @computer   | Requires a computer with internet                  |
+| @phone      | Can be done from phone (calls, quick messages)     |
+| @office     | Must be done at the office                         |
+| @home       | Must be done at home                               |
+| @errands    | Must be done while out                             |
+| @deep-work  | Requires focused, uninterrupted time               |
 | @low-energy | Can be done when tired (admin, organizing, filing) |
-| @waiting | Blocked on someone else |
+| @waiting    | Blocked on someone else                            |
 
 ## Common Failure Modes and Fixes
 
@@ -301,12 +314,12 @@ The #1 reason tasks stall: they are not actually tasks. They are projects disgui
 
 **Test**: Can you do this in one sitting, in one context, with a clear end state? If not, decompose it.
 
-| Too Vague | Decomposed Next Actions |
-|-----------|------------------------|
-| "Do taxes" | "Gather W-2 from employer portal", "Download 1099s from bank", "Schedule 2 hours Saturday for TurboTax" |
-| "Launch new feature" | "Write feature spec in Google Doc", "Review spec with team Tuesday", "Create Jira epic with stories" |
-| "Get healthier" | "Research gyms within 2 miles of home", "Sign up for gym membership", "Block 6am MWF for workouts" |
-| "Plan vacation" | "Decide destination with partner this weekend", "Check flight prices on Google Flights", "Request PTO for July 15-22" |
+| Too Vague            | Decomposed Next Actions                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| "Do taxes"           | "Gather W-2 from employer portal", "Download 1099s from bank", "Schedule 2 hours Saturday for TurboTax"               |
+| "Launch new feature" | "Write feature spec in Google Doc", "Review spec with team Tuesday", "Create Jira epic with stories"                  |
+| "Get healthier"      | "Research gyms within 2 miles of home", "Sign up for gym membership", "Block 6am MWF for workouts"                    |
+| "Plan vacation"      | "Decide destination with partner this weekend", "Check flight prices on Google Flights", "Request PTO for July 15-22" |
 
 ### The Next Action Question
 
@@ -315,6 +328,7 @@ David Allen's most powerful question: **"What is the next physical, visible acti
 Not "work on the report" but "open the Q3 data spreadsheet and copy revenue numbers into the report template."
 
 The next action must be:
+
 - **Physical**: Something you can actually do (not "think about" or "figure out")
 - **Visible**: Someone watching you would see you doing something
 - **Specific**: Clear enough that you know when you are done
@@ -327,18 +341,22 @@ The next action must be:
 ## Today: [Date]
 
 ### Calendar Commitments
+
 - [Time]: [Event]
 
 ### Top 3 (if these get done, today is a success)
+
 1. [ ]
 2. [ ]
 3. [ ]
 
 ### Other Tasks
+
 - [ ]
 - [ ]
 
 ### End of Day
+
 - Completed: /
 - Carried forward:
 - Key win:
@@ -350,12 +368,14 @@ The next action must be:
 ## Weekly Review: [Date]
 
 ### 1. Collect (5 min)
+
 - [ ] Process physical inbox
 - [ ] Process email inbox to zero
 - [ ] Process notes and captures
 - [ ] Review voice memos and photos for action items
 
 ### 2. Review Lists (10 min)
+
 - [ ] Review calendar (past week for loose ends)
 - [ ] Review calendar (next 2 weeks for prep needed)
 - [ ] Review Next Actions list - still current?
@@ -364,12 +384,14 @@ The next action must be:
 - [ ] Review Someday/Maybe - anything to activate?
 
 ### 3. Reflect (5 min)
+
 - Biggest win this week:
 - Biggest lesson:
 - What drained energy:
 - What gave energy:
 
 ### 4. Plan (10 min)
+
 - Top 3 priorities for next week:
   1.
   2.
@@ -388,25 +410,29 @@ The next action must be:
 **Why it matters**: [Motivation]
 
 ### Next Actions
+
 - [ ] [First physical next action]
 - [ ] [Second action]
 
 ### Milestones
+
 1. [Milestone 1] - [Target date]
 2. [Milestone 2] - [Target date]
 3. [Milestone 3] - [Target date]
 
 ### Resources Needed
+
 - [People, tools, information]
 
 ### Risks
+
 - [What could go wrong]
 - [Mitigation plan]
 
 ### Status Updates
+
 - [Date]: [Update]
 ```
-
 
 ## Process
 
@@ -415,7 +441,6 @@ The next action must be:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -436,14 +461,12 @@ The next action must be:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care checklist planning"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'pet-care checklist planning'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # New Pet Preparation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is bringing home a puppy (under 6 months) or kitten (under 6 months) from a breeder, rescue, or shelter and wants to know what to buy, how to set up their home, and what to expect in the first week
 - A user is adopting an adult dog or adult cat and needs a structured adjustment plan, supplies list, and home-safety overview specific to a pet with an unknown or known prior history
 - A user is rehoming a dog or cat from a friend, family member, or online listing and needs to understand that even a seemingly "easy" transition requires proofing, scheduling, and a veterinary baseline exam
@@ -29,6 +31,7 @@ metadata:
 - A user is adopting a senior dog or cat (7+ years) and needs modified expectations, a more comprehensive vet baseline protocol, and patience-focused scheduling advice
 
 **Do NOT use when:**
+
 - The user needs obedience training protocols, positive reinforcement technique breakdowns, or structured training programs -- use `dog-training-fundamentals`
 - The user's pet is already home and they are asking about ongoing health monitoring, vaccination tracking, or chronic condition management -- use `pet-health-monitoring`
 - The user wants detailed guidance on raw feeding, macronutrient ratios, homemade diets, or managing a pet's weight or allergies through food -- use `pet-nutrition-guide`
@@ -93,24 +96,26 @@ Safety-proofing is not optional and must be completed before the pet arrives. Wa
 
 Dogs are indiscriminate eaters and the risk of ingestion is higher; cats are generally more selective but can be poisoned by grooming toxins off their coat or paws. Know the difference:
 
-| Toxin | Toxic to Dogs | Toxic to Cats | Notes |
-|---|---|---|---|
-| Chocolate (theobromine) | Yes -- dose-dependent; dark chocolate and baking chocolate most dangerous | Lower risk (cats rarely eat sweets) | As little as 1 oz dark chocolate per pound of body weight can cause seizures in dogs |
-| Xylitol | Yes -- causes severe hypoglycemia and liver failure even in small amounts | Lower documented risk | Found in sugar-free gum, some peanut butter brands, dental products, vitamins, and many baked goods |
-| Grapes and raisins | Yes -- even a single grape has caused renal failure in some dogs; mechanism unknown | Unknown; avoid | No safe dose has been established -- any ingestion warrants an emergency vet call |
-| Onion, garlic, leeks | Yes -- causes hemolytic anemia; cooked and powdered forms are more concentrated than raw | Yes -- same mechanism, even higher sensitivity per body weight | Garlic powder in baby food used as a flavor enhancer is a documented poisoning source for cats |
-| Lilies (all species) | Low risk | Highly toxic -- even pollen on fur groomed off can cause acute kidney failure | Easter lily, tiger lily, day lily, Asiatic lily: all fatal to cats. True lilies (not peace lily or calla lily, which cause irritation but are not acutely fatal) |
-| Sago palm | Yes -- all parts, especially seeds; causes liver failure | Yes | Increasingly common as a houseplant and in landscaping in warm climates |
-| Ibuprofen, acetaminophen, naproxen | Yes -- ibuprofen and naproxen cause GI ulcers and renal failure | Yes -- acetaminophen is rapidly fatal to cats even in a single pediatric dose | Keep all human medications in locked or child-proofed cabinets, not on counters |
-| Rodenticides (rat/mouse poison) | Yes -- anticoagulant and neurotoxic types both dangerous | Yes | Second-generation anticoagulants (brodifacoum) accumulate in prey -- a cat that eats a poisoned mouse can be poisoned secondarily |
+| Toxin                              | Toxic to Dogs                                                                            | Toxic to Cats                                                                 | Notes                                                                                                                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chocolate (theobromine)            | Yes -- dose-dependent; dark chocolate and baking chocolate most dangerous                | Lower risk (cats rarely eat sweets)                                           | As little as 1 oz dark chocolate per pound of body weight can cause seizures in dogs                                                                             |
+| Xylitol                            | Yes -- causes severe hypoglycemia and liver failure even in small amounts                | Lower documented risk                                                         | Found in sugar-free gum, some peanut butter brands, dental products, vitamins, and many baked goods                                                              |
+| Grapes and raisins                 | Yes -- even a single grape has caused renal failure in some dogs; mechanism unknown      | Unknown; avoid                                                                | No safe dose has been established -- any ingestion warrants an emergency vet call                                                                                |
+| Onion, garlic, leeks               | Yes -- causes hemolytic anemia; cooked and powdered forms are more concentrated than raw | Yes -- same mechanism, even higher sensitivity per body weight                | Garlic powder in baby food used as a flavor enhancer is a documented poisoning source for cats                                                                   |
+| Lilies (all species)               | Low risk                                                                                 | Highly toxic -- even pollen on fur groomed off can cause acute kidney failure | Easter lily, tiger lily, day lily, Asiatic lily: all fatal to cats. True lilies (not peace lily or calla lily, which cause irritation but are not acutely fatal) |
+| Sago palm                          | Yes -- all parts, especially seeds; causes liver failure                                 | Yes                                                                           | Increasingly common as a houseplant and in landscaping in warm climates                                                                                          |
+| Ibuprofen, acetaminophen, naproxen | Yes -- ibuprofen and naproxen cause GI ulcers and renal failure                          | Yes -- acetaminophen is rapidly fatal to cats even in a single pediatric dose | Keep all human medications in locked or child-proofed cabinets, not on counters                                                                                  |
+| Rodenticides (rat/mouse poison)    | Yes -- anticoagulant and neurotoxic types both dangerous                                 | Yes                                                                           | Second-generation anticoagulants (brodifacoum) accumulate in prey -- a cat that eats a poisoned mouse can be poisoned secondarily                                |
 
 **Electrical and physical hazards:**
+
 - Tuck or encase electrical cords in cord covers or cord organizers -- puppies and kittens chew cords and electrocution is a documented cause of death in young pets
 - Secure recliners and rocking chairs (small pets can be crushed in the mechanisms -- verify before sitting or rocking)
 - Remove rubber-backed rugs from wet areas (puppy paws slip and falls can injure young joints)
 - Check that window screens are fastened securely -- not magnetically attached decorative screens but mechanically fastened frames
 
 **Yard and exterior:**
+
 - Walk the fence line looking for gaps larger than 3 inches at ground level (a 10-week puppy can compress its body and squeeze through openings that seem too small)
 - Check gate latches -- install a secondary latch or carabiner clip, because dogs learn to push gate latches open by accident and then deliberately
 - Identify and remove any mushrooms growing in the yard before the puppy's first outdoor time -- wild mushroom toxicity is highly variable and some species are rapidly fatal
@@ -126,6 +131,7 @@ The schedule must account for the age of the pet because developmental and physi
 **Kitten safe-room protocol:** A new kitten or cat should start in a single room with all resources (food, water, litter, scratching, sleeping, hiding options) and be allowed to expand access to the rest of the home only after showing confident behaviors: eating consistently, using the litter box reliably, approaching humans voluntarily, and exploring the room with tail up rather than crouched and low. This process takes 1-5 days for confident kittens and 1-4 weeks for shy or previously unsocialized kittens. Forcing access to more space before the cat is ready increases chronic stress and is a leading cause of inappropriate elimination problems.
 
 **The 3-3-3 Rule:** A widely used framework in shelter and rescue communities. The numbers are approximations, not deadlines:
+
 - First 3 days: the pet is overwhelmed, may not eat well, may hide, may not show its real personality. This is not a sign of a problem -- it is normal decompression.
 - First 3 weeks: the pet begins learning the routine, showing more personality, testing boundaries. This is when behavioral patterns become more predictable.
 - First 3 months: the pet feels genuinely at home. Some rescue pets, especially those with trauma histories, take longer at each stage.
@@ -133,12 +139,14 @@ The schedule must account for the age of the pet because developmental and physi
 **Day 1 specific protocols:**
 
 Dogs:
+
 - Arrive home during a calm, low-stimulus time. Not on a day when multiple family members or friends are gathering to "meet the puppy" -- this is highly stressful for an already-disoriented animal
 - The first step after arriving is a leashed walk to the designated elimination area in the yard -- not inside first. The car ride is stressful and the bladder is likely full
 - Introduce the inside of the house room by room, starting with one room, ideally the room where the crate will be located
 - Introduce the crate with the door open, treats scattered inside, and a worn piece of your clothing (your scent reduces anxiety)
 
 Cats:
+
 - Carry the carrier directly to the prepared safe room and set it on the floor. Open the carrier door. Do not reach inside to remove the cat -- let the cat emerge on its own timeline
 - Leave the room and give the cat 30-60 minutes of complete quiet before returning
 - When returning, sit or lie on the floor at the cat's level -- do not approach; let the cat approach you
@@ -150,17 +158,20 @@ Cats:
 This visit is not optional and is not something to schedule "when you have time." The first vet visit serves as a health baseline and should occur within 5-7 days of arrival for all newly adopted pets.
 
 **What to bring:**
+
 - All adoption paperwork, surrender forms, and vaccination records
 - A fresh fecal sample collected within 4-6 hours of the visit (seal in a zip-lock bag) -- this allows the vet to run a fecal flotation to check for intestinal parasites, which are extremely common in shelter and rescue animals regardless of health certificates
 - A list of questions prepared in advance (use the checklist below)
 
 **Vaccination schedule expectations by age:**
+
 - Puppies under 16 weeks: core vaccines (distemper-parvovirus-adenovirus combination, commonly abbreviated as DHPP or DA2PP) are given every 3-4 weeks starting at 6-8 weeks of age, with the final booster at 14-16 weeks. Rabies: given at 12-16 weeks depending on state law. Until the puppy series is complete, avoid high-traffic dog areas (dog parks, pet store floors, unknown dogs) because immunity is not complete.
 - Kittens under 16 weeks: core vaccines (FVRCP -- rhinotracheitis, calicivirus, panleukopenia) given every 3-4 weeks starting at 6-8 weeks. Rabies at 12-16 weeks. Feline leukemia (FeLV) vaccine for kittens with any outdoor access or exposure risk.
 - Adult adoptees with unknown vaccine history: typically receive a single booster of core vaccines at the first visit, with boosters timed from that date forward
 - Adult adoptees with documented vaccine history: review records with the vet to confirm timing of next due boosters
 
 **Parasite prevention:**
+
 - Heartworm (dogs): monthly preventatives require the dog to be confirmed heartworm-negative before starting. Dogs over 7 months who haven't been on prevention should be tested before being given preventatives because giving prevention to a heartworm-positive dog can cause a reaction.
 - Flea and tick: topical or oral prevention should be discussed at the first visit. Most shelter animals have been treated, but the timing and product should be confirmed to avoid double-dosing within a safe interval.
 - Intestinal parasites: roundworms and hookworms are so common in puppies and kittens that many veterinarians treat presumptively with pyrantel even before fecal results return. Giardia requires specific treatment and is not covered by standard dewormers.
@@ -174,12 +185,14 @@ This visit is not optional and is not something to schedule "when you have time.
 Introductions are where many first-week plans break down. Rushed introductions cause fights, injuries, and long-term behavioral damage to inter-household relationships that can take months or years to repair.
 
 **Children (under 8 years):**
+
 - Supervise all interactions without exception for the first 4 weeks minimum
 - Teach the child the two-second rule before any new pet: count two seconds before reaching toward the animal to allow the animal to sniff and orient
 - Create a pet-only safe space (crate, cat tree, gated room) that the child is explicitly taught not to enter or disturb -- this gives the pet a reliable escape route and prevents the animal from feeling trapped, which is the most common precursor to defensive bites and scratches
 - Puppies use their mouth to explore and play -- they do not know biting hurts. Children cannot reliably interpret the difference between a playing puppy nip and an aggressive bite, so adult supervision is not just recommended but physiologically necessary for the child's safety
 
 **Dog to dog introductions:**
+
 - First meeting: neutral territory only (a park, a neighbor's yard, anywhere that is not the home yard which the resident dog has scented-marked as territory)
 - Both dogs on leash, both handlers present -- do not let dogs run together off-leash until they have had multiple successful on-leash interactions
 - Read body language: loose wiggly posture, play bow, brief sniffing and disengaging = positive. Stiff posture, whale eye (whites of eyes visible), raised hackles, hard stare = separate immediately without drama and try again later
@@ -187,12 +200,14 @@ Introductions are where many first-week plans break down. Rushed introductions c
 - Feed separately for at minimum 2 weeks -- resource guarding between dogs who do not yet have an established relationship is a leading cause of bites
 
 **Cat to cat introductions:**
+
 - Day 1-3: complete separation. New cat in safe room. Resident cat has full house. Swap bedding between the two cats so scent exchange happens before visual contact.
 - Day 4-7: feed both cats on opposite sides of the closed safe room door. This creates a positive association with the other cat's scent (food = good feeling = that smell is okay). Gradually move bowls closer to the door over several days.
 - Days 7-14: crack the door with a door stopper allowing visual contact but not physical contact. Watch for hissing and posturing -- this is normal and does not mean the introduction has failed. It means the cats are still negotiating.
 - Full access: only when both cats are eating normally, both are using their litter boxes, neither is showing sustained stress behaviors. This may take 2-6 weeks. Rushing this process is the leading cause of chronic inter-cat conflict in multi-cat households.
 
 **Dog to cat introductions:**
+
 - The cat must always have access to elevated space or a room the dog cannot enter. This is non-negotiable. A cat with no escape from a dog will eventually be forced into a defensive posture that can injure both animals.
 - The dog must be behind a baby gate or on leash for all initial interactions -- never loose and uncontrolled around a new cat
 - Reward the dog heavily for looking away from the cat (this is called an "auto-watch" or "look at that" incompatible behavior protocol -- it creates a positive association with the cat's presence while preventing fixation)
@@ -205,6 +220,7 @@ Introductions are where many first-week plans break down. Rushed introductions c
 New owners frequently panic over normal adjustment behaviors and sometimes miss genuine medical emergencies. Provide clear criteria for each.
 
 **Normal adjustment behaviors (do not require veterinary contact):**
+
 - Not eating for 24-48 hours on arrival (stress suppresses appetite in dogs and cats -- longer than 48 hours without eating warrants a vet call)
 - Hiding, especially in cats -- a cat that hides for the first 1-3 days is decompressing normally
 - Loose stool for 2-3 days (diet transition plus stress causes GI disruption -- beyond 3 days or if there is blood, consult a vet)
@@ -212,6 +228,7 @@ New owners frequently panic over normal adjustment behaviors and sometimes miss 
 - Not using the litter box for 12-24 hours in a new cat (especially if the cat is hiding) -- ensure the box is accessible and they know where it is; beyond 24 hours warrants attention
 
 **Require veterinary attention -- call or visit same day:**
+
 - Vomiting more than twice in 24 hours, or any vomiting accompanied by lethargy
 - Diarrhea lasting more than 48 hours, or any diarrhea with blood (even a streak)
 - Labored breathing, open-mouth breathing (in cats, any open-mouth breathing is an emergency)
@@ -429,15 +446,16 @@ These pets require modified preparation because their behavioral baselines are n
 ---
 
 ### Pet Profile
-| Parameter          | Value                                               |
-|--------------------|-----------------------------------------------------|
-| Species            | Cat                                                 |
-| Age                | Kitten (8 weeks -- minimum legal age for adoption, barely) |
-| Source             | Rescue (foster home)                                |
-| Living situation   | House                                               |
-| Other pets         | Yes -- adult male cat, age 5                        |
-| Children           | Yes -- one child, age 3 (pre-verbal/early verbal)   |
-| Key notes          | Kitten has socialized with cats; has NOT met this specific cat; has NOT met this child |
+
+| Parameter        | Value                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| Species          | Cat                                                                                    |
+| Age              | Kitten (8 weeks -- minimum legal age for adoption, barely)                             |
+| Source           | Rescue (foster home)                                                                   |
+| Living situation | House                                                                                  |
+| Other pets       | Yes -- adult male cat, age 5                                                           |
+| Children         | Yes -- one child, age 3 (pre-verbal/early verbal)                                      |
+| Key notes        | Kitten has socialized with cats; has NOT met this specific cat; has NOT met this child |
 
 ---
 
@@ -446,6 +464,7 @@ These pets require modified preparation because their behavioral baselines are n
 #### Essentials (Have Before Saturday)
 
 **For the kitten's safe room:**
+
 - [ ] **Litter box -- small, uncovered:** Standard adult boxes are too large for an 8-week kitten. Use a low-sided storage container or a small box with sides no higher than 3 inches so the kitten can climb in without difficulty. Fill with the same unscented clumping litter the foster home was using -- ask the rescue on pickup day.
 - [ ] **Litter scoop**
 - [ ] **Small stainless steel food bowl:** Wide and shallow -- kitten's whiskers should not contact the bowl sides during eating. Plastic bowls are not recommended (bacteria, possible contact dermatitis).
@@ -460,10 +479,12 @@ These pets require modified preparation because their behavioral baselines are n
 - [ ] **Safe room gate or door plan:** Designate a room (bedroom, office, or bathroom if large enough) that can be closed or gated to serve as the kitten's exclusive space for Days 1-7+. The existing cat and the 3-year-old must not have access to this room during the initial phase.
 
 **For the resident cat (new things he needs before kitten arrives):**
+
 - [ ] **Second litter box in a new location:** You will need at least 3 total boxes for a 2-cat household (one per cat plus one). Add one now, in a location that the new kitten will not access during the safe-room phase, so the resident cat has options if he feels his current box is contaminated by kitten scent.
 - [ ] **Feliway MultiCat diffuser:** Plug this in to the main living areas 3-5 days before the kitten arrives. Feliway is a synthetic analog of the feline facial pheromone associated with calm and familiarity -- clinical studies support moderate effectiveness in reducing inter-cat tension during introductions. This is a legitimate tool used by veterinary behaviorists, not a gimmick.
 
 #### First-Month Additions (Acquire After Arrival)
+
 - [ ] **Cat tree (medium height):** After the kitten has expanded access to more of the house, a cat tree in the main living area gives both cats vertical territory and reduces competition for single resting spots on the floor.
 - [ ] **Puzzle feeders:** Introduce at 10-12 weeks when fine motor coordination allows. Both cats benefit from feeding enrichment.
 - [ ] **Nail clippers:** Begin weekly nail trims starting at 8-10 weeks so the kitten habituates to handling before it is a fight.
@@ -476,17 +497,20 @@ These pets require modified preparation because their behavioral baselines are n
 #### Immediate Hazards to Address Before Saturday
 
 **Kitchen:**
+
 - [ ] Secure trash can with a latching lid -- kittens and young cats tip open-top trash cans
 - [ ] Move all onion, garlic, and their powdered forms to enclosed cabinets or high shelves
 - [ ] Verify the peanut butter in the house does not contain xylitol (check the ingredient label -- some natural brands use it)
 - [ ] Ensure rubber bands, twist ties, and bag clips are not left on counters or tables (high ingestion risk)
 
 **Bathroom:**
+
 - [ ] Toilet lids down -- an 8-week kitten can fall into a toilet and cannot climb out. This is a drowning risk.
 - [ ] All medications, vitamins, supplements, and dental products in a closed cabinet. Acetaminophen (Tylenol) is rapidly fatal to cats -- even a single regular-strength tablet can kill an adult cat; a fragment is lethal to a kitten.
 - [ ] Hair elastics, bobby pins, and hair ties off all surfaces and into a drawer -- one of the most common small-object foreign body ingestions in cats
 
 **Living areas:**
+
 - [ ] Check all window screens for secure fastening -- kittens can push through unlatched screens
 - [ ] Secure or encase all electrical cords (lamp cords, phone chargers, TV cabling) -- 8-week kittens chew cords aggressively
 - [ ] Remove lilies immediately if any are present in the household. This is the most important safety action for a home with a cat. All lily species -- Easter lily, tiger lily, Asiatic lily, day lily -- cause rapid and often irreversible acute kidney failure in cats. Even pollen transferred to fur and groomed off is toxic. Remove the plant entirely, dispose of it outside, and wipe all surfaces where pollen may have settled.

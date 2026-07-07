@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'social-media marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Twitch Streamer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on twitch streamer
 - User asks about twitch streamer best practices or techniques
 - User wants a structured approach to twitch streamer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of twitch streamer
 
@@ -60,6 +61,7 @@ Before building a Twitch streaming practice, answer these:
 ### OBS Studio Settings for Twitch
 
 **Video Settings:**
+
 ```
 Base Resolution:     1920x1080
 Output Resolution:   1920x1080 (or 1280x720 if PC struggles)
@@ -67,6 +69,7 @@ FPS:                 60 (or 30 if PC limited)
 ```
 
 **Output Settings (Streaming):**
+
 ```
 Encoder:       x264 (CPU) or NVENC (GPU - preferred if you have NVIDIA)
 Rate Control:  CBR
@@ -78,6 +81,7 @@ Profile:       High
 ```
 
 **Audio Settings:**
+
 ```
 Sample Rate:    48kHz
 Channels:       Stereo
@@ -121,6 +125,7 @@ Layer 7: Channel point redemptions
 | Donation | Thank you animation | Custom sound | 5-8 seconds |
 
 **Alert Best Practices:**
+
 - Keep alerts visible but not disruptive to content
 - Acknowledge every alert verbally (builds community)
 - Don't make alerts so flashy they distract from content
@@ -159,6 +164,7 @@ Layer 7: Channel point redemptions
 ### Building a Loyal Community
 
 **The CARE Framework:**
+
 - **C**onsistency: Stream on schedule without fail
 - **A**uthenticity: Be genuinely yourself, not a character
 - **R**ecognition: Remember regulars, celebrate their milestones
@@ -179,6 +185,7 @@ Layer 7: Channel point redemptions
 ### Setting Up AutoMod
 
 Twitch AutoMod filters messages before they appear in chat:
+
 - **Level 1-2**: Light filtering (blocks severe content)
 - **Level 3**: Moderate filtering (good starting point)
 - **Level 4**: Heavy filtering (good for family-friendly streams)
@@ -205,6 +212,7 @@ Breaking rules may result in timeout or ban at moderator discretion.
 **When to recruit mods**: After 20-30 consistent viewers
 
 **Good mod qualities:**
+
 - Regular viewer who understands your community culture
 - Level-headed under pressure
 - Available during your stream times
@@ -212,6 +220,7 @@ Breaking rules may result in timeout or ban at moderator discretion.
 - Doesn't power-trip
 
 **Mod guidelines to establish:**
+
 - When to timeout vs warn vs ban
 - How to handle borderline messages
 - Escalation path (mod -> head mod -> you)
@@ -220,6 +229,7 @@ Breaking rules may result in timeout or ban at moderator discretion.
 ### Bot Setup (Nightbot/StreamElements)
 
 Essential bot commands:
+
 ```
 !socials    - Links to your social media
 !schedule   - Your streaming schedule
@@ -237,6 +247,7 @@ Essential bot commands:
 **Minimum viable schedule**: 3 streams per week, same days and times
 
 **Schedule Design Factors:**
+
 1. When is your target audience available? (Check Twitch category viewer patterns)
 2. When are you at your best energy? (Don't stream when you're exhausted)
 3. When is competition lowest in your category? (Fewer big streamers live)
@@ -262,19 +273,20 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 
 ### Revenue Streams on Twitch
 
-| Revenue Source | Requirements | Typical Earnings |
-|---------------|-------------|-----------------|
-| Subscriptions | Affiliate status | $2.50 per Tier 1 sub (50/50 split until Partner) |
-| Bits (Cheers) | Affiliate status | $0.01 per bit to you |
-| Ads | Affiliate/Partner | $3.50-10 CPM |
-| Donations | None (third-party) | Variable, viewer generosity |
-| Sponsorships | Brand interest | $50-5,000+ per stream |
-| Affiliate links | None | 5-20% commission |
-| Merchandise | Audience demand | Variable |
+| Revenue Source  | Requirements       | Typical Earnings                                 |
+| --------------- | ------------------ | ------------------------------------------------ |
+| Subscriptions   | Affiliate status   | $2.50 per Tier 1 sub (50/50 split until Partner) |
+| Bits (Cheers)   | Affiliate status   | $0.01 per bit to you                             |
+| Ads             | Affiliate/Partner  | $3.50-10 CPM                                     |
+| Donations       | None (third-party) | Variable, viewer generosity                      |
+| Sponsorships    | Brand interest     | $50-5,000+ per stream                            |
+| Affiliate links | None               | 5-20% commission                                 |
+| Merchandise     | Audience demand    | Variable                                         |
 
 ### Subscription Strategy
 
 **Encouraging subs without begging:**
+
 - Offer genuine value for subscribers (emotes, badges, sub-only perks)
 - Run sub goals with community rewards ("At 50 subs, I'll do [event]")
 - Thank every sub personally and by name
@@ -282,6 +294,7 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 - Create subscriber-only streams or events monthly
 
 **Emote progression:**
+
 - Tier 1 (2 emote slots at Affiliate): Your most expressive/useful emotes
 - Unlock more slots as sub count grows
 - Let community vote on new emote designs
@@ -307,12 +320,14 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 ### Raiding Other Streamers
 
 **Why raiding matters:**
+
 - Builds genuine relationships with other creators
 - Your viewers discover new streamers (they appreciate it)
 - Raided streamers often reciprocate
 - Creates a network effect in your community
 
 **Raid targeting strategy:**
+
 1. Raid streamers in your size range (0.5x to 3x your viewer count)
 2. Raid within your category or adjacent categories
 3. Raid the same streamers regularly (builds real relationships)
@@ -331,32 +346,34 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 
 ### Twitch Affiliate Requirements
 
-| Requirement | Threshold | Tips |
-|-------------|-----------|------|
-| Followers | 50 | Achievable in 2-4 weeks with networking |
-| Stream days (last 30) | 7 different days | Consistent schedule |
-| Stream hours (last 30) | 8 hours total | ~2 hours/stream |
-| Average viewers (last 30) | 3 concurrent | Hardest requirement -- focus here |
+| Requirement               | Threshold        | Tips                                    |
+| ------------------------- | ---------------- | --------------------------------------- |
+| Followers                 | 50               | Achievable in 2-4 weeks with networking |
+| Stream days (last 30)     | 7 different days | Consistent schedule                     |
+| Stream hours (last 30)    | 8 hours total    | ~2 hours/stream                         |
+| Average viewers (last 30) | 3 concurrent     | Hardest requirement -- focus here       |
 
 ### Twitch Partner Requirements
 
-| Requirement | Threshold | Tips |
-|-------------|-----------|------|
-| Stream days (last 30) | 12 different days | Nearly every other day |
-| Stream hours (last 30) | 25 hours | ~2 hours per stream day |
-| Average viewers (last 30) | 75 concurrent | The real challenge |
+| Requirement               | Threshold         | Tips                    |
+| ------------------------- | ----------------- | ----------------------- |
+| Stream days (last 30)     | 12 different days | Nearly every other day  |
+| Stream hours (last 30)    | 25 hours          | ~2 hours per stream day |
+| Average viewers (last 30) | 75 concurrent     | The real challenge      |
 
 **Note**: Meeting Partner requirements does not guarantee acceptance. Twitch reviews applications holistically.
 
 ### The Growth Plan from Affiliate to Partner
 
 **Phase 1: Foundation (0-6 months, 0-50 followers)**
+
 - Establish schedule and stick to it
 - Learn OBS, alerts, and stream management
 - Network with 10+ streamers in your category
 - Create social media presence (clips on TikTok/YouTube)
 
 **Phase 2: Affiliate (6-12 months, 50-500 followers)**
+
 - Optimize stream quality (audio, video, overlays)
 - Build Discord community
 - Develop signature content (what makes YOUR stream unique)
@@ -364,6 +381,7 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 - Start tracking analytics seriously
 
 **Phase 3: Growth (12-24 months, 500-5,000 followers)**
+
 - Content diversification (YouTube highlights, TikTok clips)
 - Brand consistency across platforms
 - Community events and special streams
@@ -371,6 +389,7 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 - Approach small brands for sponsorships
 
 **Phase 4: Partner Push (18-36 months, 5,000+ followers)**
+
 - Consistent 75+ concurrent viewers
 - Professional stream quality
 - Active multi-platform presence
@@ -405,16 +424,16 @@ Saturday:  2 PM - 5 PM EST    [Variety / community games] (optional)
 
 ### Key Metrics to Review Weekly
 
-| Metric | What It Means | Target Direction |
-|--------|--------------|-----------------|
-| Average viewers | Stream attraction power | Up |
-| Peak viewers | Event/content quality | Up |
-| Unique chatters | Community engagement | Up |
-| Follower conversion | Profile/content appeal | 10%+ of unique viewers |
-| Sub retention | Value perception | 70%+ monthly retention |
-| Stream summary | Best/worst moments | Learn and repeat peaks |
-| Clip views | Discovery potential | Up |
-| Raid incoming/outgoing | Network strength | Active in both directions |
+| Metric                 | What It Means           | Target Direction          |
+| ---------------------- | ----------------------- | ------------------------- |
+| Average viewers        | Stream attraction power | Up                        |
+| Peak viewers           | Event/content quality   | Up                        |
+| Unique chatters        | Community engagement    | Up                        |
+| Follower conversion    | Profile/content appeal  | 10%+ of unique viewers    |
+| Sub retention          | Value perception        | 70%+ monthly retention    |
+| Stream summary         | Best/worst moments      | Learn and repeat peaks    |
+| Clip views             | Discovery potential     | Up                        |
+| Raid incoming/outgoing | Network strength        | Active in both directions |
 
 ### The Weekly Review Process
 
@@ -429,7 +448,6 @@ Every Monday (15 minutes):
 7. Update content plan based on findings
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -442,13 +460,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with twitch streamer for a mid-size project."
 
 **Output:** A complete twitch streamer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

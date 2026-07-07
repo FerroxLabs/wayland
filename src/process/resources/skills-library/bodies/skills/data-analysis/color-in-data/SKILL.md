@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization design accessibility"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization design accessibility'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Color In Data
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to assign colors to a chart, dashboard, map, or data-driven graphic and must decide between palette types, specific hex values, or accessibility requirements
 - A user asks how to make their visualization colorblind-friendly, or has received feedback that their chart is hard to read for some users
 - A user is encoding meaning into color -- direction (up/down, positive/negative), magnitude (low/high), or category membership -- and needs a principled approach
@@ -29,6 +31,7 @@ metadata:
 - A user needs to annotate a visualization with colored reference lines, threshold bands, or anomaly markers and must ensure those annotation colors don't conflict with the data encoding
 
 **Do NOT use when:**
+
 - The user is designing a brand color palette with primary, secondary, and accent colors (use `color-palette-design` in the design category -- brand color systems follow different rules than data encoding systems)
 - The user is selecting which chart type to use for their data (use `chart-type-selector` -- chart type and color are separate decisions, and color cannot compensate for a mismatched chart type)
 - The user wants to format axis labels, gridlines, tick marks, chart titles, or annotation typography (use `chart-formatting` -- typography and structural formatting are distinct from data encoding)
@@ -53,6 +56,7 @@ Before choosing any palette, establish the precise data-to-color mapping. This d
 ### Step 2: Select the Correct Palette Architecture
 
 **Sequential palettes** -- for ordered, one-directional quantitative data:
+
 - Use when data has a natural minimum and maximum with meaningful gradation between them: population density, page load time, customer satisfaction score, revenue, temperature
 - Structure: single hue from low-saturation/high-lightness (low values) to high-saturation/low-lightness (high values); or a multi-hue progression where hue shifts from yellow-green to blue as value increases
 - Perceptually uniform options to use as defaults: Blue (#EFF3FF to #08519C), Green (#EDF8E9 to #006D2C), Purple (#F2F0F7 to #54278F), Orange (#FEE6CE to #A63603) -- these sequences follow CIELAB perceptual uniformity so equal data steps look like equal visual steps
@@ -61,6 +65,7 @@ Before choosing any palette, establish the precise data-to-color mapping. This d
 - Never use black as the high-value endpoint on a sequential scale -- it visually reads as "missing data" or "error" to most audiences; use dark navy, dark teal, or dark plum instead
 
 **Diverging palettes** -- for ordered data with a meaningful, interpretable midpoint:
+
 - Use when the zero, average, mean, or budget target is conceptually important and the audience needs to instantly distinguish "above" from "below": profit vs. loss, deviation from benchmark, correlation coefficients (−1 to +1), Likert scale responses (strongly disagree to strongly agree), temperature anomaly from historical average
 - Structure: two sequential palettes joined at a neutral midpoint -- the two end hues must be maximally distinct under all color vision deficiencies
 - Best-validated diverging combinations: Blue (#2166AC) -- White (#F7F7F7) -- Red (#B2182B); Blue (#4393C3) -- White -- Orange (#D6604D); Purple (#762A83) -- White -- Green (#1B7837); Teal (#018571) -- White -- Brown (#A6611A)
@@ -69,6 +74,7 @@ Before choosing any palette, establish the precise data-to-color mapping. This d
 - Specify the midpoint value explicitly in the documentation: "White (#F7F7F7) = $0 revenue," not just "White = neutral"
 
 **Categorical palettes** -- for nominal data with no inherent order:
+
 - Use when color distinguishes group membership: product line, geographic region, experimental condition, customer segment, survey cohort
 - Structure: hues must be maximally spaced in perceptual hue angle around the HSL color wheel, at consistent saturation (50-65%) and lightness (45-60%) -- this ensures no single category appears more "important" than others by accident
 - Strict maximum: 7 colors for screen, 5 colors for print. Human preattentive color discrimination reliably fails beyond 7 distinct hues when those hues are used simultaneously at small sizes
@@ -77,6 +83,7 @@ Before choosing any palette, establish the precise data-to-color mapping. This d
 - Avoid semantic color conflict: do not use red for a category that is not inherently "bad" or dangerous; do not use green for a category that is not inherently "good" or safe -- semantic color associations override categorical reading in audiences
 
 **Highlight/emphasis palettes** -- for single-element focus:
+
 - Use when the visualization argues a specific point: "This one product outperformed all others," "This month was anomalous"
 - Structure: one saturated focal color (the highlighted element) plus one muted, desaturated neutral (all other elements) -- typically a medium-saturation hue at 60-70% lightness for the highlight and a neutral gray (#BEBEBE or #D9D9D9) for the background elements
 - The highlight color should carry semantic meaning when possible: use orange or blue for neutral emphasis, red for danger/loss, green for success/growth
@@ -95,6 +102,7 @@ For every color in the palette, specify all of the following -- partial specific
 - **Text overlay specification** -- whether white (#FFFFFF) or near-black (#1A1A1A) text on this background meets 4.5:1 WCAG AA contrast; calculate this using the relative luminance formula: L = 0.2126R + 0.7152G + 0.0722B where R, G, B are linearized (values ÷ 255, then apply gamma correction: if ≤ 0.04045, divide by 12.92; otherwise, ((value + 0.055) / 1.055) ^ 2.4)
 
 For sequential and diverging palettes, also specify:
+
 - The interpolation endpoints and midpoint hex codes
 - The number of discrete quantization steps if discretizing a continuous scale
 - The data value mapped to each step's lower and upper bound
@@ -109,11 +117,13 @@ Color vision deficiency affects approximately 8% of males and 0.5% of females of
 - **Achromatopsia** (complete color blindness): extremely rare (~0.003%); design as if color is entirely unavailable -- this means every data element must be distinguishable by position, shape, pattern, or label alone, with color as pure reinforcement
 
 **Verification method without simulation software:**
+
 - Convert each palette color to grayscale: Luminance = 0.299R + 0.587G + 0.114B (where R, G, B are 0-255 integers)
 - If two colors have luminance values within 40 points of each other, they may appear identical or nearly identical in grayscale and likely conflict in some form of color vision deficiency
 - Check specifically that the two hues used in any diverging palette have clearly distinct grayscale luminance values -- this is the single most common failure point
 
 **Alternative encoding requirements:**
+
 - Color must never be the only differentiating channel in any chart that will be published, printed, or shared with a general audience
 - On line charts: pair each line color with a distinct marker shape (circle, square, triangle, diamond, cross) at data points
 - On bar charts: pair color with direct value labels on or near each bar, or use pattern fills (hatch, cross-hatch, dot) in addition to fill color
@@ -129,11 +139,13 @@ WCAG 2.1 specifies contrast requirements that apply directly to data visualizati
 - **7:1** for AAA-level accessibility, required in some government and healthcare publication standards
 
 **Contrast ratio calculation:**
+
 - Contrast Ratio = (L1 + 0.05) / (L2 + 0.05) where L1 is the lighter color's relative luminance and L2 is the darker color's relative luminance
 - A white background (#FFFFFF) has luminance 1.0; pure black (#000000) has luminance 0.0
 - A color with luminance 0.18 on white: (1.0 + 0.05) / (0.18 + 0.05) = 4.57:1 -- just passes AA for text
 
 **Common problem cases:**
+
 - Yellow and gold hues almost always fail against white backgrounds: #FFD700 on #FFFFFF yields approximately 1.7:1 -- never use yellow for text-bearing elements on white
 - Medium saturated colors (saturation 50-70%, lightness 50%) typically land at 2:1 to 3.5:1 against white -- they pass for large non-text elements but fail for data labels
 - Dark backgrounds change the calculation completely: #4682B4 (Steel Blue) yields about 3.3:1 on white but approximately 5.0:1 on dark navy #0D1B2A
@@ -356,6 +368,7 @@ When a user brings an existing chart with problematic colors and asks for a fix:
 ## Data Visualization Color Specification
 
 ### Palette Summary
+
 - **Palette type:** Categorical (6 unrelated geographic regions, no implied order)
 - **Color encoding:** Regional office identity -- each hue identifies one of 6 offices consistently across all dashboard charts
 - **Number of colors:** 6
@@ -366,14 +379,14 @@ When a user brings an existing chart with problematic colors and asks for a fix:
 
 ### Color Assignments
 
-| # | Name | Hex | RGB | HSL | Assigned To | On-Color Text |
-|---|------|-----|-----|-----|-------------|---------------|
-| 1 | Azure | #56B4E9 | 86, 180, 233 | 202°, 77%, 63% | North Region | #1A1A1A |
-| 2 | Vermillion | #E06033 | 224, 96, 51 | 20°, 72%, 54% | South Region | #1A1A1A |
-| 3 | Bluish Green | #38B09A | 56, 176, 154 | 171°, 52%, 45% | East Region | #1A1A1A |
-| 4 | Gold Amber | #E6A817 | 230, 168, 23 | 42°, 82%, 50% | West Region | #1A1A1A |
-| 5 | Soft Violet | #A882DD | 168, 130, 221 | 269°, 57%, 69% | Central Region | #1A1A1A |
-| 6 | Reddish Pink | #D4608C | 212, 96, 140 | 335°, 55%, 60% | Northwest Region | #1A1A1A |
+| #   | Name         | Hex     | RGB           | HSL            | Assigned To      | On-Color Text |
+| --- | ------------ | ------- | ------------- | -------------- | ---------------- | ------------- |
+| 1   | Azure        | #56B4E9 | 86, 180, 233  | 202°, 77%, 63% | North Region     | #1A1A1A       |
+| 2   | Vermillion   | #E06033 | 224, 96, 51   | 20°, 72%, 54%  | South Region     | #1A1A1A       |
+| 3   | Bluish Green | #38B09A | 56, 176, 154  | 171°, 52%, 45% | East Region      | #1A1A1A       |
+| 4   | Gold Amber   | #E6A817 | 230, 168, 23  | 42°, 82%, 50%  | West Region      | #1A1A1A       |
+| 5   | Soft Violet  | #A882DD | 168, 130, 221 | 269°, 57%, 69% | Central Region   | #1A1A1A       |
+| 6   | Reddish Pink | #D4608C | 212, 96, 140  | 335°, 55%, 60% | Northwest Region | #1A1A1A       |
 
 **Notes on hue spacing:** Starting at 202° (Azure/blue), hues are spaced at approximately 50°-70° intervals (20°, 171°, 42°, 269°, 335°) to maximize perceptual distance. No two hues fall within 30° of each other. Saturation is consistent at 52-82% and lightness at 44-69%, tuned for visibility on a dark (#1E1E1E) background.
 
@@ -383,35 +396,36 @@ When a user brings an existing chart with problematic colors and asks for a fix:
 
 #### WCAG Contrast Ratios (all measured against dark background #1E1E1E, luminance 0.014)
 
-| Foreground Color | Background | Fg Luminance | Bg Luminance | Contrast Ratio | WCAG Level | Notes |
-|-----------------|------------|-------------|-------------|----------------|------------|-------|
-| #56B4E9 Azure | #1E1E1E | 0.399 | 0.014 | 8.5:1 | AAA | Excellent for bar fills and labels |
-| #E06033 Vermillion | #1E1E1E | 0.206 | 0.014 | 5.6:1 | AA | Passes for text and large elements |
-| #38B09A Bluish Green | #1E1E1E | 0.185 | 0.014 | 5.1:1 | AA | Passes for text and large elements |
-| #E6A817 Gold Amber | #1E1E1E | 0.399 | 0.014 | 8.5:1 | AAA | Excellent; confirm not too similar to Azure in luminance |
-| #A882DD Soft Violet | #1E1E1E | 0.256 | 0.014 | 6.7:1 | AA | Passes; check against Reddish Pink adjacency |
-| #D4608C Reddish Pink | #1E1E1E | 0.145 | 0.014 | 4.1:1 | AA Large / 3:1 bar fills | Use for large bar elements; add direct label if used as text under 18pt |
-| #1A1A1A (text) | #56B4E9 (bar) | 0.010 | 0.399 | 10.6:1 | AAA | Data labels on Azure bars |
-| #1A1A1A (text) | #E06033 (bar) | 0.010 | 0.206 | 5.6:1 | AA | Data labels on Vermillion bars |
-| #1A1A1A (text) | #38B09A (bar) | 0.010 | 0.185 | 5.1:1 | AA | Data labels on Bluish Green bars |
-| #1A1A1A (text) | #E6A817 (bar) | 0.010 | 0.399 | 10.6:1 | AAA | Data labels on Gold Amber bars |
-| #1A1A1A (text) | #A882DD (bar) | 0.010 | 0.256 | 6.7:1 | AA | Data labels on Soft Violet bars |
-| #1A1A1A (text) | #D4608C (bar) | 0.010 | 0.145 | 4.1:1 | Use white text instead | Switch to #FFFFFF for text on Reddish Pink: 12.7:1 |
+| Foreground Color     | Background    | Fg Luminance | Bg Luminance | Contrast Ratio | WCAG Level               | Notes                                                                   |
+| -------------------- | ------------- | ------------ | ------------ | -------------- | ------------------------ | ----------------------------------------------------------------------- |
+| #56B4E9 Azure        | #1E1E1E       | 0.399        | 0.014        | 8.5:1          | AAA                      | Excellent for bar fills and labels                                      |
+| #E06033 Vermillion   | #1E1E1E       | 0.206        | 0.014        | 5.6:1          | AA                       | Passes for text and large elements                                      |
+| #38B09A Bluish Green | #1E1E1E       | 0.185        | 0.014        | 5.1:1          | AA                       | Passes for text and large elements                                      |
+| #E6A817 Gold Amber   | #1E1E1E       | 0.399        | 0.014        | 8.5:1          | AAA                      | Excellent; confirm not too similar to Azure in luminance                |
+| #A882DD Soft Violet  | #1E1E1E       | 0.256        | 0.014        | 6.7:1          | AA                       | Passes; check against Reddish Pink adjacency                            |
+| #D4608C Reddish Pink | #1E1E1E       | 0.145        | 0.014        | 4.1:1          | AA Large / 3:1 bar fills | Use for large bar elements; add direct label if used as text under 18pt |
+| #1A1A1A (text)       | #56B4E9 (bar) | 0.010        | 0.399        | 10.6:1         | AAA                      | Data labels on Azure bars                                               |
+| #1A1A1A (text)       | #E06033 (bar) | 0.010        | 0.206        | 5.6:1          | AA                       | Data labels on Vermillion bars                                          |
+| #1A1A1A (text)       | #38B09A (bar) | 0.010        | 0.185        | 5.1:1          | AA                       | Data labels on Bluish Green bars                                        |
+| #1A1A1A (text)       | #E6A817 (bar) | 0.010        | 0.399        | 10.6:1         | AAA                      | Data labels on Gold Amber bars                                          |
+| #1A1A1A (text)       | #A882DD (bar) | 0.010        | 0.256        | 6.7:1          | AA                       | Data labels on Soft Violet bars                                         |
+| #1A1A1A (text)       | #D4608C (bar) | 0.010        | 0.145        | 4.1:1          | Use white text instead   | Switch to #FFFFFF for text on Reddish Pink: 12.7:1                      |
 
 #### Colorblind Simulation Results
 
-| Pair | Deuteranopia | Protanopia | Tritanopia | Grayscale Luminance Δ | Safe? |
-|------|-------------|-----------|-----------|----------------------|-------|
-| Azure vs. Vermillion | Distinguishable (blue vs. dark yellow-orange) | Distinguishable (blue vs. dark tan) | Distinguishable (appear as blue vs. yellow-red) | ΔL = 0.193 (193 pts) | Yes |
-| Azure vs. Bluish Green | Distinguishable (blue vs. blue-gray, slight risk) | Distinguishable (blue vs. gray-green) | Problematic: both shift toward similar greenish-gray | ΔL = 0.214 | Conditional -- add shape markers |
-| Vermillion vs. Reddish Pink | Both shift toward similar brown-orange | Both shift toward dark tan -- risk | Distinguishable | ΔL = 0.061 (61 pts) | Conditional -- ensure not adjacent in bar grouping |
-| Gold Amber vs. Reddish Pink | Gold shifts toward bright yellow; Pink shifts toward orange-yellow -- risk of merge | Gold bright yellow; Pink dark tan -- distinguishable | Problematic: both accessible hue angles shift similarly | ΔL = 0.254 | Conditional -- add label redundancy |
-| Soft Violet vs. Azure | Distinguishable (violet shifts toward blue but remains lighter) | Distinguishable | Distinguishable | ΔL = 0.143 | Yes |
-| All 6 colors in grayscale | Grayscale values: Azure 0.399, Amber 0.399, Violet 0.256, Vermillion 0.206, Green 0.185, Pink 0.145 | -- | -- | Azure and Amber identical in gray | Separate Azure and Amber bars using spacing; add pattern fills |
+| Pair                        | Deuteranopia                                                                                        | Protanopia                                           | Tritanopia                                              | Grayscale Luminance Δ             | Safe?                                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------- | --------------------------------- | -------------------------------------------------------------- |
+| Azure vs. Vermillion        | Distinguishable (blue vs. dark yellow-orange)                                                       | Distinguishable (blue vs. dark tan)                  | Distinguishable (appear as blue vs. yellow-red)         | ΔL = 0.193 (193 pts)              | Yes                                                            |
+| Azure vs. Bluish Green      | Distinguishable (blue vs. blue-gray, slight risk)                                                   | Distinguishable (blue vs. gray-green)                | Problematic: both shift toward similar greenish-gray    | ΔL = 0.214                        | Conditional -- add shape markers                               |
+| Vermillion vs. Reddish Pink | Both shift toward similar brown-orange                                                              | Both shift toward dark tan -- risk                   | Distinguishable                                         | ΔL = 0.061 (61 pts)               | Conditional -- ensure not adjacent in bar grouping             |
+| Gold Amber vs. Reddish Pink | Gold shifts toward bright yellow; Pink shifts toward orange-yellow -- risk of merge                 | Gold bright yellow; Pink dark tan -- distinguishable | Problematic: both accessible hue angles shift similarly | ΔL = 0.254                        | Conditional -- add label redundancy                            |
+| Soft Violet vs. Azure       | Distinguishable (violet shifts toward blue but remains lighter)                                     | Distinguishable                                      | Distinguishable                                         | ΔL = 0.143                        | Yes                                                            |
+| All 6 colors in grayscale   | Grayscale values: Azure 0.399, Amber 0.399, Violet 0.256, Vermillion 0.206, Green 0.185, Pink 0.145 | --                                                   | --                                                      | Azure and Amber identical in gray | Separate Azure and Amber bars using spacing; add pattern fills |
 
 **Key finding from colorblind simulation**: Azure (#56B4E9) and Gold Amber (#E6A817) have identical grayscale luminance (both ≈ 0.399). In an achromatic print or extreme CVD case, these two regions are indistinguishable. Resolution: assign Azure and Gold Amber to the two regions with the most data points (North and West, likely the highest revenue regions) and ensure they are never placed in adjacent bar positions within the same month grouping.
 
 #### Alternative Encoding Channels
+
 - **Pattern fills**: North Region (Azure) uses solid fill; South Region (Vermillion) uses diagonal hatch 45°; East Region (Bluish Green) uses diagonal hatch 135° (counter-diagonal); West Region (Gold Amber) uses horizontal hatch; Central Region (Soft Violet) uses dot grid fill; Northwest Region (Reddish Pink) uses cross-hatch. Power BI supports custom fill patterns through Deneb/Vega-Lite custom visual.
 - **Labels**: Direct data labels are enabled on all bars showing the sales value in thousands (e.g., "$2.4M"). This makes color redundant for reading individual values.
 - **Legend**: Dashboard legend shows color swatch + region name + current month total. Region name is the primary identifier; color is reinforcement.
@@ -419,6 +433,7 @@ When a user brings an existing chart with problematic colors and asks for a fix:
 ---
 
 ### System Test Results
+
 - **Simultaneous contrast**: Vermillion (#E06033) adjacent to Reddish Pink (#D4608C) in the bar grouping creates mild vibrational border -- resolved by ensuring these two regions are always separated by at least one bar of a different hue in the grouped bar ordering (ordering: Azure, Gold Amber, Bluish Green, Soft Violet, Vermillion, Reddish Pink)
 - **Small size (200×150px) test**: All 6 colors distinct at reduced size. Soft Violet and Reddish Pink come closest to merging -- confirmed still distinguishable at 200px width due to sufficient hue and lightness separation
 - **Grayscale luminance values**: Azure 102 (out of 255), Gold Amber 102, Soft Violet 65, Vermillion 53, Bluish Green 47, Reddish Pink 37. Azure and Gold Amber are identical in grayscale -- documented above, resolved via ordering and pattern fills
@@ -437,6 +452,7 @@ When a user brings an existing chart with problematic colors and asks for a fix:
 7. **Light mode export**: For PDF exports or external presentations on white backgrounds, the palette must be re-tuned: reduce lightness of each color by 12 points in HSL to maintain readability -- the dark-mode palette will appear washed out on white
 
 ### Do NOT Use
+
 - Do not use red (#CC0000 or similar pure red) as a substitute for Vermillion (#E06033) -- pure red creates a semantic "error/danger" signal that dominates the categorical reading; Vermillion reads as a color, not an alarm
 - Do not use the Reddish Pink (#D4608C) color for any status indicator, alert badge, or error message on the dashboard -- its reserved function is Northwest Region identity only; using it for UI states will cause audience confusion about whether a UI element represents a region
 - Do not adjust any palette color to increase its contrast against white backgrounds without rechecking its contrast against the dark (#1E1E1E) background -- optimizing for white will typically desaturate the color and reduce contrast on dark backgrounds

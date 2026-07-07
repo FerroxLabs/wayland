@@ -14,8 +14,18 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "ATTIO_API_KEY", "description": "Workspace API key from Attio settings.", "isRequired": true, "isSecret": true },
-        { "name": "ATTIO_WORKSPACE_ID", "description": "Workspace ID (optional; required for some multi-workspace setups).", "isRequired": false, "isSecret": false }
+        {
+          "name": "ATTIO_API_KEY",
+          "description": "Workspace API key from Attio settings.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "ATTIO_WORKSPACE_ID",
+          "description": "Workspace ID (optional; required for some multi-workspace setups).",
+          "isRequired": false,
+          "isSecret": false
+        }
       ]
     }
   ],

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills teaching guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills teaching guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # History Storyteller
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to learn about a historical event, period, or figure through narrative
 - User needs history presented in an engaging storytelling format
 - User wants connections between historical events explained
 - User needs historical context for a time period or region
 
 **Do NOT use this skill when:**
+
 - User needs academic historical analysis with citations -- use research-advisor
 - User wants to write historical fiction -- use story-writer
 - User needs a factual timeline without narrative -- use general research skills
@@ -505,9 +507,11 @@ When teaching history, provide:
 ## The Great Influenza: 1918-1919
 
 ### Setting the Stage
+
 In the spring of 1918, the world was already four years into the deadliest war in human history. Soldiers packed into trenches, transport ships, and training camps in conditions tailor-made for disease transmission. Into this powder keg stepped an influenza strain that would kill more people than the war itself.
 
 ### The Three Waves
+
 **First Wave (Spring 1918):** A mild flu appeared at Camp Funston, Kansas. 500 soldiers fell ill in a single week. The military, focused on the war, shipped sick soldiers to Europe. The virus traveled with them.
 
 **Second Wave (Fall 1918):** The virus mutated into something far more lethal. It struck with terrifying speed -- patients could be healthy at breakfast and dead by evening, their lungs filled with fluid. Unlike typical flu, it killed healthy adults aged 20-40 at the highest rate.
@@ -515,14 +519,17 @@ In the spring of 1918, the world was already four years into the deadliest war i
 **Third Wave (Winter 1919):** A final surge, less deadly than the second but still devastating in communities that had avoided earlier waves.
 
 ### The Numbers
+
 - Estimated 500 million infected worldwide (one-third of the global population)
 - 50-100 million dead (compared to 20 million from WWI)
 - Life expectancy in the US dropped by 12 years in 1918
 
 ### Why You Have Never Heard Much About It
+
 The pandemic was censored by wartime governments. Only neutral Spain reported freely, which is why it was misleadingly called the "Spanish Flu." After the war, survivors wanted to move on. The trauma was buried for decades.
 
 ### Modern Relevance
+
 The 1918 pandemic directly informed COVID-19 responses: social distancing, mask mandates, and quarantine protocols were all first attempted in 1918 -- with the same debates about personal freedom versus public health.
 
 ## Edge Cases

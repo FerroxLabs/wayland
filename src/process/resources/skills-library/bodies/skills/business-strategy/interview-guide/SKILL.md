@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning checklist strategy guide"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template planning checklist strategy guide'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Interview Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A hiring manager, recruiter, or HR business partner needs to build a structured interview guide from scratch for a specific role, level, and round
 - A company is standardizing its interview process across multiple roles and needs a repeatable guide format with behavioral questions, competency definitions, and scoring rubrics
 - An interviewer panel needs calibration -- they have been asking unstructured questions and getting inconsistent hiring decisions
@@ -28,6 +30,7 @@ metadata:
 - A talent team is building out an interview loop with 3-5 rounds and needs to map which competencies are assessed at which stage to avoid redundancy and coverage gaps
 
 **Do NOT use this skill when:**
+
 - A candidate wants to prepare for an interview they are attending (use the `interview-prep` skill)
 - Someone needs to write a job description that will later feed into an interview guide (use the `job-description` skill first, then return here)
 - An HR team needs a performance review or 360 feedback template (use the `performance-review` skill -- evaluation criteria are different from interview criteria)
@@ -60,16 +63,17 @@ A competency is a specific, observable cluster of behaviors that predict job per
 
 **Common competency categories by function:**
 
-| Function | Core Competencies Typically Assessed |
-|----------|--------------------------------------|
-| Product Management | Product sense, analytical reasoning, prioritization, cross-functional influence, user empathy |
-| Engineering | Technical depth, system design thinking, debugging approach, code review collaboration, incident response |
-| Sales | Pipeline management, objection handling, discovery questioning, deal qualification, forecasting discipline |
-| People Management | Coaching and development, conflict resolution, delegation, performance management, organizational influence |
-| Operations | Process design, stakeholder alignment, ambiguity tolerance, execution rigor, cross-functional coordination |
-| Finance | Financial modeling, business case development, executive communication, risk quantification |
+| Function           | Core Competencies Typically Assessed                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Product Management | Product sense, analytical reasoning, prioritization, cross-functional influence, user empathy               |
+| Engineering        | Technical depth, system design thinking, debugging approach, code review collaboration, incident response   |
+| Sales              | Pipeline management, objection handling, discovery questioning, deal qualification, forecasting discipline  |
+| People Management  | Coaching and development, conflict resolution, delegation, performance management, organizational influence |
+| Operations         | Process design, stakeholder alignment, ambiguity tolerance, execution rigor, cross-functional coordination  |
+| Finance            | Financial modeling, business case development, executive communication, risk quantification                 |
 
 **Competency definition structure:** For each competency, define three things before writing any questions:
+
 1. **What it means at this level** -- "Analytical Reasoning for a mid-level PM means the ability to size a problem, identify the right metric to move, and design a measurement approach" vs. "for a VP it means building a data strategy across the org."
 2. **What excellent looks like** -- specific observable behaviors, not adjectives. "Uses primary and secondary metrics. Anticipates confounding variables. Quantifies tradeoffs in revenue terms."
 3. **What poor performance looks like** -- "Relies on gut feel. Cannot explain why they chose a metric. Conflates outputs with outcomes."
@@ -83,6 +87,7 @@ A competency is a specific, observable cluster of behaviors that predict job per
 The standard STAR framework (Situation, Task, Action, Result) is widely known but often produces surface-level answers without the fifth element: **Learning**. Use the STAR-L model to also probe for what the candidate updated in their mental model or behavior as a result of the experience.
 
 **Question construction rules:**
+
 - Always open with a situation-anchor: "Tell me about a time when..." or "Describe a specific situation where..." or "Walk me through a recent example of..."
 - Never use "What would you do if..." as a primary question. Hypotheticals reveal idealized self-perception, not actual behavior. Past behavior under conditions similar to the future role is far more predictive.
 - Aim for a situation that is sufficiently recent (within the last 2-3 years) and at a scope relevant to the role. For a manager role, you want examples from a management context, not from 10 years ago as an individual contributor.
@@ -90,27 +95,32 @@ The standard STAR framework (Situation, Task, Action, Result) is widely known bu
 
 **Follow-up probe bank by STAR-L element:**
 
-*Situation/Task probes (when the setup is vague):*
+_Situation/Task probes (when the setup is vague):_
+
 - "How large was the team or scope involved?"
 - "What were the constraints -- budget, timeline, headcount?"
 - "Who were the key stakeholders you were accountable to?"
 
-*Action probes (when actions are described at a high level):*
+_Action probes (when actions are described at a high level):_
+
 - "What specifically did you do vs. what did others on the team do?"
 - "When you say you 'worked with' the team, can you describe how you made decisions?"
 - "What would the people who disagreed with you say about your approach?"
 
-*Result probes (when outcomes are missing or vague):*
+_Result probes (when outcomes are missing or vague):_
+
 - "What was the measurable impact? Can you put a number to it?"
 - "How did you know it worked?"
 - "What happened to the project 6 months later?"
 
-*Learning probes (the most-skipped, most valuable element):*
+_Learning probes (the most-skipped, most valuable element):_
+
 - "What would you do differently if you faced this situation again?"
 - "What did that experience change about how you operate?"
 - "If you were coaching a peer who had to navigate the same situation, what would you tell them?"
 
 **Avoid these question types:**
+
 - Brain teasers ("How many golf balls fit in a school bus?") -- banned by most reputable research as zero-validity predictors
 - Questions that telegraph the answer ("We value collaboration here -- how do you collaborate?")
 - Compound questions ("Tell me about a time you handled conflict AND what you would do differently") -- ask one at a time
@@ -126,14 +136,15 @@ Generic rubrics ("1=poor, 4=excellent") are not usable. Interviewers with no cal
 
 Avoid five-point scales with a neutral midpoint -- interviewers default to the middle, which destroys variance. A forced four-point scale requires a directional judgment.
 
-| Score | Label | Meaning |
-|-------|-------|---------|
-| 1 | Does Not Meet | Evidence is absent, contradictory, or clearly below the minimum bar for the role level |
-| 2 | Approaching | Evidence is present but thin -- one weak example, limited scope, unclear impact, or skill shown at a lower level than required |
-| 3 | Meets | Clear, specific example at the appropriate scope and level; impact is measurable; demonstrates the competency reliably |
-| 4 | Exceeds | Multiple strong examples; demonstrates the competency above the role's requirements; pattern of excellence; evidence of teaching or scaling the competency to others |
+| Score | Label         | Meaning                                                                                                                                                              |
+| ----- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Does Not Meet | Evidence is absent, contradictory, or clearly below the minimum bar for the role level                                                                               |
+| 2     | Approaching   | Evidence is present but thin -- one weak example, limited scope, unclear impact, or skill shown at a lower level than required                                       |
+| 3     | Meets         | Clear, specific example at the appropriate scope and level; impact is measurable; demonstrates the competency reliably                                               |
+| 4     | Exceeds       | Multiple strong examples; demonstrates the competency above the role's requirements; pattern of excellence; evidence of teaching or scaling the competency to others |
 
 **Writing BARS indicators:** Each score level should have 2-4 bullet points describing what a candidate who scored at that level actually said or did in the interview. These are written before the interview happens, based on your definition of the competency. Example for "Stakeholder Management, Score 3":
+
 - Describes identifying who the key stakeholders were and what each cared about before taking action
 - Explains a specific method used to align conflicting priorities (e.g., joint prioritization session, shared OKR mapping)
 - Demonstrates that the outcome addressed stakeholder needs, with evidence of follow-through
@@ -147,12 +158,14 @@ Avoid five-point scales with a neutral midpoint -- interviewers default to the m
 Time management is the most common interview failure mode. Interviewers spend 25 minutes on the first question and then rush through the final competency in 5 minutes, producing no usable data for that section.
 
 **Time budgeting formula for a 60-minute behavioral interview:**
+
 - Opening and rapport: 5 minutes
 - 3 competencies x 15 minutes each: 45 minutes
 - Candidate questions: 8 minutes
 - Close and next steps: 2 minutes
 
 **Time budgeting formula for a 45-minute behavioral interview:**
+
 - Opening: 3 minutes
 - 3 competencies x 12 minutes each: 36 minutes
 - Candidate questions: 5 minutes
@@ -169,11 +182,13 @@ Time management is the most common interview failure mode. Interviewers spend 25
 The instructions section is often omitted from interview guides, and it is the reason the same questions produce different quality data across interviewers. Include the following:
 
 **Before the interview:**
+
 - Read the full guide including BARS anchors before the interview. Do not read questions for the first time while the candidate is in the room.
 - Read the candidate's resume, but do not form hypotheses to confirm. Your job is to surface evidence, not validate first impressions.
 - Prepare your scoring sheet with a notes column -- space to write verbatim or near-verbatim quotes, not paraphrases.
 
 **During the interview:**
+
 - Take notes on what the candidate said, not your interpretation. "Candidate said the project had a $200K cost overrun and they identified it 3 weeks late" is a usable note. "Candidate seemed to handle the pressure well" is not -- it is an inference.
 - Silence after a question is not failure. Wait at least 5 seconds before probing. Many interviewers break silence prematurely and accidentally answer their own question.
 - If a candidate gives a hypothetical answer to a behavioral question ("I would typically..."), redirect: "I appreciate that -- can you give me a specific example of when you did that?"
@@ -181,11 +196,13 @@ The instructions section is often omitted from interview guides, and it is the r
 - Do NOT telegraph your reaction -- nodding enthusiastically when a candidate gives a strong answer and then asking a probe question signals that the probe is a follow-up to a good answer, not a routine follow-up.
 
 **After the interview:**
+
 - Score within 30 minutes of the interview ending. Memory degrades rapidly. Research shows that after 24 hours, interviewers begin to conflate candidates and reconstruct memories.
 - Score each competency independently before writing your overall recommendation. Do not let halo bias (one great answer) or horn bias (one bad answer) drive the overall score.
 - Submit your completed scorecard to the recruiter before the debrief meeting. Do not read other interviewers' scorecards before submitting your own.
 
 **Illegal questions -- hard stop:** The following question topics are legally prohibited in most jurisdictions and must never appear in a structured guide or be asked ad-hoc:
+
 - Marital status, family status, pregnancy plans, number of children
 - Age or date of birth (asking for graduation year to infer age is also problematic)
 - National origin, citizenship, native language (unless job-related for a specific documented reason)
@@ -200,6 +217,7 @@ The instructions section is often omitted from interview guides, and it is the r
 The debrief meeting is where hiring decisions are made, and it is where the most bias enters the process if not structured carefully. The guide must include debrief instructions.
 
 **Structured debrief protocol:**
+
 1. Before the meeting, every interviewer submits their completed scorecard with individual competency scores and written evidence. Submission is a hard prerequisite for attending the debrief. No scorecard, no vote.
 2. The recruiter or debrief facilitator compiles all scores into a summary grid showing each interviewer's ratings by competency. This grid is shared at the start of the debrief meeting, not before.
 3. Each interviewer shares their scores and the specific evidence they observed -- starting with the person most likely to have a minority view, not the hiring manager (who would anchor everyone else).
@@ -223,15 +241,15 @@ The AI should generate the following structured document. Fill every section wit
 
 ### Interview Overview
 
-| Field | Details |
-|-------|---------|
-| Role | [Title, Level, Department] |
-| Interview Round | [Round number and type: e.g., Round 2 -- Behavioral] |
-| Duration | [X minutes] |
-| Interviewer | [Name or role assignment] |
-| Must-Have Competencies | [Competency names -- failure here = no hire] |
+| Field                     | Details                                                                    |
+| ------------------------- | -------------------------------------------------------------------------- |
+| Role                      | [Title, Level, Department]                                                 |
+| Interview Round           | [Round number and type: e.g., Round 2 -- Behavioral]                       |
+| Duration                  | [X minutes]                                                                |
+| Interviewer               | [Name or role assignment]                                                  |
+| Must-Have Competencies    | [Competency names -- failure here = no hire]                               |
 | Nice-to-Have Competencies | [Competency names -- failure here = a concern, not automatic disqualifier] |
-| Guide Version | [Version number and date] |
+| Guide Version             | [Version number and date]                                                  |
 
 ---
 
@@ -246,51 +264,56 @@ The AI should generate the following structured document. Fill every section wit
 ---
 
 ### Competency 1: [Competency Name]
+
 **Why this competency matters for this role:** [1-2 sentences linking competency to job performance]
 **What excellent performance looks like:** [2-3 specific observable behaviors]
 **What poor performance looks like:** [2-3 specific observable behaviors]
 
 **Primary Question:**
+
 > "[Behavioral question -- Tell me about a time...]"
 
 Follow-up probes:
+
 - "[Situation/Task probe if setup is unclear]"
 - "[Action probe if actions are vague or group-attributed]"
 - "[Result probe if outcome is missing or unquantified]"
 - "[Learning probe -- what did this change for you?]"
 
 **Alternate Question (use if primary yields no usable data):**
+
 > "[Second behavioral question on the same competency]"
 
 **Scoring Rubric -- [Competency Name]:**
 
-| Score | Label | Behavioral Indicators |
-|-------|-------|----------------------|
-| 4 -- Exceeds | [Label] | [2-3 specific behaviors a 4-scorer demonstrates in the interview] |
-| 3 -- Meets | [Label] | [2-3 specific behaviors a 3-scorer demonstrates in the interview] |
-| 2 -- Approaching | [Label] | [2-3 specific behaviors a 2-scorer demonstrates in the interview] |
+| Score              | Label   | Behavioral Indicators                                             |
+| ------------------ | ------- | ----------------------------------------------------------------- |
+| 4 -- Exceeds       | [Label] | [2-3 specific behaviors a 4-scorer demonstrates in the interview] |
+| 3 -- Meets         | [Label] | [2-3 specific behaviors a 3-scorer demonstrates in the interview] |
+| 2 -- Approaching   | [Label] | [2-3 specific behaviors a 2-scorer demonstrates in the interview] |
 | 1 -- Does Not Meet | [Label] | [2-3 specific behaviors a 1-scorer demonstrates in the interview] |
 
-**Interviewer Score:** _____ / 4
+**Interviewer Score:** **\_** / 4
 **Evidence (what the candidate said -- verbatim where possible):**
-_______________________________________________
 
 ---
 
-*(Repeat Competency block for each competency)*
+---
+
+_(Repeat Competency block for each competency)_
 
 ---
 
 ### Interview Agenda
 
-| Time | Activity | Interviewer Action |
-|------|----------|--------------------|
-| 0:00 -- 0:05 | Opening | Introduce yourself by name and role. Explain: "Today I'll be asking about specific past experiences. I'll take some notes. There's no trick here -- I just want to understand how you've approached situations similar to what you'd face here." |
-| 0:05 -- 0:[X] | [Competency 1 Name] | Primary question + 2-3 probes. Target [X] minutes. If past [midpoint], complete and move on. |
-| 0:[X] -- 0:[Y] | [Competency 2 Name] | Primary question + 2-3 probes. Target [X] minutes. |
-| 0:[Y] -- 0:[Z] | [Competency 3 Name] | Primary question + 2-3 probes. Target [X] minutes. |
-| 0:[Z] -- 0:[Z+8] | Candidate Questions | "What questions do you have for me?" Note the quality and depth of questions asked. |
-| Last 2 min | Close | "We're at time. Thank you for your time today. [Recruiter name] will be in touch within [X] business days about next steps." |
+| Time             | Activity            | Interviewer Action                                                                                                                                                                                                                               |
+| ---------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0:00 -- 0:05     | Opening             | Introduce yourself by name and role. Explain: "Today I'll be asking about specific past experiences. I'll take some notes. There's no trick here -- I just want to understand how you've approached situations similar to what you'd face here." |
+| 0:05 -- 0:[X]    | [Competency 1 Name] | Primary question + 2-3 probes. Target [X] minutes. If past [midpoint], complete and move on.                                                                                                                                                     |
+| 0:[X] -- 0:[Y]   | [Competency 2 Name] | Primary question + 2-3 probes. Target [X] minutes.                                                                                                                                                                                               |
+| 0:[Y] -- 0:[Z]   | [Competency 3 Name] | Primary question + 2-3 probes. Target [X] minutes.                                                                                                                                                                                               |
+| 0:[Z] -- 0:[Z+8] | Candidate Questions | "What questions do you have for me?" Note the quality and depth of questions asked.                                                                                                                                                              |
+| Last 2 min       | Close               | "We're at time. Thank you for your time today. [Recruiter name] will be in touch within [X] business days about next steps."                                                                                                                     |
 
 **Clock management note:** If you are past the halfway point of your total interview time and still on Competency 1, wrap up that question, record your score, and move to Competency 2. Incomplete data on three competencies is better than deep data on one.
 
@@ -299,26 +322,29 @@ _______________________________________________
 ### Candidate Question Period -- Assessment Notes
 
 The questions a candidate asks are informative data. Note:
+
 - Are they asking about the role, the team, and the mission? (Suggests genuine interest in the work)
 - Are they asking exclusively about compensation, benefits, and flexibility before any offer exists? (Not a red flag alone, but note if it dominates)
 - Are they asking sophisticated questions that demonstrate they have researched the company and thought about the role? (Strong signal for senior roles)
 - Do they ask nothing? (May indicate disengagement or excessive anxiety -- note context)
 
 **Candidate Questions Asked:**
-_______________________________________________
+
+---
 
 ---
 
 ### Interviewer Scorecard
 
-| Competency | Must-Have? | Score (1-4) | Evidence Summary |
-|------------|-----------|-------------|-----------------|
-| [Competency 1] | [Yes/No] | _____ | |
-| [Competency 2] | [Yes/No] | _____ | |
-| [Competency 3] | [Yes/No] | _____ | |
-| [Competency 4 if applicable] | [Yes/No] | _____ | |
+| Competency                   | Must-Have? | Score (1-4) | Evidence Summary |
+| ---------------------------- | ---------- | ----------- | ---------------- |
+| [Competency 1]               | [Yes/No]   | **\_**      |                  |
+| [Competency 2]               | [Yes/No]   | **\_**      |                  |
+| [Competency 3]               | [Yes/No]   | **\_**      |                  |
+| [Competency 4 if applicable] | [Yes/No]   | **\_**      |                  |
 
 **Overall Recommendation:**
+
 - [ ] Strong Hire -- Exceeds bar on all must-haves; strong evidence across competencies
 - [ ] Hire -- Meets bar on all must-haves; solid evidence; no significant concerns
 - [ ] Lean No Hire -- Meets some must-haves but gaps exist; concerns outweigh strengths
@@ -332,7 +358,7 @@ _______________________________________________
 **Primary Concern:**
 **Open Questions for Debrief:**
 
-*Submit this scorecard within 30 minutes of the interview and before reading any other interviewer's feedback.*
+_Submit this scorecard within 30 minutes of the interview and before reading any other interviewer's feedback._
 
 ---
 
@@ -345,17 +371,19 @@ _______________________________________________
 5. Document the decision and rationale within 24 hours.
 
 **Debrief Decision:**
+
 - [ ] Advance to next round
 - [ ] Extend offer
 - [ ] No hire -- [primary reason]
 
-**Decision rationale documented by:** ___________________ **Date:** ___________
+**Decision rationale documented by:** ********\_\_\_******** **Date:** ****\_\_\_****
 
 ---
 
 ### Topics to Avoid (Legal Compliance)
 
 The following topics may NOT be raised in this interview, including as casual conversation:
+
 - Age, birth year, or graduation year (when used to infer age)
 - Marital status, partnership status, family plans, or number of children
 - National origin, citizenship status, or native language
@@ -396,24 +424,31 @@ If a candidate volunteers information in any of these categories, do not follow 
 ## Edge Cases
 
 ### Entry-Level or New Grad Candidates
+
 Behavioral questions that assume years of professional experience will yield blank stares from recent graduates. Reframe every question to explicitly invite academic, internship, volunteer, and project contexts: "Tell me about a time -- in any context: class project, internship, club leadership -- when you had to influence someone who didn't report to you." Score responses at the appropriate scope -- a student organizing a 10-person class project that shipped on time is demonstrating project management at their level. Do not score them down for scope; score them on the quality of behavior within their scope. Add a note in the guide: "Candidates at this level may not have workplace examples for every question. Academic and extracurricular examples are acceptable. Adjust scope expectations accordingly in the BARS anchors."
 
 ### Internal Candidates Competing for a New Role
+
 Internal candidates present several complications. First, interviewers already have impressions of them -- often positive if they are liked, which inflates scores, or sometimes negative if there has been friction. Second, generic behavioral questions may yield answers about the same company the interviewer works at, which creates anchoring to known context. Third, it can feel awkward for both parties to conduct a formal structured interview with a colleague. Handle this by: (a) noting in the guide that all interviewers must score internal candidates against the same rubric as external candidates, (b) replacing questions that say "at a previous company" with "in a context here or elsewhere," (c) specifically probing for examples from outside the interviewer's direct line of sight ("You mentioned a cross-functional project -- can you walk me through one I might not be familiar with?"), and (d) reminding interviewers that familiarity is not evidence -- only examples are.
 
 ### Executive-Level and C-Suite Candidates
+
 Executive interviews require a fundamental shift in question design. Tactical behavioral questions ("Tell me about a bug you fixed") are irrelevant. The assessment is about organizational impact, board-level communication, strategic decision-making under ambiguity, and building and deploying human capital. Questions should be scoped to organizational transformation: "Walk me through a time you had to significantly restructure how your function operated -- what drove the need, how you built the case, how you executed, and what the org looked like 18 months later." Also add: (a) a board or executive presentation exercise where the candidate presents a strategic analysis, (b) a stakeholder simulation where the candidate handles a difficult board question or investor scenario, (c) reference check questions specifically designed to triangulate the competencies assessed in the interview. For executives, structured reference checks are more predictive than the interviews themselves -- build reference check questions into the guide.
 
 ### Technical Interview Rounds (Engineering, Data, Finance Modeling)
+
 Behavioral rounds and technical rounds have different structures. Technical rounds assess not just whether the candidate gets the right answer, but how they think. The rubric must evaluate: (a) problem decomposition -- do they break the problem into tractable subproblems before starting?, (b) communication during the exercise -- do they think aloud, ask clarifying questions, and explain their reasoning?, (c) approach to ambiguity -- when constraints are undefined, do they make reasonable assumptions explicitly or freeze?, (d) response to hints and feedback -- do they incorporate guidance gracefully or defensively?, (e) output quality -- correctness, efficiency, and edge case handling for code; logic, assumptions, and scenario analysis for finance models. Never use the technical exercise as the only data point -- pair it with at least one behavioral question about how they have applied technical skills in a team context.
 
 ### High-Volume Hiring (10+ Identical Roles)
+
 Standardization is non-negotiable at volume. Every single candidate must receive the same questions in the same order. Build a bank of 5 questions per competency so interviewers can rotate across candidates while maintaining structural equivalence. Require all interviewers to attend a calibration session where they independently score the same written transcript and then align. Track score distributions by interviewer -- if one interviewer gives 70% of candidates a score of 4 and another gives 70% a score of 2, you have a calibration problem, not a talent problem. In high-volume contexts, also consider using a structured scoring platform that prevents interviewers from seeing each other's scores, timestamps scorecard submission to confirm it precedes the debrief, and archives all evaluation data for legal defensibility.
 
 ### Remote/Video Interviews
+
 Video interviews require additional guidance in the interviewer instructions. Note: (a) technical difficulties at the start do not reflect the candidate's communication ability -- allow 5 minutes of setup buffer, (b) silence is normal on video and should not be filled by the interviewer, (c) eye contact norms are different on video -- looking at the camera reads as eye contact, looking at the face reads as looking away, (d) take notes in a separate document rather than visibly typing during the interview (it creates an audible distraction and signals inattention), (e) record the interview only if legally permitted and with the candidate's explicit consent, and document this in the guide.
 
 ### Candidates With Non-Traditional Backgrounds or Career Gaps
+
 A candidate who has been out of the workforce for 2 years for caregiving, medical reasons, or personal circumstances should not be evaluated differently on competency evidence. The behavioral questions should focus on examples from before the gap, with probes for recency updated as needed ("I know this was a few years ago -- can you tell me about any context since then, even informal or volunteer, where you've applied this skill?"). Do not probe the gap for personal reasons. If the competency evidence is several years old, note that in the scorecard as a consideration, not a disqualifier. Score on the quality of evidence that exists, not the absence of recent evidence due to circumstances outside the candidate's control.
 
 ---
@@ -430,15 +465,15 @@ A candidate who has been out of the workforce for 2 years for caregiving, medica
 
 ### Interview Overview
 
-| Field | Details |
-|-------|---------|
-| Role | Senior Data Analyst, Analytics & Insights Team |
-| Interview Round | Round 2 -- Behavioral Interview |
-| Duration | 60 minutes |
-| Interviewer | Hiring Manager |
-| Must-Have Competencies | Analytical Rigor (Score 1 = automatic no-hire) |
-| Nice-to-Have Competencies | Stakeholder Communication, Handling Ambiguity |
-| Guide Version | v1.0 |
+| Field                     | Details                                        |
+| ------------------------- | ---------------------------------------------- |
+| Role                      | Senior Data Analyst, Analytics & Insights Team |
+| Interview Round           | Round 2 -- Behavioral Interview                |
+| Duration                  | 60 minutes                                     |
+| Interviewer               | Hiring Manager                                 |
+| Must-Have Competencies    | Analytical Rigor (Score 1 = automatic no-hire) |
+| Nice-to-Have Competencies | Stakeholder Communication, Handling Ambiguity  |
+| Guide Version             | v1.0                                           |
 
 ---
 
@@ -461,29 +496,33 @@ A candidate who has been out of the workforce for 2 years for caregiving, medica
 **What poor performance looks like:** Presents correlation as causation without acknowledgment. Cannot explain why they chose a metric. Does not mention data quality checks. Cannot quantify confidence or uncertainty.
 
 **Primary Question:**
+
 > "Tell me about a time when you delivered an analysis, and someone pushed back on the methodology or the conclusion. What happened, and how did you handle it?"
 
 Follow-up probes:
+
 - "What was the specific concern they raised about your approach or data?"
 - "Walk me through what you did to either validate or revise your analysis."
 - "What did you find when you re-examined it? Were they right?"
 - "What did that experience change about how you approach analysis reviews now?"
 
 **Alternate Question (use if primary yields no usable data):**
+
 > "Describe the most complex analysis you've built where you had to make significant methodological choices -- what decisions did you face, and how did you evaluate the options?"
 
 **Scoring Rubric -- Analytical Rigor:**
 
-| Score | Label | Behavioral Indicators |
-|-------|-------|-----------------------|
-| 4 -- Exceeds | Definitive Evidence | Describes a case where their own proactive quality check caught an error before delivery. Distinguishes statistical significance from practical significance. Explains trade-offs between methodologies (e.g., why they chose regression over a simpler ratio). Can articulate what would need to be true for their conclusion to be wrong. |
-| 3 -- Meets | Clear Evidence | Provides a specific example of incorporating feedback that improved the analysis. Describes the data quality checks they ran. Can explain why they selected the metric they used and what it does and does not capture. |
-| 2 -- Approaching | Thin Evidence | Describes a general process ("I always check my data") without a specific example. Cannot explain the methodological choice or defaults to "that's what everyone uses." Pushback was acknowledged but not substantively addressed. |
-| 1 -- Does Not Meet | Insufficient Evidence | Cannot describe a specific analysis with rigor. Dismisses methodology questions as unimportant. Conflates correlation with causation without acknowledgment. No data quality checks mentioned. |
+| Score              | Label                 | Behavioral Indicators                                                                                                                                                                                                                                                                                                                       |
+| ------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4 -- Exceeds       | Definitive Evidence   | Describes a case where their own proactive quality check caught an error before delivery. Distinguishes statistical significance from practical significance. Explains trade-offs between methodologies (e.g., why they chose regression over a simpler ratio). Can articulate what would need to be true for their conclusion to be wrong. |
+| 3 -- Meets         | Clear Evidence        | Provides a specific example of incorporating feedback that improved the analysis. Describes the data quality checks they ran. Can explain why they selected the metric they used and what it does and does not capture.                                                                                                                     |
+| 2 -- Approaching   | Thin Evidence         | Describes a general process ("I always check my data") without a specific example. Cannot explain the methodological choice or defaults to "that's what everyone uses." Pushback was acknowledged but not substantively addressed.                                                                                                          |
+| 1 -- Does Not Meet | Insufficient Evidence | Cannot describe a specific analysis with rigor. Dismisses methodology questions as unimportant. Conflates correlation with causation without acknowledgment. No data quality checks mentioned.                                                                                                                                              |
 
-**Interviewer Score:** _____ / 4
+**Interviewer Score:** **\_** / 4
 **Evidence (what the candidate said):**
-_______________________________________________
+
+---
 
 ---
 
@@ -496,28 +535,32 @@ _______________________________________________
 **What poor performance looks like:** Defaults to full technical detail regardless of audience. Withholds caveats to avoid difficult conversations. Cannot explain what the data means for a business decision.
 
 **Primary Question:**
+
 > "Tell me about a time when you had to present an analysis to a senior leader or executive who didn't have a data background. What did you present, and how did you tailor your approach?"
 
 Follow-up probes:
+
 - "What did you leave out, and why did you make those choices?"
 - "How did they respond? Did the communication land the way you intended?"
 - "What would you do differently to make it more effective?"
 
 **Alternate Question:**
+
 > "Describe a situation where a stakeholder asked you to answer a business question that the data couldn't actually answer in the way they were framing it. How did you handle that?"
 
 **Scoring Rubric -- Stakeholder Communication:**
 
-| Score | Label | Behavioral Indicators |
-|-------|-------|-----------------------|
-| 4 -- Exceeds | Definitive Evidence | Describes adjusting communication style based on explicit feedback from a stakeholder. Identifies what an executive cares about (the decision, the risk, the revenue impact) vs. what an analyst finds interesting (the methodology). Has a specific example of reframing a technical limitation as a business risk, not a data failure. |
-| 3 -- Meets | Clear Evidence | Describes intentionally simplifying a technical analysis for a non-technical audience. Can articulate what they included vs. excluded and why. Has an example of a stakeholder understanding and acting on their recommendation. |
-| 2 -- Approaching | Thin Evidence | Mentions "keeping it simple" but cannot describe how. Stakeholder example is with a peer analyst, not a business stakeholder. Communication was one-directional -- no evidence of feedback or adaptation. |
-| 1 -- Does Not Meet | Insufficient Evidence | Presents full technical detail regardless of audience. Cannot articulate how communication for a VP differs from communication for a fellow analyst. No examples of adapting to feedback. |
+| Score              | Label                 | Behavioral Indicators                                                                                                                                                                                                                                                                                                                    |
+| ------------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4 -- Exceeds       | Definitive Evidence   | Describes adjusting communication style based on explicit feedback from a stakeholder. Identifies what an executive cares about (the decision, the risk, the revenue impact) vs. what an analyst finds interesting (the methodology). Has a specific example of reframing a technical limitation as a business risk, not a data failure. |
+| 3 -- Meets         | Clear Evidence        | Describes intentionally simplifying a technical analysis for a non-technical audience. Can articulate what they included vs. excluded and why. Has an example of a stakeholder understanding and acting on their recommendation.                                                                                                         |
+| 2 -- Approaching   | Thin Evidence         | Mentions "keeping it simple" but cannot describe how. Stakeholder example is with a peer analyst, not a business stakeholder. Communication was one-directional -- no evidence of feedback or adaptation.                                                                                                                                |
+| 1 -- Does Not Meet | Insufficient Evidence | Presents full technical detail regardless of audience. Cannot articulate how communication for a VP differs from communication for a fellow analyst. No examples of adapting to feedback.                                                                                                                                                |
 
-**Interviewer Score:** _____ / 4
+**Interviewer Score:** **\_** / 4
 **Evidence (what the candidate said):**
-_______________________________________________
+
+---
 
 ---
 
@@ -530,41 +573,45 @@ _______________________________________________
 **What poor performance looks like:** Waits for complete requirements before starting. Asks clarifying questions but never commits to a directional finding. Treats ambiguity as a blocker rather than a condition to work around.
 
 **Primary Question:**
+
 > "Tell me about a time when you were asked to analyze something where the question itself wasn't clear -- you got a vague ask or a moving target. How did you approach it?"
 
 Follow-up probes:
+
 - "What did you do first when you realized the question was under-defined?"
 - "How did you decide when you had enough information to proceed vs. when you needed more clarity?"
 - "What did you deliver, and was the stakeholder satisfied with how you handled the ambiguity?"
 - "What would you do differently to get ahead of that situation?"
 
 **Alternate Question:**
+
 > "Describe a situation where you had to make an analytical recommendation without having access to the ideal data. What was missing, and how did you handle it?"
 
 **Scoring Rubric -- Handling Ambiguity:**
 
-| Score | Label | Behavioral Indicators |
-|-------|-------|-----------------------|
-| 4 -- Exceeds | Definitive Evidence | Describes a structured decomposition of the ambiguous ask into answerable sub-questions. Made explicit assumptions and shared them with stakeholders before completing the work. Delivered iteratively -- "here's what I can tell you now, here's what I'll confirm next week." Outcome shows stakeholder trusted them to navigate ambiguity independently. |
-| 3 -- Meets | Clear Evidence | Describes identifying and resolving ambiguity through structured clarifying questions. Made a decision about when to proceed vs. escalate. Delivered a finding with stated limitations. Stakeholder was able to make a decision from the output. |
-| 2 -- Approaching | Thin Evidence | Asked clarifying questions but needed significant hand-holding. Describes ambiguity as a problem that someone else resolved for them. Waited significantly before proceeding. |
-| 1 -- Does Not Meet | Insufficient Evidence | Cannot describe a specific ambiguous situation. Describes ambiguity as something that always gets resolved before they start. No examples of making progress without complete information. |
+| Score              | Label                 | Behavioral Indicators                                                                                                                                                                                                                                                                                                                                       |
+| ------------------ | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4 -- Exceeds       | Definitive Evidence   | Describes a structured decomposition of the ambiguous ask into answerable sub-questions. Made explicit assumptions and shared them with stakeholders before completing the work. Delivered iteratively -- "here's what I can tell you now, here's what I'll confirm next week." Outcome shows stakeholder trusted them to navigate ambiguity independently. |
+| 3 -- Meets         | Clear Evidence        | Describes identifying and resolving ambiguity through structured clarifying questions. Made a decision about when to proceed vs. escalate. Delivered a finding with stated limitations. Stakeholder was able to make a decision from the output.                                                                                                            |
+| 2 -- Approaching   | Thin Evidence         | Asked clarifying questions but needed significant hand-holding. Describes ambiguity as a problem that someone else resolved for them. Waited significantly before proceeding.                                                                                                                                                                               |
+| 1 -- Does Not Meet | Insufficient Evidence | Cannot describe a specific ambiguous situation. Describes ambiguity as something that always gets resolved before they start. No examples of making progress without complete information.                                                                                                                                                                  |
 
-**Interviewer Score:** _____ / 4
+**Interviewer Score:** **\_** / 4
 **Evidence (what the candidate said):**
-_______________________________________________
+
+---
 
 ---
 
 ### Interview Agenda
 
-| Time | Activity | Interviewer Action |
-|------|----------|--------------------|
-| 0:00 -- 0:05 | Opening | "Hi [Name], I'm [Your Name], and I'm the hiring manager for this role. Today's interview is about your past experiences -- I'll ask you to walk me through specific situations. I'll take some notes as we go. There's no trick here; I'm genuinely interested in how you work. Does that sound good?" |
-| 0:05 -- 0:22 | Analytical Rigor | Primary question + 3-4 probes. Target 17 minutes. If past 0:18 and still on first probe, complete current probe and score. |
-| 0:22 -- 0:38 | Stakeholder Communication | Primary question + 2-3 probes. Target 16 minutes. |
-| 0:38 -- 0:52 | Handling Ambiguity | Primary question + 2-3 probes. Target 14 minutes. |
-| 0:52 -- 1:00 | Candidate Questions | "What questions do you have for me?" Note specificity and depth of questions. Close: "We'll be in touch within 3 business days. Thank you for your time." |
+| Time         | Activity                  | Interviewer Action                                                                                                                                                                                                                                                                                     |
+| ------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0:00 -- 0:05 | Opening                   | "Hi [Name], I'm [Your Name], and I'm the hiring manager for this role. Today's interview is about your past experiences -- I'll ask you to walk me through specific situations. I'll take some notes as we go. There's no trick here; I'm genuinely interested in how you work. Does that sound good?" |
+| 0:05 -- 0:22 | Analytical Rigor          | Primary question + 3-4 probes. Target 17 minutes. If past 0:18 and still on first probe, complete current probe and score.                                                                                                                                                                             |
+| 0:22 -- 0:38 | Stakeholder Communication | Primary question + 2-3 probes. Target 16 minutes.                                                                                                                                                                                                                                                      |
+| 0:38 -- 0:52 | Handling Ambiguity        | Primary question + 2-3 probes. Target 14 minutes.                                                                                                                                                                                                                                                      |
+| 0:52 -- 1:00 | Candidate Questions       | "What questions do you have for me?" Note specificity and depth of questions. Close: "We'll be in touch within 3 business days. Thank you for your time."                                                                                                                                              |
 
 **Clock management note:** Analytical Rigor is the must-have. Do not let this section compress the others -- if you are past 0:20 and still on Analytical Rigor, wrap up, score it, and move on. You need data on all three competencies.
 
@@ -575,26 +622,31 @@ _______________________________________________
 For a Senior Analyst, strong questions include: questions about the team's data stack and current analytical maturity, what decisions the team most wants to be able to answer that they cannot currently, what the biggest data quality challenges are, and how the role interfaces with product and engineering teams.
 
 **Candidate Questions Asked:**
-_______________________________________________
+
+---
+
 **Quality Assessment (informational only, not scored):**
-_______________________________________________
+
+---
 
 ---
 
 ### Interviewer Scorecard
 
-| Competency | Must-Have? | Score (1-4) | Evidence Summary |
-|------------|-----------|-------------|-----------------|
-| Analytical Rigor | Yes | _____ | |
-| Stakeholder Communication | No | _____ | |
-| Handling Ambiguity | No | _____ | |
+| Competency                | Must-Have? | Score (1-4) | Evidence Summary |
+| ------------------------- | ---------- | ----------- | ---------------- |
+| Analytical Rigor          | Yes        | **\_**      |                  |
+| Stakeholder Communication | No         | **\_**      |                  |
+| Handling Ambiguity        | No         | **\_**      |                  |
 
 **Decision Logic:**
+
 - Score 1 on Analytical Rigor = No Hire (must-have threshold not met)
 - Score 2 on Analytical Rigor = Lean No Hire; requires explicit justification to advance
 - Any score of 1 on Stakeholder Communication or Handling Ambiguity = note as a significant concern in rationale
 
 **Overall Recommendation:**
+
 - [ ] Strong Hire
 - [ ] Hire
 - [ ] Lean No Hire
@@ -608,7 +660,7 @@ _______________________________________________
 **Primary Concern:**
 **Open Questions for Debrief:**
 
-*Submit this scorecard within 30 minutes. Do not read other interviewers' scorecards before submitting.*
+_Submit this scorecard within 30 minutes. Do not read other interviewers' scorecards before submitting._
 
 ---
 
@@ -625,6 +677,7 @@ _______________________________________________
 ### Topics to Avoid (Legal Compliance)
 
 Do NOT ask about or follow up on any of the following:
+
 - Age or year of graduation (unless directly relevant to credential verification with legal guidance)
 - Marital or family status, plans for children, childcare arrangements
 - National origin, citizenship, or native language

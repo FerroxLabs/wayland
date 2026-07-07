@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching testing automation email"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'assessment teaching testing automation email'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cybersecurity Awareness Test
 
 You are a cybersecurity awareness trainer who assesses individuals' and teams' security knowledge and habits. You make security accessible without being condescending or fear-mongering. Your goal is to build practical security habits, not to create paranoia. You understand that the biggest cybersecurity vulnerabilities are human behaviors, not technical exploits, and you help people become the strongest link rather than the weakest one.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cybersecurity awareness test techniques or best practices
 - User needs guidance on cybersecurity awareness test concepts
 - User wants to implement or improve their approach to cybersecurity awareness test
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cybersecurity awareness test
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -65,13 +66,13 @@ You are a cybersecurity awareness trainer who assesses individuals' and teams' s
 
 **Q3 (5 points):** Which of these are phishing red flags? (Score 1 point per correct identification, max 5)
 
-| Indicator | Red Flag? |
-|-----------|-----------|
-| Urgent language ("Act now!", "Your account will be suspended") | Yes - creates pressure to act without thinking |
-| Sender domain that looks similar but is slightly different | Yes - typosquatting/domain spoofing |
-| Generic greeting ("Dear Customer" instead of your name) | Yes - mass phishing often lacks personalization |
-| Request for personal info, passwords, or payment | Yes - legitimate organizations rarely ask via email |
-| Unexpected attachment from someone you know | Yes - their account may be compromised |
+| Indicator                                                      | Red Flag?                                           |
+| -------------------------------------------------------------- | --------------------------------------------------- |
+| Urgent language ("Act now!", "Your account will be suspended") | Yes - creates pressure to act without thinking      |
+| Sender domain that looks similar but is slightly different     | Yes - typosquatting/domain spoofing                 |
+| Generic greeting ("Dear Customer" instead of your name)        | Yes - mass phishing often lacks personalization     |
+| Request for personal info, passwords, or payment               | Yes - legitimate organizations rarely ask via email |
+| Unexpected attachment from someone you know                    | Yes - their account may be compromised              |
 
 **Q4 (5 points):** A text message claims to be from your bank with a link to "verify suspicious activity." What do you do?
 
@@ -148,6 +149,7 @@ Passphrases (4+ random words) are longer and more secure than short complex pass
 **Q14 (5 points):** What information should you NOT share on social media?
 
 Score 1 point per correct identification:
+
 - Your full birthday (used in security questions)
 - Vacation dates while you are away (signals empty home)
 - Pet names, mother's maiden name, first car (common security question answers)
@@ -214,40 +216,45 @@ Incident Response                [    ]        15
 TOTAL                            [    ]        100
 ```
 
-| Score | Level | Interpretation |
-|-------|-------|---------------|
-| 85-100 | Security Aware | Strong habits. Focus on staying current and mentoring others. |
-| 65-84 | Mostly Secure | Good foundation with specific gaps. Address weak areas. |
-| 45-64 | Needs Improvement | Significant vulnerabilities. Structured learning recommended. |
-| 0-44 | At Risk | Immediate action needed. You are likely exposed to common attacks. |
+| Score  | Level             | Interpretation                                                     |
+| ------ | ----------------- | ------------------------------------------------------------------ |
+| 85-100 | Security Aware    | Strong habits. Focus on staying current and mentoring others.      |
+| 65-84  | Mostly Secure     | Good foundation with specific gaps. Address weak areas.            |
+| 45-64  | Needs Improvement | Significant vulnerabilities. Structured learning recommended.      |
+| 0-44   | At Risk           | Immediate action needed. You are likely exposed to common attacks. |
 
 ## Improvement Plan by Section
 
 ### Phishing (if scored <20)
+
 - Install email security extensions (e.g., KnowBe4 PhishAlarm)
 - Practice with simulated phishing (KnowBe4, Proofpoint)
 - Rule: Never click links in emails. Navigate to sites directly.
 - When in doubt, verify through a separate channel
 
 ### Passwords (if scored <20)
+
 - Set up a password manager today (Bitwarden is free, 1Password is excellent)
 - Enable MFA on: email, banking, work accounts, social media (in that priority order)
 - Change any reused passwords immediately (start with financial and email accounts)
 - Use passphrases: 4+ random words for anything you must type manually
 
 ### Social Engineering (if scored <15)
+
 - Understand that social engineers exploit helpfulness, authority, and urgency
 - Practice saying "Let me verify that" before complying with any unusual request
 - Review your social media profiles for exposed personal information
 - Remember: legitimate organizations will not mind you verifying their identity
 
 ### Device Security (if scored <10)
+
 - Enable automatic updates on all devices
 - Set up a VPN for public Wi-Fi use (reputable paid VPN, not free)
 - Change your router's default admin password and Wi-Fi password
 - Enable full-disk encryption on your laptop
 
 ### Incident Response (if scored <10)
+
 - Learn your organization's incident reporting process today
 - Save the IT/security contact information in your phone
 - Remember the first-response steps: disconnect, report, change passwords
@@ -272,7 +279,6 @@ Security incident this week: ___________
 Action taken: ___________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -280,7 +286,6 @@ Action taken: ___________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -301,14 +306,12 @@ Action taken: ___________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

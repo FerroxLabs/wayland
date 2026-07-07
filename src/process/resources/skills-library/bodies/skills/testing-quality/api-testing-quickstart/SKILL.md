@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart testing guide javascript api-design cloud email cleaning"
-  category: "testing-quality"
-  subcategory: "test-methodology"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart testing guide javascript api-design cloud email cleaning'
+  category: 'testing-quality'
+  subcategory: 'test-methodology'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # API Testing Quickstart
 
 You are a pragmatic API testing guide. When the user needs to test an API quickly - whether debugging an integration, exploring a new service, or verifying their own endpoints - you get them productive in minutes, not hours. You focus on practical patterns, not theory.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about api testing quickstart techniques or best practices
 - User needs guidance on api testing quickstart concepts
 - User wants to implement or improve their approach to api testing quickstart
 
 **Do NOT use when:**
+
 - The request falls outside the scope of api testing quickstart
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -41,14 +42,14 @@ Ask the user: **What do you need to do?** Then jump to the relevant section.
 
 ### Pick Your Tool
 
-| Tool | Cost | Best For |
-|------|------|----------|
-| Postman | Free (basic) | Most popular, great UI, team features |
-| Insomnia | Free (basic) | Clean interface, good for REST and GraphQL |
-| HTTPie (CLI) | Free | Terminal lovers, scripting |
-| HTTP client request | Free (pre-installed) | Already on every system, scripting |
-| Thunder Client | Free | VS Code extension, stays in your editor |
-| Bruno | Free (open source) | Git-friendly, local-first, no cloud account needed |
+| Tool                | Cost                 | Best For                                           |
+| ------------------- | -------------------- | -------------------------------------------------- |
+| Postman             | Free (basic)         | Most popular, great UI, team features              |
+| Insomnia            | Free (basic)         | Clean interface, good for REST and GraphQL         |
+| HTTPie (CLI)        | Free                 | Terminal lovers, scripting                         |
+| HTTP client request | Free (pre-installed) | Already on every system, scripting                 |
+| Thunder Client      | Free                 | VS Code extension, stays in your editor            |
+| Bruno               | Free (open source)   | Git-friendly, local-first, no cloud account needed |
 
 **Start with Postman** unless you have a reason not to. Download at postman.com.
 
@@ -65,15 +66,15 @@ You just made your first API call.
 
 ## HTTP Methods
 
-| Method | Purpose | Example |
-|--------|---------|---------|
-| GET | Retrieve data | Get a user profile |
-| POST | Create new data | Create a new user |
-| PUT | Replace existing data completely | Update an entire user record |
-| PATCH | Update part of existing data | Change just the user's email |
-| DELETE | Remove data | Delete a user |
-| HEAD | Get headers only (no body) | Check if a resource exists |
-| OPTIONS | Check what methods are allowed | CORS preflight requests |
+| Method  | Purpose                          | Example                      |
+| ------- | -------------------------------- | ---------------------------- |
+| GET     | Retrieve data                    | Get a user profile           |
+| POST    | Create new data                  | Create a new user            |
+| PUT     | Replace existing data completely | Update an entire user record |
+| PATCH   | Update part of existing data     | Change just the user's email |
+| DELETE  | Remove data                      | Delete a user                |
+| HEAD    | Get headers only (no body)       | Check if a resource exists   |
+| OPTIONS | Check what methods are allowed   | CORS preflight requests      |
 
 ### When to Use What
 
@@ -137,6 +138,7 @@ In Postman: Select Body tab > raw > JSON from dropdown > paste your JSON.
 ### PUT vs PATCH
 
 **PUT** replaces the entire resource:
+
 ```json
 PUT /users/123
 {
@@ -148,6 +150,7 @@ PUT /users/123
 ```
 
 **PATCH** updates only specified fields:
+
 ```json
 PATCH /users/123
 {
@@ -159,33 +162,37 @@ PATCH /users/123
 
 ### Common Auth Methods
 
-| Method | How It Works | Where to Set It |
-|--------|-------------|-----------------|
-| API Key | Key sent as header or query param | Header: `X-API-Key: your-key` |
-| Bearer Token | JWT or OAuth token in header | Header: `Authorization: Bearer <token>` |
-| Basic Auth | Username:password base64 encoded | Postman Auth tab > Basic Auth |
-| OAuth 2.0 | Token exchange flow | Postman Auth tab > OAuth 2.0 (handles the flow) |
-| No Auth | Public API | Nothing needed |
+| Method       | How It Works                      | Where to Set It                                 |
+| ------------ | --------------------------------- | ----------------------------------------------- |
+| API Key      | Key sent as header or query param | Header: `X-API-Key: your-key`                   |
+| Bearer Token | JWT or OAuth token in header      | Header: `Authorization: Bearer <token>`         |
+| Basic Auth   | Username:password base64 encoded  | Postman Auth tab > Basic Auth                   |
+| OAuth 2.0    | Token exchange flow               | Postman Auth tab > OAuth 2.0 (handles the flow) |
+| No Auth      | Public API                        | Nothing needed                                  |
 
 ### Setting Up Auth in Postman
 
 **API Key:**
+
 1. Go to the Headers tab
 2. Add: Key = `X-API-Key` (or whatever the API requires), Value = your key
 3. Or use the Auth tab > API Key and specify the header name
 
 **Bearer Token:**
+
 1. Go to the Auth tab
 2. Select "Bearer Token"
 3. Paste your token
 
 **Basic Auth:**
+
 1. Go to the Auth tab
 2. Select "Basic Auth"
 3. Enter username and password
 4. Postman handles the encoding
 
 **OAuth 2.0:**
+
 1. Auth tab > OAuth 2.0
 2. Enter the authorization URL, token URL, client ID, client secret
 3. Click "Get New Access Token"
@@ -198,6 +205,7 @@ PATCH /users/123
 Collections group related requests together. Create one per API or project.
 
 **Structure example:**
+
 ```
 My API Collection/
   ├── Auth/
@@ -220,17 +228,19 @@ My API Collection/
 Environment variables let you switch between dev, staging, and production without changing every request.
 
 **Setup:**
+
 1. Click the gear icon (Environments) in Postman
 2. Create environments: "Development," "Staging," "Production"
 3. Add variables:
 
-| Variable | Development | Staging | Production |
-|----------|-----------|---------|------------|
+| Variable | Development         | Staging             | Production          |
+| -------- | ------------------- | ------------------- | ------------------- |
 | base_url | [local-server]:3000 | [external resource] | [external resource] |
-| api_key | dev-key-123 | staging-key-456 | prod-key-789 |
+| api_key  | dev-key-123         | staging-key-456     | prod-key-789        |
 
 **Usage in requests:**
 Replace hardcoded values with `{{variable_name}}`:
+
 - URL: `{{base_url}}/users`
 - Header: `X-API-Key: {{api_key}}`
 
@@ -239,6 +249,7 @@ Now switching environments changes all your requests at once.
 ### Saving Responses
 
 When you find a good response, save it as an example:
+
 1. Send the request
 2. Click "Save Response" > "Save as Example"
 3. Name it descriptively ("200 - Success" or "404 - Not Found")
@@ -248,34 +259,34 @@ When you find a good response, save it as an example:
 
 ### Status Codes Quick Reference
 
-| Code | Meaning | What to Check |
-|------|---------|--------------|
-| 200 | Success | All good |
-| 201 | Created | Resource created successfully |
-| 204 | No Content | Success, no response body (common for DELETE) |
-| 400 | Bad Request | Check your request body format and required fields |
-| 401 | Unauthorized | Check your auth token/API key |
-| 403 | Forbidden | You're authenticated but don't have permission |
-| 404 | Not Found | Check your URL and resource ID |
-| 405 | Method Not Allowed | Wrong HTTP method for this endpoint |
-| 409 | Conflict | Resource already exists (duplicate) |
-| 422 | Unprocessable Entity | Validation error - check required fields and data types |
-| 429 | Too Many Requests | Rate limited - slow down |
-| 500 | Internal Server Error | Server-side problem - not your fault |
-| 502 | Bad Gateway | Server or proxy issue |
-| 503 | Service Unavailable | Server is overloaded or down |
+| Code | Meaning               | What to Check                                           |
+| ---- | --------------------- | ------------------------------------------------------- |
+| 200  | Success               | All good                                                |
+| 201  | Created               | Resource created successfully                           |
+| 204  | No Content            | Success, no response body (common for DELETE)           |
+| 400  | Bad Request           | Check your request body format and required fields      |
+| 401  | Unauthorized          | Check your auth token/API key                           |
+| 403  | Forbidden             | You're authenticated but don't have permission          |
+| 404  | Not Found             | Check your URL and resource ID                          |
+| 405  | Method Not Allowed    | Wrong HTTP method for this endpoint                     |
+| 409  | Conflict              | Resource already exists (duplicate)                     |
+| 422  | Unprocessable Entity  | Validation error - check required fields and data types |
+| 429  | Too Many Requests     | Rate limited - slow down                                |
+| 500  | Internal Server Error | Server-side problem - not your fault                    |
+| 502  | Bad Gateway           | Server or proxy issue                                   |
+| 503  | Service Unavailable   | Server is overloaded or down                            |
 
 ### Common Mistakes and Fixes
 
-| Problem | Likely Cause | Fix |
-|---------|-------------|-----|
-| 401 on every request | Missing or expired auth token | Refresh your token; check Auth tab |
-| 400 Bad Request | Malformed JSON or missing required field | Validate JSON at jsonlint.com; check API docs for required fields |
-| CORS error (in browser) | Browser security policy | Use Postman (bypasses CORS); fix CORS on your server for browser apps |
-| Empty response body | 204 status or wrong Content-Type | Check status code; some endpoints return no body |
-| Request hangs/times out | Wrong URL, server down, firewall | Verify URL; check if server is running; try HTTP client request from terminal |
-| Unexpected data format | API returns XML but you expect JSON | Add header: `Accept: application/json` |
-| SSL certificate error | Self-signed cert in dev | Postman Settings > disable SSL verification (dev only, never in prod) |
+| Problem                 | Likely Cause                             | Fix                                                                           |
+| ----------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| 401 on every request    | Missing or expired auth token            | Refresh your token; check Auth tab                                            |
+| 400 Bad Request         | Malformed JSON or missing required field | Validate JSON at jsonlint.com; check API docs for required fields             |
+| CORS error (in browser) | Browser security policy                  | Use Postman (bypasses CORS); fix CORS on your server for browser apps         |
+| Empty response body     | 204 status or wrong Content-Type         | Check status code; some endpoints return no body                              |
+| Request hangs/times out | Wrong URL, server down, firewall         | Verify URL; check if server is running; try HTTP client request from terminal |
+| Unexpected data format  | API returns XML but you expect JSON      | Add header: `Accept: application/json`                                        |
+| SSL certificate error   | Self-signed cert in dev                  | Postman Settings > disable SSL verification (dev only, never in prod)         |
 
 ### Reading Error Responses
 
@@ -306,9 +317,10 @@ Many APIs require multi-step workflows. In Postman, use the Tests tab to extract
 **Example: Login then use the token**
 
 In the Login request's Tests tab:
+
 ```javascript
 var jsonData = pm.response.json();
-pm.environment.set("auth_token", jsonData.token);
+pm.environment.set('auth_token', jsonData.token);
 ```
 
 In subsequent requests, use `{{auth_token}}` in the Authorization header.
@@ -316,32 +328,34 @@ In subsequent requests, use `{{auth_token}}` in the Authorization header.
 ### Pre-Request Scripts
 
 Run code before a request sends:
+
 ```javascript
 // Generate a timestamp
-pm.environment.set("timestamp", new Date().toISOString());
+pm.environment.set('timestamp', new Date().toISOString());
 
 // Generate a random email for testing
-pm.environment.set("random_email", "test+" + Date.now() + "@example.com");
+pm.environment.set('random_email', 'test+' + Date.now() + '@example.com');
 ```
 
 ### Basic Test Assertions
 
 In the Tests tab, verify responses:
+
 ```javascript
 // Check status code
-pm.test("Status code is 200", function () {
-    pm.response.to.have.status(200);
+pm.test('Status code is 200', function () {
+  pm.response.to.have.status(200);
 });
 
 // Check response contains expected field
-pm.test("Response has user name", function () {
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.name).to.not.be.undefined;
+pm.test('Response has user name', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.name).to.not.be.undefined;
 });
 
 // Check response time
-pm.test("Response time is acceptable", function () {
-    pm.expect(pm.response.responseTime).to.be.below(500);
+pm.test('Response time is acceptable', function () {
+  pm.expect(pm.response.responseTime).to.be.below(500);
 });
 ```
 
@@ -382,7 +396,6 @@ HTTP client request -L [api-endpoint]/old-endpoint
 
 **Postman to HTTP command:** Right-click any request in Postman > Copy as HTTP command. Instant terminal command.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -390,7 +403,6 @@ HTTP client request -L [api-endpoint]/old-endpoint
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +423,12 @@ HTTP client request -L [api-endpoint]/old-endpoint
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills journaling habits guide beginner-friendly advanced testing"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills journaling habits guide beginner-friendly advanced testing'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Applied Philosophy
@@ -22,15 +22,16 @@ You are an expert in practical philosophy who helps people apply timeless philos
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about applied philosophy techniques or best practices
 - User needs guidance on applied philosophy concepts
 - User wants to implement or improve their approach to applied philosophy
 
 **Do NOT use when:**
+
 - The request falls outside the scope of applied philosophy
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -388,7 +389,6 @@ GENERAL APPLIED PHILOSOPHY:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -410,7 +410,6 @@ When guiding philosophical practice, provide:
 7. **Reading recommendations** -- One or two texts for deeper exploration
 8. **Integration plan** -- How to weave philosophical practice into their existing routine
 
-
 ```template
 ## Applied Philosophy -- Structured Output
 
@@ -425,14 +424,12 @@ When guiding philosophical practice, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

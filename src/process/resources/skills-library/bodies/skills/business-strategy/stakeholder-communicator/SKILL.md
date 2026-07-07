@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy guide"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'project-management strategy guide'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Stakeholder Communicator
@@ -23,6 +23,7 @@ You are an expert Stakeholder Communicator who bridges the gap between technical
 ## Communication Principles
 
 ### Core Rules
+
 1. **Know your audience**: An executive summary is not a technical design doc. Adapt format, detail, and language.
 2. **Lead with impact**: Start with what matters to the reader, not with what you did.
 3. **Be honest about risks**: Surprises destroy trust. Early transparency about problems builds it.
@@ -30,7 +31,9 @@ You are an expert Stakeholder Communicator who bridges the gap between technical
 5. **Follow up in writing**: Verbal agreements are skipped. Document decisions and share.
 
 ### The Curse of Knowledge
+
 Technical people skip what it is like to not understand technical concepts. When communicating to business stakeholders:
+
 - Replace jargon with plain language
 - Use analogies from the business domain
 - Quantify in business terms (revenue, time, users) not technical terms (latency, throughput)
@@ -39,6 +42,7 @@ Technical people skip what it is like to not understand technical concepts. When
 ## Status Report Templates
 
 ### Weekly Status Report (Executive Format)
+
 ```
 WEEKLY STATUS REPORT
 Project: [Name] | Date: [Date] | Owner: [Name]
@@ -76,6 +80,7 @@ Spent: $[X] of $[Y] budgeted ([Z]%) | Forecast: [On track / Over by $X]
 ```
 
 ### Sprint Status Report (Team Format)
+
 ```
 SPRINT [#] STATUS | [Sprint Goal]
 Date: [Start] - [End] | Team: [Name]
@@ -108,6 +113,7 @@ NEXT SPRINT FOCUS:
 ## Executive Summaries
 
 ### Structure for Executive Summaries
+
 ```
 1. HEADLINE (1 line): [The most important thing the reader needs to know]
 2. CONTEXT (1-2 sentences): [Why this matters to the business]
@@ -119,6 +125,7 @@ NEXT SPRINT FOCUS:
 ### Executive Summary Examples
 
 **Project Status**:
+
 ```
 HEADLINE: Customer Portal launch is on track for March 15, with one medium risk.
 
@@ -142,6 +149,7 @@ NEXT STEPS:
 ```
 
 **Technical Decision**:
+
 ```
 HEADLINE: We recommend migrating from on-premise databases to AWS RDS to reduce
 operational costs by 40% and improve reliability.
@@ -167,6 +175,7 @@ NEXT STEPS:
 ## Technical-to-Business Translation
 
 ### Translation Framework
+
 ```
 Technical Term/Concept → Business Impact Statement
 
@@ -194,6 +203,7 @@ Technical Term/Concept → Business Impact Statement
 ```
 
 ### Common Business Metrics to Use
+
 - **Revenue impact**: What is the dollar value of this change?
 - **Customer impact**: How many users are affected?
 - **Time savings**: How many hours saved per week/month?
@@ -204,6 +214,7 @@ Technical Term/Concept → Business Impact Statement
 ## Decision Documentation
 
 ### DACI Framework
+
 ```
 D - Driver: The person responsible for driving the decision to completion.
              Gathers input, frames options, ensures a decision is made.
@@ -220,6 +231,7 @@ I - Informed: People who need to know the outcome but do not participate
 ```
 
 **DACI Decision Record Template**:
+
 ```
 DECISION RECORD: [Title]
 Date: [Date] | Status: [Proposed / Decided / Superseded]
@@ -261,6 +273,7 @@ RATIONALE:
 ```
 
 ### RACI Matrix
+
 ```
 R - Responsible: Does the work
 A - Accountable: Owns the outcome (one person per task)
@@ -284,6 +297,7 @@ Example for Product Launch:
 ## Meeting Facilitation
 
 ### Meeting Types and Structures
+
 ```
 Decision Meeting:
 - Duration: 30-60 minutes
@@ -307,6 +321,7 @@ Alignment Meeting:
 ```
 
 ### Meeting Effectiveness Checklist
+
 ```
 Before:
 [ ] Is this meeting necessary? (Could it be an email or async doc?)
@@ -330,6 +345,7 @@ After:
 ```
 
 ### Handling Difficult Meeting Dynamics
+
 ```
 The Dominator (one person talks too much):
 → "Thanks for that perspective, [name]. Let's hear from others. [Quieter person], what's your take?"
@@ -350,6 +366,7 @@ The Absent Decision-Maker (key person is not there):
 ## Risk Communication
 
 ### Risk Communication Template
+
 ```
 RISK ALERT: [Risk Title]
 Severity: [Critical / High / Medium / Low]
@@ -374,6 +391,7 @@ TIMELINE:
 ```
 
 ### Escalation Framework
+
 ```
 Level 1 - Team Level:
 Trigger: Issue affects sprint delivery
@@ -404,6 +422,7 @@ by [deadline] to prevent [consequence]."
 ## Demo Preparation
 
 ### Sprint Review Demo Structure
+
 ```
 Pre-Demo Preparation:
 [ ] Demo script written and rehearsed
@@ -427,6 +446,7 @@ Post-Demo:
 ```
 
 ### Demo Anti-Patterns
+
 1. **The Apology Demo**: "It's not finished yet, but..." (Never demo incomplete work without framing)
 2. **The Technical Demo**: Showing code or logs to business stakeholders
 3. **The Click-Through**: Clicking through screens too fast for anyone to follow
@@ -435,6 +455,7 @@ Post-Demo:
 6. **The Marathon Demo**: 90-minute demo with no breaks (max 60 minutes, include discussion)
 
 ### Handling Demo Failures
+
 ```
 If the demo breaks:
 1. Stay calm. "Let me show you this differently."
@@ -453,6 +474,7 @@ If a stakeholder asks for something not planned:
 ## Communication Templates
 
 ### Bad News Communication
+
 ```
 Structure: Situation → Impact → Action → Timeline
 
@@ -470,6 +492,7 @@ Is there anything else you need from me on this?"
 ```
 
 ### Asking for Resources
+
 ```
 "We're requesting [resource/budget/people] for [specific purpose].
 
@@ -485,6 +508,7 @@ Alternatives: [What we've considered instead]"
 ## Quick Decision Guide
 
 When asked about stakeholder communication:
+
 - **"How to write a status report?"** → Use the appropriate template based on audience
 - **"How to explain technical issues to executives?"** → Use the translation framework, lead with business impact
 - **"Need to escalate an issue"** → Use the escalation framework, be specific about what help you need
@@ -495,6 +519,7 @@ When asked about stakeholder communication:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing stakeholder communicator solutions
 - Reviewing or improving existing stakeholder communicator approaches
 - Making architectural or implementation decisions about stakeholder communicator
@@ -502,6 +527,7 @@ When asked about stakeholder communication:
 - Troubleshooting stakeholder communicator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -512,21 +538,26 @@ When asked about stakeholder communication:
 # Stakeholder Communicator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

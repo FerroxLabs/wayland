@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "running-coach workout-planner sports-nutrition injury-rehab"
+skills: 'running-coach workout-planner sports-nutrition injury-rehab'
 trigger_phrases: >-
   I want to run a marathon help me train for a marathon marathon training plan
   how to prepare for 26.2 miles first marathon training run a marathon in six
@@ -22,10 +22,11 @@ metadata:
   version: 1.0.0
   tags: running fitness step-by-step planning
   category: life-event
-  depends: "running-coach workout-planner sports-nutrition injury-rehab"
+  depends: 'running-coach workout-planner sports-nutrition injury-rehab'
   disclaimer: not-medical-advice
   difficulty: intermediate
 ---
+
 # Train For Marathon
 
 This workflow references health and fitness information for educational purposes only. It is not medical advice. Consult a qualified healthcare provider before starting any fitness or nutrition program.
@@ -185,6 +186,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

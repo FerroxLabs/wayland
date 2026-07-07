@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Permit Research
 
 ## When to Use
 
 **Use this skill when:**
+
 - A homeowner asks whether a specific project -- deck, addition, basement finish, HVAC replacement, fence, accessory dwelling unit (ADU), solar panels, EV charger, pool, generator installation -- requires a building permit
 - A user wants to know how to locate and navigate their local building department, find permit fee schedules, or understand what documents to prepare
 - A user is planning a DIY home improvement project and needs to understand the permit application workflow, inspection sequence, and what triggers a final certificate of occupancy or completion
@@ -30,6 +32,7 @@ metadata:
 - A user is preparing to hire a contractor and wants to verify the contractor will pull permits rather than skip them
 
 **Do NOT use when:**
+
 - The user needs jurisdiction-specific permit rules stated as definitive requirements -- this skill teaches the research process; direct them to verify with their local authority having jurisdiction (AHJ)
 - The user is applying for a commercial building permit, tenant improvement permit, or change-of-occupancy permit for a commercial space (different regulatory framework -- refer to a commercial construction or permitting skill)
 - The user needs a zoning variance, special use permit, or conditional use permit -- these are land-use approvals through a planning or zoning board, not building permits, and involve public hearing processes
@@ -65,55 +68,55 @@ Use the tables below to form an educated starting hypothesis before the user con
 
 **Projects that require a permit in nearly all US jurisdictions:**
 
-| Project | Why It Triggers a Permit |
-|---|---|
-| Any structural wall removal or modification | Affects building's load path; inspectors verify header sizing, temporary shoring, connection details |
-| Room addition or bump-out | New foundation, framing, electrical, and plumbing; triggers full code review |
-| Deck attached to the house over 200 sq ft or over 30" above grade | Ledger attachment, footing depth, guardrail requirements are life-safety issues |
-| New bathroom or bathroom relocation | New plumbing rough-in requires rough-in inspection before walls close |
-| Electrical panel upgrade or service entrance work | Utility company may also require their own approval before energizing |
-| New HVAC system or furnace/AC replacement | Refrigerant handling, gas connections, and duct sizing require mechanical inspection |
-| Water heater replacement (gas) | Gas connection and pressure-temperature relief valve installation are safety-critical |
-| Full roof replacement (structural sheathing replacement or rafter repair) | Structural inspection; some jurisdictions also require permit for re-roofing over existing shingles |
-| Basement finishing converting unfinished space to habitable rooms | Egress requirements, ceiling heights, insulation values, electrical, and plumbing all triggered |
-| Garage conversion to living space (ADU or bonus room) | Change of occupancy; fire separation from living space required |
-| Detached accessory dwelling unit (ADU) | Owner-occupancy requirements, utility connections, and setbacks all apply |
-| Swimming pool or hot tub (in-ground or above-ground over certain sizes) | Barrier/fence requirements, electrical bonding, gas or electrical connection |
-| Solar panel installation | Electrical connection to panel; some jurisdictions also require structural review of roof loading |
-| EV charger (Level 2, 240V) | New 240V circuit; permit required in virtually all jurisdictions |
-| Generator with transfer switch | Electrical connection; transfer switch prevents back-feed to utility lines |
-| Fireplace or wood stove installation | Clearances, flue sizing, combustion air -- fire safety review |
+| Project                                                                   | Why It Triggers a Permit                                                                             |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Any structural wall removal or modification                               | Affects building's load path; inspectors verify header sizing, temporary shoring, connection details |
+| Room addition or bump-out                                                 | New foundation, framing, electrical, and plumbing; triggers full code review                         |
+| Deck attached to the house over 200 sq ft or over 30" above grade         | Ledger attachment, footing depth, guardrail requirements are life-safety issues                      |
+| New bathroom or bathroom relocation                                       | New plumbing rough-in requires rough-in inspection before walls close                                |
+| Electrical panel upgrade or service entrance work                         | Utility company may also require their own approval before energizing                                |
+| New HVAC system or furnace/AC replacement                                 | Refrigerant handling, gas connections, and duct sizing require mechanical inspection                 |
+| Water heater replacement (gas)                                            | Gas connection and pressure-temperature relief valve installation are safety-critical                |
+| Full roof replacement (structural sheathing replacement or rafter repair) | Structural inspection; some jurisdictions also require permit for re-roofing over existing shingles  |
+| Basement finishing converting unfinished space to habitable rooms         | Egress requirements, ceiling heights, insulation values, electrical, and plumbing all triggered      |
+| Garage conversion to living space (ADU or bonus room)                     | Change of occupancy; fire separation from living space required                                      |
+| Detached accessory dwelling unit (ADU)                                    | Owner-occupancy requirements, utility connections, and setbacks all apply                            |
+| Swimming pool or hot tub (in-ground or above-ground over certain sizes)   | Barrier/fence requirements, electrical bonding, gas or electrical connection                         |
+| Solar panel installation                                                  | Electrical connection to panel; some jurisdictions also require structural review of roof loading    |
+| EV charger (Level 2, 240V)                                                | New 240V circuit; permit required in virtually all jurisdictions                                     |
+| Generator with transfer switch                                            | Electrical connection; transfer switch prevents back-feed to utility lines                           |
+| Fireplace or wood stove installation                                      | Clearances, flue sizing, combustion air -- fire safety review                                        |
 
 **Projects that typically do NOT require a permit in most US jurisdictions:**
 
-| Project | Notes |
-|---|---|
-| Interior painting | No exceptions |
-| Wallpaper, trim replacement, crown molding | Cosmetic only |
-| Replacing a light fixture at an existing outlet box | Same-location, same-circuit fixture swap |
-| Replacing a faucet or toilet at the same location | Like-for-like swap, no pipe work |
-| Installing new flooring over existing subfloor | LVP, hardwood, tile over existing structure |
-| Replacing kitchen cabinets (no plumbing or electrical move) | No rough-in changes |
-| Countertop replacement | No structural or trade work |
-| Drywall patching and repair | Not structural |
-| Insulation in existing wall cavities (no framing work) | Some jurisdictions require for attic insulation upgrades |
-| Shelving, closet organizers, built-ins (no electrical) | Not structural or trade |
-| Landscaping, planting, minor grading | Significant grading (over 50 cubic yards or altering drainage patterns) may need a grading permit |
-| Painting exterior, replacing gutters | Cosmetic maintenance |
-| Replacing windows same size in existing opening | Like-for-like in most jurisdictions; see gray area below |
+| Project                                                     | Notes                                                                                             |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Interior painting                                           | No exceptions                                                                                     |
+| Wallpaper, trim replacement, crown molding                  | Cosmetic only                                                                                     |
+| Replacing a light fixture at an existing outlet box         | Same-location, same-circuit fixture swap                                                          |
+| Replacing a faucet or toilet at the same location           | Like-for-like swap, no pipe work                                                                  |
+| Installing new flooring over existing subfloor              | LVP, hardwood, tile over existing structure                                                       |
+| Replacing kitchen cabinets (no plumbing or electrical move) | No rough-in changes                                                                               |
+| Countertop replacement                                      | No structural or trade work                                                                       |
+| Drywall patching and repair                                 | Not structural                                                                                    |
+| Insulation in existing wall cavities (no framing work)      | Some jurisdictions require for attic insulation upgrades                                          |
+| Shelving, closet organizers, built-ins (no electrical)      | Not structural or trade                                                                           |
+| Landscaping, planting, minor grading                        | Significant grading (over 50 cubic yards or altering drainage patterns) may need a grading permit |
+| Painting exterior, replacing gutters                        | Cosmetic maintenance                                                                              |
+| Replacing windows same size in existing opening             | Like-for-like in most jurisdictions; see gray area below                                          |
 
 **Gray area projects -- outcome varies significantly by jurisdiction:**
 
-| Project | Key Variables | Common Outcomes |
-|---|---|---|
-| Water heater replacement (electric) | Gas vs. electric; whether it's in same location | Gas always requires permit in most places; electric varies |
-| Window replacement | Same opening vs. enlarged opening; historic district | Same-size swap: exempt in many places; any structural change requires permit |
-| Fence installation | Height threshold (commonly 6 feet), material, location near property line or easement | Heights under 4 feet are often exempt; over 6 feet almost always requires permit |
-| Shed or outbuilding | Size threshold (120 sq ft most common exemption), permanent foundation vs. skids | On skids under 120 sq ft: often exempt; on concrete, any size: usually requires permit |
-| Deck under 200 sq ft and under 30" above grade | Many jurisdictions use IRC exemption; local amendments vary | Frequently exempt but requires zero setback violations regardless |
-| Re-roofing (overlay, no structural work) | Whether jurisdiction has adopted the IRC re-roofing permit requirement | About half of jurisdictions require it; half exempt it |
-| Attic conversion to livable space | Headroom (typically 7.5 feet minimum over 50% of floor area per IRC), egress, structural loading | Almost always requires permit; the question is what inspections are required |
-| Retaining wall | Height threshold (commonly 4 feet from bottom of footing) | Under 4 feet: often exempt; over 4 feet: almost always requires structural review |
+| Project                                        | Key Variables                                                                                    | Common Outcomes                                                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Water heater replacement (electric)            | Gas vs. electric; whether it's in same location                                                  | Gas always requires permit in most places; electric varies                             |
+| Window replacement                             | Same opening vs. enlarged opening; historic district                                             | Same-size swap: exempt in many places; any structural change requires permit           |
+| Fence installation                             | Height threshold (commonly 6 feet), material, location near property line or easement            | Heights under 4 feet are often exempt; over 6 feet almost always requires permit       |
+| Shed or outbuilding                            | Size threshold (120 sq ft most common exemption), permanent foundation vs. skids                 | On skids under 120 sq ft: often exempt; on concrete, any size: usually requires permit |
+| Deck under 200 sq ft and under 30" above grade | Many jurisdictions use IRC exemption; local amendments vary                                      | Frequently exempt but requires zero setback violations regardless                      |
+| Re-roofing (overlay, no structural work)       | Whether jurisdiction has adopted the IRC re-roofing permit requirement                           | About half of jurisdictions require it; half exempt it                                 |
+| Attic conversion to livable space              | Headroom (typically 7.5 feet minimum over 50% of floor area per IRC), egress, structural loading | Almost always requires permit; the question is what inspections are required           |
+| Retaining wall                                 | Height threshold (commonly 4 feet from bottom of footing)                                        | Under 4 feet: often exempt; over 4 feet: almost always requires structural review      |
 
 ---
 
@@ -122,6 +125,7 @@ Use the tables below to form an educated starting hypothesis before the user con
 The "authority having jurisdiction" is the technical term for the specific government body responsible for permit review and inspection. Identifying the correct AHJ is the most important step -- many homeowners contact the wrong office and get incorrect or incomplete information.
 
 **Identify the correct AHJ:**
+
 - For homes within city or town limits: the city or town building department
 - For homes in unincorporated county territory (not within city limits): the county building department or county public works department
 - Some states (California, New Jersey, Connecticut) have state-level agencies that adopt building codes that local jurisdictions must use; a few states allow localities to adopt their own codes
@@ -129,6 +133,7 @@ The "authority having jurisdiction" is the technical term for the specific gover
 - Military bases and federal properties: the Department of Defense or GSA has jurisdiction, not local government -- this is extremely rare for residential
 
 **Find the building department:**
+
 - Use the search string: "[city name] building department permits" or "[county name] building department residential permits"
 - Look for the official government website (.gov or city-specific domain like cityofspringfield.org)
 - Navigate to the "Building," "Development Services," "Planning and Development," or "Community Development" department -- the name varies
@@ -136,6 +141,7 @@ The "authority having jurisdiction" is the technical term for the specific gover
 - Check whether the jurisdiction uses an online permit portal: many municipalities now use platforms like ePermitHub, Accela, or their own custom portal for online applications and inspection scheduling
 
 **Call the permit desk directly:**
+
 - This is the single most reliable source of information -- building department counter staff answer these questions all day
 - Call during non-peak hours (mid-morning on Tuesdays, Wednesdays, or Thursdays -- Monday mornings and Friday afternoons are typically busiest)
 - Lead with the specific project description: "I am a homeowner at [address] and I am planning to [specific project]. Does this require a permit? And do I need separate permits for building, electrical, and plumbing, or is there a combined residential permit?"
@@ -143,6 +149,7 @@ The "authority having jurisdiction" is the technical term for the specific gover
 - If the answer is unclear, ask: "Can you point me to the section of the building code or your local ordinance that covers this?" This is not aggressive -- building officials routinely cite code sections
 
 **Verify the code version in effect:**
+
 - Ask which edition of the International Residential Code (IRC), National Electrical Code (NEC), International Mechanical Code (IMC), and International Plumbing Code (IPC) the jurisdiction has adopted
 - Also ask about local amendments -- these are locally enacted modifications to the model codes that change specific requirements
 - Most US jurisdictions as of 2024 have adopted the 2018 or 2021 IRC, though some jurisdictions lag (California uses its own California Residential Code based on the 2022 IRC with extensive amendments)
@@ -155,6 +162,7 @@ The "authority having jurisdiction" is the technical term for the specific gover
 A building permit is frequently not the only approval required. Failing to identify parallel requirements leads to expensive mid-project stops.
 
 **Homeowner Association (HOA):**
+
 - HOA architectural review is a separate, private contractual process and does not replace the need for a building permit
 - Many HOAs require written architectural approval before any exterior modification, addition, or visible structural change
 - Some HOAs have restrictions tighter than building codes -- setbacks from fences, exterior material requirements, color restrictions
@@ -162,22 +170,26 @@ A building permit is frequently not the only approval required. Failing to ident
 - Proceeding with a building permit without HOA approval can result in forced removal of completed work -- the HOA's CC&Rs are enforceable civil contracts, not just suggestions
 
 **Historic District Review:**
+
 - If the home is in a designated local historic district or is individually listed on the National Register of Historic Places (NRHP), exterior changes require review by the local historic preservation commission or landmarks commission
 - Interior changes to NRHP-listed properties are generally not regulated by the historic review process, but this varies by local ordinance
 - Historic review is separate from the building permit -- it must typically be completed before the building permit is issued
 - For National Register properties, using historic tax credits (if applicable) requires following the Secretary of the Interior's Standards for Rehabilitation, which have specific requirements about reversibility and material compatibility
 
 **Flood Zone Regulations:**
+
 - If the property is in a FEMA Special Flood Hazard Area (Zone AE, Zone A, Zone VE, etc.), FEMA's National Flood Insurance Program (NFIP) rules impose additional requirements through local ordinances
 - Improvements to a structure in a flood zone that cost more than 50% of the structure's pre-improvement market value (the "50% rule" or substantial improvement rule) trigger a requirement to bring the entire structure into current flood zone compliance -- including elevating the lowest floor above the Base Flood Elevation (BFE)
 - This threshold accumulates over a rolling period (typically 10 years in most jurisdances) -- a $30,000 basement finish on a $70,000-valued structure in a flood zone could trigger substantial improvement status
 - Verify flood zone status at FEMA's Flood Map Service Center (use the address-based lookup tool)
 
 **Fire Hazard Severity Zone (California and similar):**
+
 - California High Fire Hazard Severity Zones (HFHSZ) impose additional requirements for roofing materials (Class A minimum), ember-resistant vents, and defensible space
 - Other western states with high fire risk have similar zone-based requirements adopted at the state or local level
 
 **Utility Company Approvals:**
+
 - Solar panel interconnection requires utility company approval separate from the building permit
 - Electrical service upgrades (100A to 200A or 400A) require utility disconnect and reconnection; the utility may require their own inspection before restoring service
 - Gas service for new appliances may require a gas company inspection in some jurisdictions
@@ -190,24 +202,26 @@ Once the user knows they need a permit, help them understand exactly what to pre
 
 **Typical documents required by project type:**
 
-| Project | Typical Documents Required |
-|---|---|
-| Deck addition | Site plan (property lines, house footprint, deck location, setbacks), deck framing plan (joist spacing, beam sizes, post spacing), footing details (diameter and depth), connection details (ledger bolts, post bases), guardrail details |
-| Bathroom addition (new rough-in) | Floor plan with plumbing fixture locations, drain and vent diagram, connection to existing stack, water supply routing |
-| Electrical panel upgrade | Load calculation (required by NEC Article 220), existing and proposed panel schedule, service entrance conductor sizing |
-| Room addition | Full construction drawings: site plan, foundation plan, floor plan, exterior elevations, wall sections, roof plan, window/door schedule, energy compliance documentation (Manual J heat load calculation in many jurisdictions) |
-| Basement finish | Floor plan showing room layout, egress window locations and dimensions, electrical plan, plumbing plan (if bathroom added), insulation and vapor barrier details |
-| ADU | Full construction drawings plus utility connection details, fire separation details if attached to main dwelling, owner-occupancy affidavit (required in some states) |
-| Solar panels | Site plan showing panel locations, structural calculation for roof loading, single-line electrical diagram, equipment cut sheets |
-| HVAC replacement | Equipment specifications (SEER rating, BTU output), Manual J heat load calculation, duct sizing diagram (if new ductwork) |
+| Project                          | Typical Documents Required                                                                                                                                                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deck addition                    | Site plan (property lines, house footprint, deck location, setbacks), deck framing plan (joist spacing, beam sizes, post spacing), footing details (diameter and depth), connection details (ledger bolts, post bases), guardrail details |
+| Bathroom addition (new rough-in) | Floor plan with plumbing fixture locations, drain and vent diagram, connection to existing stack, water supply routing                                                                                                                    |
+| Electrical panel upgrade         | Load calculation (required by NEC Article 220), existing and proposed panel schedule, service entrance conductor sizing                                                                                                                   |
+| Room addition                    | Full construction drawings: site plan, foundation plan, floor plan, exterior elevations, wall sections, roof plan, window/door schedule, energy compliance documentation (Manual J heat load calculation in many jurisdictions)           |
+| Basement finish                  | Floor plan showing room layout, egress window locations and dimensions, electrical plan, plumbing plan (if bathroom added), insulation and vapor barrier details                                                                          |
+| ADU                              | Full construction drawings plus utility connection details, fire separation details if attached to main dwelling, owner-occupancy affidavit (required in some states)                                                                     |
+| Solar panels                     | Site plan showing panel locations, structural calculation for roof loading, single-line electrical diagram, equipment cut sheets                                                                                                          |
+| HVAC replacement                 | Equipment specifications (SEER rating, BTU output), Manual J heat load calculation, duct sizing diagram (if new ductwork)                                                                                                                 |
 
 **Owner-drawn plans vs. architect/engineer-stamped drawings:**
+
 - Most residential projects under a certain threshold (varies by jurisdiction) can be submitted with owner-drawn or contractor-drawn plans -- no licensed architect or structural engineer is required
 - However, any structural element that deviates from prescriptive IRC requirements (span tables, conventional construction rules) requires a licensed structural engineer's stamp
 - Common situations requiring a structural engineer: LVL beams, steel columns, non-standard roof trusses, foundation modifications, retaining walls over 4 feet
 - California requires architect or engineer involvement on a broader range of projects than most states
 
 **Permit fees -- how they are calculated:**
+
 - Most jurisdictions calculate permit fees based on project valuation (the estimated cost of construction, sometimes using a standardized building valuation table published by the ICC)
 - Typical fee structures: a flat fee for small projects (water heater: $50-$150) plus a percentage of valuation for larger projects ($6-$15 per $1,000 of construction value is common)
 - Separate trade permits (electrical, plumbing, mechanical) typically have their own flat fees: $75-$200 each
@@ -223,22 +237,23 @@ Inspections are not optional checkpoints -- they are contractual milestones that
 
 **Standard inspection sequence for residential projects:**
 
-| Inspection Stage | What the Inspector Checks | When to Schedule | Consequences of Missing |
-|---|---|---|---|
-| Foundation/Footing | Footing dimensions, depth, rebar placement, soil bearing | Before pouring concrete | Must expose footing or core sample concrete to verify -- extremely expensive retroactively |
-| Underground plumbing | Below-slab drain and supply routing, slope, cleanout locations | Before pouring slab | Must break up slab to expose -- $5,000-$20,000 mistake |
-| Rough framing | Structural connections, header sizes, shear walls, backing for fixtures | After framing complete, before insulation | Must open walls to expose framing |
-| Rough electrical | Wire sizing, circuit routing, box fill calculations, grounding | Same window as rough framing | Must open walls to expose wiring |
-| Rough plumbing | Drain slope (1/4" per foot minimum for 3" and 4" drain), vent connections, pressure test on supply lines | Same window as rough framing | Must open walls to expose piping |
-| Rough mechanical | Duct routing, equipment connections, combustion air | Same window as rough framing | Must expose ductwork |
-| Insulation | R-values, vapor barrier placement, attic baffles | After insulation installed, before drywall | Must remove and reinstall drywall |
-| Drywall nailing/sheathing | Nail pattern on structural sheathing for shear walls | After drywall hung, before taping | Must expose nail field |
-| Final building | Overall completion, exit signs, stairs and guardrails, smoke/CO detectors | After all work complete | Project cannot be occupied or used until passed |
-| Final electrical | Panel labeling, GFCI/AFCI protection, device installation | After all devices installed | See above |
-| Final plumbing | Fixture installation, water heater connections, water pressure test | After all fixtures installed | See above |
-| Final mechanical | Equipment operation test, filter access, exhaust fan CFM | After equipment commissioned | See above |
+| Inspection Stage          | What the Inspector Checks                                                                                | When to Schedule                           | Consequences of Missing                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Foundation/Footing        | Footing dimensions, depth, rebar placement, soil bearing                                                 | Before pouring concrete                    | Must expose footing or core sample concrete to verify -- extremely expensive retroactively |
+| Underground plumbing      | Below-slab drain and supply routing, slope, cleanout locations                                           | Before pouring slab                        | Must break up slab to expose -- $5,000-$20,000 mistake                                     |
+| Rough framing             | Structural connections, header sizes, shear walls, backing for fixtures                                  | After framing complete, before insulation  | Must open walls to expose framing                                                          |
+| Rough electrical          | Wire sizing, circuit routing, box fill calculations, grounding                                           | Same window as rough framing               | Must open walls to expose wiring                                                           |
+| Rough plumbing            | Drain slope (1/4" per foot minimum for 3" and 4" drain), vent connections, pressure test on supply lines | Same window as rough framing               | Must open walls to expose piping                                                           |
+| Rough mechanical          | Duct routing, equipment connections, combustion air                                                      | Same window as rough framing               | Must expose ductwork                                                                       |
+| Insulation                | R-values, vapor barrier placement, attic baffles                                                         | After insulation installed, before drywall | Must remove and reinstall drywall                                                          |
+| Drywall nailing/sheathing | Nail pattern on structural sheathing for shear walls                                                     | After drywall hung, before taping          | Must expose nail field                                                                     |
+| Final building            | Overall completion, exit signs, stairs and guardrails, smoke/CO detectors                                | After all work complete                    | Project cannot be occupied or used until passed                                            |
+| Final electrical          | Panel labeling, GFCI/AFCI protection, device installation                                                | After all devices installed                | See above                                                                                  |
+| Final plumbing            | Fixture installation, water heater connections, water pressure test                                      | After all fixtures installed               | See above                                                                                  |
+| Final mechanical          | Equipment operation test, filter access, exhaust fan CFM                                                 | After equipment commissioned               | See above                                                                                  |
 
 **Scheduling inspections:**
+
 - Most jurisdictions require 24-48 hours advance notice for inspection scheduling
 - Many jurisdictions now offer online inspection scheduling through the same portal used for permit applications
 - Inspectors typically give a 4-hour window (AM or PM); some jurisdictions offer 2-hour windows or text notifications when the inspector is en route
@@ -264,6 +279,7 @@ This is the most emotionally loaded part of the conversation -- users sometimes 
 5. **Safety:** Building inspections are not bureaucratic box-checking. The rough electrical inspection catches under-sized wiring, missing arc-fault protection, and overloaded circuits before they are buried in walls. The rough plumbing inspection catches improper drain slope and missing traps that cause slow drains or sewer gas infiltration. The rough framing inspection catches missing or undersized headers that can cause roof collapse under snow load. These are real failure modes with documented casualties.
 
 **Retroactive permitting (as-built permits):**
+
 - Many jurisdictions allow retroactive permits for unpermitted work that was already completed
 - The process typically requires the homeowner to open walls, ceilings, or floors to expose the work for inspection -- just as if it were still in progress
 - Retroactive permit fees are often 2-3x standard fees as a penalty for not permitting initially
@@ -501,13 +517,13 @@ Genuine emergencies -- a burst pipe, storm-damaged structural element, failed el
 
 ### Phase 1 -- Preliminary Permit Assessment
 
-| Assessment Dimension | Finding |
-|---|---|
-| Project scope | Structural (deck framing, footing, ledger board attachment to house); Electrical (new outdoor GFCI outlet requiring circuit extension or new circuit) |
-| Permit likelihood | **Almost certain required** |
-| Primary permit trigger(s) | (1) Attached deck with ledger connection to the house -- ledger attachment is a structural life-safety element; (2) Deck is 320 sq ft (16x20), well above the 200 sq ft common exemption threshold; (3) Deck height of 36 inches requires guardrails per IRC Section R507, triggering code review; (4) New outdoor electrical outlet requires electrical permit |
-| Permit type(s) likely needed | Building permit (deck structure) + Electrical permit (outdoor outlet) -- Minnesota jurisdictions commonly require separate permits for each |
-| Parallel approvals to check | HOA (if applicable -- suburban Hennepin County neighborhoods commonly have HOAs); check whether the specific address is within city limits of a named municipality (Minnetonka, Eden Prairie, Plymouth, etc.) or in unincorporated Hennepin County |
+| Assessment Dimension         | Finding                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project scope                | Structural (deck framing, footing, ledger board attachment to house); Electrical (new outdoor GFCI outlet requiring circuit extension or new circuit)                                                                                                                                                                                                           |
+| Permit likelihood            | **Almost certain required**                                                                                                                                                                                                                                                                                                                                     |
+| Primary permit trigger(s)    | (1) Attached deck with ledger connection to the house -- ledger attachment is a structural life-safety element; (2) Deck is 320 sq ft (16x20), well above the 200 sq ft common exemption threshold; (3) Deck height of 36 inches requires guardrails per IRC Section R507, triggering code review; (4) New outdoor electrical outlet requires electrical permit |
+| Permit type(s) likely needed | Building permit (deck structure) + Electrical permit (outdoor outlet) -- Minnesota jurisdictions commonly require separate permits for each                                                                                                                                                                                                                     |
+| Parallel approvals to check  | HOA (if applicable -- suburban Hennepin County neighborhoods commonly have HOAs); check whether the specific address is within city limits of a named municipality (Minnetonka, Eden Prairie, Plymouth, etc.) or in unincorporated Hennepin County                                                                                                              |
 
 **Confidence level:** High -- a 320-sq-ft attached deck above 30 inches with electrical work is a permit-required project in virtually every Minnesota jurisdiction. The only uncertainty is which specific city's building department has jurisdiction.
 
@@ -516,12 +532,14 @@ Genuine emergencies -- a burst pipe, storm-damaged structural element, failed el
 ### Phase 2 -- Research Action Plan
 
 **Step 1 -- Identify the correct Authority Having Jurisdiction (AHJ):**
+
 - [ ] Look up the exact address in the Hennepin County parcel search (hennepin.us, Property Information) to confirm the city name and jurisdiction
 - [ ] Most Hennepin County suburban cities have their own building departments -- Minnetonka, Eden Prairie, Plymouth, Maple Grove, etc. each have independent building departments
 - [ ] If the address is in unincorporated Hennepin County (uncommon in the inner suburbs but possible), the Hennepin County Department of Environment and Energy handles permits
 - [ ] Search: "[specific city name] building permits deck" to find the relevant building department page
 
 **Step 2 -- Call the permit desk:**
+
 - Best time to call: Tuesday-Thursday, 9:00-11:30 AM
 - Ask: "I want to build a 16x20 foot attached deck on my home at [address]. The deck will be approximately 36 inches above grade at the high point, attached to the house with a ledger board, and I want to add one GFCI outdoor outlet. Does this require a permit? Do I need separate building and electrical permits?"
 - Ask: "What drawings or documents do I need to submit? Do you have a standard deck plan form?"
@@ -533,12 +551,14 @@ Genuine emergencies -- a burst pipe, storm-damaged structural element, failed el
 - Document who you spoke with, their name, and the date
 
 **Step 3 -- Check parallel approvals:**
+
 - [ ] Check HOA documents (Declaration of Covenants, Conditions, and Restrictions) for architectural guidelines on deck additions -- many suburban Hennepin County neighborhoods have HOAs with specific requirements for deck size, materials, and color
 - [ ] If HOA exists: submit architectural review application to HOA before or concurrent with building permit application -- HOA approval can take 30-60 days
 - [ ] Confirm the rear setback requirement for the specific zoning district -- Minnesota suburban cities commonly require 5-10 foot setback from property line for accessory structures; a deck is typically subject to the accessory structure setback rules
 - [ ] Measure the distance from the proposed deck edge to the rear property line before applying -- if the deck would violate the setback, a variance application would be required before permits can be issued
 
 **Step 4 -- Verify building code version:**
+
 - [ ] Minnesota has adopted the Minnesota Residential Code, which is based on the 2020 IRC with Minnesota-specific amendments
 - [ ] Key deck-specific requirements in the 2020 IRC (and Minnesota code): IRC Section R507 covers exterior decks; ledger connections must use approved lag screws or through-bolts per IRC Table R507.9.1.3(1); footings must bear on undisturbed soil below the frost depth
 - [ ] Electrical: Minnesota has adopted the 2020 NEC; the outdoor outlet must be GFCI-protected per NEC 210.8(A)(3), which is standard
@@ -547,9 +567,9 @@ Genuine emergencies -- a burst pipe, storm-damaged structural element, failed el
 
 ### Phase 3 -- Application Preparation (If Permit Required)
 
-| Document | Required for This Project | Notes |
-|---|---|---|
-| Site plan (property lines, house footprint, deck location, setback dimensions) | Yes | Must show distance from deck edge to all property lines; include north arrow |
-| Deck framing plan (joist size and spacing, beam size, post spacing, footing locations) | Yes | Many cities have a standard deck plan sheet that meets this requirement |
-| Footing detail (diameter, depth below grade, concrete specifications) | Yes | Must show footings at 42" minimum depth for frost protection in Minneapolis metro |
-| Ledger attachment detail (bolt size, spacing, flashing detail) | Yes | This is the most scrutinized
+| Document                                                                               | Required for This Project | Notes                                                                             |
+| -------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------- |
+| Site plan (property lines, house footprint, deck location, setback dimensions)         | Yes                       | Must show distance from deck edge to all property lines; include north arrow      |
+| Deck framing plan (joist size and spacing, beam size, post spacing, footing locations) | Yes                       | Many cities have a standard deck plan sheet that meets this requirement           |
+| Footing detail (diameter, depth below grade, concrete specifications)                  | Yes                       | Must show footings at 42" minimum depth for frost protection in Minneapolis metro |
+| Ledger attachment detail (bolt size, spacing, flashing detail)                         | Yes                       | This is the most scrutinized                                                      |

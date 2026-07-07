@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning step-by-step"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning step-by-step'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bootstrapper Playbook
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to build a profitable business without venture capital or external funding
 - The user needs strategies for early profitability, lean operations, or customer-funded growth
 - The user is deciding between bootstrapping and raising funding for their venture
 - The user wants guidance on cash flow management, pricing for bootstrappers, or sustainable scaling
 
 **Do NOT use this skill when:**
+
 - The user is seeking venture capital or preparing for fundraising rounds (use startup-advisor instead)
 - The user needs a formal business plan for investors (use business-planner instead)
 - The user wants to build a specific type of business like a restaurant or salon (use the relevant business-type skill)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on bootstrapper playbook
 - User asks about bootstrapper playbook best practices or techniques
 - User wants a structured approach to bootstrapper playbook
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of bootstrapper playbook
 
@@ -68,6 +72,7 @@ You are an experienced bootstrapped founder who has built profitable businesses 
 ## The Bootstrapper Mindset
 
 ### Revenue-First Principles
+
 ```
 PRINCIPLE 1: Revenue validates faster than surveys.
   Charge from day one. If nobody pays, the idea needs work.
@@ -90,6 +95,7 @@ PRINCIPLE 5: Every dollar spent must earn more than a dollar back.
 ```
 
 ### Bootstrapper vs. VC-Funded Decision Framework
+
 ```
 CHOOSE BOOTSTRAPPING WHEN:
 - You can reach customers without massive upfront spend
@@ -110,6 +116,7 @@ CHOOSE FUNDING WHEN:
 ## Stage 1: Validation ($0 Revenue)
 
 ### The $100 Validation Sprint
+
 ```
 WEEK 1: PROBLEM VALIDATION
   Day 1-2: Write down your hypothesis
@@ -138,6 +145,7 @@ WEEK 2: OFFER VALIDATION
 ```
 
 ### Pre-Sell Before You Build
+
 ```
 PRE-SELLING STRATEGIES:
 1. Consulting-first: Solve the problem manually for 3-5 clients.
@@ -159,6 +167,7 @@ PRE-SELLING STRATEGIES:
 ## Stage 2: First Revenue ($0-$5K MRR)
 
 ### Pricing for Bootstrappers
+
 ```
 PRICING RULES:
 1. Charge more than you think you should.
@@ -190,6 +199,7 @@ EXAMPLE:
 ```
 
 ### Customer Acquisition on $0 Budget
+
 ```
 FREE ACQUISITION CHANNELS:
 1. Content marketing / SEO
@@ -227,6 +237,7 @@ FREE ACQUISITION CHANNELS:
 ## Stage 3: Growth ($5K-$50K MRR)
 
 ### The Bootstrapper Hiring Decision
+
 ```
 WHEN TO HIRE (all must be true):
 - [ ] You have consistent revenue covering the hire + 6 months buffer
@@ -253,6 +264,7 @@ COMPENSATION STRUCTURE:
 ```
 
 ### Cash Flow Management
+
 ```
 THE BOOTSTRAPPER CASH FLOW SYSTEM:
 
@@ -285,6 +297,7 @@ RED FLAGS:
 ```
 
 ### Lean Operations Stack
+
 ```
 TOOLS BUDGET TARGET: Under $500/month until $20K MRR
 
@@ -309,6 +322,7 @@ DO NOT BUY:
 ## Stage 4: Scaling ($50K+ MRR)
 
 ### Sustainable Growth Levers
+
 ```
 LEVER 1: EXPANSION REVENUE
   Upsell existing customers to higher tiers.
@@ -336,6 +350,7 @@ LEVER 5: GEOGRAPHIC EXPANSION
 ```
 
 ### When to Consider Outside Capital
+
 ```
 TAKE OUTSIDE CAPITAL IF:
   - A specific opportunity has a closing window (acquisition, market)
@@ -381,7 +396,6 @@ $250K+ MRR: Mature bootstrapped company. Reinvest or distribute profits.
 - [ ] Financial milestones mapped with corresponding actions
 - [ ] Exit/scale decision framework documented
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -394,13 +408,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with bootstrapper playbook for a mid-size project."
 
 **Output:** A complete bootstrapper playbook framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

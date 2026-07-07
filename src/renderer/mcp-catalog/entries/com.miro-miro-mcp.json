@@ -14,17 +14,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "design",
-      "productivity",
-      "communication"
-    ],
-    "tags": [
-      "miro",
-      "whiteboard",
-      "collaboration",
-      "diagrams"
-    ],
+    "categories": ["design", "productivity", "communication"],
+    "tags": ["miro", "whiteboard", "collaboration", "diagrams"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-05-27",
@@ -69,11 +60,7 @@
       "estimatedMinutes": 1,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

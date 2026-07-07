@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication step-by-step"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication step-by-step'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Difficult Conversations Navigator
@@ -21,17 +21,20 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about difficult conversations navigator
 - User needs guidance on difficult conversations navigator topics
 - User wants a structured approach to difficult conversations navigator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
 ## Why Difficult Conversations Fail
 
 Most hard conversations fail before they begin because people:
+
 - Enter with a fixed position rather than curiosity
 - Lead with blame ("You always...") instead of impact ("When X happens, I feel...")
 - Try to "win" rather than understand
@@ -77,17 +80,20 @@ ___________________________________________________
 Every difficult conversation actually contains three conversations (from "Difficult Conversations" by Stone, Patton, and Heen):
 
 **1. The "What Happened" Conversation**
+
 - Your story of what happened
 - Their story of what happened
 - The truth is usually somewhere in between
 - **Shift**: From "Who is right?" to "What does each of us see?"
 
 **2. The Feelings Conversation**
+
 - What emotions are present for both parties?
 - Unexpressed feelings will leak out as blame, sarcasm, or withdrawal
 - **Shift**: Name your feelings directly rather than acting them out
 
 **3. The Identity Conversation**
+
 - What does this situation say about me? (Am I competent? Am I a good person? Am I worthy of love?)
 - Identity threats cause defensiveness
 - **Shift**: Accept complexity - you can be a good person who made a mistake
@@ -95,6 +101,7 @@ Every difficult conversation actually contains three conversations (from "Diffic
 ### Step 3: Choose the Right Moment
 
 **Good timing**:
+
 - Both parties are calm and not rushed
 - Private setting (never in front of others)
 - Not hungry, tired, or intoxicated
@@ -102,6 +109,7 @@ Every difficult conversation actually contains three conversations (from "Diffic
 - There is enough time for a full conversation (not 5 minutes before an event)
 
 **Bad timing**:
+
 - In the heat of an argument
 - Via text or email (tone is lost; save for in-person)
 - When one person is about to leave
@@ -114,18 +122,20 @@ Every difficult conversation actually contains three conversations (from "Diffic
 
 **Start with the Third Story**: Describe the situation from a neutral observer's perspective.
 
-| Instead of | Try |
-|-----------|-----|
-| "You never help around the house" | "I'd like to talk about how we divide household tasks. I think we see it differently." |
-| "You embarrassed me at the party" | "Something happened at the party that I'd like to understand from your perspective." |
-| "Why didn't you tell me about this?" | "I learned about X and I want to understand the situation together." |
+| Instead of                           | Try                                                                                    |
+| ------------------------------------ | -------------------------------------------------------------------------------------- |
+| "You never help around the house"    | "I'd like to talk about how we divide household tasks. I think we see it differently." |
+| "You embarrassed me at the party"    | "Something happened at the party that I'd like to understand from your perspective."   |
+| "Why didn't you tell me about this?" | "I learned about X and I want to understand the situation together."                   |
 
 **Opening Formula**:
+
 > "I'd like to talk about [topic]. I realize I might not have the full picture, and I want to understand your perspective too. Can we find a time to discuss this?"
 
 ### The Middle (Explore and Listen)
 
 **The Inquiry Phase** (Listen First)
+
 - Ask genuine questions: "Help me understand how you see this"
 - Use reflective listening: "What I'm hearing is... Is that right?"
 - Acknowledge their feelings: "That sounds really frustrating"
@@ -133,12 +143,14 @@ Every difficult conversation actually contains three conversations (from "Diffic
 - Take notes if it helps you listen without planning your response
 
 **The Advocacy Phase** (Share Your Perspective)
+
 - Use "I" statements: "I feel [emotion] when [behavior] because [impact]"
 - Share your story as YOUR experience, not as THE truth
 - Be specific: "Last Tuesday when you..." not "You always..."
 - Describe impact, not intent: "The impact was..." not "You meant to..."
 
 **The Problem-Solving Phase** (Find a Path Forward)
+
 - Summarize where you agree
 - Name the remaining disagreements clearly
 - Brainstorm options together
@@ -157,12 +169,14 @@ Every difficult conversation actually contains three conversations (from "Diffic
 ### Before the Conversation
 
 **Physiological Calming**
+
 - Box breathing: 4 seconds inhale, 4 hold, 4 exhale, 4 hold (repeat 4 times)
 - Progressive muscle relaxation: Tense and release major muscle groups
 - Cold water on wrists or face (activates dive reflex, calms nervous system)
 - Physical exercise 1-2 hours before (burns off stress hormones)
 
 **Cognitive Preparation**
+
 - Write out your feelings privately (journaling reduces emotional intensity)
 - Practice your opening statement out loud
 - Visualize the conversation going well
@@ -171,6 +185,7 @@ Every difficult conversation actually contains three conversations (from "Diffic
 ### During the Conversation
 
 **When You Feel Triggered**
+
 1. Pause. Take a breath before responding.
 2. Name it internally: "I'm feeling defensive right now"
 3. Ground yourself: Feel your feet on the floor, notice 3 things you can see
@@ -178,6 +193,7 @@ Every difficult conversation actually contains three conversations (from "Diffic
 5. If needed: "I need a moment to think about what you just said"
 
 **When They Get Triggered**
+
 1. Lower your voice (calm is contagious)
 2. Slow down the pace of conversation
 3. Acknowledge their emotion: "I can see this is important to you"
@@ -187,9 +203,11 @@ Every difficult conversation actually contains three conversations (from "Diffic
 ### The Strategic Pause
 
 If the conversation is escalating:
+
 > "I want to continue this conversation because it matters to me. But I think we both need a break to think clearly. Can we resume in [30 minutes / tomorrow]?"
 
 **Rules for the pause**:
+
 - Set a specific resumption time (not "later")
 - Do not stew or rehearse arguments during the break
 - Use the break for calming, not for building your case
@@ -231,6 +249,7 @@ If the conversation is escalating:
 5. **Asking**: "Is there anything else you need from me?"
 
 **A non-apology is worse than no apology**:
+
 - "I'm sorry you feel that way" (not taking responsibility)
 - "I'm sorry, but..." (negating the apology)
 - "I'm sorry if I hurt you" (minimizing)
@@ -238,6 +257,7 @@ If the conversation is escalating:
 ### Rebuilding Trust
 
 Trust is rebuilt through consistent action over time, not through words alone:
+
 - Follow through on every commitment made during the conversation
 - Check in at the agreed follow-up time
 - Demonstrate the changed behavior consistently
@@ -246,15 +266,18 @@ Trust is rebuilt through consistent action over time, not through words alone:
 ## Follow-Up Protocol
 
 ### Within 24 Hours
+
 - Brief check-in: "I wanted to thank you again for that conversation"
 - Confirm any action items in writing (if appropriate)
 - No need to rehash - keep it forward-looking
 
 ### Within 1 Week
+
 - Demonstrate follow-through on your commitments
 - Schedule the agreed-upon check-in conversation
 
 ### Ongoing
+
 - Monitor for the same issue recurring
 - Address it early if it does (do not let it build again)
 - Acknowledge positive changes: "I noticed you [specific behavior]. I appreciate that."
@@ -262,6 +285,7 @@ Trust is rebuilt through consistent action over time, not through words alone:
 ## Context-Specific Guidance
 
 ### Workplace Difficult Conversations
+
 - Document the issue beforehand
 - Focus on work impact, not personal character
 - Use organizational language ("expectations," "standards," "impact on the team")
@@ -269,6 +293,7 @@ Trust is rebuilt through consistent action over time, not through words alone:
 - Follow up in writing to create a record
 
 ### Relationship/Partner Conversations
+
 - Lead with love: "I'm bringing this up because I care about us"
 - Use the Gottman approach: "soft start-up" (gentle opening, no criticism)
 - Attack the problem, not the person
@@ -276,17 +301,18 @@ Trust is rebuilt through consistent action over time, not through words alone:
 - Seek to understand before being understood
 
 ### Family Conversations
+
 - Respect that family dynamics are deeply ingrained
 - You can only change your own behavior
 - Set boundaries without requiring the other person to agree
 - Accept that some family members may not be capable of the conversation you want
 
 ### Boundary-Setting Conversations
+
 - A boundary is about YOUR behavior, not theirs
 - Formula: "When [behavior happens], I will [your response]"
 - You do not need their permission or agreement to set a boundary
 - Follow through is everything - a boundary without enforcement is a suggestion
-
 
 ## Output Format
 

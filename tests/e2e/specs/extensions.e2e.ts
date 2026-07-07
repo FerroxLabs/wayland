@@ -26,7 +26,9 @@ test.describe('Extensions sandbox + bridge', () => {
   // Static-source assertion. The runtime check (next test) hits the actual
   // rendered DOM if/when an extension is loaded; this one defends against a
   // regression in the JSX literal itself.
-  test('H2: ExtensionSettings tab content + page declare sandbox="allow-scripts" without allow-same-origin', async ({ electronApp }) => {
+  test('H2: ExtensionSettings tab content + page declare sandbox="allow-scripts" without allow-same-origin', async ({
+    electronApp,
+  }) => {
     const result = await electronApp.evaluate(async ({ app }) => {
       const fs = await import('node:fs/promises');
       const path = await import('node:path');
@@ -35,7 +37,12 @@ test.describe('Extensions sandbox + bridge', () => {
         path.join(appPath, 'src/renderer/components/settings/SettingsModal/contents/ExtensionSettingsTabContent.tsx'),
         path.join(appPath, 'src/renderer/pages/settings/ExtensionSettingsPage.tsx'),
       ];
-      const reports: Array<{ file: string; sandbox: string | null; hasAllowSameOrigin: boolean; hasAllowScripts: boolean }> = [];
+      const reports: Array<{
+        file: string;
+        sandbox: string | null;
+        hasAllowSameOrigin: boolean;
+        hasAllowScripts: boolean;
+      }> = [];
       for (const file of targets) {
         try {
           const txt = await fs.readFile(file, 'utf8');
@@ -73,7 +80,9 @@ test.describe('Extensions sandbox + bridge', () => {
   // env-dependent and triggers chains other parallel specs may rely on).
   // Instead, we scan the live DOM and assert that any iframe whose src points
   // at the extension host (wayland-asset://) carries the tight sandbox.
-  test('H2 runtime: extension iframes (if rendered) have sandbox="allow-scripts" without allow-same-origin', async ({ page }) => {
+  test('H2 runtime: extension iframes (if rendered) have sandbox="allow-scripts" without allow-same-origin', async ({
+    page,
+  }) => {
     const report = await page.evaluate(() => {
       const frames = Array.from(document.querySelectorAll('iframe'));
       return frames
@@ -108,8 +117,5 @@ test.describe('Extensions sandbox + bridge', () => {
   });
 
   // ── Full extension activation against the fixture requires the host to load it ─
-  test.skip(
-    'activating tests/e2e/fixtures/extensions/e2e-minimal requires WAYLAND_EXTENSIONS_PATH wiring + a relaunch; covered by extension-contributed.e2e.ts using examples/',
-    () => {}
-  );
+  test.skip('activating tests/e2e/fixtures/extensions/e2e-minimal requires WAYLAND_EXTENSIONS_PATH wiring + a relaunch; covered by extension-contributed.e2e.ts using examples/', () => {});
 });

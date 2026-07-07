@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "optimization debugging best-practices"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'optimization debugging best-practices'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Performance Profiling
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user reports unexplained latency spikes, high CPU usage, memory growth over time, or throughput degradation in a running application and needs a structured investigation plan
 - A user wants to set up continuous profiling infrastructure (flamegraphs, APM agents, sampling profilers) for a service before performance regressions reach production
 - A user is optimizing a specific hotspot identified by a prior measurement -- for example, a database query taking 800ms when the SLA is 200ms, or a Node.js event loop that blocks for 40ms on every request
@@ -29,6 +31,7 @@ metadata:
 - A user is debugging a production incident where high tail latency (p99, p999) differs significantly from median latency and needs to identify the source of variance
 
 **Do NOT use this skill when:**
+
 - The user needs help writing load tests or stress tests to determine system capacity -- use the load-testing skill instead
 - The user needs help with distributed tracing across microservices (trace propagation, span correlation, sampling rates) -- use the distributed-tracing skill
 - The user is asking about infrastructure-level monitoring such as alerting, dashboards, or SLO error budgets -- use the observability-and-monitoring skill
@@ -57,11 +60,13 @@ Before touching any tooling, nail down what "slow" actually means in measurable 
 Performance profiling has three tiers with different fidelity/overhead trade-offs. Choosing the wrong tier wastes time.
 
 **Tier 1 -- Lightweight always-on metrics (< 1% overhead):**
+
 - Application-level: record p50/p95/p99 latency histograms using a metrics library (Prometheus histograms, StatsD timers, Micrometer). These are safe to run in production continuously.
 - Runtime metrics: JVM GC pause time and frequency via JMX/JFR, Node.js event loop lag via `perf_hooks.monitorEventLoopDelay()`, Go runtime metrics via `runtime/metrics`, Python GIL contention via `gil_load` or `tracemalloc` summaries.
 - Use Tier 1 first to confirm which component (service, database, external call) is actually slow before profiling anything.
 
 **Tier 2 -- Sampling profilers (1-5% overhead, safe for short production bursts):**
+
 - JVM: Java Flight Recorder (JFR) with `jcmd <pid> JFR.start duration=60s filename=profile.jfr` -- safe for production with 1-2% overhead. Async-profiler (`async-profiler -d 30 -f flamegraph.html <pid>`) for wall-clock or CPU flamegraphs.
 - Node.js: `node --prof app.js` generates isolate tick files; process with `node --prof-process` or route to `0x` for interactive flamegraphs. For production: `clinic flame` from the Clinic.js suite.
 - Go: `go tool pprof` with the built-in `net/http/pprof` endpoint (`/debug/pprof/profile?seconds=30`). Captures CPU, heap, goroutine, and block profiles.
@@ -69,6 +74,7 @@ Performance profiling has three tiers with different fidelity/overhead trade-off
 - .NET: `dotnet-trace collect --process-id <pid> --duration 00:01:00` with `dotnet-trace convert` to SpeedScope or PerfView format.
 
 **Tier 3 -- Instrumented/allocation profilers (5-30% overhead, staging/dev only):**
+
 - JVM: YourKit or JProfiler for method-level timing and heap allocation traces. Use `-Xss512k` and `-XX:+HeapDumpOnOutOfMemoryError` together.
 - Node.js: `--heap-prof` flag for V8 heap snapshots; compare two snapshots in Chrome DevTools Memory panel to find allocation leaks.
 - Python: `memory_profiler` with `@profile` decorator for line-by-line memory tracking.
@@ -94,14 +100,14 @@ Raw profiler output is data -- this step converts it to insight.
 - **Distinguish between self-time and cumulative time:** a function with high cumulative time but low self-time is a caller, not the problem. The function with high self-time that doesn't delegate further is the actual hotspot.
 - **For memory profiles, sort by "live bytes retained" not "total allocated":** a function that allocates 10GB over a run but retains only 1MB is not a leak. The leak is in retained allocations that grow linearly with time or request count.
 - **Identify the three most common hotspot categories and their signatures in flamegraphs:**
-  - *Serialization/deserialization:* look for wide `JSON.parse`, `Unmarshal`, `ObjectMapper.readValue`, or `pickle.loads` frames. Fix by switching to a faster library (simdjson, sonic, protobuf) or caching deserialized results.
-  - *Lock contention:* Go profiles show wide `runtime.lock` frames; JVM profiles show wide `java.util.concurrent.locks.ReentrantLock.lock` or `Object.wait` frames. Fix by reducing lock scope, using lock-free data structures, or sharding the lock.
-  - *Garbage collection pressure:* JVM GC logs show frequent Young GC pauses (> 50ms more than twice per second indicates over-allocation); Node.js shows wide `V8::GC` frames; Go shows wide `runtime.gcDrain` frames. Fix by reducing allocation rate -- reuse buffers, use sync.Pool in Go, use object pools in Java.
+  - _Serialization/deserialization:_ look for wide `JSON.parse`, `Unmarshal`, `ObjectMapper.readValue`, or `pickle.loads` frames. Fix by switching to a faster library (simdjson, sonic, protobuf) or caching deserialized results.
+  - _Lock contention:_ Go profiles show wide `runtime.lock` frames; JVM profiles show wide `java.util.concurrent.locks.ReentrantLock.lock` or `Object.wait` frames. Fix by reducing lock scope, using lock-free data structures, or sharding the lock.
+  - _Garbage collection pressure:_ JVM GC logs show frequent Young GC pauses (> 50ms more than twice per second indicates over-allocation); Node.js shows wide `V8::GC` frames; Go shows wide `runtime.gcDrain` frames. Fix by reducing allocation rate -- reuse buffers, use sync.Pool in Go, use object pools in Java.
 - **For I/O wait analysis:** look for wide syscall frames (`read`, `write`, `epoll_wait`, `futex`). Cross-reference with `iostat` data. If disk I/O utilization is < 50% but the application is blocked on `read`, the issue is sequential access patterns that prevent parallelism, not raw throughput.
 
 ### 5. Form and Validate a Hypothesis
 
-A profile tells you *where* time is spent, not *why* -- this step bridges that gap.
+A profile tells you _where_ time is spent, not _why_ -- this step bridges that gap.
 
 - Write a one-sentence hypothesis before making any code change: "The checkout service spends 40% of CPU time in `JSON.Unmarshal` for a 50KB product catalog payload on every request because the catalog is not cached, and this can be eliminated by deserializing once at startup."
 - **Quantify the expected impact before optimizing:** if the target is p99 latency < 300ms and the hotspot accounts for 40% of a 1,200ms average request, fixing it fully saves ~480ms -- which gets you to 720ms, still above target. This prevents wasted effort on optimizations that cannot close the gap.
@@ -134,10 +140,11 @@ Fixes without a regression gate regress. Instrument the finding so it cannot rec
 
 When helping a user with performance profiling, structure the response as follows:
 
-```markdown
+````markdown
 ## Performance Profiling Analysis: [Component/Service Name]
 
 ### Problem Statement
+
 - **Observed metric:** [e.g., p99 latency = 1,400ms]
 - **Target metric:** [e.g., p99 latency ≤ 200ms]
 - **Gap:** [e.g., 7x over target]
@@ -148,11 +155,11 @@ When helping a user with performance profiling, structure the response as follow
 
 ### Profiling Tier Recommendation
 
-| Tier | Tool | Overhead | Duration | Safe for Production? |
-|------|------|----------|----------|----------------------|
-| Tier 1 (metrics) | [e.g., Prometheus histograms] | < 1% | Always-on | Yes |
-| Tier 2 (sampling) | [e.g., async-profiler, py-spy] | 1-5% | 30-60s burst | Yes |
-| Tier 3 (instrumented) | [e.g., YourKit, memory_profiler] | 5-30% | 5-15 min | Staging only |
+| Tier                  | Tool                             | Overhead | Duration     | Safe for Production? |
+| --------------------- | -------------------------------- | -------- | ------------ | -------------------- |
+| Tier 1 (metrics)      | [e.g., Prometheus histograms]    | < 1%     | Always-on    | Yes                  |
+| Tier 2 (sampling)     | [e.g., async-profiler, py-spy]   | 1-5%     | 30-60s burst | Yes                  |
+| Tier 3 (instrumented) | [e.g., YourKit, memory_profiler] | 5-30%    | 5-15 min     | Staging only         |
 
 **Recommended starting tier:** [Tier X] because [reason].
 
@@ -170,17 +177,20 @@ When helping a user with performance profiling, structure the response as follow
 # Step 3: Collect allocation profile if GC is suspected (Tier 3)
 [exact command with flags]
 ```
+````
 
 ---
 
 ### Flamegraph Interpretation Guide (for this specific profile)
 
 **What to look for:**
+
 - [Specific frame names or patterns expected in this codebase/stack]
 - [GC indicators specific to this runtime]
 - [I/O wait patterns to identify]
 
 **Red flags in this stack:**
+
 - [e.g., "Wide `ObjectMapper` frames = JSON re-parsing"]
 - [e.g., "Wide `runtime.gcDrain` = allocation pressure"]
 
@@ -188,10 +198,10 @@ When helping a user with performance profiling, structure the response as follow
 
 ### Hypothesis and Expected Impact
 
-| Suspected Root Cause | Flamegraph Evidence | Expected CPU/Latency Reduction | Amdahl's Limit |
-|----------------------|--------------------|---------------------------------|----------------|
-| [e.g., JSON re-parse on every request] | [e.g., 42% of CPU in Unmarshal] | [e.g., ~40% CPU, ~500ms p99] | [e.g., Max 42% improvement] |
-| [e.g., Unbounded cache growth] | [e.g., GC 15% of time] | [e.g., ~12% CPU] | [e.g., Max 15% improvement] |
+| Suspected Root Cause                   | Flamegraph Evidence             | Expected CPU/Latency Reduction | Amdahl's Limit              |
+| -------------------------------------- | ------------------------------- | ------------------------------ | --------------------------- |
+| [e.g., JSON re-parse on every request] | [e.g., 42% of CPU in Unmarshal] | [e.g., ~40% CPU, ~500ms p99]   | [e.g., Max 42% improvement] |
+| [e.g., Unbounded cache growth]         | [e.g., GC 15% of time]          | [e.g., ~12% CPU]               | [e.g., Max 15% improvement] |
 
 ---
 
@@ -223,14 +233,15 @@ When helping a user with performance profiling, structure the response as follow
 
 ### Before/After Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| p50 latency | | | |
-| p99 latency | | | |
-| CPU utilization | | | |
-| GC pause frequency | | | |
-| RSS memory | | | |
-```
+| Metric             | Before | After | Improvement |
+| ------------------ | ------ | ----- | ----------- |
+| p50 latency        |        |       |             |
+| p99 latency        |        |       |             |
+| CPU utilization    |        |       |             |
+| GC pause frequency |        |       |             |
+| RSS memory         |        |       |             |
+
+````
 
 ---
 
@@ -340,19 +351,21 @@ curl -s "http://localhost:6060/debug/pprof/goroutine?debug=1" | head -50
 # Add to service startup (records every blocking event -- 2-5% overhead):
 runtime.SetBlockProfileRate(1)
 runtime.SetMutexProfileFraction(1)
-```
+````
 
 ---
 
 ### Flamegraph Interpretation Guide
 
 **What to look for in the blocking profile:**
+
 - Wide `database/sql.(*DB).conn` frames = connection pool exhaustion; all goroutines waiting for a DB connection
 - Wide `google.golang.org/grpc.(*clientStream).RecvMsg` frames = gRPC upstream is slow, and goroutines pile up waiting
 - Wide `sync.(*Mutex).Lock` frames = lock contention inside a shared cache or rate limiter
 - Wide `time.Sleep` or `runtime.selectgo` frames = goroutine leak (goroutines waiting on channels that never fire)
 
 **Red flags specific to this timeline (2-week gradual regression):**
+
 - `database/sql` pool exhaustion is the most common cause -- database query time increases as table grows, requests hold connections longer, pool fills up, new requests queue behind the pool
 - gRPC upstream could have deployed a change that increased latency without alerting your team
 
@@ -360,12 +373,12 @@ runtime.SetMutexProfileFraction(1)
 
 ### Hypothesis and Expected Impact
 
-| Suspected Root Cause | Profiler Evidence to Confirm | Expected p99 Reduction | Amdahl's Limit |
-|----------------------|------------------------------|------------------------|----------------|
-| DB connection pool exhaustion (most likely) | Wide `database/sql.(*DB).conn` in block profile | Full recovery to 80ms | 100% if confirmed |
-| Slow PostgreSQL query due to table growth (missing index) | Wide `database/sql.(*Stmt).QueryContext` + long hold time | Full recovery to 80ms | 100% if confirmed |
-| gRPC upstream latency increase | Wide `grpc.RecvMsg` frames; measure with `grpc_server_handling_seconds` histogram on upstream | Partial -- depends on upstream fix | 100% if upstream is sole cause |
-| Goroutine leak | Goroutine count > 1,000 and growing | Gradual recovery after fix | 100% if confirmed |
+| Suspected Root Cause                                      | Profiler Evidence to Confirm                                                                  | Expected p99 Reduction             | Amdahl's Limit                 |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------ |
+| DB connection pool exhaustion (most likely)               | Wide `database/sql.(*DB).conn` in block profile                                               | Full recovery to 80ms              | 100% if confirmed              |
+| Slow PostgreSQL query due to table growth (missing index) | Wide `database/sql.(*Stmt).QueryContext` + long hold time                                     | Full recovery to 80ms              | 100% if confirmed              |
+| gRPC upstream latency increase                            | Wide `grpc.RecvMsg` frames; measure with `grpc_server_handling_seconds` histogram on upstream | Partial -- depends on upstream fix | 100% if upstream is sole cause |
+| Goroutine leak                                            | Goroutine count > 1,000 and growing                                                           | Gradual recovery after fix         | 100% if confirmed              |
 
 ---
 
@@ -447,12 +460,12 @@ benchstat bench-baseline.txt bench-new.txt
 
 ### Before/After Metrics
 
-| Metric | Before Fix | After Fix (projected) | Improvement |
-|--------|------------|----------------------|-------------|
-| p50 latency | 120ms | ~25ms | ~79% |
-| p99 latency | 950ms | ~80ms | ~92% |
-| DB connection wait time | 820ms avg | < 5ms | ~99% |
-| Goroutine count | 850 (growing) | ~120 (stable) | Stable |
-| DB `WaitCount` rate | +150/min | 0 | Eliminated |
+| Metric                  | Before Fix    | After Fix (projected) | Improvement |
+| ----------------------- | ------------- | --------------------- | ----------- |
+| p50 latency             | 120ms         | ~25ms                 | ~79%        |
+| p99 latency             | 950ms         | ~80ms                 | ~92%        |
+| DB connection wait time | 820ms avg     | < 5ms                 | ~99%        |
+| Goroutine count         | 850 (growing) | ~120 (stable)         | Stable      |
+| DB `WaitCount` rate     | +150/min      | 0                     | Eliminated  |
 
 **Note on Amdahl's Law:** In this case, the connection pool exhaustion accounts for ~87% of the p99 latency (950ms - 80ms baseline = 870ms of added latency, almost entirely from queueing). Fixing the pool size and adding the query index is sufficient to reach the 80ms target. If the fix brings p99 to 150ms rather than 80ms, the remaining gap is almost certainly in the gRPC upstream -- at which point collect a separate profile of the gRPC call latency using `grpc_server_handling_seconds` histograms on the upstream service.

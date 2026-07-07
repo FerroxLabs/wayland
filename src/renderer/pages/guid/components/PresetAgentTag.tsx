@@ -41,10 +41,8 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
 }) => {
   const avatarValue = agentInfo.avatar?.trim();
   const LucideIconComponent = getLucideIcon(avatarValue);
-  const mappedAvatar =
-    !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
-  const resolvedAvatar =
-    !LucideIconComponent && avatarValue ? resolveExtensionAssetUrl(avatarValue) : undefined;
+  const mappedAvatar = !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
+  const resolvedAvatar = !LucideIconComponent && avatarValue ? resolveExtensionAssetUrl(avatarValue) : undefined;
   const avatarImage = mappedAvatar || resolvedAvatar;
   const showImage = Boolean(avatarImage && isImageAvatar(avatarImage));
   const agent = customAgents.find((a) => a.id === agentInfo.customAgentId);

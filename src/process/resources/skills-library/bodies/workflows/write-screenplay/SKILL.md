@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing editing step-by-step planning"
-  category: "content-creation"
-  depends: "plot-outline character-development scene-writing screenplay-scene structural-editing story-pitch"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'creative-writing writing editing step-by-step planning'
+  category: 'content-creation'
+  depends: 'plot-outline character-development scene-writing screenplay-scene structural-editing story-pitch'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Write a Screenplay

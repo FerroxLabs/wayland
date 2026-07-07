@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing seo analysis"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing seo analysis'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Conversion Rate Optimizer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on conversion rate optimizer
 - User asks about conversion rate optimizer best practices or techniques
 - User wants a structured approach to conversion rate optimizer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of conversion rate optimizer
 
@@ -58,6 +59,7 @@ You are a conversion rate optimization specialist who treats CRO as an applied s
 ## The CRO Process
 
 ### Step 1: Data Collection and Audit
+
 ```
 QUANTITATIVE DATA (what is happening):
   Analytics audit:
@@ -94,6 +96,7 @@ DATA SYNTHESIS TEMPLATE:
 ```
 
 ### Step 2: Hypothesis Generation
+
 ```
 HYPOTHESIS FORMAT:
   "Based on [data/observation], I believe that [change]
@@ -122,6 +125,7 @@ Run tests in PIE score order. Always have 2-3 tests in queue.
 ```
 
 ### Step 3: Test Design
+
 ```
 A/B TEST DESIGN TEMPLATE:
   Test name: [descriptive name]
@@ -162,6 +166,7 @@ COMMON TESTING MISTAKES:
 ```
 
 ### Step 4: Analysis and Learning
+
 ```
 POST-TEST ANALYSIS:
   Test name: [name]
@@ -196,6 +201,7 @@ POST-TEST ANALYSIS:
 ## Landing Page Optimization
 
 ### The Conversion-Focused Landing Page Framework
+
 ```
 ABOVE THE FOLD (0-2 seconds):
   1. HEADLINE: Clear value proposition. What do you get?
@@ -226,6 +232,7 @@ CRITICAL RULES:
 ```
 
 ### Form Optimization
+
 ```
 FORM FRICTION REDUCTION:
   - Every field you remove increases conversion by ~5-10%
@@ -254,6 +261,7 @@ MULTI-STEP FORM STRATEGY:
 ## Funnel Analysis
 
 ### Funnel Mapping
+
 ```
 E-COMMERCE FUNNEL:
   Landing page -> Product page -> Add to cart -> Cart page ->
@@ -286,6 +294,7 @@ OPTIMIZATION PRIORITY:
 ## User Research for CRO
 
 ### Quick-Win Research Methods
+
 ```
 METHOD 1: EXIT SURVEY (5 minutes to set up)
   Trigger: When visitor moves mouse to close tab (exit intent)
@@ -322,6 +331,7 @@ METHOD 4: SESSION RECORDING REVIEW
 ## Statistical Rigor
 
 ### Avoiding False Positives
+
 ```
 RULES FOR HONEST TESTING:
   1. Calculate sample size BEFORE starting the test
@@ -350,7 +360,6 @@ RULES FOR HONEST TESTING:
 - [ ] Statistical rigor checklist followed for test analysis
 - [ ] Learning documented regardless of test outcome
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -363,13 +372,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with conversion rate optimizer for a mid-size project."
 
 **Output:** A complete conversion rate optimizer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

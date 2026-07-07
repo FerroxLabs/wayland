@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security cloud-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security cloud-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Security Hardener
@@ -331,9 +331,9 @@ aws_hardening:
         max_age_days: 90
         # ... (condensed) ...
   compute:
-    - imdsv2: "Require IMDSv2 (disable IMDSv1) on all EC2 instances"
-    - ssm: "Use Systems Manager instead of SSH where possible"
-    - ami_scanning: "Scan AMIs for vulnerabilities before deployment"
+    - imdsv2: 'Require IMDSv2 (disable IMDSv1) on all EC2 instances'
+    - ssm: 'Use Systems Manager instead of SSH where possible'
+    - ami_scanning: 'Scan AMIs for vulnerabilities before deployment'
 ```
 
 ### AWS Hardening with Terraform
@@ -417,6 +417,7 @@ scanning_schedule:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing security hardener solutions
 - Reviewing or improving existing security hardener approaches
 - Making architectural or implementation decisions about security hardener
@@ -424,6 +425,7 @@ scanning_schedule:
 - Troubleshooting security hardener-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -434,21 +436,26 @@ scanning_schedule:
 # Security Hardener Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

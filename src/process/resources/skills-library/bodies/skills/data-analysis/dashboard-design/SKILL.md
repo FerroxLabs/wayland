@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization design analysis"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization design analysis'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Dashboard Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to design a new dashboard from scratch and wants a complete specification covering purpose, panels, layout, and interactivity -- not just chart type choices
 - A user has a set of metrics, KPIs, or data sources and needs help organizing them into a coherent, navigable visual experience for a specific audience
 - A user is preparing a dashboard for a recurring business ritual (weekly sales review, monthly executive meeting, daily ops standup) and needs the layout to match how the meeting flows
@@ -29,6 +31,7 @@ metadata:
 - A user has already listed their metrics but does not know how to arrange, prioritize, or group them visually
 
 **Do NOT use when:**
+
 - The user only needs help choosing which chart type is appropriate for a single visualization -- use `chart-type-selector` instead
 - The user needs to define which metrics to track, establish metric formulas, or set performance targets -- use `kpi-definition` first, then return to this skill
 - The user wants to reformat, restyle, or fix an existing chart (axis labels, colors, font sizes) -- use `chart-formatting`
@@ -45,7 +48,7 @@ metadata:
 
 Before specifying a single panel, lock in the purpose. A dashboard without a defined primary question will accumulate panels indefinitely.
 
-- **Identify the primary question:** Ask the user to complete the sentence "This dashboard exists to answer the question: ___." If they cannot complete it, the dashboard lacks a north star. The primary question should be answerable in one glance at the top row.
+- **Identify the primary question:** Ask the user to complete the sentence "This dashboard exists to answer the question: \_\_\_." If they cannot complete it, the dashboard lacks a north star. The primary question should be answerable in one glance at the top row.
 - **Name the audience tier:** Executives consume dashboards in 60-90 seconds and need verdict, not data. Operational staff monitor dashboards continuously and need current-state accuracy. Analysts use dashboards as a launchpad for investigation and need filters and drill-down. Mixed audiences require separate sections or separate pages.
 - **Determine the consumption pattern:** Is the dashboard displayed on a TV monitor (no interaction, wide format, large text, auto-refresh)? Viewed in a weekly meeting (projected, someone narrates it)? Opened on demand in a browser by individuals (interactive, filterable)? Each pattern affects layout width, font size, interactivity, and default state.
 - **Define the viewing cadence:** Real-time (seconds to minutes) means operational -- data staleness is critical. Daily means business-day rhythm -- a "data as of" timestamp matters. Weekly or monthly means trend-focused -- period comparisons dominate. This cadence governs which metrics belong and at what granularity.
@@ -77,6 +80,7 @@ For each panel the user wants to include, apply this test before specifying it:
 5. **How often does this data update?** Determine the refresh cadence per panel. If panels on the same dashboard have different refresh rates, group them visually and label their data freshness.
 
 For each confirmed panel, specify:
+
 - Panel title (states what it shows, not what it is called internally)
 - Chart type and why
 - Primary metric and its definition (including any filters, conditions, or calculation notes)
@@ -92,6 +96,7 @@ For each confirmed panel, specify:
 Use a 12-column grid. Every panel occupies a whole number of columns. Every row must add up to exactly 12 columns. Height is specified in units relative to one another (e.g., scorecards are 1 unit tall, trend charts are 2 units tall, large tables are 3 units tall).
 
 **Layout hierarchy rules:**
+
 - **Top row (the verdict row):** The first row must answer the primary question at a glance. Use 2-4 large KPI scorecards spanning the full width. If the primary question requires a trend (not just a current value), use a full-width or 2/3-width line chart here instead.
 - **Second row (context row):** Supporting charts that explain the top-row verdict. Typically 2-3 equal panels (4 columns each). These are the "why is the top number what it is?" charts.
 - **Third row and below (diagnostic rows):** Detail panels, breakdowns by segment or entity, tables, distribution charts. These require scrolling on most screens and serve analysts or operators who drill in.
@@ -210,11 +215,14 @@ Produce the complete specification in the output format defined below. The speci
 Page: [Page name]
 
 ```
+
          Col 1-2   Col 3-4   Col 5-6   Col 7-8   Col 9-10  Col 11-12
-Row 1:   [Panel name spanning cols 1-8          ] [Panel 2  (9-12)  ]
-Row 2:   [Panel 3 (1-4)     ] [Panel 4 (5-8)   ] [Panel 5  (9-12)  ]
-Row 3:   [Panel 6 (1-6)                         ] [Panel 7  (7-12)  ]
-Row 4:   [Panel 8 spanning full width (1-12)                        ]
+
+Row 1: [Panel name spanning cols 1-8 ] [Panel 2 (9-12) ]
+Row 2: [Panel 3 (1-4) ] [Panel 4 (5-8) ] [Panel 5 (9-12) ]
+Row 3: [Panel 6 (1-6) ] [Panel 7 (7-12) ]
+Row 4: [Panel 8 spanning full width (1-12) ]
+
 ```
 
 Height map:
@@ -355,32 +363,33 @@ Before redesigning, conduct a brief audit of the existing dashboard. Ask: (1) Wh
 
 ### Summary
 
-| Element | Value |
-|---------|-------|
-| Dashboard name | E-Commerce Daily Operations Dashboard |
-| Version | v1.0 |
-| Audience | Operations managers (daily users), VP Operations (morning review) |
-| Consumption pattern | Individual browser -- interactive, filterable; VP uses read-only summary view |
-| Primary question | Is today's order volume, revenue, and fulfillment on track relative to this week last year and our daily target? |
-| Dashboard type | Hybrid -- Strategic top section (VP summary) + Operational detail (manager view) |
-| Total panels | 10 panels across 1 page (2 logical sections) |
-| Page count | 1 page with 2 sections; tab to "Fulfillment Detail" for drill-down |
-| Data refresh | Hourly (Shopify + fulfillment DB); Daily at 6am (Google Analytics -- GA data lags) |
-| Default filter state | Today's date; All channels; All product categories |
+| Element              | Value                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Dashboard name       | E-Commerce Daily Operations Dashboard                                                                            |
+| Version              | v1.0                                                                                                             |
+| Audience             | Operations managers (daily users), VP Operations (morning review)                                                |
+| Consumption pattern  | Individual browser -- interactive, filterable; VP uses read-only summary view                                    |
+| Primary question     | Is today's order volume, revenue, and fulfillment on track relative to this week last year and our daily target? |
+| Dashboard type       | Hybrid -- Strategic top section (VP summary) + Operational detail (manager view)                                 |
+| Total panels         | 10 panels across 1 page (2 logical sections)                                                                     |
+| Page count           | 1 page with 2 sections; tab to "Fulfillment Detail" for drill-down                                               |
+| Data refresh         | Hourly (Shopify + fulfillment DB); Daily at 6am (Google Analytics -- GA data lags)                               |
+| Default filter state | Today's date; All channels; All product categories                                                               |
 
 ---
 
 ### Questions This Dashboard Answers
 
-| Priority | Question | Panel(s) That Answer It |
-|----------|----------|------------------------|
-| Primary | Is today's revenue and order volume on pace with our daily target and with the same day last year? | Daily Revenue Scorecard, Orders Scorecard, Revenue Trend (hourly) |
-| Secondary | Is our site converting traffic into orders at a healthy rate today? | Traffic Scorecard, Conversion Rate Trend |
-| Secondary | Are orders shipping on time and within SLA? | On-Time Ship Rate Scorecard, Average Ship Time Trend |
-| Supporting | How is our average order value trending compared to last week? | AOV Scorecard |
-| Supporting | Is customer service load increasing or decreasing today? | Open Tickets Scorecard, First Response Time Panel |
+| Priority   | Question                                                                                           | Panel(s) That Answer It                                           |
+| ---------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Primary    | Is today's revenue and order volume on pace with our daily target and with the same day last year? | Daily Revenue Scorecard, Orders Scorecard, Revenue Trend (hourly) |
+| Secondary  | Is our site converting traffic into orders at a healthy rate today?                                | Traffic Scorecard, Conversion Rate Trend                          |
+| Secondary  | Are orders shipping on time and within SLA?                                                        | On-Time Ship Rate Scorecard, Average Ship Time Trend              |
+| Supporting | How is our average order value trending compared to last week?                                     | AOV Scorecard                                                     |
+| Supporting | Is customer service load increasing or decreasing today?                                           | Open Tickets Scorecard, First Response Time Panel                 |
 
 ### Questions This Dashboard Does NOT Answer
+
 - **Returns and refund rate** -- excluded from v1.0; belongs on Finance dashboard; requires returns data not yet available in Shopify integration
 - **Inventory levels and stockouts** -- excluded; belongs on Inventory Management dashboard with separate warehouse data feed
 - **Marketing channel attribution** -- excluded; GA source/medium breakdown is a Marketing dashboard concern, not daily ops
@@ -392,201 +401,201 @@ Before redesigning, conduct a brief audit of the existing dashboard. Ask: (1) Wh
 
 #### Panel 1: Daily Revenue vs. Target
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is today's revenue on pace to hit the daily target? |
-| Position | Row 1, Columns 1-3 of 12 |
-| Height units | 1.5 (scorecard height) |
-| Chart type | KPI scorecard with 7-day sparkline -- single value with comparison badges |
-| Primary metric | Revenue today (MTD revenue is available as secondary label): sum of order revenue in Shopify for orders placed since midnight local time |
-| Secondary metric / comparison | (1) Today's prorated daily target (monthly target / business days in month); (2) Same day last year (SDLY) |
-| Data source | Shopify Orders table: sum(order_total) WHERE created_at >= today 00:00 AND status != 'cancelled' |
-| Aggregation | Sum; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | Green: >= 90% of prorated daily target / Yellow: 70-89% / Red: < 70% |
-| Interactivity | Tooltip: exact revenue value, target value, SDLY value, % vs target, % vs SDLY |
-| Data confirmed | Yes -- Shopify orders table confirmed |
-| Notes | "Daily target" field must be configured as a parameter populated from a targets table (not hardcoded). Exclude test orders (tag = 'test'). |
+| Element                       | Value                                                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Primary question answered     | Is today's revenue on pace to hit the daily target?                                                                                        |
+| Position                      | Row 1, Columns 1-3 of 12                                                                                                                   |
+| Height units                  | 1.5 (scorecard height)                                                                                                                     |
+| Chart type                    | KPI scorecard with 7-day sparkline -- single value with comparison badges                                                                  |
+| Primary metric                | Revenue today (MTD revenue is available as secondary label): sum of order revenue in Shopify for orders placed since midnight local time   |
+| Secondary metric / comparison | (1) Today's prorated daily target (monthly target / business days in month); (2) Same day last year (SDLY)                                 |
+| Data source                   | Shopify Orders table: sum(order_total) WHERE created_at >= today 00:00 AND status != 'cancelled'                                           |
+| Aggregation                   | Sum; grain = day                                                                                                                           |
+| Update frequency              | Hourly                                                                                                                                     |
+| Status thresholds             | Green: >= 90% of prorated daily target / Yellow: 70-89% / Red: < 70%                                                                       |
+| Interactivity                 | Tooltip: exact revenue value, target value, SDLY value, % vs target, % vs SDLY                                                             |
+| Data confirmed                | Yes -- Shopify orders table confirmed                                                                                                      |
+| Notes                         | "Daily target" field must be configured as a parameter populated from a targets table (not hardcoded). Exclude test orders (tag = 'test'). |
 
 ---
 
 #### Panel 2: Orders Today vs. Target
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Are we receiving the expected number of orders today? |
-| Position | Row 1, Columns 4-6 of 12 |
-| Height units | 1.5 |
-| Chart type | KPI scorecard with 7-day sparkline |
-| Primary metric | Order count today: count of distinct order_id in Shopify for orders placed since midnight |
-| Secondary metric / comparison | (1) Daily order target; (2) SDLY order count |
-| Data source | Shopify Orders table: count(order_id) WHERE created_at >= today 00:00 AND status != 'cancelled' |
-| Aggregation | Count distinct; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | Green: >= 90% of daily target / Yellow: 70-89% / Red: < 70% |
-| Interactivity | Tooltip: order count, target, SDLY, % vs target |
-| Data confirmed | Yes |
-| Notes | Separate order count from revenue -- sometimes revenue is on target but order count is low (AOV spike) or vice versa. Both signals matter independently. |
+| Element                       | Value                                                                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Are we receiving the expected number of orders today?                                                                                                    |
+| Position                      | Row 1, Columns 4-6 of 12                                                                                                                                 |
+| Height units                  | 1.5                                                                                                                                                      |
+| Chart type                    | KPI scorecard with 7-day sparkline                                                                                                                       |
+| Primary metric                | Order count today: count of distinct order_id in Shopify for orders placed since midnight                                                                |
+| Secondary metric / comparison | (1) Daily order target; (2) SDLY order count                                                                                                             |
+| Data source                   | Shopify Orders table: count(order_id) WHERE created_at >= today 00:00 AND status != 'cancelled'                                                          |
+| Aggregation                   | Count distinct; grain = day                                                                                                                              |
+| Update frequency              | Hourly                                                                                                                                                   |
+| Status thresholds             | Green: >= 90% of daily target / Yellow: 70-89% / Red: < 70%                                                                                              |
+| Interactivity                 | Tooltip: order count, target, SDLY, % vs target                                                                                                          |
+| Data confirmed                | Yes                                                                                                                                                      |
+| Notes                         | Separate order count from revenue -- sometimes revenue is on target but order count is low (AOV spike) or vice versa. Both signals matter independently. |
 
 ---
 
 #### Panel 3: Average Order Value (AOV)
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is our average order value healthy today compared to the last 30 days? |
-| Position | Row 1, Columns 7-9 of 12 |
-| Height units | 1.5 |
-| Chart type | KPI scorecard with 30-day sparkline |
-| Primary metric | AOV today: sum(order_total) / count(order_id) for today |
-| Secondary metric / comparison | 30-day rolling average AOV |
-| Data source | Shopify Orders table -- derived from Panel 1 and Panel 2 metrics |
-| Aggregation | Average; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | No red/yellow/green threshold -- contextual comparison only. Flag if today's AOV is > 20% above or below 30-day average (may indicate data issue or promotional pricing anomaly). |
-| Interactivity | Tooltip: today's AOV, 30-day average, % difference |
-| Data confirmed | Yes |
-| Notes | AOV alone is not actionable -- it is a diagnostic indicator. If AOV spikes, check for bulk orders or promotions. If AOV drops, check for coupon misapplication. |
+| Element                       | Value                                                                                                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Is our average order value healthy today compared to the last 30 days?                                                                                                            |
+| Position                      | Row 1, Columns 7-9 of 12                                                                                                                                                          |
+| Height units                  | 1.5                                                                                                                                                                               |
+| Chart type                    | KPI scorecard with 30-day sparkline                                                                                                                                               |
+| Primary metric                | AOV today: sum(order_total) / count(order_id) for today                                                                                                                           |
+| Secondary metric / comparison | 30-day rolling average AOV                                                                                                                                                        |
+| Data source                   | Shopify Orders table -- derived from Panel 1 and Panel 2 metrics                                                                                                                  |
+| Aggregation                   | Average; grain = day                                                                                                                                                              |
+| Update frequency              | Hourly                                                                                                                                                                            |
+| Status thresholds             | No red/yellow/green threshold -- contextual comparison only. Flag if today's AOV is > 20% above or below 30-day average (may indicate data issue or promotional pricing anomaly). |
+| Interactivity                 | Tooltip: today's AOV, 30-day average, % difference                                                                                                                                |
+| Data confirmed                | Yes                                                                                                                                                                               |
+| Notes                         | AOV alone is not actionable -- it is a diagnostic indicator. If AOV spikes, check for bulk orders or promotions. If AOV drops, check for coupon misapplication.                   |
 
 ---
 
 #### Panel 4: Site Traffic and Conversion Rate
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is our site driving enough traffic and converting it at a normal rate today? |
-| Position | Row 1, Columns 10-12 of 12 |
-| Height units | 1.5 |
-| Chart type | KPI scorecard -- dual metric (sessions + conversion rate) with 7-day sparklines each |
-| Primary metric | (1) Sessions today (Google Analytics sessions, all channels); (2) E-commerce conversion rate today (transactions / sessions x 100) |
-| Secondary metric / comparison | (1) Sessions SDLY; (2) 30-day average conversion rate |
-| Data source | Google Analytics -- requires GA4 API or daily export at 6am; data is previous day by default [DATA PARTIALLY CONFIRMED -- confirm GA4 API access] |
-| Aggregation | Sum (sessions); ratio (conversion rate); grain = day |
-| Update frequency | Daily at 6am (GA lags) -- label panel: "GA data as of yesterday" |
-| Status thresholds | Conversion rate: Green: within ±15% of 30-day average / Yellow: 15-30% below / Red: >30% below average. Sessions: informational only, no threshold. |
-| Interactivity | Tooltip: sessions, conversion rate, SDLY sessions, 30-day average conversion rate |
-| Data confirmed | Partially -- GA4 API integration needs confirmation from data team |
-| Notes | Do not show today's GA data as real-time -- GA4 data for the current day has up to 48-hour latency. Always label: "GA data as of [yesterday's date]." |
+| Element                       | Value                                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Is our site driving enough traffic and converting it at a normal rate today?                                                                          |
+| Position                      | Row 1, Columns 10-12 of 12                                                                                                                            |
+| Height units                  | 1.5                                                                                                                                                   |
+| Chart type                    | KPI scorecard -- dual metric (sessions + conversion rate) with 7-day sparklines each                                                                  |
+| Primary metric                | (1) Sessions today (Google Analytics sessions, all channels); (2) E-commerce conversion rate today (transactions / sessions x 100)                    |
+| Secondary metric / comparison | (1) Sessions SDLY; (2) 30-day average conversion rate                                                                                                 |
+| Data source                   | Google Analytics -- requires GA4 API or daily export at 6am; data is previous day by default [DATA PARTIALLY CONFIRMED -- confirm GA4 API access]     |
+| Aggregation                   | Sum (sessions); ratio (conversion rate); grain = day                                                                                                  |
+| Update frequency              | Daily at 6am (GA lags) -- label panel: "GA data as of yesterday"                                                                                      |
+| Status thresholds             | Conversion rate: Green: within ±15% of 30-day average / Yellow: 15-30% below / Red: >30% below average. Sessions: informational only, no threshold.   |
+| Interactivity                 | Tooltip: sessions, conversion rate, SDLY sessions, 30-day average conversion rate                                                                     |
+| Data confirmed                | Partially -- GA4 API integration needs confirmation from data team                                                                                    |
+| Notes                         | Do not show today's GA data as real-time -- GA4 data for the current day has up to 48-hour latency. Always label: "GA data as of [yesterday's date]." |
 
 ---
 
 #### Panel 5: Hourly Revenue Trend (Today vs. SDLY)
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | At what time of day is revenue coming in, and is the intraday pattern normal? |
-| Position | Row 2, Columns 1-8 of 12 |
-| Height units | 2.5 |
-| Chart type | Dual-series line chart: solid line = today's cumulative revenue by hour; dashed line = SDLY cumulative revenue by hour; horizontal dashed reference line = daily target |
-| Primary metric | Cumulative revenue by hour of day (0-23) for today |
-| Secondary metric / comparison | Cumulative revenue by hour for same day last year (SDLY) |
-| Data source | Shopify Orders table: sum(order_total) grouped by hour(created_at) |
-| Aggregation | Cumulative sum; grain = hour |
-| Update frequency | Hourly |
-| Status thresholds | Visual only -- the gap between today's line and SDLY line is the indicator. No formal threshold on this chart. |
-| Interactivity | Tooltip per hour point: cumulative revenue (today), cumulative revenue (SDLY), difference ($), difference (%). Cross-filter: clicking a specific hour filters Panel 8 (Customer Service Load) to that hour window. |
-| Data confirmed | Yes |
-| Notes | The SDLY line must account for day-of-week alignment -- compare "this Tuesday" to "the same Tuesday last year," not simply "same calendar date." |
+| Element                       | Value                                                                                                                                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Primary question answered     | At what time of day is revenue coming in, and is the intraday pattern normal?                                                                                                                                      |
+| Position                      | Row 2, Columns 1-8 of 12                                                                                                                                                                                           |
+| Height units                  | 2.5                                                                                                                                                                                                                |
+| Chart type                    | Dual-series line chart: solid line = today's cumulative revenue by hour; dashed line = SDLY cumulative revenue by hour; horizontal dashed reference line = daily target                                            |
+| Primary metric                | Cumulative revenue by hour of day (0-23) for today                                                                                                                                                                 |
+| Secondary metric / comparison | Cumulative revenue by hour for same day last year (SDLY)                                                                                                                                                           |
+| Data source                   | Shopify Orders table: sum(order_total) grouped by hour(created_at)                                                                                                                                                 |
+| Aggregation                   | Cumulative sum; grain = hour                                                                                                                                                                                       |
+| Update frequency              | Hourly                                                                                                                                                                                                             |
+| Status thresholds             | Visual only -- the gap between today's line and SDLY line is the indicator. No formal threshold on this chart.                                                                                                     |
+| Interactivity                 | Tooltip per hour point: cumulative revenue (today), cumulative revenue (SDLY), difference ($), difference (%). Cross-filter: clicking a specific hour filters Panel 8 (Customer Service Load) to that hour window. |
+| Data confirmed                | Yes                                                                                                                                                                                                                |
+| Notes                         | The SDLY line must account for day-of-week alignment -- compare "this Tuesday" to "the same Tuesday last year," not simply "same calendar date."                                                                   |
 
 ---
 
 #### Panel 6: On-Time Ship Rate
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Are orders shipping within the promised timeframe today? |
-| Position | Row 2, Columns 9-12 of 12 |
-| Height units | 1.5 |
-| Chart type | KPI scorecard with 14-day sparkline |
-| Primary metric | On-time ship rate: orders shipped within SLA / total orders shipped today x 100. SLA = 2 business days for standard, same-day for expedited. |
-| Secondary metric / comparison | 14-day rolling average on-time ship rate |
-| Data source | Fulfillment DB: orders table JOIN shipment_events table; SLA lookup by shipping_method |
-| Aggregation | Ratio; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | Green: >= 95% on-time / Yellow: 90-94% / Red: < 90% |
-| Interactivity | Drill-down: clicking scorecard navigates to "Fulfillment Detail" tab filtered to today's late shipments |
-| Data confirmed | Yes -- fulfillment DB confirmed; SLA lookup table needs to be created [DATA PARTIALLY CONFIRMED] |
-| Notes | Confirm SLA thresholds with fulfillment manager. Expedited orders have a same-day SLA; distinguish them in the rate calculation. |
+| Element                       | Value                                                                                                                                        |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Are orders shipping within the promised timeframe today?                                                                                     |
+| Position                      | Row 2, Columns 9-12 of 12                                                                                                                    |
+| Height units                  | 1.5                                                                                                                                          |
+| Chart type                    | KPI scorecard with 14-day sparkline                                                                                                          |
+| Primary metric                | On-time ship rate: orders shipped within SLA / total orders shipped today x 100. SLA = 2 business days for standard, same-day for expedited. |
+| Secondary metric / comparison | 14-day rolling average on-time ship rate                                                                                                     |
+| Data source                   | Fulfillment DB: orders table JOIN shipment_events table; SLA lookup by shipping_method                                                       |
+| Aggregation                   | Ratio; grain = day                                                                                                                           |
+| Update frequency              | Hourly                                                                                                                                       |
+| Status thresholds             | Green: >= 95% on-time / Yellow: 90-94% / Red: < 90%                                                                                          |
+| Interactivity                 | Drill-down: clicking scorecard navigates to "Fulfillment Detail" tab filtered to today's late shipments                                      |
+| Data confirmed                | Yes -- fulfillment DB confirmed; SLA lookup table needs to be created [DATA PARTIALLY CONFIRMED]                                             |
+| Notes                         | Confirm SLA thresholds with fulfillment manager. Expedited orders have a same-day SLA; distinguish them in the rate calculation.             |
 
 ---
 
 #### Panel 7: Average Ship Time Trend (14-Day)
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is our average time from order to shipment trending up (worsening) or down (improving)? |
-| Position | Row 3, Columns 1-6 of 12 |
-| Height units | 2 |
-| Chart type | Bar chart (one bar per day, last 14 days) with reference line at SLA threshold (2 days) |
-| Primary metric | Average hours from order_created_at to first shipment_event (shipped status) per day |
-| Secondary metric / comparison | Reference line: 48-hour SLA for standard shipping |
-| Data source | Fulfillment DB: avg(shipped_at - created_at) in hours, grouped by order date |
-| Aggregation | Average; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | Bar color: Green if bar <= 48 hours / Yellow if 48-60 hours / Red if > 60 hours |
-| Interactivity | Tooltip: average ship time for that day, count of orders in that day's calculation, % of orders above SLA. |
-| Data confirmed | Yes |
-| Notes | Average ship time can be skewed by a few very late orders. If the user later requests it, add a median ship time line as a secondary series to detect skew. |
+| Element                       | Value                                                                                                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Is our average time from order to shipment trending up (worsening) or down (improving)?                                                                     |
+| Position                      | Row 3, Columns 1-6 of 12                                                                                                                                    |
+| Height units                  | 2                                                                                                                                                           |
+| Chart type                    | Bar chart (one bar per day, last 14 days) with reference line at SLA threshold (2 days)                                                                     |
+| Primary metric                | Average hours from order_created_at to first shipment_event (shipped status) per day                                                                        |
+| Secondary metric / comparison | Reference line: 48-hour SLA for standard shipping                                                                                                           |
+| Data source                   | Fulfillment DB: avg(shipped_at - created_at) in hours, grouped by order date                                                                                |
+| Aggregation                   | Average; grain = day                                                                                                                                        |
+| Update frequency              | Hourly                                                                                                                                                      |
+| Status thresholds             | Bar color: Green if bar <= 48 hours / Yellow if 48-60 hours / Red if > 60 hours                                                                             |
+| Interactivity                 | Tooltip: average ship time for that day, count of orders in that day's calculation, % of orders above SLA.                                                  |
+| Data confirmed                | Yes                                                                                                                                                         |
+| Notes                         | Average ship time can be skewed by a few very late orders. If the user later requests it, add a median ship time line as a secondary series to detect skew. |
 
 ---
 
 #### Panel 8: Open Customer Service Tickets
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is the customer service backlog at a manageable level right now? |
-| Position | Row 3, Columns 7-9 of 12 |
-| Height units | 2 |
-| Chart type | KPI scorecard (open ticket count) with a 7-day bar chart below showing new tickets opened per day |
-| Primary metric | Count of open tickets (status = 'open' or 'pending') as of now |
-| Secondary metric / comparison | (1) Open ticket count at same time yesterday; (2) 7-day average open tickets at this time of day |
-| Data source | Customer service platform export (daily file or API) [DATA UNCONFIRMED -- confirm CS platform and integration method] |
-| Aggregation | Count; grain = snapshot (current count) for scorecard; daily new count for bar chart |
-| Update frequency | Hourly -- if CS platform supports it; daily if not |
-| Status thresholds | Green: <= 7-day average / Yellow: 10-25% above 7-day average / Red: > 25% above 7-day average |
-| Interactivity | Tooltip: exact ticket count, change from yesterday, % above/below average |
-| Data confirmed | No -- DATA UNCONFIRMED. Depends on CS platform API access. |
-| Notes | If API is not available in Phase 1, this panel can show daily counts from manual export with "Data as of yesterday" label. |
+| Element                       | Value                                                                                                                      |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Is the customer service backlog at a manageable level right now?                                                           |
+| Position                      | Row 3, Columns 7-9 of 12                                                                                                   |
+| Height units                  | 2                                                                                                                          |
+| Chart type                    | KPI scorecard (open ticket count) with a 7-day bar chart below showing new tickets opened per day                          |
+| Primary metric                | Count of open tickets (status = 'open' or 'pending') as of now                                                             |
+| Secondary metric / comparison | (1) Open ticket count at same time yesterday; (2) 7-day average open tickets at this time of day                           |
+| Data source                   | Customer service platform export (daily file or API) [DATA UNCONFIRMED -- confirm CS platform and integration method]      |
+| Aggregation                   | Count; grain = snapshot (current count) for scorecard; daily new count for bar chart                                       |
+| Update frequency              | Hourly -- if CS platform supports it; daily if not                                                                         |
+| Status thresholds             | Green: <= 7-day average / Yellow: 10-25% above 7-day average / Red: > 25% above 7-day average                              |
+| Interactivity                 | Tooltip: exact ticket count, change from yesterday, % above/below average                                                  |
+| Data confirmed                | No -- DATA UNCONFIRMED. Depends on CS platform API access.                                                                 |
+| Notes                         | If API is not available in Phase 1, this panel can show daily counts from manual export with "Data as of yesterday" label. |
 
 ---
 
 #### Panel 9: First Response Time (FRT) Trend
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Is the customer service team responding to new tickets within the target response time? |
-| Position | Row 3, Columns 10-12 of 12 |
-| Height units | 2 |
-| Chart type | KPI scorecard (today's FRT) with 14-day sparkline |
-| Primary metric | Median first response time in hours for tickets created today |
-| Secondary metric / comparison | FRT target (confirm with CS manager -- typically 4 hours for standard, 1 hour for VIP) |
-| Data source | Customer service platform -- same as Panel 8 [DATA UNCONFIRMED] |
-| Aggregation | Median; grain = day |
-| Update frequency | Hourly |
-| Status thresholds | Green: FRT <= target / Yellow: FRT 1.25x target / Red: FRT > 1.5x target |
-| Interactivity | Tooltip: median FRT, target FRT, % above/below target |
-| Data confirmed | No -- DATA UNCONFIRMED. Same dependency as Panel 8. |
-| Notes | Use median, not mean, for FRT -- a few extremely slow tickets should not distort the operational picture. |
+| Element                       | Value                                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Is the customer service team responding to new tickets within the target response time?                   |
+| Position                      | Row 3, Columns 10-12 of 12                                                                                |
+| Height units                  | 2                                                                                                         |
+| Chart type                    | KPI scorecard (today's FRT) with 14-day sparkline                                                         |
+| Primary metric                | Median first response time in hours for tickets created today                                             |
+| Secondary metric / comparison | FRT target (confirm with CS manager -- typically 4 hours for standard, 1 hour for VIP)                    |
+| Data source                   | Customer service platform -- same as Panel 8 [DATA UNCONFIRMED]                                           |
+| Aggregation                   | Median; grain = day                                                                                       |
+| Update frequency              | Hourly                                                                                                    |
+| Status thresholds             | Green: FRT <= target / Yellow: FRT 1.25x target / Red: FRT > 1.5x target                                  |
+| Interactivity                 | Tooltip: median FRT, target FRT, % above/below target                                                     |
+| Data confirmed                | No -- DATA UNCONFIRMED. Same dependency as Panel 8.                                                       |
+| Notes                         | Use median, not mean, for FRT -- a few extremely slow tickets should not distort the operational picture. |
 
 ---
 
 #### Panel 10: Today's Orders Table (Top 20 Largest Orders)
 
-| Element | Value |
-|---------|-------|
-| Primary question answered | Are any unusually large or anomalous orders requiring manual review today? |
-| Position | Row 4, Columns 1-12 of 12 |
-| Height units | 3 |
-| Chart type | Sortable data table: 20 rows maximum, 6 columns |
-| Primary metric | Order ID, Customer Name, Order Total, Order Time, Shipping Method, Fulfillment Status |
-| Secondary metric / comparison | Sorted by order_total descending by default; sortable by any column |
-| Data source | Shopify Orders table: top 20 by order_total for today |
-| Aggregation | Row-level; sorted |
-| Update frequency | Hourly |
-| Status thresholds | Flag orders > 3x the 30-day average AOV in amber. Flag orders in 'unfulfilled' status older than 6 hours in red. |
-| Interactivity | Each row links to the order in Shopify admin. Clicking order row does not cross-filter other panels. |
-| Data confirmed | Yes |
-| Notes | Limit strictly to 20 rows. This is an anomaly-detection tool, not a full order ledger. Include "View all orders in Shopify" link below the table. |
+| Element                       | Value                                                                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary question answered     | Are any unusually large or anomalous orders requiring manual review today?                                                                        |
+| Position                      | Row 4, Columns 1-12 of 12                                                                                                                         |
+| Height units                  | 3                                                                                                                                                 |
+| Chart type                    | Sortable data table: 20 rows maximum, 6 columns                                                                                                   |
+| Primary metric                | Order ID, Customer Name, Order Total, Order Time, Shipping Method, Fulfillment Status                                                             |
+| Secondary metric / comparison | Sorted by order_total descending by default; sortable by any column                                                                               |
+| Data source                   | Shopify Orders table: top 20 by order_total for today                                                                                             |
+| Aggregation                   | Row-level; sorted                                                                                                                                 |
+| Update frequency              | Hourly                                                                                                                                            |
+| Status thresholds             | Flag orders > 3x the 30-day average AOV in amber. Flag orders in 'unfulfilled' status older than 6 hours in red.                                  |
+| Interactivity                 | Each row links to the order in Shopify admin. Clicking order row does not cross-filter other panels.                                              |
+| Data confirmed                | Yes                                                                                                                                               |
+| Notes                         | Limit strictly to 20 rows. This is an anomaly-detection tool, not a full order ledger. Include "View all orders in Shopify" link below the table. |
 
 ---
 
@@ -607,3 +616,4 @@ Row 3:   [Avg Ship Time Trend 14-day (1-6)]  [Open CS    [FRT Trend
                                                (7-9)]
 
 Row 4:   [Today's Top 20 Orders Table (1
+```

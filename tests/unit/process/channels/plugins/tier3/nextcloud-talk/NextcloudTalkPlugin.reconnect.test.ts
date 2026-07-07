@@ -101,9 +101,7 @@ describe('NextcloudTalkPlugin reconnect max-attempt give-up', () => {
     }
 
     expect(plugin.status).toBe('error');
-    expect(plugin.error).toBe(
-      'Nextcloud Talk disconnected after 5 reconnect attempts',
-    );
+    expect(plugin.error).toBe('Nextcloud Talk disconnected after 5 reconnect attempts');
 
     // After the error transition, no further whoami or poll requests should
     // fire - capture the count, advance further, confirm it's unchanged.
@@ -112,9 +110,7 @@ describe('NextcloudTalkPlugin reconnect max-attempt give-up', () => {
     expect(mockFetch.mock.calls.length).toBe(callsAfterError);
 
     // No whoami call after the initial start-time one.
-    const whoamiCount = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/cloud/user'),
-    ).length;
+    const whoamiCount = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/cloud/user')).length;
     expect(whoamiCount).toBe(1);
 
     vi.useRealTimers();

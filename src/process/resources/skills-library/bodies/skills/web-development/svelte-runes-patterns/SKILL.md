@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript frameworks frontend best-practices"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript frameworks frontend best-practices'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Svelte Runes Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is building a Svelte 5 component and asks how to manage reactive state using `$state`, `$derived`, or `$effect`
 - The user is migrating from Svelte 4 stores (`writable`, `readable`, `derived`) to Svelte 5 runes and needs a conversion strategy
 - The user asks about cross-component state sharing in Svelte 5 without a global store library
@@ -30,6 +32,7 @@ metadata:
 - The user needs to lift state out of a component while preserving reactivity
 
 **Do NOT use this skill when:**
+
 - The user is on Svelte 4 or earlier and has not migrated -- use a Svelte 4 stores skill instead
 - The user needs SvelteKit routing, server-side rendering, or `load` function patterns -- those are SvelteKit-specific concerns
 - The user is asking about Svelte component composition patterns (slots, snippets, props API design) unrelated to reactivity
@@ -110,8 +113,10 @@ export class Counter {
 $effect(() => {
   const controller = new AbortController();
   fetch(url, { signal: controller.signal })
-    .then(r => r.json())
-    .then(data => { result = data; });
+    .then((r) => r.json())
+    .then((data) => {
+      result = data;
+    });
   return () => controller.abort();
 });
 ```
@@ -131,14 +136,14 @@ $effect(() => {
 
 Map each Svelte 4 store type to its Svelte 5 rune equivalent:
 
-| Svelte 4 | Svelte 5 Equivalent | Notes |
-|---|---|---|
-| `writable(value)` | `$state(value)` in `.svelte.js` | Exported from a shared module |
-| `readable(value, start)` | `$state` + `$effect` setup/teardown | Effect handles the subscription |
-| `derived(store, fn)` | `$derived(() => fn(value))` | Pure function of other `$state` |
-| `get(store)` | Direct variable access | No `get()` helper needed |
-| `$store` auto-subscription | Direct variable access | No `$` prefix needed in runes mode |
-| `store.update(fn)` | `value = fn(value)` or method call | Mutate directly |
+| Svelte 4                   | Svelte 5 Equivalent                 | Notes                              |
+| -------------------------- | ----------------------------------- | ---------------------------------- |
+| `writable(value)`          | `$state(value)` in `.svelte.js`     | Exported from a shared module      |
+| `readable(value, start)`   | `$state` + `$effect` setup/teardown | Effect handles the subscription    |
+| `derived(store, fn)`       | `$derived(() => fn(value))`         | Pure function of other `$state`    |
+| `get(store)`               | Direct variable access              | No `get()` helper needed           |
+| `$store` auto-subscription | Direct variable access              | No `$` prefix needed in runes mode |
+| `store.update(fn)`         | `value = fn(value)` or method call  | Mutate directly                    |
 
 - Svelte 4 stores still work in Svelte 5 components. Migrate incrementally -- start with new state, then port store-dependent logic.
 - In runes mode (files with `<svelte:options runes={true} />` or the project-level `runes: true` Svelte config), the `$` auto-subscription syntax is unavailable.
@@ -165,7 +170,7 @@ Map each Svelte 4 store type to its Svelte 5 rune equivalent:
 
 When helping a user with a Svelte 5 runes question, structure your response as follows:
 
-```
+````
 ## Problem Classification
 [One sentence identifying which reactivity category this falls into]
 
@@ -185,26 +190,31 @@ When helping a user with a Svelte 5 runes question, structure your response as f
 </script>
 
 <!-- Template -->
-```
+````
 
 ### Shared State Module (if applicable)
+
 ```javascript
 // filename.svelte.js
 // Exported class or factory function
 ```
 
 ## Key Decisions
-| Decision | Choice | Rationale |
-|---|---|---|
-| [decision point] | [choice made] | [why] |
+
+| Decision         | Choice        | Rationale |
+| ---------------- | ------------- | --------- |
+| [decision point] | [choice made] | [why]     |
 
 ## Common Mistakes to Avoid
+
 - [Specific anti-pattern relevant to this use case]
 - [Another anti-pattern]
 
 ## Migration Note (if applicable)
+
 [How this differs from Svelte 4 and what to update]
-```
+
+````
 
 ---
 
@@ -281,7 +291,7 @@ class Timer {
     return `${this.elapsed}s`; // Plain getter, reactive because it reads $state
   }
 }
-```
+````
 
 Plain getters on class instances that read `$state` properties ARE reactive in templates and `$derived` computations because Svelte tracks property access on reactive objects. No `$derived` wrapper is needed inside a class getter that reads `this.someState`.
 
@@ -371,7 +381,7 @@ export class Cart {
   get formattedSubtotal() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(this.subtotal);
   }
 
@@ -379,7 +389,7 @@ export class Cart {
    * @param {{ id: string, name: string, price: number }} product
    */
   addItem(product) {
-    const existing = this.items.find(i => i.id === product.id);
+    const existing = this.items.find((i) => i.id === product.id);
     if (existing) {
       existing.quantity += 1;
     } else {
@@ -396,13 +406,13 @@ export class Cart {
       this.removeItem(id);
       return;
     }
-    const item = this.items.find(i => i.id === id);
+    const item = this.items.find((i) => i.id === id);
     if (item) item.quantity = quantity;
   }
 
   /** @param {string} id */
   removeItem(id) {
-    this.items = this.items.filter(i => i.id !== id);
+    this.items = this.items.filter((i) => i.id !== id);
   }
 
   clear() {
@@ -531,14 +541,14 @@ export function useCart() {
 
 ## Key Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Singleton vs. context | Context (`setContext`) | Prevents state leakage between SSR requests -- each render gets a fresh `Cart` instance |
-| `$state` vs. `$state.raw` | `$state` | Individual item quantity mutations are tracked; `$state.raw` would miss `.quantity =` writes |
-| Derived totals | Plain class getters | Getters reading `$state` properties are reactive in templates without `$derived` wrapper; avoids redundancy |
-| `removeItem` via `filter` | Replace array reference | `this.items = this.items.filter(...)` triggers reactivity; `splice` mutates in place and DOES work with `$state`, but `filter` is clearer |
-| Quantity update clamping | Delegate to `updateQuantity` | Centralizes the zero-quantity-means-remove rule; components do not implement business logic |
-| Formatted currency | `Intl.NumberFormat` in derived | SSR-compatible, locale-aware, no external dependency |
+| Decision                  | Choice                         | Rationale                                                                                                                                 |
+| ------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Singleton vs. context     | Context (`setContext`)         | Prevents state leakage between SSR requests -- each render gets a fresh `Cart` instance                                                   |
+| `$state` vs. `$state.raw` | `$state`                       | Individual item quantity mutations are tracked; `$state.raw` would miss `.quantity =` writes                                              |
+| Derived totals            | Plain class getters            | Getters reading `$state` properties are reactive in templates without `$derived` wrapper; avoids redundancy                               |
+| `removeItem` via `filter` | Replace array reference        | `this.items = this.items.filter(...)` triggers reactivity; `splice` mutates in place and DOES work with `$state`, but `filter` is clearer |
+| Quantity update clamping  | Delegate to `updateQuantity`   | Centralizes the zero-quantity-means-remove rule; components do not implement business logic                                               |
+| Formatted currency        | `Intl.NumberFormat` in derived | SSR-compatible, locale-aware, no external dependency                                                                                      |
 
 ## Common Mistakes to Avoid
 

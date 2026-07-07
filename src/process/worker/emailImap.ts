@@ -32,12 +32,9 @@ const connection = new EmailImapConnection((message) => pipe.call('email.message
 pipe.on('email.connect', (data: { creds: ResolvedCredentials }, deferred) => {
   deferred?.with(connection.connect(data.creds));
 });
-pipe.on(
-  'email.send',
-  (data: { chatId: string; message: IUnifiedOutgoingMessage; fromUser: string }, deferred) => {
-    deferred?.with(connection.send(data.chatId, data.message, data.fromUser));
-  }
-);
+pipe.on('email.send', (data: { chatId: string; message: IUnifiedOutgoingMessage; fromUser: string }, deferred) => {
+  deferred?.with(connection.send(data.chatId, data.message, data.fromUser));
+});
 pipe.on('email.test', (data: { creds: ResolvedCredentials }, deferred) => {
   deferred?.with(testEmailConnection(data.creds));
 });

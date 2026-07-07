@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to design a Go interface and is unsure how large or small it should be, whether to use embedding, or how to decide what belongs on an interface
 - The user wants to implement the functional options pattern (also called "option functions" or "variadic options") for configuring a struct or constructor
 - The user asks how to write idiomatic Go: proper receiver naming, zero-value usability, named return values, blank identifiers, or init functions
@@ -30,6 +32,7 @@ metadata:
 - The user is converting code from another language (Python, Java, C#) into idiomatic Go and wants to shed OOP patterns like inheritance hierarchies or checked exceptions
 
 **Do NOT use this skill when:**
+
 - The user asks about Go project layout, module initialization, `go.mod` management, or build toolchain setup -- use `go-project-setup` instead
 - The user asks about goroutines, channels, `select`, `sync.WaitGroup`, `sync.Mutex`, or concurrent data structures -- use `go-concurrency-patterns` instead
 - The user asks about wrapping errors with `%w`, `errors.Is`, `errors.As`, sentinel errors, or custom error types -- use `go-error-handling` instead
@@ -63,6 +66,7 @@ Every Go struct should be usable in its zero state wherever possible. This is a 
 - Avoid init functions that perform I/O, register globals, or have side effects; prefer explicit construction
 
 Example zero-value ready pattern:
+
 ```go
 type RateLimiter struct {
     mu    sync.Mutex
@@ -91,12 +95,14 @@ Go interfaces should be defined at the point of consumption, not at the point of
 - A 3-method interface is the practical maximum before you should question whether it is a coherent abstraction
 - Never pre-emptively create interfaces "for extensibility" -- let the consumer define them when a real second implementation exists
 - Embed standard library interfaces to compose capability:
+
 ```go
 type ReadSeekCloser interface {
     io.ReadSeeker
     io.Closer
 }
 ```
+
 - Accept interfaces, return concrete types -- the canonical Go API shape; callers can always wrap a concrete type in an interface themselves
 
 Decision rule: If there is only one implementation and no test double needed, **do not create an interface**. Add it when the second real use case arrives.
@@ -106,6 +112,7 @@ Decision rule: If there is only one implementation and no test double needed, **
 When a constructor has more than 2--3 optional parameters, or when you anticipate adding parameters over the life of a package, use the functional options pattern. This is the modern Go idiom, preferred over config structs for library code.
 
 The canonical structure:
+
 ```go
 // server.go
 type Server struct {
@@ -148,6 +155,7 @@ func NewServer(opts ...Option) *Server {
 ```
 
 Key rules for functional options:
+
 - Always set production-ready defaults inside `New*`, before applying options
 - Return `Option` (the function type), not apply the function directly -- this allows options to be stored, composed, and conditionally applied
 - Validate after applying options, not inside each option function -- keep option functions simple
@@ -155,6 +163,7 @@ Key rules for functional options:
 - Config struct pattern is acceptable when all fields are required or when the struct is also serialized (e.g., from a YAML config file) -- functional options are not JSON-serializable
 
 When to prefer a config struct over functional options:
+
 - The struct is loaded from a file or environment (use `envconfig` or `viper`)
 - All fields are required and there are no sensible defaults
 - The team is unfamiliar with first-class functions
@@ -196,6 +205,7 @@ func TestDivide(t *testing.T) {
 ```
 
 Key conventions:
+
 - Use `tt` as the loop variable name -- this is community-wide convention
 - Add `tt := tt` inside the loop when using `t.Parallel()` in sub-tests (not needed in Go 1.22+, where the loop variable is scoped per iteration)
 - Name test cases with human-readable lowercase descriptions, not `"test1"`, `"case2"`
@@ -210,12 +220,14 @@ Go's standard library is extraordinarily complete. Reaching for third-party pack
 Key standard library patterns and their correct usage:
 
 **`strings` and `bytes`:**
+
 - Use `strings.Builder` for building strings in a loop -- it avoids allocation on each concatenation unlike `+` in a loop
 - Use `bytes.Buffer` when you need a `io.Writer` and `io.Reader` on the same buffer -- but `strings.Builder` only implements `io.Writer`
 - `strings.Split` returns `[]string{""}` (a slice with one empty string) for an empty input -- check `len(parts) == 1 && parts[0] == ""` before iterating
 - Prefer `strings.ContainsRune` over `strings.Contains` when checking for a single character
 
 **`io` package composition:**
+
 - `io.Copy(dst, src)` is the idiomatic way to move data between `io.Reader` and `io.Writer` -- it uses an internal 32KB buffer
 - `io.LimitReader(r, n)` wraps any reader to read at most `n` bytes -- essential for untrusted input
 - `io.MultiWriter(w1, w2)` fans out a write to multiple writers simultaneously
@@ -223,17 +235,20 @@ Key standard library patterns and their correct usage:
 - `io.Pipe()` creates a synchronous in-memory pipe connecting an `io.Writer` to an `io.Reader`
 
 **`bufio`:**
+
 - Always wrap a `net.Conn` or file in `bufio.NewReader`/`bufio.NewWriter` before performing many small reads/writes -- raw syscall overhead is significant
 - Default buffer size is 4096 bytes; use `bufio.NewReaderSize(r, 65536)` for large streaming reads
 - `bufio.Scanner` is the correct idiom for reading line-by-line; the default split function is `ScanLines`
 
 **`encoding/json`:**
+
 - Use `json:"fieldname,omitempty"` for optional fields -- `omitempty` omits zero values (0, false, nil, "", empty slice)
 - Implement `json.Marshaler` and `json.Unmarshaler` interfaces for types that need custom serialization
 - `json.Decoder` is preferred over `json.Unmarshal` when reading from a stream (`http.Request.Body`) -- it does not read the entire body into memory first
 - Never use `interface{}` (or `any`) as a decode target when you know the schema -- use a typed struct
 
 **`time`:**
+
 - Always store and compare `time.Time` values in UTC: `t.UTC()`
 - Use `time.Since(start)` instead of `time.Now().Sub(start)` for elapsed time
 - Never use `time.Sleep` in production code that needs to be testable -- inject a clock or use a ticker
@@ -255,6 +270,7 @@ Go naming is load-bearing -- the compiler and tooling rely on capitalization for
 Embedding is Go's primary mechanism for code reuse. It is not inheritance -- promoted methods do not create an "is-a" relationship. Use it to express a "has-a plus delegation" relationship.
 
 Decision criteria for embedding:
+
 - **Embed** when the outer type genuinely wants to expose all the methods of the inner type as its own API
 - **Compose with named field** when you want the inner type's functionality but do not want to expose all its methods
 - **Embed interfaces** in interfaces to compose capabilities (this is idiomatic and encouraged)
@@ -285,6 +301,7 @@ func (p PartialFS) Open(name string) (fs.File, error) {
 ```
 
 Embedding traps to avoid:
+
 - The outer type does not satisfy an interface "through" embedding if it shadows any embedded method with its own method of the same name -- the shadowing method wins
 - Two embedded types with identically named methods cause a compile error at the call site, not at the embedding declaration
 - Embedding `*sync.Mutex` (pointer) instead of `sync.Mutex` (value) means the mutex can be nil at zero value -- prefer value embedding
@@ -709,22 +726,22 @@ func TestClient_Get(t *testing.T) {
 
 ### Common Mistakes
 
-| Mistake | Problem | Fix |
-|---------|---------|-----|
-| Defining `Client` interface in this package | Creates circular import risk; callers cannot extend without modifying this package | Let consumers define the interface they need |
-| Panic inside an Option function for invalid values | Panics in options are unrecoverable at the call site | Return `(*Client, error)` from `New`; validate there |
-| Not draining `resp.Body` before `Close()` on retry | The underlying TCP connection is not reused; connection pool is exhausted under load | `io.Copy(io.Discard, resp.Body)` before `resp.Body.Close()` |
-| Using `http.NewRequest` without a context | No timeout or cancellation propagation | Always use `http.NewRequestWithContext(ctx, ...)` |
-| Embedding `*http.Client` in `Client` | Exposes all `*http.Client` methods on `Client`; callers can bypass retry and auth logic | Use an unexported `httpClient *http.Client` field |
+| Mistake                                            | Problem                                                                                 | Fix                                                         |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Defining `Client` interface in this package        | Creates circular import risk; callers cannot extend without modifying this package      | Let consumers define the interface they need                |
+| Panic inside an Option function for invalid values | Panics in options are unrecoverable at the call site                                    | Return `(*Client, error)` from `New`; validate there        |
+| Not draining `resp.Body` before `Close()` on retry | The underlying TCP connection is not reused; connection pool is exhausted under load    | `io.Copy(io.Discard, resp.Body)` before `resp.Body.Close()` |
+| Using `http.NewRequest` without a context          | No timeout or cancellation propagation                                                  | Always use `http.NewRequestWithContext(ctx, ...)`           |
+| Embedding `*http.Client` in `Client`               | Exposes all `*http.Client` methods on `Client`; callers can bypass retry and auth logic | Use an unexported `httpClient *http.Client` field           |
 
 ### Trade-offs
 
-| Factor | Functional Options | Config Struct |
-|--------|--------------------|---------------|
-| API stability | Excellent -- add new `With*` funcs without breaking callers | Good -- add new fields with zero values |
-| JSON/YAML loadable | No -- functions are not serializable | Yes -- struct tags work directly |
-| Discoverability | Requires reading docs or godoc | IDE autocomplete shows all fields |
-| Validation location | Centralized in `New()` | Must be in `New()` or `Validate()` -- same result |
-| Composability | Options can be stored in `[]Option` slices and reused | Config structs can be embedded or merged |
+| Factor              | Functional Options                                          | Config Struct                                     |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| API stability       | Excellent -- add new `With*` funcs without breaking callers | Good -- add new fields with zero values           |
+| JSON/YAML loadable  | No -- functions are not serializable                        | Yes -- struct tags work directly                  |
+| Discoverability     | Requires reading docs or godoc                              | IDE autocomplete shows all fields                 |
+| Validation location | Centralized in `New()`                                      | Must be in `New()` or `Validate()` -- same result |
+| Composability       | Options can be stored in `[]Option` slices and reused       | Config structs can be embedded or merged          |
 
 For a library SDK distributed to external teams, functional options are preferred because the API surface is stable across minor versions. For an internal service configuration loaded from environment variables, a config struct with `envconfig` tags is more practical.

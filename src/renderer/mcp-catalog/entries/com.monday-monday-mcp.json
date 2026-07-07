@@ -18,17 +18,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "productivity",
-      "tasks",
-      "collaboration"
-    ],
-    "tags": [
-      "monday",
-      "boards",
-      "project-management",
-      "workflows"
-    ],
+    "categories": ["productivity", "tasks", "collaboration"],
+    "tags": ["monday", "boards", "project-management", "workflows"],
     "maintainerType": "official",
     "license": "MIT",
     "verifiedAt": "2026-05-27",
@@ -85,11 +76,7 @@
       "estimatedMinutes": 1,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

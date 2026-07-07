@@ -243,3 +243,4 @@ installer/payload/
 # at build time from src/process/resources/**; shipped via electron-builder
 # extraResources so no loose SKILL.md reaches the package.
 .skill-pack/
+src/process/channels/signal-cli-runtime/bin/

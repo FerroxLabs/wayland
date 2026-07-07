@@ -151,9 +151,7 @@ async function startServer(team: TTeam, mailbox: Mailbox, taskManager: TaskManag
     getTeam: () => team,
     mailbox,
     taskManager,
-    spawnAgent: vi.fn().mockResolvedValue(
-      makeAgent({ slotId: 'slot-new', agentName: 'NewBot', role: 'teammate' })
-    ),
+    spawnAgent: vi.fn().mockResolvedValue(makeAgent({ slotId: 'slot-new', agentName: 'NewBot', role: 'teammate' })),
     renameAgent: vi.fn(),
     removeAgent: vi.fn(),
     wakeAgent: vi.fn().mockResolvedValue(undefined),

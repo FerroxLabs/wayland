@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart design budgeting checklist template testing analysis presentation"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart design budgeting checklist template testing analysis presentation'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Slide Deck Rescuer
 
 You are a presentation design and storytelling specialist. Help the user fix their slide deck quickly. Diagnose the biggest problems, provide specific fixes, and improve the narrative flow. Focus on impact over aesthetics.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about slide deck rescuer techniques or best practices
 - User needs guidance on slide deck rescuer concepts
 - User wants to implement or improve their approach to slide deck rescuer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of slide deck rescuer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -55,16 +56,16 @@ DECK AUDIT CHECKLIST
 
 ### Common Problems and Fixes
 
-| Problem | Quick Fix |
-|---------|-----------|
-| Too many slides | Merge related slides, cut "nice to know" slides |
+| Problem                 | Quick Fix                                            |
+| ----------------------- | ---------------------------------------------------- |
+| Too many slides         | Merge related slides, cut "nice to know" slides      |
 | Too much text per slide | Extract to speaker notes, keep 3-5 bullet points max |
-| No clear message | Write the "one thing" for each slide in the title |
-| Boring title slide | Add a provocative question or bold statement |
-| Data dumps | Highlight the ONE insight from each chart |
-| Inconsistent design | Pick one template, apply to all slides |
-| No narrative flow | Restructure using story arc framework |
-| Weak ending | End with a clear call to action, not "Questions?" |
+| No clear message        | Write the "one thing" for each slide in the title    |
+| Boring title slide      | Add a provocative question or bold statement         |
+| Data dumps              | Highlight the ONE insight from each chart            |
+| Inconsistent design     | Pick one template, apply to all slides               |
+| No narrative flow       | Restructure using story arc framework                |
+| Weak ending             | End with a clear call to action, not "Questions?"    |
 
 ## Story Structure
 
@@ -90,6 +91,7 @@ Slide 13: What do you want the audience to DO?
 ### Presentation Structures by Purpose
 
 **Persuasion / Proposal:**
+
 1. Hook (attention-grabbing stat or question)
 2. Problem (why this matters)
 3. Solution (your recommendation)
@@ -97,6 +99,7 @@ Slide 13: What do you want the audience to DO?
 5. Ask (what you need from them)
 
 **Status Update / Review:**
+
 1. Context (reminder of project/goals)
 2. Progress (what's been accomplished)
 3. Current status (where things stand)
@@ -104,6 +107,7 @@ Slide 13: What do you want the audience to DO?
 5. Next steps (what's coming)
 
 **Teaching / Training:**
+
 1. Why this matters (motivation)
 2. Core concept 1 (explain + example)
 3. Core concept 2 (explain + example)
@@ -111,6 +115,7 @@ Slide 13: What do you want the audience to DO?
 5. Summary + practice (apply it)
 
 **Sales / Pitch:**
+
 1. Their problem (show you understand)
 2. Cost of inaction (make it urgent)
 3. Your solution (clear value prop)
@@ -125,25 +130,25 @@ Can someone understand your slide in 3 seconds? If not, simplify.
 
 ### Text Fixes
 
-| Before | After |
-|--------|-------|
-| Full sentences | Key phrases only |
-| 8+ bullet points | 3-5 maximum |
-| 12pt font | 24pt minimum (28-32pt body preferred) |
-| Paragraphs on slides | Move to speaker notes |
-| ALL CAPS body text | Sentence case for readability |
+| Before               | After                                 |
+| -------------------- | ------------------------------------- |
+| Full sentences       | Key phrases only                      |
+| 8+ bullet points     | 3-5 maximum                           |
+| 12pt font            | 24pt minimum (28-32pt body preferred) |
+| Paragraphs on slides | Move to speaker notes                 |
+| ALL CAPS body text   | Sentence case for readability         |
 
 ### Slide Title Fixes
 
 Bad titles tell you the topic. Good titles tell you the point.
 
-| Weak Title | Strong Title |
-|-----------|-------------|
-| "Q3 Revenue" | "Q3 Revenue Exceeded Target by 15%" |
-| "Market Analysis" | "Our Market Is Shifting to Mobile-First" |
-| "Team Update" | "Team Is At Full Capacity for Launch" |
-| "Customer Feedback" | "Customers Want Faster Onboarding" |
-| "Budget" | "We Need $50K to Hit Q4 Goals" |
+| Weak Title          | Strong Title                             |
+| ------------------- | ---------------------------------------- |
+| "Q3 Revenue"        | "Q3 Revenue Exceeded Target by 15%"      |
+| "Market Analysis"   | "Our Market Is Shifting to Mobile-First" |
+| "Team Update"       | "Team Is At Full Capacity for Launch"    |
+| "Customer Feedback" | "Customers Want Faster Onboarding"       |
+| "Budget"            | "We Need $50K to Hit Q4 Goals"           |
 
 ### Chart and Data Fixes
 
@@ -185,22 +190,22 @@ For each slide, ask: "If I removed this slide, would the audience miss something
 
 ### Merging Slides
 
-| Can Merge | Example |
-|-----------|---------|
-| Two slides with related bullet points | Combine into one slide with 5-6 points max |
-| Three data slides | Create one dashboard-style summary |
-| Agenda + intro | Combine into one opening slide |
-| Multiple "thank you" / "questions" slides | One closing slide |
+| Can Merge                                 | Example                                    |
+| ----------------------------------------- | ------------------------------------------ |
+| Two slides with related bullet points     | Combine into one slide with 5-6 points max |
+| Three data slides                         | Create one dashboard-style summary         |
+| Agenda + intro                            | Combine into one opening slide             |
+| Multiple "thank you" / "questions" slides | One closing slide                          |
 
 ### Target Slide Counts
 
-| Presentation Length | Target Slides | Rule |
-|--------------------|--------------|----|
-| 5 minutes | 5-7 slides | ~1 per minute |
-| 10 minutes | 8-12 slides | Less than 1/min due to transitions |
-| 20 minutes | 12-18 slides | Quality over quantity |
-| 30 minutes | 15-25 slides | Include discussion pauses |
-| 60 minutes | 25-40 slides | Build in interaction |
+| Presentation Length | Target Slides | Rule                               |
+| ------------------- | ------------- | ---------------------------------- |
+| 5 minutes           | 5-7 slides    | ~1 per minute                      |
+| 10 minutes          | 8-12 slides   | Less than 1/min due to transitions |
+| 20 minutes          | 12-18 slides  | Quality over quantity              |
+| 30 minutes          | 15-25 slides  | Include discussion pauses          |
+| 60 minutes          | 25-40 slides  | Build in interaction               |
 
 ## Speaker Notes Template
 
@@ -230,23 +235,23 @@ ANTICIPATED QUESTION: [Common question and your answer]
 
 ### Strong Openings (Replace Boring Title Slides)
 
-| Type | Example |
-|------|---------|
-| Bold statistic | "78% of our users abandon checkout. Here's how we fix that." |
-| Provocative question | "What if we could double retention without spending a dollar more?" |
-| Customer quote | "'I switched because your competitor was easier.' - Former customer" |
-| Contrast | "Last year we were #4 in the market. Today I'll show you how we become #1." |
-| Story | "Last Tuesday, one of our engineers got a call at 3 AM..." |
+| Type                 | Example                                                                     |
+| -------------------- | --------------------------------------------------------------------------- |
+| Bold statistic       | "78% of our users abandon checkout. Here's how we fix that."                |
+| Provocative question | "What if we could double retention without spending a dollar more?"         |
+| Customer quote       | "'I switched because your competitor was easier.' - Former customer"        |
+| Contrast             | "Last year we were #4 in the market. Today I'll show you how we become #1." |
+| Story                | "Last Tuesday, one of our engineers got a call at 3 AM..."                  |
 
 ### Strong Closings (Replace "Questions?" Slides)
 
-| Type | Example |
-|------|---------|
-| Call to action | "I need three things from you today: [1, 2, 3]" |
-| Return to opening | Circle back to the opening stat/question with the answer |
-| Key takeaways | "If you remember nothing else: [3 bullet points]" |
-| Next steps with dates | "Here's what happens next and when" |
-| Memorable quote | End with a relevant, impactful quote |
+| Type                  | Example                                                  |
+| --------------------- | -------------------------------------------------------- |
+| Call to action        | "I need three things from you today: [1, 2, 3]"          |
+| Return to opening     | Circle back to the opening stat/question with the answer |
+| Key takeaways         | "If you remember nothing else: [3 bullet points]"        |
+| Next steps with dates | "Here's what happens next and when"                      |
+| Memorable quote       | End with a relevant, impactful quote                     |
 
 ## 1-Hour Rescue Plan
 
@@ -259,7 +264,6 @@ MINUTE 40-50: Fix worst text slides (move text to speaker notes).
 MINUTE 50-60: Fix opening and closing slides. Quick design pass.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -267,7 +271,6 @@ MINUTE 50-60: Fix opening and closing slides. Quick design pass.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -288,14 +291,12 @@ MINUTE 50-60: Fix opening and closing slides. Quick design pass.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

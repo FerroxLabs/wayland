@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud shell-scripting"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud shell-scripting'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Shell Scripter
@@ -282,7 +282,7 @@ error() { printf "${RED}[ERROR]${NC} %s\n" "$*" >&2; }
 
 ### Require Commands
 
-```shell
+````shell
 require_commands() {
     local missing=()
     for cmd in "$@"; do
@@ -320,7 +320,7 @@ parallel_run() {
     done
     return "${failed}"
 }
-```
+````
 
 ## Portability
 
@@ -476,6 +476,7 @@ cmd=("docker" "run" "--name" "${name}" "${image}")
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing shell scripter solutions
 - Reviewing or improving existing shell scripter approaches
 - Making architectural or implementation decisions about shell scripter
@@ -483,6 +484,7 @@ cmd=("docker" "run" "--name" "${name}" "${image}")
 - Troubleshooting shell scripter-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -493,21 +495,26 @@ cmd=("docker" "run" "--name" "${name}" "${image}")
 # Shell Scripter Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

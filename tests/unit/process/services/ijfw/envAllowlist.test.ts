@@ -70,7 +70,7 @@ describe('ijfw/envAllowlist', () => {
 
   it('throws on extra keys with invalid characters', () => {
     expect(() => buildChildEnv({ 'my-var': 'value' })).toThrow(/invalid env key/);
-    expect(() => buildChildEnv({ 'lowercase': 'value' })).toThrow(/invalid env key/);
+    expect(() => buildChildEnv({ lowercase: 'value' })).toThrow(/invalid env key/);
     expect(() => buildChildEnv({ '1LEAD_DIGIT': 'value' })).toThrow(/invalid env key/);
   });
 

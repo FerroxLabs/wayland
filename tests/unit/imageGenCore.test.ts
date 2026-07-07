@@ -288,17 +288,26 @@ function makeProvider(overrides: Partial<TProviderWithModel>): TProviderWithMode
 }
 
 describe('isOpenAINativeImageModel', () => {
-  it.each(['gpt-image-1', 'gpt-image-2', 'gpt-image-1-mini', 'gpt-image-1.5', 'chatgpt-image-latest', 'dall-e-3', 'dall-e-2'])(
-    'matches OpenAI native image model %s on the official host',
-    (model) => {
-      expect(isOpenAINativeImageModel(makeProvider({ useModel: model }))).toBe(true);
-    }
-  );
+  it.each([
+    'gpt-image-1',
+    'gpt-image-2',
+    'gpt-image-1-mini',
+    'gpt-image-1.5',
+    'chatgpt-image-latest',
+    'dall-e-3',
+    'dall-e-2',
+  ])('matches OpenAI native image model %s on the official host', (model) => {
+    expect(isOpenAINativeImageModel(makeProvider({ useModel: model }))).toBe(true);
+  });
 
   it('does NOT match a Gemini image model (different auth type)', () => {
     expect(
       isOpenAINativeImageModel(
-        makeProvider({ platform: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com', useModel: 'gemini-2.5-flash-image' })
+        makeProvider({
+          platform: 'gemini',
+          baseUrl: 'https://generativelanguage.googleapis.com',
+          useModel: 'gemini-2.5-flash-image',
+        })
       )
     ).toBe(false);
   });
@@ -313,7 +322,9 @@ describe('isOpenAINativeImageModel', () => {
 
   it('does NOT match openai/gpt-5-image on OpenRouter host', () => {
     expect(
-      isOpenAINativeImageModel(makeProvider({ baseUrl: 'https://openrouter.ai/api/v1', useModel: 'openai/gpt-5-image' }))
+      isOpenAINativeImageModel(
+        makeProvider({ baseUrl: 'https://openrouter.ai/api/v1', useModel: 'openai/gpt-5-image' })
+      )
     ).toBe(false);
   });
 
@@ -388,9 +399,7 @@ describe('executeImageGeneration - OpenAI native image models', () => {
     Object.assign(fakeClient, { createImage });
     vi.spyOn(ClientFactory, 'createRotatingClient').mockResolvedValue(fakeClient);
 
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(imageBytes, { status: 200 })
-    );
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(imageBytes, { status: 200 }));
 
     const result = await executeImageGeneration(
       { prompt: 'a dog' },
@@ -491,18 +500,18 @@ const FLUX_BASE = 'https://api.fluxrouter.ai/v1';
 
 describe('isFluxImagesProvider', () => {
   it('matches by the Flux host even when platform is openai-compatible', () => {
-    expect(isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, useModel: 'gpt-image-high' }))).toBe(
-      true
-    );
+    expect(
+      isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, useModel: 'gpt-image-high' }))
+    ).toBe(true);
     expect(
       isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: FLUX_BASE, useModel: 'nano-banana' }))
     ).toBe(true);
   });
 
   it('matches by the canonical flux-router platform id', () => {
-    expect(isFluxImagesProvider(makeProvider({ platform: 'flux-router', baseUrl: '', useModel: 'gpt-image-high' }))).toBe(
-      true
-    );
+    expect(
+      isFluxImagesProvider(makeProvider({ platform: 'flux-router', baseUrl: '', useModel: 'gpt-image-high' }))
+    ).toBe(true);
   });
 
   it('matches the real bridged Flux row by model id (openai-compatible + empty baseUrl + flux-image)', () => {
@@ -524,7 +533,9 @@ describe('isFluxImagesProvider', () => {
     expect(
       isFluxImagesProvider(makeProvider({ baseUrl: 'https://openrouter.ai/api/v1', useModel: 'openai/gpt-image-1.5' }))
     ).toBe(false);
-    expect(isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: '', useModel: 'gpt-image-1' }))).toBe(false);
+    expect(isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: '', useModel: 'gpt-image-1' }))).toBe(
+      false
+    );
   });
 });
 
@@ -596,9 +607,11 @@ describe('executeFluxImageGen', () => {
     makeProvider({ platform: 'flux-router', baseUrl: FLUX_BASE, apiKey: 'flux-key', useModel });
 
   it('saves a b64_json image and reports success', async () => {
-    const fetchFn = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('apple').toString('base64') }] }), { status: 200 })
-    ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('apple').toString('base64') }] }), { status: 200 })
+      ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },
@@ -618,9 +631,11 @@ describe('executeFluxImageGen', () => {
   });
 
   it('sends the recommended "flux-image" entry model-less so Flux applies the account default', async () => {
-    const fetchFn = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('auto').toString('base64') }] }), { status: 200 })
-    ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('auto').toString('base64') }] }), { status: 200 })
+      ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },
@@ -641,12 +656,17 @@ describe('executeFluxImageGen', () => {
 
   it('appends the SynthID notice for Gemini arms', async () => {
     const notice = 'This image contains an invisible SynthID watermark (Google).';
-    const fetchFn = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ data: [{ b64_json: Buffer.from('banana').toString('base64') }], _flux: { synthid_notice: notice } }),
-        { status: 200 }
-      )
-    ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: [{ b64_json: Buffer.from('banana').toString('base64') }],
+            _flux: { synthid_notice: notice },
+          }),
+          { status: 200 }
+        )
+      ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a banana' },
@@ -663,9 +683,12 @@ describe('executeFluxImageGen', () => {
 
   it('surfaces a 402 premium_locked as a clear no-bill paid-feature message', async () => {
     const fetchFn = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ error: { message: 'image generation requires a paid plan', code: 'premium_locked' } }), {
-        status: 402,
-      })
+      new Response(
+        JSON.stringify({ error: { message: 'image generation requires a paid plan', code: 'premium_locked' } }),
+        {
+          status: 402,
+        }
+      )
     ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
@@ -686,9 +709,12 @@ describe('executeFluxImageGen', () => {
 
   it('surfaces a 403 organization_must_be_verified for unverified gpt-image org', async () => {
     const fetchFn = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ error: { message: 'org must be verified', code: 'organization_must_be_verified' } }), {
-        status: 403,
-      })
+      new Response(
+        JSON.stringify({ error: { message: 'org must be verified', code: 'organization_must_be_verified' } }),
+        {
+          status: 403,
+        }
+      )
     ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
@@ -706,9 +732,13 @@ describe('executeFluxImageGen', () => {
   });
 
   it('surfaces a 402 price_exceeds_max_price', async () => {
-    const fetchFn = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ error: { message: 'too pricey', code: 'price_exceeds_max_price' } }), { status: 402 })
-    ) as unknown as typeof globalThis.fetch;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ error: { message: 'too pricey', code: 'price_exceeds_max_price' } }), {
+          status: 402,
+        })
+      ) as unknown as typeof globalThis.fetch;
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },

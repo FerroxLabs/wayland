@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with ClickUp (OAuth)
     estSeconds: 60
-    primaryAction: { label: "Sign in with ClickUp", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with ClickUp', action: 'oauth-flow' }
     body: |
       Click **Sign in with ClickUp** below. A browser tab opens at
       `app.clickup.com`.

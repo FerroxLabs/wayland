@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile kotlin design-patterns"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile kotlin design-patterns'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Android Compose Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is building a new Android screen or feature using Jetpack Compose and needs guidance on structuring composables, state management, or data flow
 - User asks how to handle side effects, recomposition control, or state hoisting in Compose
 - User wants to implement a specific UI pattern (bottom sheets, lazy lists, navigation, theming) using Compose best practices
@@ -29,6 +31,7 @@ metadata:
 - User asks about testing Compose UI, including semantics trees, `ComposeTestRule`, or screenshot testing
 
 **Do NOT use this skill when:**
+
 - User is building a Flutter or React Native application -- check the cross-platform mobile skills
 - User is asking about Android View system (XML layouts, RecyclerView, ViewBinding) without Compose involvement
 - User needs Kotlin coroutines or Flow fundamentals that are not Compose-specific -- use the Kotlin concurrency skill
@@ -71,6 +74,7 @@ Structure composables in three tiers to maximize reusability and testability:
 - **Atomic/reusable composables** (e.g., `AvatarWithBadge`, `EditableTextField`): Pure UI components with no business logic. Accept primitive types or simple data classes. Live in a shared `designsystem` or `ui-components` module.
 
 Key design rules for the hierarchy:
+
 - Never call `hiltViewModel()` or any DI accessor inside a non-screen composable.
 - Prefer passing lambdas typed as `() -> Unit` or `(T) -> Unit` over passing the full ViewModel reference down the tree.
 - Limit composable function parameters to 7 or fewer. If a composable needs more, introduce a state class or split the composable.
@@ -134,7 +138,7 @@ Compose Navigation requires deliberate structure to remain maintainable at scale
 
 When responding to a user request about Compose patterns, structure output as follows:
 
-```
+````
 ## Compose Pattern: [Pattern Name]
 
 ### Context & Applicability
@@ -156,9 +160,10 @@ sealed class [Screen]UiEffect {
     data class NavigateTo(val route: [RouteType]) : [Screen]UiEffect()
     data class ShowSnackbar(val message: String) : [Screen]UiEffect()
 }
-```
+````
 
 ### ViewModel Structure
+
 ```kotlin
 @HiltViewModel
 class [Screen]ViewModel @Inject constructor(
@@ -177,6 +182,7 @@ class [Screen]ViewModel @Inject constructor(
 ```
 
 ### Screen Composable
+
 ```kotlin
 @Composable
 fun [Screen]Screen(
@@ -203,6 +209,7 @@ fun [Screen]Screen(
 ```
 
 ### Content Composable (Testable)
+
 ```kotlin
 @Composable
 fun [Screen]Content(
@@ -215,21 +222,25 @@ fun [Screen]Content(
 ```
 
 ### Recomposition Risk Assessment
+
 | Composable | State Read Frequency | Optimization Applied |
-|------------|---------------------|----------------------|
-| [Name] | [High/Medium/Low] | [technique] |
+| ---------- | -------------------- | -------------------- |
+| [Name]     | [High/Medium/Low]    | [technique]          |
 
 ### Test Coverage Targets
-| Layer | Test Type | Tool |
-|-------|-----------|------|
-| ViewModel | Unit | JUnit5 + Turbine |
-| Content composable | Compose UI test | ComposeTestRule |
-| Screen composable | Integration | Hilt test + ComposeTestRule |
-| Navigation flow | E2E | UiAutomator / Espresso |
+
+| Layer              | Test Type       | Tool                        |
+| ------------------ | --------------- | --------------------------- |
+| ViewModel          | Unit            | JUnit5 + Turbine            |
+| Content composable | Compose UI test | ComposeTestRule             |
+| Screen composable  | Integration     | Hilt test + ComposeTestRule |
+| Navigation flow    | E2E             | UiAutomator / Espresso      |
 
 ### Known Trade-offs
+
 - [trade-off description and mitigation]
-```
+
+````
 
 ---
 
@@ -327,7 +338,7 @@ sealed class ProductDetailEvent {
     object RetryLoad : ProductDetailEvent()
     object NavigateBack : ProductDetailEvent()
 }
-```
+````
 
 ---
 
@@ -538,13 +549,13 @@ fun ProductDetailContent(
 
 #### Step 5: Recomposition Risk Assessment
 
-| Composable | State Read Frequency | Optimization Applied |
-|---|---|---|
-| `ProductDetailScreen` | Low -- only effect collection | `collectAsStateWithLifecycle` stops collection when backgrounded |
-| `ProductDetailContent` | Medium -- state snapshot | `@Immutable` on UiState enables skipping when reference is equal |
-| `AddToCartBar` | Low -- isLoading toggle | Receives primitive + lambda; lambda uses `::onEvent` method ref, stable across recompositions |
-| `ProductBody` | Very Low -- static after load | Receives `@Immutable` `ProductUiModel`; skipped entirely after first composition |
-| `TopAppBar title` | Low -- product name only | Isolated read; only this composable recomposes when name changes |
+| Composable             | State Read Frequency          | Optimization Applied                                                                          |
+| ---------------------- | ----------------------------- | --------------------------------------------------------------------------------------------- |
+| `ProductDetailScreen`  | Low -- only effect collection | `collectAsStateWithLifecycle` stops collection when backgrounded                              |
+| `ProductDetailContent` | Medium -- state snapshot      | `@Immutable` on UiState enables skipping when reference is equal                              |
+| `AddToCartBar`         | Low -- isLoading toggle       | Receives primitive + lambda; lambda uses `::onEvent` method ref, stable across recompositions |
+| `ProductBody`          | Very Low -- static after load | Receives `@Immutable` `ProductUiModel`; skipped entirely after first composition              |
+| `TopAppBar title`      | Low -- product name only      | Isolated read; only this composable recomposes when name changes                              |
 
 ---
 
@@ -666,6 +677,7 @@ navController.navigate(ProductDetailRoute(productId = item.id))
 ```
 
 **Key decisions made in this pattern and why:**
+
 - `Channel.BUFFERED` on effects: prevents event loss if the composable is briefly off-screen during configuration change.
 - `isAddingToCart` as a separate boolean rather than a loading state variant: the screen can show product content AND a button loading state simultaneously without switching to a full-screen loading mode.
 - Price formatting in ViewModel, not composable: formatting logic is testable in unit tests without a Compose test environment.

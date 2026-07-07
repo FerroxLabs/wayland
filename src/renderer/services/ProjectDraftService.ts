@@ -55,10 +55,17 @@ export async function generateKnowledgeDraftHttp(params: GenerateKnowledgeDraftP
       success?: boolean;
       data?: KnowledgeDraftResult;
       msg?: string;
+      error?: string;
     };
 
     if (!res.ok || !json.success) {
-      return { draft: '', error: 'failed' };
+      // Middleware failures (CSRF, secure-config-write 403, rate limit, auth)
+      // never reach generateKnowledgeDraftLogic, so they carry their own
+      // `msg`/`error` text instead of the `{ data }` envelope below. Surface
+      // it as `detail` so the wizard shows the real cause instead of a
+      // generic failure (#682).
+      const detail = json.msg ?? json.error;
+      return { draft: '', error: 'failed', detail };
     }
 
     return json.data ?? { draft: '', error: 'failed' };

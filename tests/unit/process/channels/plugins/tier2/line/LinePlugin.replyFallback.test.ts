@@ -59,8 +59,11 @@ async function initPlugin(): Promise<LinePlugin> {
 /** Prime the plugin's reply-token cache for `chatId` by feeding it a webhook. */
 async function primeReplyToken(
   plugin: LinePlugin,
-  source: { type: 'user'; userId: string } | { type: 'group'; groupId: string; userId?: string } | { type: 'room'; roomId: string; userId?: string },
-  replyToken: string,
+  source:
+    | { type: 'user'; userId: string }
+    | { type: 'group'; groupId: string; userId?: string }
+    | { type: 'room'; roomId: string; userId?: string },
+  replyToken: string
 ): Promise<void> {
   await plugin.handleWebhookPayload(
     {
@@ -78,7 +81,7 @@ async function primeReplyToken(
       ],
     },
     {},
-    'line_default',
+    'line_default'
   );
 }
 
@@ -171,7 +174,7 @@ describe('LinePlugin.sendMessage reply-then-push fallback', () => {
     mockPushMessage.mockRejectedValueOnce(new Error('Forbidden'));
 
     await expect(plugin.sendMessage('U222', { text: 'quota body' })).rejects.toThrow(
-      /LINE pushMessage failed \(likely quota or permission\): Forbidden/,
+      /LINE pushMessage failed \(likely quota or permission\): Forbidden/
     );
   });
 });

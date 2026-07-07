@@ -54,7 +54,7 @@ const SignalSetup: React.FC = () => {
         'End-to-end encrypted messaging via signal-cli subprocess daemon. ' +
           'Requires a dedicated phone number registered with Signal. ' +
           'signal-cli must be installed or available via the bundled runtime. ' +
-          'If registration fails with "CaptchaRequired", visit https://signalcaptchas.org/registration/generate.html and pass --captcha <token> to signal-cli register.',
+          'If registration fails with "CaptchaRequired", visit https://signalcaptchas.org/registration/generate.html and pass --captcha <token> to signal-cli register.'
       )}
     >
       <SignalConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

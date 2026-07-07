@@ -9,10 +9,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import {
-  buildAssetAllowlist,
-  resolveAllowedAssetPath,
-} from '../../../src/process/extensions/protocol/assetAllowlist';
+import { buildAssetAllowlist, resolveAllowedAssetPath } from '../../../src/process/extensions/protocol/assetAllowlist';
 import { WAYLAND_EXTENSIONS_PATH_ENV } from '../../../src/process/extensions/constants';
 
 describe('extensions/protocol/assetAllowlist', () => {

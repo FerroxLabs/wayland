@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security guide best-practices"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security guide best-practices'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cryptography Engineer
@@ -26,13 +26,13 @@ Cryptography is the foundation of secure systems. This skill covers the practica
 
 ### Decision Matrix
 
-| Property | Symmetric | Asymmetric |
-|----------|-----------|------------|
-| Speed | Fast (100x+) | Slow |
-| Key distribution | Requires shared secret | Public key can be shared |
-| Key size | 128-256 bits | 2048-4096 bits (RSA), 256 bits (ECC) |
-| Use case | Bulk data encryption | Key exchange, digital signatures |
-| Examples | AES-GCM, ChaCha20-Poly1305 | RSA, ECDSA, Ed25519, X25519 |
+| Property         | Symmetric                  | Asymmetric                           |
+| ---------------- | -------------------------- | ------------------------------------ |
+| Speed            | Fast (100x+)               | Slow                                 |
+| Key distribution | Requires shared secret     | Public key can be shared             |
+| Key size         | 128-256 bits               | 2048-4096 bits (RSA), 256 bits (ECC) |
+| Use case         | Bulk data encryption       | Key exchange, digital signatures     |
+| Examples         | AES-GCM, ChaCha20-Poly1305 | RSA, ECDSA, Ed25519, X25519          |
 
 ### Symmetric Encryption (AES-GCM)
 
@@ -106,13 +106,13 @@ public_pem = public_key.public_bytes(
 
 ### Algorithm Selection
 
-| Algorithm | Recommended | Tunable | Notes |
-|-----------|-------------|---------|-------|
-| Argon2id | Best choice | Time, memory, parallelism | Winner of Password Hashing Competition |
-| bcrypt | Good | Cost factor | Widely deployed, 72-byte limit |
-| scrypt | Good | CPU, memory, parallelism | Used in cryptocurrency |
-| PBKDF2 | Acceptable | Iterations | NIST approved, weakest of the four |
-| MD5/SHA1/SHA256 | NEVER | N/A | Not password hashing functions |
+| Algorithm       | Recommended | Tunable                   | Notes                                  |
+| --------------- | ----------- | ------------------------- | -------------------------------------- |
+| Argon2id        | Best choice | Time, memory, parallelism | Winner of Password Hashing Competition |
+| bcrypt          | Good        | Cost factor               | Widely deployed, 72-byte limit         |
+| scrypt          | Good        | CPU, memory, parallelism  | Used in cryptocurrency                 |
+| PBKDF2          | Acceptable  | Iterations                | NIST approved, weakest of the four     |
+| MD5/SHA1/SHA256 | NEVER       | N/A                       | Not password hashing functions         |
 
 ### Argon2id (Recommended)
 
@@ -440,19 +440,20 @@ verify_key.verify(signed)  # Raises BadSignatureError if tampered
 
 ## Algorithm Selection Quick Reference
 
-| Purpose | Recommended | Acceptable | Never Use |
-|---------|-------------|------------|-----------|
-| Symmetric encryption | AES-256-GCM, ChaCha20-Poly1305 | AES-256-CBC + HMAC | AES-ECB, DES, 3DES, RC4 |
-| Password hashing | Argon2id | bcrypt, scrypt | MD5, SHA-1, SHA-256 (raw) |
-| Digital signatures | Ed25519 | ECDSA (P-256), RSA-PSS (4096) | RSA-PKCS1v15, DSA |
-| Key exchange | X25519 | ECDH (P-256) | RSA key transport < 2048 |
-| Hashing (non-password) | SHA-256, SHA-3, BLAKE2 | SHA-512 | MD5, SHA-1 |
-| MAC | HMAC-SHA256 | Poly1305 | HMAC-MD5 |
-| Random generation | os.urandom, secrets | /dev/urandom | random.Random, Math.random |
+| Purpose                | Recommended                    | Acceptable                    | Never Use                  |
+| ---------------------- | ------------------------------ | ----------------------------- | -------------------------- |
+| Symmetric encryption   | AES-256-GCM, ChaCha20-Poly1305 | AES-256-CBC + HMAC            | AES-ECB, DES, 3DES, RC4    |
+| Password hashing       | Argon2id                       | bcrypt, scrypt                | MD5, SHA-1, SHA-256 (raw)  |
+| Digital signatures     | Ed25519                        | ECDSA (P-256), RSA-PSS (4096) | RSA-PKCS1v15, DSA          |
+| Key exchange           | X25519                         | ECDH (P-256)                  | RSA key transport < 2048   |
+| Hashing (non-password) | SHA-256, SHA-3, BLAKE2         | SHA-512                       | MD5, SHA-1                 |
+| MAC                    | HMAC-SHA256                    | Poly1305                      | HMAC-MD5                   |
+| Random generation      | os.urandom, secrets            | /dev/urandom                  | random.Random, Math.random |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing crypto engineer solutions
 - Reviewing or improving existing crypto engineer approaches
 - Making architectural or implementation decisions about crypto engineer
@@ -460,6 +461,7 @@ verify_key.verify(signed)  # Raises BadSignatureError if tampered
 - Troubleshooting crypto engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -470,21 +472,26 @@ verify_key.verify(signed)  # Raises BadSignatureError if tampered
 # Crypto Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

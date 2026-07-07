@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning planning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking meal-planning planning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Pantry Staples System
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Is stocking a pantry from scratch -- first apartment, after a move, after a long period of not cooking at home
 - Asks what ingredients they should always have on hand to cook without planning ahead
 - Wants to build a spice collection systematically without buying 30 spices that expire before being used
@@ -35,6 +37,7 @@ metadata:
 - Asks specifically about oils, vinegars, canned goods, dried legumes, grains, or condiments as a collection rather than a single ingredient
 
 **Do NOT use this skill when:**
+
 - The user needs a weekly or monthly meal plan -- use `meal-prep-workflow` instead
 - The user has a specific recipe and needs a shopping list -- this skill does not work at the recipe level
 - The user asks about food safety, refrigeration temperatures, or how to know if cooked food has gone bad -- use `food-storage-safety`
@@ -62,38 +65,45 @@ Do not output a pantry list without first understanding the user's profile. Ask 
 Every functional pantry -- regardless of cooking style -- requires the same foundation. Present this as the non-negotiable baseline that the cuisine-specific layer builds on top of:
 
 **Fats and Acids (the flavor backbone of almost every dish):**
+
 - A neutral high-heat oil: refined avocado oil (smoke point ~520°F/270°C) or refined sunflower/canola oil (~400-450°F/205-230°C). Used for sautéing, frying, roasting. One 32-48 oz bottle lasts 4-8 weeks at normal cooking frequency.
 - A finishing or low-heat oil: extra virgin olive oil for Mediterranean/Italian, toasted sesame oil for Asian, or a high-quality neutral oil. Used in dressings, finishing, or at the end of cooking -- never heated to smoking point, which destroys flavor compounds.
 - At minimum two vinegars: one bright and clean (white wine or rice vinegar, pH ~2.4-2.6), one rich and rounded (red wine or apple cider vinegar, pH ~3.0-3.5). These serve different flavor functions and are not interchangeable.
 
 **Salt and Its Variants (the most important pantry item):**
+
 - Kosher salt (Diamond Crystal or Morton -- these are NOT interchangeable by volume; Diamond Crystal is 50% less dense than Morton, meaning 1 tsp Diamond Crystal ≈ 0.5 tsp Morton by weight). Use for all cooking.
 - Fine sea salt or table salt for baking, where precise measurement matters.
 - Soy sauce or tamari serves as a liquid salt in many cuisines and adds umami that dry salt cannot.
 
 **Aromatics Base (dry forms for pantry stability):**
+
 - Garlic powder and onion powder: do not replace fresh garlic and onion, but serve a distinct role in dry rubs, spice blends, and quick seasoning. 1 tsp garlic powder ≈ 2-3 cloves fresh for potency but different character.
 - Whole black peppercorns with a grinder (pre-ground pepper loses 90% of volatile oils within days; a $10 grinder is a worthwhile investment).
 - Bay leaves: underrated, used in virtually every braise, soup, bean pot, or stock. Dried bay has a 1-2 year potency window; dried but old bay smells like paper, not herbs.
 
 **Canned and Jarred Foundation:**
+
 - Crushed and diced tomatoes: the single most versatile canned good. San Marzano-style tomatoes are sweeter and less acidic -- worth the price difference for long-cooked sauces. Regular diced or crushed works well for everything else.
 - Tomato paste: sold in 6 oz cans or tubes. The tube is significantly more practical -- opened tubes last 6-8 weeks in the fridge versus 7-10 days for an opened can. Tomato paste is cooked (caramelized) before liquid is added -- this step is not optional, it converts harsh raw tomato flavor into deep savory sweetness in about 2-3 minutes over medium-high heat.
 - Stock or broth (chicken, vegetable, or beef depending on dietary needs): 32 oz cartons. Once opened, store in the fridge and use within 4-5 days, or freeze in 1-cup portions in zip bags.
 - Canned coconut milk (full fat): used in South Asian curries, Thai dishes, West African stews, and even some desserts. One can typically serves 2-4 people. Full fat is not interchangeable with "lite" in most applications -- the fat content is what creates sauce body.
 
 **Dry Grains and Legumes:**
+
 - Long-grain white rice: the most versatile cooking grain. Shelf life of 2-4 years in an airtight container. Brown rice has a shelf life of only 6 months due to oil in the bran layer turning rancid -- do not stock large quantities.
 - Dried pasta in 2-3 shapes: a long shape (spaghetti or linguine), a short ridged shape (rigatoni or penne -- ridges hold chunky sauces), and optionally a small shape (orzo or ditalini for soups). Dried pasta lasts 2+ years.
 - Dried lentils (green, brown, or red): the fastest-cooking dried legume (15-20 minutes), requiring no soaking. Red lentils dissolve into a creamy texture ideal for dal and soups. Green/brown hold their shape for salads and stews. 1 cup dried yields approximately 2.5 cups cooked.
 - Canned beans (2-3 types): canned beans cost 3-4x more per serving than dried but require zero planning. Keep both. Dried beans require 8-12 hours soaking plus 1-2 hours cooking. Canned beans require rinsing (reduces sodium by ~40%) and 10 minutes to heat through. Black beans, chickpeas, and cannellini/white beans cover the widest range of cuisines.
 
 **Baking and Thickening Agents:**
+
 - All-purpose flour: 5 lb bag stored in an airtight container with a tight-fitting lid. Prevents flour beetles (Tribolium confusum) which are the most common pantry pest. Flour lasts 6-12 months in a container; whole wheat flour lasts only 3-6 months due to the germ oil going rancid.
 - Cornstarch: for thickening Asian sauces, gravies, pie fillings. 2 tsp cornstarch mixed with 2 tbsp cold water creates a slurry that thickens 1 cup of liquid to a sauce consistency. Unlike flour, it thickens without adding flavor.
 - Baking soda and baking powder: required for most baked goods. Test baking soda by adding 1/4 tsp to 2 tbsp warm water -- it should bubble vigorously within 5 seconds. Test baking powder by adding 1 tsp to 1/2 cup hot water -- it should bubble immediately. Replace both every 6 months for reliable baking results.
 
 **Sweeteners:**
+
 - Granulated white sugar: shelf life indefinite in an airtight container. Hard sugar is not spoiled -- add a terra cotta sugar saver or a piece of bread to rehydrate.
 - Honey: shelf life is literally indefinite (archeologists have found edible honey in Egyptian tombs). Crystallized honey is not spoiled -- place the jar in warm water (100-110°F/38-43°C) for 15-20 minutes to reliquefy.
 
@@ -102,6 +112,7 @@ Every functional pantry -- regardless of cooking style -- requires the same foun
 Based on the user's stated cuisines, identify the 8-15 items that move from "the pantry is functional" to "the pantry enables authentic flavor." These are organized below by cuisine cluster:
 
 **Italian/Mediterranean:**
+
 - Dried oregano and dried basil (Italian) vs. fresh herbs where possible. Dried herbs release flavor best when added early to oil or sauce; fresh herbs added at the end.
 - Red pepper flakes: shelf life 2-3 years. The key heat component in Italian cooking. Start with 1/8 tsp for warmth, 1/4 tsp for noticeable heat.
 - Capers: packed in brine (preferred) or salt. Brine-packed last 1 year in fridge after opening. Used in puttanesca, piccata, and Mediterranean salads.
@@ -110,6 +121,7 @@ Based on the user's stated cuisines, identify the 8-15 items that move from "the
 - Quality tinned whole peeled tomatoes: for slow sauces where you crush them by hand. The difference between whole peeled and crushed is texture control.
 
 **Mexican/Central American:**
+
 - Ground cumin: the dominant spice signature of Mexican cooking. Toast it in dry pan for 30-60 seconds to intensify flavor before adding to oil or other spices.
 - Ancho chili powder and chipotle: ancho provides deep, sweet, mild heat with raisin-like undertones. Chipotle provides smoky heat. These are very different from generic commercial "chili powder" (which is a blend). Used together, they replicate enchilada sauce character without a separate sauce purchase.
 - Canned chipotles in adobo sauce: the most versatile Mexican pantry item. The chipotles are smoked, dried, then canned in a tomato-vinegar sauce. Use 1-2 peppers for heat; use the sauce alone for smokiness without heat. Freeze unused chipotles individually on a sheet pan then transfer to a bag -- they last 3 months frozen.
@@ -118,6 +130,7 @@ Based on the user's stated cuisines, identify the 8-15 items that move from "the
 - Hot sauce (vinegar-based style): both a table condiment and a cooking acid.
 
 **South Asian (Indian/Pakistani/Sri Lankan):**
+
 - Garam masala: a finishing spice blend added at the end of cooking, not the beginning. Different from curry powder, which is used as a cooking spice throughout. Quality garam masala should smell complex -- if it just smells dusty, it is expired.
 - Ground turmeric: used in small amounts (1/4-1/2 tsp) as a background color and anti-inflammatory note. It stains immediately and permanently -- use caution on wooden cutting boards and light surfaces.
 - Ground coriander and ground cumin (both): the base of most South Asian tempering. Used at a ratio of approximately 2:1 coriander to cumin in most North Indian-style cooking.
@@ -127,6 +140,7 @@ Based on the user's stated cuisines, identify the 8-15 items that move from "the
 - Canned diced tomatoes with no added salt: used as a sauce base in most North Indian curries, added after aromatics are cooked and before spices are added.
 
 **East Asian (Chinese/Japanese/Korean):**
+
 - Soy sauce (Chinese or Japanese style) and tamari (gluten-free, slightly richer): these are not interchangeable by cuisine but functionally serve the same role of salty umami liquid. Chinese-style soy sauce is saltier and thinner; Japanese-style (shoyu) is slightly sweeter.
 - Rice vinegar (unseasoned): essential for dressings, pickling, and sauce balance. Do not buy "seasoned" rice vinegar for cooking (it contains sugar and salt that upset recipe balance).
 - Toasted sesame oil: ONLY added at the end of cooking. It burns at moderate heat and becomes bitter. Used as a finishing oil, not a cooking oil.
@@ -137,6 +151,7 @@ Based on the user's stated cuisines, identify the 8-15 items that move from "the
 - Dried shiitake mushrooms: make an umami-rich stock in 20 minutes, or rehydrate and add directly to soups. The soaking water is the stock -- do not discard it.
 
 **West African:**
+
 - Scotch bonnet or habanero powder (or fresh as needed): the heat signature of West African cooking. Separate from cayenne -- they have distinct fruity heat character.
 - Crayfish powder (dried shrimp): an intense umami base used in small amounts (1/2-1 tsp) in soups, stews, and rice dishes. Shelf life 6-12 months.
 - Tomato paste: used in larger quantities than in Italian cooking, often 3-4 tbsp per dish as a flavor base.
@@ -215,34 +230,34 @@ Full core staples, Phase 1-3 spices for 2-3 cuisines, quality oils and vinegars,
 
 ### Layer 1: Foundation Pantry (All Cuisines)
 
-| Category | Item | Stock Quantity | Shelf Life (Stored Correctly) | Storage Method | Notes |
-|----------|------|---------------|------------------------------|----------------|-------|
-| High-heat oil | Neutral refined oil (avocado or sunflower) | 32-48 oz | 6-12 months open | Dark cabinet, away from stove | Used for sautéing, roasting, frying |
-| Finishing oil | Extra virgin olive oil | 16-25 oz | 3-6 months open | Dark bottle or dark cabinet | Not for high heat; for dressings and finishing |
-| Acid/vinegar | White wine or rice vinegar | 1 bottle | 2+ years | Pantry shelf | Bright acid; salad dressings, deglazing |
-| Acid/vinegar | Red wine or apple cider vinegar | 1 bottle | 2+ years | Pantry shelf | Richer acid; braises, marinades |
-| Salt | Kosher salt | 3 lb box | Indefinite | Near stove in open container | [Note Diamond Crystal vs. Morton volume difference] |
-| Pepper | Whole black peppercorns | 1-2 oz jar | 2-3 years | Spice drawer | Grind fresh; pre-ground loses potency in days |
-| Canned | Crushed tomatoes (28 oz) | 4-6 cans | 2-5 years | Pantry shelf; opened: fridge 5-7 days | San Marzano style for slow sauces |
-| Canned | Diced tomatoes (14.5 oz) | 3-4 cans | 2-5 years | Pantry shelf | Use for quick sauces and soups |
-| Canned | Tomato paste | 2-3 tubes (preferred) or 6 oz cans | 2-5 years; opened tubes: fridge 6-8 weeks | Pantry/fridge | Always caramelize 2-3 min in oil before adding liquid |
-| Canned | Stock/broth (32 oz cartons) | 3-4 cartons | 1-2 years; opened: fridge 4-5 days or freeze in 1-cup portions | Pantry | Match to dietary needs: chicken/vegetable/beef |
-| Canned | Coconut milk, full fat (14 oz) | 3-4 cans | 2-5 years | Pantry shelf | Full fat only; "lite" does not create sauce body |
-| Dry protein | Dried lentils (red + green/brown) | 1 lb each | 2-3 years | Airtight container | Red = 15-20 min, no soak; green/brown hold shape |
-| Dry protein | Canned chickpeas | 4-6 cans | 2-5 years | Pantry shelf; opened: fridge 3-5 days | Rinse to reduce sodium ~40% |
-| Dry protein | Canned black beans | 4-6 cans | 2-5 years | Pantry shelf | Same as above |
-| Dry protein | Canned white beans (cannellini or navy) | 3-4 cans | 2-5 years | Pantry shelf | Soups, Italian dishes, smashed on toast |
-| Grain | Long-grain white rice | 4-5 lb | 2-4 years | Airtight container | Do not stock large brown rice quantities -- goes rancid in 6 months |
-| Grain | Dried pasta (spaghetti + penne + small shape) | 3-4 boxes each | 2+ years | Original box or airtight container | 1 lb = 4 servings |
-| Baking | All-purpose flour | 5 lb | 6-12 months | Airtight container (pest barrier) | Freeze new bag 48 hrs before storing to kill beetle eggs |
-| Baking | Cornstarch | 1 lb box | 2-3 years | Airtight container | Thickener: 2 tsp + 2 tbsp cold water thickens 1 cup liquid |
-| Baking | Baking soda | 1 box | Replace every 6 months for baking | Pantry | Test: 1/4 tsp in warm water should bubble vigorously |
-| Baking | Baking powder | 1 can | Replace every 6 months | Pantry | Test: 1 tsp in hot water should bubble immediately |
-| Sweetener | Granulated sugar | 2-4 lb | Indefinite | Airtight container | Hard sugar = not spoiled; rehydrate with terra cotta disk or bread slice |
-| Sweetener | Honey | 1 jar (16 oz) | Indefinite | Pantry | Crystallized = not spoiled; warm jar in water bath to reliquefy |
-| Umami liquid | Soy sauce or tamari | 1 bottle | 2-3 years; opened: 1 year at room temp or 2 years refrigerated | Pantry | Tamari = gluten-free alternative; slightly richer flavor |
-| Aromatics (dry) | Garlic powder | 1 jar | 6-12 months potency | Spice drawer | Supplement to fresh garlic, not replacement |
-| Aromatics (dry) | Onion powder | 1 jar | 6-12 months potency | Spice drawer | Dry rubs, quick weeknight seasoning |
+| Category        | Item                                          | Stock Quantity                     | Shelf Life (Stored Correctly)                                  | Storage Method                        | Notes                                                                    |
+| --------------- | --------------------------------------------- | ---------------------------------- | -------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------ |
+| High-heat oil   | Neutral refined oil (avocado or sunflower)    | 32-48 oz                           | 6-12 months open                                               | Dark cabinet, away from stove         | Used for sautéing, roasting, frying                                      |
+| Finishing oil   | Extra virgin olive oil                        | 16-25 oz                           | 3-6 months open                                                | Dark bottle or dark cabinet           | Not for high heat; for dressings and finishing                           |
+| Acid/vinegar    | White wine or rice vinegar                    | 1 bottle                           | 2+ years                                                       | Pantry shelf                          | Bright acid; salad dressings, deglazing                                  |
+| Acid/vinegar    | Red wine or apple cider vinegar               | 1 bottle                           | 2+ years                                                       | Pantry shelf                          | Richer acid; braises, marinades                                          |
+| Salt            | Kosher salt                                   | 3 lb box                           | Indefinite                                                     | Near stove in open container          | [Note Diamond Crystal vs. Morton volume difference]                      |
+| Pepper          | Whole black peppercorns                       | 1-2 oz jar                         | 2-3 years                                                      | Spice drawer                          | Grind fresh; pre-ground loses potency in days                            |
+| Canned          | Crushed tomatoes (28 oz)                      | 4-6 cans                           | 2-5 years                                                      | Pantry shelf; opened: fridge 5-7 days | San Marzano style for slow sauces                                        |
+| Canned          | Diced tomatoes (14.5 oz)                      | 3-4 cans                           | 2-5 years                                                      | Pantry shelf                          | Use for quick sauces and soups                                           |
+| Canned          | Tomato paste                                  | 2-3 tubes (preferred) or 6 oz cans | 2-5 years; opened tubes: fridge 6-8 weeks                      | Pantry/fridge                         | Always caramelize 2-3 min in oil before adding liquid                    |
+| Canned          | Stock/broth (32 oz cartons)                   | 3-4 cartons                        | 1-2 years; opened: fridge 4-5 days or freeze in 1-cup portions | Pantry                                | Match to dietary needs: chicken/vegetable/beef                           |
+| Canned          | Coconut milk, full fat (14 oz)                | 3-4 cans                           | 2-5 years                                                      | Pantry shelf                          | Full fat only; "lite" does not create sauce body                         |
+| Dry protein     | Dried lentils (red + green/brown)             | 1 lb each                          | 2-3 years                                                      | Airtight container                    | Red = 15-20 min, no soak; green/brown hold shape                         |
+| Dry protein     | Canned chickpeas                              | 4-6 cans                           | 2-5 years                                                      | Pantry shelf; opened: fridge 3-5 days | Rinse to reduce sodium ~40%                                              |
+| Dry protein     | Canned black beans                            | 4-6 cans                           | 2-5 years                                                      | Pantry shelf                          | Same as above                                                            |
+| Dry protein     | Canned white beans (cannellini or navy)       | 3-4 cans                           | 2-5 years                                                      | Pantry shelf                          | Soups, Italian dishes, smashed on toast                                  |
+| Grain           | Long-grain white rice                         | 4-5 lb                             | 2-4 years                                                      | Airtight container                    | Do not stock large brown rice quantities -- goes rancid in 6 months      |
+| Grain           | Dried pasta (spaghetti + penne + small shape) | 3-4 boxes each                     | 2+ years                                                       | Original box or airtight container    | 1 lb = 4 servings                                                        |
+| Baking          | All-purpose flour                             | 5 lb                               | 6-12 months                                                    | Airtight container (pest barrier)     | Freeze new bag 48 hrs before storing to kill beetle eggs                 |
+| Baking          | Cornstarch                                    | 1 lb box                           | 2-3 years                                                      | Airtight container                    | Thickener: 2 tsp + 2 tbsp cold water thickens 1 cup liquid               |
+| Baking          | Baking soda                                   | 1 box                              | Replace every 6 months for baking                              | Pantry                                | Test: 1/4 tsp in warm water should bubble vigorously                     |
+| Baking          | Baking powder                                 | 1 can                              | Replace every 6 months                                         | Pantry                                | Test: 1 tsp in hot water should bubble immediately                       |
+| Sweetener       | Granulated sugar                              | 2-4 lb                             | Indefinite                                                     | Airtight container                    | Hard sugar = not spoiled; rehydrate with terra cotta disk or bread slice |
+| Sweetener       | Honey                                         | 1 jar (16 oz)                      | Indefinite                                                     | Pantry                                | Crystallized = not spoiled; warm jar in water bath to reliquefy          |
+| Umami liquid    | Soy sauce or tamari                           | 1 bottle                           | 2-3 years; opened: 1 year at room temp or 2 years refrigerated | Pantry                                | Tamari = gluten-free alternative; slightly richer flavor                 |
+| Aromatics (dry) | Garlic powder                                 | 1 jar                              | 6-12 months potency                                            | Spice drawer                          | Supplement to fresh garlic, not replacement                              |
+| Aromatics (dry) | Onion powder                                  | 1 jar                              | 6-12 months potency                                            | Spice drawer                          | Dry rubs, quick weeknight seasoning                                      |
 
 ---
 
@@ -250,14 +265,14 @@ Full core staples, Phase 1-3 spices for 2-3 cuisines, quality oils and vinegars,
 
 #### [Cuisine 1 Name, e.g., Italian/Mediterranean]
 
-| Item | What It Enables | Use Method | Shelf Life |
-|------|----------------|-----------|-----------|
+| Item   | What It Enables                       | Use Method                | Shelf Life |
+| ------ | ------------------------------------- | ------------------------- | ---------- |
 | [item] | [specific dishes and flavor function] | [how to use it correctly] | [duration] |
 
 #### [Cuisine 2 Name]
 
-| Item | What It Enables | Use Method | Shelf Life |
-|------|----------------|-----------|-----------|
+| Item   | What It Enables                       | Use Method                | Shelf Life |
+| ------ | ------------------------------------- | ------------------------- | ---------- |
 | [item] | [specific dishes and flavor function] | [how to use it correctly] | [duration] |
 
 ---
@@ -266,15 +281,16 @@ Full core staples, Phase 1-3 spices for 2-3 cuisines, quality oils and vinegars,
 
 **Phase 1 (Buy now, ~$15-25 for [X] spices):**
 These appear in 70%+ of your cuisine's recipes. Non-negotiable.
+
 1. [Spice] -- [specific use case and dose guidance]
 2. [Spice] -- [specific use case and dose guidance]
-[...continue through 6-8 spices]
+   [...continue through 6-8 spices]
 
-**Phase 2 (Buy after 2-4 weeks of cooking, ~$12-18 for [X] spices):**
-5. [Spice] -- [specific use case and dose guidance]
+**Phase 2 (Buy after 2-4 weeks of cooking, ~$12-18 for [X] spices):** 5. [Spice] -- [specific use case and dose guidance]
 [...continue through 5-6 spices]
 
 **Phase 3 (Buy when a specific recipe calls for them):**
+
 - [Spice]: [category of recipes that need it]
 - [Spice]: [category of recipes that need it]
 
@@ -294,6 +310,7 @@ Scan the pantry, spice drawer, and canned goods section. Anything below 2-unit t
 New purchases go BEHIND existing stock. Pull old items forward when restocking.
 
 **Quarterly Audit Checklist:**
+
 - [ ] Pull everything out by section, check expiration dates
 - [ ] Move items expiring within 60 days to front row; plan to cook with them
 - [ ] Rub-test all spices; discard anything that fails
@@ -305,17 +322,17 @@ New purchases go BEHIND existing stock. Pull old items forward when restocking.
 
 ### Initial Investment Estimate
 
-| Category | Bare Minimum | Balanced Practical | Well-Invested |
-|----------|-------------|-------------------|--------------|
-| Foundation dry goods (grains, legumes, baking) | $12-18 | $18-28 | $25-35 |
-| Canned goods (tomatoes, beans, broth, coconut milk) | $15-20 | $22-30 | $28-40 |
-| Oils and vinegars | $8-12 | $14-20 | $20-30 |
-| Phase 1 spices (6-8 spices) | $12-18 | $15-20 | $18-25 |
-| Phase 2 spices (5-6 additional) | -- | $12-18 | $15-20 |
-| Cuisine-specific additions | $8-12 | $15-22 | $22-30 |
-| Specialty condiments | -- | -- | $15-25 |
-| **Total (one-time setup)** | **$55-80** | **$96-138** | **$143-205** |
-| **Ongoing monthly replenishment** | **$15-20** | **$22-35** | **$30-45** |
+| Category                                            | Bare Minimum | Balanced Practical | Well-Invested |
+| --------------------------------------------------- | ------------ | ------------------ | ------------- |
+| Foundation dry goods (grains, legumes, baking)      | $12-18       | $18-28             | $25-35        |
+| Canned goods (tomatoes, beans, broth, coconut milk) | $15-20       | $22-30             | $28-40        |
+| Oils and vinegars                                   | $8-12        | $14-20             | $20-30        |
+| Phase 1 spices (6-8 spices)                         | $12-18       | $15-20             | $18-25        |
+| Phase 2 spices (5-6 additional)                     | --           | $12-18             | $15-20        |
+| Cuisine-specific additions                          | $8-12        | $15-22             | $22-30        |
+| Specialty condiments                                | --           | --                 | $15-25        |
+| **Total (one-time setup)**                          | **$55-80**   | **$96-138**        | **$143-205**  |
+| **Ongoing monthly replenishment**                   | **$15-20**   | **$22-35**         | **$30-45**    |
 ```
 
 ---
@@ -377,6 +394,7 @@ Full reset protocol: (1) discard ALL opened grain products, flours, cornmeal, br
 **Input:** "I just moved into my first real apartment. I used to cook mostly Mexican food and I'm trying to get back into it. I live alone and I'm not a huge cook but I want to stop ordering takeout three times a week. Budget is moderate -- I can spend around $80-90 to start."
 
 **Cooking Profile Interpretation:**
+
 - Cuisines: Mexican primary, with general American comfort food secondary (implied by the "stop ordering takeout" framing)
 - Household: 1 person, cooking 3-4x/week target
 - Dietary requirements: None stated
@@ -397,28 +415,28 @@ Full reset protocol: (1) discard ALL opened grain products, flours, cornmeal, br
 
 ### Layer 1: Foundation Pantry (Every Kitchen Needs This)
 
-| Category | Item | Stock Quantity | Shelf Life | Storage Method | Notes |
-|----------|------|---------------|-----------|----------------|-------|
-| High-heat oil | Neutral refined oil (canola, sunflower, or refined avocado) | 32 oz bottle | 6-12 months open | Dark cabinet, NOT next to the stove | Used for sautéing taco fillings, frying, roasting |
-| Finishing oil | Extra virgin olive oil | 16 oz bottle | 3-6 months open | Dark cabinet, NOT next to the stove | Salad dressings, finishing drizzle. Not for high heat |
-| Vinegar | White wine vinegar or rice vinegar | 1 bottle | 2+ years | Pantry shelf | Bright acid for dressings, pickling quick-pickled onions |
-| Vinegar | Apple cider vinegar | 1 bottle | 2+ years | Pantry shelf | Marinades, braises, hot sauce cooking |
-| Salt | Kosher salt | 3 lb box | Indefinite | Open container near stove | Check brand: Diamond Crystal and Morton measure differently by volume |
-| Pepper | Whole black peppercorns + basic grinder | 1-2 oz | 2-3 years | Near stove | Pre-ground loses potency within days |
-| Canned | Crushed tomatoes (28 oz) | 4 cans | 2-5 years | Pantry shelf | For enchilada sauce, soups, chili; opened: fridge 5-7 days |
-| Canned | Diced tomatoes (14.5 oz) | 3 cans | 2-5 years | Pantry shelf | Quick weeknight salsas, soups, rice dishes |
-| Canned | Tomato paste (tube form) | 1-2 tubes | 2-5 years; opened fridge 6-8 weeks | Fridge after opening | Always caramelize in oil 2-3 min before adding liquid -- it makes the sauce |
-| Canned | Chicken or vegetable broth (32 oz) | 2 cartons | 1-2 years; opened: fridge 4-5 days | Pantry | For rice, soups, thinning sauces; freeze extra in 1-cup portions |
-| Dry protein | Canned black beans | 6 cans | 2-5 years | Pantry shelf | The single most essential Mexican pantry protein. Rinse before using. |
-| Dry protein | Canned pinto beans | 3 cans | 2-5 years | Pantry shelf | Refried beans, burritos, soups |
-| Dry protein | Dried lentils (green) | 1 lb | 2-3 years | Airtight container | Budget-friendly protein for soups and salads; 20-25 min cooking, no soak |
-| Grain | Long-grain white rice | 4 lb | 2-4 years | Airtight container | Mexican-style rice, burrito bowls, side dishes |
-| Grain | Dried pasta (spaghetti, penne) | 2 boxes each | 2+ years | Original box or container | For the "general American" days -- pasta with whatever is in the fridge |
-| Baking | All-purpose flour | 5 lb | 6-12 months | Airtight hard-sided container | For flour tortillas (if homemade), thickening sauces, baking |
-| Baking | Cornstarch | 1 box | 2-3 years | Airtight | Thickening soups and sauces |
-| Sweetener | Granulated sugar | 2 lb | Indefinite | Airtight | Margaritas, cooking balance |
-| Sweetener | Honey | 1 jar | Indefinite | Pantry | Glaze for meats, dressings, general cooking |
-| Umami | Soy sauce | 1 bottle | 2-3 years; opened 1 year | Pantry | Used in general cooking; optional for Mexican but useful |
+| Category      | Item                                                        | Stock Quantity | Shelf Life                         | Storage Method                      | Notes                                                                       |
+| ------------- | ----------------------------------------------------------- | -------------- | ---------------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| High-heat oil | Neutral refined oil (canola, sunflower, or refined avocado) | 32 oz bottle   | 6-12 months open                   | Dark cabinet, NOT next to the stove | Used for sautéing taco fillings, frying, roasting                           |
+| Finishing oil | Extra virgin olive oil                                      | 16 oz bottle   | 3-6 months open                    | Dark cabinet, NOT next to the stove | Salad dressings, finishing drizzle. Not for high heat                       |
+| Vinegar       | White wine vinegar or rice vinegar                          | 1 bottle       | 2+ years                           | Pantry shelf                        | Bright acid for dressings, pickling quick-pickled onions                    |
+| Vinegar       | Apple cider vinegar                                         | 1 bottle       | 2+ years                           | Pantry shelf                        | Marinades, braises, hot sauce cooking                                       |
+| Salt          | Kosher salt                                                 | 3 lb box       | Indefinite                         | Open container near stove           | Check brand: Diamond Crystal and Morton measure differently by volume       |
+| Pepper        | Whole black peppercorns + basic grinder                     | 1-2 oz         | 2-3 years                          | Near stove                          | Pre-ground loses potency within days                                        |
+| Canned        | Crushed tomatoes (28 oz)                                    | 4 cans         | 2-5 years                          | Pantry shelf                        | For enchilada sauce, soups, chili; opened: fridge 5-7 days                  |
+| Canned        | Diced tomatoes (14.5 oz)                                    | 3 cans         | 2-5 years                          | Pantry shelf                        | Quick weeknight salsas, soups, rice dishes                                  |
+| Canned        | Tomato paste (tube form)                                    | 1-2 tubes      | 2-5 years; opened fridge 6-8 weeks | Fridge after opening                | Always caramelize in oil 2-3 min before adding liquid -- it makes the sauce |
+| Canned        | Chicken or vegetable broth (32 oz)                          | 2 cartons      | 1-2 years; opened: fridge 4-5 days | Pantry                              | For rice, soups, thinning sauces; freeze extra in 1-cup portions            |
+| Dry protein   | Canned black beans                                          | 6 cans         | 2-5 years                          | Pantry shelf                        | The single most essential Mexican pantry protein. Rinse before using.       |
+| Dry protein   | Canned pinto beans                                          | 3 cans         | 2-5 years                          | Pantry shelf                        | Refried beans, burritos, soups                                              |
+| Dry protein   | Dried lentils (green)                                       | 1 lb           | 2-3 years                          | Airtight container                  | Budget-friendly protein for soups and salads; 20-25 min cooking, no soak    |
+| Grain         | Long-grain white rice                                       | 4 lb           | 2-4 years                          | Airtight container                  | Mexican-style rice, burrito bowls, side dishes                              |
+| Grain         | Dried pasta (spaghetti, penne)                              | 2 boxes each   | 2+ years                           | Original box or container           | For the "general American" days -- pasta with whatever is in the fridge     |
+| Baking        | All-purpose flour                                           | 5 lb           | 6-12 months                        | Airtight hard-sided container       | For flour tortillas (if homemade), thickening sauces, baking                |
+| Baking        | Cornstarch                                                  | 1 box          | 2-3 years                          | Airtight                            | Thickening soups and sauces                                                 |
+| Sweetener     | Granulated sugar                                            | 2 lb           | Indefinite                         | Airtight                            | Margaritas, cooking balance                                                 |
+| Sweetener     | Honey                                                       | 1 jar          | Indefinite                         | Pantry                              | Glaze for meats, dressings, general cooking                                 |
+| Umami         | Soy sauce                                                   | 1 bottle       | 2-3 years; opened 1 year           | Pantry                              | Used in general cooking; optional for Mexican but useful                    |
 
 ---
 

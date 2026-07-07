@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales strategy template planning"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales strategy template planning'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Sales Playbook Section
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user needs to produce a discrete, usable section of a sales playbook -- a specific play with word-for-word language, competitive positioning, scenario handling, and rep-ready reference materials.
 
 **Use this skill when:**
+
 - A user asks to create a sales play for a specific recurring situation: competitive displacement, upsell, expansion into a new department, multi-threading into a stalled deal, or contract renewal
 - A user wants to write a talk track for a defined scenario with a specific buyer persona, not a generic pitch
 - A user needs competitive battle card content: where they win, where the competitor wins, landmine questions, and displacement language
@@ -37,6 +39,7 @@ Use this skill when the user needs to produce a discrete, usable section of a sa
 - A user needs a play for a new vertical or segment the team is expanding into (fintech, healthcare, government, etc.) with segment-specific language
 
 **Do NOT use this skill when:**
+
 - The user needs a comprehensive objection handling bank covering 20+ objections across all deal types -- use `objection-handling` instead, which structures objection libraries with root cause analysis and tiered response tracks
 - The user needs a discovery call script with open/closed question sequencing, active listening cues, and call flow management -- use `discovery-call-script` instead
 - The user needs a full sales training curriculum with role-play modules, assessment rubrics, and competency frameworks -- use teaching skills that sequence learning objectives across multiple sessions
@@ -447,6 +450,7 @@ If prospect says "[Common response]":
 ### New Product or Feature with No Competitive History Yet
 
 When there is no win/loss data and no named competitor intel, the competitive section cannot be built from evidence. Instead:
+
 - Treat "status quo" (doing nothing or continuing with current manual process) and "build it in-house" as the two primary competitors -- these are almost always present in any deal regardless of named competitors
 - Build the landmine questions around the pain of the current state, not around competitor weaknesses: "How long does it currently take your team to produce that report?" and "What happens when someone asks for something your current process can't handle?"
 - Flag the competitive section as "Draft -- to be updated as deals are won and lost against specific competitors" and include a template for reps to submit competitive intel after every deal where a named competitor appeared
@@ -455,6 +459,7 @@ When there is no win/loss data and no named competitor intel, the competitive se
 ### Highly Commoditized Market with Feature Parity
 
 When every competitor has similar features and differentiation on capability is minimal:
+
 - Shift the entire differentiation strategy from product features to the experience of buying, implementing, and being supported by the vendor. "What is it like to work with us vs. them?" becomes the central question
 - Build talk tracks around total cost of ownership: implementation timeline, training burden, support response times, and cost of failure. These create real differentiation even when product specs look the same
 - The landmine questions should surface implementation risk and support quality: "What was their onboarding process like when you first deployed?" and "When you have a critical issue, what does their support response look like?"
@@ -464,6 +469,7 @@ When every competitor has similar features and differentiation on capability is 
 ### Upmarket Play (Moving from Mid-Market to Enterprise)
 
 When a product has succeeded in the mid-market and the play is being built for enterprise prospects:
+
 - Rewrite the entire talk track to address enterprise-specific concerns: security posture (SOC 2, ISO 27001, FedRAMP if relevant), data residency, SSO and SCIM provisioning, procurement process length, vendor risk assessment, and legal review timelines
 - The buyer profile changes fundamentally -- enterprise buying committees typically include 6-10 stakeholders. Scenario sections must cover multi-threading: how to identify the economic buyer vs. the champion vs. the technical evaluator vs. the procurement blocker, and what language to use with each
 - Reference customers must be at the enterprise tier -- a mid-market case study is not credible in an enterprise deal. If enterprise references do not exist yet, use the customer's logo list (with permission) and highlight design partnerships or early access programs
@@ -472,6 +478,7 @@ When a product has succeeded in the mid-market and the play is being built for e
 ### Channel or Partner Play (Indirect Sales Motion)
 
 When the play will be executed by a partner, reseller, or system integrator rather than a direct rep:
+
 - The primary audience for the playbook is the partner's sales team, not your own. Write the talk track in language that works for someone who sells multiple vendors and needs to introduce your product quickly and credibly
 - Include a "why lead with us" section: why your product is the right anchor for the solution the partner is building, what the partner earns (margin, services attach, customer stickiness), and how you co-sell rather than compete
 - Write a simplified version of the talk track that a partner can adapt without the full product depth your direct reps have -- 3 talking points maximum, each with one proof point
@@ -480,6 +487,7 @@ When the play will be executed by a partner, reseller, or system integrator rath
 ### Renewal and Retention Play
 
 The renewal play is structurally different from all other plays because the job is not to convince a skeptic but to demonstrate value to someone who already made a bet:
+
 - The opening does not pitch -- it reviews. The opener should reference specific usage data, outcomes achieved, and the customer's original success criteria: "When we kicked off last year, you said the goal was [X]. Let's look at where you landed."
 - The talk track centers on realized value, not future value. Every talking point should be anchored to something that already happened, not something that might happen if they renew
 - Scenario sections must cover churn risk signals: key champion has left the company (requires re-selling to a new contact), usage has dropped below 40% of licensed seats (adoption crisis), budget is under review (financial pressure), or a competitor has been re-introduced into the account (competitive re-engagement)
@@ -489,6 +497,7 @@ The renewal play is structurally different from all other plays because the job 
 ### Stalled Deal Re-Engagement Play
 
 When a deal has gone dark after active evaluation:
+
 - The re-engagement opener must acknowledge the silence directly -- reps who pretend nothing happened sound out of touch: "When we last spoke in [month], we were [stage] and then things went quiet on our end. I wanted to check in, not to push, but to make sure things are OK on your side."
 - Scenario sections must diagnose why the deal stalled before attempting to re-activate it: budget freeze, internal priority shift, champion lost influence, the problem was deprioritized, or they went with a competitor and have not told you yet. Each of these requires a different response
 - Include a "kill it or keep it" qualifying question set -- reps should be able to determine within 10 minutes of re-engagement whether the deal is alive or dead, and if dead, whether it is worth maintaining for a future cycle
@@ -521,6 +530,7 @@ When a deal has gone dark after active evaluation:
 ### Play Overview
 
 **When to Run This Play:**
+
 - Prospect says they are "using Wrike but exploring alternatives" in any form
 - Prospect mentions spending significant time exporting project data to build reports in Google Sheets or Excel
 - Prospect describes workflow frustration: their team works a certain way but Wrike forces a different structure
@@ -528,11 +538,13 @@ When a deal has gone dark after active evaluation:
 - Prospect's team adoption is visibly low -- they mention that only some people use it, or that their team has "workarounds"
 
 **When NOT to Run This Play (Disqualifying Signals):**
+
 - Prospect has more than 18 months remaining on a Wrike enterprise contract with significant sunk cost in integrations
 - Prospect's primary pain is not reporting or workflow -- if their stated issue is capacity planning or resource management, run the greenfield new business play instead
 - Prospect is a Wrike power user who specifically cites features they love -- these deals require a different play focused on specific capability gaps, not displacement
 
 **Ideal Prospect Profile for This Play:**
+
 - Marketing team of 15-75 people managing 8 or more concurrent campaigns (content, demand gen, events, product launches)
 - Currently on Wrike Professional or Business tier
 - Marketing leader reports to VP Marketing or CMO who regularly asks for project status and performance rollups
@@ -556,19 +568,19 @@ When a deal has gone dark after active evaluation:
 
 **1. Reporting That Lives Inside the Tool, Not Inside Spreadsheets**
 
-*Set up the problem:*
+_Set up the problem:_
 "Here is what we hear from almost every team that comes to us from Wrike: the tool tracks the work, but the reporting happens outside the tool. Someone -- usually the marketing ops person or the manager -- spends hours every week pulling data out of Wrike, formatting it in Google Sheets, and sending a report that is already 48 hours stale by the time leadership reads it. Does that match your experience?"
 
-*What others do wrong:*
+_What others do wrong:_
 "The standard fix teams try is to build more dashboards inside Wrike or to invest in a BI integration. But Wrike's reporting is built around tasks and milestones, not around campaign-level outcomes. So you end up with very accurate data about whether tasks are complete, and no visibility into whether campaigns are on track."
 
-*What we do differently:*
+_What we do differently:_
 "Corra builds campaign-level reporting natively into the workspace. Every project is a campaign with a health score, a delivery timeline, and a resource utilization view. The CMO dashboard updates in real time -- not by export, not by a manual refresh, just live. When leadership asks 'how is the Q3 content push looking?' the answer is a 15-second pull, not a 4-hour Friday exercise."
 
-*Proof:*
+_Proof:_
 "Lattice had exactly this problem. Their marketing ops lead was spending 4 hours every Friday building a weekly report from Wrike exports. Six weeks after switching to Corra, that report takes 20 minutes to produce -- and it is more detailed than what they were producing before. Their CMO now pulls it herself."
 
-*Anticipated interruption and response:*
+_Anticipated interruption and response:_
 If prospect says "We have tried to fix this with Wrike integrations and dashboards":
 "That makes sense -- that is usually the first thing teams try. What typically happens is the integration solves the data connection problem but not the reporting design problem. You are still designing a report that Wrike was not built to produce. Can I ask what the reporting looks like after the integration -- does leadership pull it directly, or does someone still have to prep it?"
 
@@ -576,19 +588,19 @@ If prospect says "We have tried to fix this with Wrike integrations and dashboar
 
 **2. Workflow That Matches How Your Team Works, Not How Wrike Thinks You Should Work**
 
-*Set up the problem:*
+_Set up the problem:_
 "The second thing we hear consistently is that teams have to bend their process to fit Wrike's template structure rather than the other way around. Marketing teams do not all run campaigns the same way -- a demand gen campaign runs differently than a product launch, which runs differently than an event. Wrike gives you templates, but if your process does not match the template, you are either forcing your team into an unnatural structure or everyone starts working around the tool entirely."
 
-*What others do wrong:*
+_What others do wrong:_
 "The workaround is usually a hybrid -- the tool tracks tasks, but the actual workflow coordination happens in Slack or in shared docs. The tool becomes a task log, not a workflow system. That is when adoption collapses, because if the tool does not reflect how work actually happens, people stop putting their work into it."
 
-*What we do differently:*
+_What we do differently:_
 "During Corra onboarding, we spend the first week mapping your team's actual workflows -- the demand gen workflow, the content workflow, the launch workflow -- before we build anything in the system. We configure Corra to match how your team works. When the system reflects their reality, people use it."
 
-*Proof:*
+_Proof:_
 "Drift came to us with 22% adoption on Wrike after 8 months. Their team had all developed personal systems because the tool did not match their process. We mapped their workflows in week one, built Corra around them, and they hit 87% adoption in 6 weeks. The difference was not training -- it was that the tool finally made sense for how they work."
 
-*Anticipated interruption and response:*
+_Anticipated interruption and response:_
 If prospect says "We have already invested in customizing Wrike -- templates, automations, the whole thing":
 "That investment is real and I do not want to dismiss it. Can I ask: after all that customization, what is your current team adoption rate -- roughly what percentage of your team is consistently logging work in Wrike? The customization investment can be high and adoption can still be low if the underlying structure does not match the workflow. If adoption is above 80%, you may have solved it. If it is lower than that, the customization may have addressed symptoms without the root cause."
 
@@ -596,21 +608,22 @@ If prospect says "We have already invested in customizing Wrike -- templates, au
 
 **3. Migration That Is Handled for You, Not Handed to You**
 
-*Set up the problem:*
+_Set up the problem:_
 "Even when teams want to switch, the migration feels like a project they do not have bandwidth for. Who is going to move all the active projects? What happens to the historical data? Will the team have to relearn everything while campaigns are live? These are legitimate concerns, and they stop a lot of teams from making a switch they know would help them."
 
-*What others do wrong:*
+_What others do wrong:_
 "Most tool migrations get handed to the team with an import guide and a data export file. The team is already busy, so the migration takes 3 months, runs in parallel messily, and creates a period where nobody knows which system is authoritative. During that window, things fall through cracks and everyone blames the new tool."
 
-*What we do differently:*
+_What we do differently:_
 "Corra handles migration for you. We import your active projects, map your existing workflows into the Corra structure, and run both systems in parallel for 2 weeks. Your team does not flip over until they have confirmed in writing that Corra has everything they need. Historical Wrike data is archived and accessible through a read-only export, so nothing is lost."
 
-*Proof:*
+_Proof:_
 "We have completed 200+ migrations from Wrike. Average migration time is 5 business days. Zero data loss across all of them. The 2-week parallel period means your team's first experience with Corra is low-stakes -- they are not depending on it yet, just getting comfortable with it."
 
 ---
 
 **Transition Phrases:**
+
 - Moving from Point 1 (reporting) to Point 2 (workflow): "The reporting problem and the adoption problem are actually connected -- and that brings me to the second thing teams hit when they have outgrown Wrike..."
 - Moving from Point 2 (workflow) to Point 3 (migration): "The next thing I always want to address, because it is usually the thing that makes teams hesitate even when they know they want to switch, is what the migration actually looks like..."
 - Moving from Points to Close: "Based on what you have shared -- the reporting time, the adoption rate, and the contract timeline -- this sounds like exactly the situation the displacement play is designed for. I want to propose one specific next step rather than just asking you to think about it..."
@@ -665,10 +678,12 @@ If prospect says "We have already invested in customizing Wrike -- templates, au
 **One-line overview:** Wrike is a work management platform primarily designed for cross-functional teams and agencies, with strong task management and Gantt chart capabilities. It is frequently evaluated by marketing teams for campaign management but was not built specifically for marketing workflows.
 
 **Where Wrike wins (be honest):**
+
 - **Gantt and timeline visualization:** Wrike's Gantt chart functionality is mature and visually strong. For teams that manage complex multi-week timelines with dependencies, Wrike's Gantt view is genuinely good. Do not compete on Gantt features -- compete on whether Gantt-centric views are what marketing teams actually need.
 - **Enterprise security and compliance:** Wrike has strong SOC 2 Type II, GDPR compliance, and a robust permission architecture that some large enterprise IT departments prefer. If security compliance is the primary evaluation criterion, Wrike may have an advantage for specific regulated industries.
 
 **Where Corra wins (with evidence):**
+
 - **Campaign-level reporting:** Corra's reporting is built around marketing campaign outcomes, not task completion. Reps should say: "Wrike tells you if tasks are done. Corra tells you if campaigns are on track." -- Proof: Lattice reduced weekly reporting prep from 4 hours to 20 minutes.
 - **Workflow-first onboarding:** Corra configures the tool to the team's workflow rather than offering templates to adapt to. -- Proof: Drift went from 22% to 87% adoption in 6 weeks because the system reflected how they already worked.
 - **Marketing-specific templates and integrations:**

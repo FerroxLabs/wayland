@@ -24,7 +24,8 @@ const MIN_USER_MSG_LENGTH = 30;
  * prefix matching so substantive messages that happen to start with an
  * ack word are not falsely dropped.
  */
-const ACK_WORD = '(?:thanks?|thank\\s?you|great|ok(?:ay)?|yes|yeah|yep|no|nope|do\\s?another(?:\\s+iteration)?|perfect|done|nice|cool|alright|good|got\\s?it|sounds\\s?good|sure|fine|yo)';
+const ACK_WORD =
+  '(?:thanks?|thank\\s?you|great|ok(?:ay)?|yes|yeah|yep|no|nope|do\\s?another(?:\\s+iteration)?|perfect|done|nice|cool|alright|good|got\\s?it|sounds\\s?good|sure|fine|yo)';
 const ACK_PATTERN = new RegExp(`^${ACK_WORD}(?:\\s+${ACK_WORD})*\\s*[.!?]?\\s*$`, 'i');
 
 /**

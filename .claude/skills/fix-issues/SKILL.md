@@ -639,11 +639,11 @@ with all issues that were **skipped** in this session.
 
 Default parameters (can be overridden via skill args):
 
-| Parameter | Default          | Description                                                         |
-| --------- | ---------------- | ------------------------------------------------------------------- |
+| Parameter | Default            | Description                                                         |
+| --------- | ------------------ | ------------------------------------------------------------------- |
 | repo      | FerroxLabs/wayland | GitHub repository (owner/repo)                                      |
-| limit     | 0                | Max issues to fix per invocation (0 = batch mode, >0 = daemon mode) |
-| label     | bug              | Issue label to filter by                                            |
+| limit     | 0                  | Max issues to fix per invocation (0 = batch mode, >0 = daemon mode) |
+| label     | bug                | Issue label to filter by                                            |
 
 Override examples:
 

@@ -102,9 +102,30 @@ const DAY_OF_WEEK_INDEX: Record<string, number> = {
 };
 
 const MONTH_NAME_INDEX: Record<string, number> = {
-  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
-  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  sept: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12,
 };
 
 function parseMonth(token: string): number | null {
@@ -309,9 +330,7 @@ export class CronRitualScheduler implements RitualScheduler {
     // "schedule X." Sweeping those on team demote would silently delete
     // the user's work.
     const ritualJobs = jobs.filter(
-      (j) =>
-        j.metadata.createdBy === 'agent' &&
-        j.metadata.agentConfig?.configOptions?.kind === 'ritual'
+      (j) => j.metadata.createdBy === 'agent' && j.metadata.agentConfig?.configOptions?.kind === 'ritual'
     );
     for (const job of ritualJobs) {
       try {

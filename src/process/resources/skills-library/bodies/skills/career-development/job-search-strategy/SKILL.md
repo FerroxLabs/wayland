@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning goal-setting"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'career planning goal-setting'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Job Search Strategy
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to build or restructure a job search plan from scratch -- including targeting, activity cadences, and tracking
 - Asks how many applications to submit per week, how long a search typically takes, or how to prioritize companies
 - Feels disorganized, overwhelmed, or stuck in a passive "apply and wait" loop and needs a systematic framework
@@ -34,6 +36,7 @@ metadata:
 - Wants to set realistic weekly activity goals and accountability checkpoints
 
 **Do NOT use this skill when:**
+
 - The user needs to write or improve resume bullets -- use `resume-bullet-writer`
 - The user needs to prepare for behavioral, technical, or case interviews -- use `behavioral-interview-prep`, `technical-interview-prep`, or `case-interview-prep`
 - The user is planning a full career change to a different field or function -- use `career-pivot-roadmap` first to clarify the destination, then return here to build the search plan
@@ -306,27 +309,35 @@ target [#] total active applications in the tracker at all times.
 ## Edge Cases
 
 ### User Is Employed and Searching Confidentially
+
 Reduce weekly targets to match realistic evening and weekend hours only. Never schedule search activity during work hours on a work device or network. Recommend setting LinkedIn to "Open to Work -- Recruiters Only" (not visible to the full network, only visible to users with LinkedIn Recruiter licenses). For Tier 1 targets, prioritize getting an internal referral or warm introduction over cold-applying through the public careers page -- a referral from someone inside the company both protects confidentiality and dramatically improves response rates. If the user is a manager or director, warn that word travels in small industries, and they should be selective about which former colleagues they reach out to early in the process.
 
 ### User Is Unemployed and Searching with Financial Urgency (Runway < 60 Days)
+
 This is a two-track strategy, not a pure long-term search. Track 1: primary target search (the job they actually want). Track 2: bridge income options (contract/freelance work, consulting, staffing agency placements) that can generate income in 2-4 weeks while the primary search continues. Increase Tier 3 volume significantly, activate all recruiter relationships immediately rather than sequentially, and reduce the time invested per Tier 1 application (networking is still important but the deep research approach becomes a luxury). Set a specific financial trigger: "If I do not have an offer or bridge income by [date X], I will accept contract work while the primary search continues."
 
 ### User Does Not Know What Role They Want
+
 Do not build a job search plan for an undefined target. A search plan for "anything interesting" wastes effort and leads to unfocused, low-quality applications. Before building the plan, ask four specific questions: What did you enjoy most in your last role? What do you want to spend most of your time doing daily? What industries genuinely interest you? What does your financial situation require in terms of minimum comp? Use the answers to define 1-2 target role families, then build the plan. If the user genuinely needs career direction work, redirect to `career-pivot-roadmap` and return to this skill when the destination is clear.
 
 ### User Is Searching in a Niche or Small Market
+
 Some functional specializations (e.g., regulatory affairs in biopharma, actuarial science, maritime law) have very few open positions at any given time. Reduce volume targets significantly -- there may be only 5-15 relevant openings in the entire market per month. Shift the channel mix to 60-70% networking, because most positions are filled through relationships before they are posted. Extend the realistic search timeline by 50-100%. Identify industry-specific associations, annual conferences, and private Slack communities where practitioners gather -- these are the watering holes where relationship capital converts into job opportunities. Tier 3 may not exist as a meaningful category; the entire market may only be large enough to support Tier 1 and Tier 2.
 
 ### User Has Been Searching for 3+ Months Without an Offer
+
 Begin with a systematic audit before adjusting the plan. Ask for the user's tracked metrics across the three stages: application-to-first-screen rate, first-screen-to-second-round rate, and second-round-to-offer rate. Each failure point has a different root cause and fix:
+
 - **Low application-to-first-screen rate (below 5%):** Resume keyword alignment, ATS optimization, or targeting mismatch (applying to roles where the user is not qualified or significantly overqualified). Fix: resume overhaul and targeting recalibration before increasing volume.
 - **Good first-screen rate but low progression rate:** Interview performance, communication style, cultural fit signaling, or compensation expectation mismatch. Fix: redirect to `behavioral-interview-prep` or `technical-interview-prep`, and verify salary expectations against current market data.
 - **Reaching final rounds but not receiving offers:** Very narrow issue -- could be reference check problems, offer-stage comp mismatch, or a competing candidate. Ask about specific final-round feedback received. May require `salary-negotiation` skill or a frank conversation about comp expectations.
 
 ### User's Target Role Has a Significant Skills Gap
+
 If the user is applying to roles where they meet only 60-70% of the listed requirements, the standard plan needs a parallel track. For a strategic gap (a skill that is core to the role), address it directly: either identify a way to demonstrate that the skill is developable and adjacent to existing experience, or add a parallel development track (a certification, side project, or freelance engagement that demonstrates the skill in action). For minor gaps (1-2 "nice to have" items), the user should apply anyway and address them proactively in cover letters and interviews. The job search plan itself does not change, but the application strategy (how they position the gaps) must be explicit.
 
 ### User Is Searching Across Multiple Roles Simultaneously
+
 Occasionally a user wants to pursue two distinctly different roles at once (e.g., Senior PM roles at tech companies AND Head of Product roles at smaller companies). This is manageable but requires two separate Tier 1/2/3 lists and two resume variants. Warn the user that dual-track searches split networking and research effort and can result in a weaker search in both tracks than a single focused search. Recommend a primary track (70% of effort) and secondary track (30% of effort) with a 30-day checkpoint: whichever track is producing more movement becomes the primary. If the two tracks are substantially different (different industries, different functions), strongly recommend focusing on one -- a dual-track search across significantly different functions signals unclear positioning to employers.
 
 ---
@@ -350,17 +361,17 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 ### Target Role Profile
 
-| Element | Details |
-|---------|---------|
-| Primary title | Senior Product Manager |
-| Alternate search titles | Senior PM, Product Lead, Group Product Manager, Principal PM |
-| Industry / domain | B2B SaaS (core); adjacent: developer tools, vertical SaaS, fintech SaaS acceptable |
-| Company stage/size | Series B-D, 100-600 employees |
-| Location / work model | Austin, TX (hybrid welcome) or fully remote (US-based company) |
-| Compensation floor | $170,000 base salary |
-| Compensation target | $200,000+ total comp (base + bonus; equity as upside) |
-| Timeline | Strong fit over speed -- willing to wait for the right role |
-| Hard deal-breakers | Consumer apps (non-SaaS); companies outside US; contract/1099 roles; companies below Series B or above Series E |
+| Element                 | Details                                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Primary title           | Senior Product Manager                                                                                          |
+| Alternate search titles | Senior PM, Product Lead, Group Product Manager, Principal PM                                                    |
+| Industry / domain       | B2B SaaS (core); adjacent: developer tools, vertical SaaS, fintech SaaS acceptable                              |
+| Company stage/size      | Series B-D, 100-600 employees                                                                                   |
+| Location / work model   | Austin, TX (hybrid welcome) or fully remote (US-based company)                                                  |
+| Compensation floor      | $170,000 base salary                                                                                            |
+| Compensation target     | $200,000+ total comp (base + bonus; equity as upside)                                                           |
+| Timeline                | Strong fit over speed -- willing to wait for the right role                                                     |
+| Hard deal-breakers      | Consumer apps (non-SaaS); companies outside US; contract/1099 roles; companies below Series B or above Series E |
 
 ---
 
@@ -370,15 +381,15 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 **Tier 1 criteria:** Company meets all of: B2B SaaS product, Series B-D funding stage, 100-600 employees, reputation for strong product culture, competitive senior IC compensation, remote-friendly or Austin office.
 
-| Company | Why Tier 1 | Key Contact / Team to Target | Status |
-|---------|-----------|------------------------------|--------|
-| Rippling | B2B SaaS, explosive growth (Series D), strong PM culture, remote-friendly | Head of Product or CPO; PM team on LinkedIn | Researching |
-| Brex | B2B fintech SaaS, Series D, known for product-led culture | Product team LinkedIn; look for Sr. PM posts | Researching |
-| Notion | B2B/prosumer SaaS, Series C at time of this plan, remote-friendly | PM hiring manager; Notion careers page | Researching |
-| Replit | Developer tools SaaS, Series B-C range, strong product culture | CPO or Head of PM; small team size means direct outreach possible | Researching |
-| Ironclad | B2B legal SaaS, Series D, Austin presence, consistent product hiring | PM team on LinkedIn; Austin tech community connection possible | Researching |
+| Company  | Why Tier 1                                                                | Key Contact / Team to Target                                      | Status      |
+| -------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------- |
+| Rippling | B2B SaaS, explosive growth (Series D), strong PM culture, remote-friendly | Head of Product or CPO; PM team on LinkedIn                       | Researching |
+| Brex     | B2B fintech SaaS, Series D, known for product-led culture                 | Product team LinkedIn; look for Sr. PM posts                      | Researching |
+| Notion   | B2B/prosumer SaaS, Series C at time of this plan, remote-friendly         | PM hiring manager; Notion careers page                            | Researching |
+| Replit   | Developer tools SaaS, Series B-C range, strong product culture            | CPO or Head of PM; small team size means direct outreach possible | Researching |
+| Ironclad | B2B legal SaaS, Series D, Austin presence, consistent product hiring      | PM team on LinkedIn; Austin tech community connection possible    | Researching |
 
-*Add 3-5 additional Tier 1 companies discovered through research and community engagement in weeks 1-2.*
+_Add 3-5 additional Tier 1 companies discovered through research and community engagement in weeks 1-2._
 
 ---
 
@@ -386,18 +397,18 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 **Tier 2 criteria:** B2B SaaS, Series B-D range OR slightly outside that range (late Series A or Series E acceptable), may not check every cultural box but role scope and comp are likely aligned.
 
-| Company | Why Tier 2 | Open Role (if known) | Status |
-|---------|-----------|----------------------|--------|
-| Greenhouse (Navan) | B2B SaaS, Series D, Austin office | Monitoring careers page | - |
-| Loom (now Atlassian) | B2B collaboration SaaS, strong PM culture | Check for retained PM team roles | - |
-| Gusto | B2B HR SaaS, Series E (slightly above target stage but compensation aligns) | Monitoring | - |
-| Zapier | B2B SaaS, remote-first, stable growth | Check Sr. PM postings | - |
-| Salesloft | B2B sales SaaS, Series E, Atlanta but remote roles | Monitoring | - |
-| Samsara | B2B SaaS/IoT, post-Series E but strong PM culture | Monitoring | - |
-| Contentful | B2B content SaaS, Series E, remote roles | Check PM openings | - |
-| Attentive | B2B marketing SaaS, Series E, remote-friendly | Monitoring | - |
+| Company              | Why Tier 2                                                                  | Open Role (if known)             | Status |
+| -------------------- | --------------------------------------------------------------------------- | -------------------------------- | ------ |
+| Greenhouse (Navan)   | B2B SaaS, Series D, Austin office                                           | Monitoring careers page          | -      |
+| Loom (now Atlassian) | B2B collaboration SaaS, strong PM culture                                   | Check for retained PM team roles | -      |
+| Gusto                | B2B HR SaaS, Series E (slightly above target stage but compensation aligns) | Monitoring                       | -      |
+| Zapier               | B2B SaaS, remote-first, stable growth                                       | Check Sr. PM postings            | -      |
+| Salesloft            | B2B sales SaaS, Series E, Atlanta but remote roles                          | Monitoring                       | -      |
+| Samsara              | B2B SaaS/IoT, post-Series E but strong PM culture                           | Monitoring                       | -      |
+| Contentful           | B2B content SaaS, Series E, remote roles                                    | Check PM openings                | -      |
+| Attentive            | B2B marketing SaaS, Series E, remote-friendly                               | Monitoring                       | -      |
 
-*Target 12-18 Tier 2 companies total. Fill remaining slots through LinkedIn company research using filters: "B2B SaaS," "Series B-D," "hiring product managers."*
+_Target 12-18 Tier 2 companies total. Fill remaining slots through LinkedIn company research using filters: "B2B SaaS," "Series B-D," "hiring product managers."_
 
 ---
 
@@ -405,7 +416,7 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 **Tier 3 criteria:** B2B SaaS at any stage from Series A through late-stage; may not be dream companies but role is likely appropriate, comp likely achievable, and an offer would create negotiating leverage.
 
-*Identify 15-25 Tier 3 companies using Wellfound (filter: B2B SaaS, Senior PM, $150k+ comp), LinkedIn Jobs (filter: Senior Product Manager, B2B, Remote), and Builtin Austin (for Austin-specific options). Do not finalize Tier 3 list before week 1 -- research will surface better options than guessing in advance.*
+_Identify 15-25 Tier 3 companies using Wellfound (filter: B2B SaaS, Senior PM, $150k+ comp), LinkedIn Jobs (filter: Senior Product Manager, B2B, Remote), and Builtin Austin (for Austin-specific options). Do not finalize Tier 3 list before week 1 -- research will surface better options than guessing in advance._
 
 ---
 
@@ -413,16 +424,16 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 **Search mode:** Full-time unemployed -- 35 hrs/week
 
-| Activity | Weekly Target | Time Investment | Notes |
-|----------|--------------|-----------------|-------|
-| Tailored applications | 10-12 | 60 min each -- 10-12 hrs total | Custom resume summary + tailored cover letter opening |
-| Networking outreach messages | 6-8 | 20 min each -- 2.5 hrs total | Former colleagues, PMs at target companies, Austin PM community |
-| Informational interviews / calls | 2-3 | 45 min each -- 2 hrs total | Prioritize Tier 1 company connections first |
-| Tier 1 deep-dives (research) | 2 | 60 min each -- 2 hrs total | Company product, recent funding news, team structure, Glassdoor reviews |
-| Application follow-ups | 8-12 | 10 min each -- 1.5 hrs total | 7-day follow-up on submitted applications |
-| Recruiter outreach | 3-4 | 15 min each -- 1 hr total | Focus on SaaS-specialized tech recruiters first 4 weeks |
-| Tracker updates + metrics review | Daily | 15 min/day -- 1.25 hrs total | Non-negotiable: this is the feedback loop |
-| **Total weekly hours** | | **~35 hrs** | Protect 2-4 hrs/day for breaks; searching full-time requires recovery time |
+| Activity                         | Weekly Target | Time Investment                | Notes                                                                      |
+| -------------------------------- | ------------- | ------------------------------ | -------------------------------------------------------------------------- |
+| Tailored applications            | 10-12         | 60 min each -- 10-12 hrs total | Custom resume summary + tailored cover letter opening                      |
+| Networking outreach messages     | 6-8           | 20 min each -- 2.5 hrs total   | Former colleagues, PMs at target companies, Austin PM community            |
+| Informational interviews / calls | 2-3           | 45 min each -- 2 hrs total     | Prioritize Tier 1 company connections first                                |
+| Tier 1 deep-dives (research)     | 2             | 60 min each -- 2 hrs total     | Company product, recent funding news, team structure, Glassdoor reviews    |
+| Application follow-ups           | 8-12          | 10 min each -- 1.5 hrs total   | 7-day follow-up on submitted applications                                  |
+| Recruiter outreach               | 3-4           | 15 min each -- 1 hr total      | Focus on SaaS-specialized tech recruiters first 4 weeks                    |
+| Tracker updates + metrics review | Daily         | 15 min/day -- 1.25 hrs total   | Non-negotiable: this is the feedback loop                                  |
+| **Total weekly hours**           |               | **~35 hrs**                    | Protect 2-4 hrs/day for breaks; searching full-time requires recovery time |
 
 **Pipeline math:** At an expected 12-15% application-to-first-screen rate for tailored senior PM applications in B2B SaaS, you need approximately 20-30 active applications in the tracker to sustain 3-5 simultaneous first-round conversations. At 10-12 applications per week, you should hit that target by the end of week 3.
 
@@ -430,14 +441,14 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 ### Weekly Schedule
 
-| Day | Focus Area | Specific Activities | Time Block |
-|-----|-----------|---------------------|------------|
-| Monday | Research + Prep | Deep-dive 2 Tier 1 or Tier 2 companies (product, team, funding); tailor resume for 3 applications; draft cover letter openings | 9 AM-12 PM, 1-3 PM (5 hrs) |
-| Tuesday | Applications | Submit 4-5 prepared applications; add newly discovered companies to tier list; update tracker | 9 AM-12 PM, 1-2 PM (4 hrs) |
-| Wednesday | Networking + Calls | Send 3-4 outreach messages to former colleagues and target company connections; hold 1-2 scheduled informational calls; send 24-hour post-interview thank-yous if applicable | 9 AM-12 PM, 1-3 PM (5 hrs) |
-| Thursday | Applications + Follow-Ups | Submit 4-5 applications; send 7-day follow-ups on applications submitted the previous Thursday; research 1-2 recruiter contacts | 9 AM-12 PM, 1-2 PM (4 hrs) |
-| Friday | Review + Plan | Update full tracker; calculate weekly response rate; review what is in the pipeline; identify any missing follow-ups; plan next week's application and networking targets; 30 min career content on LinkedIn if using inbound strategy | 9 AM-12 PM (3 hrs) |
-| Weekend (1 day, 2-3 hrs) | Light catch-up + sustainability | Respond to recruiter messages; add companies to research queue for Monday; review PM community Slack channels (e.g., Lenny's, Product School) for leads; no applications | Morning block, 2 hrs |
+| Day                      | Focus Area                      | Specific Activities                                                                                                                                                                                                                    | Time Block                 |
+| ------------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Monday                   | Research + Prep                 | Deep-dive 2 Tier 1 or Tier 2 companies (product, team, funding); tailor resume for 3 applications; draft cover letter openings                                                                                                         | 9 AM-12 PM, 1-3 PM (5 hrs) |
+| Tuesday                  | Applications                    | Submit 4-5 prepared applications; add newly discovered companies to tier list; update tracker                                                                                                                                          | 9 AM-12 PM, 1-2 PM (4 hrs) |
+| Wednesday                | Networking + Calls              | Send 3-4 outreach messages to former colleagues and target company connections; hold 1-2 scheduled informational calls; send 24-hour post-interview thank-yous if applicable                                                           | 9 AM-12 PM, 1-3 PM (5 hrs) |
+| Thursday                 | Applications + Follow-Ups       | Submit 4-5 applications; send 7-day follow-ups on applications submitted the previous Thursday; research 1-2 recruiter contacts                                                                                                        | 9 AM-12 PM, 1-2 PM (4 hrs) |
+| Friday                   | Review + Plan                   | Update full tracker; calculate weekly response rate; review what is in the pipeline; identify any missing follow-ups; plan next week's application and networking targets; 30 min career content on LinkedIn if using inbound strategy | 9 AM-12 PM (3 hrs)         |
+| Weekend (1 day, 2-3 hrs) | Light catch-up + sustainability | Respond to recruiter messages; add companies to research queue for Monday; review PM community Slack channels (e.g., Lenny's, Product School) for leads; no applications                                                               | Morning block, 2 hrs       |
 
 **Sunday 8 PM planning session (20 minutes):** Review tracker for any missed follow-up dates. Confirm Monday research targets. Check email for any responses received over the weekend.
 
@@ -445,11 +456,11 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 ### Channel Mix
 
-| Channel | % of Weekly Effort | Specific Weekly Actions | Primary Platforms |
-|---------|--------------------|------------------------|-------------------|
-| Direct applications | 40% | Apply to all Tier 2/3 openings within 48 hours of posting; apply to Tier 1 openings only after networking contact attempt | LinkedIn Jobs, Wellfound, Greenhouse/Lever career pages directly, Builtin Austin |
-| Networking | 45% | 6-8 outreach messages; 2-3 informational calls; 1 Austin tech PM community event per month; engage with PM content on LinkedIn 3x/week | LinkedIn, Austin PM community Slack, Product School alumni, former employer alumni network |
-| Recruiter relationships | 15% | Identify and message 3-4 SaaS-specialized tech recruiters in weeks 1-2; respond promptly to all inbound recruiter messages; be specific in every recruiter message about level, comp floor, and target stage | LinkedIn Recruiter messages, specialized SaaS tech staffing firms (Robert Half Tech, Riviera Partners for PM roles) |
+| Channel                 | % of Weekly Effort | Specific Weekly Actions                                                                                                                                                                                      | Primary Platforms                                                                                                   |
+| ----------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Direct applications     | 40%                | Apply to all Tier 2/3 openings within 48 hours of posting; apply to Tier 1 openings only after networking contact attempt                                                                                    | LinkedIn Jobs, Wellfound, Greenhouse/Lever career pages directly, Builtin Austin                                    |
+| Networking              | 45%                | 6-8 outreach messages; 2-3 informational calls; 1 Austin tech PM community event per month; engage with PM content on LinkedIn 3x/week                                                                       | LinkedIn, Austin PM community Slack, Product School alumni, former employer alumni network                          |
+| Recruiter relationships | 15%                | Identify and message 3-4 SaaS-specialized tech recruiters in weeks 1-2; respond promptly to all inbound recruiter messages; be specific in every recruiter message about level, comp floor, and target stage | LinkedIn Recruiter messages, specialized SaaS tech staffing firms (Robert Half Tech, Riviera Partners for PM roles) |
 
 **Note on Austin PM community:** Austin has a strong and accessible PM community. Meetup.com PM groups, Product Austin, and the local Lenny's Newsletter community often have Slack channels and events. One relationship built in-person at a community event can produce 2-3 warm introductions to hiring managers -- prioritize attending at least one event per month.
 
@@ -457,29 +468,30 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 
 ### Follow-Up Cadences
 
-| Trigger | Action | Timing |
-|---------|--------|--------|
-| Application submitted | No action; log next action date | Wait 7 business days |
-| 7 business days post-application, no response | Email recruiter or hiring manager (3-4 sentences: who you are, role applied to, specific reason you are excited, offer to answer questions) | Exactly day 7 |
-| 14 business days post-application, still no response | One final follow-up; if no response after this, mark as Ghosted in tracker | Day 14 |
-| Networking outreach sent | No action | Wait 5 business days |
-| 5 business days no networking response | One short follow-up message (1-2 sentences; do not repeat the original ask) | Day 5 |
-| Second follow-up with no response | Mark as no-response; do not send a third message | After day 5 follow-up |
-| Interview completed (any round) | Individual thank-you email to each interviewer (personalized, reference one specific thing discussed) | Within 24 hours |
-| Decision date given and not heard by that date | Brief, professional check-in email referencing the stated timeline | On the stated decision date |
-| Offer received | Do not accept on the call; ask for the offer in writing and request 48-72 hours to review | Same day as verbal offer |
+| Trigger                                              | Action                                                                                                                                      | Timing                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Application submitted                                | No action; log next action date                                                                                                             | Wait 7 business days        |
+| 7 business days post-application, no response        | Email recruiter or hiring manager (3-4 sentences: who you are, role applied to, specific reason you are excited, offer to answer questions) | Exactly day 7               |
+| 14 business days post-application, still no response | One final follow-up; if no response after this, mark as Ghosted in tracker                                                                  | Day 14                      |
+| Networking outreach sent                             | No action                                                                                                                                   | Wait 5 business days        |
+| 5 business days no networking response               | One short follow-up message (1-2 sentences; do not repeat the original ask)                                                                 | Day 5                       |
+| Second follow-up with no response                    | Mark as no-response; do not send a third message                                                                                            | After day 5 follow-up       |
+| Interview completed (any round)                      | Individual thank-you email to each interviewer (personalized, reference one specific thing discussed)                                       | Within 24 hours             |
+| Decision date given and not heard by that date       | Brief, professional check-in email referencing the stated timeline                                                                          | On the stated decision date |
+| Offer received                                       | Do not accept on the call; ask for the offer in writing and request 48-72 hours to review                                                   | Same day as verbal offer    |
 
 ---
 
 ### Application Tracker Template
 
-| Company | Title | Date Applied | Source | Status | Next Action | Next Action Date | Contact | Notes |
-|---------|-------|-------------|--------|--------|-------------|-----------------|---------|-------|
-| Rippling | Senior PM -- Workforce | 2024-01-08 | LinkedIn Jobs | First Screen Scheduled | Prep call + send thank-you | 2024-01-15 | Jamie K. (Recruiter) | Focus area: workforce automation; JD emphasized "cross-functional leadership" -- prep examples |
-| Ironclad | Senior PM -- Contracts | 2024-01-06 | Company careers page | Applied | Follow-up email | 2024-01-15 | Unknown | Met Sarah M. at Product Austin in Dec -- mentioned she works there; sent warm message |
-| Zapier | Senior PM -- Integrations | 2024-01-09 | Wellfound | Applied | Follow-up email | 2024-01-18 | Unknown | Remote role; JD emphasized "PLG experience" -- tailor cover letter |
+| Company  | Title                     | Date Applied | Source               | Status                 | Next Action                | Next Action Date | Contact              | Notes                                                                                          |
+| -------- | ------------------------- | ------------ | -------------------- | ---------------------- | -------------------------- | ---------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| Rippling | Senior PM -- Workforce    | 2024-01-08   | LinkedIn Jobs        | First Screen Scheduled | Prep call + send thank-you | 2024-01-15       | Jamie K. (Recruiter) | Focus area: workforce automation; JD emphasized "cross-functional leadership" -- prep examples |
+| Ironclad | Senior PM -- Contracts    | 2024-01-06   | Company careers page | Applied                | Follow-up email            | 2024-01-15       | Unknown              | Met Sarah M. at Product Austin in Dec -- mentioned she works there; sent warm message          |
+| Zapier   | Senior PM -- Integrations | 2024-01-09   | Wellfound            | Applied                | Follow-up email            | 2024-01-18       | Unknown              | Remote role; JD emphasized "PLG experience" -- tailor cover letter                             |
 
 **Status vocabulary (use consistently throughout tracker):**
+
 - Researching → Applied → First Screen Scheduled → First Screen Done → 2nd Round → Final Round → Offer Received → Accepted / Declined / Rejected / Ghosted / Withdrawn
 
 ---
@@ -499,6 +511,7 @@ Occasionally a user wants to pursue two distinctly different roles at once (e.g.
 - [ ] Timeline check: is the target timeline of "strong fit over speed" still the right call, or has urgency changed?
 
 **Strategy decision rules:**
+
 - Response rate below 5% for 4 consecutive weeks → Resume or ATS keyword problem; fix before increasing volume → consider `resume-bullet-writer`
 - Response rate above 10% but no second rounds → Interview performance issue → use `behavioral-interview-prep`
 - Reaching final rounds but not offers → Comp mismatch or offer-stage issue → use `salary-negotiation`; verify whether $200k+ target is realistic for Series B-D stage companies in current market

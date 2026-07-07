@@ -223,7 +223,10 @@ const UrlAddModal: React.FC<{
     >
       <div className='flex flex-col gap-14px'>
         <div className='text-13px text-t-secondary'>
-          {t('mcpLibrary.urlAdd.subtitle', 'Paste a link from the vendor. Wayland detects how to connect and signs you in.')}
+          {t(
+            'mcpLibrary.urlAdd.subtitle',
+            'Paste a link from the vendor. Wayland detects how to connect and signs you in.'
+          )}
         </div>
 
         <Input
@@ -243,12 +246,7 @@ const UrlAddModal: React.FC<{
           <div className='flex items-center gap-8px flex-wrap'>
             <span className='text-12px text-t-tertiary'>{t('mcpLibrary.urlAdd.tryLabel', 'Try:')}</span>
             {EXAMPLES.map((ex) => (
-              <button
-                key={ex.url}
-                type='button'
-                className='mcp-url-example'
-                onClick={() => fillExample(ex.url)}
-              >
+              <button key={ex.url} type='button' className='mcp-url-example' onClick={() => fillExample(ex.url)}>
                 {ex.label}
               </button>
             ))}

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management planning checklist"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management planning checklist'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Daily Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks for help planning today or structuring the current workday -- phrases like "help me figure out my day," "I have too much to do today," or "what should I work on first?"
 - The user has a task list or brain dump and needs help sequencing, estimating, and committing to a realistic daily execution plan
 - The user wants to identify their Most Important Tasks (MITs) for the day and needs a rationale for which ones to prioritize
@@ -29,6 +31,7 @@ metadata:
 - The user has a loose sense of what they should do but hasn't committed to a specific, time-anchored sequence
 
 **Do NOT use when:**
+
 - The user wants to build a full weekly time-block schedule across multiple days -- use `time-blocking` instead, which handles recurring blocks, weekly themes, and time-category allocation
 - The user wants to set up a complete GTD capture-clarify-organize-reflect-engage system -- use `gtd-workflow`, which addresses the full trusted system architecture
 - The user needs to triage and prioritize a large project backlog or epics list across multiple weeks -- use `task-prioritization`, which applies RICE scoring, ICE frameworks, and multi-horizon thinking
@@ -63,16 +66,19 @@ Select exactly 2-3 Most Important Tasks. Selecting 1 is too conservative and lea
 Apply these three filters in order:
 
 **Filter 1 -- Hard constraints (automatic MIT qualification):**
+
 - Any task with a hard deadline due today or by 9 AM tomorrow morning
 - Any task that is blocking another person's ability to do their work -- a code review, an approval, a document someone is waiting on
 - Any task that, if not done today, triggers a financial or reputational consequence (missed invoice, unanswered client, delayed shipment)
 
 **Filter 2 -- Strategic leverage test:**
+
 - Which tasks on this list advance the user's single most important goal or project right now?
 - Apply the 80/20 principle: which 2-3 tasks, if completed, would produce 80% of today's meaningful progress?
 - Prefer tasks that compound (a decision that unblocks five other tasks, a draft that enables a review cycle to start)
 
 **Filter 3 -- The "photograph test" (borrowed from Tiago Forte's PARA prioritization logic):**
+
 - If someone took a photograph of your desk at 5 PM, which completed tasks would make you feel genuinely accomplished versus which would barely register?
 - This filter removes tasks that feel important due to urgency theater (responding to someone's low-stakes message instantly, reorganizing files) rather than real impact
 
@@ -102,16 +108,17 @@ Sequencing is not just about fitting tasks into available gaps. It is about matc
 
 **The four energy zones:**
 
-| Zone | Typical Time | Cognitive State | Best Task Types |
-|------|-------------|-----------------|-----------------|
-| Peak | First 2-3 hours after waking | Maximum focus, dopamine high, fewest distractions | Deep work MITs: writing, coding, analysis, strategy, complex decisions |
-| Trough | Early-to-mid afternoon (roughly 1-3 PM for most people) | Energy dip, reduced vigilance, higher error rates | Administrative tasks, routine email, expense reports, data entry, routine calls |
-| Recovery | Late afternoon (roughly 3-5 PM) | Energy rebounds, mood improves, good for collaboration | Shallow creative tasks, 1:1 conversations, brainstorming, light planning |
-| Post-dinner (for evening workers) | 7-9 PM | Second cognitive peak for night owls | Deep work if user identifies as an evening chronotype |
+| Zone                              | Typical Time                                            | Cognitive State                                        | Best Task Types                                                                 |
+| --------------------------------- | ------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Peak                              | First 2-3 hours after waking                            | Maximum focus, dopamine high, fewest distractions      | Deep work MITs: writing, coding, analysis, strategy, complex decisions          |
+| Trough                            | Early-to-mid afternoon (roughly 1-3 PM for most people) | Energy dip, reduced vigilance, higher error rates      | Administrative tasks, routine email, expense reports, data entry, routine calls |
+| Recovery                          | Late afternoon (roughly 3-5 PM)                         | Energy rebounds, mood improves, good for collaboration | Shallow creative tasks, 1:1 conversations, brainstorming, light planning        |
+| Post-dinner (for evening workers) | 7-9 PM                                                  | Second cognitive peak for night owls                   | Deep work if user identifies as an evening chronotype                           |
 
 These zones shift by roughly 1-2 hours for night owls versus early birds. Always use the user's self-reported energy curve, not a generic schedule.
 
 **Sequencing rules:**
+
 - Place MIT #1 in the Peak zone, as the first task of the day before email, Slack, or any reactive work. Reactive work hijacks attentional resources before the user has deployed them intentionally.
 - Place MIT #2 in the second-best energy slot -- either late morning or the Recovery zone, depending on available time after fixed commitments.
 - Place MIT #3 immediately before or after a natural energy anchor (e.g., right before lunch while still motivated, or at the start of Recovery zone).
@@ -127,6 +134,7 @@ These zones shift by roughly 1-2 hours for night owls versus early birds. Always
 If the total task load exceeds available net time, do not silently adjust times and hope it works. Over-commitment is one of the most common and damaging planning errors. Handle it explicitly:
 
 **The three-option framework for over-committed days:**
+
 1. **Cut:** Remove low-value tasks from today's plan entirely. They do not get deferred -- they get evaluated for whether they should be done at all. Ask: "Does this task still need to happen, or has it been on the list past its usefulness?"
 2. **Defer:** Move tasks to a specific future date with a reason logged. "Deferred to Friday because MIT #1 takes priority and there is no hard deadline today" is acceptable. Deferring without a reason creates a growing list of guilt.
 3. **Shrink:** Reduce the scope of a task to fit today's time. Instead of "Write full blog post draft," shrink to "Write blog post outline and first 300 words." A smaller version done is better than a full version not started.
@@ -146,7 +154,7 @@ The shutdown block should be 15 minutes, scheduled 10-15 minutes before the end 
 - **Review what was completed vs. planned.** Percentage completion is not the goal -- MIT completion is the goal. A day where 3 MITs are done and 5 admin tasks are incomplete is a successful day.
 - **Process every incomplete task.** For each one: does it move to tomorrow, get delegated, get cut, or get deferred to a specific future date? No task should remain in ambiguous limbo.
 - **Capture every new task that arose during the day** -- from meetings, emails, conversations, or ideas -- in a single capture list (not scattered across email, Slack, sticky notes, and memory).
-- **Write the shutdown sentence.** "The most important thing I accomplished today was ___." This is not journaling -- it is a 20-second cognitive completion ritual that creates a clean break.
+- **Write the shutdown sentence.** "The most important thing I accomplished today was \_\_\_." This is not journaling -- it is a 20-second cognitive completion ritual that creates a clean break.
 - **Scan tomorrow.** Spend 60 seconds reviewing tomorrow's calendar to surface any prep needed that wasn't already planned.
 
 ---
@@ -326,77 +334,82 @@ If the user mentions that they make plans every day but always fall behind or ab
 ## Daily Plan: Thursday, November 14
 
 ### Today's MITs (Must Complete)
+
 1. **Finish Q3 pricing analysis spreadsheet** -- hard deadline EOD today, explicitly requested by manager; missing this deadline has a direct professional consequence
 2. **Review and respond to legal team's contract redlines** -- blocking another team's workflow; legal is waiting on this response to proceed; a delayed response today becomes a delayed business decision tomorrow
 3. **Write performance self-review (first draft)** -- due Friday EOD, which leaves only tonight and tomorrow morning if not started today; complex reflective writing benefits from your Peak zone and will be significantly harder to write under time pressure tomorrow
 
 ### Capacity Snapshot
-| | Hours / Minutes |
-|---|---|
-| Working hours today | 7 hrs 45 min (8:00 AM -- 3:45 PM, including dentist departure) |
-| Fixed calendar commitments | 2 hrs (standup 9-10 AM + product review 1-2 PM) |
-| Transition buffers | 40 min (4 buffers × 10 min) |
-| Lunch / breaks | 45 min (12:15 -- 1:00 PM) |
-| **Net available for tasks** | **4 hrs 20 min (260 min)** |
-| Total task estimates (buffered at 25%) | 4 hrs 11 min (251 min) |
-| **Status** | **On track -- 9-minute margin. Tight but executable.** |
 
-*Key assumption: Q3 pricing analysis estimated at 90 min raw / 113 min buffered. Legal contract redlines estimated at 45 min raw / 56 min buffered. Self-review first draft estimated at 60 min raw / 75 min buffered. UI bug fix estimated at 20 min raw / 25 min buffered. Adjust if your estimates differ significantly.*
+|                                        | Hours / Minutes                                                |
+| -------------------------------------- | -------------------------------------------------------------- |
+| Working hours today                    | 7 hrs 45 min (8:00 AM -- 3:45 PM, including dentist departure) |
+| Fixed calendar commitments             | 2 hrs (standup 9-10 AM + product review 1-2 PM)                |
+| Transition buffers                     | 40 min (4 buffers × 10 min)                                    |
+| Lunch / breaks                         | 45 min (12:15 -- 1:00 PM)                                      |
+| **Net available for tasks**            | **4 hrs 20 min (260 min)**                                     |
+| Total task estimates (buffered at 25%) | 4 hrs 11 min (251 min)                                         |
+| **Status**                             | **On track -- 9-minute margin. Tight but executable.**         |
+
+_Key assumption: Q3 pricing analysis estimated at 90 min raw / 113 min buffered. Legal contract redlines estimated at 45 min raw / 56 min buffered. Self-review first draft estimated at 60 min raw / 75 min buffered. UI bug fix estimated at 20 min raw / 25 min buffered. Adjust if your estimates differ significantly._
 
 ### Sequenced Day Plan
-| # | Start | Task | Duration | Type | Energy Zone |
-|---|-------|------|----------|------|-------------|
-| 1 | 8:00 AM | Q3 pricing analysis spreadsheet | 88 min | MIT #1 | Peak |
-| 2 | 9:28 AM | Transition buffer (save work, close out) | 10 min | Buffer | -- |
-| 3 | 9:38 AM | ← *Note: standup starts at 9:38 if standup is 9:00; see assumption below* | -- | -- | -- |
-| 4 | 9:00 AM* | Standup meeting | 60 min | Fixed | -- |
 
-*Wait -- conflict detected. Standup begins at 9:00 AM, but MIT #1 is also scheduled starting at 8:00 AM. The 90-minute (88 min buffered) MIT block runs from 8:00 to 9:28 AM, which overlaps the 9:00 AM standup. Applying split-MIT rule below.*
+| #   | Start     | Task                                                                      | Duration | Type   | Energy Zone |
+| --- | --------- | ------------------------------------------------------------------------- | -------- | ------ | ----------- |
+| 1   | 8:00 AM   | Q3 pricing analysis spreadsheet                                           | 88 min   | MIT #1 | Peak        |
+| 2   | 9:28 AM   | Transition buffer (save work, close out)                                  | 10 min   | Buffer | --          |
+| 3   | 9:38 AM   | ← _Note: standup starts at 9:38 if standup is 9:00; see assumption below_ | --       | --     | --          |
+| 4   | 9:00 AM\* | Standup meeting                                                           | 60 min   | Fixed  | --          |
+
+_Wait -- conflict detected. Standup begins at 9:00 AM, but MIT #1 is also scheduled starting at 8:00 AM. The 90-minute (88 min buffered) MIT block runs from 8:00 to 9:28 AM, which overlaps the 9:00 AM standup. Applying split-MIT rule below._
 
 **Revised plan with MIT #1 split across two blocks:**
 
-| # | Start | Task | Duration | Type | Energy Zone |
-|---|-------|------|----------|------|-------------|
-| 1 | 8:00 AM | Q3 pricing analysis -- Part 1 (data gathering + model structure) | 50 min | MIT #1a | Peak |
-| 2 | 8:50 AM | Transition buffer + standup prep | 10 min | Buffer | -- |
-| 3 | 9:00 AM | Standup meeting | 60 min | Fixed | -- |
-| 4 | 10:00 AM | Transition buffer | 10 min | Buffer | -- |
-| 5 | 10:10 AM | Legal contract redlines -- review and respond | 56 min | MIT #2 | Peak |
-| 6 | 11:06 AM | Q3 pricing analysis -- Part 2 (analysis + formatting + final review) | 63 min | MIT #1b | Peak-to-Mid |
-| 7 | 12:09 PM | Reply to 8 emails (batched) | 25 min | Admin | Mid |
-| 8 | 12:34 PM | Schedule Q4 planning session (calendar + invite) | 10 min | Admin | Mid |
-| 9 | 12:44 PM | Lunch break | 45 min | Break | -- |
-| 10 | 1:00 PM* | Product review meeting | 60 min | Fixed | -- |
+| #   | Start     | Task                                                                 | Duration | Type    | Energy Zone |
+| --- | --------- | -------------------------------------------------------------------- | -------- | ------- | ----------- |
+| 1   | 8:00 AM   | Q3 pricing analysis -- Part 1 (data gathering + model structure)     | 50 min   | MIT #1a | Peak        |
+| 2   | 8:50 AM   | Transition buffer + standup prep                                     | 10 min   | Buffer  | --          |
+| 3   | 9:00 AM   | Standup meeting                                                      | 60 min   | Fixed   | --          |
+| 4   | 10:00 AM  | Transition buffer                                                    | 10 min   | Buffer  | --          |
+| 5   | 10:10 AM  | Legal contract redlines -- review and respond                        | 56 min   | MIT #2  | Peak        |
+| 6   | 11:06 AM  | Q3 pricing analysis -- Part 2 (analysis + formatting + final review) | 63 min   | MIT #1b | Peak-to-Mid |
+| 7   | 12:09 PM  | Reply to 8 emails (batched)                                          | 25 min   | Admin   | Mid         |
+| 8   | 12:34 PM  | Schedule Q4 planning session (calendar + invite)                     | 10 min   | Admin   | Mid         |
+| 9   | 12:44 PM  | Lunch break                                                          | 45 min   | Break   | --          |
+| 10  | 1:00 PM\* | Product review meeting                                               | 60 min   | Fixed   | --          |
 
-*Note: Lunch runs 12:44 -- 1:29 PM if taken in full, but product review starts at 1:00 PM. Adjust: take 15-minute lunch at 12:44 PM, or take full lunch 11:30 AM -- 12:15 PM and shift email batch to after product review. Recommended: shift lunch earlier to 11:10 AM after Part 1b of pricing analysis, move email batch to Trough zone post-meeting. See revised sequence below.*
+_Note: Lunch runs 12:44 -- 1:29 PM if taken in full, but product review starts at 1:00 PM. Adjust: take 15-minute lunch at 12:44 PM, or take full lunch 11:30 AM -- 12:15 PM and shift email batch to after product review. Recommended: shift lunch earlier to 11:10 AM after Part 1b of pricing analysis, move email batch to Trough zone post-meeting. See revised sequence below._
 
 **Final Revised Sequence (cleaner):**
 
-| # | Start | Task | Duration | Type | Energy Zone |
-|---|-------|------|----------|------|-------------|
-| 1 | 8:00 AM | Q3 pricing analysis -- Part 1 (data gathering + model structure) | 50 min | MIT #1a | Peak |
-| 2 | 8:50 AM | Transition buffer | 10 min | Buffer | -- |
-| 3 | 9:00 AM | Standup meeting | 60 min | Fixed | -- |
-| 4 | 10:00 AM | Transition buffer | 10 min | Buffer | -- |
-| 5 | 10:10 AM | Legal contract redlines -- review and respond | 56 min | MIT #2 | Peak |
-| 6 | 11:06 AM | Q3 pricing analysis -- Part 2 (analysis + final formatting) | 63 min | MIT #1b | Peak-to-Mid |
-| 7 | 12:09 PM | Lunch break | 45 min | Break | -- |
-| 8 | 12:54 PM | Performance self-review -- first draft | 6 min run-up + transition buffer | Buffer | -- |
-| 9 | 1:00 PM | Product review meeting | 60 min | Fixed | -- |
-| 10 | 2:00 PM | Transition buffer | 10 min | Buffer | -- |
-| 11 | 2:10 PM | Performance self-review -- first draft | 75 min | MIT #3 | Recovery |
-| 12 | 3:25 PM | Reply to 8 emails (batched) + schedule Q4 planning session | 35 min | Admin | Recovery |
-| 13 | 3:45 PM | ← Depart for dentist. Shutdown moves to post-dentist or tomorrow AM. | -- | -- | -- |
+| #   | Start    | Task                                                                 | Duration                         | Type    | Energy Zone |
+| --- | -------- | -------------------------------------------------------------------- | -------------------------------- | ------- | ----------- |
+| 1   | 8:00 AM  | Q3 pricing analysis -- Part 1 (data gathering + model structure)     | 50 min                           | MIT #1a | Peak        |
+| 2   | 8:50 AM  | Transition buffer                                                    | 10 min                           | Buffer  | --          |
+| 3   | 9:00 AM  | Standup meeting                                                      | 60 min                           | Fixed   | --          |
+| 4   | 10:00 AM | Transition buffer                                                    | 10 min                           | Buffer  | --          |
+| 5   | 10:10 AM | Legal contract redlines -- review and respond                        | 56 min                           | MIT #2  | Peak        |
+| 6   | 11:06 AM | Q3 pricing analysis -- Part 2 (analysis + final formatting)          | 63 min                           | MIT #1b | Peak-to-Mid |
+| 7   | 12:09 PM | Lunch break                                                          | 45 min                           | Break   | --          |
+| 8   | 12:54 PM | Performance self-review -- first draft                               | 6 min run-up + transition buffer | Buffer  | --          |
+| 9   | 1:00 PM  | Product review meeting                                               | 60 min                           | Fixed   | --          |
+| 10  | 2:00 PM  | Transition buffer                                                    | 10 min                           | Buffer  | --          |
+| 11  | 2:10 PM  | Performance self-review -- first draft                               | 75 min                           | MIT #3  | Recovery    |
+| 12  | 3:25 PM  | Reply to 8 emails (batched) + schedule Q4 planning session           | 35 min                           | Admin   | Recovery    |
+| 13  | 3:45 PM  | ← Depart for dentist. Shutdown moves to post-dentist or tomorrow AM. | --                               | --      | --          |
 
-*UI bug fix and team wiki update are both deferred -- see Deferred Tasks below. Total scheduled task time: 279 min / 4 hrs 39 min. Net available: ~265 min. Over by 14 minutes -- addressed by deferring UI bug fix and wiki update.*
+_UI bug fix and team wiki update are both deferred -- see Deferred Tasks below. Total scheduled task time: 279 min / 4 hrs 39 min. Net available: ~265 min. Over by 14 minutes -- addressed by deferring UI bug fix and wiki update._
 
 ### Deferred Tasks
-| Task | Reason Deferred | Proposed Rescheduled Date | Priority |
-|------|----------------|--------------------------|----------|
-| Fix UI bug (team-flagged) | No hard deadline; no one is blocked on this today; fits in tomorrow's Trough zone | Friday, Trough zone (~2 PM) | Medium |
-| Update team wiki with release notes | Administrative task; no reader is actively waiting for this update; 1-week-old notes are still useful | Friday or Monday morning | Low |
+
+| Task                                | Reason Deferred                                                                                       | Proposed Rescheduled Date   | Priority |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------- | -------- |
+| Fix UI bug (team-flagged)           | No hard deadline; no one is blocked on this today; fits in tomorrow's Trough zone                     | Friday, Trough zone (~2 PM) | Medium   |
+| Update team wiki with release notes | Administrative task; no reader is actively waiting for this update; 1-week-old notes are still useful | Friday or Monday morning    | Low      |
 
 ### Planning Assumptions
+
 - Q3 pricing analysis estimated at 90 minutes raw by user; 113 minutes buffered (split into 50 + 63 min to work around standup)
 - Legal redlines estimated at 45 minutes raw; 56 minutes buffered -- assumes contract is under 20 pages and redlines are substantive but not requiring legal counsel escalation
 - Self-review first draft estimated at 60 minutes raw; 75 minutes buffered -- assumes narrative format, not a form with discrete numeric ratings
@@ -405,10 +418,11 @@ If the user mentions that they make plans every day but always fall behind or ab
 - Dentist departure at 3:45 PM is firm -- end-of-day shutdown moved to post-dentist return or folded into tomorrow morning's planning session
 
 ### End-of-Day Shutdown Checklist (3:30 PM today, abbreviated -- 10 minutes before dentist departure)
+
 - [ ] Confirm Q3 pricing analysis is complete and sent to manager before 3:45 PM
 - [ ] Confirm legal redlines response has been sent
 - [ ] Save self-review draft with clear filename indicating it is in progress
 - [ ] Capture any new tasks from product review meeting
 - [ ] Process deferred items: confirm UI bug and wiki update are logged for Friday
-- [ ] Write: "The most important thing I accomplished today was ___"
-- [ ] *Full shutdown review to complete tomorrow morning before starting work*
+- [ ] Write: "The most important thing I accomplished today was \_\_\_"
+- [ ] _Full shutdown review to complete tomorrow morning before starting work_

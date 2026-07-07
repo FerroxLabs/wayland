@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql architecture"
-  category: "data-engineering"
-  subcategory: "data-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql architecture'
+  category: 'data-engineering'
+  subcategory: 'data-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Contract Designer
@@ -86,15 +86,15 @@ quality:
       columns: [order_id, customer_id, order_date, order_status]
     - type: freshness
       column: _updated_at
-      threshold: "PT6H"
+      threshold: 'PT6H'
     - type: row_count
       minimum: 1000
     - type: custom_sql
-      query: "SELECT COUNT(*) FROM {table} WHERE unit_price_cents < 0"
+      query: 'SELECT COUNT(*) FROM {table} WHERE unit_price_cents < 0'
       threshold: 0
     - type: referential_integrity
       column: customer_id
-      references: {contract: customers.contract.yaml, column: customer_id}
+      references: { contract: customers.contract.yaml, column: customer_id }
 
 sla:
   availability: 99.9%
@@ -135,18 +135,18 @@ PATCH (non-structural):
 
 ### Compatibility Matrix
 
-| Change Type | Backward Compatible | Action Required |
-|-------------|--------------------|--------------------|
-| Add nullable column | Yes | MINOR bump |
-| Add required column | No | MAJOR bump + migration |
-| Remove column | No | MAJOR bump + deprecation |
-| Rename column | No | MAJOR bump |
-| Widen type (INT->BIGINT) | Yes | MINOR bump |
-| Narrow type (BIGINT->INT) | No | MAJOR bump |
-| Add enum value | Yes | MINOR bump |
-| Remove enum value | No | MAJOR bump |
-| Required -> optional | Yes | MINOR bump |
-| Optional -> required | No | MAJOR bump |
+| Change Type               | Backward Compatible | Action Required          |
+| ------------------------- | ------------------- | ------------------------ |
+| Add nullable column       | Yes                 | MINOR bump               |
+| Add required column       | No                  | MAJOR bump + migration   |
+| Remove column             | No                  | MAJOR bump + deprecation |
+| Rename column             | No                  | MAJOR bump               |
+| Widen type (INT->BIGINT)  | Yes                 | MINOR bump               |
+| Narrow type (BIGINT->INT) | No                  | MAJOR bump               |
+| Add enum value            | Yes                 | MINOR bump               |
+| Remove enum value         | No                  | MAJOR bump               |
+| Required -> optional      | Yes                 | MINOR bump               |
+| Optional -> required      | No                  | MAJOR bump               |
 
 ### Deprecation Workflow
 
@@ -239,8 +239,8 @@ metadata:
 
 dependency:
   contract: sales/orders.contract.yaml
-  minimum_version: "2.0.0"
-  maximum_version: "3.0.0"
+  minimum_version: '2.0.0'
+  maximum_version: '3.0.0'
 
 columns_used:
   - order_id
@@ -254,8 +254,8 @@ sla_requirements:
   availability: 99.5%
 
 usage:
-  purpose: "Monthly revenue reporting for SEC filings"
-  access_pattern: "Daily batch, full scan of recent 90 days"
+  purpose: 'Monthly revenue reporting for SEC filings'
+  access_pattern: 'Daily batch, full scan of recent 90 days'
 ```
 
 ## Quality Assertions
@@ -316,7 +316,7 @@ alerts:
     check_interval: PT5M
     notification:
       channels: [slack, pagerduty]
-      slack_channel: "#data-alerts"
+      slack_channel: '#data-alerts'
       message: |
         Sales orders data freshness SLA breached.
         Contract: sales/orders v2.1.0
@@ -350,6 +350,7 @@ Phase 3 - Enforcement:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data contract designer solutions
 - Reviewing or improving existing data contract designer approaches
 - Making architectural or implementation decisions about data contract designer
@@ -357,6 +358,7 @@ Phase 3 - Enforcement:
 - Troubleshooting data contract designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -367,21 +369,26 @@ Phase 3 - Enforcement:
 # Data Contract Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

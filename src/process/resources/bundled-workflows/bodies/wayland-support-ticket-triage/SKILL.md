@@ -11,14 +11,15 @@ description: >-
   atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "support-reply support-escalation"
+skills: 'support-reply support-escalation'
 metadata:
   author: wayland
   version: 1.0.0
   tags: support triage ticket reply escalation step-by-step
   category: support
-  depends: "support-reply support-escalation"
+  depends: 'support-reply support-escalation'
 ---
+
 # Triage a Support Ticket
 
 **Estimated time:** 10-15 minutes

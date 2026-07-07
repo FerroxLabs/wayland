@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events career planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events career planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # First Job Navigator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on first job navigator
 - User asks about first job navigator best practices or techniques
 - User wants a structured approach to first job navigator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of first job navigator
 
@@ -132,6 +133,7 @@ MONTH 3 PRIORITIES:
 ## Workplace Culture Navigation
 
 ### Reading the Room
+
 ```
 OBSERVE THESE CULTURAL SIGNALS:
 
@@ -238,6 +240,7 @@ LEARN YOUR MANAGER'S:
 ```
 
 ### 1-on-1 Meeting Framework
+
 ```
 YOUR RESPONSIBILITY (bring these every time):
   1. Current status of your key projects (2-3 minutes)
@@ -255,6 +258,7 @@ SAMPLE 1:1 AGENDA:
 ```
 
 ### What Managers Actually Want
+
 1. **Reliability**: Do what you say you will do, when you say you will do it
 2. **Communication**: No surprises. Flag problems early.
 3. **Solutions, not just problems**: "I noticed X. I think we could try Y. What do you think?"
@@ -265,6 +269,7 @@ SAMPLE 1:1 AGENDA:
 ## Building Your Reputation
 
 ### The Reputation Formula
+
 ```
 REPUTATION = COMPETENCE + RELIABILITY + LIKABILITY
 
@@ -288,6 +293,7 @@ FASTEST WAY TO DAMAGE A REPUTATION:
 ```
 
 ### Networking as a New Employee
+
 ```
 BUILD YOUR INTERNAL NETWORK:
   [ ] Have coffee/lunch with 1-2 new people per week
@@ -306,6 +312,7 @@ CONVERSATION STARTERS:
 ## Work-Life Boundaries
 
 ### Setting Boundaries as a New Employee
+
 ```
 HEALTHY BOUNDARIES LOOK LIKE:
   - Having a consistent start and end time (with reasonable flexibility)
@@ -359,6 +366,7 @@ DECISION FRAMEWORK:
 ```
 
 ### Health Insurance
+
 ```
 KEY TERMS:
   Premium:     What you pay each month (often deducted from paycheck)
@@ -383,6 +391,7 @@ CHOOSING A PLAN:
 ```
 
 ### Other Benefits to Review
+
 ```
 DO NOT OVERLOOK:
   [ ] Dental and vision insurance
@@ -399,6 +408,7 @@ DO NOT OVERLOOK:
 ## Professional Development Plan
 
 ### 6-Month Development Template
+
 ```
 SKILLS ASSESSMENT:
   Skills I have:           ________________________________
@@ -428,6 +438,7 @@ LEARNING RESOURCES:
 ```
 
 ### Career Conversations
+
 ```
 HAVE THIS CONVERSATION WITH YOUR MANAGER (after 90 days):
 
@@ -481,7 +492,6 @@ and I'm concerned about [specific deadline]. Can we discuss priorities?"
 
 Your first job is not your last job. It is where you learn how to be a professional. Focus on building skills, relationships, and good habits. The rest follows.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -494,13 +504,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with first job navigator for a mid-size project."
 
 **Output:** A complete first job navigator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

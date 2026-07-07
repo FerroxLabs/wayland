@@ -153,10 +153,14 @@ describe('resolveFluxRouting', () => {
     expect(out.stripKeys).toContain('DEEPSEEK_API_KEY');
   });
   it('keeps hermes native when an explicit native model is picked even with the toggle on', () => {
-    const out = resolveFluxRouting(ctx({ backend: 'hermes', selectedModelId: 'anthropic/claude-opus-4.6', routeThroughFlux: true }));
+    const out = resolveFluxRouting(
+      ctx({ backend: 'hermes', selectedModelId: 'anthropic/claude-opus-4.6', routeThroughFlux: true })
+    );
     expect(out.routing).toBe('native');
   });
   it('keeps hermes native when flux is not connected', () => {
-    expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe('native');
+    expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe(
+      'native'
+    );
   });
 });

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management template analysis"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management template analysis'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Project Budget Tracker
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is running a defined project -- home renovation, product launch, event, website build, software feature, or similar -- and needs a structured system to track spending against a plan
 - A user asks how to build a project budget spreadsheet, Notion database, or tracking template from scratch
 - A user wants to compare actual expenditures against planned amounts across multiple cost categories in real time
@@ -29,6 +31,7 @@ metadata:
 - A user wants to conduct a post-project budget retrospective to improve future estimates
 
 **Do NOT use when:**
+
 - The user wants to track personal household income, bills, savings, or discretionary spending -- use a personal-finance budgeting skill instead
 - The user needs a full financial model with revenue projections, P&L forecasts, or multi-year capex planning -- use a business finance modeling skill
 - The user wants to track an investment portfolio, asset allocation, or brokerage account -- use a personal-finance investing skill
@@ -304,78 +307,84 @@ Add a "Fiscal Year" column to the Budget Allocation table showing which fiscal y
 ---
 
 ## Project Budget Tracker: Custom E-Commerce Website Build
+
 **Version:** v1.0 | **Last Updated:** Project Start | **Currency:** USD
 **Sign Convention:** Positive variance = over budget (unfavorable). Negative variance = under budget (favorable).
 
 ---
 
 ### Budget Overview
-| Field | Value |
-|---|---|
-| Total Approved Budget | $18,000 |
-| Contingency Reserve | $2,400 (13.3% of total) |
-| Working Budget (available for categories) | $15,600 |
-| Total Committed to Date | $1,500 (developer deposit -- see EXP-001) |
-| Total Paid to Date | $1,500 |
-| Total Exposure (committed + paid) | $1,500 |
-| Remaining Working Budget | $14,100 |
-| Contingency Remaining | $2,400 (100% of original reserve) |
-| Project Duration | Month 1 -- Month 3 |
-| Tracking Frequency | Biweekly (every other Friday) |
-| Next Scheduled Review | End of Week 2 |
+
+| Field                                     | Value                                     |
+| ----------------------------------------- | ----------------------------------------- |
+| Total Approved Budget                     | $18,000                                   |
+| Contingency Reserve                       | $2,400 (13.3% of total)                   |
+| Working Budget (available for categories) | $15,600                                   |
+| Total Committed to Date                   | $1,500 (developer deposit -- see EXP-001) |
+| Total Paid to Date                        | $1,500                                    |
+| Total Exposure (committed + paid)         | $1,500                                    |
+| Remaining Working Budget                  | $14,100                                   |
+| Contingency Remaining                     | $2,400 (100% of original reserve)         |
+| Project Duration                          | Month 1 -- Month 3                        |
+| Tracking Frequency                        | Biweekly (every other Friday)             |
+| Next Scheduled Review                     | End of Week 2                             |
 
 ---
 
 ### Budget Allocation (Baseline)
-| # | Category | Cost Type | Budgeted ($) | % of Working Budget | Payment Timing | Confidence | Committed? |
-|---|----------|----------|-------------|--------------------|----|---|---|
-| 1 | Web Development (freelance) | Milestone | 6,500 | 41.7% | 25% deposit (paid), 50% mid-project, 25% on launch | High | Partial -- deposit paid |
-| 2 | UX Design | Milestone | 3,000 | 19.2% | 50% upfront, 50% on design approval | Medium | No |
-| 3 | Copywriting | One-time | 1,800 | 11.5% | On delivery of final copy | Medium | No |
-| 4 | Photography | One-time | 1,500 | 9.6% | On shoot date | High | No |
-| 5 | Domain, Hosting, Theme & Software | One-time + Recurring | 800 | 5.1% | Month 1 (setup); monthly recurring ~$50/mo thereafter | High | No |
-| 6 | Testing, QA & Launch Support | One-time | 600 | 3.8% | Month 3 | Low | No |
-| 7 | Miscellaneous (stock images, plugins, fonts) | One-time | 1,400 | 9.0% | Spread across Months 1-3 | Low | No |
-| -- | **Subtotal (Working Budget)** | | **15,600** | **100%** | | | |
-| -- | Contingency Reserve | As authorized | 2,400 | n/a | Draw requires explicit decision | -- | -- |
-| -- | **TOTAL APPROVED BUDGET** | | **18,000** | | | | |
 
-*Note: Web Development is the largest single category at 41.7% of working budget. Scope creep risk in this category is highest -- a single uncontrolled change request can push the project into AMBER. Review developer SOW carefully before authorizing any additions.*
+| #   | Category                                     | Cost Type            | Budgeted ($) | % of Working Budget | Payment Timing                                        | Confidence | Committed?              |
+| --- | -------------------------------------------- | -------------------- | ------------ | ------------------- | ----------------------------------------------------- | ---------- | ----------------------- |
+| 1   | Web Development (freelance)                  | Milestone            | 6,500        | 41.7%               | 25% deposit (paid), 50% mid-project, 25% on launch    | High       | Partial -- deposit paid |
+| 2   | UX Design                                    | Milestone            | 3,000        | 19.2%               | 50% upfront, 50% on design approval                   | Medium     | No                      |
+| 3   | Copywriting                                  | One-time             | 1,800        | 11.5%               | On delivery of final copy                             | Medium     | No                      |
+| 4   | Photography                                  | One-time             | 1,500        | 9.6%                | On shoot date                                         | High       | No                      |
+| 5   | Domain, Hosting, Theme & Software            | One-time + Recurring | 800          | 5.1%                | Month 1 (setup); monthly recurring ~$50/mo thereafter | High       | No                      |
+| 6   | Testing, QA & Launch Support                 | One-time             | 600          | 3.8%                | Month 3                                               | Low        | No                      |
+| 7   | Miscellaneous (stock images, plugins, fonts) | One-time             | 1,400        | 9.0%                | Spread across Months 1-3                              | Low        | No                      |
+| --  | **Subtotal (Working Budget)**                |                      | **15,600**   | **100%**            |                                                       |            |                         |
+| --  | Contingency Reserve                          | As authorized        | 2,400        | n/a                 | Draw requires explicit decision                       | --         | --                      |
+| --  | **TOTAL APPROVED BUDGET**                    |                      | **18,000**   |                     |                                                       |            |                         |
+
+_Note: Web Development is the largest single category at 41.7% of working budget. Scope creep risk in this category is highest -- a single uncontrolled change request can push the project into AMBER. Review developer SOW carefully before authorizing any additions._
 
 ---
 
 ### Spending Tracker -- Current Status
-*Positive variance = over budget. Total Exposure = Committed Not Paid + Actual Paid. Updated at project start with known deposit.*
 
-| # | Category | Budgeted ($) | Committed Not Paid ($) | Actual Paid ($) | Total Exposure ($) | Remaining ($) | Variance ($) | Variance (%) | Status |
-|---|----------|-------------|----------------------|-----------------|-------------------|--------------|-------------|-------------|--------|
-| 1 | Web Development | 6,500 | 0 | 1,500 | 1,500 | 5,000 | -5,000 | -76.9% | GREEN |
-| 2 | UX Design | 3,000 | 0 | 0 | 0 | 3,000 | 0 | 0.0% | GREEN |
-| 3 | Copywriting | 1,800 | 0 | 0 | 0 | 1,800 | 0 | 0.0% | GREEN |
-| 4 | Photography | 1,500 | 0 | 0 | 0 | 1,500 | 0 | 0.0% | GREEN |
-| 5 | Domain/Hosting/Theme/Software | 800 | 0 | 0 | 0 | 800 | 0 | 0.0% | GREEN |
-| 6 | Testing, QA & Launch | 600 | 0 | 0 | 0 | 600 | 0 | 0.0% | GREEN |
-| 7 | Miscellaneous | 1,400 | 0 | 0 | 0 | 1,400 | 0 | 0.0% | GREEN |
-| -- | **TOTAL** | **15,600** | **0** | **1,500** | **1,500** | **14,100** | **-14,100** | **-90.4%** | **GREEN** |
-| -- | Contingency | 2,400 | -- | -- | -- | 2,400 | -- | -- | -- |
+_Positive variance = over budget. Total Exposure = Committed Not Paid + Actual Paid. Updated at project start with known deposit._
 
-*Overall budget is GREEN. Negative variance on Web Development reflects only the deposit paid -- it will normalize as remaining milestone payments are made. No action required.*
+| #   | Category                      | Budgeted ($) | Committed Not Paid ($) | Actual Paid ($) | Total Exposure ($) | Remaining ($) | Variance ($) | Variance (%) | Status    |
+| --- | ----------------------------- | ------------ | ---------------------- | --------------- | ------------------ | ------------- | ------------ | ------------ | --------- |
+| 1   | Web Development               | 6,500        | 0                      | 1,500           | 1,500              | 5,000         | -5,000       | -76.9%       | GREEN     |
+| 2   | UX Design                     | 3,000        | 0                      | 0               | 0                  | 3,000         | 0            | 0.0%         | GREEN     |
+| 3   | Copywriting                   | 1,800        | 0                      | 0               | 0                  | 1,800         | 0            | 0.0%         | GREEN     |
+| 4   | Photography                   | 1,500        | 0                      | 0               | 0                  | 1,500         | 0            | 0.0%         | GREEN     |
+| 5   | Domain/Hosting/Theme/Software | 800          | 0                      | 0               | 0                  | 800           | 0            | 0.0%         | GREEN     |
+| 6   | Testing, QA & Launch          | 600          | 0                      | 0               | 0                  | 600           | 0            | 0.0%         | GREEN     |
+| 7   | Miscellaneous                 | 1,400        | 0                      | 0               | 0                  | 1,400         | 0            | 0.0%         | GREEN     |
+| --  | **TOTAL**                     | **15,600**   | **0**                  | **1,500**       | **1,500**          | **14,100**    | **-14,100**  | **-90.4%**   | **GREEN** |
+| --  | Contingency                   | 2,400        | --                     | --              | --                 | 2,400         | --           | --           | --        |
+
+_Overall budget is GREEN. Negative variance on Web Development reflects only the deposit paid -- it will normalize as remaining milestone payments are made. No action required._
 
 ---
 
 ### Variance Thresholds and Required Actions
-| Status | Variance Range | Dollar Equivalent (this project) | Required Action |
-|--------|---------------|----------------------------------|----------------|
-| GREEN | 0% to +5% over OR any amount under | $0 -- approx. $780 over (on working budget) | Document in biweekly narrative. No action required. |
-| AMBER | +5% to +15% over budget | $780 -- $2,340 over (on working budget) | Write root cause within 24 hours. Identify corrective action. Update tracker notes. |
-| RED | Over +15% above budget | Over $2,340 over (on working budget) | Freeze uncommitted spending in affected category. Escalate per protocol below. Decide on contingency draw, reallocation, or scope cut within 5 business days. |
-| CRITICAL | Overall project >10% over with contingency below $600 (25% of reserve) | Project-level | Escalate to decision-maker. Present three options: additional funding, scope reduction, or project halt. No further spending without explicit authorization. |
 
-*Per-category examples: Web Development AMBER triggers at $6,825 total exposure; RED triggers at $7,475. UX Design AMBER triggers at $3,150; RED triggers at $3,450.*
+| Status   | Variance Range                                                         | Dollar Equivalent (this project)            | Required Action                                                                                                                                               |
+| -------- | ---------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GREEN    | 0% to +5% over OR any amount under                                     | $0 -- approx. $780 over (on working budget) | Document in biweekly narrative. No action required.                                                                                                           |
+| AMBER    | +5% to +15% over budget                                                | $780 -- $2,340 over (on working budget)     | Write root cause within 24 hours. Identify corrective action. Update tracker notes.                                                                           |
+| RED      | Over +15% above budget                                                 | Over $2,340 over (on working budget)        | Freeze uncommitted spending in affected category. Escalate per protocol below. Decide on contingency draw, reallocation, or scope cut within 5 business days. |
+| CRITICAL | Overall project >10% over with contingency below $600 (25% of reserve) | Project-level                               | Escalate to decision-maker. Present three options: additional funding, scope reduction, or project halt. No further spending without explicit authorization.  |
+
+_Per-category examples: Web Development AMBER triggers at $6,825 total exposure; RED triggers at $7,475. UX Design AMBER triggers at $3,150; RED triggers at $3,450._
 
 ---
 
 ### Escalation Protocol
+
 1. **Any single invoice or purchase above $1,560 (10% of working budget):** Obtain at least two quotes or rate comparisons before committing. Document comparison in expense log Notes.
 2. **Category enters AMBER:** Write one sentence of root cause in the Budget Narrative Log within 24 hours. Identify whether the cause is: (a) scope addition by the client/user, (b) original estimate was incorrect, (c) vendor price was higher than quoted, or (d) procurement error. Each cause has a different corrective action.
 3. **Category enters RED:** Halt all uncommitted discretionary purchases in that category. Within 5 business days, decide from the following options and document the decision: draw from contingency, reduce scope in that category, or reallocate from a confirmed under-budget category. Do not default to contingency without reviewing other options first.
@@ -386,43 +395,47 @@ Add a "Fiscal Year" column to the Budget Allocation table showing which fiscal y
 ---
 
 ### Expense Log
-*Log every transaction within 48 hours. Reconstructed entries from before tracker creation are marked with an asterisk (*).*
 
-| Ref # | Date | Category | Vendor/Payee | Description | Committed or Paid | Amount ($) | Payment Method | Running Paid Total ($) | Notes |
-|-------|------|----------|-------------|------------|------------------|-----------|----------------|----------------------|-------|
-| EXP-001* | [Date of deposit] | Web Development | [Developer Name] | Project deposit per contract -- 25% of $6,000 dev fee | Paid | 1,500 | Bank transfer | 1,500 | Reconstructed entry. Contract signed [date]. Remaining milestones: $3,000 at mid-project, $1,500 at launch. |
-| EXP-002 | | | | | | | | | |
+_Log every transaction within 48 hours. Reconstructed entries from before tracker creation are marked with an asterisk (_).\*
+
+| Ref #     | Date              | Category        | Vendor/Payee     | Description                                           | Committed or Paid | Amount ($) | Payment Method | Running Paid Total ($) | Notes                                                                                                       |
+| --------- | ----------------- | --------------- | ---------------- | ----------------------------------------------------- | ----------------- | ---------- | -------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| EXP-001\* | [Date of deposit] | Web Development | [Developer Name] | Project deposit per contract -- 25% of $6,000 dev fee | Paid              | 1,500      | Bank transfer  | 1,500                  | Reconstructed entry. Contract signed [date]. Remaining milestones: $3,000 at mid-project, $1,500 at launch. |
+| EXP-002   |                   |                 |                  |                                                       |                   |            |                |                        |                                                                                                             |
 
 ---
 
 ### Budget Narrative Log (Biweekly Updates)
-| Update # | Date | Overall Status | Summary | Action Items |
-|----------|------|---------------|---------|-------------|
-| Update 0 (Baseline) | [Project Start] | GREEN | Tracker initialized. Developer deposit of $1,500 logged (EXP-001). All categories GREEN. Working budget remaining: $14,100. Contingency intact at $2,400. | Obtain UX designer quotes before end of Week 1. Confirm developer contract includes change request process. |
+
+| Update #            | Date            | Overall Status | Summary                                                                                                                                                   | Action Items                                                                                                |
+| ------------------- | --------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Update 0 (Baseline) | [Project Start] | GREEN          | Tracker initialized. Developer deposit of $1,500 logged (EXP-001). All categories GREEN. Working budget remaining: $14,100. Contingency intact at $2,400. | Obtain UX designer quotes before end of Week 1. Confirm developer contract includes change request process. |
 
 ---
 
 ### End-of-Project Budget Summary
-*Complete at project launch and site handover.*
 
-| Category | Original Baseline ($) | Final Actual ($) | Variance ($) | Variance (%) | Root Cause of Significant Variances |
-|----------|-----------------------|-----------------|-------------|-------------|--------------------------------------|
-| Web Development | 6,500 | | | | |
-| UX Design | 3,000 | | | | |
-| Copywriting | 1,800 | | | | |
-| Photography | 1,500 | | | | |
-| Domain/Hosting/Theme/Software | 800 | | | | |
-| Testing, QA & Launch | 600 | | | | |
-| Miscellaneous | 1,400 | | | | |
-| **Working Budget Total** | **15,600** | | | | |
-| Contingency Reserve | 2,400 | | | | Amount drawn vs. $2,400 reserved |
-| **Final Total Project Cost** | **18,000** | | | | |
+_Complete at project launch and site handover._
+
+| Category                      | Original Baseline ($) | Final Actual ($) | Variance ($) | Variance (%) | Root Cause of Significant Variances |
+| ----------------------------- | --------------------- | ---------------- | ------------ | ------------ | ----------------------------------- |
+| Web Development               | 6,500                 |                  |              |              |                                     |
+| UX Design                     | 3,000                 |                  |              |              |                                     |
+| Copywriting                   | 1,800                 |                  |              |              |                                     |
+| Photography                   | 1,500                 |                  |              |              |                                     |
+| Domain/Hosting/Theme/Software | 800                   |                  |              |              |                                     |
+| Testing, QA & Launch          | 600                   |                  |              |              |                                     |
+| Miscellaneous                 | 1,400                 |                  |              |              |                                     |
+| **Working Budget Total**      | **15,600**            |                  |              |              |                                     |
+| Contingency Reserve           | 2,400                 |                  |              |              | Amount drawn vs. $2,400 reserved    |
+| **Final Total Project Cost**  | **18,000**            |                  |              |              |                                     |
 
 **Post-Project Notes (complete at close):**
+
 - Largest single variance: [to be filled at project close]
 - Categories that consistently over- or under-estimated: [to be filled at project close]
 - Recommendation for future website projects: [e.g., "Build photography into development contract to reduce vendor coordination" or "Miscellaneous budget was insufficient -- increase to $2,000 for comparable scope"]
 
 ---
 
-*Tracker initialized at project start. Note: The $1,500 developer deposit has been recorded. Ensure the developer contract specifies a change request process with written approval required for any additions above $300. Uncontrolled change requests are the primary budget risk for freelance web development projects of this type. Review UX designer and copywriter quotes against budget allocations before signing any additional contracts.*
+_Tracker initialized at project start. Note: The $1,500 developer deposit has been recorded. Ensure the developer contract specifies a change request process with written approval required for any additions above $300. Uncontrolled change requests are the primary budget risk for freelance web development projects of this type. Review UX designer and copywriter quotes against budget allocations before signing any additional contracts._

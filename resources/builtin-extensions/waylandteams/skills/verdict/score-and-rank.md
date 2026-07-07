@@ -4,7 +4,7 @@
 
 ## When to use
 
-Use any time a draft is asked for a ship-decision. That covers a finished post, email, sales page, course module, video script, or internal artifact from a teammate (role file, mode skill, dossier). If the question is *"is this ready?"*, run the rubric. If the question is *"how do I make it better?"*, run `flag-and-fix` and `the-one-edit` after.
+Use any time a draft is asked for a ship-decision. That covers a finished post, email, sales page, course module, video script, or internal artifact from a teammate (role file, mode skill, dossier). If the question is _"is this ready?"_, run the rubric. If the question is _"how do I make it better?"_, run `flag-and-fix` and `the-one-edit` after.
 
 ## The eight dimensions
 
@@ -45,7 +45,7 @@ Two reads. Discipline matters.
 
 **Brief:** Score a LinkedIn post for a founder coach, audience product-aware, 220 words.
 
-**Before** (vibe verdict): *"Strong post. Solid hook, decent body, CTA is clear. Ship it."*
+**Before** (vibe verdict): _"Strong post. Solid hook, decent body, CTA is clear. Ship it."_
 
 **After** (rubric verdict):
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices clean-code refactoring devops"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices clean-code refactoring devops'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Legacy Code Archaeologist
@@ -157,15 +157,15 @@ For each major feature, trace the data from input to output:
 
 Legacy systems often have behavior that is not obvious from reading the main code path:
 
-| Hidden Behavior | Where to Look |
-|----------------|---------------|
-| Scheduled jobs | cron configs, scheduler setup, setTimeout/setInterval |
-| Database triggers | Migration files, database schema dump |
-| Event listeners | Event emitter setup, message queue consumers |
-| Middleware | Request pipeline configuration, interceptors, filters |
-| Environment-specific logic | `if (ENV_CONFIG_VALUE)`, feature flags, A/B tests |
-| Monkey patches | `prototype` modifications, module resolution hacks |
-| Implicit dependencies | Global state, singletons, service locators |
+| Hidden Behavior            | Where to Look                                         |
+| -------------------------- | ----------------------------------------------------- |
+| Scheduled jobs             | cron configs, scheduler setup, setTimeout/setInterval |
+| Database triggers          | Migration files, database schema dump                 |
+| Event listeners            | Event emitter setup, message queue consumers          |
+| Middleware                 | Request pipeline configuration, interceptors, filters |
+| Environment-specific logic | `if (ENV_CONFIG_VALUE)`, feature flags, A/B tests     |
+| Monkey patches             | `prototype` modifications, module resolution hacks    |
+| Implicit dependencies      | Global state, singletons, service locators            |
 
 ## Phase 3: Characterization Testing
 
@@ -225,13 +225,13 @@ it('matches golden master output', () => {
 
 ### Approval Testing Libraries
 
-| Language | Library | How It Works |
-|----------|---------|-------------|
-| Java | ApprovalTests | Captures output to `.approved` files |
-| C# | ApprovalTests.Net | Same approach, .NET ecosystem |
-| JS/TS | jest-image-snapshot | Visual regression for UI |
-| Python | approvaltests | Port of the Java library |
-| Any | Custom golden master | Save output to file, diff on test run |
+| Language | Library              | How It Works                          |
+| -------- | -------------------- | ------------------------------------- |
+| Java     | ApprovalTests        | Captures output to `.approved` files  |
+| C#       | ApprovalTests.Net    | Same approach, .NET ecosystem         |
+| JS/TS    | jest-image-snapshot  | Visual regression for UI              |
+| Python   | approvaltests        | Port of the Java library              |
+| Any      | Custom golden master | Save output to file, diff on test run |
 
 ## Phase 4: Documentation Recovery
 
@@ -242,13 +242,13 @@ Create these artifacts as you explore. They are your dig journal.
 #### 1. Glossary of Domain Terms
 
 ```markdown
-| Term in Code | Business Meaning | Notes |
-|-------------|-----------------|-------|
-| `txn` | Transaction (payment) | Not database transaction |
-| `sku` | Stock Keeping Unit | Product variant identifier |
-| `fulfillment` | Shipping an order | Includes digital delivery |
-| `backorder` | Order for out-of-stock item | Creates reservation |
-| `reconciliation` | Matching payments to invoices | Runs nightly via cron |
+| Term in Code     | Business Meaning              | Notes                      |
+| ---------------- | ----------------------------- | -------------------------- |
+| `txn`            | Transaction (payment)         | Not database transaction   |
+| `sku`            | Stock Keeping Unit            | Product variant identifier |
+| `fulfillment`    | Shipping an order             | Includes digital delivery  |
+| `backorder`      | Order for out-of-stock item   | Creates reservation        |
+| `reconciliation` | Matching payments to invoices | Runs nightly via cron      |
 ```
 
 #### 2. Decision Log (Recovered)
@@ -257,6 +257,7 @@ Create these artifacts as you explore. They are your dig journal.
 ## Why is the pricing module so complex?
 
 Evidence:
+
 - Commit abc123 (2019-03-15): "Add regional pricing for EU launch"
 - Commit def456 (2019-07-22): "Handle currency conversion for 12 new markets"
 - Commit ghi789 (2020-01-10): "Tax calculation varies by US state - special cases"
@@ -273,6 +274,7 @@ The architectural issue is that there's no strategy pattern - it's all if/else.
 ## POST /api/orders
 
 ### Happy Path
+
 - Input: { items: [...], shippingAddress: {...} }
 - Creates order record (status: "pending")
 - Reserves inventory
@@ -280,6 +282,7 @@ The architectural issue is that there's no strategy pattern - it's all if/else.
 - Returns: 201 { orderId, estimatedDelivery }
 
 ### Edge Cases Discovered
+
 - Empty items array: Returns 400 (validated)
 - Invalid address: Returns 422 with field-level errors
 - Item out of stock: Returns 409, does NOT partial-fill
@@ -319,12 +322,12 @@ EXAMPLE MIKADO GRAPH:
 
 A "seam" (Michael Feathers) is a place where you can change behavior without editing the code:
 
-| Seam Type | Example | Use Case |
-|-----------|---------|----------|
-| **Object seam** | Pass a mock/stub via constructor | Testing classes with dependencies |
-| **Preprocessor seam** | `#ifdef TEST` | C/C++ legacy code |
-| **Link seam** | Replace a module at import time | Swapping implementations |
-| **Configuration seam** | Feature flag, env var | Toggling behavior without code change |
+| Seam Type              | Example                          | Use Case                              |
+| ---------------------- | -------------------------------- | ------------------------------------- |
+| **Object seam**        | Pass a mock/stub via constructor | Testing classes with dependencies     |
+| **Preprocessor seam**  | `#ifdef TEST`                    | C/C++ legacy code                     |
+| **Link seam**          | Replace a module at import time  | Swapping implementations              |
+| **Configuration seam** | Feature flag, env var            | Toggling behavior without code change |
 
 ```typescript
 // BEFORE: Hard dependency, untestable
@@ -426,6 +429,7 @@ def process_payment(self, order):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing legacy code archaeologist solutions
 - Reviewing or improving existing legacy code archaeologist approaches
 - Making architectural or implementation decisions about legacy code archaeologist
@@ -433,6 +437,7 @@ def process_payment(self, order):
 - Troubleshooting legacy code archaeologist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -443,21 +448,26 @@ def process_payment(self, order):
 # Legacy Code Archaeologist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

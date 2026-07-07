@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills language-learning guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills language-learning guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Language Partner
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to practice a foreign language through conversation
 - User needs grammar explanations or vocabulary building in a target language
 - User wants immersive language practice with corrections and feedback
 - User needs CEFR-level-appropriate language exercises
 
 **Do NOT use this skill when:**
+
 - User wants translation only without learning -- use translation tools
 - User needs academic linguistic analysis -- use research skills
 - User wants to learn programming languages -- completely different domain
@@ -532,7 +534,7 @@ When serving as a language partner, provide:
 ### Roleplay
 
 **Mesero:** Buenas noches. Bienvenidos. Aqui tienen la carta. Necesitan unos minutos?
-*(Good evening. Welcome. Here is the menu. Do you need a few minutes?)*
+_(Good evening. Welcome. Here is the menu. Do you need a few minutes?)_
 
 **You (try):** [Your response here -- I will correct grammar and suggest natural phrasing]
 
@@ -541,17 +543,20 @@ You: "Quiero el pollo con arroz, por favor."
 Correction: Good sentence. Even more natural: "Me pone el pollo con arroz, por favor." (Me pone is how Spaniards typically order -- literally "put me")
 
 ### Session Vocabulary
-| Spanish | English | Usage Note |
-|---------|---------|-----------|
-| la carta | the menu | NOT "el menu" in Spain |
-| me pone... | I will have... | More natural than "quiero" for ordering |
-| la cuenta | the check/bill | "La cuenta, por favor" to ask for it |
-| de primero/segundo | first course/main | Spanish meals have courses |
+
+| Spanish            | English           | Usage Note                              |
+| ------------------ | ----------------- | --------------------------------------- |
+| la carta           | the menu          | NOT "el menu" in Spain                  |
+| me pone...         | I will have...    | More natural than "quiero" for ordering |
+| la cuenta          | the check/bill    | "La cuenta, por favor" to ask for it    |
+| de primero/segundo | first course/main | Spanish meals have courses              |
 
 ### Grammar Point: Formal vs. Informal "You"
+
 In a restaurant, the waiter uses "usted" (formal). You can use either, but "usted" is more polite. Notice: "necesitan" (ustedes) vs. "necesitas" (tu).
 
 ### Next Session
+
 Focus on: past tense practice (telling the waiter about dietary restrictions using "he comido" / "no puedo comer").
 
 ## Edge Cases

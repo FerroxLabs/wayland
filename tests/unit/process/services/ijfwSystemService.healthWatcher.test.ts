@@ -102,7 +102,7 @@ describe('ijfwSystemService.startHealthWatcher', () => {
     lastWatcherCallback!('rename', 'mcp-server');
     for (let i = 0; i < 5; i++) await flush();
     expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'not_installed', reason: 'install_removed' }),
+      expect.objectContaining({ status: 'not_installed', reason: 'install_removed' })
     );
     expect(mcpShutdownSpy).toHaveBeenCalled();
     dispose();
@@ -116,7 +116,7 @@ describe('ijfwSystemService.startHealthWatcher', () => {
     lastWatcherCallback!('rename', 'mcp-server');
     for (let i = 0; i < 5; i++) await flush();
     expect(
-      emitSpy.mock.calls.filter((c) => (c[0] as { status: string }).status === 'not_installed').length,
+      emitSpy.mock.calls.filter((c) => (c[0] as { status: string }).status === 'not_installed').length
     ).toBeLessThanOrEqual(1);
     dispose();
   });

@@ -77,9 +77,11 @@ test.describe('Security audit verification (W1-W4 runtime gate)', () => {
     // Attempt 1: raw electronAPI.emit with a forged provider name. The handler
     // in src/common/adapter/main.ts rejects the promise with a known message.
     const forged = await page.evaluate(async () => {
-      const api = (window as unknown as {
-        electronAPI?: { emit?: (n: string, d: unknown) => Promise<unknown> };
-      }).electronAPI;
+      const api = (
+        window as unknown as {
+          electronAPI?: { emit?: (n: string, d: unknown) => Promise<unknown> };
+        }
+      ).electronAPI;
       if (!api?.emit) return { reachable: false } as const;
       try {
         const result = await api.emit('subscribe-forged.not-an-allowlisted-key', {

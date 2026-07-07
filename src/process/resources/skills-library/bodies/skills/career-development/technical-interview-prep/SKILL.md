@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career template"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'interview-prep career template'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Technical Interview Prep
 
 ## When to Use
@@ -374,6 +375,7 @@ Produce a language-specific quick reference for the interview language: the equi
 For a senior backend role at a fintech company, expect problems involving: data aggregation (ledger calculations, transaction summaries), interval-based problems (detecting overlapping transactions, time windows), or graph problems (dependency resolution, fraud network detection).
 
 **Mandatory clarifying questions:**
+
 - "What are the constraints on the input size -- are we talking hundreds of records or millions?"
 - "Should I optimize for time complexity, space complexity, or readability?"
 - "Can the values be negative? In financial contexts, that would represent debits."
@@ -397,6 +399,7 @@ A better approach uses [data structure / algorithm] to bring this to O(n) time a
 I will go with the second approach. The trade-off is extra memory, but the time improvement from O(n²) to O(n) is worth it at this scale."
 
 **Pattern recognition for fintech-typical problems:**
+
 - "Running balance / transaction aggregation" -- Prefix sum or hash map accumulation
 - "Overlapping time windows / rate limiting detection" -- Sliding window
 - "Find fraudulent transaction pairs" -- Two-pointer or hash map for complement search
@@ -415,23 +418,25 @@ def process_transactions(transactions: List[Dict]) -> Dict[str, int]:
     # Talk aloud: "I am using defaultdict(int) here because every account
     # starts at 0 balance, so I do not need to handle missing keys explicitly."
     balances: Dict[str, int] = defaultdict(int)
-    
+
     for txn in transactions:
         # Talk aloud: "I am iterating once, so this is O(n) time."
         balances[txn['from']] -= txn['amount']
         balances[txn['to']] += txn['amount']
-    
+
     # Talk aloud: "I am returning a regular dict, not a defaultdict,
     # because the caller should not accidentally create zero-balance entries."
     return dict(balances)
 ```
 
 **Talk-aloud checkpoints:**
+
 - After the import block: "I am importing defaultdict because I need a counter that initializes to zero -- cleaner than checking if a key exists."
 - Before the loop: "The invariant here is: after processing each transaction, balances correctly reflects the net position of all accounts seen so far."
 - At the return: "I am converting to a plain dict on return because defaultdict's behavior would be unexpected to callers."
 
 **Python-specific things interviewers notice positively:**
+
 - Type hints on function signatures
 - `defaultdict` and `Counter` from `collections` for their appropriate use cases
 - List comprehensions where they improve readability (not always)
@@ -439,13 +444,13 @@ def process_transactions(transactions: List[Dict]) -> Dict[str, int]:
 
 #### Testing Phase (3-5 minutes)
 
-| Test Type | Input | Expected Output | What to Trace |
-|-----------|-------|-----------------|---------------|
-| Happy path | `[{from:'A', to:'B', amount:100}]` | `{A:-100, B:100}` | Both sides update correctly |
-| Empty input | `[]` | `{}` | No crash, empty dict returned |
-| Self-transfer | `[{from:'A', to:'A', amount:50}]` | `{A:0}` | Net zero -- common fintech edge case |
-| Large amount | `[{from:'A', to:'B', amount:999999999}]` | `{A:-999999999, B:999999999}` | Integer overflow -- Python handles this natively, mention that |
-| Multi-step chain | A->B->C | Correct net positions | Intermediate accounts calculated correctly |
+| Test Type        | Input                                    | Expected Output               | What to Trace                                                  |
+| ---------------- | ---------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
+| Happy path       | `[{from:'A', to:'B', amount:100}]`       | `{A:-100, B:100}`             | Both sides update correctly                                    |
+| Empty input      | `[]`                                     | `{}`                          | No crash, empty dict returned                                  |
+| Self-transfer    | `[{from:'A', to:'A', amount:50}]`        | `{A:0}`                       | Net zero -- common fintech edge case                           |
+| Large amount     | `[{from:'A', to:'B', amount:999999999}]` | `{A:-999999999, B:999999999}` | Integer overflow -- Python handles this natively, mention that |
+| Multi-step chain | A->B->C                                  | Correct net positions         | Intermediate accounts calculated correctly                     |
 
 **Say during testing:** "Let me trace through the happy path first. Transaction 1: from A to B for 100. So balances['A'] becomes -100, balances['B'] becomes 100. Final output: {A:-100, B:100}. That matches expected. Now the edge case: self-transfer. A sends 50 to A. balances['A'] decreases by 50, then increases by 50. Net zero. Good -- that is the correct financial behavior."
 
@@ -453,6 +458,7 @@ def process_transactions(transactions: List[Dict]) -> Dict[str, int]:
 
 **Current:** O(n) time, O(k) space where k = number of unique accounts
 **Possible improvements:**
+
 - If the input were sorted by account ID, we could use two pointers instead of a hash map, reducing space to O(1) -- but only if the problem guaranteed sorted input
 - For a production system, we would add input validation: reject negative amounts, reject transactions where `from` and `to` are missing, sanitize account IDs. Say: "In production I would add validation, but I kept it minimal here for clarity -- happy to add it if useful."
 
@@ -469,12 +475,14 @@ Expect one of: payment processing system, ledger service, fraud detection pipeli
 **For a payment processing system (the most likely question):**
 
 Functional (state aloud, get confirmation):
+
 - [ ] Users can initiate a transfer from account A to account B
 - [ ] Users can check their current balance
 - [ ] Users can view their transaction history
 - Out of scope (state explicitly): "I am not designing the authentication system, the card network integration, or the regulatory compliance reporting -- I am going to assume those exist and focus on the core ledger and payment flow."
 
 Non-functional (state targets and ask if they sound right):
+
 - Availability: 99.99% (fintech cannot afford >52 minutes downtime/year)
 - Latency: p99 < 500ms for payment initiation, p99 < 100ms for balance read
 - Consistency: **Strong consistency required** for balance reads and writes -- eventual consistency is not acceptable for money movement
@@ -482,17 +490,17 @@ Non-functional (state targets and ask if they sound right):
 
 #### Estimation (5 minutes)
 
-| Metric | Calculation | Result |
-|--------|-------------|--------|
-| Daily active users | Given/assumed | 500,000 |
-| Transactions per user per day | Conservative fintech estimate | 3 |
-| Total transactions per day | 500K × 3 | 1.5M |
-| Transactions per second (avg) | 1.5M ÷ 86,400 | ~17 TPS |
-| Transactions per second (peak) | 17 × 5x (payroll / month-end spike) | ~85 TPS |
-| Balance reads per second | Reads are 10x writes in fintech | ~170 RPS |
-| Transaction record size | ID + amount + accounts + timestamp + metadata | ~500 bytes |
-| Storage per day | 1.5M × 500 bytes | ~750 MB |
-| Storage for 5 years (7-year legal retention) | 750MB × 365 × 7 × 3 (replication) | ~5.7 TB |
+| Metric                                       | Calculation                                   | Result     |
+| -------------------------------------------- | --------------------------------------------- | ---------- |
+| Daily active users                           | Given/assumed                                 | 500,000    |
+| Transactions per user per day                | Conservative fintech estimate                 | 3          |
+| Total transactions per day                   | 500K × 3                                      | 1.5M       |
+| Transactions per second (avg)                | 1.5M ÷ 86,400                                 | ~17 TPS    |
+| Transactions per second (peak)               | 17 × 5x (payroll / month-end spike)           | ~85 TPS    |
+| Balance reads per second                     | Reads are 10x writes in fintech               | ~170 RPS   |
+| Transaction record size                      | ID + amount + accounts + timestamp + metadata | ~500 bytes |
+| Storage per day                              | 1.5M × 500 bytes                              | ~750 MB    |
+| Storage for 5 years (7-year legal retention) | 750MB × 365 × 7 × 3 (replication)             | ~5.7 TB    |
 
 "These numbers are manageable -- we are not at hyperscale. A well-designed PostgreSQL setup with read replicas can handle 170 RPS reads and 85 TPS writes comfortably. We do not need sharding on day one, but we should design for it."
 
@@ -539,6 +547,7 @@ This is the most important deep dive for a fintech system design. Demonstrate th
 **The idempotency requirement:** Payment APIs must be idempotent. If a client submits a payment and the network drops before receiving a response, they will retry. Without idempotency keys, this results in a duplicate charge. Design: every payment request includes a client-generated idempotency key (UUID). The server stores this key with the completed transaction. On retry, the server looks up the key, finds the original result, and returns it without re-executing. Use a separate `idempotency_keys` table with a UNIQUE constraint on the key column.
 
 **Schema design:**
+
 ```sql
 CREATE TABLE accounts (
     id UUID PRIMARY KEY,
@@ -571,6 +580,7 @@ CREATE INDEX idx_transactions_idempotency ON transactions(idempotency_key);
 #### Deep Dive: Redis Caching Strategy
 
 **Pattern: Cache-aside (lazy loading) with write-invalidation**
+
 - On balance read: check Redis key `balance:{account_id}` -> miss: query PostgreSQL, SET in Redis with TTL 30 seconds
 - On transaction commit: DEL `balance:{from_account_id}` and DEL `balance:{to_account_id}` within the same database transaction commit hook
 - TTL of 30 seconds acts as a safety net: even if invalidation fails (Redis is down), the cache will self-correct within 30 seconds
@@ -578,6 +588,7 @@ CREATE INDEX idx_transactions_idempotency ON transactions(idempotency_key);
 **Why not write-through:** Write-through would require writing to both PostgreSQL and Redis in the same operation. If Redis is down, should the payment fail? No -- Redis is a performance optimization, not a source of truth. Cache-aside keeps the critical path (payment processing) independent of cache availability.
 
 **Redis key structure:**
+
 ```
 balance:{account_id}              -> BIGINT (balance in cents), TTL 30s
 txn_history:{account_id}:page:1   -> JSON array, TTL 60s
@@ -587,20 +598,20 @@ rate_limit:{user_id}:{minute}     -> counter, TTL 60s
 
 #### Reliability and Failure Modes
 
-| Component | Failure Mode | Detection | Mitigation |
-|-----------|-------------|-----------|------------|
-| PostgreSQL primary | Primary crashes mid-transaction | Automatic failover monitoring (pg_auto_failover or Patroni) | Read replicas promote to primary in ~30s; in-flight transactions roll back automatically |
-| Redis cache | Redis becomes unavailable | Health check failure on cache miss attempts | Fall through to PostgreSQL reads; payment processing continues unaffected; monitor cache miss rate spike |
-| Kafka | Queue unavailable | Producer send failures | Store events in a `pending_events` table and retry with a background job (outbox pattern) |
-| Payment service instances | Pod crashes mid-request | Load balancer health check | Idempotency keys on retry ensure no double-processing; incomplete transactions roll back |
-| Network partition | Client never receives response | Client timeout triggers retry | Idempotency key prevents duplicate payment; server returns original result on retry lookup |
+| Component                 | Failure Mode                    | Detection                                                   | Mitigation                                                                                               |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| PostgreSQL primary        | Primary crashes mid-transaction | Automatic failover monitoring (pg_auto_failover or Patroni) | Read replicas promote to primary in ~30s; in-flight transactions roll back automatically                 |
+| Redis cache               | Redis becomes unavailable       | Health check failure on cache miss attempts                 | Fall through to PostgreSQL reads; payment processing continues unaffected; monitor cache miss rate spike |
+| Kafka                     | Queue unavailable               | Producer send failures                                      | Store events in a `pending_events` table and retry with a background job (outbox pattern)                |
+| Payment service instances | Pod crashes mid-request         | Load balancer health check                                  | Idempotency keys on retry ensure no double-processing; incomplete transactions roll back                 |
+| Network partition         | Client never receives response  | Client timeout triggers retry                               | Idempotency key prevents duplicate payment; server returns original result on retry lookup               |
 
 ---
 
 ### Handling Unknowns
 
-| Situation | Opening | Recovery Strategy |
-|-----------|---------|------------------|
-| Asked about a payment network you have not integrated | "I have not worked directly with [X] network's API. The integrations I have built used [Y]. My expectation would be [Z] because most payment networks follow [pattern]." | Ask: "Is there a specific part of the integration you want me to reason through?" |
-| Asked about distributed consensus (Raft/Paxos) | "I know the high-level concept -- leader election, log replication, majority quorums. I have not implemented it from scratch. In practice I have relied on [PostgreSQL replication / managed services] which handle consensus internally." | Demonstrate: can reason about what guarantees Raft provides without knowing the algorithm implementation detail |
-| Coding problem you cannot solve | "I can see this has a [graph / dynamic programming / sliding window] structure. Let me identify what I know and where I am stuck. The setup I am confident about is [X]. The part I am not sure about is [specific element -- the state transition? the base case? the graph construction?]." | Resolve together with the interviewer -- asking for a hint gracefully is better than
+| Situation                                             | Opening                                                                                                                                                                                                                                                                                       | Recovery Strategy                                                                                               |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Asked about a payment network you have not integrated | "I have not worked directly with [X] network's API. The integrations I have built used [Y]. My expectation would be [Z] because most payment networks follow [pattern]."                                                                                                                      | Ask: "Is there a specific part of the integration you want me to reason through?"                               |
+| Asked about distributed consensus (Raft/Paxos)        | "I know the high-level concept -- leader election, log replication, majority quorums. I have not implemented it from scratch. In practice I have relied on [PostgreSQL replication / managed services] which handle consensus internally."                                                    | Demonstrate: can reason about what guarantees Raft provides without knowing the algorithm implementation detail |
+| Coding problem you cannot solve                       | "I can see this has a [graph / dynamic programming / sliding window] structure. Let me identify what I know and where I am stuck. The setup I am confident about is [X]. The part I am not sure about is [specific element -- the state transition? the base case? the graph construction?]." | Resolve together with the interviewer -- asking for a hint gracefully is better than                            |

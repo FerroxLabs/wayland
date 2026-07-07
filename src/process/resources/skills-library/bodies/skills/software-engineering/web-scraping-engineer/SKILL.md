@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting web-development"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'automation shell-scripting web-development'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Web Scraping Engineer
@@ -194,11 +194,9 @@ class PlaywrightScraper {
 
     try {
       // Block unnecessary resources for speed
-      await page.route('**/*.{png,jpg,gif,svg,woff,woff2}', route =>
-        route.abort()
-      );
-      await page.route('**/analytics/**', route => route.abort());
-      await page.route('**/ads/**', route => route.abort());
+      await page.route('**/*.{png,jpg,gif,svg,woff,woff2}', (route) => route.abort());
+      await page.route('**/analytics/**', (route) => route.abort());
+      await page.route('**/ads/**', (route) => route.abort());
 
       await page.goto(url, { waitUntil: 'networkidle' });
 
@@ -211,13 +209,11 @@ class PlaywrightScraper {
           name: document.querySelector('.product-name')?.textContent?.trim(),
           price: document.querySelector('.price')?.textContent?.trim(),
           description: document.querySelector('.description')?.textContent?.trim(),
-          images: Array.from(document.querySelectorAll('.gallery img'))
-            .map(img => img.getAttribute('src')),
-          specs: Array.from(document.querySelectorAll('.spec-row'))
-            .map(row => ({
-              label: row.querySelector('.label')?.textContent?.trim(),
-              value: row.querySelector('.value')?.textContent?.trim(),
-            })),
+          images: Array.from(document.querySelectorAll('.gallery img')).map((img) => img.getAttribute('src')),
+          specs: Array.from(document.querySelectorAll('.spec-row')).map((row) => ({
+            label: row.querySelector('.label')?.textContent?.trim(),
+            value: row.querySelector('.value')?.textContent?.trim(),
+          })),
         };
       });
 
@@ -241,7 +237,7 @@ async function scrapeWithRateLimit(urls: string[], delayMs = 2000) {
   for (const url of urls) {
     const product = await scraper.scrapeProductPage(url);
     results.push(product);
-    await new Promise(resolve => scheduleDelayed(resolve, delayMs));
+    await new Promise((resolve) => scheduleDelayed(resolve, delayMs));
   }
 
   await scraper.close();
@@ -286,9 +282,7 @@ def extract_json_ld(html):
 await page.waitForSelector('.results-loaded');
 
 // Wait for specific network request to complete
-const responsePromise = page.waitForResponse(
-  resp => resp.url().includes('/api/products') && resp.status() === 200
-);
+const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/products') && resp.status() === 200);
 await page.click('#load-more');
 const response = await responsePromise;
 const data = await response.json();
@@ -508,6 +502,7 @@ RESILIENCE: Retry with backoff, handle timeouts, validate data, log failures, ca
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing web scraping engineer solutions
 - Reviewing or improving existing web scraping engineer approaches
 - Making architectural or implementation decisions about web scraping engineer
@@ -515,6 +510,7 @@ RESILIENCE: Retry with backoff, handle timeouts, validate data, log failures, ca
 - Troubleshooting web scraping engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -525,21 +521,26 @@ RESILIENCE: Retry with backoff, handle timeouts, validate data, log failures, ca
 # Web Scraping Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

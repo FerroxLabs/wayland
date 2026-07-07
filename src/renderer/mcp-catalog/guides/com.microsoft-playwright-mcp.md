@@ -24,4 +24,3 @@ steps:
 No keys, no consent screen. Playwright drives a real browser through a stable
 high-level API - useful when you need to interact with web apps that fight
 Chrome DevTools Protocol scraping.
-

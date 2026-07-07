@@ -56,15 +56,11 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
 
   const handleTestAndEnable = async () => {
     if (!server.trim()) {
-      Message.warning(
-        t('settings.channels.irc.credentials.server.required', 'Please enter an IRC server hostname'),
-      );
+      Message.warning(t('settings.channels.irc.credentials.server.required', 'Please enter an IRC server hostname'));
       return;
     }
     if (!nick.trim()) {
-      Message.warning(
-        t('settings.channels.irc.credentials.nick.required', 'Please enter a bot nick'),
-      );
+      Message.warning(t('settings.channels.irc.credentials.nick.required', 'Please enter a bot nick'));
       return;
     }
 
@@ -97,10 +93,7 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
       });
 
       if (!testResult.success || !testResult.data?.success) {
-        Message.error(
-          testResult.data?.error ??
-            t('settings.channels.irc.connectionFailed', 'IRC connection failed'),
-        );
+        Message.error(testResult.data?.error ?? t('settings.channels.irc.connectionFailed', 'IRC connection failed'));
         return;
       }
 
@@ -128,9 +121,7 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
           onStatusChange(statusResult.data.find((p) => p.type === 'irc') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.irc.enableFailed', 'Failed to enable IRC plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.irc.enableFailed', 'Failed to enable IRC plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -147,7 +138,7 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
           <span className='text-12px'>
             {t(
               'settings.channels.irc.replaceWarning',
-              'Connecting a new IRC server will replace your existing configuration.',
+              'Connecting a new IRC server will replace your existing configuration.'
             )}
           </span>
         </div>
@@ -157,67 +148,41 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         label={t('settings.channels.irc.credentials.server.label', 'Server')}
         description={t(
           'settings.channels.irc.credentials.server.help',
-          'IRC server hostname, e.g. irc.libera.chat or irc.freenode.net.',
+          'IRC server hostname, e.g. irc.libera.chat or irc.freenode.net.'
         )}
       >
-        <Input
-          value={server}
-          onChange={setServer}
-          placeholder='irc.libera.chat'
-          style={{ width: 280 }}
-        />
+        <Input value={server} onChange={setServer} placeholder='irc.libera.chat' style={{ width: 280 }} />
       </PreferenceRow>
 
       <PreferenceRow
         label={t('settings.channels.irc.credentials.port.label', 'Port')}
-        description={t(
-          'settings.channels.irc.credentials.port.help',
-          '6697 for TLS (default), 6667 for plain.',
-        )}
+        description={t('settings.channels.irc.credentials.port.help', '6697 for TLS (default), 6667 for plain.')}
       >
-        <Input
-          value={port}
-          onChange={setPort}
-          placeholder='6697'
-          style={{ width: 100 }}
-        />
+        <Input value={port} onChange={setPort} placeholder='6697' style={{ width: 100 }} />
       </PreferenceRow>
 
       <PreferenceRow
         label={t('settings.channels.irc.credentials.nick.label', 'Bot Nick')}
-        description={t(
-          'settings.channels.irc.credentials.nick.help',
-          'The IRC nickname for the bot.',
-        )}
+        description={t('settings.channels.irc.credentials.nick.help', 'The IRC nickname for the bot.')}
       >
-        <Input
-          value={nick}
-          onChange={setNick}
-          placeholder='wayland-bot'
-          style={{ width: 280 }}
-        />
+        <Input value={nick} onChange={setNick} placeholder='wayland-bot' style={{ width: 280 }} />
       </PreferenceRow>
 
       <PreferenceRow
         label={t('settings.channels.irc.credentials.username.label', 'Username (optional)')}
         description={t(
           'settings.channels.irc.credentials.username.help',
-          'IRC ident/username. Defaults to the bot nick.',
+          'IRC ident/username. Defaults to the bot nick.'
         )}
       >
-        <Input
-          value={username}
-          onChange={setUsername}
-          placeholder={nick || 'wayland-bot'}
-          style={{ width: 280 }}
-        />
+        <Input value={username} onChange={setUsername} placeholder={nick || 'wayland-bot'} style={{ width: 280 }} />
       </PreferenceRow>
 
       <PreferenceRow
         label={t('settings.channels.irc.credentials.realname.label', 'Real name (optional)')}
         description={t(
           'settings.channels.irc.credentials.realname.help',
-          'GECOS / real name shown in WHOIS. Defaults to the username.',
+          'GECOS / real name shown in WHOIS. Defaults to the username.'
         )}
       >
         <Input
@@ -232,7 +197,7 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         label={t('settings.channels.irc.credentials.tls.label', 'TLS')}
         description={t(
           'settings.channels.irc.credentials.tls.help',
-          'Enable TLS (default). Disable for legacy plain-text servers on port 6667.',
+          'Enable TLS (default). Disable for legacy plain-text servers on port 6667.'
         )}
       >
         <Switch checked={tls} onChange={setTls} />
@@ -242,13 +207,10 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         label={t('settings.channels.irc.credentials.sasl.label', 'SASL Mechanism')}
         description={t(
           'settings.channels.irc.credentials.sasl.help',
-          'PLAIN authenticates via SASL (recommended). None falls back to server PASS (NickServ-style).',
+          'PLAIN authenticates via SASL (recommended). None falls back to server PASS (NickServ-style).'
         )}
       >
-        <Radio.Group
-          value={saslMechanism}
-          onChange={(v: 'PLAIN' | 'none') => setSaslMechanism(v)}
-        >
+        <Radio.Group value={saslMechanism} onChange={(v: 'PLAIN' | 'none') => setSaslMechanism(v)}>
           <Radio value='PLAIN'>PLAIN</Radio>
           <Radio value='none'>None</Radio>
         </Radio.Group>
@@ -258,16 +220,14 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         label={t('settings.channels.irc.credentials.password.label', 'Password (optional)')}
         description={t(
           'settings.channels.irc.credentials.password.help',
-          'NickServ / SASL PLAIN password. Leave blank for anonymous connections.',
+          'NickServ / SASL PLAIN password. Leave blank for anonymous connections.'
         )}
       >
         <Input.Password
           value={password}
           onChange={setPassword}
           placeholder={
-            hasExisting
-              ? '••••••••'
-              : t('settings.channels.irc.credentials.password.placeholder', 'NickServ password')
+            hasExisting ? '••••••••' : t('settings.channels.irc.credentials.password.placeholder', 'NickServ password')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -278,15 +238,10 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         label={t('settings.channels.irc.credentials.channels.label', 'Channels')}
         description={t(
           'settings.channels.irc.credentials.channels.help',
-          'Comma-separated list of channels to auto-join, e.g. #wayland-bots,#general.',
+          'Comma-separated list of channels to auto-join, e.g. #wayland-bots,#general.'
         )}
       >
-        <Input
-          value={channels}
-          onChange={setChannels}
-          placeholder='#wayland-bots'
-          style={{ width: 280 }}
-        />
+        <Input value={channels} onChange={setChannels} placeholder='#wayland-bots' style={{ width: 280 }} />
       </PreferenceRow>
 
       <div className='flex justify-end pt-8px'>
@@ -295,7 +250,6 @@ const IrcConfigForm: React.FC<IrcConfigFormProps> = ({ pluginStatus, modelSelect
         </Button>
       </div>
       <ChannelAgentModelSelector platform='irc' modelSelection={modelSelection} />
-
     </div>
   );
 };

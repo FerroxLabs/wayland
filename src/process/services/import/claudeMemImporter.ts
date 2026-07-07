@@ -101,7 +101,9 @@ export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Pro
   const projectsPresent = await importFromClaudeProjects(memDir, result);
 
   if (!dbPresent && !projectsPresent && result.imported === 0) {
-    result.errors.push('No Claude memory found: ~/.claude-mem/claude-mem.db not found and no ~/.claude/projects/*/memory');
+    result.errors.push(
+      'No Claude memory found: ~/.claude-mem/claude-mem.db not found and no ~/.claude/projects/*/memory'
+    );
   }
 
   return result;
@@ -112,11 +114,7 @@ export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Pro
  * Returns true when the database file exists (regardless of rows imported),
  * false when it is absent, so the caller can tell whether the source was found.
  */
-async function importFromClaudeMemDb(
-  dbPath: string,
-  memDir: string,
-  result: ClaudeMemImportResult
-): Promise<boolean> {
+async function importFromClaudeMemDb(dbPath: string, memDir: string, result: ClaudeMemImportResult): Promise<boolean> {
   try {
     await fs.promises.access(dbPath);
   } catch {
@@ -261,7 +259,11 @@ async function importFromClaudeProjects(memDir: string, result: ClaudeMemImportR
           }
 
           const rawTags = fm['tags'];
-          const tags: string[] = Array.isArray(rawTags) ? rawTags : typeof rawTags === 'string' && rawTags ? [rawTags] : [];
+          const tags: string[] = Array.isArray(rawTags)
+            ? rawTags
+            : typeof rawTags === 'string' && rawTags
+              ? [rawTags]
+              : [];
           const typeRaw = typeof fm['type'] === 'string' ? fm['type'] : 'observation';
 
           const frontmatter = buildFrontmatter({

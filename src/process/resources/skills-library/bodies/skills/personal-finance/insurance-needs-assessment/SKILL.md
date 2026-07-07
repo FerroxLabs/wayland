@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "insurance personal-finance analysis planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'insurance personal-finance analysis planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Insurance Needs Assessment
 
 > **Disclaimer:** This skill provides educational information about insurance concepts and general guidance for personal financial planning. It does NOT constitute financial advice, insurance advice, or professional recommendations. Individual circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified, licensed insurance professional before purchasing or modifying any insurance coverage.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly asks what types of insurance they should have given their life situation, or says something like "do I have enough coverage?"
 - A user is experiencing a qualifying life event -- marriage, divorce, birth or adoption of a child, home purchase, job change, retirement, or death of a spouse -- and wants to understand how their insurance needs have shifted
 - A user is building a first-time financial plan and wants to understand what insurance coverage is foundational versus optional
@@ -33,6 +35,7 @@ metadata:
 - A user has received an inheritance, significant raise, or major asset accumulation event and wants to know whether their current coverage is still appropriate
 
 **Do NOT use when:**
+
 - The user wants to compare specific named policies, providers, or premium quotes -- refer them to a licensed independent insurance broker
 - The user needs help with open enrollment decisions for employer-sponsored health insurance (use a dedicated health insurance enrollment skill)
 - The user needs business, commercial liability, errors and omissions, workers' compensation, or key-person insurance guidance (use a business insurance skill)
@@ -376,42 +379,43 @@ Users aged 64-65 or users helping an aging parent navigate the Medicare transiti
 
 ### Life Situation Profile
 
-| Factor                  | Status                                          |
-|-------------------------|-------------------------------------------------|
-| Age range               | Mid-30s (34)                                   |
-| Household composition   | Married, two young children (ages 4 and 1)     |
-| Dependents              | Spouse (non-working) + 2 children               |
-| Employment status       | W-2 employee, employer benefits provided        |
+| Factor                     | Status                                                         |
+| -------------------------- | -------------------------------------------------------------- |
+| Age range                  | Mid-30s (34)                                                   |
+| Household composition      | Married, two young children (ages 4 and 1)                     |
+| Dependents                 | Spouse (non-working) + 2 children                              |
+| Employment status          | W-2 employee, employer benefits provided                       |
 | Employer-provided coverage | Health insurance, group life insurance (2x salary = ~$220,000) |
-| Housing status          | Own with mortgage ($340,000 remaining; ~$80,000 equity) |
-| Vehicles                | 1 SUV (2020, still under auto loan)             |
-| Annual household income | ~$110,000 (sole earner)                         |
-| Approximate total assets | ~$103,000 liquid/retirement + home equity ~$80,000 = ~$183,000 |
-| Approximate total debts  | ~$340,000 mortgage + auto loan (amount unknown) |
-| Approximate net worth    | ~$183,000 - outstanding auto loan balance       |
+| Housing status             | Own with mortgage ($340,000 remaining; ~$80,000 equity)        |
+| Vehicles                   | 1 SUV (2020, still under auto loan)                            |
+| Annual household income    | ~$110,000 (sole earner)                                        |
+| Approximate total assets   | ~$103,000 liquid/retirement + home equity ~$80,000 = ~$183,000 |
+| Approximate total debts    | ~$340,000 mortgage + auto loan (amount unknown)                |
+| Approximate net worth      | ~$183,000 - outstanding auto loan balance                      |
 
 ---
 
 ### Coverage Assessment Matrix
 
-| Insurance Type        | Current Status             | Assessed Need Level | Gap Status        | Priority Level   |
-|-----------------------|----------------------------|---------------------|-------------------|------------------|
-| Health                | Have (employer)            | Essential           | Covered           | ✅ OK             |
-| Life                  | Employer group ($220,000)  | Very High           | 🔴 Severely underinsured | 🔴 Critical |
-| Life -- Stay-at-home spouse | None              | High                | 🔴 GAP            | 🔴 Critical       |
-| Disability -- STD     | Unknown (verify employer)  | High                | ⚠️ Unknown        | 🟡 Verify         |
-| Disability -- LTD     | Unknown (verify employer)  | Very High           | ⚠️ Unknown        | 🔴 Critical       |
-| Homeowners            | Have (verify limits)       | Essential           | ⚠️ Verify limits  | 🟡 Review         |
-| Auto -- Liability     | Have (amounts unknown)     | Required + High     | ⚠️ Unknown        | 🟡 Verify         |
-| Auto -- Comp/Collision| Likely required (loan)     | Required by lender  | Likely covered    | ✅ Likely OK      |
-| Auto -- UM/UIM        | Unknown                    | Recommended         | ⚠️ Unknown        | 🟡 Verify         |
-| Umbrella / Liability  | None                       | Worth evaluating    | Gap               | 🟢 Worth Evaluating|
+| Insurance Type              | Current Status            | Assessed Need Level | Gap Status               | Priority Level      |
+| --------------------------- | ------------------------- | ------------------- | ------------------------ | ------------------- |
+| Health                      | Have (employer)           | Essential           | Covered                  | ✅ OK               |
+| Life                        | Employer group ($220,000) | Very High           | 🔴 Severely underinsured | 🔴 Critical         |
+| Life -- Stay-at-home spouse | None                      | High                | 🔴 GAP                   | 🔴 Critical         |
+| Disability -- STD           | Unknown (verify employer) | High                | ⚠️ Unknown               | 🟡 Verify           |
+| Disability -- LTD           | Unknown (verify employer) | Very High           | ⚠️ Unknown               | 🔴 Critical         |
+| Homeowners                  | Have (verify limits)      | Essential           | ⚠️ Verify limits         | 🟡 Review           |
+| Auto -- Liability           | Have (amounts unknown)    | Required + High     | ⚠️ Unknown               | 🟡 Verify           |
+| Auto -- Comp/Collision      | Likely required (loan)    | Required by lender  | Likely covered           | ✅ Likely OK        |
+| Auto -- UM/UIM              | Unknown                   | Recommended         | ⚠️ Unknown               | 🟡 Verify           |
+| Umbrella / Liability        | None                      | Worth evaluating    | Gap                      | 🟢 Worth Evaluating |
 
 ---
 
 ### Detailed Coverage Analysis
 
 #### Health Insurance
+
 - **Current status:** Employer-provided for the employee. Coverage of spouse and children was not confirmed -- this should be verified.
 - **Assessment:** Assuming the full family is covered under the employer plan, this is the baseline coverage for a family of four. The adequacy of the plan (deductible, out-of-pocket maximum, network) is beyond the scope of this assessment but worth reviewing annually during open enrollment.
 - **Key questions to verify:** Are the spouse and children on the plan? What is the annual out-of-pocket maximum for the family?
@@ -428,13 +432,13 @@ Users aged 64-65 or users helping an aging parent navigate the Medicare transiti
 
 - **DIME Framework Estimate:**
 
-| Component | Calculation | Estimate |
-|-----------|-------------|----------|
-| Debt (non-mortgage, auto loan) | Unknown auto loan balance -- assume ~$20,000 | ~$20,000 |
-| Income replacement (sole earner, youngest child age 1, ~18 years to independence) | 18 years × $110,000 | ~$1,980,000 |
-| Mortgage payoff | Remaining balance | ~$340,000 |
-| Education (2 children × ~$80,000-120,000 per child in-state 4-year) | Mid-range estimate | ~$200,000 |
-| **Total estimated need** | | **~$2,500,000 -- $2,540,000** |
+| Component                                                                         | Calculation                                  | Estimate                      |
+| --------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------------- |
+| Debt (non-mortgage, auto loan)                                                    | Unknown auto loan balance -- assume ~$20,000 | ~$20,000                      |
+| Income replacement (sole earner, youngest child age 1, ~18 years to independence) | 18 years × $110,000                          | ~$1,980,000                   |
+| Mortgage payoff                                                                   | Remaining balance                            | ~$340,000                     |
+| Education (2 children × ~$80,000-120,000 per child in-state 4-year)               | Mid-range estimate                           | ~$200,000                     |
+| **Total estimated need**                                                          |                                              | **~$2,500,000 -- $2,540,000** |
 
 - **Current coverage:** ~$220,000 (employer group term)
 - **Estimated gap:** Approximately $2,200,000 -- $2,300,000
@@ -512,14 +516,14 @@ Users aged 64-65 or users helping an aging parent navigate the Medicare transiti
 
 ### Priority Gap Summary
 
-| Priority | Gap | Why It Matters for Your Situation | Recommended Action |
-|----------|-----|-----------------------------------|--------------------|
-| 🔴 Critical | Life insurance -- primary earner | $220,000 in group term vs. ~$2.5M estimated need. Your family of four is entirely dependent on your income with $18,000 in savings and a $340,000 mortgage. | Consult a licensed insurance professional for a formal needs analysis and term life quotes. Consider 20- or 25-year term. |
-| 🔴 Critical | Life insurance -- stay-at-home spouse | No coverage. Replacing full-time childcare for two young children costs $25,000-$45,000/year in most markets. | Include spouse coverage in same professional consultation. A $300,000-$500,000 term policy is typical for this situation. |
-| 🔴 Critical | Disability insurance (LTD in particular) | You are the sole earner. An inability to work would leave your household with no income. Your savings cover approximately 2 months of expenses. | Verify employer LTD benefits immediately (benefits portal). If coverage is below 60% of income or uses "any-occupation" definition, consult a disability insurance specialist. |
-| 🟡 Important | Homeowners -- dwelling coverage verification | If your policy still reflects original purchase price or an outdated replacement cost estimate, you may be significantly underinsured. Construction costs have risen sharply in recent years. | Pull your declarations page and compare dwelling coverage to current estimated RCV. |
-| 🟡 Important | Auto liability limits and UM/UIM | Unknown current limits. Inadequate liability coverage exposes your assets to judgment risk. | Pull auto declarations page. Upgrade to minimum 100/300/100 if not already there. Add UM/UIM if not present. |
-| 🟢 Worth Evaluating | Umbrella liability | Growing net worth and homeownership create liability exposure. Not an immediate Critical gap but an important medium-term addition. | Budget for after resolving Critical gaps above. Approximately $150-$300/year for $1M coverage. |
+| Priority            | Gap                                          | Why It Matters for Your Situation                                                                                                                                                             | Recommended Action                                                                                                                                                             |
+| ------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 🔴 Critical         | Life insurance -- primary earner             | $220,000 in group term vs. ~$2.5M estimated need. Your family of four is entirely dependent on your income with $18,000 in savings and a $340,000 mortgage.                                   | Consult a licensed insurance professional for a formal needs analysis and term life quotes. Consider 20- or 25-year term.                                                      |
+| 🔴 Critical         | Life insurance -- stay-at-home spouse        | No coverage. Replacing full-time childcare for two young children costs $25,000-$45,000/year in most markets.                                                                                 | Include spouse coverage in same professional consultation. A $300,000-$500,000 term policy is typical for this situation.                                                      |
+| 🔴 Critical         | Disability insurance (LTD in particular)     | You are the sole earner. An inability to work would leave your household with no income. Your savings cover approximately 2 months of expenses.                                               | Verify employer LTD benefits immediately (benefits portal). If coverage is below 60% of income or uses "any-occupation" definition, consult a disability insurance specialist. |
+| 🟡 Important        | Homeowners -- dwelling coverage verification | If your policy still reflects original purchase price or an outdated replacement cost estimate, you may be significantly underinsured. Construction costs have risen sharply in recent years. | Pull your declarations page and compare dwelling coverage to current estimated RCV.                                                                                            |
+| 🟡 Important        | Auto liability limits and UM/UIM             | Unknown current limits. Inadequate liability coverage exposes your assets to judgment risk.                                                                                                   | Pull auto declarations page. Upgrade to minimum 100/300/100 if not already there. Add UM/UIM if not present.                                                                   |
+| 🟢 Worth Evaluating | Umbrella liability                           | Growing net worth and homeownership create liability exposure. Not an immediate Critical gap but an important medium-term addition.                                                           | Budget for after resolving Critical gaps above. Approximately $150-$300/year for $1M coverage.                                                                                 |
 
 ---
 

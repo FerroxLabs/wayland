@@ -28,9 +28,7 @@
     "iconUrl": "icons/docker.svg",
     "brand": { "logoBackground": "#ffffff", "logoForeground": "#2496ed" },
     "auth": { "method": "none" },
-    "toolGroups": [
-      { "label": "Execute in container", "count": 1 }
-    ],
+    "toolGroups": [{ "label": "Execute in container", "count": 1 }],
     "setupGuide": { "path": "guides/com.docker-docker-mcp.md", "estimatedMinutes": 1, "stepCount": 1 },
     "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"

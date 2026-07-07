@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript testing frameworks automation"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript testing frameworks automation'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Angular Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is writing unit tests for Angular components, services, directives, pipes, or guards using TestBed and Jasmine/Jest
 - User needs to test Angular components with complex template bindings, `@Input`/`@Output` properties, or child component interactions
 - User is setting up a testing strategy for an Angular project and needs to decide between shallow rendering, isolated tests, and integration tests
@@ -31,6 +33,7 @@ metadata:
 - User wants to implement component harnesses using Angular CDK Testing infrastructure
 
 **Do NOT use this skill when:**
+
 - User needs help with React Testing Library or Vue Test Utils -- check the react-testing or vue-testing skills
 - User asks about end-to-end testing with Cypress or Playwright for Angular apps -- check the e2e-testing skill
 - User needs help with Angular application architecture or state management design outside of testability concerns
@@ -117,10 +120,10 @@ Async testing is where most Angular test failures and flakiness originate. Each 
   ```typescript
   fakeAsync(() => {
     let result: User[];
-    service.getUsers().subscribe(data => result = data);
+    service.getUsers().subscribe((data) => (result = data));
     tick();
     expect(result).toEqual(mockUsers);
-  })
+  });
   ```
 - **Debounce/throttle operators:** Use `tick(debounceMs + 1)` to advance past the debounce threshold. Always add 1ms buffer.
 - **Intervals and polling:** Use `discardPeriodicTasks()` at the end of `fakeAsync` blocks that start intervals, or the test will throw "1 periodic timer(s) still in the queue".
@@ -249,6 +252,7 @@ describe('ComponentName', () => {
 Components using `ChangeDetectionStrategy.OnPush` do not re-render on every `detectChanges()` call -- they only re-render when `@Input` references change, events fire, or the async pipe emits. This breaks naive tests that set `component.someProperty = newValue` and then call `detectChanges()`.
 
 **Handling:**
+
 - Use `fixture.componentRef.setInput('inputName', value)` (Angular 14+) to trigger `OnPush` re-renders for `@Input` changes. This correctly marks the component dirty.
 - For service observables bound via `async` pipe, ensure the observable emits (e.g., call `subject.next(newValue)`) before calling `detectChanges()`. The async pipe handles the subscription internally.
 - Alternatively, inject `ChangeDetectorRef` via `fixture.debugElement.injector.get(ChangeDetectorRef)` and call `cdr.markForCheck()` then `fixture.detectChanges()` to force a check cycle.
@@ -259,6 +263,7 @@ Components using `ChangeDetectionStrategy.OnPush` do not re-render on every `det
 Route guards (`CanActivate`, `CanDeactivate`, `CanLoad`, `CanMatch`) are often tested incorrectly by instantiating them as isolated classes and passing raw objects as `ActivatedRouteSnapshot`. This misses DI-dependent guard logic.
 
 **Handling:**
+
 - For guards with no complex template interaction, use isolated unit tests: `new MyGuard(authServiceSpy, routerSpy)`. Create minimal mock route snapshots: `{ paramMap: convertToParamMap({ id: '1' }) } as ActivatedRouteSnapshot`.
 - For guards that interact with the router navigation pipeline, use `RouterTestingModule.withRoutes(testRoutes)` in an integration test. Navigate with `router.navigate(['/protected'])` inside `fakeAsync/tick`, then assert on `router.url`.
 - Assert the boolean return value for simple guards. For guards returning `UrlTree`, assert with `router.createUrlTree(['/login'])` equality using `expect(result.toString()).toBe('/login')`.
@@ -269,6 +274,7 @@ Route guards (`CanActivate`, `CanDeactivate`, `CanLoad`, `CanMatch`) are often t
 Components that combine multiple observables or use higher-order operators like `switchMap`, `mergeMap`, or `combineLatest` create intricate timing dependencies in tests.
 
 **Handling:**
+
 - Use `BehaviorSubject` for simulating multiple observable inputs: create one `BehaviorSubject` per input stream, inject them through service spies, and control emissions manually.
 - For `switchMap` cancelation behavior, test that starting a second emission cancels the first. Emit twice from the source subject before the inner observable completes. Verify only the second result appears.
 - For `combineLatest`, remember it does not emit until ALL source observables have emitted at least once. Initialize `BehaviorSubject` instances with initial values to avoid tests that never emit.
@@ -280,6 +286,7 @@ Components that combine multiple observables or use higher-order operators like 
 Effects are the most complex testing surface in NgRx applications because they involve action streams, service calls, and dispatched output actions.
 
 **Handling:**
+
 - Use `provideMockActions` from `@ngrx/effects/testing` to create a controllable `Observable<Action>` input stream.
 - Structure the test: push an action into the `actions$` subject, then subscribe to the effect observable, and assert on the emitted action.
 - For effects with `switchMap` to services, return `of(result)` from service spies for synchronous testing. For effects with error handling (`catchError`), make the service spy throw: `serviceSpy.getData.and.returnValue(throwError(() => new Error('500')))`.
@@ -292,6 +299,7 @@ Effects are the most complex testing surface in NgRx applications because they i
 Teams migrating an existing Angular project from Karma to Jest encounter several sharp edges that are not covered in basic migration guides.
 
 **Handling:**
+
 - Install `jest`, `jest-environment-jsdom`, `@jest/globals`, `ts-jest`, and `jest-preset-angular`. Remove `karma`, `karma-jasmine`, `karma-chrome-launcher`, and `@types/jasmine`.
 - Add `"types": ["jest"]` to `tsconfig.spec.json` to prevent TypeScript from complaining about missing Jasmine globals.
 - Replace `jasmine.createSpyObj` with `jest.fn()` typed mocks. Replace `spy.and.returnValue(x)` with `mockSpy.mockReturnValue(x)` and `spy.and.callFake(fn)` with `mockSpy.mockImplementation(fn)`.
@@ -305,6 +313,7 @@ Teams migrating an existing Angular project from Karma to Jest encounter several
 Standalone components do not use `NgModule`, which changes how TestBed is configured and how dependencies are resolved.
 
 **Handling:**
+
 - Use `TestBed.configureTestingModule({ imports: [StandaloneComponent, MockChildComponent] })`. Standalone components go in `imports`, not `declarations`.
 - Override providers using `TestBed.overrideComponent(StandaloneComponent, { set: { providers: [{ provide: MyService, useValue: mockService }] } })` for component-level providers defined in the component's own `providers` array.
 - Use `importProvidersFrom(HttpClientTestingModule)` or `provideHttpClientTesting()` in the `providers` array for standalone components that use `HttpClient`.
@@ -316,6 +325,7 @@ Standalone components do not use `NgModule`, which changes how TestBed is config
 Tests that pass locally but fail in CI, or fail on every 5th run, indicate one of a small set of root causes in Angular.
 
 **Handling:**
+
 - **Timer leakage:** Add `discardPeriodicTasks()` and `flush()` at the end of all `fakeAsync` blocks. Unreleased timers carry into subsequent tests in Jest's same worker process.
 - **Subscription leakage:** Ensure components under test call `ngOnDestroy`. Manually trigger it: `fixture.destroy()` in `afterEach` -- Angular's `destroyAfterEach` option handles this automatically.
 - **Test order dependency:** Run Jest with `--randomize` flag to shuffle test order and surface order-dependent failures. Identify the test that "prepares" state for the failing test.
@@ -355,7 +365,7 @@ const mockUser: User = {
   id: '42',
   name: 'Jane Smith',
   email: 'jane@example.com',
-  role: 'admin'
+  role: 'admin',
 };
 
 describe('UserProfileComponent', () => {
@@ -366,18 +376,21 @@ describe('UserProfileComponent', () => {
   beforeEach(async () => {
     userServiceSpy = jasmine.createSpyObj<UserService>('UserService', ['getUser']);
 
-    await TestBed.configureTestingModule({
-      declarations: [UserProfileComponent],
-      // NO_ERRORS_SCHEMA suppresses child component errors for shallow test
-      schemas: [NO_ERRORS_SCHEMA],
-      providers: [
-        { provide: UserService, useValue: userServiceSpy },
-        {
-          provide: ActivatedRoute,
-          useValue: { params: of({ id: '42' }) }
-        }
-      ]
-    }, { teardown: { destroyAfterEach: true } }).compileComponents();
+    await TestBed.configureTestingModule(
+      {
+        declarations: [UserProfileComponent],
+        // NO_ERRORS_SCHEMA suppresses child component errors for shallow test
+        schemas: [NO_ERRORS_SCHEMA],
+        providers: [
+          { provide: UserService, useValue: userServiceSpy },
+          {
+            provide: ActivatedRoute,
+            useValue: { params: of({ id: '42' }) },
+          },
+        ],
+      },
+      { teardown: { destroyAfterEach: true } }
+    ).compileComponents();
 
     // Do NOT call detectChanges here -- control it per test
   });
@@ -455,9 +468,7 @@ describe('UserProfileComponent', () => {
 
   describe('when user data fails to load', () => {
     beforeEach(() => {
-      userServiceSpy.getUser.and.returnValue(
-        throwError(() => new Error('Network error'))
-      );
+      userServiceSpy.getUser.and.returnValue(throwError(() => new Error('Network error')));
       createComponent();
       fixture.detectChanges();
     });
@@ -533,18 +544,18 @@ describe('UserProfileComponent', () => {
 
 ### Coverage Assessment for This Component
 
-| Coverage Area | Tests Covering It | Branch Status |
-|---|---|---|
-| Loading state (true) | `should show loading spinner before data arrives` | Covered |
-| Loading state (false -- success) | `should hide the loading spinner after data arrives` | Covered |
-| Loading state (false -- error) | `should hide the loading spinner on error` | Covered |
-| Success render (name, email) | `should display the user name/email` | Covered |
-| Error render | `should display the error message` | Covered |
-| Role-based badge (admin) | `should display admin badge` | Partially -- need non-admin test |
-| Role-based badge (non-admin) | Not yet written -- add `it('should not display admin badge for non-admin')` | Missing branch |
-| Retry logic | `should retry loading when retry button is clicked` | Covered |
-| Route param extraction | `should call getUser with the route param id` | Covered |
-| Input change re-fetch | `should reload user when userId input changes` | Covered |
+| Coverage Area                    | Tests Covering It                                                           | Branch Status                    |
+| -------------------------------- | --------------------------------------------------------------------------- | -------------------------------- |
+| Loading state (true)             | `should show loading spinner before data arrives`                           | Covered                          |
+| Loading state (false -- success) | `should hide the loading spinner after data arrives`                        | Covered                          |
+| Loading state (false -- error)   | `should hide the loading spinner on error`                                  | Covered                          |
+| Success render (name, email)     | `should display the user name/email`                                        | Covered                          |
+| Error render                     | `should display the error message`                                          | Covered                          |
+| Role-based badge (admin)         | `should display admin badge`                                                | Partially -- need non-admin test |
+| Role-based badge (non-admin)     | Not yet written -- add `it('should not display admin badge for non-admin')` | Missing branch                   |
+| Retry logic                      | `should retry loading when retry button is clicked`                         | Covered                          |
+| Route param extraction           | `should call getUser with the route param id`                               | Covered                          |
+| Input change re-fetch            | `should reload user when userId input changes`                              | Covered                          |
 
 ### What to Add Next
 

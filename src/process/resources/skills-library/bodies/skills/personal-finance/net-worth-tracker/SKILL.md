@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting analysis planning"
-  category: "personal-finance"
-  subcategory: "life-stage-financial"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting analysis planning'
+  category: 'personal-finance'
+  subcategory: 'life-stage-financial'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Net Worth Tracker
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly -- including tax treatment of accounts, asset valuation methodology, and debt management priorities -- and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, certified financial planner (CFP), or licensed CPA before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to calculate or check their net worth, or asks "how much am I worth financially?"
 - The user wants a complete snapshot of their financial position -- all assets and all debts in one place -- for the first time
 - The user wants to establish a baseline net worth to track progress toward financial goals (debt payoff, retirement readiness, first home purchase, financial independence)
@@ -33,6 +35,7 @@ metadata:
 - The user is recovering from a financial setback (job loss, divorce, bankruptcy) and wants to understand their current standing before rebuilding
 
 **Do NOT use when:**
+
 - The user wants to build a monthly spending plan -- use the `budget-planning` skill instead
 - The user wants advice on which investments to buy, sell, or hold -- use investment analysis skills
 - The user wants a strategy for paying off specific debts in an optimized order -- use debt management or debt avalanche/snowball skills
@@ -339,6 +342,7 @@ The real value of a net worth statement is the trend over time, not the snapshot
 ## Edge Cases
 
 ### User Has a Negative Net Worth
+
 A negative net worth is structurally common and should be presented without alarm. The key questions are: what is causing the negative net worth (student loans, a large mortgage in early years, credit card debt, or something else?), and what is the trend direction?
 
 - Calculate the approximate time to zero if the user is making regular payments. A -$15,000 net worth with $500/month going toward liabilities reduction and modest investment growth will typically reach zero within 2-4 years.
@@ -346,6 +350,7 @@ A negative net worth is structurally common and should be presented without alar
 - For users in negative net worth territory, the liquidity and liability breakdown is especially important -- the composition of the negative position determines what actions are available.
 
 ### User Owns a Home With an Outstanding Mortgage
+
 Home equity is the most common source of large positive net worth for American households -- and also the least liquid.
 
 - Asset value: current estimated market value (NOT purchase price, NOT remaining loan amount, NOT tax assessed value).
@@ -355,6 +360,7 @@ Home equity is the most common source of large positive net worth for American h
 - If the user has a HELOC: the credit line itself is not an asset (it is borrowed money). Only the amount currently drawn is a liability.
 
 ### User Has Equity Compensation (RSUs, Stock Options, ESPP)
+
 Equity compensation is frequently misunderstood and misstated in net worth calculations.
 
 - **Vested RSUs:** These are actual shares owned today. Value = number of shares multiplied by current stock price. They are a Tier 2 or Tier 4 asset depending on whether shares are publicly traded (Tier 2) or in a private company (Tier 4, illiquid).
@@ -364,6 +370,7 @@ Equity compensation is frequently misunderstood and misstated in net worth calcu
 - **Private company equity:** Mark as illiquid (Tier 4) and use either the last preferred share price from a recent funding round (for startup equity) or zero if the company has no formal recent valuation. Private company equity is frequently overrepresented in net worth -- it may be worth exactly as stated, or it may be worth nothing. Note the uncertainty explicitly.
 
 ### User Has Joint Finances With a Partner
+
 Joint net worth calculations require intentional scoping.
 
 - Ask explicitly: does the user want one combined household statement, one individual statement, or both?
@@ -373,6 +380,7 @@ Joint net worth calculations require intentional scoping.
 - If one partner has significantly more debt (e.g., one partner has $80,000 in student loans from before the relationship), note this separately. In some states, pre-marital debt remains individually owned -- this has legal and financial planning implications.
 
 ### User Has a 401(k) Loan Outstanding
+
 This is one of the most common sources of double-counting errors in net worth calculations.
 
 - The 401(k) loan balance shown on most plan statements is ALREADY reflected as a reduction in the account balance -- the money is gone from the account. Do NOT add the loan balance back as a separate asset.
@@ -381,6 +389,7 @@ This is one of the most common sources of double-counting errors in net worth ca
 - Note that 401(k) loans that are not repaid within 5 years (or immediately if employment ends) become taxable distributions subject to income tax plus a 10% early withdrawal penalty if under 59½.
 
 ### User Has Cryptocurrency or Digital Assets
+
 Cryptocurrency is a real and volatile asset class that requires special handling.
 
 - Include cryptocurrency at current fair market value in USD. Use the value from a reputable exchange at the date of the snapshot.
@@ -390,6 +399,7 @@ Cryptocurrency is a real and volatile asset class that requires special handling
 - Remind the user that cryptocurrency dispositions have tax implications (capital gains) -- relevant for future decisions but not to the net worth calculation itself.
 
 ### User Has Business Ownership Interests
+
 Business valuation for net worth purposes is genuinely difficult and carries significant uncertainty.
 
 - **Sole proprietorship with no transferable value:** Many small service businesses (freelancers, solo consultants) have revenue but no enterprise value that could be sold. Their business "asset" is their ongoing labor. In this case, the business contributes no balance sheet asset -- only the physical equipment and cash held in business accounts.
@@ -416,31 +426,35 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 ### ASSETS
 
 #### Tier 1 -- Immediately Liquid
-| Account / Item        | Notes                        | Current Value |
-|-----------------------|------------------------------|---------------|
-| Checking account      |                              | $4,200        |
-| High-yield savings    | HYSA, strong interest rate   | $11,500       |
-| **Tier 1 Subtotal**   |                              | **$15,700**   |
+
+| Account / Item      | Notes                      | Current Value |
+| ------------------- | -------------------------- | ------------- |
+| Checking account    |                            | $4,200        |
+| High-yield savings  | HYSA, strong interest rate | $11,500       |
+| **Tier 1 Subtotal** |                            | **$15,700**   |
 
 #### Tier 2 -- Accessible with Friction
-| Account / Item                  | Notes                                    | Current Value |
-|---------------------------------|------------------------------------------|---------------|
-| Taxable brokerage account       | ~3-5 day settlement; capital gains may apply | $14,200   |
-| Roth IRA -- contributions only  | $6,000 contributed; accessible any time penalty-free | $6,000 |
-| **Tier 2 Subtotal**             |                                          | **$20,200**   |
+
+| Account / Item                 | Notes                                                | Current Value |
+| ------------------------------ | ---------------------------------------------------- | ------------- |
+| Taxable brokerage account      | ~3-5 day settlement; capital gains may apply         | $14,200       |
+| Roth IRA -- contributions only | $6,000 contributed; accessible any time penalty-free | $6,000        |
+| **Tier 2 Subtotal**            |                                                      | **$20,200**   |
 
 #### Tier 3 -- Restricted Access
-| Account / Item                | Notes                                  | Current Value |
-|-------------------------------|----------------------------------------|---------------|
-| 401(k) -- Traditional         | Penalty-free at 59½; pre-tax balance   | $47,000       |
-| Roth IRA -- earnings portion  | $8,300 total minus $6,000 contributions; accessible at 59½ | $2,300 |
-| **Tier 3 Subtotal**           |                                        | **$49,300**   |
+
+| Account / Item               | Notes                                                      | Current Value |
+| ---------------------------- | ---------------------------------------------------------- | ------------- |
+| 401(k) -- Traditional        | Penalty-free at 59½; pre-tax balance                       | $47,000       |
+| Roth IRA -- earnings portion | $8,300 total minus $6,000 contributions; accessible at 59½ | $2,300        |
+| **Tier 3 Subtotal**          |                                                            | **$49,300**   |
 
 #### Tier 4 -- Illiquid Physical Assets
-| Asset                        | Valuation Method               | Current Value |
-|------------------------------|--------------------------------|---------------|
-| 2020 Honda Accord            | KBB private party estimate     | $17,000       |
-| **Tier 4 Subtotal**          |                                | **$17,000**   |
+
+| Asset               | Valuation Method           | Current Value |
+| ------------------- | -------------------------- | ------------- |
+| 2020 Honda Accord   | KBB private party estimate | $17,000       |
+| **Tier 4 Subtotal** |                            | **$17,000**   |
 
 ### TOTAL ASSETS: $102,200
 
@@ -449,18 +463,20 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 ### LIABILITIES
 
 #### Secured Debt
-| Debt                | Interest Rate | Remaining Balance |
-|---------------------|---------------|-------------------|
-| Auto loan -- Accord | 5.9%          | $9,400            |
-| **Secured Subtotal**|               | **$9,400**        |
+
+| Debt                 | Interest Rate | Remaining Balance |
+| -------------------- | ------------- | ----------------- |
+| Auto loan -- Accord  | 5.9%          | $9,400            |
+| **Secured Subtotal** |               | **$9,400**        |
 
 #### Unsecured Debt
-| Debt                        | Interest Rate | Remaining Balance |
-|-----------------------------|---------------|-------------------|
-| Federal student loans       | 6.5%          | $31,500           |
-| Credit card (carrying balance)| 22.0%       | $1,800            |
-| Credit card (paid monthly)  | N/A           | $0                |
-| **Unsecured Subtotal**      |               | **$33,300**       |
+
+| Debt                           | Interest Rate | Remaining Balance |
+| ------------------------------ | ------------- | ----------------- |
+| Federal student loans          | 6.5%          | $31,500           |
+| Credit card (carrying balance) | 22.0%         | $1,800            |
+| Credit card (paid monthly)     | N/A           | $0                |
+| **Unsecured Subtotal**         |               | **$33,300**       |
 
 ### TOTAL LIABILITIES: $42,700
 
@@ -468,21 +484,21 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 
 ### NET WORTH SUMMARY
 
-| Metric                          | Value         |
-|---------------------------------|---------------|
-| Total Assets                    | $102,200      |
-| Total Liabilities                | $42,700       |
-| **Net Worth**                   | **$59,500**   |
-| Debt-to-Asset Ratio             | 0.42          |
-| Liquid Asset Ratio (Tiers 1+2)  | 35% of assets |
-| Retirement Assets (Tier 3)      | $49,300 (48%) |
+| Metric                         | Value         |
+| ------------------------------ | ------------- |
+| Total Assets                   | $102,200      |
+| Total Liabilities              | $42,700       |
+| **Net Worth**                  | **$59,500**   |
+| Debt-to-Asset Ratio            | 0.42          |
+| Liquid Asset Ratio (Tiers 1+2) | 35% of assets |
+| Retirement Assets (Tier 3)     | $49,300 (48%) |
 
 ---
 
 ### ASSET COMPOSITION BY LIQUIDITY TIER
 
 | Tier                              | Dollar Amount | % of Total Assets |
-|-----------------------------------|---------------|-------------------|
+| --------------------------------- | ------------- | ----------------- |
 | Tier 1 -- Immediately liquid      | $15,700       | 15%               |
 | Tier 2 -- Accessible w/ friction  | $20,200       | 20%               |
 | Tier 3 -- Restricted (retirement) | $49,300       | 48%               |
@@ -493,12 +509,12 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 
 ### LIABILITY BREAKDOWN
 
-| Category              | Balance   | % of Total Liabilities |
-|-----------------------|-----------|------------------------|
-| Student loans (federal)| $31,500  | 74%                    |
-| Auto loan             | $9,400    | 22%                    |
-| Credit card           | $1,800    | 4%                     |
-| **Total**             | **$42,700**| **100%**              |
+| Category                | Balance     | % of Total Liabilities |
+| ----------------------- | ----------- | ---------------------- |
+| Student loans (federal) | $31,500     | 74%                    |
+| Auto loan               | $9,400      | 22%                    |
+| Credit card             | $1,800      | 4%                     |
+| **Total**               | **$42,700** | **100%**               |
 
 ---
 
@@ -519,9 +535,9 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 ### QUARTERLY TRACKING TEMPLATE
 
 | Metric                     | Q1 [Date]   | Q2 [Date] | Q3 [Date] | Q4 [Date] | 12-Mo Change |
-|----------------------------|-------------|-----------|-----------|-----------|--------------|
+| -------------------------- | ----------- | --------- | --------- | --------- | ------------ |
 | Total Assets               | $102,200    |           |           |           |              |
-| Total Liabilities           | $42,700     |           |           |           |              |
+| Total Liabilities          | $42,700     |           |           |           |              |
 | **Net Worth**              | **$59,500** |           |           |           |              |
 | Tier 1 Liquid Assets       | $15,700     |           |           |           |              |
 | Retirement Assets (Tier 3) | $49,300     |           |           |           |              |
@@ -533,6 +549,7 @@ Business valuation for net worth purposes is genuinely difficult and carries sig
 ---
 
 ### NEXT STEPS
+
 - [ ] Prioritize eliminating the $1,800 credit card balance (22% APR -- highest cost debt by a wide margin)
 - [ ] Reassess the 2020 Accord value at the next update -- vehicles depreciate approximately $1,500-$2,500/year at this range
 - [ ] Verify whether current 401(k) contribution rate captures any available employer match -- unmatched employer contributions are deferred compensation left on the table

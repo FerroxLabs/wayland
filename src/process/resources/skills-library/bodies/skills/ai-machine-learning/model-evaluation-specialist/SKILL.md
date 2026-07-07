@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml testing guide"
-  category: "ai-machine-learning"
-  subcategory: "ml-fundamentals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml testing guide'
+  category: 'ai-machine-learning'
+  subcategory: 'ml-fundamentals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Model Evaluation Specialist
@@ -24,17 +24,17 @@ Model evaluation for modern AI extends beyond accuracy metrics. LLMs and generat
 
 ## LLM Benchmark Landscape
 
-| Benchmark | Measures | Tasks | Scoring |
-|-----------|----------|-------|---------|
-| MMLU | Broad knowledge | 57 subjects, multiple choice | Accuracy |
-| HumanEval / MBPP | Code generation | Python problems | pass@k |
-| GSM8K | Math reasoning | Grade school word problems | Exact match |
-| MT-Bench | Instruction following | 80 multi-turn questions | LLM judge 1-10 |
-| AlpacaEval | Instruction following | 805 instructions | Win rate |
-| TruthfulQA | Factuality | 817 misconception questions | Accuracy |
-| HELM | Holistic evaluation | Multiple scenarios | Multi-metric |
-| IFEval | Instruction compliance | Verifiable constraints | Compliance rate |
-| WildBench | Real-world tasks | User-submitted prompts | LLM pairwise |
+| Benchmark        | Measures               | Tasks                        | Scoring         |
+| ---------------- | ---------------------- | ---------------------------- | --------------- |
+| MMLU             | Broad knowledge        | 57 subjects, multiple choice | Accuracy        |
+| HumanEval / MBPP | Code generation        | Python problems              | pass@k          |
+| GSM8K            | Math reasoning         | Grade school word problems   | Exact match     |
+| MT-Bench         | Instruction following  | 80 multi-turn questions      | LLM judge 1-10  |
+| AlpacaEval       | Instruction following  | 805 instructions             | Win rate        |
+| TruthfulQA       | Factuality             | 817 misconception questions  | Accuracy        |
+| HELM             | Holistic evaluation    | Multiple scenarios           | Multi-metric    |
+| IFEval           | Instruction compliance | Verifiable constraints       | Compliance rate |
+| WildBench        | Real-world tasks       | User-submitted prompts       | LLM pairwise    |
 
 ### Benchmark Selection Guide
 
@@ -99,12 +99,12 @@ def evaluate_rag(questions, answers, contexts, ground_truths) -> dict:
     return dict(result)
 ```
 
-| RAGAS Metric | Measures | Good Score |
-|-------------|----------|------------|
-| Faithfulness | Answer grounded in context? | >0.85 |
-| Answer Relevancy | Addresses the question? | >0.80 |
-| Context Precision | Retrieved docs relevant? | >0.75 |
-| Context Recall | All needed docs retrieved? | >0.80 |
+| RAGAS Metric      | Measures                    | Good Score |
+| ----------------- | --------------------------- | ---------- |
+| Faithfulness      | Answer grounded in context? | >0.85      |
+| Answer Relevancy  | Addresses the question?     | >0.80      |
+| Context Precision | Retrieved docs relevant?    | >0.75      |
+| Context Recall    | All needed docs retrieved?  | >0.80      |
 
 ## LLM-as-Judge Patterns
 
@@ -164,12 +164,12 @@ JSON: {{"scores": {{"dim": score}}, "reasoning": "..."}}"""
 
 ### Reducing Judge Bias
 
-| Bias | Mitigation |
-|------|------------|
-| Position bias | Randomize order, run both orderings |
-| Verbosity bias | Include "conciseness" in criteria |
-| Self-preference | Use different model as judge |
-| Style bias | Focus rubric on content, not style |
+| Bias            | Mitigation                          |
+| --------------- | ----------------------------------- |
+| Position bias   | Randomize order, run both orderings |
+| Verbosity bias  | Include "conciseness" in criteria   |
+| Self-preference | Use different model as judge        |
+| Style bias      | Focus rubric on content, not style  |
 
 ```python
 def debiased_pairwise(judge, prompt, resp_a, resp_b, criteria) -> dict:
@@ -320,13 +320,13 @@ class EvaluationPipeline:
 
 ## Leaderboard Pitfalls
 
-| Pitfall | What to Check |
-|---------|---------------|
-| Contamination | Training data cutoff, decontamination methods |
-| Cherry-picking | Look for comprehensive evals, not single metrics |
+| Pitfall            | What to Check                                     |
+| ------------------ | ------------------------------------------------- |
+| Contamination      | Training data cutoff, decontamination methods     |
+| Cherry-picking     | Look for comprehensive evals, not single metrics  |
 | Prompt sensitivity | Check if few-shot format matches reported results |
-| Stale benchmarks | Prefer recent benchmarks, check for data leaks |
-| Missing error bars | Look for confidence intervals or repeated runs |
+| Stale benchmarks   | Prefer recent benchmarks, check for data leaks    |
+| Missing error bars | Look for confidence intervals or repeated runs    |
 
 ## Evaluation Anti-Patterns
 
@@ -356,6 +356,7 @@ Benchmarks as product decisions -> Always validate on your specific data
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing model evaluation specialist solutions
 - Reviewing or improving existing model evaluation specialist approaches
 - Making architectural or implementation decisions about model evaluation specialist
@@ -363,6 +364,7 @@ Benchmarks as product decisions -> Always validate on your specific data
 - Troubleshooting model evaluation specialist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -373,21 +375,26 @@ Benchmarks as product decisions -> Always validate on your specific data
 # Model Evaluation Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

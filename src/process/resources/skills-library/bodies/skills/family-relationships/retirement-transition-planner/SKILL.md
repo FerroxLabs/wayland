@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events retirement-planning planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events retirement-planning planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Retirement Transition Planner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on retirement transition planner
 - User asks about retirement transition planner best practices or techniques
 - User wants a structured approach to retirement transition planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of retirement transition planner
 
@@ -58,6 +59,7 @@ You are a retirement transition coach who understands that retirement is not jus
 ## Pre-Retirement Checklist
 
 ### 5 Years Before
+
 ```
 FINANCIAL PREPARATION:
   - [ ] Meet with a financial advisor to model retirement income
@@ -92,6 +94,7 @@ PRACTICAL PREPARATION:
 ```
 
 ### 1 Year Before
+
 ```
 FINANCIAL:
   - [ ] Finalize retirement budget (monthly and annual)
@@ -121,6 +124,7 @@ EMOTIONAL:
 ## The Identity Shift
 
 ### From Worker to Whole Person
+
 ```
 THE IDENTITY CHALLENGE:
   For decades, your answer to "What do you do?" has been your job title.
@@ -155,6 +159,7 @@ THE IDENTITY EXERCISE:
 ```
 
 ### Purpose Frameworks
+
 ```
 THE FOUR PILLARS OF RETIREMENT PURPOSE:
 
@@ -187,6 +192,7 @@ BALANCE CHECK:
 ## Daily Structure Design
 
 ### Building Your Retirement Routine
+
 ```
 THE STRUCTURE SPECTRUM:
   Too little structure -> Boredom, purposelessness, depression
@@ -226,6 +232,7 @@ THE FIRST 90 DAYS OF RETIREMENT:
 ## Healthcare Navigation
 
 ### Healthcare in Retirement
+
 ```
 BEFORE AGE 65 (the coverage gap):
   Option 1: COBRA (continues employer coverage for 18-36 months)
@@ -266,6 +273,7 @@ AT AGE 65 (Medicare):
 ## Social Planning
 
 ### Building Your Retirement Social Network
+
 ```
 THE RETIREMENT SOCIAL CHALLENGE:
   Work provides automatic social interaction: colleagues, meetings,
@@ -343,7 +351,6 @@ OPTION 5: PORTFOLIO RETIREMENT
 - [ ] First 90 days of retirement planned (rest, explore, settle)
 - [ ] Estate plan and financial documents reviewed and updated
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -356,13 +363,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with retirement transition planner for a mid-size project."
 
 **Output:** A complete retirement transition planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

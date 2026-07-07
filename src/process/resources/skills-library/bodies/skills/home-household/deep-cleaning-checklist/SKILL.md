@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cleaning checklist home-maintenance"
-  category: "home-household"
-  subcategory: "cleaning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cleaning checklist home-maintenance'
+  category: 'home-household'
+  subcategory: 'cleaning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Deep Cleaning Checklist
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when the user's request clearly involves thorough, infrequent cle
 - User is returning home after an extended absence (vacation, travel, hospitalization) and wants a systematic plan
 
 **Do NOT use this skill when:**
+
 - User wants a weekly or daily maintenance routine -- use `weekly-cleaning-schedule` instead
 - User is cleaning because they are moving in or out of a residence -- use `move-cleaning` instead, which covers landlord-standard tasks, appliance documentation, and security deposit protection strategies
 - User describes visible mold that covers more than 10 square feet (EPA threshold), or mold on HVAC ducts, insulation, or structural materials -- this requires professional mold remediation, not a cleaning checklist
@@ -96,6 +98,7 @@ Room sequence matters because of how dust, dirt, and cleaning product residue tr
 ### Step 4 -- Build the Room-by-Room Checklist
 
 Generate a complete checklist for each room. Every task must include:
+
 - **Specific technique or method** -- not "clean the window" but "spray glass cleaner in a Z-pattern, wipe with a folded microfiber cloth using overlapping horizontal strokes, buff dry with a second dry cloth to eliminate streaking"
 - **Time estimate** for a single person at moderate build-up level
 - **Cleaning agent** or tool specified by type (not brand)
@@ -103,31 +106,31 @@ Generate a complete checklist for each room. Every task must include:
 
 **Kitchen tasks that require special technique:**
 
-*Oven interior:* After dwell time, use a plastic scraper (not metal, which scratches oven enamel) to lift softened baked-on carbon. Wipe with a damp sponge. Repeat with a fresh damp cloth. For the oven door glass -- there is an inner glass panel accessible by removing the door (two hidden hinges) or via a slot at the bottom of the door depending on oven model. Use a wire coat hanger to guide a damp cloth into this slot if the panel is not removable.
+_Oven interior:_ After dwell time, use a plastic scraper (not metal, which scratches oven enamel) to lift softened baked-on carbon. Wipe with a damp sponge. Repeat with a fresh damp cloth. For the oven door glass -- there is an inner glass panel accessible by removing the door (two hidden hinges) or via a slot at the bottom of the door depending on oven model. Use a wire coat hanger to guide a damp cloth into this slot if the panel is not removable.
 
-*Refrigerator coils:* Coils are either on the back of the refrigerator (older models -- pull the unit forward and vacuum with a narrow crevice tool) or underneath behind the toe kick panel (newer models -- remove the toe kick, vacuum with a refrigerator coil brush which is a long, thin, flexible brush). Dusty coils force the compressor to work harder and can increase energy use by 10-20%. Clean annually.
+_Refrigerator coils:_ Coils are either on the back of the refrigerator (older models -- pull the unit forward and vacuum with a narrow crevice tool) or underneath behind the toe kick panel (newer models -- remove the toe kick, vacuum with a refrigerator coil brush which is a long, thin, flexible brush). Dusty coils force the compressor to work harder and can increase energy use by 10-20%. Clean annually.
 
-*Garbage disposal:* Fill with ice cubes plus 1/2 cup of coarse salt, run until the ice is ground (this scrubs the grinding elements). Then grind half a lemon or orange (the citric acid deodorizes). Finally, clean the rubber gasket/flap at the top -- this is one of the most bacteria-laden surfaces in a kitchen and is frequently missed. Fold the gasket back and scrub both sides with a toothbrush and dish soap.
+_Garbage disposal:_ Fill with ice cubes plus 1/2 cup of coarse salt, run until the ice is ground (this scrubs the grinding elements). Then grind half a lemon or orange (the citric acid deodorizes). Finally, clean the rubber gasket/flap at the top -- this is one of the most bacteria-laden surfaces in a kitchen and is frequently missed. Fold the gasket back and scrub both sides with a toothbrush and dish soap.
 
-*Dishwasher filter:* Most dishwashers manufactured after 2010 have a manual-clean filter at the bottom of the tub. Twist and remove it, rinse under hot water, scrub with a soft brush and dish soap. A clogged filter is the most common cause of dishes not getting clean and standing water in the bottom of the tub.
+_Dishwasher filter:_ Most dishwashers manufactured after 2010 have a manual-clean filter at the bottom of the tub. Twist and remove it, rinse under hot water, scrub with a soft brush and dish soap. A clogged filter is the most common cause of dishes not getting clean and standing water in the bottom of the tub.
 
 **Bathroom tasks that require special technique:**
 
-*Grout cleaning:* A dedicated grout brush (narrow, stiff bristles) is far more effective than a standard scrub brush. For stained grout, apply the baking soda paste and scrub in circular motions, not back-and-forth (circular motion lifts more debris from the porous surface). For gray grout that has turned black from mildew, an oxygen bleach powder (not chlorine bleach) mixed with water into a paste provides the most effective color restoration without damaging grout sealant as aggressively as chlorine bleach does.
+_Grout cleaning:_ A dedicated grout brush (narrow, stiff bristles) is far more effective than a standard scrub brush. For stained grout, apply the baking soda paste and scrub in circular motions, not back-and-forth (circular motion lifts more debris from the porous surface). For gray grout that has turned black from mildew, an oxygen bleach powder (not chlorine bleach) mixed with water into a paste provides the most effective color restoration without damaging grout sealant as aggressively as chlorine bleach does.
 
-*Toilet base and floor around toilet:* The floor immediately around the base of the toilet, particularly between the toilet and wall, accumulates the most bacteria of any floor surface in the home. Use disposable paper towels for this area rather than reusable cloths. Spray the floor around the toilet base with disinfectant, let sit 2-3 minutes (proper dwell time for disinfection to actually occur -- spraying and immediately wiping does not achieve disinfection).
+_Toilet base and floor around toilet:_ The floor immediately around the base of the toilet, particularly between the toilet and wall, accumulates the most bacteria of any floor surface in the home. Use disposable paper towels for this area rather than reusable cloths. Spray the floor around the toilet base with disinfectant, let sit 2-3 minutes (proper dwell time for disinfection to actually occur -- spraying and immediately wiping does not achieve disinfection).
 
-*Exhaust fan:* Remove the cover, wash in warm soapy water. Use a can of compressed air or a vacuum crevice tool to clean the fan blades inside the housing. A grimy exhaust fan can reduce air circulation by 30-50%, contributing to mildew growth in the bathroom.
+_Exhaust fan:_ Remove the cover, wash in warm soapy water. Use a can of compressed air or a vacuum crevice tool to clean the fan blades inside the housing. A grimy exhaust fan can reduce air circulation by 30-50%, contributing to mildew growth in the bathroom.
 
-*Caulk inspection:* During deep cleaning, inspect caulk lines around the tub, shower, and sink for cracking, yellowing, or peeling. This is information for the homeowner -- if caulk is failing, water infiltration behind tiles follows. Note it in the output.
+_Caulk inspection:_ During deep cleaning, inspect caulk lines around the tub, shower, and sink for cracking, yellowing, or peeling. This is information for the homeowner -- if caulk is failing, water infiltration behind tiles follows. Note it in the output.
 
 **Bedroom tasks that require special technique:**
 
-*Ceiling fan blades (the pillowcase method):* Slide an old pillowcase over one fan blade at a time, grip both sides of the pillowcase together, and pull it toward you. The dust is trapped inside the pillowcase rather than falling on the bed and furniture. Shake outdoors or into a trash bag.
+_Ceiling fan blades (the pillowcase method):_ Slide an old pillowcase over one fan blade at a time, grip both sides of the pillowcase together, and pull it toward you. The dust is trapped inside the pillowcase rather than falling on the bed and furniture. Shake outdoors or into a trash bag.
 
-*Mattress care:* Vacuum the top surface and all four sides with an upholstery attachment. Sprinkle a thin layer of baking soda across the top surface, let sit 20-30 minutes (longer is better -- up to several hours), then vacuum thoroughly. The baking soda absorbs moisture and neutralizes odor. Most innerspring and hybrid mattresses can be flipped or rotated (rotate 180 degrees head-to-foot to even out compression wear). Memory foam and pillow-top mattresses should be rotated but not flipped.
+_Mattress care:_ Vacuum the top surface and all four sides with an upholstery attachment. Sprinkle a thin layer of baking soda across the top surface, let sit 20-30 minutes (longer is better -- up to several hours), then vacuum thoroughly. The baking soda absorbs moisture and neutralizes odor. Most innerspring and hybrid mattresses can be flipped or rotated (rotate 180 degrees head-to-foot to even out compression wear). Memory foam and pillow-top mattresses should be rotated but not flipped.
 
-*Under-bed cleaning:* This is one of the highest dust-accumulation zones in any home. Pull the bed away from the wall. Vacuum the floor, the bed frame underside, and the wall/baseboard behind where the bed sits.
+_Under-bed cleaning:_ This is one of the highest dust-accumulation zones in any home. Pull the bed away from the wall. Vacuum the floor, the bed frame underside, and the wall/baseboard behind where the bed sits.
 
 ---
 
@@ -135,15 +138,16 @@ Generate a complete checklist for each room. Every task must include:
 
 Apply these base estimates for a single person working at a steady pace with moderate build-up:
 
-| Home Type | Base Time (solo) | With 2 People |
-|-----------|-----------------|---------------|
-| Studio/1BR apartment | 3-4.5 hours | 2-3 hours |
-| 2BR / 1BA | 5-7 hours | 3.5-4.5 hours |
-| 3BR / 2BA | 7-10 hours | 5-7 hours |
-| 4BR / 2-3BA | 10-14 hours | 7-9 hours |
-| 4BR+ with basement/garage | 13-18 hours | 9-12 hours |
+| Home Type                 | Base Time (solo) | With 2 People |
+| ------------------------- | ---------------- | ------------- |
+| Studio/1BR apartment      | 3-4.5 hours      | 2-3 hours     |
+| 2BR / 1BA                 | 5-7 hours        | 3.5-4.5 hours |
+| 3BR / 2BA                 | 7-10 hours       | 5-7 hours     |
+| 4BR / 2-3BA               | 10-14 hours      | 7-9 hours     |
+| 4BR+ with basement/garage | 13-18 hours      | 9-12 hours    |
 
 Apply time modifiers:
+
 - Last deep clean 6-12 months ago: add 20% to base
 - Last deep clean over 12 months ago: add 35-50% to base (some tasks may need to be done twice)
 - Pet household: add 20-30 minutes per room for pet hair removal pass
@@ -171,17 +175,20 @@ Distinguish between four recurrence levels and assign every task to one:
 Every deep cleaning output must include a brief but explicit safety note. Do not skip this even if the user did not ask.
 
 **Never combine:**
+
 - Bleach + ammonia: produces chloramine vapor (respiratory irritant, toxic in enclosed spaces)
 - Bleach + vinegar or any acid: produces chlorine gas
 - Bleach + hydrogen peroxide: accelerates chlorine gas production
 - Hydrogen peroxide + vinegar (if mixed in one container): forms peracetic acid, a corrosive irritant; they can be used sequentially on a surface (spray one, wipe, then spray the other) but must not be combined in one bottle
 
 **Ventilation rules:**
+
 - Open at least two windows in opposite areas of the home to create cross-ventilation during any session using bleach, oven cleaner, or bathroom tile cleaners
 - Bathroom exhaust fan should run during all bathroom cleaning
 - Never use strong chemical cleaners in a fully sealed space
 
 **Personal protection:**
+
 - Rubber gloves for any task involving bleach, oven cleaner, drain cleaner, or prolonged contact with cleaning solutions
 - Safety glasses recommended when spraying overhead surfaces (ceiling, fan blades, light fixtures)
 - N95 or similar mask recommended when vacuuming mattresses, dusty areas, or using aerosol cleaners in poorly ventilated rooms
@@ -414,17 +421,17 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 
 ### Room Sequence and Time Estimates
 
-| Order | Room | Solo Time (with pet modifier) | Notes |
-|-------|------|-------------------------------|-------|
-| 1 | Bedroom 1 | 75-90 min | Includes mattress care |
-| 2 | Bedroom 2 | 60-75 min | |
-| 3 | Living room | 80-100 min | Upholstery heavy -- cat's main area |
-| *End Day 1* | *Total Day 1* | *3.5-4.5 hours* | |
-| 4 | Kitchen | 2.5-3 hours | Longest room; oven + fridge |
-| 5 | Bathroom | 75-90 min | Grout and fixtures |
-| 6 | Hallway, entry, closets | 30-40 min | |
-| *End Day 2* | *Total Day 2* | *4.5-6 hours* | |
-| **Total** | | **8-10.5 hours** | |
+| Order       | Room                    | Solo Time (with pet modifier) | Notes                               |
+| ----------- | ----------------------- | ----------------------------- | ----------------------------------- |
+| 1           | Bedroom 1               | 75-90 min                     | Includes mattress care              |
+| 2           | Bedroom 2               | 60-75 min                     |                                     |
+| 3           | Living room             | 80-100 min                    | Upholstery heavy -- cat's main area |
+| _End Day 1_ | _Total Day 1_           | _3.5-4.5 hours_               |                                     |
+| 4           | Kitchen                 | 2.5-3 hours                   | Longest room; oven + fridge         |
+| 5           | Bathroom                | 75-90 min                     | Grout and fixtures                  |
+| 6           | Hallway, entry, closets | 30-40 min                     |                                     |
+| _End Day 2_ | _Total Day 2_           | _4.5-6 hours_                 |                                     |
+| **Total**   |                         | **8-10.5 hours**              |                                     |
 
 ---
 
@@ -437,19 +444,23 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 **Room-specific notes:** Cat hair removal pass required first. Laundry (bedding) already running.
 
 #### Pet Prep Pass -- Do This First
+
 - [ ] Run rubber squeegee or damp rubber glove across all upholstered surfaces (headboard, pillows, chair if present) in short strokes toward you -- collect hair, dispose -- 10 min
 
 #### Ceiling and Upper Zone
+
 - [ ] Dust ceiling corners with a long-handled duster or broom head wrapped in a damp cloth -- 3 min -- Semi-annual
 - [ ] Clean ceiling fan blades using the pillowcase method (slide an old pillowcase over each blade, grip both sides, pull toward you trapping dust inside the case, shake outdoors or into trash bag) -- 5 min -- Semi-annual
 - [ ] Remove ceiling light fixture globe (if present), wash in warm soapy water, dry completely before reattaching -- 8 min -- Semi-annual
 - [ ] Dust tops of door frame and window frame -- 3 min -- Semi-annual
 
 #### Walls and Mid-Level Surfaces
+
 - [ ] Spot-clean visible scuffs or marks on walls using a melamine foam sponge barely dampened with water -- use light pressure and circular motion, as too much pressure or water can remove paint -- 5 min -- Semi-annual
 - [ ] Wipe light switch plate and door handle with disinfectant spray (spray onto cloth first, not directly on plate); let sit 2 min -- 2 min -- Quarterly
 
 #### Furniture and Contents
+
 - [ ] Dust all bedroom surfaces systematically from the highest point working down: top of wardrobe/armoire, then shelves, then nightstand surface -- include items on surfaces, not just around them -- 8 min -- Quarterly
 - [ ] Vacuum mattress: upholstery attachment, full surface top and all four sides. Sprinkle a thin uniform layer of baking soda across the top surface -- let sit 20 min while you do other tasks, then vacuum thoroughly -- 10 min active (plus 20 min rest) -- Semi-annual
 - [ ] Rotate mattress 180 degrees (head to foot) if innerspring or hybrid. Do not flip if memory foam or pillow-top -- 3 min -- Semi-annual
@@ -459,15 +470,18 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 - [ ] Check under and behind bed for cat toys, accumulated hair, debris before vacuuming -- 2 min -- Quarterly
 
 #### Windows
+
 - [ ] Interior window glass: spray glass cleaner onto a lint-free cloth, wipe in horizontal Z-pattern from top to bottom, buff with a dry second cloth -- 5 min per window -- Semi-annual
 - [ ] Window tracks: vacuum visible debris with a crevice tool, then scrub tracks with an old toothbrush dipped in warm soapy water, wipe out with a damp cloth -- 5 min per window -- Annual
 - [ ] Window sill: wipe with a damp all-purpose cloth -- 2 min per window -- Quarterly
 
 #### Baseboards and Trim
+
 - [ ] Wipe baseboards with a damp microfiber cloth (no soaking the baseboard -- painted wood absorbs excess water), working from corners outward -- 6 min -- Semi-annual
 - [ ] Wipe all door trim -- 2 min -- Semi-annual
 
 #### Floors
+
 - [ ] Move all furniture that can be moved (bed, dresser, chair) -- vacuum the floor beneath each piece and along the wall behind it. This area accumulates the highest concentration of cat hair in the room -- 10 min -- Quarterly
 - [ ] Vacuum full carpet/floor including edges and corners with edge attachment -- 5 min -- Weekly (under-furniture pass quarterly)
 - [ ] Go back and vacuum the baking soda applied to mattress earlier -- 3 min
@@ -480,7 +494,7 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 
 **Room-specific notes:** Same structure as Bedroom 1 -- follow all sections above. Note any differences (e.g., no ceiling fan, different closet configuration). Cat hair prep pass required.
 
-*(Follow identical section structure as Bedroom 1 -- tasks and times identical unless room-specific differences apply. Omit mattress rest time since baking soda can be applied at start of room and vacuumed at the end.)*
+_(Follow identical section structure as Bedroom 1 -- tasks and times identical unless room-specific differences apply. Omit mattress rest time since baking soda can be applied at start of room and vacuumed at the end.)_
 
 **End of Bedroom 2:** Move Laundry Load 2 to dryer.
 
@@ -491,17 +505,21 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 **Room-specific notes:** This is the cat's primary habitat -- heaviest pet hair accumulation in the home. Extra time allocated to upholstery and under-furniture zones.
 
 #### Pet Prep Pass -- Do This First
+
 - [ ] Rubber squeegee or damp rubber glove pass across all upholstered surfaces: sofa (all cushions, front, sides, back), any upholstered chairs. Pull hair toward you in short strokes, collect and dispose in trash. Do not vacuum yet -- remove the bulk by hand first -- 15 min
 
 #### Ceiling and Upper Zone
+
 - [ ] Dust ceiling corners and any ceiling light fixtures or pendant lights with a long-handled duster -- 5 min -- Semi-annual
 - [ ] If ceiling fan present: pillowcase method on blades (same as bedroom) -- 5 min -- Semi-annual
 
 #### Walls and Mid-Level Surfaces
+
 - [ ] Spot-clean wall scuffs and any area near cat scratching zones (if wall-adjacent) -- 5 min -- Semi-annual
 - [ ] Wipe all light switch plates, remote controls, and door handles with disinfectant -- 3 min -- Quarterly
 
 #### Furniture and Contents
+
 - [ ] Dust all surfaces: bookshelves, entertainment unit, side tables, decorative items -- dust shelf contents by removing them, dusting the shelf, then dusting each item before replacing -- 12 min -- Quarterly
 - [ ] Clean TV screen: use only a dry microfiber cloth in slow, light circular motions. Never spray any liquid directly on the screen; never press hard -- 2 min -- Monthly
 - [ ] Dust and wipe the backs of all electronics -- they accumulate fine dust that blocks ventilation and causes overheating -- 4 min -- Semi-annual
@@ -511,9 +529,11 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 - [ ] Clean windows and tracks (same technique as bedroom) -- 8 min per window -- Semi-annual
 
 #### Baseboards and Trim
+
 - [ ] Wipe all baseboards -- pay attention to corners where cat hair packs tightly -- 6 min -- Semi-annual
 
 #### Floors
+
 - [ ] Pull couch, chairs, and large furniture away from walls -- vacuum all floor beneath furniture and along the walls. This is the highest pet hair accumulation zone -- 12 min -- Quarterly
 - [ ] Vacuum full floor including edges -- 6 min -- Weekly (under-furniture quarterly)
 - [ ] Mop hard floors (if applicable) with warm water and floor-appropriate cleaner -- 8 min -- Monthly
@@ -525,6 +545,7 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 ### Day 2
 
 **Day 2 First 10 Minutes -- Apply These Before Anything Else:**
+
 - [ ] Stove grates and drip pans: fill sink (see above)
 - [ ] Re-apply toilet bowl cleaner under rim if it has dried overnight
 - [ ] Re-apply vinegar bag to shower head
@@ -536,6 +557,7 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 **Room-specific notes:** 8 months of use including oven buildup. Oven cleaner was applied this morning (Day 2) -- let sit at least 45 minutes before scrubbing. Grates already soaking.
 
 #### Ceiling and Upper Zone
+
 - [ ] Wipe kitchen ceiling above the stove -- grease vaporizes during cooking and deposits on the ceiling directly above the range. Wipe with a degreaser solution or undiluted dish soap on a damp cloth -- 5 min -- Quarterly
 - [ ] Remove and wash range hood filter (already soaking -- scrub with a stiff brush, rinse until water runs clear, set to air dry) -- 8 min active -- Quarterly
 - [ ] Wipe range hood exterior and underside -- 4 min -- Quarterly
@@ -543,6 +565,7 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 #### Appliances -- Interior Deep Clean
 
 **Oven (after 45-min dwell time):**
+
 - [ ] Don rubber gloves. Use a plastic scraper or old credit card to lift softened carbon and grease from all interior surfaces -- do not use metal tools on oven enamel -- 8 min
 - [ ] Wipe down all interior walls, roof, and floor of oven with a damp sponge. Rinse sponge frequently. Repeat until sponge comes away clean -- 15 min -- Quarterly
 - [ ] Clean oven door glass exterior with all-purpose cleaner and cloth -- 3 min -- Quarterly
@@ -550,6 +573,7 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 - [ ] **If baked-on spots remain after first pass:** re-apply oven cleaner to those specific spots, wait 15-20 more minutes, scrub again. With 8-month buildup, one area may require two applications -- budget for this -- As needed
 
 **Refrigerator:**
+
 - [ ] Remove all food. Check expiration dates and discard expired items -- place perishables in a cooler if cleaning will take more than 20-30 minutes -- 5 min
 - [ ] Remove all shelves and drawers. Place in sink with warm soapy water to soak -- 3 min
 - [ ] Wipe interior walls with a solution of 2 tablespoons baking soda per 1 quart warm water (baking soda is food-safe and deodorizes simultaneously; do not use bleach inside the refrigerator) -- 8 min
@@ -560,16 +584,19 @@ Schedule the kitchen as the last room rather than second-to-last, so children ca
 - [ ] Push refrigerator back, vacuum floor behind where it stood -- 3 min -- Semi-annual
 
 **Dishwasher:**
+
 - [ ] Remove lower rack. Locate the cylindrical filter at the bottom of the tub (center-rear in most models) -- twist counterclockwise to remove. Rinse under hot water, scrub with a soft brush and dish soap, reattach -- 6 min -- Monthly
 - [ ] Wipe door gasket with a damp cloth -- mildew accumulates in the folds -- 3 min -- Monthly
 - [ ] Wipe door interior (front face of the door inside the tub, which is not reached by the spray arms) -- 3 min -- Monthly
 - [ ] Run empty cycle: place a dishwasher-safe bowl containing 2 cups of white vinegar on the top rack, run a hot cycle -- 3 min active / 45 min cycle -- Quarterly
 
 **Microwave:**
+
 - [ ] Steam clean: place a microwave-safe bowl with 1 cup water and 3-4 slices of fresh lemon (or 2 tbsp vinegar). Microwave on high for 3-4 minutes. Let steam sit with door closed for 2 minutes -- the steam softens baked-on splatter -- 5 min active
 - [ ] Wipe all interior surfaces with a damp cloth -- comes off easily after steaming -- 3 min
 - [ ] Clean turntable plate in warm soapy water -- 2 min -- Monthly
 
 **Small Appliances:**
+
 - [ ] Toaster: unplug, remove crumb tray over the sink or trash can, rinse and replace. Gently shake toaster upside down over trash to dislodge crumbs inside -- 3 min -- Quarterly
 - [ ] Coffee maker: descale by running a cycle of equal parts white vinegar and water through the machine. Wait 30 minutes (

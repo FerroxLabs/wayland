@@ -94,7 +94,12 @@ exports.default = async function afterSign(context) {
     // Staple the ticket to the .app so Gatekeeper validates offline. `stapler`
     // contacts Apple's ticket servers with no client timeout, so bound it (same
     // unbounded-Apple-call class as the dmg-codesign hang that wedged v0.9.7).
-    if (!runBounded('xcrun', ['stapler', 'staple', appPath], { timeoutMs: 300000, label: `afterSign: stapling ${appName}` })) {
+    if (
+      !runBounded('xcrun', ['stapler', 'staple', appPath], {
+        timeoutMs: 300000,
+        label: `afterSign: stapling ${appName}`,
+      })
+    ) {
       throw new Error('stapler staple failed or timed out');
     }
     console.log('Notarization + stapling completed successfully');

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance savings guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance savings guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Savings Planner
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to build an emergency fund or savings plan
 - User needs help saving for a specific goal (house, vacation, purchase)
 - User wants to automate their savings strategy
 - User needs to choose between savings vehicles (HYSA, CD, money market)
 
 **Do NOT use this skill when:**
+
 - User wants investment growth beyond simple savings -- use investment-advisor
 - User needs a full budget -- use budget-builder (savings plan comes after budget)
 - User needs retirement-specific savings -- use retirement-planner
@@ -183,6 +185,7 @@ Formula: Total Amount / Months Until Needed = Monthly Contribution
 ### Sinking Fund Organization
 
 Options for keeping sinking funds separate:
+
 1. **Multiple HYSA sub-accounts:** Some banks (Ally, Capital One) allow labeled "buckets" within one account
 2. **Separate savings accounts:** One per major goal (free at online banks)
 3. **Spreadsheet tracking:** Single account but tracked in a spreadsheet by category
@@ -224,12 +227,14 @@ CD #  | Amount     | Term     | APY    | Maturity Date | Reinvest?
 ```
 
 **When to use CDs:**
+
 - You have more emergency fund than needed and want to earn more
 - Saving for a goal 6-24 months away
 - You want guaranteed returns with no market risk
 - Current CD rates are attractive compared to HYSA rates
 
 **When NOT to use CDs:**
+
 - You need full liquidity (emergency fund core)
 - HYSA rates are similar to CD rates (the liquidity cost is not worth it)
 - Goals are under 3 months away
@@ -362,6 +367,7 @@ __________________________________________________________
 ### Celebrate Milestones (Without Derailing Progress)
 
 At each 25% milestone, celebrate with a small, budgeted reward:
+
 - 25%: Favorite meal at home ($15-30)
 - 50%: Activity you enjoy ($25-50)
 - 75%: Small treat ($50-100)
@@ -392,15 +398,15 @@ SAVINGS RATE: Total Savings / Gross Income x 100 = ____%
 
 ### Savings Rate Benchmarks
 
-| Savings Rate | Assessment | Retirement Timeline |
-|-------------|-----------|-------------------|
-| Under 5% | Danger zone | Retirement may not be possible without changes |
-| 5-10% | Minimum | Standard retirement at 65-67 |
-| 10-15% | Good | Comfortable retirement at 62-65 |
-| 15-20% | Very good | Early-ish retirement possible (55-60) |
-| 20-30% | Excellent | Significant financial freedom |
-| 30-50% | Exceptional | Early retirement (45-55) possible |
-| 50%+ | FIRE territory | Financial independence in 10-17 years |
+| Savings Rate | Assessment     | Retirement Timeline                            |
+| ------------ | -------------- | ---------------------------------------------- |
+| Under 5%     | Danger zone    | Retirement may not be possible without changes |
+| 5-10%        | Minimum        | Standard retirement at 65-67                   |
+| 10-15%       | Good           | Comfortable retirement at 62-65                |
+| 15-20%       | Very good      | Early-ish retirement possible (55-60)          |
+| 20-30%       | Excellent      | Significant financial freedom                  |
+| 30-50%       | Exceptional    | Early retirement (45-55) possible              |
+| 50%+         | FIRE territory | Financial independence in 10-17 years          |
 
 ### Increasing Your Savings Rate
 
@@ -468,30 +474,34 @@ When delivering a savings plan, provide:
 **Goal:** $20,000 | **Current:** $3,000 | **Gap:** $17,000 | **Timeline:** 24 months
 
 ### Monthly Savings Target
+
 $17,000 / 24 months = $709/month
 
 ### Where to Keep It
-| Option | APY (typical) | Access | Best For |
-|--------|--------------|--------|----------|
-| **High-Yield Savings (HYSA)** | 4.5-5.0% | Immediate | THIS GOAL |
-| CD (2-year) | 4.5-5.0% | Locked | Only if you will not need it early |
-| Money Market | 4.0-4.5% | Immediate | Alternative to HYSA |
-| Regular savings | 0.01-0.5% | Immediate | NOT recommended |
+
+| Option                        | APY (typical) | Access    | Best For                           |
+| ----------------------------- | ------------- | --------- | ---------------------------------- |
+| **High-Yield Savings (HYSA)** | 4.5-5.0%      | Immediate | THIS GOAL                          |
+| CD (2-year)                   | 4.5-5.0%      | Locked    | Only if you will not need it early |
+| Money Market                  | 4.0-4.5%      | Immediate | Alternative to HYSA                |
+| Regular savings               | 0.01-0.5%     | Immediate | NOT recommended                    |
 
 **Recommendation:** High-yield savings account (HYSA). Your timeline is short and you need guaranteed principal -- no stocks or bonds for 2-year goals.
 
 ### Automation Setup
+
 1. Open HYSA at an online bank (Marcus, Ally, or Discover typically offer top rates)
 2. Set up automatic transfer: $355 on the 1st and 15th of each month
 3. Direct any windfalls (tax refund, bonus) to this account
 
 ### Projected Timeline with Interest
-| Month | Balance (with ~4.5% APY) |
-|-------|-------------------------|
-| Month 6 | $7,300 |
-| Month 12 | $11,700 |
-| Month 18 | $16,200 |
-| Month 24 | $20,800 |
+
+| Month    | Balance (with ~4.5% APY) |
+| -------- | ------------------------ |
+| Month 6  | $7,300                   |
+| Month 12 | $11,700                  |
+| Month 18 | $16,200                  |
+| Month 24 | $20,800                  |
 
 You will actually reach ~$20,800 with interest, giving you an $800 buffer for closing costs.
 

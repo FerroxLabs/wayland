@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript typescript optimization frontend"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript typescript optimization frontend'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Performance Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to reduce re-renders, improve Time to Interactive (TTI), or lower Cumulative Layout Shift (CLS) in a React application
 - A user reports sluggish UI behavior: dropped frames, janky scrolling, slow list rendering, or laggy form inputs
 - A user wants to audit and improve Lighthouse scores or Core Web Vitals for a React SPA or SSR app
@@ -29,6 +31,7 @@ metadata:
 - A user wants to profile a React app with DevTools and interpret flame graphs or component render timelines
 
 **Do NOT use this skill when:**
+
 - The user needs help with React state management architecture -- check the state management skill in the web-development subcategory
 - The user is asking about server-side rendering or streaming SSR strategy -- check the Next.js or SSR-specific skill
 - The user needs CSS or animation performance (GPU compositing, will-change, GSAP) -- check the CSS performance skill
@@ -95,9 +98,7 @@ Reduce initial bundle size to improve TTI and LCP.
 - Use `React.lazy` with a retry wrapper for resilience against network failures during chunk loading:
   ```ts
   const lazyWithRetry = (factory: () => Promise<{ default: ComponentType }>) =>
-    lazy(() =>
-      factory().catch(() => new Promise(resolve => setTimeout(() => resolve(factory()), 1500)))
-    );
+    lazy(() => factory().catch(() => new Promise((resolve) => setTimeout(() => resolve(factory()), 1500))));
   ```
 - Prefetch routes the user is likely to navigate to next. On hover of a nav link, trigger `import('./pages/Settings')` to warm the browser cache before the click. This makes navigations feel instant.
 - Analyze your bundle with `vite-bundle-visualizer` (Vite) or `webpack-bundle-analyzer` (Webpack/CRA). Look for unintended inclusions: moment.js locale files, lodash pulling in the full library, duplicate versions of React.
@@ -209,27 +210,35 @@ Slow Initial Load | Blocking UI Updates | Context Over-broadcast | Memory Leak]
 ## Edge Cases
 
 ### Legacy Class Component Codebase
+
 When optimizing a codebase with significant class component usage alongside hooks, avoid mixing `PureComponent` (class-level memoization) with `React.memo` (function component memoization) in the same component tree without understanding how they interact. `PureComponent` does a shallow comparison of both props and state; `React.memo` only compares props. If converting class components to function components incrementally, verify that `shouldComponentUpdate` logic is accurately replicated in either a `memo` comparator or through proper state colocation before removing the class. Do not assume `PureComponent` and `React.memo(Component)` are interchangeable -- they have different APIs and comparison semantics.
 
 ### Third-Party Components That Ignore Memoization
+
 Some third-party UI library components (form libraries, charting components, drag-and-drop containers) call internal callbacks on every render, passing new function references that break memoization on your components. Diagnose this by wrapping the third-party component and logging its render count. Solutions include: creating a stable adapter wrapper component that absorbs the library's instability, using `useRef` to store callbacks that need to be stable but access current values, or filing an issue with the library maintainer. Do not blindly add `useMemo`/`useCallback` throughout your codebase to compensate -- fix the instability at the source.
 
 ### Real-Time Data Streams (WebSocket, SSE)
+
 Applications receiving data at high frequency (>10 updates/second) can overwhelm React's rendering pipeline even with correct memoization. Apply a throttling or batching layer between the data stream and React state. Use a ref to accumulate incoming updates, then commit them to state at a controlled rate (e.g., 60ms batches using `requestAnimationFrame` or `setInterval`). With React 18, `startTransition` can deprioritize real-time updates so urgent interactions remain responsive, but the update rate must still be controlled upstream -- `startTransition` does not throttle incoming data, it only controls render scheduling priority. Monitor heap usage closely; high-frequency state updates that create new object references cause significant GC pressure.
 
 ### SSR Hydration Mismatches Causing Layout Shift
+
 When React hydrates server-rendered HTML, any mismatch between server and client renders triggers a full client-side re-render of the subtree, defeating SSR performance benefits and causing CLS. Common causes: rendering `Date.now()`, `window.innerWidth`, `Math.random()`, or `localStorage` during render. Fix by moving dynamic values into `useEffect` (runs only client-side) and rendering a static placeholder on first render. With Next.js App Router, `use client` components that access browser APIs must be wrapped in `dynamic()` with `{ ssr: false }` to prevent the server from attempting to render them.
 
 ### Context with Frequent Updates Across a Large Component Tree
+
 When a context value updates at high frequency (e.g., a cursor position, scroll offset, or live price feed) and has many consumers scattered across a large tree, the performance impact can be severe enough to make the entire UI unresponsive. Options in order of preference: (1) Remove the data from context entirely and use a global observable/store with per-component subscriptions (Zustand, Jotai, or a custom `useSyncExternalStore` implementation). (2) Use a context ref pattern: store the value in a ref instead of state, and notify subscribers manually using an event emitter. This bypasses React's rendering entirely for read-only consumers. (3) As a last resort, use `use-context-selector` to add selector-based subscriptions to React context -- only components whose selected slice changes will re-render.
 
 ### Memory Leaks from Stale Closures in Long-Running Components
+
 Dashboard pages or single-page apps that remain mounted for extended sessions accumulate memory from effects that are not cleaned up. Common leak patterns: `setInterval` or `setTimeout` not cleared in the effect cleanup return, event listeners added to `window` or `document` not removed, WebSocket connections not closed, ResizeObserver not disconnected. Diagnose with Chrome Memory tab: take a heap snapshot, perform a workflow, force GC, take another snapshot, compare the delta for retained component instances. Fix by returning a cleanup function from every `useEffect` that creates a persistent resource: `useEffect(() => { const id = setInterval(fetch, 5000); return () => clearInterval(id); }, [fetch])`.
 
 ### Bundle Splitting Causing Waterfall Fetches
+
 Aggressive code splitting can create a "render-then-fetch" waterfall where a split component loads, renders, discovers it needs data, and then fetches -- sequentially. This can make a split route feel slower than the unsplit version despite smaller bundle size. Diagnose by examining the Network tab waterfall: if data requests start only after the JS chunk completes loading, you have a waterfall. Fix with route-level data loaders (React Router 6.4+ loaders, Next.js `getServerSideProps` / RSC), which initiate data fetching in parallel with component code loading. Alternatively, prefetch both the chunk and the API response on navigation intent (hover/focus on the link).
 
 ### Strict Mode and Development-Only Performance Issues
+
 React's `<StrictMode>` wrapper in development mode deliberately double-invokes component functions and effects to surface bugs. This means profiling in development will show every component rendering twice. NEVER profile for performance in development mode -- always profile in production builds or at minimum in production mode (`npm run build && npx serve dist`). The React DevTools Profiler is the exception: it works on production builds if you include profiling builds (`react-dom/profiling`). When users report performance issues only in development, the most likely cause is Strict Mode double-invocation, not a real production problem.
 
 ---
@@ -279,20 +288,13 @@ function CatalogPage({ products }: { products: Product[] }) {
   }
 
   const filteredProducts = useMemo(
-    () =>
-      products.filter(p =>
-        p.name.toLowerCase().includes(query.toLowerCase())
-      ),
+    () => products.filter((p) => p.name.toLowerCase().includes(query.toLowerCase())),
     [products, query]
   );
 
   return (
     <div>
-      <input
-        value={inputValue}
-        onChange={handleSearch}
-        placeholder="Search products..."
-      />
+      <input value={inputValue} onChange={handleSearch} placeholder='Search products...' />
       {/* Show stale results during transition rather than a blank grid */}
       <div style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 150ms' }}>
         <ProductGrid products={filteredProducts} />
@@ -334,13 +336,10 @@ export const ProductGrid = memo(function ProductGrid({ products }: ProductGridPr
   });
 
   return (
-    <div
-      ref={parentRef}
-      style={{ height: '80vh', overflowY: 'auto' }}
-    >
+    <div ref={parentRef} style={{ height: '80vh', overflowY: 'auto' }}>
       {/* Total height spacer tells the browser the true scroll height */}
       <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
-        {virtualizer.getVirtualItems().map(virtualRow => {
+        {virtualizer.getVirtualItems().map((virtualRow) => {
           const rowStartIndex = virtualRow.index * COLUMN_COUNT;
           const rowProducts = products.slice(rowStartIndex, rowStartIndex + COLUMN_COUNT);
 
@@ -358,7 +357,7 @@ export const ProductGrid = memo(function ProductGrid({ products }: ProductGridPr
                 gap: 16,
               }}
             >
-              {rowProducts.map(product => (
+              {rowProducts.map((product) => (
                 // Stable key from data, never index
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -390,15 +389,9 @@ interface ProductCardProps {
 export const ProductCard = memo(
   function ProductCard({ product, onAddToCart }: ProductCardProps) {
     return (
-      <div className="product-card">
+      <div className='product-card'>
         {/* Use loading="lazy" for images below the fold -- native browser lazy load */}
-        <img
-          src={product.thumbnailUrl}
-          alt={product.name}
-          loading="lazy"
-          width={280}
-          height={200}
-        />
+        <img src={product.thumbnailUrl} alt={product.name} loading='lazy' width={280} height={200} />
         <h3>{product.name}</h3>
         <p>${product.price.toFixed(2)}</p>
         <button onClick={() => onAddToCart(product.id)}>Add to Cart</button>
@@ -421,27 +414,30 @@ The `onAddToCart` handler passed to ProductCard must be stable (same reference b
 
 ```tsx
 // In CatalogPage.tsx -- stable callback via useCallback
-const handleAddToCart = useCallback((productId: string) => {
-  dispatch({ type: 'CART_ADD', payload: productId });
-  // useCallback deps: dispatch is stable from useReducer, no other deps
-}, [dispatch]);
+const handleAddToCart = useCallback(
+  (productId: string) => {
+    dispatch({ type: 'CART_ADD', payload: productId });
+    // useCallback deps: dispatch is stable from useReducer, no other deps
+  },
+  [dispatch]
+);
 
 // Pass stable reference to the grid
-<ProductGrid products={filteredProducts} onAddToCart={handleAddToCart} />
+<ProductGrid products={filteredProducts} onAddToCart={handleAddToCart} />;
 ```
 
 ---
 
 ### Before / After Metrics (Target)
 
-| Metric                      | Before (Estimated) | Target After     |
-|-----------------------------|--------------------|------------------|
-| Keypress-to-render time     | 180--400ms         | < 16ms (input), < 100ms (grid, deferred) |
-| DOM nodes (grid visible)    | ~8,000             | ~120 (virtualized) |
-| Re-renders per keypress     | 2,001 (all cards + parent) | 1 (parent only during transition) |
-| Scroll frame budget (16.7ms)| Exceeded (jank)    | Met consistently |
-| LCP (image-heavy first load)| ~4.2s              | < 2.5s (lazy images) |
-| INP                         | ~380ms             | < 200ms          |
+| Metric                       | Before (Estimated)         | Target After                             |
+| ---------------------------- | -------------------------- | ---------------------------------------- |
+| Keypress-to-render time      | 180--400ms                 | < 16ms (input), < 100ms (grid, deferred) |
+| DOM nodes (grid visible)     | ~8,000                     | ~120 (virtualized)                       |
+| Re-renders per keypress      | 2,001 (all cards + parent) | 1 (parent only during transition)        |
+| Scroll frame budget (16.7ms) | Exceeded (jank)            | Met consistently                         |
+| LCP (image-heavy first load) | ~4.2s                      | < 2.5s (lazy images)                     |
+| INP                          | ~380ms                     | < 200ms                                  |
 
 ---
 

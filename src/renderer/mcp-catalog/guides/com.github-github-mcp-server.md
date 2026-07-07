@@ -19,7 +19,7 @@ steps:
   - id: authorize
     title: Sign in with GitHub
     estSeconds: 30
-    primaryAction: { label: "Sign in with GitHub", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with GitHub', action: 'oauth-flow' }
     body: |
       GitHub doesn't let apps auto-register, so the first time you click
       **Sign in with GitHub** Wayland opens a dialog for your own OAuth app's

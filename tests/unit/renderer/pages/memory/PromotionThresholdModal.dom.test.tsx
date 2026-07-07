@@ -61,12 +61,7 @@ vi.mock('@arco-design/web-react', () => ({
     [key: string]: unknown;
   }) =>
     visible ? (
-      <div
-        role='dialog'
-        aria-label={title}
-        className={className ?? ''}
-        {...rest}
-      >
+      <div role='dialog' aria-label={title} className={className ?? ''} {...rest}>
         {children}
       </div>
     ) : null,
@@ -102,14 +97,7 @@ vi.mock('@arco-design/web-react', () => ({
     checked: boolean;
     onChange: (b: boolean) => void;
     [key: string]: unknown;
-  }) => (
-    <input
-      type='checkbox'
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-      {...rest}
-    />
-  ),
+  }) => <input type='checkbox' checked={checked} onChange={(e) => onChange(e.target.checked)} {...rest} />,
 
   Button: ({
     children,
@@ -124,11 +112,7 @@ vi.mock('@arco-design/web-react', () => ({
     type?: string;
     [key: string]: unknown;
   }) => (
-    <button
-      onClick={onClick}
-      disabled={loading === true}
-      {...rest}
-    >
+    <button onClick={onClick} disabled={loading === true} {...rest}>
       {children}
     </button>
   ),

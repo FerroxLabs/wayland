@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting goal-setting planning savings"
-  category: "personal-finance"
-  subcategory: "life-stage-financial"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting goal-setting planning savings'
+  category: 'personal-finance'
+  subcategory: 'life-stage-financial'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Financial Goal Setting
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly -- including tax situation, risk tolerance, employment stability, family obligations, and local cost of living -- and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user states a financial wish without numbers, timeline, or monthly action attached -- phrases like "I want to buy a house someday," "I should probably start saving," "I want to retire early," "I want to pay off my debt," or "I want to build wealth"
 - The user asks how to turn a life event (marriage, new baby, career change, upcoming graduation) into a financial action plan
 - The user wants to know whether a financial goal is realistic given their income, and what they need to do monthly to get there
@@ -33,6 +35,7 @@ metadata:
 - The user wants to understand the specific mechanics of goal math: how long to save, how much per month, what happens if they start late
 
 **Do NOT use when:**
+
 - The user already has defined, specific goals with dollar amounts and timelines, and wants to allocate savings across them -- use `savings-goals-tracker` instead
 - The user wants to build a full monthly budget from income and expenses -- use `budget-planning` instead; this skill assumes a surplus exists or can be discovered, not that it needs to be built line by line
 - The user wants advice on how to invest existing savings -- use investing-specific skills; this skill treats savings destinations as generic (account, fund, bucket) without specifying investment vehicles
@@ -81,26 +84,31 @@ If the user cannot answer specifics, use standard benchmarks as scaffolding and 
 Convert each raw aspiration into a goal with five defined properties. Each property has domain-specific mechanics:
 
 **Specific:** Define exactly what the goal produces.
+
 - Not "save for a house" but "accumulate $40,000 in a dedicated high-yield savings account for a down payment on a home purchase priced at $350,000--$400,000"
 - Not "retire early" but "build a retirement nest egg of $1,250,000 by age 55, using the 4% withdrawal rule as a rough sustainability benchmark" (note: the 4% rule is a guideline from historical data, not a guarantee)
 - Not "build an emergency fund" but "hold 6 months of essential expenses ($18,000) in a liquid, FDIC-insured account"
 
 **Measurable:** Define the metric and the tracking cadence.
+
 - Dollar amount in a dedicated account, checked monthly
 - Percentage of target reached, updated on a set calendar date
 - Number of months of expenses covered
 
 **Achievable:** Run the math before accepting the timeline.
+
 - Monthly required = (Target amount -- Current savings) / Months until deadline
 - If monthly required exceeds available surplus, the goal needs adjustment
 - Adjustment levers in order of preference: (1) extend timeline, (2) reduce target, (3) find additional income or reduce expenses, (4) fund sequentially rather than in parallel
 - Flag if the goal requires saving more than 50% of monthly surplus toward a single objective -- this leaves no cushion for unexpected expenses
 
 **Relevant:** Connect the goal to the user's stated motivation.
+
 - Ask "why does this matter to you?" once per goal -- not for philosophical exploration, but because the answer determines priority when tradeoffs arise
 - A goal with a deeply personal motivation survives income shocks better than a goal adopted because it seemed responsible
 
 **Time-bound:** Set a specific month and year, not just a duration.
+
 - "24 months from now" is weaker than "October 2027" because a calendar date survives a moment of forgetfulness
 - For open-ended goals like "build wealth," define a meaningful checkpoint date (12 months, 36 months) rather than leaving the timeline infinite
 
@@ -111,25 +119,30 @@ Convert each raw aspiration into a goal with five defined properties. Each prope
 For each goal, perform these calculations explicitly and show your work so the user can verify and adjust:
 
 **Basic calculation:**
+
 - Remaining balance = Target amount -- Current savings already allocated to this goal
 - Monthly contribution needed = Remaining balance / Months to deadline
 - Round up to the nearest $5 or $10 for simplicity
 
 **Reverse calculation (if user names a monthly amount):**
+
 - Timeline to goal = Remaining balance / Monthly contribution
 - Convert months to a specific target date
 
 **Savings growth consideration:**
+
 - For goals longer than 24 months, savings in interest-bearing accounts grow. A simple approximation: for money held in a high-yield savings account at roughly 4--5% APY (as of recent years; rates change), the required monthly contribution is slightly lower than the simple division calculation. For beginner-level goal setting, use simple division and treat any interest earned as a buffer rather than a planning assumption. Flag this for the user.
 - For retirement goals with investment growth, the math changes substantially -- use the standard formula: FV = PMT × [((1+r)^n - 1) / r] -- but only apply this if explicitly discussing long-horizon investment-based goals, and note this moves into investing territory.
 
 **Surplus feasibility check:**
+
 - Sum all monthly goal contributions
 - Compare to available monthly surplus
 - If total contributions exceed surplus: present the gap honestly -- "Your goals require $1,200/month in contributions but your current surplus is $850. That's a $350 gap."
 - Offer resolution options: sequential funding, scaled contributions, timeline extension, or identifying expenses to cut
 
 **Parallel vs. sequential funding decision:**
+
 - Fund the emergency fund first in nearly all cases. An emergency fund prevents debt creation when unexpected expenses hit, which would otherwise derail all other goals.
 - Exception: if the user has an employer 401(k) match available, capturing that match (which is an immediate 50--100% return) takes priority over building beyond a $1,000 starter emergency fund
 - Once the emergency fund is established: fund goals in parallel if total contributions fit within surplus; fund sequentially if they do not
@@ -142,6 +155,7 @@ For each goal, perform these calculations explicitly and show your work so the u
 Large financial goals fail not because of math errors but because of motivation collapse over time. Milestones counteract this.
 
 Rules for effective milestones:
+
 - **First milestone must be achievable within 60--90 days.** The brain needs an early win signal. For a 24-month goal, the first milestone might be just 8--10% of the total target.
 - **Name milestones concretely** rather than calling them "checkpoint 1." "First month of expenses covered" is motivating. "$2,600 reached" is less so.
 - **Space remaining milestones at roughly 25%, 50%, 75%, and 100%** of the target for longer goals.
@@ -155,20 +169,24 @@ Rules for effective milestones:
 A plan without an accountability mechanism is just a wish with better formatting. Each plan must include:
 
 **Monthly review ritual:**
+
 - A specific date (e.g., the 1st of each month, or the Sunday after payday)
 - A checklist: Did the automatic transfer execute? What is the current balance? Am I on pace for the next milestone?
 - Time requirement: 15 minutes maximum. If it takes longer, the tracking system is too complex.
 
 **Automatic transfer setup:**
+
 - Strongly recommend automating contributions on payday, not at the end of the month. Money that passes through checking is mentally spent. Money transferred on payday is invisible to the spending brain.
 - Suggest separate, named savings accounts for each goal. Most banks and credit unions allow free sub-accounts. Naming an account "House Down Payment" has documented psychological reinforcement effects.
 
 **Adjustment triggers:**
+
 - Define in advance what will change if income drops by more than 15%: which goal gets paused first, which is non-negotiable
 - Define what happens with windfalls (tax refund, bonus, gift): what percentage goes to goals vs. discretionary spending. A common framework is 50% to the highest-priority goal, 50% to discretionary -- prevents both all-or-nothing decisions
 - Define a "pause clause": if a genuine emergency hits, contributions to discretionary goals can pause for up to 90 days without the plan being considered failed. Resuming after 90 days is the expectation.
 
 **Progress visibility:**
+
 - A simple progress bar (even hand-drawn) on a physical calendar or whiteboard maintains motivation better than a spreadsheet buried in a folder
 - Suggest reviewing progress relative to the milestone chart, not just the end goal -- "I'm 45% of the way to my emergency fund" is more motivating than "I've saved $7,000 of $15,600"
 
@@ -177,6 +195,7 @@ A plan without an accountability mechanism is just a wish with better formatting
 ### Step 7: Deliver the Goal Plan and Confirm Feasibility
 
 Before presenting the final plan:
+
 - Confirm every assumption with the user: "I've assumed your monthly take-home is $4,800 and your surplus is $600 -- is that correct?"
 - Check that the total monthly contribution fits within the surplus with at least a 10% buffer for unexpected expenses. A surplus of $600 should not be entirely committed to goals; $540 maximum as a general guideline.
 - Ensure the first action item is specific enough to complete today or this week (opening an account, setting up a transfer, noting a calendar reminder)
@@ -343,6 +362,7 @@ Before presenting the final plan:
 ## Edge Cases
 
 ### The User Has No Financial Surplus
+
 This is the most important edge case. When monthly expenses equal or exceed monthly income, goal-setting cannot proceed in standard form.
 
 - Do not dismiss the session. Reframe it: "Before we can set savings goals, we need to find the money to fund them. That means finding either income to increase or expenses to reduce."
@@ -352,18 +372,21 @@ This is the most important edge case. When monthly expenses equal or exceed mont
 - Do not set goals funded by zero dollars. A goal plan that shows $0/month contributions is not a plan.
 
 ### The User Has Only One Aspiration
+
 - Apply the full SMART framework with the same rigor as a multi-goal plan.
 - Build 4--5 milestones for the single goal.
 - Spend more time on the "why it matters" anchor, since a single goal deserves deeper motivation clarity.
 - At the end, ask: "Are there any other financial areas you'd want to protect or build while working toward this goal?" -- this often surfaces an emergency fund need or a second priority the user had not articulated.
 
 ### The User's Goal Is Financially Unrealistic for Their Income
+
 - Do not dismiss the goal. Reframe it as a math problem with adjustable variables.
 - Show the gap explicitly: "Saving $60,000 for a down payment in 3 years on a $350/month surplus requires $1,667/month -- roughly $1,317 more than your current surplus."
 - Then offer the adjustment menu: (1) Extend to 14 years at current savings rate; (2) Reduce target to $12,600 for 3 years; (3) Identify whether income can increase to generate the required surplus; (4) Reconsider whether homeownership is the right goal at this income level right now.
 - Deliver options neutrally. Do not recommend which lever to pull -- that is the user's decision.
 
 ### The User Has Competing Goals That Exceed Their Surplus
+
 - Make the conflict arithmetic visible before offering any solution: "Goal 1 requires $400/month, Goal 2 requires $350/month, Goal 3 requires $200/month. Total: $950/month. Your surplus is $600. Gap: $350/month."
 - Then present three resolution strategies with tradeoffs:
   - **Sequential funding:** Fund Goal 1 fully, then Goal 2, then Goal 3. Fastest completion on each individual goal, but Goals 2 and 3 are delayed the longest.
@@ -372,6 +395,7 @@ This is the most important edge case. When monthly expenses equal or exceed mont
 - Ask the user which approach fits their psychological style -- some people need to see multiple things moving; others need to close goals out completely before starting new ones.
 
 ### The User Mentions a Fixed-Deadline Life Event
+
 Some goals have immovable deadlines -- a lease ending in 8 months, a child starting college in 4 years, a wedding planned for next spring.
 
 - Treat fixed-deadline goals as constraints, not variables. The monthly contribution is not negotiable; the question is whether the surplus supports it.
@@ -380,12 +404,14 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 - If the fixed-deadline goal contribution consumes more than 70% of the surplus, flag this as high financial stress and suggest reducing other spending categories (defer to `budget-planning` skill for that work).
 
 ### The User Has Already Achieved Their Stated Goals
+
 - Congratulate the accomplishment genuinely, then immediately reframe the session as a "next level" planning exercise.
 - Ask: "Now that [goal] is funded, where do those monthly dollars go next?" -- unaddressed surplus is the fastest path to lifestyle inflation undoing the savings discipline they built.
 - Common next-level goals: increasing retirement savings rate toward the 15% of gross income benchmark, building a taxable investment account, saving for a larger life event, or accelerating mortgage payoff.
 - For users who feel "done" with financial goals, introduce the concept of an annual savings rate check: what percentage of gross income is currently being saved? The benchmark range for long-term financial health is 15--20% of gross including employer contributions. If they are below this, there is room to grow.
 
 ### The User Asks About a Goal That Requires Professional Planning (College, Retirement, Major Medical)
+
 - Provide the SMART framework and the basic math, but prominently flag that these goal categories involve tax-advantaged accounts, legal structures, and long-horizon investment math that goes beyond this skill.
 - For college savings: note that 529 plans offer tax-advantaged growth and that the College Board's annual "Trends in College Pricing" report provides current cost benchmarks -- but specific 529 plan selection and contribution strategy require professional guidance.
 - For retirement: note the 4% withdrawal rule as a rough benchmark for nest egg sizing, and the 15% gross income savings rate benchmark for accumulation -- but sequence-of-returns risk, Social Security timing, and tax-bracket management in retirement require professional guidance.
@@ -398,6 +424,7 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 **Input:** "I want to save more money, maybe buy a house someday, and I should probably have an emergency fund. I make $5,200/month take-home and spend about $4,400. I have about $800 in savings right now and no high-interest debt. I'm not sure what I'm doing financially and just want to get started."
 
 **Processing notes (internal):**
+
 - Monthly surplus: $5,200 -- $4,400 = $800
 - 10% buffer rule: Commit no more than $720/month to goals ($800 × 0.90)
 - Existing savings: $800 -- allocate to emergency fund starter
@@ -412,6 +439,7 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 ## Financial Goal Plan
 
 **Prepared based on:**
+
 - Monthly take-home income: $5,200
 - Monthly expenses: ~$4,400 (user estimate)
 - Available monthly surplus: $800
@@ -423,13 +451,13 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 ### Goals Overview
 
-| Priority | Goal Name                          | Target    | Current Savings | Remaining | Deadline        | Monthly Needed |
-|----------|------------------------------------|-----------|-----------------|-----------|-----------------|----------------|
-| 1        | Emergency Fund (6 months)          | $16,800   | $800            | $16,000   | June 2027       | $667 / month   |
-| 2        | House Down Payment (10% on $320K)  | $32,000   | $0              | $32,000   | March 2030      | $800 / month*  |
-| 3        | General Savings Habit              | Ongoing   | --              | --        | Starts now      | $133 / month   |
+| Priority | Goal Name                         | Target  | Current Savings | Remaining | Deadline   | Monthly Needed |
+| -------- | --------------------------------- | ------- | --------------- | --------- | ---------- | -------------- |
+| 1        | Emergency Fund (6 months)         | $16,800 | $800            | $16,000   | June 2027  | $667 / month   |
+| 2        | House Down Payment (10% on $320K) | $32,000 | $0              | $32,000   | March 2030 | $800 / month\* |
+| 3        | General Savings Habit             | Ongoing | --              | --        | Starts now | $133 / month   |
 
-*Goal 2 funding at $800/month begins after Goal 1 completes in June 2027 (33 months away). During Goal 1 phase, $133/month goes to Goal 3 (general savings habit). The $667 redirects to Goal 2 when Goal 1 is done.
+\*Goal 2 funding at $800/month begins after Goal 1 completes in June 2027 (33 months away). During Goal 1 phase, $133/month goes to Goal 3 (general savings habit). The $667 redirects to Goal 2 when Goal 1 is done.
 
 ---
 
@@ -437,31 +465,32 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 #### Goal 1: Emergency Fund (6 Months of Expenses) -- Priority 1
 
-| Field                        | Detail                                                                 |
-|------------------------------|------------------------------------------------------------------------|
-| Original aspiration          | "I should probably have an emergency fund"                             |
-| SMART goal statement         | Accumulate $16,800 (6 × $2,800 estimated monthly essentials) in a dedicated, liquid savings account by June 2027 |
-| Target amount                | $16,800                                                                |
-| Current savings allocated    | $800                                                                   |
-| Remaining to save            | $16,000                                                                |
-| Deadline                     | June 2027 (24 months from today)                                       |
-| Monthly contribution         | $667 per month                                                         |
-| Funding approach             | Priority 1 -- funded first, in parallel with a smaller Goal 3 contribution |
-| Why this matters (anchor)    | Financial foundation -- prevents debt creation when life surprises hit, protecting all other goals |
+| Field                     | Detail                                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Original aspiration       | "I should probably have an emergency fund"                                                                       |
+| SMART goal statement      | Accumulate $16,800 (6 × $2,800 estimated monthly essentials) in a dedicated, liquid savings account by June 2027 |
+| Target amount             | $16,800                                                                                                          |
+| Current savings allocated | $800                                                                                                             |
+| Remaining to save         | $16,000                                                                                                          |
+| Deadline                  | June 2027 (24 months from today)                                                                                 |
+| Monthly contribution      | $667 per month                                                                                                   |
+| Funding approach          | Priority 1 -- funded first, in parallel with a smaller Goal 3 contribution                                       |
+| Why this matters (anchor) | Financial foundation -- prevents debt creation when life surprises hit, protecting all other goals               |
 
 **Goal Math Check:**
+
 - $16,000 ÷ 24 months = $667 / month required
 - Feasibility: $667 fits within $720 committed budget (surplus $800 × 90%). Tight but workable. Remaining $133 goes to Goal 3.
 
 **Milestones:**
 
-| Milestone Name                    | Target Amount | Target Date   | Action / Review                                                    |
-|-----------------------------------|---------------|---------------|--------------------------------------------------------------------|
-| First win -- starter fund         | $1,800        | August 2025   | Open dedicated savings account named "Emergency Fund." Deposit existing $800 + 1 month of contributions. |
-| One month of expenses covered     | $2,800        | October 2025  | Confirm automatic transfer is running. Celebrate with a specific low-cost reward. |
-| Three months of expenses covered  | $8,400        | July 2026     | Halfway review: Are expenses still ~$2,800? Adjust target if needed. |
-| Five months covered               | $14,000       | March 2027    | Final push. Confirm no change to employment or income situation.    |
-| Six months fully funded           | $16,800       | June 2027     | Goal complete. Redirect $667 immediately to down payment account.  |
+| Milestone Name                   | Target Amount | Target Date  | Action / Review                                                                                          |
+| -------------------------------- | ------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
+| First win -- starter fund        | $1,800        | August 2025  | Open dedicated savings account named "Emergency Fund." Deposit existing $800 + 1 month of contributions. |
+| One month of expenses covered    | $2,800        | October 2025 | Confirm automatic transfer is running. Celebrate with a specific low-cost reward.                        |
+| Three months of expenses covered | $8,400        | July 2026    | Halfway review: Are expenses still ~$2,800? Adjust target if needed.                                     |
+| Five months covered              | $14,000       | March 2027   | Final push. Confirm no change to employment or income situation.                                         |
+| Six months fully funded          | $16,800       | June 2027    | Goal complete. Redirect $667 immediately to down payment account.                                        |
 
 **Milestone reward:** User to define -- suggested: a dinner out at the "first month covered" milestone, a weekend day trip at the halfway point.
 
@@ -469,19 +498,20 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 #### Goal 2: House Down Payment (10% on $320,000 Home) -- Priority 2
 
-| Field                        | Detail                                                                  |
-|------------------------------|-------------------------------------------------------------------------|
-| Original aspiration          | "Maybe buy a house someday"                                             |
-| SMART goal statement         | Accumulate $32,000 (10% down payment on a $320,000 home) in a dedicated savings account by approximately March 2030 |
-| Target amount                | $32,000                                                                 |
-| Current savings allocated    | $0 (starts after Goal 1 is complete)                                   |
-| Remaining to save            | $32,000                                                                 |
-| Deadline                     | March 2030 (~57 months from today; 33 months of full funding after June 2027) |
-| Monthly contribution         | $133 during Goal 1 phase (June 2025 -- June 2027); $800 after Goal 1 completes |
-| Funding approach             | Sequential -- small parallel contribution now builds habit; full funding starts June 2027 |
-| Why this matters (anchor)    | Housing stability and long-term asset ownership                         |
+| Field                     | Detail                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Original aspiration       | "Maybe buy a house someday"                                                                                         |
+| SMART goal statement      | Accumulate $32,000 (10% down payment on a $320,000 home) in a dedicated savings account by approximately March 2030 |
+| Target amount             | $32,000                                                                                                             |
+| Current savings allocated | $0 (starts after Goal 1 is complete)                                                                                |
+| Remaining to save         | $32,000                                                                                                             |
+| Deadline                  | March 2030 (~57 months from today; 33 months of full funding after June 2027)                                       |
+| Monthly contribution      | $133 during Goal 1 phase (June 2025 -- June 2027); $800 after Goal 1 completes                                      |
+| Funding approach          | Sequential -- small parallel contribution now builds habit; full funding starts June 2027                           |
+| Why this matters (anchor) | Housing stability and long-term asset ownership                                                                     |
 
 **Goal Math Check:**
+
 - Phase 1 (24 months × $133): $3,192 accumulated by June 2027
 - Phase 2 remaining: $32,000 -- $3,192 = $28,808
 - Phase 2 months needed: $28,808 ÷ $800 = ~36 months → March 2030
@@ -492,14 +522,14 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 **Milestones:**
 
-| Milestone Name                       | Target Amount | Target Date   | Action / Review                                        |
-|--------------------------------------|---------------|---------------|--------------------------------------------------------|
-| First contribution habit formed      | $400          | August 2025   | Open "House Fund" savings account. Automate $133/month.|
-| Phase 1 complete -- full funding begins | $3,192     | June 2027     | Redirect $667 from emergency fund to down payment. Total now $800/month. |
-| 25% of total target                  | $8,000        | February 2028 | Review home prices in target area. Adjust target if needed. |
-| Halfway                              | $16,000       | October 2028  | Consult with a mortgage professional to understand current loan qualification requirements. |
-| 75% of total target                  | $24,000       | June 2029     | Begin researching home purchase process: credit score, pre-approval, local market. |
-| Goal complete                        | $32,000       | March 2030    | Begin pre-approval process. Celebrate the years of discipline.  |
+| Milestone Name                          | Target Amount | Target Date   | Action / Review                                                                             |
+| --------------------------------------- | ------------- | ------------- | ------------------------------------------------------------------------------------------- |
+| First contribution habit formed         | $400          | August 2025   | Open "House Fund" savings account. Automate $133/month.                                     |
+| Phase 1 complete -- full funding begins | $3,192        | June 2027     | Redirect $667 from emergency fund to down payment. Total now $800/month.                    |
+| 25% of total target                     | $8,000        | February 2028 | Review home prices in target area. Adjust target if needed.                                 |
+| Halfway                                 | $16,000       | October 2028  | Consult with a mortgage professional to understand current loan qualification requirements. |
+| 75% of total target                     | $24,000       | June 2029     | Begin researching home purchase process: credit score, pre-approval, local market.          |
+| Goal complete                           | $32,000       | March 2030    | Begin pre-approval process. Celebrate the years of discipline.                              |
 
 **Milestone reward:** User to define -- suggested: a special dinner at Phase 1 completion; a meaningful experience (weekend trip, etc.) at the halfway point.
 
@@ -507,16 +537,16 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 #### Goal 3: General Savings Habit (Behavioral Foundation) -- Priority 3
 
-| Field                        | Detail                                                                   |
-|------------------------------|--------------------------------------------------------------------------|
-| Original aspiration          | "I want to save more money"                                              |
-| SMART goal statement         | Transfer a minimum of $133/month to a savings account every single month for 12 consecutive months, starting June 2025, to establish an automatic savings habit before addressing larger goals |
-| Target amount                | Behavioral (consistency), with $1,596 accumulated in 12 months as a secondary metric |
-| Current savings allocated    | $0 separate from emergency fund                                          |
-| Deadline                     | June 2026 (12-month habit lock-in period)                                |
-| Monthly contribution         | $133 (the portion not committed to emergency fund)                       |
-| Funding approach             | Parallel with Goal 1 from the start                                      |
-| Why this matters (anchor)    | Builds the savings reflex and demonstrates the plan is working; these funds are later folded into the down payment |
+| Field                     | Detail                                                                                                                                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Original aspiration       | "I want to save more money"                                                                                                                                                                    |
+| SMART goal statement      | Transfer a minimum of $133/month to a savings account every single month for 12 consecutive months, starting June 2025, to establish an automatic savings habit before addressing larger goals |
+| Target amount             | Behavioral (consistency), with $1,596 accumulated in 12 months as a secondary metric                                                                                                           |
+| Current savings allocated | $0 separate from emergency fund                                                                                                                                                                |
+| Deadline                  | June 2026 (12-month habit lock-in period)                                                                                                                                                      |
+| Monthly contribution      | $133 (the portion not committed to emergency fund)                                                                                                                                             |
+| Funding approach          | Parallel with Goal 1 from the start                                                                                                                                                            |
+| Why this matters (anchor) | Builds the savings reflex and demonstrates the plan is working; these funds are later folded into the down payment                                                                             |
 
 **Note:** After month 12, the "general savings" goal is considered behaviorally established. The accumulated funds ($1,596 approximate) roll into the down payment fund. This goal is about building the habit, not accumulating a separate pool.
 
@@ -524,18 +554,19 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 ### Funding Plan
 
-| Goal                          | Monthly Amount | Funding Mode    | Starts      | Ends / Redirects                            |
-|-------------------------------|---------------|-----------------|-------------|---------------------------------------------|
-| Emergency Fund                | $667          | Priority 1      | June 2025   | June 2027 → redirect to Down Payment        |
-| General Savings Habit         | $133          | Parallel        | June 2025   | June 2026 → balance rolls to Down Payment   |
-| House Down Payment (Phase 1)  | $133          | Small parallel  | June 2025   | June 2027 → increases to $800               |
-| House Down Payment (Phase 2)  | $800          | Sequential      | June 2027   | March 2030                                  |
-| **Total committed (Phase 1)** | **$800**      |                 |             |                                             |
-| Available surplus             | $800          |                 |             |                                             |
-| Uncommitted buffer            | $0 (Phase 1 is tight) | -- Flag: no buffer in current plan |  |               |
-| Feasibility assessment        | **Feasible, but tight.** The 10% buffer rule is not met in Phase 1. Recommend identifying one $60--$80/month discretionary expense to reduce, creating a buffer. If this is not possible, consider reducing Goal 3 to $75/month and emergency fund to $625/month, creating a $100 buffer.     |
+| Goal                          | Monthly Amount                                                                                                                                                                                                                                                                            | Funding Mode                       | Starts    | Ends / Redirects                          |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | --------- | ----------------------------------------- |
+| Emergency Fund                | $667                                                                                                                                                                                                                                                                                      | Priority 1                         | June 2025 | June 2027 → redirect to Down Payment      |
+| General Savings Habit         | $133                                                                                                                                                                                                                                                                                      | Parallel                           | June 2025 | June 2026 → balance rolls to Down Payment |
+| House Down Payment (Phase 1)  | $133                                                                                                                                                                                                                                                                                      | Small parallel                     | June 2025 | June 2027 → increases to $800             |
+| House Down Payment (Phase 2)  | $800                                                                                                                                                                                                                                                                                      | Sequential                         | June 2027 | March 2030                                |
+| **Total committed (Phase 1)** | **$800**                                                                                                                                                                                                                                                                                  |                                    |           |                                           |
+| Available surplus             | $800                                                                                                                                                                                                                                                                                      |                                    |           |                                           |
+| Uncommitted buffer            | $0 (Phase 1 is tight)                                                                                                                                                                                                                                                                     | -- Flag: no buffer in current plan |           |                                           |
+| Feasibility assessment        | **Feasible, but tight.** The 10% buffer rule is not met in Phase 1. Recommend identifying one $60--$80/month discretionary expense to reduce, creating a buffer. If this is not possible, consider reducing Goal 3 to $75/month and emergency fund to $625/month, creating a $100 buffer. |
 
 **Funding flow summary:**
+
 - Months 1--12 (June 2025 -- June 2026): $667 to emergency fund + $133 to general savings
 - Months 13--24 (July 2026 -- June 2027): $667 to emergency fund + $133 directly to down payment fund (habit established)
 - Month 25 onward (July 2027 -- March 2030): $800 to down payment fund until $32,000 is reached
@@ -545,16 +576,19 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 ### Accountability Plan
 
 **Monthly review:**
+
 - Review date: First Sunday of each month, after payday
 - Review checklist: (1) Did both transfers execute? (2) What is current balance in each account? (3) Am I ahead of, behind, or on pace for the current milestone? (4) Any income or expense changes to flag?
 - Time budget: 15 minutes maximum
 
 **Automation setup:**
+
 - Transfer $667 to account named "Emergency Fund -- 6 Months" on payday each month
 - Transfer $133 to account named "House Fund" on payday each month
 - Recommended: Use a different bank or sub-account from primary checking so balances are not tempting to spend
 
 **Adjustment rules:**
+
 - If income drops by 15% or more: Maintain emergency fund contribution at a reduced rate (minimum $300/month); pause House Fund contributions entirely until income stabilizes
 - If unexpected expense hits and it is less than $500: Use the uncommitted buffer first; do not dip into goal savings
 - If unexpected expense exceeds the buffer: Use emergency fund only if the expense is a genuine emergency (job loss, medical, essential car repair). A vacation deal or electronics purchase does not qualify.
@@ -562,6 +596,7 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 - Pause clause: If a genuine hardship requires pausing contributions, resume within 90 days. The plan does not restart -- resume from where you left off.
 
 **Progress visibility:**
+
 - Recommended tracking method: Bank sub-account named by goal (visual balance serves as progress bar)
 - Secondary method: A single sticky note on the refrigerator showing current balance vs. next milestone amount -- updated monthly
 - Report metric during monthly review: Percentage of current milestone reached (e.g., "I'm at 34% of the 'one month covered' milestone")
@@ -569,6 +604,7 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 ---
 
 ### Plan Assumptions
+
 - Monthly expenses of $4,400 are user-estimated; actual surplus may differ
 - Emergency fund target of $16,800 uses $2,800 as estimated monthly essentials (total expenses ÷ 1.57 to isolate non-discretionary portion -- adjust if actual essentials differ)
 - Down payment target of $32,000 uses 10% of $320,000 -- a benchmark only; actual home price and required down payment will vary by market and loan type
@@ -591,4 +627,4 @@ Some goals have immovable deadlines -- a lease ending in 8 months, a child start
 
 ---
 
-*This plan is a starting point, not a fixed commitment. The math works at today's numbers. When your income, expenses, or goals change -- and they will -- revisit this plan and update the variables. A revised plan that reflects your real life is always more valuable than a perfect plan you have abandoned.*
+_This plan is a starting point, not a fixed commitment. The math works at today's numbers. When your income, expenses, or goals change -- and they will -- revisit this plan and update the variables. A revised plan that reflects your real life is always more valuable than a perfect plan you have abandoned._

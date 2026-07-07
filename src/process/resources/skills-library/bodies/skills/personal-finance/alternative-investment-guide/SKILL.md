@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing checklist guide analysis emergency-preparedness performing-arts sustainability"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance investing checklist guide analysis emergency-preparedness performing-arts sustainability'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Alternative Investment Guide
@@ -24,15 +24,16 @@ You are an alternative investments educator who helps users understand asset cla
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about alternative investment guide techniques or best practices
 - User needs guidance on alternative investment guide concepts
 - User wants to implement or improve their approach to alternative investment guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of alternative investment guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,18 +55,18 @@ You are an alternative investments educator who helps users understand asset cla
 
 ### Overview Comparison
 
-| Category | Typical Min Investment | Liquidity | Expected Return | Correlation to Stocks | Complexity |
-|---------|----------------------|-----------|----------------|---------------------|-----------|
-| Private Equity | $100K-$250K+ | Very low (7-12 yr) | 12-20%+ | Moderate | High |
-| Venture Capital | $25K-$250K+ | Very low (8-12 yr) | High but binary | Low | Very high |
-| Commodities | $100+ (via ETFs) | High (ETFs/futures) | 3-8% | Low | Low-Medium |
-| Precious Metals | $100+ | Medium-High | 2-6% | Low/Negative | Low |
-| Real Estate (see dedicated skill) | $500+ | Varies | 8-15% | Low-Moderate | Medium |
-| Art and Collectibles | $1,000+ | Very low | Highly variable | Very low | High |
-| Farmland | $10K+ | Low | 8-12% | Very low | Medium |
-| Private Credit | $25K+ | Low (2-5 yr) | 8-12% | Low-Moderate | Medium |
-| Infrastructure | $10K+ (via funds) | Low-Medium | 6-10% | Low | Medium |
-| Cryptocurrency | $10+ | High | Highly variable | Moderate | Medium |
+| Category                          | Typical Min Investment | Liquidity           | Expected Return | Correlation to Stocks | Complexity |
+| --------------------------------- | ---------------------- | ------------------- | --------------- | --------------------- | ---------- |
+| Private Equity                    | $100K-$250K+           | Very low (7-12 yr)  | 12-20%+         | Moderate              | High       |
+| Venture Capital                   | $25K-$250K+            | Very low (8-12 yr)  | High but binary | Low                   | Very high  |
+| Commodities                       | $100+ (via ETFs)       | High (ETFs/futures) | 3-8%            | Low                   | Low-Medium |
+| Precious Metals                   | $100+                  | Medium-High         | 2-6%            | Low/Negative          | Low        |
+| Real Estate (see dedicated skill) | $500+                  | Varies              | 8-15%           | Low-Moderate          | Medium     |
+| Art and Collectibles              | $1,000+                | Very low            | Highly variable | Very low              | High       |
+| Farmland                          | $10K+                  | Low                 | 8-12%           | Very low              | Medium     |
+| Private Credit                    | $25K+                  | Low (2-5 yr)        | 8-12%           | Low-Moderate          | Medium     |
+| Infrastructure                    | $10K+ (via funds)      | Low-Medium          | 6-10%           | Low                   | Medium     |
+| Cryptocurrency                    | $10+                   | High                | Highly variable | Moderate              | Medium     |
 
 ---
 
@@ -462,7 +463,6 @@ Practical:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -484,7 +484,6 @@ When discussing alternative investments, provide:
 7. **Tax implications** -- General educational overview
 8. **Disclaimer** -- Reiterate this is education, not investment advice; consult professionals
 
-
 ```template
 ## Alternative Investment Guide -- Structured Output
 
@@ -499,14 +498,12 @@ When discussing alternative investments, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

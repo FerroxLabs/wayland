@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing tdd best-practices"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing tdd best-practices'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Unit Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure unit tests for a specific module, class, or function and wants guidance beyond "write tests"
 - User wants to apply TDD (Test-Driven Development) to a new feature and needs a concrete red-green-refactor workflow
 - User is experiencing brittle tests that break frequently on refactoring and wants to understand patterns like the Humble Object or Test Data Builder
@@ -30,6 +32,7 @@ metadata:
 - User wants to understand how to test side effects, async code, time-dependent logic, or randomness deterministically
 
 **Do NOT use this skill when:**
+
 - User needs integration testing patterns -- those test multiple real components together and have different isolation rules
 - User needs end-to-end or UI testing guidance (Playwright, Cypress, Selenium workflows) -- fundamentally different tooling and scope
 - User is asking about test infrastructure (CI/CD pipeline setup, test parallelization at the infrastructure level, container-based test environments)
@@ -144,7 +147,7 @@ A test suite that takes 10 minutes to run will not be run. Speed is a first-clas
 
 When delivering unit testing guidance, structure the response as follows:
 
-```
+````
 ## Unit Testing Analysis: [Module/Class/Feature Name]
 
 ### Scenario Classification
@@ -186,22 +189,26 @@ describe('[ClassName or function name]', () => {
 
   });
 });
-```
+````
 
 ### Coverage Targets
+
 - Minimum branch coverage: [%]
 - Critical paths requiring 90%+ coverage: [list]
 - Mutation testing priority: [High | Medium | Low] -- [reason]
 
 ### Edge Cases Requiring Tests
+
 1. [Specific boundary condition]
 2. [Specific error condition]
 3. [Specific null/empty/zero input]
 
 ### Design Feedback (Testability Issues Found)
+
 - [Any identified design problems making this hard to test]
 - [Recommended refactoring to improve testability]
-```
+
+````
 
 ---
 
@@ -503,7 +510,7 @@ describe('OrderPricingService', () => {
   });
 
 });
-```
+````
 
 ### Property-Based Test (Invariants)
 
@@ -512,21 +519,20 @@ describe('OrderPricingService', () => {
 import * as fc from 'fast-check';
 
 describe('OrderPricingService -- invariants', () => {
-
   it('total is always non-negative regardless of discount combination', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(fc.record({
-          unitPrice: fc.float({ min: 0.01, max: 9999.99 }),
-          quantity: fc.integer({ min: 1, max: 100 }),
-        }), { minLength: 1 }),
+        fc.array(
+          fc.record({
+            unitPrice: fc.float({ min: 0.01, max: 9999.99 }),
+            quantity: fc.integer({ min: 1, max: 100 }),
+          }),
+          { minLength: 1 }
+        ),
         fc.constantFrom('standard', 'premium', 'enterprise'),
         async (cartInputs, tier) => {
-          const sut = new OrderPricingService(
-            createStubCouponRepository(null),
-            createStubTaxCalculator(0)
-          );
-          const cart = cartInputs.map(i =>
+          const sut = new OrderPricingService(createStubCouponRepository(null), createStubTaxCalculator(0));
+          const cart = cartInputs.map((i) =>
             aCartItem({ unitPrice: Money.of(i.unitPrice, 'USD'), quantity: i.quantity })
           );
           const result = await sut.calculateTotal(cart, tier as CustomerTier, null);
@@ -540,33 +546,29 @@ describe('OrderPricingService -- invariants', () => {
   it('enterprise total is always <= premium total <= standard total for same cart', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(fc.record({
-          unitPrice: fc.float({ min: 0.01, max: 999.99 }),
-          quantity: fc.integer({ min: 1, max: 50 }),
-        }), { minLength: 1 }),
+        fc.array(
+          fc.record({
+            unitPrice: fc.float({ min: 0.01, max: 999.99 }),
+            quantity: fc.integer({ min: 1, max: 50 }),
+          }),
+          { minLength: 1 }
+        ),
         async (cartInputs) => {
-          const cart = cartInputs.map(i =>
+          const cart = cartInputs.map((i) =>
             aCartItem({ unitPrice: Money.of(i.unitPrice, 'USD'), quantity: i.quantity })
           );
-          const sut = new OrderPricingService(
-            createStubCouponRepository(null),
-            createStubTaxCalculator(0)
-          );
+          const sut = new OrderPricingService(createStubCouponRepository(null), createStubTaxCalculator(0));
           const [standard, premium, enterprise] = await Promise.all([
             sut.calculateTotal(cart, 'standard', null),
             sut.calculateTotal(cart, 'premium', null),
             sut.calculateTotal(cart, 'enterprise', null),
           ]);
-          return (
-            enterprise.total.lessThanOrEqual(premium.total) &&
-            premium.total.lessThanOrEqual(standard.total)
-          );
+          return enterprise.total.lessThanOrEqual(premium.total) && premium.total.lessThanOrEqual(standard.total);
         }
       ),
       { numRuns: 100 }
     );
   });
-
 });
 ```
 

@@ -99,8 +99,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
   // but does not always survive the status IPC; `connected` + no-QR is the
   // signal that reliably reaches the renderer.)
   const isLinked =
-    pluginStatus?.connectionState === 'connected' ||
-    (!!pluginStatus?.connected && !!pluginStatus?.hasToken && !qrCode);
+    pluginStatus?.connectionState === 'connected' || (!!pluginStatus?.connected && !!pluginStatus?.hasToken && !qrCode);
 
   // Audit fix v0.4.2: same pattern as webhook channel. Until the tunnel layer
   // resolves to a real hostname, do NOT compose a URL containing the
@@ -108,17 +107,12 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
   // confusing error after pasting `(configure tunnel in Phase 4)` into the
   // Meta dashboard.
   const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
-  const rawTunnelHost = t(
-    'settings.channels.whatsapp.webhookUrl.tunnelPlaceholder',
-    TUNNEL_PLACEHOLDER,
-  );
-  const tunnelConfigured =
-    rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+  const rawTunnelHost = t('settings.channels.whatsapp.webhookUrl.tunnelPlaceholder', TUNNEL_PLACEHOLDER);
+  const tunnelConfigured = rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
 
   const webhookUrl = useMemo(() => {
     if (!tunnelConfigured) return '';
-    const tokenSegment =
-      webhookToken ?? t('settings.channels.whatsapp.webhookUrl.notMinted', '<not-minted>');
+    const tokenSegment = webhookToken ?? t('settings.channels.whatsapp.webhookUrl.notMinted', '<not-minted>');
     return `https://${rawTunnelHost}/webhooks/whatsapp/${tokenSegment}`;
   }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
@@ -139,13 +133,9 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
       });
       if (result.success && result.data) {
         setWebhookToken(result.data.token);
-        Message.success(
-          t('settings.channels.whatsapp.webhookUrl.rotateSuccess', 'Webhook URL rotated'),
-        );
+        Message.success(t('settings.channels.whatsapp.webhookUrl.rotateSuccess', 'Webhook URL rotated'));
       } else {
-        Message.error(
-          result.msg ?? t('settings.channels.whatsapp.webhookUrl.rotateFailed', 'Rotation failed'),
-        );
+        Message.error(result.msg ?? t('settings.channels.whatsapp.webhookUrl.rotateFailed', 'Rotation failed'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -160,8 +150,8 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         Message.warning(
           t(
             'settings.channels.whatsapp.credentials.accessToken.required',
-            'Access Token and Phone Number ID are required for Meta backend',
-          ),
+            'Access Token and Phone Number ID are required for Meta backend'
+          )
         );
         return;
       }
@@ -177,17 +167,11 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         }),
       });
       if (!testResult.success || !testResult.data?.success) {
-        Message.error(
-          testResult.data?.error ??
-            t('settings.channels.whatsapp.connectionFailed', 'Connection failed'),
-        );
+        Message.error(testResult.data?.error ?? t('settings.channels.whatsapp.connectionFailed', 'Connection failed'));
         return;
       }
       Message.success(
-        t(
-          'settings.channels.whatsapp.connectionSuccess',
-          `Connected (${testResult.data.botUsername ?? backend})`,
-        ),
+        t('settings.channels.whatsapp.connectionSuccess', `Connected (${testResult.data.botUsername ?? backend})`)
       );
 
       const credentials: Record<string, string | string[]> = { backend, mode };
@@ -209,25 +193,31 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         config: credentials,
       });
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.whatsapp.pluginEnabled', 'WhatsApp plugin enabled'),
-        );
+        Message.success(t('settings.channels.whatsapp.pluginEnabled', 'WhatsApp plugin enabled'));
         const statusResult = await channel.getPluginStatus.invoke();
         if (statusResult.success && statusResult.data) {
           onStatusChange?.(statusResult.data.find((p) => p.type === 'whatsapp') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.whatsapp.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.whatsapp.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
     } finally {
       setTestLoading(false);
     }
-  }, [backend, mode, ownerNumbers, accessToken, phoneNumberId, businessAccountId, verifyToken, appSecret, t, onStatusChange]);
+  }, [
+    backend,
+    mode,
+    ownerNumbers,
+    accessToken,
+    phoneNumberId,
+    businessAccountId,
+    verifyToken,
+    appSecret,
+    t,
+    onStatusChange,
+  ]);
 
   const showMetaFields = backend === 'meta-business';
   const showQrSection = backend !== 'meta-business';
@@ -239,7 +229,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
           type='warning'
           content={t(
             'settings.channels.whatsapp.accountLockWarning',
-            'Connecting a new WhatsApp account will replace your existing one. Existing QR pairing or webhook URL becomes invalid.',
+            'Connecting a new WhatsApp account will replace your existing one. Existing QR pairing or webhook URL becomes invalid.'
           )}
         />
       )}
@@ -248,18 +238,12 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         label={t('settings.channels.whatsapp.credentials.backend.label', 'Backend')}
         description={t(
           'settings.channels.whatsapp.credentials.backend.help',
-          'Baileys is recommended for personal accounts. Meta Business is required for verified business accounts and templated messaging. Changing the backend after the channel is enabled requires disabling and re-enabling the plugin to take effect.',
+          'Baileys is recommended for personal accounts. Meta Business is required for verified business accounts and templated messaging. Changing the backend after the channel is enabled requires disabling and re-enabling the plugin to take effect.'
         )}
         required
       >
-        <Radio.Group
-          type='button'
-          value={backend}
-          onChange={(value: WhatsAppBackend) => setBackend(value)}
-        >
-          <Radio value='baileys'>
-            {t('settings.channels.whatsapp.credentials.backend.baileys', 'Baileys')}
-          </Radio>
+        <Radio.Group type='button' value={backend} onChange={(value: WhatsAppBackend) => setBackend(value)}>
+          <Radio value='baileys'>{t('settings.channels.whatsapp.credentials.backend.baileys', 'Baileys')}</Radio>
           <Radio value='whatsapp-web'>
             {t('settings.channels.whatsapp.credentials.backend.whatsappWeb', 'WhatsApp Web.js')}
           </Radio>
@@ -275,18 +259,20 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
           mode === 'personal'
             ? t(
                 'settings.channels.whatsapp.mode.personalHelp',
-                'Wayland links your own WhatsApp. Only you, via your own self-chat, can talk to it. Messages from other contacts are ignored.',
+                'Wayland links your own WhatsApp. Only you, via your own self-chat, can talk to it. Messages from other contacts are ignored.'
               )
             : t(
                 'settings.channels.whatsapp.mode.dedicatedHelp',
-                'Use a separate WhatsApp number created for your agent. Enter your personal number so Wayland knows you are the owner; other people can pair to talk to it.',
+                'Use a separate WhatsApp number created for your agent. Enter your personal number so Wayland knows you are the owner; other people can pair to talk to it.'
               )
         }
         required
       >
         <Radio.Group type='button' value={mode} onChange={(value: WhatsAppMode) => setMode(value)}>
           <Radio value='personal'>{t('settings.channels.whatsapp.mode.personal', 'Personal (only you)')}</Radio>
-          <Radio value='dedicated'>{t('settings.channels.whatsapp.mode.dedicated', 'Dedicated (others can talk)')}</Radio>
+          <Radio value='dedicated'>
+            {t('settings.channels.whatsapp.mode.dedicated', 'Dedicated (others can talk)')}
+          </Radio>
         </Radio.Group>
       </PreferenceRow>
 
@@ -297,11 +283,11 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
             <>
               {t(
                 'settings.channels.whatsapp.mode.ownerNumbers.help',
-                'Your own WhatsApp number(s) in full international format. Wayland recognizes messages from these numbers as the owner. Separate multiple numbers with commas.',
+                'Your own WhatsApp number(s) in full international format. Wayland recognizes messages from these numbers as the owner. Separate multiple numbers with commas.'
               )}{' '}
               {t(
                 'settings.channels.whatsapp.mode.ownerNumbers.savedHidden',
-                'Saved numbers are hidden. Re-enter to change.',
+                'Saved numbers are hidden. Re-enter to change.'
               )}
             </>
           }
@@ -321,61 +307,46 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
             label={t('settings.channels.whatsapp.credentials.accessToken.label', 'Access Token')}
             description={t(
               'settings.channels.whatsapp.credentials.accessToken.help',
-              'Meta system-user or temporary access token. Generated in Meta Business Suite → System Users.',
+              'Meta system-user or temporary access token. Generated in Meta Business Suite → System Users.'
             )}
             required
           >
             <Input.Password
               value={accessToken}
               onChange={setAccessToken}
-              placeholder={t(
-                'settings.channels.whatsapp.credentials.accessToken.placeholder',
-                'EAAG...your-token...',
-              )}
+              placeholder={t('settings.channels.whatsapp.credentials.accessToken.placeholder', 'EAAG...your-token...')}
               visibilityToggle
               style={{ width: 280 }}
             />
           </PreferenceRow>
 
           <PreferenceRow
-            label={t(
-              'settings.channels.whatsapp.credentials.phoneNumberId.label',
-              'Phone Number ID',
-            )}
+            label={t('settings.channels.whatsapp.credentials.phoneNumberId.label', 'Phone Number ID')}
             description={t(
               'settings.channels.whatsapp.credentials.phoneNumberId.help',
-              'Numeric ID from Meta Business → WhatsApp → Phone Numbers. Not the phone number itself.',
+              'Numeric ID from Meta Business → WhatsApp → Phone Numbers. Not the phone number itself.'
             )}
             required
           >
             <Input
               value={phoneNumberId}
               onChange={setPhoneNumberId}
-              placeholder={t(
-                'settings.channels.whatsapp.credentials.phoneNumberId.placeholder',
-                '123456789012345',
-              )}
+              placeholder={t('settings.channels.whatsapp.credentials.phoneNumberId.placeholder', '123456789012345')}
               style={{ width: 280 }}
             />
           </PreferenceRow>
 
           <PreferenceRow
-            label={t(
-              'settings.channels.whatsapp.credentials.businessAccountId.label',
-              'Business Account ID',
-            )}
+            label={t('settings.channels.whatsapp.credentials.businessAccountId.label', 'Business Account ID')}
             description={t(
               'settings.channels.whatsapp.credentials.businessAccountId.help',
-              'Optional. Enables richer metadata in inbound message events.',
+              'Optional. Enables richer metadata in inbound message events.'
             )}
           >
             <Input
               value={businessAccountId}
               onChange={setBusinessAccountId}
-              placeholder={t(
-                'settings.channels.whatsapp.credentials.businessAccountId.placeholder',
-                '987654321098765',
-              )}
+              placeholder={t('settings.channels.whatsapp.credentials.businessAccountId.placeholder', '987654321098765')}
               style={{ width: 280 }}
             />
           </PreferenceRow>
@@ -384,17 +355,14 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
             label={t('settings.channels.whatsapp.credentials.verifyToken.label', 'Verify Token')}
             description={t(
               'settings.channels.whatsapp.credentials.verifyToken.help',
-              'Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard - Meta will 403 the subscription if blank or wrong.',
+              'Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard - Meta will 403 the subscription if blank or wrong.'
             )}
             required
           >
             <Input.Password
               value={verifyToken}
               onChange={setVerifyToken}
-              placeholder={t(
-                'settings.channels.whatsapp.credentials.verifyToken.placeholder',
-                'a long random string',
-              )}
+              placeholder={t('settings.channels.whatsapp.credentials.verifyToken.placeholder', 'a long random string')}
               visibilityToggle
               style={{ width: 280 }}
             />
@@ -404,17 +372,14 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
             label={t('settings.channels.whatsapp.credentials.appSecret.label', 'App Secret')}
             description={t(
               'settings.channels.whatsapp.credentials.appSecret.help',
-              'Meta App Secret (Meta App Dashboard → Settings → Basic → App Secret). Used to HMAC-verify the X-Hub-Signature-256 header on incoming webhook deliveries. Different from the Verify Token above.',
+              'Meta App Secret (Meta App Dashboard → Settings → Basic → App Secret). Used to HMAC-verify the X-Hub-Signature-256 header on incoming webhook deliveries. Different from the Verify Token above.'
             )}
             required
           >
             <Input.Password
               value={appSecret}
               onChange={setAppSecret}
-              placeholder={t(
-                'settings.channels.whatsapp.credentials.appSecret.placeholder',
-                '32-character hex string',
-              )}
+              placeholder={t('settings.channels.whatsapp.credentials.appSecret.placeholder', '32-character hex string')}
               visibilityToggle
               style={{ width: 280 }}
             />
@@ -424,16 +389,11 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
             label={t('settings.channels.whatsapp.webhookUrl.label', 'Inbound Webhook URL')}
             description={t(
               'settings.channels.whatsapp.webhookUrl.help',
-              'Paste this URL into Meta Business → WhatsApp → Configuration → Webhook callback URL.',
+              'Paste this URL into Meta Business → WhatsApp → Configuration → Webhook callback URL.'
             )}
           >
             <div className='flex items-center gap-8px'>
-              <Input.Password
-                value={webhookUrl}
-                readOnly
-                visibilityToggle
-                style={{ width: 360 }}
-              />
+              <Input.Password value={webhookUrl} readOnly visibilityToggle style={{ width: 360 }} />
               <Button
                 type='outline'
                 icon={<Copy size={14} />}
@@ -463,7 +423,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
           <span className='text-12px text-t-tertiary'>
             {t(
               'settings.channels.whatsapp.qrPairing.help',
-              'Open WhatsApp on your phone → Settings → Linked Devices → Link a Device, then scan the code below. The code rotates every minute until paired.',
+              'Open WhatsApp on your phone → Settings → Linked Devices → Link a Device, then scan the code below. The code rotates every minute until paired.'
             )}
           </span>
           <div className='flex flex-col items-center gap-6px pt-8px'>
@@ -476,7 +436,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
                 <span className='text-12px text-t-tertiary text-center'>
                   {t(
                     'settings.channels.whatsapp.qrPairing.howToTalk',
-                    'Open WhatsApp and message yourself (the "Message yourself" chat). Wayland just said hi there; reply to chat.',
+                    'Open WhatsApp and message yourself (the "Message yourself" chat). Wayland just said hi there; reply to chat.'
                   )}
                 </span>
               </>
@@ -484,10 +444,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
               <QRCodeSVG value={qrCode} size={200} includeMargin />
             ) : (
               <span className='text-12px text-t-tertiary'>
-                {t(
-                  'settings.channels.whatsapp.qrPairing.refreshing',
-                  'Waiting for pairing code from bridge…',
-                )}
+                {t('settings.channels.whatsapp.qrPairing.refreshing', 'Waiting for pairing code from bridge…')}
               </span>
             )}
           </div>
@@ -500,7 +457,6 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
         </Button>
       </div>
       <ChannelAgentModelSelector platform='whatsapp' modelSelection={modelSelection} />
-
     </div>
   );
 };

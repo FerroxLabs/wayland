@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance cleaning guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance cleaning guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cleaning System Designer
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cleaning system
 - User needs guidance on cleaning system topics
 - User wants a structured approach to cleaning system
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -45,6 +48,7 @@ metadata:
 ## Cleaning Product Guide
 
 ### Essential Cleaning Products
+
 ```
 MINIMAL CLEANING KIT (you need less than you think):
 COMMERCIAL KIT:
@@ -80,6 +84,7 @@ COLOR-CODED MICROFIBER SYSTEM:
 ```
 
 ### DIY Natural Cleaner Recipes
+
 ```
 ALL-PURPOSE CLEANER:
   1 cup water
@@ -124,6 +129,7 @@ DISINFECTANT (when actually needed):
 ## Cleaning Schedules
 
 ### Daily Cleaning (15-20 Minutes)
+
 ```
 DAILY RESET (do every day, non-negotiable):
 
@@ -154,6 +160,7 @@ Good enough IS good enough. Consistency beats intensity.
 ```
 
 ### Weekly Cleaning Schedule
+
 ```
 WEEKLY CLEANING ROTATION:
 OPTION A: ONE ROOM PER DAY
@@ -213,6 +220,7 @@ Saturday (or chosen day): 2-3 hour cleaning session
 ```
 
 ### Monthly Cleaning Tasks
+
 ```
 MONTHLY DEEP CLEAN TASKS:
 KITCHEN:
@@ -255,6 +263,7 @@ GENERAL:
 ```
 
 ### Seasonal Deep Clean Checklist
+
 ```
 SPRING/FALL DEEP CLEAN (2x per year):
 WINDOWS:
@@ -294,6 +303,7 @@ TEXTILES:
 ## Speed Cleaning Techniques
 
 ### The Professional Speed Clean Method
+
 ```
 SPEED CLEANING RULES (from professionals):
 RULE 1: WORK TOP TO BOTTOM
@@ -320,6 +330,7 @@ RULE 7: MINIMIZE TRIPS
 ```
 
 ### Room Speed Clean Protocols
+
 ```
 BATHROOM SPEED CLEAN (8-10 minutes):
 0:00 - Spray toilet bowl cleaner inside bowl, let sit
@@ -359,6 +370,7 @@ LIVING ROOM SPEED CLEAN (10-12 minutes):
 ## Stain Removal Guide
 
 ### Quick Reference Stain Chart
+
 ```
 STAIN REMOVAL GUIDE (act quickly -- fresh stains are easier):
 GOLDEN RULES:
@@ -422,6 +434,7 @@ SOAP SCUM:
 ```
 
 ## Cleaning with Kids and Pets
+
 ```
 CLEANING WITH CHILDREN IN THE HOME:
 Age-appropriate cleaning tasks: (See Chore Organizer skill for full list)
@@ -454,6 +467,7 @@ PET-SAFE CLEANING PRODUCTS:
 ```
 
 ## Cleaning Schedule Generator Template
+
 ```
 MY CLEANING SCHEDULE:
 Household: ___ adults, ___ children, ___ pets
@@ -488,6 +502,7 @@ SEASONAL (spring and fall):
 ## Output Format
 
 When designing a cleaning system:
+
 ```
 CLEANING SYSTEM PLAN
 Household: [description]

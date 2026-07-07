@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml beginner-friendly advanced javascript automation analysis performing-arts running"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml beginner-friendly advanced javascript automation analysis performing-arts running'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Spreadsheet Wizard
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about spreadsheet wizard techniques or best practices
 - User needs guidance on spreadsheet wizard concepts
 - User wants to implement or improve their approach to spreadsheet wizard
 
 **Do NOT use when:**
+
 - The request falls outside the scope of spreadsheet wizard
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -100,14 +101,14 @@ Example: Rows=Region,Product | Columns=Quarter | Values=SUM(Sales) | Filter=Year
 
 ### Value Calculations
 
-| Calculation | Use Case |
-|------------|----------|
-| SUM | Total sales by region |
-| COUNT | Number of transactions |
-| AVERAGE | Average order size |
-| % of Grand Total | Each region's share |
-| Running Total | Year-to-date cumulative |
-| Difference From | Change from previous period |
+| Calculation      | Use Case                    |
+| ---------------- | --------------------------- |
+| SUM              | Total sales by region       |
+| COUNT            | Number of transactions      |
+| AVERAGE          | Average order size          |
+| % of Grand Total | Each region's share         |
+| Running Total    | Year-to-date cumulative     |
+| Difference From  | Change from previous period |
 
 ### Best Practices
 
@@ -120,6 +121,7 @@ Source data: flat table, no merged cells, no blank rows, consistent data types, 
 **Icon Sets:** Green check/yellow dash/red X for KPI status.
 
 **Formula-Based Rules:**
+
 ```
 Overdue items:    =AND(E2<TODAY(), F2<>"Complete")
 Duplicates:       =COUNTIF($A$2:$A$100, A2)>1
@@ -136,6 +138,7 @@ Row by cell value: =$E2="Urgent" (apply to $A2:$Z2)
 **Record a macro:** Developer tab > Record Macro > Perform actions > Stop Recording > Assign to button/shortcut.
 
 **Example -- Format Report:**
+
 ```vba
 Sub FormatReport()
     Rows(1).Font.Bold = True
@@ -153,32 +156,38 @@ End Sub
 Access: Extensions > Apps Script. Uses JavaScript.
 
 **Auto-timestamp on status change:**
+
 ```javascript
 function onEdit(e) {
   const sheet = e.source.getActiveSheet();
-  if (e.range.getColumn() === 4 && sheet.getName() === "Tasks") {
+  if (e.range.getColumn() === 4 && sheet.getName() === 'Tasks') {
     sheet.getRange(e.range.getRow(), 5).setValue(new Date());
   }
 }
 ```
 
 **Custom function:**
+
 ```javascript
 function SLUGIFY(text) {
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').trim();
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .trim();
 }
 // Use: =SLUGIFY(A1)
 ```
 
 ## Data Validation
 
-| Type | Purpose | Example |
-|------|---------|---------|
+| Type            | Purpose          | Example                           |
+| --------------- | ---------------- | --------------------------------- |
 | List (dropdown) | Limit to options | Status: Open, In Progress, Closed |
-| Number range | Valid numbers | Quantity: 1 to 1000 |
-| Date range | Valid dates | Start date: after today |
-| Custom formula | Complex rules | No duplicates in column |
+| Number range    | Valid numbers    | Quantity: 1 to 1000               |
+| Date range      | Valid dates      | Start date: after today           |
+| Custom formula  | Complex rules    | No duplicates in column           |
 
 **Dependent dropdowns:** Column A = Country dropdown. Column B = City dropdown filtered by Country. Google Sheets: `=FILTER(Cities!B:B, Cities!A:A = A2)`. Excel: `=INDIRECT(A2)` with named ranges.
 
@@ -197,14 +206,14 @@ function SLUGIFY(text) {
 
 ### Chart Selection
 
-| Data Type | Best Chart |
-|-----------|-----------|
-| Trend over time | Line chart |
-| Category comparison | Bar chart (horizontal) |
-| Part of whole | Stacked bar or pie (max 5 slices) |
-| Distribution | Histogram |
-| Relationship | Scatter plot |
-| KPI status | Number with comparison |
+| Data Type           | Best Chart                        |
+| ------------------- | --------------------------------- |
+| Trend over time     | Line chart                        |
+| Category comparison | Bar chart (horizontal)            |
+| Part of whole       | Stacked bar or pie (max 5 slices) |
+| Distribution        | Histogram                         |
+| Relationship        | Scatter plot                      |
+| KPI status          | Number with comparison            |
 
 ### Dynamic Dashboards
 
@@ -243,21 +252,25 @@ Use dropdown to switch between scenarios. All formulas reference scenario assump
 ## Essential Formula Reference
 
 ### Text
+
 ```
 TRIM, PROPER, LEFT/RIGHT/MID, SUBSTITUTE, TEXTJOIN, LEN, SEARCH
 ```
 
 ### Date
+
 ```
 TODAY, NOW, YEAR/MONTH/DAY, DATEDIF, EOMONTH, NETWORKDAYS, TEXT(date,"format")
 ```
 
 ### Logical
+
 ```
 IF, IFS, SWITCH, AND/OR, IFERROR, ISBLANK
 ```
 
 ### Statistical
+
 ```
 SUMIFS, COUNTIFS, AVERAGEIFS, UNIQUE, SORT, FILTER, PERCENTILE, RANK
 ```
@@ -273,7 +286,6 @@ SUMIFS, COUNTIFS, AVERAGEIFS, UNIQUE, SORT, FILTER, PERCENTILE, RANK
 7. **Not locking formula cells**: Users overwrite critical formulas
 8. **Building everything in one sheet**: Use separate sheets for data, calculations, dashboards
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -281,7 +293,6 @@ SUMIFS, COUNTIFS, AVERAGEIFS, UNIQUE, SORT, FILTER, PERCENTILE, RANK
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -302,14 +313,12 @@ SUMIFS, COUNTIFS, AVERAGEIFS, UNIQUE, SORT, FILTER, PERCENTILE, RANK
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

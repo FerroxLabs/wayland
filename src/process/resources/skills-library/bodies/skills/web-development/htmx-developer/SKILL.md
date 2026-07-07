@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # HTMX Developer
@@ -41,18 +41,18 @@ HTMX is NOT ideal when:
 
 ### HTMX vs SPA Frameworks
 
-| Aspect | HTMX | React/Vue/Svelte |
-|--------|------|------------------|
-| **Server sends** | HTML fragments | JSON data |
-| **Rendering** | Server-side | Client-side |
-| **State management** | Server (session/DB) | Client (Redux/Zustand) |
-| **JavaScript needed** | Minimal (HTMX + extensions) | Significant (framework + deps) |
-| **Build step** | None required | Required (Webpack/Vite) |
-| **SEO** | Built-in (server-rendered) | Requires SSR/SSG setup |
-| **Learning curve** | HTML attributes | Framework + ecosystem |
-| **Bundle size** | ~14KB (HTMX) | 50-200KB+ (framework + deps) |
-| **Offline support** | Limited | Good (with service worker) |
-| **Rich interactivity** | Good for most apps | Excellent |
+| Aspect                 | HTMX                        | React/Vue/Svelte               |
+| ---------------------- | --------------------------- | ------------------------------ |
+| **Server sends**       | HTML fragments              | JSON data                      |
+| **Rendering**          | Server-side                 | Client-side                    |
+| **State management**   | Server (session/DB)         | Client (Redux/Zustand)         |
+| **JavaScript needed**  | Minimal (HTMX + extensions) | Significant (framework + deps) |
+| **Build step**         | None required               | Required (Webpack/Vite)        |
+| **SEO**                | Built-in (server-rendered)  | Requires SSR/SSG setup         |
+| **Learning curve**     | HTML attributes             | Framework + ecosystem          |
+| **Bundle size**        | ~14KB (HTMX)                | 50-200KB+ (framework + deps)   |
+| **Offline support**    | Limited                     | Good (with service worker)     |
+| **Rich interactivity** | Good for most apps          | Excellent                      |
 
 ## Core HTMX Patterns
 
@@ -60,79 +60,60 @@ HTMX is NOT ideal when:
 
 ```html
 <!-- GET request, replace inner content -->
-<button hx-get="/api/users" hx-target="#user-list" hx-swap="innerHTML">
-  Load Users
-</button>
+<button hx-get="/api/users" hx-target="#user-list" hx-swap="innerHTML">Load Users</button>
 <div id="user-list"><!-- Users will appear here --></div>
 
 <!-- POST request with form data -->
 <form hx-post="/api/users" hx-target="#user-list" hx-swap="afterbegin">
-  <input name="email" type="email" required>
+  <input name="email" type="email" required />
   <button type="submit">Add User</button>
 </form>
 
 <!-- DELETE with confirmation -->
-<button hx-delete="/api/users/123"
-        hx-confirm="Are you sure?"
-        hx-target="closest tr"
-        hx-swap="outerHTML swap:500ms">
+<button hx-delete="/api/users/123" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:500ms">
   Delete
 </button>
 
 <!-- PUT for inline editing -->
-<div hx-get="/api/users/123/edit" hx-trigger="click" hx-swap="outerHTML">
-  Click to edit: John Doe
-</div>
+<div hx-get="/api/users/123/edit" hx-trigger="click" hx-swap="outerHTML">Click to edit: John Doe</div>
 ```
 
 ### Swap Strategies
 
-| Strategy | Behavior | Use Case |
-|----------|----------|----------|
-| `innerHTML` | Replace children of target | Update a list, refresh a section |
-| `outerHTML` | Replace the entire target | Replace an element with an edited version |
-| `afterbegin` | Prepend inside target | Add item to top of list |
-| `beforeend` | Append inside target | Add item to bottom of list |
-| `beforebegin` | Insert before target | Add a row above |
-| `afterend` | Insert after target | Add a row below |
-| `delete` | Delete the target | Remove an element |
-| `none` | Don't swap (still fires events) | Trigger side effects only |
+| Strategy      | Behavior                        | Use Case                                  |
+| ------------- | ------------------------------- | ----------------------------------------- |
+| `innerHTML`   | Replace children of target      | Update a list, refresh a section          |
+| `outerHTML`   | Replace the entire target       | Replace an element with an edited version |
+| `afterbegin`  | Prepend inside target           | Add item to top of list                   |
+| `beforeend`   | Append inside target            | Add item to bottom of list                |
+| `beforebegin` | Insert before target            | Add a row above                           |
+| `afterend`    | Insert after target             | Add a row below                           |
+| `delete`      | Delete the target               | Remove an element                         |
+| `none`        | Don't swap (still fires events) | Trigger side effects only                 |
 
 ### Trigger Patterns
 
 ```html
 <!-- Standard triggers -->
-<input hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#results">
+<input hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#results" />
 
 <!-- Revealed trigger (lazy loading) -->
-<div hx-get="/api/comments?page=2" hx-trigger="revealed" hx-swap="afterend">
-  Loading more comments...
-</div>
+<div hx-get="/api/comments?page=2" hx-trigger="revealed" hx-swap="afterend">Loading more comments...</div>
 
 <!-- Intersection observer (more control than revealed) -->
-<div hx-get="/api/feed/next" hx-trigger="intersect once threshold:0.5">
-  Loading...
-</div>
+<div hx-get="/api/feed/next" hx-trigger="intersect once threshold:0.5">Loading...</div>
 
 <!-- Polling -->
-<div hx-get="/api/notifications/count" hx-trigger="every 30s">
-  0 notifications
-</div>
+<div hx-get="/api/notifications/count" hx-trigger="every 30s">0 notifications</div>
 
 <!-- Server-sent events -->
-<div hx-ext="sse" sse-connect="/api/events" sse-swap="message">
-  Waiting for updates...
-</div>
+<div hx-ext="sse" sse-connect="/api/events" sse-swap="message">Waiting for updates...</div>
 
 <!-- Load trigger (fires on page load) -->
-<div hx-get="/api/dashboard/stats" hx-trigger="load">
-  Loading stats...
-</div>
+<div hx-get="/api/dashboard/stats" hx-trigger="load">Loading stats...</div>
 
 <!-- Custom events -->
-<div hx-get="/api/cart" hx-trigger="cart-updated from:body">
-  Cart contents here
-</div>
+<div hx-get="/api/cart" hx-trigger="cart-updated from:body">Cart contents here</div>
 ```
 
 ## Server-Side Integration
@@ -219,13 +200,15 @@ def create_user():
 ### Search with Debounce
 
 ```html
-<input type="search"
-       name="q"
-       placeholder="Search products..."
-       hx-get="/search"
-       hx-trigger="input changed delay:300ms, search"
-       hx-target="#search-results"
-       hx-indicator="#search-spinner">
+<input
+  type="search"
+  name="q"
+  placeholder="Search products..."
+  hx-get="/search"
+  hx-trigger="input changed delay:300ms, search"
+  hx-target="#search-results"
+  hx-indicator="#search-spinner"
+/>
 
 <span id="search-spinner" class="htmx-indicator">Searching...</span>
 <div id="search-results"></div>
@@ -237,15 +220,16 @@ def create_user():
 <!-- Server returns rows + a new sentinel at the bottom -->
 <table id="users-table">
   <tbody>
-    <tr><td>User 1</td></tr>
-    <tr><td>User 2</td></tr>
+    <tr>
+      <td>User 1</td>
+    </tr>
+    <tr>
+      <td>User 2</td>
+    </tr>
     <!-- ... more rows ... -->
 
     <!-- Sentinel row: loads next page when visible -->
-    <tr hx-get="/api/users?page=2"
-        hx-trigger="revealed"
-        hx-swap="outerHTML"
-        hx-select="tbody > tr">
+    <tr hx-get="/api/users?page=2" hx-trigger="revealed" hx-swap="outerHTML" hx-select="tbody > tr">
       <td>Loading more...</td>
     </tr>
   </tbody>
@@ -264,8 +248,8 @@ def create_user():
 
 <!-- Edit mode (returned by GET /api/users/123/edit) -->
 <form id="user-123" hx-put="/api/users/123" hx-swap="outerHTML">
-  <input name="name" value="John Doe">
-  <input name="email" value="john@example.com">
+  <input name="name" value="John Doe" />
+  <input name="email" value="john@example.com" />
   <button type="submit">Save</button>
   <button hx-get="/api/users/123" hx-swap="outerHTML" hx-target="#user-123">Cancel</button>
 </form>
@@ -281,19 +265,18 @@ def create_user():
 ### Bulk Operations
 
 ```html
-<form hx-post="/api/users/bulk-delete" hx-target="#user-table" hx-swap="innerHTML"
-      hx-confirm="Delete selected users?">
+<form hx-post="/api/users/bulk-delete" hx-target="#user-table" hx-swap="innerHTML" hx-confirm="Delete selected users?">
   <table id="user-table">
     <thead>
       <tr>
-        <th><input type="checkbox" onclick="toggleAll(this)"></th>
+        <th><input type="checkbox" onclick="toggleAll(this)" /></th>
         <th>Name</th>
         <th>Email</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><input type="checkbox" name="ids" value="1"></td>
+        <td><input type="checkbox" name="ids" value="1" /></td>
         <td>John</td>
         <td>john@example.com</td>
       </tr>
@@ -304,9 +287,9 @@ def create_user():
 </form>
 
 <script>
-function toggleAll(source) {
-  document.querySelectorAll('input[name="ids"]').forEach(cb => cb.checked = source.checked);
-}
+  function toggleAll(source) {
+    document.querySelectorAll('input[name="ids"]').forEach((cb) => (cb.checked = source.checked));
+  }
 </script>
 ```
 
@@ -330,22 +313,14 @@ The key principle: the application works without JavaScript, then HTMX enhances 
 ```html
 <!-- Without JS: normal form submission (full page reload) -->
 <!-- With HTMX: partial update, no page reload -->
-<form method="post" action="/api/users"
-      hx-post="/api/users"
-      hx-target="#user-list"
-      hx-swap="afterbegin">
-  <input name="email" type="email" required>
+<form method="post" action="/api/users" hx-post="/api/users" hx-target="#user-list" hx-swap="afterbegin">
+  <input name="email" type="email" required />
   <button type="submit">Add User</button>
 </form>
 
 <!-- Without JS: normal link navigation -->
 <!-- With HTMX: partial page load -->
-<a href="/users/123"
-   hx-get="/users/123"
-   hx-target="#main-content"
-   hx-push-url="true">
-  View User
-</a>
+<a href="/users/123" hx-get="/users/123" hx-target="#main-content" hx-push-url="true"> View User </a>
 ```
 
 Server detects and responds appropriately:
@@ -363,26 +338,28 @@ def get_user(id):
 
 ### Useful Extensions
 
-| Extension | Purpose | Example |
-|-----------|---------|---------|
-| `sse` | Server-Sent Events | Real-time updates without polling |
-| `ws` | WebSocket support | Bidirectional real-time |
-| `json-enc` | Send JSON instead of form data | API integration |
-| `loading-states` | Granular loading indicators | Disable buttons during request |
-| `head-support` | Update `<head>` elements | Change page title on navigation |
-| `preload` | Preload content on hover | Faster perceived navigation |
-| `response-targets` | Different targets for error responses | Show errors in specific location |
+| Extension          | Purpose                               | Example                           |
+| ------------------ | ------------------------------------- | --------------------------------- |
+| `sse`              | Server-Sent Events                    | Real-time updates without polling |
+| `ws`               | WebSocket support                     | Bidirectional real-time           |
+| `json-enc`         | Send JSON instead of form data        | API integration                   |
+| `loading-states`   | Granular loading indicators           | Disable buttons during request    |
+| `head-support`     | Update `<head>` elements              | Change page title on navigation   |
+| `preload`          | Preload content on hover              | Faster perceived navigation       |
+| `response-targets` | Different targets for error responses | Show errors in specific location  |
 
 ### Response Targets (Error Handling)
 
 ```html
-<form hx-post="/api/users"
-      hx-target="#user-list"
-      hx-target-422="#form-errors"
-      hx-target-500="#server-error"
-      hx-ext="response-targets">
+<form
+  hx-post="/api/users"
+  hx-target="#user-list"
+  hx-target-422="#form-errors"
+  hx-target-500="#server-error"
+  hx-ext="response-targets"
+>
   <div id="form-errors"></div>
-  <input name="email" type="email" required>
+  <input name="email" type="email" required />
   <button type="submit">Add User</button>
 </form>
 <div id="server-error"></div>
@@ -425,6 +402,7 @@ def get_user(id):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing htmx developer solutions
 - Reviewing or improving existing htmx developer approaches
 - Making architectural or implementation decisions about htmx developer
@@ -432,6 +410,7 @@ def get_user(id):
 - Troubleshooting htmx developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -442,21 +421,26 @@ def get_user(id):
 # Htmx Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

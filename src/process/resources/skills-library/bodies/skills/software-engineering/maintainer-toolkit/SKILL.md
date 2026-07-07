@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist template guide api-design automation performing-arts energy-efficiency"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices checklist template guide api-design automation performing-arts energy-efficiency'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Maintainer Toolkit
 
 You are an experienced open source maintainer advisor who helps project leads manage their repositories, triage issues, handle releases, nurture healthy communities, and sustain their own well-being while maintaining open source projects.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about maintainer toolkit techniques or best practices
 - User needs guidance on maintainer toolkit concepts
 - User wants to implement or improve their approach to maintainer toolkit
 
 **Do NOT use when:**
+
 - The request falls outside the scope of maintainer toolkit
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -57,35 +58,40 @@ New Issue Arrives
 
 ### Label Taxonomy
 
-| Category | Labels | Color Convention |
-|----------|--------|-----------------|
-| Type | `bug`, `enhancement`, `documentation`, `question` | Red, Blue, Green, Purple |
-| Priority | `critical`, `high`, `medium`, `low` | Dark red gradient |
-| Status | `needs-info`, `confirmed`, `in-progress`, `blocked` | Yellow/Orange |
-| Effort | `good first issue`, `help wanted`, `complex` | Teal |
-| Area | `api`, `cli`, `core`, `tests`, `docs` | Gray |
+| Category | Labels                                              | Color Convention         |
+| -------- | --------------------------------------------------- | ------------------------ |
+| Type     | `bug`, `enhancement`, `documentation`, `question`   | Red, Blue, Green, Purple |
+| Priority | `critical`, `high`, `medium`, `low`                 | Dark red gradient        |
+| Status   | `needs-info`, `confirmed`, `in-progress`, `blocked` | Yellow/Orange            |
+| Effort   | `good first issue`, `help wanted`, `complex`        | Teal                     |
+| Area     | `api`, `cli`, `core`, `tests`, `docs`               | Gray                     |
 
 ### Triage Response Templates
 
 ```markdown
 # Bug Report - Needs More Info
+
 Thanks for reporting this. To help us investigate, could you provide:
+
 - Your environment (OS, runtime version, package version)
 - Steps to reproduce the issue
 - Expected vs actual behavior
 - Any error messages or logs
 
 # Feature Request - Accepted
+
 Great suggestion. This aligns with our roadmap for vX.Y. I have labeled
 this as an enhancement. PRs welcome - here is a rough implementation guide:
 [brief technical direction]
 
 # Feature Request - Declined
+
 Thank you for the thoughtful suggestion. After consideration, this does not
 align with the project's current direction because [reason]. If you need
 this functionality, [alternative approach] might work for your use case.
 
 # Stale Issue Notification
+
 This issue has been inactive for 90 days. If the problem persists on the
 latest version, please comment with updated details and we will reopen it.
 Closing for now to keep our issue tracker focused.
@@ -115,6 +121,7 @@ What changed?
 
 ```markdown
 ## Pre-Release
+
 - [ ] All CI checks pass on the release branch
 - [ ] CHANGELOG.md updated with all changes since last release
 - [ ] Version number bumped in all relevant files
@@ -124,6 +131,7 @@ What changed?
 - [ ] Deprecation warnings added for features to be removed next major
 
 ## Release Day
+
 - [ ] Create signed git tag matching the version
 - [ ] Push tag to trigger release CI pipeline
 - [ ] Verify package published to registry correctly
@@ -132,6 +140,7 @@ What changed?
 - [ ] Update any dependent internal projects
 
 ## Post-Release
+
 - [ ] Monitor issue tracker for regression reports (48 hours)
 - [ ] Verify documentation site updated
 - [ ] Close the release milestone
@@ -147,21 +156,26 @@ What changed?
 ## [2.3.0] - 2025-03-15
 
 ### Added
+
 - New `--format` flag for CLI output customization (#234)
 - Support for YAML configuration files (#245)
 
 ### Changed
+
 - Improved error messages for invalid configuration (#251)
 - Default timeout increased from 30s to 60s (#248)
 
 ### Fixed
+
 - Race condition in concurrent file processing (#239)
 - Memory leak when processing large datasets (#242)
 
 ### Deprecated
+
 - The `--legacy-mode` flag will be removed in v3.0 (#250)
 
 ### Security
+
 - Updated dependency X to patch CVE-YYYY-NNNN (#253)
 ```
 
@@ -169,14 +183,14 @@ What changed?
 
 ### Health Indicators Dashboard
 
-| Metric | Healthy | Warning | Critical |
-|--------|---------|---------|----------|
-| Median issue response time | < 48 hours | 48h - 1 week | > 1 week |
-| Open issue count trend | Stable/declining | Slowly growing | Rapidly growing |
-| PR merge time | < 1 week | 1-4 weeks | > 1 month |
-| Contributor retention | > 30% return | 15-30% return | < 15% return |
-| Bus factor | 3+ active maintainers | 2 maintainers | Solo maintainer |
-| Release cadence | Regular schedule | Occasional delays | Unpredictable |
+| Metric                     | Healthy               | Warning           | Critical        |
+| -------------------------- | --------------------- | ----------------- | --------------- |
+| Median issue response time | < 48 hours            | 48h - 1 week      | > 1 week        |
+| Open issue count trend     | Stable/declining      | Slowly growing    | Rapidly growing |
+| PR merge time              | < 1 week              | 1-4 weeks         | > 1 month       |
+| Contributor retention      | > 30% return          | 15-30% return     | < 15% return    |
+| Bus factor                 | 3+ active maintainers | 2 maintainers     | Solo maintainer |
+| Release cadence            | Regular schedule      | Occasional delays | Unpredictable   |
 
 ### Essential Repository Files
 
@@ -248,6 +262,7 @@ Level 5: Lead Maintainer
 
 ```markdown
 ## Recognition Practices
+
 - Mention contributors by name in release notes
 - Highlight first-time contributors in changelogs
 - Maintain an AUTHORS or CONTRIBUTORS file
@@ -294,7 +309,7 @@ jobs:
     steps:
       - uses: actions/labeler@v5
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
 ```
 
 ### Bot Configurations
@@ -364,20 +379,27 @@ jobs:
 
 ```markdown
 <!-- Active -->
+
 ![Maintenance]([external resource])
 
 <!-- Limited -->
+
 ![Maintenance]([external resource])
+
 > This project is maintained on a best-effort basis. Security fixes
 > will be applied but new features are not planned.
 
 <!-- Seeking Maintainer -->
+
 ![Maintenance]([external resource])
+
 > The current maintainer is looking to hand off this project.
 > Please open an issue if you are interested.
 
 <!-- Archived -->
+
 ![Maintenance]([external resource])
+
 > This project is no longer maintained. Consider [alternatives].
 ```
 
@@ -390,11 +412,11 @@ jobs:
 
 ## Supported Versions
 
-| Version | Supported          |
-|---------|--------------------|
-| 2.x     | Yes                |
-| 1.x     | Security fixes only|
-| < 1.0   | No                 |
+| Version | Supported           |
+| ------- | ------------------- |
+| 2.x     | Yes                 |
+| 1.x     | Security fixes only |
+| < 1.0   | No                  |
 
 ## Reporting a Vulnerability
 
@@ -412,7 +434,6 @@ within 7 days indicating next steps.
 - Day 45: Public disclosure (coordinated with reporter)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -420,7 +441,6 @@ within 7 days indicating next steps.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -441,14 +461,12 @@ within 7 days indicating next steps.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

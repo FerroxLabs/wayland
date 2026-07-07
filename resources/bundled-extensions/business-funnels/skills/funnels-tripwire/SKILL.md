@@ -32,42 +32,53 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels, funnels-lead-magnet, funnels-offer, funnels-ascension-ladder, convert-checkout-page, convert-bump, convert-oto-page]
+    related_skills:
+      [
+        funnels,
+        funnels-lead-magnet,
+        funnels-offer,
+        funnels-ascension-ladder,
+        convert-checkout-page,
+        convert-bump,
+        convert-oto-page,
+      ]
 attribution:
   lineage: "Wayland Business Suite (Original) - tripwire methodology grounded in Brunson buyer-ID effect + Halbert 'first-dollar' direct-mail concept + Cialdini commitment-and-consistency + standard $1–$47 sweet-spot pricing"
 ---
 
 # Funnels Tripwire - The First-Dollar Entry
 
-> *"The first dollar a buyer pays you is worth more than the next $1,000 they'll pay anyone else."*
+> _"The first dollar a buyer pays you is worth more than the next $1,000 they'll pay anyone else."_
 
-This skill designs **Rung 1** of The Ascension Ladder - the $1–$47 tripwire offer whose primary job is *not* revenue but **buyer-ID**: converting a free subscriber into a paid buyer, which makes them 5–10x more likely to ascend to the core offer and beyond.
+This skill designs **Rung 1** of The Ascension Ladder - the $1–$47 tripwire offer whose primary job is _not_ revenue but **buyer-ID**: converting a free subscriber into a paid buyer, which makes them 5–10x more likely to ascend to the core offer and beyond.
 
 ## When to Use
 
 Trigger phrases: "design my tripwire", "tripwire offer", "low-ticket entry product", "buyer ID", "first dollar", "$7 product", "free plus shipping", "my email list isn't buying", `/funnel tripwire <product>`.
 
 Use when:
+
 - The user has email opt-ins from a lead magnet but the list isn't converting to the core offer
 - The user wants to skip Rung 1 ("just go straight to my core") and we need to make the case for why the tripwire matters
 - The user has a tripwire but it's underperforming on take-rate or downstream ascension
 - The user is building the ladder fresh and needs Rung 1 designed alongside Rung 0 + Rung 2
 
 Do NOT use for:
+
 - Designing the lead magnet above (use `funnels-lead-magnet`)
 - Designing the core offer below (use `funnels-offer`)
 - Designing the order-form bump on the tripwire purchase (use `convert-bump`)
 - Designing the OTO ascension immediately post-tripwire (use `convert-oto-page`)
 
-## The Buyer-ID Effect (the *whole* point of the tripwire)
+## The Buyer-ID Effect (the _whole_ point of the tripwire)
 
-*The buyer-ID principle (popularized by Russell Brunson; lineage to Gary Halbert's "first-dollar" direct-mail concept; Cialdini commitment-and-consistency).* Once a buyer hands over money - even $1 - three things change:
+_The buyer-ID principle (popularized by Russell Brunson; lineage to Gary Halbert's "first-dollar" direct-mail concept; Cialdini commitment-and-consistency)._ Once a buyer hands over money - even $1 - three things change:
 
 1. **Identity shift.** The buyer's self-concept moves from "browser" to "buyer." This shift triggers Cialdini's commitment-consistency: future purchases become consistent with the established identity.
 2. **Card on file.** The transactional friction is gone. Subsequent offers (OTOs, upsells, core ascension) face zero new-buyer friction.
 3. **Filter on intent.** Buyers who pay $7 are dramatically more qualified than free subscribers. The 5–10x ascension multiplier is real.
 
-The tripwire's revenue is often *negative* once you account for fulfillment + payment processing - and that's fine. The tripwire's profit is in the OTO immediately downstream, plus the increased ascension probability for the next 12 months.
+The tripwire's revenue is often _negative_ once you account for fulfillment + payment processing - and that's fine. The tripwire's profit is in the OTO immediately downstream, plus the increased ascension probability for the next 12 months.
 
 ## Inputs
 
@@ -79,13 +90,13 @@ The tripwire's revenue is often *negative* once you account for fulfillment + pa
 
 ## The 5 Tripwire Formats
 
-| Format | Price | Take rate | Production cost | Best for |
-|--------|-------|----------|----------------|----------|
-| **Mini-product (PDF + bonus)** | $7–$27 | 5–15% | Low | Info-products, courses |
-| **Free + shipping (book)** | $0 + $7–$15 ship | 8–20% | Med (physical fulfill) | Authors, coaches, mature offers |
-| **$1 trial (7-day)** | $1 → $X/mo | 5–10% | Med (cancel logic) | SaaS, software, membership |
-| **Mini-course / video pack** | $17–$47 | 3–10% | Med (record 1–3 hrs) | Course sellers, coaches |
-| **Paid quiz / audit** | $7–$27 | 8–18% | High (build) | B2B services, agencies |
+| Format                         | Price            | Take rate | Production cost        | Best for                        |
+| ------------------------------ | ---------------- | --------- | ---------------------- | ------------------------------- |
+| **Mini-product (PDF + bonus)** | $7–$27           | 5–15%     | Low                    | Info-products, courses          |
+| **Free + shipping (book)**     | $0 + $7–$15 ship | 8–20%     | Med (physical fulfill) | Authors, coaches, mature offers |
+| **$1 trial (7-day)**           | $1 → $X/mo       | 5–10%     | Med (cancel logic)     | SaaS, software, membership      |
+| **Mini-course / video pack**   | $17–$47          | 3–10%     | Med (record 1–3 hrs)   | Course sellers, coaches         |
+| **Paid quiz / audit**          | $7–$27           | 8–18%     | High (build)           | B2B services, agencies          |
 
 **Sweet spot pricing:** $7, $17, $27. These three prices dominate the tripwire space because they're below the "I need to think about it" threshold for almost any income level + above the "$0.99 = junk" threshold.
 
@@ -99,31 +110,34 @@ The tripwire's revenue is often *negative* once you account for fulfillment + pa
 
 The tripwire must deliver value disproportionate to the price. The buyer's first paid interaction sets the belief threshold for every future ascension. A weak tripwire kills the ladder above it.
 
-**Calibration:** the tripwire should feel like a $97 product priced at $7. *(Lineage: Halbert's bait-piece tradition + Hormozi's value-equation lever-1 applied at micro-scale.)*
+**Calibration:** the tripwire should feel like a $97 product priced at $7. _(Lineage: Halbert's bait-piece tradition + Hormozi's value-equation lever-1 applied at micro-scale.)_
 
 ### Rule 2 - One specific outcome
 
 The tripwire delivers ONE specific, narrow, deliverable outcome - not a full transformation. The full transformation lives at Rung 2 (core offer).
 
 Example for a copywriting business:
+
 - **Wrong tripwire:** "Become a 6-figure copywriter" (overpromise - that's the core offer)
 - **Right tripwire:** "Write your first cold-email sequence in 30 minutes using these 5 templates" (narrow, specific, deliverable, fast)
 
 ### Rule 3 - Immediate gratification
 
-The tripwire delivers value within 60 minutes of purchase. *(Lineage: Hormozi time-delay lever; Halbert's "instant gratification" mail-order tradition.)* Digital delivery, immediate access, fast use. The buyer's first paid experience must be: "I paid, I used it, I won."
+The tripwire delivers value within 60 minutes of purchase. _(Lineage: Hormozi time-delay lever; Halbert's "instant gratification" mail-order tradition.)_ Digital delivery, immediate access, fast use. The buyer's first paid experience must be: "I paid, I used it, I won."
 
 ### Rule 4 - Direct adjacency to the core offer
 
-The tripwire's outcome should be a *narrow slice* of the core offer's transformation. Solving 1/10th of the same problem. This makes the ascension natural: *"You loved the cold-email templates? The full course gives you 200+ templates across 8 sequences and the writing system that produces them."*
+The tripwire's outcome should be a _narrow slice_ of the core offer's transformation. Solving 1/10th of the same problem. This makes the ascension natural: _"You loved the cold-email templates? The full course gives you 200+ templates across 8 sequences and the writing system that produces them."_
 
 ### Rule 5 - Mandatory order-form bump + OTO
 
 The tripwire NEVER ships alone. It always ships with:
+
 - **Order-form bump** (a $7–$27 add-on at checkout - usually a complementary template / swipe file / quick-win) - handoff to `convert-bump`
 - **OTO immediately post-purchase** (a $47–$197 ascension to a deeper version) - handoff to `convert-oto-page`
 
 The tripwire + bump + OTO together form the **front-end revenue stack**. Together they often:
+
 - Cover the cost of paid traffic (the tripwire is the customer-acquisition mechanism)
 - Pre-qualify buyers for the core offer (the bump and OTO take-rate predicts core-offer conversion)
 - Establish the buyer's card-on-file (used for downstream OTOs across the ladder)
@@ -155,6 +169,7 @@ For the chosen format, structure the contents - what specifically the buyer gets
 ### Phase 5 - Design the front-end revenue stack
 
 Specify:
+
 - **Order-form bump** - name, price ($7–$27), purpose (complementary), take-rate target (30–50%)
 - **OTO immediately post-purchase** - name, price ($47–$197), purpose (ascend to deeper version), take-rate target (10–30%)
 - **Optional downsell** - name, price ($17–$47), purpose (recover OTO decliners), take-rate target (5–20%)
@@ -162,9 +177,10 @@ Specify:
 ### Phase 6 - Define the bridge to core offer
 
 The tripwire is not the end - it's the entry. Define:
+
 - Email sequence post-tripwire-purchase (handoff to `funnels-story-drip`)
 - The bridge offer to Rung 2 (typically a 7–14 day nurture + soft pitch)
-- The "graduate" framing - *"You've done the cold-email piece. Ready for the full system?"*
+- The "graduate" framing - _"You've done the cold-email piece. Ready for the full system?"_
 
 ## Output template
 
@@ -191,11 +207,11 @@ The tripwire is not the end - it's the entry. Define:
 
 ## Deliverable Structure
 
-| Component | What it is | Format | Length |
-|----------|-----------|--------|--------|
-| Main deliverable | <name> | <PDF/video/template> | <pages/min> |
-| Bonus 1 (mandatory) | <name> | <format> | <length> |
-| Bonus 2 (optional) | <name> | <format> | <length> |
+| Component           | What it is | Format               | Length      |
+| ------------------- | ---------- | -------------------- | ----------- |
+| Main deliverable    | <name>     | <PDF/video/template> | <pages/min> |
+| Bonus 1 (mandatory) | <name>     | <format>             | <length>    |
+| Bonus 2 (optional)  | <name>     | <format>             | <length>    |
 
 **Over-deliver test:** PASSED - feels like a $97 product at $<X>
 **Anti-bait test:** PASSED - keeps the promise of the headline
@@ -204,6 +220,7 @@ The tripwire is not the end - it's the entry. Define:
 ## Front-End Revenue Stack
 
 ### Order-Form Bump
+
 - **Name:** <bump name>
 - **Price:** $<X>
 - **Purpose:** complementary fast-win
@@ -211,6 +228,7 @@ The tripwire is not the end - it's the entry. Define:
 - **Skill handoff:** `convert-bump`
 
 ### OTO (post-purchase)
+
 - **Name:** <OTO name>
 - **Price:** $<47–$197>
 - **Purpose:** ascend to deeper version
@@ -218,6 +236,7 @@ The tripwire is not the end - it's the entry. Define:
 - **Skill handoff:** `convert-oto-page`
 
 ### Downsell (optional)
+
 - **Name:** <downsell name>
 - **Price:** $<17–$47>
 - **Purpose:** recover OTO decliners
@@ -243,10 +262,11 @@ The tripwire is not the end - it's the entry. Define:
 ## Lineage
 
 The tripwire methodology synthesizes:
-- *The buyer-ID effect (popularized by Russell Brunson; lineage to direct-mail buyer-list construction)* - the strategic purpose
-- *Halbert's "first-dollar" concept (Boron Letters)* - the qualification threshold
-- *Cialdini's commitment-and-consistency principle (Influence, 1984)* - the identity-shift mechanic
-- *Hormozi's value-equation applied at micro-scale ($100M Offers)* - the over-deliver rule + immediate-gratification rule
+
+- _The buyer-ID effect (popularized by Russell Brunson; lineage to direct-mail buyer-list construction)_ - the strategic purpose
+- _Halbert's "first-dollar" concept (Boron Letters)_ - the qualification threshold
+- _Cialdini's commitment-and-consistency principle (Influence, 1984)_ - the identity-shift mechanic
+- _Hormozi's value-equation applied at micro-scale ($100M Offers)_ - the over-deliver rule + immediate-gratification rule
 
 The tripwire is not a Wayland-coined fusion name - the term "tripwire" is generic across direct-response and used freely. The mechanics are the value: most operators ship a tripwire without the front-end stack (bump + OTO) and miss 60–80% of the available revenue at this rung.
 ```

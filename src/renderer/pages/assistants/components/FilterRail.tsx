@@ -76,7 +76,11 @@ const FilterRail: React.FC<FilterRailProps> = ({
   };
 
   return (
-    <aside className={styles.rail} data-testid='assistants-filter-rail' aria-label={t('assistants.filterRail.aria', { defaultValue: 'Assistant filters' })}>
+    <aside
+      className={styles.rail}
+      data-testid='assistants-filter-rail'
+      aria-label={t('assistants.filterRail.aria', { defaultValue: 'Assistant filters' })}
+    >
       <Input
         className={styles.searchInput}
         prefix={<Search size={14} />}

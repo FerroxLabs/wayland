@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices analysis"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices analysis'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile Analytics
@@ -347,13 +347,13 @@ Privacy Framework:
 
 ## Analytics Tools Comparison
 
-| Tool | Strengths | Best For |
-|------|-----------|----------|
-| Amplitude | Behavioral analytics, cohorts, funnels | Product analytics at scale |
-| Mixpanel | Event analytics, A/B testing, flows | Growth-stage product teams |
+| Tool               | Strengths                                       | Best For                           |
+| ------------------ | ----------------------------------------------- | ---------------------------------- |
+| Amplitude          | Behavioral analytics, cohorts, funnels          | Product analytics at scale         |
+| Mixpanel           | Event analytics, A/B testing, flows             | Growth-stage product teams         |
 | Firebase Analytics | Free, deep Android integration, BigQuery export | Early-stage apps, Google ecosystem |
-| PostHog | Open source, session replay, feature flags | Privacy-conscious teams |
-| Adjust / Singular | Attribution, fraud prevention, cost aggregation | Paid acquisition optimization |
+| PostHog            | Open source, session replay, feature flags      | Privacy-conscious teams            |
+| Adjust / Singular  | Attribution, fraud prevention, cost aggregation | Paid acquisition optimization      |
 
 ## Dashboard Design
 
@@ -383,6 +383,7 @@ Daily Operational Dashboard:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mobile analytics solutions
 - Reviewing or improving existing mobile analytics approaches
 - Making architectural or implementation decisions about mobile analytics
@@ -390,6 +391,7 @@ Daily Operational Dashboard:
 - Troubleshooting mobile analytics-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -400,21 +402,26 @@ Daily Operational Dashboard:
 # Mobile Analytics Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

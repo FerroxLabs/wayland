@@ -165,9 +165,7 @@ async function loadOverlay(): Promise<VendoredOverlayMap> {
  *
  * Returns the same array reference for caller ergonomics.
  */
-export async function applyVendoredOverlay(
-  assistants: Record<string, unknown>[]
-): Promise<Record<string, unknown>[]> {
+export async function applyVendoredOverlay(assistants: Record<string, unknown>[]): Promise<Record<string, unknown>[]> {
   const overlay = await loadOverlay();
   if (overlay.size === 0) return assistants;
 
@@ -180,26 +178,16 @@ export async function applyVendoredOverlay(
     if (!overlayEntry) continue;
 
     let touched = false;
-    if (
-      overlayEntry.standing !== undefined &&
-      (assistant as { standing?: unknown }).standing === undefined
-    ) {
+    if (overlayEntry.standing !== undefined && (assistant as { standing?: unknown }).standing === undefined) {
       (assistant as { standing?: boolean }).standing = overlayEntry.standing;
       touched = true;
     }
-    if (
-      overlayEntry.teammates !== undefined &&
-      (assistant as { teammates?: unknown }).teammates === undefined
-    ) {
+    if (overlayEntry.teammates !== undefined && (assistant as { teammates?: unknown }).teammates === undefined) {
       (assistant as { teammates?: string[] }).teammates = overlayEntry.teammates;
       touched = true;
     }
-    if (
-      overlayEntry.rituals !== undefined &&
-      (assistant as { rituals?: unknown }).rituals === undefined
-    ) {
-      (assistant as { rituals?: Array<{ name: string; cadence: string }> }).rituals =
-        overlayEntry.rituals;
+    if (overlayEntry.rituals !== undefined && (assistant as { rituals?: unknown }).rituals === undefined) {
+      (assistant as { rituals?: Array<{ name: string; cadence: string }> }).rituals = overlayEntry.rituals;
       touched = true;
     }
     // v0.4.7.1 (G-M-4) - treat empty array as "missing" too. A partial
@@ -208,8 +196,7 @@ export async function applyVendoredOverlay(
     // assistant. Empty + undefined collapse to the same overlay path.
     if (overlayEntry.kickoffs !== undefined) {
       const liveKickoffs = (assistant as { kickoffs?: unknown }).kickoffs;
-      const liveIsMissing =
-        liveKickoffs === undefined || (Array.isArray(liveKickoffs) && liveKickoffs.length === 0);
+      const liveIsMissing = liveKickoffs === undefined || (Array.isArray(liveKickoffs) && liveKickoffs.length === 0);
       if (liveIsMissing) {
         (assistant as { kickoffs?: VendoredKickoffEntry[] }).kickoffs = overlayEntry.kickoffs;
         touched = true;

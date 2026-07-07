@@ -103,9 +103,6 @@ export function stepHasDecisionPoint(body: string, stepN: number): boolean {
  * The `producedArtifact` signal is dynamic and supplied by the caller; this
  * function only handles the gate logic itself.
  */
-export function shouldReviewAfterStep(args: {
-  hasDecisionPoint: boolean;
-  producedArtifact: boolean;
-}): boolean {
+export function shouldReviewAfterStep(args: { hasDecisionPoint: boolean; producedArtifact: boolean }): boolean {
   return args.hasDecisionPoint || args.producedArtifact;
 }

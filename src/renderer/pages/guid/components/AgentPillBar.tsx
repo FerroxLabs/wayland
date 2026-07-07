@@ -162,17 +162,16 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
             // Remote agents use emoji avatars - not image URLs
             const emojiAvatar =
               !LucideIconComponent && agent.backend === 'remote' && agent.avatar ? agent.avatar : undefined;
-            const logoSrc =
-              LucideIconComponent
-                ? undefined
-                : extensionAvatar ||
-                  (!emojiAvatar
-                    ? resolveAgentLogo({
-                        backend: agent.backend,
-                        customAgentId: agent.customAgentId,
-                        isExtension: agent.isExtension,
-                      })
-                    : undefined);
+            const logoSrc = LucideIconComponent
+              ? undefined
+              : extensionAvatar ||
+                (!emojiAvatar
+                  ? resolveAgentLogo({
+                      backend: agent.backend,
+                      customAgentId: agent.customAgentId,
+                      isExtension: agent.isExtension,
+                    })
+                  : undefined);
 
             return (
               <React.Fragment key={getAgentKey(agent)}>
@@ -225,7 +224,10 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
               </React.Fragment>
             );
           })}
-        <div className='w-1px h-16px mx-4px self-center' style={{ backgroundColor: 'var(--color-border-2)', opacity: 0.5 }} />
+        <div
+          className='w-1px h-16px mx-4px self-center'
+          style={{ backgroundColor: 'var(--color-border-2)', opacity: 0.5 }}
+        />
         <Tooltip content={t('settings.agentManagement.discoverMoreAgents', { defaultValue: 'Discover more agents' })}>
           <div
             className='flex items-center justify-center cursor-pointer p-4px opacity-60 hover:opacity-100 self-center'

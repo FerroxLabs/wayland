@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot checklist guide python api-design cloud testing"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot checklist guide python api-design cloud testing'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Edge ML Engineer
 
 You are an expert edge ML engineer specializing in TinyML. You guide developers through model design for microcontrollers, quantization and compression techniques, on-device inference optimization, hardware platform selection, data collection strategies, and production deployment of machine learning at the edge.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about edge ml engineer techniques or best practices
 - User needs guidance on edge ml engineer concepts
 - User wants to implement or improve their approach to edge ml engineer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of edge ml engineer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,28 +38,28 @@ You are an expert edge ML engineer specializing in TinyML. You guide developers 
 
 ### Cloud vs Edge Decision Matrix
 
-| Factor | Cloud ML | Edge ML |
-|--------|----------|---------|
-| Latency | 50-500ms (network) | 1-50ms (local) |
-| Privacy | Data leaves device | Data stays on device |
-| Bandwidth | Continuous upload | Only results transmitted |
-| Power | High (radio active) | Low (no transmission) |
+| Factor        | Cloud ML               | Edge ML                   |
+| ------------- | ---------------------- | ------------------------- |
+| Latency       | 50-500ms (network)     | 1-50ms (local)            |
+| Privacy       | Data leaves device     | Data stays on device      |
+| Bandwidth     | Continuous upload      | Only results transmitted  |
+| Power         | High (radio active)    | Low (no transmission)     |
 | Cost at scale | Per-inference API cost | One-time model deployment |
-| Connectivity | Required | Works offline |
-| Model size | Unlimited | KB to low MB |
-| Accuracy | State of the art | Good enough for task |
+| Connectivity  | Required               | Works offline             |
+| Model size    | Unlimited              | KB to low MB              |
+| Accuracy      | State of the art       | Good enough for task      |
 
 ### Hardware Platform Selection
 
-| Platform | Processor | RAM | Flash | ML Accelerator | Price | Best For |
-|----------|-----------|-----|-------|----------------|-------|----------|
-| Arduino Nano 33 BLE Sense | Cortex-M4 64MHz | 256KB | 1MB | None | ~$30 | Keyword, gesture |
-| ESP32-S3 | Xtensa 240MHz | 512KB | 8MB | Vector instructions | ~$8 | Audio, vibration |
-| STM32H747 | Cortex-M7 480MHz | 1MB | 2MB | None (fast CPU) | ~$25 | Vision, complex |
-| Raspberry Pi Pico | RP2040 133MHz | 264KB | 2MB | None | ~$4 | Simple classification |
-| MAX78000 | Cortex-M4 + CNN | 512KB | 512KB | CNN accelerator | ~$15 | Real-time vision |
-| Nordic nRF5340 | Cortex-M33 128MHz | 512KB | 1MB | None | ~$12 | BLE + ML |
-| Google Coral Micro | Cortex-M7 + TPU | 64MB | 128MB | Edge TPU | ~$30 | Vision, NLP |
+| Platform                  | Processor         | RAM   | Flash | ML Accelerator      | Price | Best For              |
+| ------------------------- | ----------------- | ----- | ----- | ------------------- | ----- | --------------------- |
+| Arduino Nano 33 BLE Sense | Cortex-M4 64MHz   | 256KB | 1MB   | None                | ~$30  | Keyword, gesture      |
+| ESP32-S3                  | Xtensa 240MHz     | 512KB | 8MB   | Vector instructions | ~$8   | Audio, vibration      |
+| STM32H747                 | Cortex-M7 480MHz  | 1MB   | 2MB   | None (fast CPU)     | ~$25  | Vision, complex       |
+| Raspberry Pi Pico         | RP2040 133MHz     | 264KB | 2MB   | None                | ~$4   | Simple classification |
+| MAX78000                  | Cortex-M4 + CNN   | 512KB | 512KB | CNN accelerator     | ~$15  | Real-time vision      |
+| Nordic nRF5340            | Cortex-M33 128MHz | 512KB | 1MB   | None                | ~$12  | BLE + ML              |
+| Google Coral Micro        | Cortex-M7 + TPU   | 64MB  | 128MB | Edge TPU            | ~$30  | Vision, NLP           |
 
 ## Model Development Pipeline
 
@@ -229,14 +230,14 @@ const unsigned int model_data_len = {len(tflite_model)};
 
 ### Model Size Optimization Techniques
 
-| Technique | Size Reduction | Accuracy Impact | Complexity |
-|-----------|---------------|-----------------|------------|
-| Int8 quantization | 4x smaller | <2% loss typical | Low |
-| Pruning (50%) | ~2x smaller | 1-3% loss | Medium |
-| Knowledge distillation | 3-10x smaller | 2-5% loss | High |
-| Depthwise separable conv | 8-9x fewer params | Minimal | Low |
-| Weight sharing | 2-4x smaller | 1-2% loss | Medium |
-| Architecture search | Optimal for target | Varies | Very high |
+| Technique                | Size Reduction     | Accuracy Impact  | Complexity |
+| ------------------------ | ------------------ | ---------------- | ---------- |
+| Int8 quantization        | 4x smaller         | <2% loss typical | Low        |
+| Pruning (50%)            | ~2x smaller        | 1-3% loss        | Medium     |
+| Knowledge distillation   | 3-10x smaller      | 2-5% loss        | High       |
+| Depthwise separable conv | 8-9x fewer params  | Minimal          | Low        |
+| Weight sharing           | 2-4x smaller       | 1-2% loss        | Medium     |
+| Architecture search      | Optimal for target | Varies           | Very high  |
 
 ## On-Device Inference
 
@@ -461,28 +462,28 @@ def benchmark_model(port: str, num_runs: int = 100):
 
 ## Model Optimization Checklist
 
-| Step | Action | Tool |
-|------|--------|------|
-| 1 | Profile baseline model size and accuracy | TF Model Summary |
-| 2 | Replace Conv2D with DepthwiseConv2D | Manual architecture |
-| 3 | Reduce input resolution if possible | Data pipeline |
-| 4 | Apply post-training int8 quantization | TFLite Converter |
-| 5 | Prune weights below threshold | TF Model Optimization Toolkit |
-| 6 | Measure on-device inference time | Serial profiling |
-| 7 | Reduce arena size to minimum | Binary search |
-| 8 | Test accuracy on held-out validation set | Python evaluation |
+| Step | Action                                   | Tool                          |
+| ---- | ---------------------------------------- | ----------------------------- |
+| 1    | Profile baseline model size and accuracy | TF Model Summary              |
+| 2    | Replace Conv2D with DepthwiseConv2D      | Manual architecture           |
+| 3    | Reduce input resolution if possible      | Data pipeline                 |
+| 4    | Apply post-training int8 quantization    | TFLite Converter              |
+| 5    | Prune weights below threshold            | TF Model Optimization Toolkit |
+| 6    | Measure on-device inference time         | Serial profiling              |
+| 7    | Reduce arena size to minimum             | Binary search                 |
+| 8    | Test accuracy on held-out validation set | Python evaluation             |
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Training on desktop data only | Poor real-world accuracy | Collect data on target hardware |
-| Float32 model on MCU | Too large, too slow | Always quantize to int8 |
-| Oversized arena | Wasted RAM | Profile and minimize arena |
-| No data augmentation | Overfitting to lab conditions | Add noise, shifts, scaling |
-| Ignoring preprocessing | Input format mismatch | Match train-time preprocessing exactly |
-| One-shot detection | False positives | Require consecutive detections |
-| No model versioning | Deployment confusion | Version models, track in firmware |
+| Mistake                       | Impact                        | Solution                               |
+| ----------------------------- | ----------------------------- | -------------------------------------- |
+| Training on desktop data only | Poor real-world accuracy      | Collect data on target hardware        |
+| Float32 model on MCU          | Too large, too slow           | Always quantize to int8                |
+| Oversized arena               | Wasted RAM                    | Profile and minimize arena             |
+| No data augmentation          | Overfitting to lab conditions | Add noise, shifts, scaling             |
+| Ignoring preprocessing        | Input format mismatch         | Match train-time preprocessing exactly |
+| One-shot detection            | False positives               | Require consecutive detections         |
+| No model versioning           | Deployment confusion          | Version models, track in firmware      |
 
 ## Exercises
 
@@ -492,7 +493,6 @@ def benchmark_model(port: str, num_runs: int = 100):
 4. **Quantization Study**: Compare float32, float16, and int8 model variants for size, speed, and accuracy on the same task
 5. **Power Profiler**: Measure current draw during inference vs idle, calculate battery life for continuous classification
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -500,7 +500,6 @@ def benchmark_model(port: str, num_runs: int = 100):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -521,14 +520,12 @@ def benchmark_model(port: str, num_runs: int = 100):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

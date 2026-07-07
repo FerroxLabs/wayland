@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # README Writing
 
 ## When to Use
@@ -66,6 +67,7 @@ If the user cannot provide all of this, make reasonable inferences based on the 
 Not every README needs every section. Choose the structure based on project type:
 
 **For a library or SDK:**
+
 - Title + description + badges
 - Why this library (motivation -- 3-5 bullet points, not paragraphs)
 - Installation
@@ -77,6 +79,7 @@ Not every README needs every section. Choose the structure based on project type
 - License
 
 **For a CLI tool:**
+
 - Title + description + badges
 - Features list
 - Installation (with OS variants if needed)
@@ -87,6 +90,7 @@ Not every README needs every section. Choose the structure based on project type
 - License
 
 **For a web application or service:**
+
 - Title + description + demo link or screenshot
 - Features
 - Getting Started (includes local dev setup)
@@ -97,6 +101,7 @@ Not every README needs every section. Choose the structure based on project type
 - License
 
 **For a data science or research project:**
+
 - Title + description
 - Dataset and dependencies
 - Setup (virtual environment + requirements)
@@ -106,6 +111,7 @@ Not every README needs every section. Choose the structure based on project type
 - License
 
 **For a template or starter kit:**
+
 - Title + what it scaffolds
 - What's included (directory tree)
 - Quickstart (clone + install + run in 3 commands)
@@ -119,16 +125,19 @@ Decide on the section list BEFORE writing. Every section you include must earn i
 The opening block is the most critical real estate in any README. It is what GitHub renders above the fold before any scrolling.
 
 **Title:**
+
 - Use the project name exactly as it appears in the package registry (case-sensitive)
 - Never append "README" or "Documentation" to the H1 -- it wastes the title
 
 **Description (the paragraph immediately under the title):**
+
 - Write exactly 1-3 sentences maximum -- this is not the place for history
 - Answer: what does it do, who is it for, what makes it different
 - Use active voice: "quicktest runs test files in parallel" not "quicktest is a test runner that can be used to run test files in parallel"
 - Include the primary differentiator if one exists ("without any configuration" / "in under 10ms" / "with zero dependencies")
 
 **Badges:**
+
 - Place badges on a single line between the description and the table of contents
 - Standard badge order: build/CI status, version/release, license, coverage, downloads
 - Use shields.io badge syntax for static badges: `![License](https://img.shields.io/badge/license-MIT-blue)`
@@ -136,6 +145,7 @@ The opening block is the most critical real estate in any README. It is what Git
 - Do not include more than 6 badges -- they lose meaning past that count
 
 **Screenshot or demo GIF:**
+
 - For visual tools, UIs, or CLI tools with rich output, include a screenshot or GIF immediately after badges
 - Use `<p align="center"><img src="docs/screenshot.png" alt="demo" width="600"/></p>` for centered images
 - Caption the image so screen readers and text browsers still get context
@@ -197,7 +207,7 @@ Studies of developer documentation reading behavior show that technical readers 
 
 The complete README template follows. Field annotations in brackets are instructions, not literal text.
 
-```markdown
+````markdown
 # [Project Name]
 
 [One to two sentences. What it does. Who it is for. What makes it different from alternatives. Active voice only.]
@@ -238,6 +248,7 @@ The complete README template follows. Field annotations in brackets are instruct
 ```bash
 [primary package manager install command, e.g., npm install -g projectname]
 ```
+````
 
 **Alternative install methods:**
 
@@ -255,6 +266,7 @@ cd [repo]
 ```
 
 Expected output:
+
 ```
 [tool name] v[version number]
 ```
@@ -270,6 +282,7 @@ Expected output:
 ```
 
 Output:
+
 ```
 [exact expected output]
 ```
@@ -281,6 +294,7 @@ Output:
 ```
 
 Output:
+
 ```
 [expected output]
 ```
@@ -297,12 +311,12 @@ Output:
 
 [Project Name] can be configured via [environment variables / a config file at `.[projectname]rc` / CLI flags].
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `OPTION_NAME` | string | `"default"` | [What it controls. Units if numeric.] |
-| `OPTION_NAME` | integer | `30` | [What it controls. Units: seconds.] |
-| `OPTION_NAME` | boolean | `false` | [What enabling this does.] |
-| `OPTION_NAME` | string | required | [What it is. No default -- must be set.] |
+| Option        | Type    | Default     | Description                              |
+| ------------- | ------- | ----------- | ---------------------------------------- |
+| `OPTION_NAME` | string  | `"default"` | [What it controls. Units if numeric.]    |
+| `OPTION_NAME` | integer | `30`        | [What it controls. Units: seconds.]      |
+| `OPTION_NAME` | boolean | `false`     | [What enabling this does.]               |
+| `OPTION_NAME` | string  | required    | [What it is. No default -- must be set.] |
 
 **Example configuration file (`.projectnamerc`):**
 
@@ -337,7 +351,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards, commit message form
 ## License
 
 [License name]. See [LICENSE](LICENSE) for the full text.
-```
+
+````
 
 ---
 
@@ -452,7 +467,7 @@ When the project is primarily about reproducing research results or working with
 ```markdown
 # datachain
 
-Build type-safe data transformation pipelines by chaining Python functions. 
+Build type-safe data transformation pipelines by chaining Python functions.
 Zero dependencies, async-native, and validated at runtime using standard type hints.
 
 ![CI](https://img.shields.io/github/actions/workflow/status/owner/datachain/ci.yml?branch=main)
@@ -488,7 +503,7 @@ Zero dependencies, async-native, and validated at runtime using standard type hi
 
 ```bash
 pip install datachain
-```
+````
 
 For DataFrame output support:
 
@@ -503,6 +518,7 @@ python -c "import datachain; print(datachain.__version__)"
 ```
 
 Expected output:
+
 ```
 1.4.2
 ```
@@ -532,6 +548,7 @@ print(result)
 ```
 
 Output:
+
 ```
 {"name": "Alice", "score": 0.87, "grade": "pass"}
 ```
@@ -560,6 +577,7 @@ print(result)
 ```
 
 Output:
+
 ```
 {"id": 42, "name": "alice"}
 ```
@@ -579,6 +597,7 @@ print(results)
 ```
 
 Output:
+
 ```
 [
   {"text": "hello",     "length": 5},
@@ -616,13 +635,13 @@ print(df.head())
 
 `Chain` accepts keyword arguments to control runtime behavior.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `validate` | boolean | `True` | Validate type annotations between steps at runtime. Set to `False` in production for a ~15% speed improvement after pipeline is confirmed correct. |
-| `strict_types` | boolean | `False` | Raise `TypeError` on any type mismatch instead of attempting coercion. |
-| `timeout` | float | `None` | Per-step timeout in seconds. Raises `StepTimeoutError` if any step exceeds this limit. |
-| `max_concurrency` | integer | `10` | Maximum number of concurrent async steps when using `run_many()`. |
-| `on_error` | string | `"raise"` | Error handling mode: `"raise"` (stop immediately), `"skip"` (log and continue), or `"collect"` (return errors alongside results). |
+| Option            | Type    | Default   | Description                                                                                                                                        |
+| ----------------- | ------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `validate`        | boolean | `True`    | Validate type annotations between steps at runtime. Set to `False` in production for a ~15% speed improvement after pipeline is confirmed correct. |
+| `strict_types`    | boolean | `False`   | Raise `TypeError` on any type mismatch instead of attempting coercion.                                                                             |
+| `timeout`         | float   | `None`    | Per-step timeout in seconds. Raises `StepTimeoutError` if any step exceeds this limit.                                                             |
+| `max_concurrency` | integer | `10`      | Maximum number of concurrent async steps when using `run_many()`.                                                                                  |
+| `on_error`        | string  | `"raise"` | Error handling mode: `"raise"` (stop immediately), `"skip"` (log and continue), or `"collect"` (return errors alongside results).                  |
 
 **Example:**
 
@@ -676,4 +695,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for commit message format, code style (Bl
 ## License
 
 MIT. See [LICENSE](LICENSE) for the full text.
+
+```
+
 ```

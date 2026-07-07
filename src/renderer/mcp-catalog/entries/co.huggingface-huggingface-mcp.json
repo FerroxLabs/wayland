@@ -18,17 +18,8 @@
   ],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "ml",
-      "developer",
-      "research"
-    ],
-    "tags": [
-      "huggingface",
-      "ml",
-      "models",
-      "datasets"
-    ],
+    "categories": ["ml", "developer", "research"],
+    "tags": ["huggingface", "ml", "models", "datasets"],
     "maintainerType": "official",
     "license": "Apache-2.0",
     "verifiedAt": "2026-05-27",
@@ -71,11 +62,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

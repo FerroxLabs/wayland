@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance savings planning"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance savings planning'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Zero-Based Budget
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks for a zero-based budget, mentions "giving every dollar a job," or wants to build a budget where income minus all allocations equals exactly $0
 - The user has tried a percentage-based approach (50/30/20 or similar) and finds it too loose -- they want category-level control and accountability
 - The user is carrying consumer debt and needs to find every possible dollar to redirect toward payoff
@@ -34,6 +36,7 @@ metadata:
 - The user manages sinking funds, annual expenses, or irregular costs and wants them captured in a formal system
 
 **Do NOT use when:**
+
 - The user wants a quick percentage-based rule of thumb -- use `fifty-thirty-twenty-budget` instead, which is faster to implement and appropriate for users who don't want category-level tracking
 - The user has no spending history whatsoever and can't estimate any category amounts -- use `first-budget` to establish a baseline month of tracking first, then return to this skill
 - The user has income that swings more than 30% between months with no predictable floor -- use `variable-income-budget`, which applies a different sequencing methodology (pay yourself in priority order rather than balancing to a fixed total)
@@ -63,6 +66,7 @@ Do not let the user start assigning dollar amounts yet. First, build the complet
 Work through these seven category groups in order:
 
 **Group 1 -- Fixed Obligations (non-negotiable, same amount every month):**
+
 - Housing: rent, mortgage principal+interest, HOA fee, renters/homeowners insurance if bundled
 - Vehicle: car payment, auto insurance premium (if monthly), registration (annualized)
 - Debt minimums: the contractually required minimum payment on every credit card, personal loan, medical debt, and student loan -- not what the user plans to pay, but what they are legally required to pay
@@ -70,6 +74,7 @@ Work through these seven category groups in order:
 - Childcare: daycare, after-school programs, standing babysitter arrangements
 
 **Group 2 -- Essential Variable (necessary but amount fluctuates):**
+
 - Groceries (food consumed at home only -- restaurants belong in discretionary)
 - Utilities: electricity, gas/heating oil, water/sewer, trash
 - Transportation: fuel, public transit passes, tolls, parking
@@ -77,15 +82,18 @@ Work through these seven category groups in order:
 - Basic personal care: haircuts, toiletries, laundry
 
 **Group 3 -- Savings Goals (purposeful accumulation toward defined targets):**
+
 - Emergency fund (until fully funded -- 3 months minimum expenses, 6 months recommended)
 - Specific goal funds: home down payment, vacation, vehicle replacement, home repair reserve
 - Children's education fund
 
 **Group 4 -- Debt Acceleration (above-minimum payments):**
+
 - Extra payments toward consumer debts beyond the minimum obligations in Group 1
 - The user's debt payoff strategy determines sequencing (see Step 4 for avalanche vs. snowball frameworks)
 
 **Group 5 -- Sinking Funds (known irregular future expenses, funded monthly):**
+
 - Vehicle maintenance and repair (industry average: $75-$150/month depending on vehicle age)
 - Home maintenance (rule of thumb: 1% of home value per year divided by 12; for renters, appliance repair and renter incidentals)
 - Medical and dental out-of-pocket costs (annual deductible estimate ÷ 12)
@@ -96,6 +104,7 @@ Work through these seven category groups in order:
 - Property taxes if not escrowed (annual tax ÷ 12)
 
 **Group 6 -- Discretionary Spending (wants, lifestyle choices, non-essential):**
+
 - Dining out and takeout (separate from groceries)
 - Entertainment: concerts, movies, events, hobbies
 - Personal spending allowances (each person in a household gets a no-questions-asked personal fund)
@@ -105,6 +114,7 @@ Work through these seven category groups in order:
 - Books, games, digital purchases
 
 **Group 7 -- Buffer:**
+
 - A miscellaneous catch-all category: 1-3% of monthly income, not to exceed $150 for most budgets
 - This is for genuinely unforeseeable small expenses that fit no existing category -- a parking ticket, a prescription, a broken kitchen utensil
 - It is NOT a slush fund for discretionary overspending
@@ -127,6 +137,7 @@ For every variable category, assign amounts based on evidence, not aspiration.
 Now assign amounts to each category, working in strict priority order. This sequence prevents the most common failure mode: allocating all dollars to discretionary and then having nothing left for savings or debt.
 
 **Priority Sequence:**
+
 1. Fixed obligations -- assign the exact contracted amounts, no negotiation
 2. Essential variables -- assign based on historical averages or benchmarks from Step 3
 3. Emergency fund contribution (if not yet funded to $1,000 minimum)
@@ -140,6 +151,7 @@ Now assign amounts to each category, working in strict priority order. This sequ
 8. Discretionary categories -- assign what remains after all above categories are funded
 
 **If income is insufficient to cover all categories:**
+
 - Do not reduce fixed obligations (they cannot be changed this month)
 - Do not eliminate the emergency fund contribution entirely -- even $25/month maintains the habit
 - Reduce discretionary categories first, then evaluate sinking funds for temporary reduction
@@ -158,6 +170,7 @@ Calculate: Total Income -- (Sum of all category allocations) = Target Balance of
 Zero-based budgets fail mid-month when a category runs dry and the user has no protocol for what to do next. Every category must have an explicit overflow rule defined at budget creation.
 
 **Three overflow rule options:**
+
 - **Stop:** When this category is depleted, spending stops entirely until next month (appropriate for dining out, entertainment, personal spending)
 - **Transfer from [specific category]:** When this category is depleted, a conscious, deliberate transfer is made from a named donor category (the user must explicitly decide this, not spend first and reconcile later)
 - **Carry forward:** If the category is under-spent, the balance carries into next month's version of that same category (appropriate for sinking funds and some savings categories -- not for discretionary)
@@ -171,12 +184,14 @@ A zero-based budget with no tracking is just an aspiration document. Define the 
 **Tracking frequency:** For users new to zero-based budgeting, daily or every-other-day check-ins against each category are necessary during the first 2-3 months. Experienced users can check every 3-5 days. Weekly check-ins are the minimum -- monthly review is too infrequent to prevent overspending.
 
 **Tracking method options (describe without brand endorsement):**
+
 - Spreadsheet with a transaction log and running category balances
 - Envelope method (physical or digital): each category gets its allocation in a dedicated envelope or account; spending draws from that envelope only
 - Banking with multiple sub-accounts labeled by category (available at many online banks)
 - Paper ledger with daily entries (highly effective for behavioral change, especially for users who want to feel the money moving)
 
 **Month-end protocol:**
+
 - Count every unspent dollar in every category
 - Sinking fund balances: roll forward always -- these are accumulating toward a future purpose
 - Emergency fund: roll forward always
@@ -369,27 +384,35 @@ Produce the following structure in full. Every field must contain a real number 
 ## Edge Cases
 
 ### Biweekly Pay and the Three-Paycheck Month
+
 Two months per year, biweekly employees receive three paychecks instead of two. If the user builds their budget around two paychecks and receives a third, they need a pre-defined windfall protocol. Ask upfront: "Do you want to build your normal budget around two paychecks and treat the third-paycheck months as windfall months?" If yes, document exactly where those windfall months go: recommended priority is emergency fund (if not fully funded), then debt acceleration, then a savings goal. Never leave it to chance.
 
 ### Income Too Low to Cover Fixed Obligations
+
 If the sum of Group 1 and Group 2 allocations exceeds monthly take-home income, a zero-based budget cannot solve the problem. Flag this directly without softening the message. The user's options are limited and real: negotiate lower rent (or move), eliminate fixed subscriptions, refinance debt to lower minimums, increase income, or seek assistance programs. Present these options factually. Do not build a budget that assigns negative amounts to any category -- it is not helpful and is mathematically incoherent.
 
 ### Irregular or Lumpy Income (Freelance, Commission, Seasonal Work)
+
 If income varies by more than 20% between any two of the last three months, do not use the current month's income as the budget baseline. Instead: (a) calculate the three-month average, (b) subtract 15% as a conservative buffer, (c) use that number as the budget baseline, and (d) create an explicit surplus allocation waterfall for months when income exceeds the baseline. The waterfall should be: emergency fund first (until fully funded), then highest-priority debt, then savings goals, then discretionary supplement. Document this waterfall in the budget output.
 
 ### Couple With Mismatched Financial Values
+
 When building a joint budget for a couple, two failure modes are common: one partner dominates and the other loses buy-in, or the partners cannot agree on category amounts and the process stalls. Mitigation strategies: (1) both partners must agree on the total personal spending allowance before the session ends -- this is the most contentious category and resolves most conflicts about autonomy; (2) create a "joint discretionary" category for shared wants, separate from individual personal allowances; (3) establish a dollar threshold above which joint purchases require discussion before spending (common thresholds: $50-$200 depending on household income). If the couple cannot agree on category amounts, instruct them to each independently write down what they think the category should be, then average the two numbers as a starting point.
 
 ### User Has Zero Emergency Fund and Consumer Debt
+
 This is the most psychologically complex scenario. The mathematically optimal answer is to pay down high-interest debt first, since emergency fund savings accounts earn far less than credit card interest rates consume. However, a household with zero liquid savings is one car repair away from putting more on credit cards, negating any debt progress. Recommended protocol: allocate a minimum of $50-$100/month to emergency fund until $500-$1,000 is accumulated, then redirect that allocation entirely to debt acceleration. Once debt is cleared, redirect all former debt payments to emergency fund and savings goals. Never build a budget that allocates $0 to an emergency fund while carrying high-interest debt -- the behavioral and practical risk is too high.
 
 ### Mid-Month Category Depletion With No Discretionary Remaining
+
 If the user contacts you mid-month having depleted all discretionary categories with no transferable funds remaining, the zero-based protocol for handling this is: (1) identify whether the overage was a one-time event or a pattern; (2) if one-time, treat it as a lesson for next month's category sizing; (3) if a pattern, the category allocation was unrealistically low from the start and should be increased next month with a compensating cut elsewhere; (4) do not advise the user to borrow from sinking funds to cover discretionary overages -- this erodes the sinking fund system and sets a precedent that undermines the entire structure.
 
 ### Annual Lump-Sum Expenses Arriving Before Sinking Fund Is Fully Funded
+
 In the first few months of a zero-based budget, sinking funds haven't had time to accumulate. If a car registration, insurance renewal, or holiday season arrives before the fund is adequate: (1) calculate the shortfall (needed amount minus current sinking fund balance); (2) identify which month's discretionary categories can absorb the remaining cost; (3) build an accelerated contribution into the next 2-3 months' budgets to restore the sinking fund baseline faster. Document this explicitly in the budget notes so it doesn't look like a deficit.
 
 ### User Wants to Include Retirement Contributions in the Budget
+
 If the user contributes to a retirement account through payroll deduction (e.g., 401k), those contributions come out before the paycheck is deposited, so they are already excluded from after-tax take-home. In that case, no action needed -- the budget uses post-deduction income. If the user contributes through a separately funded account (Roth IRA funded from a bank transfer, for example), that contribution must appear as its own Group 3 savings category and be funded like any other savings goal. Never omit it just because it's "automatic" -- every automatic transfer must be explicitly in the budget.
 
 ---
@@ -410,156 +433,156 @@ If the user contributes to a retirement account through payroll deduction (e.g.,
 
 ### INCOME
 
-| Source                           | Net Monthly Amount |
-|----------------------------------|-------------------|
-| Wife -- primary salary           | $4,900.00         |
-| Partner -- part-time teaching    | $2,500.00         |
-| **TOTAL INCOME**                 | **$7,400.00**     |
+| Source                        | Net Monthly Amount |
+| ----------------------------- | ------------------ |
+| Wife -- primary salary        | $4,900.00          |
+| Partner -- part-time teaching | $2,500.00          |
+| **TOTAL INCOME**              | **$7,400.00**      |
 
-*Note: Budget built on current stated take-home. Teaching income is stated as stable; if it varies, rebuild using lower of last 3 months.*
+_Note: Budget built on current stated take-home. Teaching income is stated as stable; if it varies, rebuild using lower of last 3 months._
 
 ---
 
 ### GROUP 1: FIXED OBLIGATIONS
 
-| Category                         | Monthly Amount | Flexibility | Notes                                                          |
-|----------------------------------|---------------|-------------|----------------------------------------------------------------|
-| Rent                             | $1,650.00     | Locked      | Monthly lease obligation                                       |
-| Car Payment                      | $340.00       | Locked      | One vehicle; note loan payoff date to redirect allocation      |
-| Auto Insurance                   | $112.00       | Locked      | Monthly premium; shop at renewal if desired                    |
-| Phone -- 2 lines                 | $95.00        | Locked      | Combined plan                                                  |
-| Internet                         | $60.00        | Locked      | Fixed monthly rate                                             |
-| Streaming (Netflix + Spotify)    | $35.00        | Locked      | Bundle; review annually                                        |
-| CC1 Minimum ($3,200 at 22%)      | $75.00        | Locked      | Legal minimum only; extra payment in Group 4                   |
-| CC2 Minimum ($1,100 at 18%)      | $45.00        | Locked      | Legal minimum only; extra payment in Group 4                   |
-| Student Loan Minimum             | $210.00       | Locked      | Stated minimum; federal income-driven options exist if squeezed |
-| **GROUP 1 SUBTOTAL**             | **$2,622.00** |             |                                                                |
+| Category                      | Monthly Amount | Flexibility | Notes                                                           |
+| ----------------------------- | -------------- | ----------- | --------------------------------------------------------------- |
+| Rent                          | $1,650.00      | Locked      | Monthly lease obligation                                        |
+| Car Payment                   | $340.00        | Locked      | One vehicle; note loan payoff date to redirect allocation       |
+| Auto Insurance                | $112.00        | Locked      | Monthly premium; shop at renewal if desired                     |
+| Phone -- 2 lines              | $95.00         | Locked      | Combined plan                                                   |
+| Internet                      | $60.00         | Locked      | Fixed monthly rate                                              |
+| Streaming (Netflix + Spotify) | $35.00         | Locked      | Bundle; review annually                                         |
+| CC1 Minimum ($3,200 at 22%)   | $75.00         | Locked      | Legal minimum only; extra payment in Group 4                    |
+| CC2 Minimum ($1,100 at 18%)   | $45.00         | Locked      | Legal minimum only; extra payment in Group 4                    |
+| Student Loan Minimum          | $210.00        | Locked      | Stated minimum; federal income-driven options exist if squeezed |
+| **GROUP 1 SUBTOTAL**          | **$2,622.00**  |             |                                                                 |
 
 ---
 
 ### GROUP 2: ESSENTIAL VARIABLE
 
-| Category              | Allocated   | Flexibility | Basis for Amount                                                  |
-|-----------------------|------------|-------------|-------------------------------------------------------------------|
-| Groceries             | $550.00    | Flexible    | Stated typical monthly amount                                     |
-| Electricity           | $120.00    | Semi-fixed  | Estimated from stated $190 utilities; adjust seasonally           |
-| Gas / Heating         | $40.00     | Semi-fixed  | Remainder of $190 utilities; adjust per season                    |
-| Water / Sewer         | $30.00     | Semi-fixed  | Estimated; verify against bill                                    |
-| Fuel                  | $130.00    | Flexible    | Stated amount; recalculate if driving patterns change             |
-| Basic Personal Care   | $50.00     | Flexible    | Haircuts, toiletries for two adults                               |
-| **GROUP 2 SUBTOTAL**  | **$920.00** |             |                                                                   |
+| Category             | Allocated   | Flexibility | Basis for Amount                                        |
+| -------------------- | ----------- | ----------- | ------------------------------------------------------- |
+| Groceries            | $550.00     | Flexible    | Stated typical monthly amount                           |
+| Electricity          | $120.00     | Semi-fixed  | Estimated from stated $190 utilities; adjust seasonally |
+| Gas / Heating        | $40.00      | Semi-fixed  | Remainder of $190 utilities; adjust per season          |
+| Water / Sewer        | $30.00      | Semi-fixed  | Estimated; verify against bill                          |
+| Fuel                 | $130.00     | Flexible    | Stated amount; recalculate if driving patterns change   |
+| Basic Personal Care  | $50.00      | Flexible    | Haircuts, toiletries for two adults                     |
+| **GROUP 2 SUBTOTAL** | **$920.00** |             |                                                         |
 
-*Note: Stated utilities total $190. I've distributed $190 across electricity/gas/water. If a separate breakdown is available, adjust accordingly.*
+_Note: Stated utilities total $190. I've distributed $190 across electricity/gas/water. If a separate breakdown is available, adjust accordingly._
 
 ---
 
 ### GROUP 3: SAVINGS GOALS
 
-| Goal                  | Monthly Allocation | Priority | Target Amount | Target Date      | Months to Goal |
-|-----------------------|--------------------|----------|---------------|------------------|----------------|
-| Emergency Fund        | $100.00            | 1        | $1,000 starter | 10 months away  | 10 months      |
-| Vacation Fund         | $250.00            | 2        | $2,500        | 10 months away   | 10 months      |
-| **GROUP 3 SUBTOTAL**  | **$350.00**        |          |               |                  |                |
+| Goal                 | Monthly Allocation | Priority | Target Amount  | Target Date    | Months to Goal |
+| -------------------- | ------------------ | -------- | -------------- | -------------- | -------------- |
+| Emergency Fund       | $100.00            | 1        | $1,000 starter | 10 months away | 10 months      |
+| Vacation Fund        | $250.00            | 2        | $2,500         | 10 months away | 10 months      |
+| **GROUP 3 SUBTOTAL** | **$350.00**        |          |                |                |                |
 
-*Vacation math: $2,500 target ÷ $250/month = 10 months. Hits target in time for summer trip. Once emergency fund hits $1,000 (month 10), redirect that $100 to debt acceleration or increase vacation fund if trip is sooner.*
+_Vacation math: $2,500 target ÷ $250/month = 10 months. Hits target in time for summer trip. Once emergency fund hits $1,000 (month 10), redirect that $100 to debt acceleration or increase vacation fund if trip is sooner._
 
 ---
 
 ### GROUP 4: DEBT ACCELERATION
 
-| Debt                 | Balance  | APR | Minimum (in Group 1) | Extra Payment | Total Monthly Payment | Strategy Note                                           |
-|----------------------|----------|-----|----------------------|---------------|-----------------------|---------------------------------------------------------|
-| CC1 ($3,200 at 22%)  | $3,200   | 22% | $75 (in Group 1)     | $0            | $75 (min only)        | Avalanche: second target after CC2 cleared              |
-| CC2 ($1,100 at 18%)  | $1,100   | 18% | $45 (in Group 1)     | $500          | $545                  | **Avalanche exception: lower APR but smaller balance -- snowball first to free up $545/month faster** |
-| **GROUP 4 SUBTOTAL** |          |     |                      | **$500.00**   |                       |                                                         |
+| Debt                 | Balance | APR | Minimum (in Group 1) | Extra Payment | Total Monthly Payment | Strategy Note                                                                                         |
+| -------------------- | ------- | --- | -------------------- | ------------- | --------------------- | ----------------------------------------------------------------------------------------------------- |
+| CC1 ($3,200 at 22%)  | $3,200  | 22% | $75 (in Group 1)     | $0            | $75 (min only)        | Avalanche: second target after CC2 cleared                                                            |
+| CC2 ($1,100 at 18%)  | $1,100  | 18% | $45 (in Group 1)     | $500          | $545                  | **Avalanche exception: lower APR but smaller balance -- snowball first to free up $545/month faster** |
+| **GROUP 4 SUBTOTAL** |         |     |                      | **$500.00**   |                       |                                                                                                       |
 
 **Debt Payoff Recommendation (two options -- user chooses):**
 
-*Option 1 -- Snowball (recommended for motivation):* Direct $500 extra to CC2 ($1,100 balance). At $545/month total against CC2, payoff in approximately 2 months. Then redirect $545 + the freed $45 minimum = $590 extra against CC1 in addition to its existing $75 minimum, for $665/month total against CC1. CC1 cleared in approximately 4 additional months. Total credit card debt cleared in roughly 6 months.
+_Option 1 -- Snowball (recommended for motivation):_ Direct $500 extra to CC2 ($1,100 balance). At $545/month total against CC2, payoff in approximately 2 months. Then redirect $545 + the freed $45 minimum = $590 extra against CC1 in addition to its existing $75 minimum, for $665/month total against CC1. CC1 cleared in approximately 4 additional months. Total credit card debt cleared in roughly 6 months.
 
-*Option 2 -- Avalanche:* Direct $500 extra to CC1 (higher APR at 22%). CC1 payoff at $575/month total: approximately 6 months. Then redirect all freed payments against CC2. CC2 cleared quickly thereafter. Saves marginally more interest than snowball in this case because the balance difference is small.
+_Option 2 -- Avalanche:_ Direct $500 extra to CC1 (higher APR at 22%). CC1 payoff at $575/month total: approximately 6 months. Then redirect all freed payments against CC2. CC2 cleared quickly thereafter. Saves marginally more interest than snowball in this case because the balance difference is small.
 
-*At current allocation, both methods clear all credit card debt in approximately 6 months. After credit cards are cleared, redirect $590-$665/month to student loan acceleration, emergency fund expansion, or savings goals.*
+_At current allocation, both methods clear all credit card debt in approximately 6 months. After credit cards are cleared, redirect $590-$665/month to student loan acceleration, emergency fund expansion, or savings goals._
 
 ---
 
 ### GROUP 5: SINKING FUNDS
 
-| Category              | Annual Estimate | Monthly Set-Aside | Current Balance | Notes                                     |
-|-----------------------|----------------|-------------------|-----------------|-------------------------------------------|
-| Vehicle Maintenance   | $1,200         | $100.00           | $0 (starting)   | Oil changes, tires, unexpected repairs    |
-| Medical / Dental OOP  | $600           | $50.00            | $0 (starting)   | Copays, prescriptions, dental cleanings   |
-| Holiday / Gifts       | $480           | $40.00            | $0 (starting)   | Birthday gifts, holidays for both families |
-| Clothing              | $360           | $30.00            | $0 (starting)   | Seasonal needs, replacement items         |
-| **GROUP 5 SUBTOTAL**  |                | **$220.00**       |                 | *All balances roll forward every month*   |
+| Category             | Annual Estimate | Monthly Set-Aside | Current Balance | Notes                                      |
+| -------------------- | --------------- | ----------------- | --------------- | ------------------------------------------ |
+| Vehicle Maintenance  | $1,200          | $100.00           | $0 (starting)   | Oil changes, tires, unexpected repairs     |
+| Medical / Dental OOP | $600            | $50.00            | $0 (starting)   | Copays, prescriptions, dental cleanings    |
+| Holiday / Gifts      | $480            | $40.00            | $0 (starting)   | Birthday gifts, holidays for both families |
+| Clothing             | $360            | $30.00            | $0 (starting)   | Seasonal needs, replacement items          |
+| **GROUP 5 SUBTOTAL** |                 | **$220.00**       |                 | _All balances roll forward every month_    |
 
-*No home maintenance sinking fund listed since user rents. No pet care listed since not mentioned -- add if applicable.*
+_No home maintenance sinking fund listed since user rents. No pet care listed since not mentioned -- add if applicable._
 
 ---
 
 ### GROUP 6: DISCRETIONARY
 
-| Category              | Allocated   | Flexibility | Overflow Rule                            |
-|-----------------------|------------|-------------|------------------------------------------|
-| Dining Out / Takeout  | $180.00    | Flexible    | Stop when depleted; no transfer to other categories |
-| Entertainment         | $80.00     | Flexible    | Transfer from Dining Out if needed and dining budget remains |
-| Wife's Personal Fund  | $75.00     | Flexible    | No questions asked; no transfers out     |
-| Partner's Personal Fund | $75.00   | Flexible    | No questions asked; no transfers out     |
-| Household Goods       | $60.00     | Flexible    | Carry forward if unspent                 |
-| **GROUP 6 SUBTOTAL**  | **$470.00** |             |                                          |
+| Category                | Allocated   | Flexibility | Overflow Rule                                                |
+| ----------------------- | ----------- | ----------- | ------------------------------------------------------------ |
+| Dining Out / Takeout    | $180.00     | Flexible    | Stop when depleted; no transfer to other categories          |
+| Entertainment           | $80.00      | Flexible    | Transfer from Dining Out if needed and dining budget remains |
+| Wife's Personal Fund    | $75.00      | Flexible    | No questions asked; no transfers out                         |
+| Partner's Personal Fund | $75.00      | Flexible    | No questions asked; no transfers out                         |
+| Household Goods         | $60.00      | Flexible    | Carry forward if unspent                                     |
+| **GROUP 6 SUBTOTAL**    | **$470.00** |             |                                                              |
 
-*Personal allowances are intentionally equal. Adjust if partners agree otherwise -- the amount matters less than both partners having one.*
+_Personal allowances are intentionally equal. Adjust if partners agree otherwise -- the amount matters less than both partners having one._
 
 ---
 
 ### GROUP 7: BUFFER
 
-| Category              | Allocated | Flexibility | Purpose                                          |
-|-----------------------|-----------|-------------|--------------------------------------------------|
-| Miscellaneous Buffer  | $68.00    | Flexible    | Genuine unforeseeable small expenses ($7,400 × 0.9%) |
+| Category             | Allocated | Flexibility | Purpose                                              |
+| -------------------- | --------- | ----------- | ---------------------------------------------------- |
+| Miscellaneous Buffer | $68.00    | Flexible    | Genuine unforeseeable small expenses ($7,400 × 0.9%) |
 
-*If unspent at month end, transfer to vacation fund.*
+_If unspent at month end, transfer to vacation fund._
 
 ---
 
 ### BUDGET VERIFICATION
 
-| Group                        | Amount      |
-|------------------------------|-------------|
-| Group 1: Fixed Obligations   | $2,622.00   |
-| Group 2: Essential Variable  | $920.00     |
-| Group 3: Savings Goals       | $350.00     |
-| Group 4: Debt Acceleration   | $500.00     |
-| Group 5: Sinking Funds       | $220.00     |
-| Group 6: Discretionary       | $470.00     |
-| Group 7: Buffer              | $68.00      |
-| **TOTAL ALLOCATED**          | **$7,150.00** |
-| *(adjustment needed)*        | *+$250.00*  |
+| Group                       | Amount        |
+| --------------------------- | ------------- |
+| Group 1: Fixed Obligations  | $2,622.00     |
+| Group 2: Essential Variable | $920.00       |
+| Group 3: Savings Goals      | $350.00       |
+| Group 4: Debt Acceleration  | $500.00       |
+| Group 5: Sinking Funds      | $220.00       |
+| Group 6: Discretionary      | $470.00       |
+| Group 7: Buffer             | $68.00        |
+| **TOTAL ALLOCATED**         | **$7,150.00** |
+| _(adjustment needed)_       | _+$250.00_    |
 
-*Arithmetic note: $7,400 -- $7,150 = $250 surplus. Assign to highest priority: vacation fund allocation increased from $250 to $500, reaching the $2,500 goal in 5 months instead of 10 -- in time for an early-summer trip.*
+_Arithmetic note: $7,400 -- $7,150 = $250 surplus. Assign to highest priority: vacation fund allocation increased from $250 to $500, reaching the $2,500 goal in 5 months instead of 10 -- in time for an early-summer trip._
 
 **Revised Group 3 with surplus assigned:**
 
-| Goal                  | Monthly Allocation | Target Amount | Months to Goal |
-|-----------------------|--------------------|---------------|----------------|
-| Emergency Fund        | $100.00            | $1,000        | 10 months      |
-| Vacation Fund         | $500.00            | $2,500        | 5 months       |
-| **GROUP 3 SUBTOTAL**  | **$600.00**        |               |                |
+| Goal                 | Monthly Allocation | Target Amount | Months to Goal |
+| -------------------- | ------------------ | ------------- | -------------- |
+| Emergency Fund       | $100.00            | $1,000        | 10 months      |
+| Vacation Fund        | $500.00            | $2,500        | 5 months       |
+| **GROUP 3 SUBTOTAL** | **$600.00**        |               |                |
 
 **Final Verification:**
 
-| Group                        | Amount        |
-|------------------------------|---------------|
-| Group 1: Fixed Obligations   | $2,622.00     |
-| Group 2: Essential Variable  | $920.00       |
-| Group 3: Savings Goals       | $600.00       |
-| Group 4: Debt Acceleration   | $500.00       |
-| Group 5: Sinking Funds       | $220.00       |
-| Group 6: Discretionary       | $470.00       |
-| Group 7: Buffer              | $68.00        |
-| **TOTAL ALLOCATED**          | **$7,400.00** |
-| **TOTAL INCOME**             | **$7,400.00** |
-| **BALANCE**                  | **$0.00** ✓   |
+| Group                       | Amount        |
+| --------------------------- | ------------- |
+| Group 1: Fixed Obligations  | $2,622.00     |
+| Group 2: Essential Variable | $920.00       |
+| Group 3: Savings Goals      | $600.00       |
+| Group 4: Debt Acceleration  | $500.00       |
+| Group 5: Sinking Funds      | $220.00       |
+| Group 6: Discretionary      | $470.00       |
+| Group 7: Buffer             | $68.00        |
+| **TOTAL ALLOCATED**         | **$7,400.00** |
+| **TOTAL INCOME**            | **$7,400.00** |
+| **BALANCE**                 | **$0.00** ✓   |
 
 ---
 

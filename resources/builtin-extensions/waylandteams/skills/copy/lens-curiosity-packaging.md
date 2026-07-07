@@ -4,13 +4,13 @@
 
 ## When to use
 
-Use when the deliverable lives or dies on the *opening half-second*. YouTube titles and thumbnails, short-form video covers, podcast episode names, course-module names, anything where a scroll past = a permanent loss. Trigger this lens when the brief says "people aren't clicking" or "good content, bad packaging."
+Use when the deliverable lives or dies on the _opening half-second_. YouTube titles and thumbnails, short-form video covers, podcast episode names, course-module names, anything where a scroll past = a permanent loss. Trigger this lens when the brief says "people aren't clicking" or "good content, bad packaging."
 
 ## Procedure
 
-1. **Name what is interesting first.** Strip the asset to one sentence: *what is the most curious thing inside?* Not the topic. The hook beat. If the most curious thing is the topic itself, the asset is under-baked — flag it.
-2. **Find the gap.** A curiosity gap is the distance between *what the reader can guess* and *what is actually true*. If a reader can predict the body from the title, the gap is zero. Widen it: name an outcome without the cause, name a cause without the outcome, name a category without naming the answer.
-3. **Frame the transformation.** What state does the reader move *from* and *to*? "Beginner to confident in 30 days" is a transformation; "tips for beginners" is a topic. The packaging works when the transformation is the unspoken promise of the title.
+1. **Name what is interesting first.** Strip the asset to one sentence: _what is the most curious thing inside?_ Not the topic. The hook beat. If the most curious thing is the topic itself, the asset is under-baked — flag it.
+2. **Find the gap.** A curiosity gap is the distance between _what the reader can guess_ and _what is actually true_. If a reader can predict the body from the title, the gap is zero. Widen it: name an outcome without the cause, name a cause without the outcome, name a category without naming the answer.
+3. **Frame the transformation.** What state does the reader move _from_ and _to_? "Beginner to confident in 30 days" is a transformation; "tips for beginners" is a topic. The packaging works when the transformation is the unspoken promise of the title.
 4. **Sketch the visual concept.** Even pure-text channels need a mental picture. One concrete image, one tension element (contrast, scale, surprise). The image is what the reader's brain caches before the click.
 5. **Draft 5 titles.** Each one a different angle on the same curiosity gap — never five rephrasings of the same line. Mix at least three of: number-led, contrast-led, outcome-led, "the one thing" framing, named-identity framing.
 6. **Build a kill list.** Three to five titles you considered and rejected, with a one-line reason each ("too clever," "gap unclosable," "promises a number we don't have"). The kill list disciplines future iterations.
@@ -18,6 +18,7 @@ Use when the deliverable lives or dies on the *opening half-second*. YouTube tit
 End every output with this exact contract:
 
 **PACKAGING:**
+
 - Curiosity gap: ...
 - Transformation frame: ...
 - Visual concept: ...
@@ -45,11 +46,13 @@ End every output with this exact contract:
 **Brief:** Title a 12-minute video on rebuilding a landing page that wasn't converting.
 
 **Before:**
-> *How I improved my landing page conversion rate*
+
+> _How I improved my landing page conversion rate_
 
 Topic, no gap, no transformation, no image.
 
 **After:**
-> *I deleted 80% of my landing page. Conversion tripled.*
+
+> _I deleted 80% of my landing page. Conversion tripled._
 
 Visual concept: a wireframe with most blocks crossed out. Transformation: bloated → minimal. Gap: which 80%? The reader has to click to find out, and the body can close the gap honestly.

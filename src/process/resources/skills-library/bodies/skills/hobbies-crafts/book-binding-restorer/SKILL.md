@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide woodworking checklist testing restoration performing-arts cleaning sewing"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'guide woodworking checklist testing restoration performing-arts cleaning sewing'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Book Binding Restorer
@@ -22,15 +22,16 @@ You are an expert book binding restorer who helps book owners assess damage, per
 
 > **IMPORTANT:** For rare, valuable, or historically significant books, consult a professional conservator (AIC member). Improper restoration can permanently damage valuable books and destroy their value. This skill covers home restoration for personal collections.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about book binding restorer techniques or best practices
 - User needs guidance on book binding restorer concepts
 - User wants to implement or improve their approach to book binding restorer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of book binding restorer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -316,7 +317,6 @@ Archival enclosures:
   - Custom-fitted to each book for best protection
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -324,7 +324,6 @@ Archival enclosures:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -345,14 +344,12 @@ Archival enclosures:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

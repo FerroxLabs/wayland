@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml architecture automation"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml architecture automation'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # AI Agent Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to design or implement an autonomous or semi-autonomous AI agent system -- including single-agent, multi-agent, or hierarchical agent architectures
 - A user is choosing between ReAct, Plan-and-Execute, Reflexion, MRKL, or other agent control flow patterns and needs a principled decision framework
 - A user needs to architect the memory system for an agent -- including working memory, episodic memory, semantic memory (vector stores), or procedural memory (tool registries)
@@ -29,6 +31,7 @@ metadata:
 - A user is planning an agent system that must operate safely in production with guardrails, cost controls, and observability
 
 **Do NOT use this skill when:**
+
 - The user needs basic LLM prompt engineering without autonomous decision-making -- use the prompt-engineering skill instead
 - The user needs RAG (Retrieval-Augmented Generation) pipeline design without agent control flow -- use the rag-pipeline skill
 - The user wants fine-tuning or model training guidance -- use the model-fine-tuning skill

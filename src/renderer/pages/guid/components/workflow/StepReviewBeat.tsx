@@ -54,36 +54,18 @@ export const StepReviewBeat: React.FC<StepReviewBeatProps> = ({
       <div className={styles.text}>
         <strong className={styles.title}>{t('workflow.review.title', 'Happy with this step?')}</strong>
         <span className={styles.subtitle}>
-          {t(
-            'workflow.review.subtitle',
-            'Accept to continue, revise this step, or go back.'
-          )}
+          {t('workflow.review.subtitle', 'Accept to continue, revise this step, or go back.')}
         </span>
       </div>
       <div className={styles.actions}>
-        <Button
-          type='primary'
-          size='small'
-          onClick={onAccept}
-          data-testid='workflow-review-accept'
-        >
+        <Button type='primary' size='small' onClick={onAccept} data-testid='workflow-review-accept'>
           {t('workflow.review.accept', 'Accept & continue')}
         </Button>
-        <Button
-          type='secondary'
-          size='small'
-          onClick={onRevise}
-          data-testid='workflow-review-revise'
-        >
+        <Button type='secondary' size='small' onClick={onRevise} data-testid='workflow-review-revise'>
           {t('workflow.review.revise', 'Revise this step')}
         </Button>
         {canGoBack && (
-          <Button
-            type='text'
-            size='small'
-            onClick={onGoBack}
-            data-testid='workflow-review-go-back'
-          >
+          <Button type='text' size='small' onClick={onGoBack} data-testid='workflow-review-go-back'>
             {t('workflow.review.goBack', 'Go back to step {{n}}', { n: currentStep - 1 })}
           </Button>
         )}

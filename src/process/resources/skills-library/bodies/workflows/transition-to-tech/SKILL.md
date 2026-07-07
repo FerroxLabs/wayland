@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "career-pivot-advisor learning-accelerator personal-brand-architect resume-builder interview-coach"
+skills: 'career-pivot-advisor learning-accelerator personal-brand-architect resume-builder interview-coach'
 trigger_phrases: >-
   I want to transition to tech switch careers to technology break into tech
   non-technical to tech career become a software developer get into tech without
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: career study-skills interview-prep step-by-step planning
   category: career
-  depends: "career-pivot-advisor learning-accelerator personal-brand-architect resume-builder interview-coach"
+  depends: 'career-pivot-advisor learning-accelerator personal-brand-architect resume-builder interview-coach'
 ---
+
 # Transition To Tech
 
 **Estimated time:** 3-9 months
@@ -167,6 +168,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

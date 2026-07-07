@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management planning checklist"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management planning checklist'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Weekly Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to do a weekly review, set up a weekly review practice, or improve their existing review process
 - The user says they want to "plan my week," "reflect on last week," or "get my system back on track"
 - The user describes symptoms of a broken productivity system: tasks piling up, forgetting commitments, feeling reactive instead of proactive, or waking up Monday unsure what matters
@@ -30,6 +32,7 @@ metadata:
 - The user is starting a new job, semester, or project phase and wants to install a planning habit before the chaos hits
 
 **Do NOT use when:**
+
 - The user wants a plan for today only -- use `daily-planning` instead, which handles time-blocking a single day, prioritizing today's tasks, and the morning/shutdown ritual
 - The user wants quarterly or annual planning, goal-setting, or an OKR review -- use `quarterly-planning` or `annual-review`, which operate at a higher altitude and involve longer time horizons than a weekly review can address
 - The user needs a facilitated team retrospective (Sprint retro, post-mortem, or "what went wrong this project") -- use `retrospective-facilitator`, which handles group dynamics, anonymous input, and retrospective formats like Start-Stop-Continue
@@ -401,6 +404,7 @@ Some weeks have no predictable shape: a product launch, a family emergency, an i
 **User input:** "I want to set up a weekly review. I've been using Things 3 for tasks and Apple Calendar for scheduling. I can do it Sunday evenings around 6:30 PM. I track work projects, personal side projects, health/fitness, and finance. I've tried doing weekly reviews before but they always fall apart after a few weeks -- I usually run out of time or skip one Sunday and then never get back on track."
 
 **Determined context:**
+
 - Tool: Things 3 (inbox, project list, Someday, Logbook)
 - Calendar: Apple Calendar
 - Day/time: Sunday 6:30 PM
@@ -414,6 +418,7 @@ Some weeks have no predictable shape: a product launch, a family emergency, an i
 ## Weekly Review Protocol
 
 ### Identity
+
 - **Owner:** You
 - **Variant:** Maintenance (with lapse-prevention features active)
 - **Review Day:** Sunday
@@ -428,6 +433,7 @@ Some weeks have no predictable shape: a product launch, a family emergency, an i
 ---
 
 ### Pre-Review Setup (5 min, before the clock starts)
+
 - [ ] iPhone on Do Not Disturb (Settings --> Focus --> Do Not Disturb)
 - [ ] Open Things 3 on Mac, Apple Calendar on Mac, Notes app
 - [ ] Get a drink -- this is 60 minutes, make it comfortable
@@ -437,21 +443,22 @@ Some weeks have no predictable shape: a product launch, a family emergency, an i
 ---
 
 ### Phase 1: Collect and Clear
+
 **Target time: 12 minutes** | Start timer when you sit down
 
 - [ ] **Physical inbox** -- process all papers on desk, mail, receipts, sticky notes
-  - File: ___
-  - Trash: ___
-  - Capture to Things 3 Inbox: ___
+  - File: \_\_\_
+  - Trash: \_\_\_
+  - Capture to Things 3 Inbox: \_\_\_
 - [ ] **Email inbox** (Mail app or Gmail) -- reach zero
   - Each email: Reply now | Add to Things 3 Inbox | Archive | Delete
-  - Inbox count at start: ___ | Count at end: ___
+  - Inbox count at start: **_ | Count at end: _**
 - [ ] **iMessage / Slack / other messaging** -- clear any actionable threads
-  - Pending items captured to Things 3: ___
+  - Pending items captured to Things 3: \_\_\_
 - [ ] **Things 3 Inbox** -- every item must have an Area or Project assigned before leaving this phase
-  - Items in Inbox at start: ___ | Items processed: ___
+  - Items in Inbox at start: **_ | Items processed: _**
 - [ ] **Brain dump** -- 3-minute timer, capture every open loop into Things 3 Inbox
-  - Open loops captured: ___
+  - Open loops captured: \_\_\_
 - [ ] **Peripheral capture points**
   - [ ] iPhone voice memos -- transcribe or delete
   - [ ] iPhone screenshots and camera roll -- extract action items, delete screenshots
@@ -462,137 +469,161 @@ Some weeks have no predictable shape: a product launch, a family emergency, an i
 ---
 
 ### Phase 2: Review the Past Week
+
 **Target time: 13 minutes** | Week reviewed: [Mon date] -- [Sun date]
 
 **Timer discipline:** When 13 minutes ends, move to Phase 3. Flag any remaining Phase 2 items with the tag "carry-forward" in Things 3 and process them before Wednesday.
 
 #### Calendar Scan (past 7 days)
+
 - [ ] Open Apple Calendar, week view, scroll back to last Monday
-  - Follow-up from event: ___ --> Action added to Things 3: ___ | Due: ___
-  - Follow-up from event: ___ --> Action added to Things 3: ___ | Due: ___
+  - Follow-up from event: **_ --> Action added to Things 3: _** | Due: \_\_\_
+  - Follow-up from event: **_ --> Action added to Things 3: _** | Due: \_\_\_
   - No follow-ups needed: [ ]
 
 #### Wins (minimum 3 -- required before moving forward)
-- Win 1: ___
-- Win 2: ___
-- Win 3: ___
-- Bonus: ___
+
+- Win 1: \_\_\_
+- Win 2: \_\_\_
+- Win 3: \_\_\_
+- Bonus: \_\_\_
 
 #### Incomplete and Overdue Tasks
+
 - [ ] In Things 3: open the "Today" view and check for anything overdue; also check "Anytime" for stale items
-  - Total overdue: ___
+  - Total overdue: \_\_\_
   - Decision for each (30 seconds max per task): **Reschedule** | **Delete** | **Delegate**
-  - Rescheduled: ___ | Deleted: ___ | Delegated to: ___
+  - Rescheduled: **_ | Deleted: _** | Delegated to: \_\_\_
 
 #### Waiting For List
+
 - [ ] Open the Things 3 tag "Waiting" (create this tag if it does not exist yet)
-  - Overdue item: ___ --> Follow-up: ___ | Due: ___
-  - Overdue item: ___ --> Follow-up: ___ | Due: ___
-  - Items resolved this week (remove tag): ___
+  - Overdue item: **_ --> Follow-up: _** | Due: \_\_\_
+  - Overdue item: **_ --> Follow-up: _** | Due: \_\_\_
+  - Items resolved this week (remove tag): \_\_\_
 
 #### Project Health Check
+
 - [ ] Open Things 3 Projects view -- review each active project
 
-| Project | Next Action in Things 3? | Movement This Week? | Status |
-|---------|--------------------------|---------------------|--------|
-| ___ | Y / N | Y / N | Active / Stalled / Kill? |
-| ___ | Y / N | Y / N | Active / Stalled / Kill? |
-| ___ | Y / N | Y / N | Active / Stalled / Kill? |
-| ___ | Y / N | Y / N | Active / Stalled / Kill? |
-| ___ | Y / N | Y / N | Active / Stalled / Kill? |
+| Project | Next Action in Things 3? | Movement This Week? | Status                   |
+| ------- | ------------------------ | ------------------- | ------------------------ |
+| \_\_\_  | Y / N                    | Y / N               | Active / Stalled / Kill? |
+| \_\_\_  | Y / N                    | Y / N               | Active / Stalled / Kill? |
+| \_\_\_  | Y / N                    | Y / N               | Active / Stalled / Kill? |
+| \_\_\_  | Y / N                    | Y / N               | Active / Stalled / Kill? |
+| \_\_\_  | Y / N                    | Y / N               | Active / Stalled / Kill? |
 
-- Projects stalled for 2+ weeks with no decision: ___ --> Move to Things 3 "Someday" or delete
+- Projects stalled for 2+ weeks with no decision: \_\_\_ --> Move to Things 3 "Someday" or delete
 
 #### Area-of-Focus Review (60 seconds per area)
-- [ ] **Work** -- anything slipping or unaddressed? [ Y / N ] --> Flag: ___
-- [ ] **Personal Projects** -- anything slipping? [ Y / N ] --> Flag: ___
-- [ ] **Health/Fitness** -- did I honor commitments (workouts, sleep, nutrition)? [ Y / N ] --> Flag: ___
-- [ ] **Finance** -- any bills due, budget items to review, or financial tasks pending? [ Y / N ] --> Flag: ___
+
+- [ ] **Work** -- anything slipping or unaddressed? [ Y / N ] --> Flag: \_\_\_
+- [ ] **Personal Projects** -- anything slipping? [ Y / N ] --> Flag: \_\_\_
+- [ ] **Health/Fitness** -- did I honor commitments (workouts, sleep, nutrition)? [ Y / N ] --> Flag: \_\_\_
+- [ ] **Finance** -- any bills due, budget items to review, or financial tasks pending? [ Y / N ] --> Flag: \_\_\_
 
 #### Meeting and Call Notes
+
 - [ ] Any notes from this week's meetings, calls, or 1:1s reviewed for missed action items? [ Yes / None this week ]
-  - Action extracted: ___ | Added to Things 3: [ Y ]
+  - Action extracted: \_\_\_ | Added to Things 3: [ Y ]
 
 ---
 
 ### Phase 3: Plan the Next Week
+
 **Target time: 20 minutes** | Week planned: [Mon date] -- [Sun date]
 
 **Note:** Phase 3 gets the most time because it has the highest leverage. Do not compress this phase to compensate for Phase 2 running long.
 
 #### Calendar Preview (next 7 days)
+
 - [ ] Open Apple Calendar, week view, scroll forward to next Monday
-  - Event requiring preparation: ___ --> Prep task in Things 3: ___ | Must be done by: ___
-  - Event requiring preparation: ___ --> Prep task in Things 3: ___ | Must be done by: ___
+  - Event requiring preparation: **_ --> Prep task in Things 3: _** | Must be done by: \_\_\_
+  - Event requiring preparation: **_ --> Prep task in Things 3: _** | Must be done by: \_\_\_
   - All prep tasks added? [ Y ]
 
 #### Most Important Tasks (MITs) for Next Week
-*Outcome-level. Maximum 5. At least 2 must connect to a longer-term goal.*
-1. ___
-2. ___
-3. ___
-4. (optional) ___
-5. (optional) ___
+
+_Outcome-level. Maximum 5. At least 2 must connect to a longer-term goal._
+
+1. ***
+2. ***
+3. ***
+4. (optional) \_\_\_
+5. (optional) \_\_\_
 
 Each MIT should correspond to at least one task already in Things 3 with a next-week date. If not, add the first next action now.
 
 #### Project Next Actions Audit
+
 - [ ] Every active project in Things 3 has exactly one task scheduled for next week or tagged "Next"? [ Yes / No -- review Project Health table above for gaps ]
 
 #### Goal Alignment Check
-- [ ] Monthly goal: ___ | Which MITs contribute to this? ___
+
+- [ ] Monthly goal: **_ | Which MITs contribute to this? _**
 - [ ] Do at least 2 of my 3-5 MITs connect to something I care about beyond this week? [ Yes / No ]
-  - If No: which MIT should I replace or reframe? ___
+  - If No: which MIT should I replace or reframe? \_\_\_
 
 #### Capacity Check
-- Available working hours next week: ___ hrs
-  - (Total work hours ___ hrs) minus (scheduled meetings ___ hrs) minus (non-discretionary blocks ___ hrs)
-- Total estimated task hours for all Things 3 tasks scheduled next week: ___ hrs
-- 70% ceiling: ___ hrs (multiply available hours by 0.7)
+
+- Available working hours next week: \_\_\_ hrs
+  - (Total work hours **_ hrs) minus (scheduled meetings _** hrs) minus (non-discretionary blocks \_\_\_ hrs)
+- Total estimated task hours for all Things 3 tasks scheduled next week: \_\_\_ hrs
+- 70% ceiling: \_\_\_ hrs (multiply available hours by 0.7)
 - Status: [ Under / At limit / OVER ]
-  - Tasks removed to get under ceiling: ___
+  - Tasks removed to get under ceiling: \_\_\_
   - Moved to: Things 3 Someday or rescheduled to the following week
 
 #### Energy Matching
-- Highest-energy days: ___ --> Deep work tasks scheduled here: ___
-- Lowest-energy days: ___ --> Admin/meetings already here: ___
+
+- Highest-energy days: **_ --> Deep work tasks scheduled here: _**
+- Lowest-energy days: **_ --> Admin/meetings already here: _**
 
 #### Risks and Blocking Dependencies
-- Risk: ___ --> Mitigation: ___
-- Waiting on: ___ --> Follow-up action + date: ___
+
+- Risk: **_ --> Mitigation: _**
+- Waiting on: **_ --> Follow-up action + date: _**
 
 ---
 
 ### Phase 4: Reflect and Reset
+
 **Target time: 10 minutes**
 
 #### Reflection (write specific answers -- do not leave blank)
+
 1. **What went well this week that I should deliberately repeat?**
-   Answer: ___
+   Answer: \_\_\_
 
 2. **What did I over-commit to or should have declined -- and how do I prevent it next week?**
-   Answer: ___
+   Answer: \_\_\_
 
 3. **What one specific change to my environment, routine, or behavior would most improve next week?**
-   Answer: ___
+   Answer: \_\_\_
 
 #### Week Rating
-- **This week:** ___/10
-- **Last 3 weeks:** ___ / ___ / ___
-- **If below 6:** Root cause (one sentence): ___
-- **If 8+ for three straight weeks:** What is working that I should protect? ___
+
+- **This week:** \_\_\_/10
+- **Last 3 weeks:** **_ / _** / \_\_\_
+- **If below 6:** Root cause (one sentence): \_\_\_
+- **If 8+ for three straight weeks:** What is working that I should protect? \_\_\_
 
 #### Behavioral Experiment for Next Week
-- **Experiment:** ___
-  - *(Must be binary: I either did it or I didn't. Example: "No phone in bedroom Sunday through Thursday.")*
-- **Evaluation criterion:** ___
-  - *(How I'll know it worked next Sunday)*
+
+- **Experiment:** \_\_\_
+  - _(Must be binary: I either did it or I didn't. Example: "No phone in bedroom Sunday through Thursday.")_
+- **Evaluation criterion:** \_\_\_
+  - _(How I'll know it worked next Sunday)_
 
 #### Next Week's Theme
-> *(One sentence. Example: "Week of finishing things that have been 80% done for two weeks.")*
-> ___
+
+> _(One sentence. Example: "Week of finishing things that have been 80% done for two weeks.")_
+>
+> ---
 
 #### Environmental Reset
+
 - [ ] All open documents on Mac saved, filed, or closed
 - [ ] Safari tabs: archive with OneTab extension or close all
 - [ ] Physical desk cleared -- nothing on surface except what belongs there permanently
@@ -602,7 +633,9 @@ Each MIT should correspond to at least one task already in Things 3 with a next-
 ---
 
 ### Review Completion Check
+
 Before closing, answer yes to all three:
+
 - [ ] Are all inboxes at or near zero? [ Yes / Overflow flagged ]
 - [ ] Does every active project in Things 3 have a next action? [ Yes ]
 - [ ] Do I know the 3-5 most important outcomes of next week? [ Yes ]
@@ -613,21 +646,23 @@ Before closing, answer yes to all three:
 ---
 
 ### Review Metrics Log
-*Save this in Apple Notes under "Weekly Review Log." Review trends every 4 weeks.*
 
-| Week # | Date | Duration | Rating | MITs Set | MITs Completed | Experiments | Notes |
-|--------|------|----------|--------|----------|----------------|-------------|-------|
-| 1 | | min | /10 | /5 | -- | -- (baseline) | First review |
-| 2 | | min | /10 | /5 | /5 | Y / N / Partial | |
-| 3 | | min | /10 | /5 | /5 | Y / N / Partial | |
-| 4 | | min | /10 | /5 | /5 | Y / N / Partial | |
-| 5 | | min | /10 | /5 | /5 | Y / N / Partial | |
-| 6 | | min | /10 | /5 | /5 | Y / N / Partial | |
+_Save this in Apple Notes under "Weekly Review Log." Review trends every 4 weeks._
+
+| Week # | Date | Duration | Rating | MITs Set | MITs Completed | Experiments     | Notes        |
+| ------ | ---- | -------- | ------ | -------- | -------------- | --------------- | ------------ |
+| 1      |      | min      | /10    | /5       | --             | -- (baseline)   | First review |
+| 2      |      | min      | /10    | /5       | /5             | Y / N / Partial |              |
+| 3      |      | min      | /10    | /5       | /5             | Y / N / Partial |              |
+| 4      |      | min      | /10    | /5       | /5             | Y / N / Partial |              |
+| 5      |      | min      | /10    | /5       | /5             | Y / N / Partial |              |
+| 6      |      | min      | /10    | /5       | /5             | Y / N / Partial |              |
 
 **4-week check (fill in after week 4):**
-- Average rating: ___/10
-- Average duration: ___ min (target: ≤60)
-- MIT completion rate: ___% (target: ≥70%)
-- Did I miss any Sundays? ___ -- Did I use the Monday backup? ___
-- Is anything about the review itself consistently frustrating? ___
-  - If yes, adjust that phase next week: ___
+
+- Average rating: \_\_\_/10
+- Average duration: \_\_\_ min (target: ≤60)
+- MIT completion rate: \_\_\_% (target: ≥70%)
+- Did I miss any Sundays? **_ -- Did I use the Monday backup? _**
+- Is anything about the review itself consistently frustrating? \_\_\_
+  - If yes, adjust that phase next week: \_\_\_

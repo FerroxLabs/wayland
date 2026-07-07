@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "contract-reviewer budget-builder life-coach communication-coach conflict-resolver"
+skills: 'contract-reviewer budget-builder life-coach communication-coach conflict-resolver'
 trigger_phrases: >-
   I'm going through a divorce help me navigate divorce getting divorced what
   should I do divorce planning guide separating from my spouse how to handle a
@@ -22,8 +22,9 @@ metadata:
   version: 1.0.0
   tags: legal-literacy parenting emotional-health step-by-step planning
   category: life-event
-  depends: "contract-reviewer budget-builder life-coach communication-coach conflict-resolver"
+  depends: 'contract-reviewer budget-builder life-coach communication-coach conflict-resolver'
 ---
+
 # Navigate Divorce
 
 This workflow references legal topics for educational purposes only. It is not legal advice. Consult appropriate legal professionals for matters in your jurisdiction.
@@ -177,6 +178,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

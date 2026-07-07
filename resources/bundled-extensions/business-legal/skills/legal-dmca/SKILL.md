@@ -3,7 +3,7 @@ name: legal-dmca
 description: Generate DMCA takedown notice, counter-notice, and designated-agent registration walkthrough - 17 USC §512(c)(3) elements, dmca.copyright.gov registration, repeat-infringer policy template. Templates only - not legal advice. Have an attorney review high-stakes notices.
 slash_command: false
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [dmca, ip, legal, smb, business]
@@ -32,7 +32,7 @@ The DMCA is US federal law (17 USC §512). Some non-US jurisdictions have analog
 - Defamation, trade-secret misappropriation, or trademark claims - DMCA §512 does not cover these. Use `legal-cease-and-desist` instead.
 - High-volume / commercial-scale infringement - engage litigation counsel immediately; takedown is just the starting move.
 - Children's privacy or content-moderation issues - different framework.
-- Knowingly false takedown notices - §512(f) creates liability for misrepresentation. *Lenz v. Universal*, 815 F.3d 1145 (9th Cir. 2016) requires good-faith fair-use consideration before sending.
+- Knowingly false takedown notices - §512(f) creates liability for misrepresentation. _Lenz v. Universal_, 815 F.3d 1145 (9th Cir. 2016) requires good-faith fair-use consideration before sending.
 
 ## Required inputs (ask upfront)
 
@@ -47,7 +47,7 @@ For takedown mode, additionally:
 4. **Copyrighted work** - description, URL/registration number if registered with US Copyright Office, date of creation
 5. **Infringing material location** - URLs (specific pages, not just the host root)
 6. **Service provider receiving the notice** - name + designated-agent contact (find at dmca.copyright.gov/list)
-7. **Good-faith and fair-use evaluation** - confirm the user has considered whether the use is fair (this is required by *Lenz v. Universal*)
+7. **Good-faith and fair-use evaluation** - confirm the user has considered whether the use is fair (this is required by _Lenz v. Universal_)
 
 For counter-notice mode:
 
@@ -68,10 +68,11 @@ For agent-registration mode:
 ### Step 1: Confirm fair-use / good-faith review
 
 Ask the user to confirm:
+
 - "Have you considered whether the use of your copyrighted material might qualify as fair use under 17 USC §107 (purpose, nature, amount, market effect)?"
 - "Are you the copyright holder or authorized to act on the holder's behalf?"
 
-If user is unsure about fair use, surface the *Lenz v. Universal* requirement and recommend attorney review before sending. Do not refuse to generate but make the warning prominent in the output.
+If user is unsure about fair use, surface the _Lenz v. Universal_ requirement and recommend attorney review before sending. Do not refuse to generate but make the warning prominent in the output.
 
 ### Step 2: Locate the designated agent
 
@@ -125,7 +126,7 @@ I state, under penalty of perjury, that the information in this notice is accura
 
 Include the §512(f) misrepresentation warning in the cover note (but not in the notice itself):
 
-> **§512(f) WARNING**: Knowingly material misrepresentations in a takedown notice expose the sender to liability for damages, costs, and attorneys' fees under 17 U.S.C. §512(f). *Lenz v. Universal Music Corp.*, 815 F.3d 1145 (9th Cir. 2016) requires good-faith fair-use consideration before sending. Do not send this notice if you have not evaluated fair use in good faith.
+> **§512(f) WARNING**: Knowingly material misrepresentations in a takedown notice expose the sender to liability for damages, costs, and attorneys' fees under 17 U.S.C. §512(f). _Lenz v. Universal Music Corp._, 815 F.3d 1145 (9th Cir. 2016) requires good-faith fair-use consideration before sending. Do not send this notice if you have not evaluated fair use in good faith.
 
 ### Step 4: Save
 
@@ -136,6 +137,7 @@ Save to `build_report_path("business-legal", "dmca-takedown-<service>-<date>.md"
 ### Step 1: Eligibility check
 
 Ask:
+
 - Is the material the user posted actually theirs, licensed to them, fair use, or otherwise non-infringing?
 - Is the user willing to consent to federal-court jurisdiction in the district where the user resides (US users) OR where the service provider is located (foreign users)?
 
@@ -187,6 +189,7 @@ I declare under penalty of perjury that the foregoing is true and correct.
 ### Step 3: Tell the user the consequences
 
 After receiving a valid counter-notice, the service provider must:
+
 1. Promptly forward the counter-notice to the original notice sender.
 2. Restore the material in not less than 10 and not more than 14 business days, **unless** the original sender notifies the service provider that they have filed a federal-court action against the user.
 
@@ -201,6 +204,7 @@ Save to `build_report_path("business-legal", "dmca-counter-<service>-<date>.md")
 ### Step 1: Confirm eligibility
 
 Service providers eligible for §512 safe harbor include:
+
 - Mere conduit (§512(a)) - ISPs / network providers
 - System caching (§512(b))
 - Information storage (§512(c)) - most user-generated-content services
@@ -255,7 +259,7 @@ Designated Agent: [AGENT NAME]
 [AGENT MAILING ADDRESS]
 ```
 
-Surface case-law context: *BMG v. Cox Communications*, 881 F.3d 293 (4th Cir. 2018) - a service provider lost safe harbor because it failed to "reasonably implement" its repeat-infringer policy. The policy must be applied in practice, not just on paper.
+Surface case-law context: _BMG v. Cox Communications_, 881 F.3d 293 (4th Cir. 2018) - a service provider lost safe harbor because it failed to "reasonably implement" its repeat-infringer policy. The policy must be applied in practice, not just on paper.
 
 ### Step 4: Save
 

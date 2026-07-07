@@ -318,9 +318,7 @@ describe('ijfw/ipcSchemas', () => {
 
   describe('jsonRpcResponseSchema', () => {
     it('accepts a result response', () => {
-      expect(
-        jsonRpcResponseSchema.safeParse({ jsonrpc: '2.0', id: 1, result: { ok: true } }).success,
-      ).toBe(true);
+      expect(jsonRpcResponseSchema.safeParse({ jsonrpc: '2.0', id: 1, result: { ok: true } }).success).toBe(true);
     });
 
     it('accepts an error response', () => {
@@ -329,21 +327,16 @@ describe('ijfw/ipcSchemas', () => {
           jsonrpc: '2.0',
           id: 1,
           error: { code: -32600, message: 'bad' },
-        }).success,
+        }).success
       ).toBe(true);
     });
 
     it('rejects extra unknown keys (strict)', () => {
-      expect(
-        jsonRpcResponseSchema.safeParse({ jsonrpc: '2.0', id: 1, result: {}, extra: 'nope' })
-          .success,
-      ).toBe(false);
+      expect(jsonRpcResponseSchema.safeParse({ jsonrpc: '2.0', id: 1, result: {}, extra: 'nope' }).success).toBe(false);
     });
 
     it('rejects non-2.0 protocol', () => {
-      expect(jsonRpcResponseSchema.safeParse({ jsonrpc: '1.0', id: 1, result: {} }).success).toBe(
-        false,
-      );
+      expect(jsonRpcResponseSchema.safeParse({ jsonrpc: '1.0', id: 1, result: {} }).success).toBe(false);
     });
   });
 
@@ -370,9 +363,7 @@ describe('ijfw/ipcSchemas', () => {
       expect(brainInvokeArgsSchema.safeParse({ verb: '', args: {} }).success).toBe(false);
     });
     it('rejects extra top-level keys (strict)', () => {
-      expect(
-        brainInvokeArgsSchema.safeParse({ verb: 'think', args: {}, evil: true }).success,
-      ).toBe(false);
+      expect(brainInvokeArgsSchema.safeParse({ verb: 'think', args: {}, evil: true }).success).toBe(false);
     });
   });
 });

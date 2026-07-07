@@ -54,9 +54,7 @@ const SubAgentActivityCard: React.FC<{ message: IMessageSubAgent }> = ({ message
           <ActivityNodeTree nodes={nodes!} />
         </div>
       )}
-      {!hasTree && body && (
-        <div className={`${styles.body} ${!expanded ? styles.collapsed : ''}`}>{body}</div>
-      )}
+      {!hasTree && body && <div className={`${styles.body} ${!expanded ? styles.collapsed : ''}`}>{body}</div>}
       <hr className={styles.divider} />
     </div>
   );

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness self-care checklist guide beginner-friendly research planning networking"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness self-care checklist guide beginner-friendly research planning networking'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Community Resilience Builder
@@ -22,15 +22,16 @@ You are a community resilience specialist who helps neighborhoods and organizati
 
 > **DISCLAIMER**: This skill provides general community preparedness guidance. It is not a substitute for official emergency management training, CERT certification programs, or professional disaster response. Community response activities should complement, not replace, professional emergency services. Always coordinate with local emergency management agencies and follow their guidance.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about community resilience builder techniques or best practices
 - User needs guidance on community resilience builder concepts
 - User wants to implement or improve their approach to community resilience builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of community resilience builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,20 +60,21 @@ You are a community resilience specialist who helps neighborhoods and organizati
 
 ### CERT Training Topics
 
-| Module | Skills Covered |
-|--------|---------------|
-| Disaster preparedness | Hazard identification, personal preparedness, CERT role |
-| Fire safety | Fire chemistry, suppression, utility control |
-| Medical operations | Triage (START system), basic first aid, head-to-toe assessment |
-| Light search and rescue | Structural assessment, safe search techniques, victim removal |
-| Team organization | CERT Incident Command, documentation, communication |
-| Disaster psychology | Emotional impacts, self-care, helping others cope |
-| Terrorism/hazmat awareness | Recognizing threats, protective actions, reporting |
-| Course review and exercise | Full-scale practical exercise |
+| Module                     | Skills Covered                                                 |
+| -------------------------- | -------------------------------------------------------------- |
+| Disaster preparedness      | Hazard identification, personal preparedness, CERT role        |
+| Fire safety                | Fire chemistry, suppression, utility control                   |
+| Medical operations         | Triage (START system), basic first aid, head-to-toe assessment |
+| Light search and rescue    | Structural assessment, safe search techniques, victim removal  |
+| Team organization          | CERT Incident Command, documentation, communication            |
+| Disaster psychology        | Emotional impacts, self-care, helping others cope              |
+| Terrorism/hazmat awareness | Recognizing threats, protective actions, reporting             |
+| Course review and exercise | Full-scale practical exercise                                  |
 
 ### How to Join or Start a CERT Program
 
 **If a program exists locally:**
+
 - Contact your local emergency management office
 - Search for CERT programs at community.fema.gov
 - Register for the next available training cohort
@@ -80,6 +82,7 @@ You are a community resilience specialist who helps neighborhoods and organizati
 - Plan to participate in ongoing exercises and events
 
 **If no program exists:**
+
 - Contact your county or city emergency management office
 - Express interest in starting a program
 - FEMA provides curriculum, materials, and train-the-trainer programs
@@ -124,6 +127,7 @@ You are a community resilience specialist who helps neighborhoods and organizati
 ### Step 1: Organize Your Neighborhood
 
 **Getting started:**
+
 - Start with immediate neighbors (your block or building)
 - Host an informal gathering to discuss preparedness
 - Find 2-3 committed co-organizers
@@ -131,6 +135,7 @@ You are a community resilience specialist who helps neighborhoods and organizati
 - Do not require expertise - willingness is enough
 
 **Recruitment strategies:**
+
 - Door-to-door conversations (most effective)
 - Neighborhood social events with preparedness component
 - Flyers at community gathering spots
@@ -143,6 +148,7 @@ You are a community resilience specialist who helps neighborhoods and organizati
 **Skills and resource inventory:**
 
 Distribute a voluntary survey:
+
 ```
 NEIGHBOR SKILLS AND RESOURCE SURVEY (Voluntary)
 
@@ -194,18 +200,21 @@ Would you like to volunteer for:
 **Key components:**
 
 **Communication tree:**
+
 - Block captains or building floor captains
 - Phone/text cascade system
 - Backup communication (two-way radios, physical meeting)
 - Designated community bulletin board location
 
 **Check-in protocol:**
+
 - After any significant event, check on assigned neighbors
 - Use a simple status system (green = okay, yellow = need non-urgent help, red = emergency)
 - Report status to block captain
 - Focus on vulnerable members first
 
 **Resource sharing agreements:**
+
 - Generator sharing schedule
 - Water distribution from stored supplies
 - Tool lending for debris clearing
@@ -213,6 +222,7 @@ Would you like to volunteer for:
 - Shelter for displaced neighbors
 
 **Meeting points:**
+
 - Primary neighborhood gathering point (park, parking lot, etc.)
 - Secondary point if primary is unsafe
 - Time to gather (e.g., 30 minutes after shaking stops, when safe to exit)
@@ -220,6 +230,7 @@ Would you like to volunteer for:
 ### Step 4: Map Your Neighborhood
 
 Create a simple map showing:
+
 - [ ] All participating households
 - [ ] Vulnerable residents requiring check-in
 - [ ] Location of shared resources (generators, tools, supplies)
@@ -244,6 +255,7 @@ Create a simple map showing:
 ### Building a Mutual Aid Network
 
 **Start small and grow:**
+
 1. Begin with your immediate neighbors (5-15 households)
 2. Establish basic communication channels
 3. Conduct a needs and resources assessment
@@ -252,6 +264,7 @@ Create a simple map showing:
 6. Expand to include more households and capabilities over time
 
 **Communication infrastructure:**
+
 - Group text or messaging app for the network
 - Phone tree for when digital communication fails
 - Physical bulletin board at a central location
@@ -261,6 +274,7 @@ Create a simple map showing:
 ### Mutual Aid Activities
 
 **Before emergencies (building relationships):**
+
 - Neighborhood potlucks and social events
 - Group preparedness workshops
 - Collective purchasing of emergency supplies
@@ -269,6 +283,7 @@ Create a simple map showing:
 - Community garden or food sharing
 
 **During emergencies:**
+
 - Wellness checks on all network members
 - Water and food sharing
 - Shelter for displaced neighbors
@@ -279,6 +294,7 @@ Create a simple map showing:
 - Debris clearing and property protection
 
 **After emergencies:**
+
 - Emotional support and community processing
 - Help with cleanup and repairs
 - Resource and information sharing for recovery
@@ -289,15 +305,15 @@ Create a simple map showing:
 
 ### Essential Training for Community Members
 
-| Training | Duration | Provider | Cost |
-|----------|----------|----------|------|
-| CERT basic | 20+ hours | Local emergency management | Free |
-| CPR/First Aid | 4-8 hours | Red Cross, community orgs | $25-75 |
-| Stop the Bleed | 2 hours | Hospitals, trauma centers | Free |
-| Fire extinguisher use | 1-2 hours | Local fire department | Free |
-| Ham radio license | Self-study + exam | Amateur radio clubs | $15 exam fee |
-| Disaster psychology | 2-4 hours | Red Cross, CERT | Free-Low |
-| Map Your Neighborhood | 1-2 hours | Emergency management | Free |
+| Training              | Duration          | Provider                   | Cost         |
+| --------------------- | ----------------- | -------------------------- | ------------ |
+| CERT basic            | 20+ hours         | Local emergency management | Free         |
+| CPR/First Aid         | 4-8 hours         | Red Cross, community orgs  | $25-75       |
+| Stop the Bleed        | 2 hours           | Hospitals, trauma centers  | Free         |
+| Fire extinguisher use | 1-2 hours         | Local fire department      | Free         |
+| Ham radio license     | Self-study + exam | Amateur radio clubs        | $15 exam fee |
+| Disaster psychology   | 2-4 hours         | Red Cross, CERT            | Free-Low     |
+| Map Your Neighborhood | 1-2 hours         | Emergency management       | Free         |
 
 ### Hosting Community Training Events
 
@@ -315,6 +331,7 @@ Create a simple map showing:
 ### Identifying and Supporting Vulnerable Neighbors
 
 **Higher-risk populations:**
+
 - Elderly living alone
 - People with disabilities or mobility limitations
 - People dependent on powered medical equipment
@@ -327,6 +344,7 @@ Create a simple map showing:
 - Recently arrived immigrants who may be unfamiliar with local hazards
 
 **Support strategies:**
+
 - Assign specific volunteers to check on specific vulnerable neighbors
 - Ensure communication reaches people in their preferred language
 - Help with emergency kit building for those with limited resources
@@ -362,24 +380,25 @@ Create a simple map showing:
 
 ### Annual Community Preparedness Calendar
 
-| Month | Activity |
-|-------|----------|
-| January | Update contact lists and neighborhood map |
-| February | Host winter preparedness check (supplies, heating safety) |
-| March | Review and update neighborhood plan |
-| April | Community training event (CPR, first aid, or CERT) |
-| May | Wildfire/summer hazard preparation (if applicable) |
-| June | Neighborhood social event with preparedness theme |
-| July | Hurricane/flood season preparation (if applicable) |
-| August | Back-to-school family preparedness review |
-| September | National Preparedness Month activities |
-| October | Great ShakeOut earthquake drill (or relevant hazard drill) |
-| November | Winter preparation and supply check |
-| December | Year-end review and celebration |
+| Month     | Activity                                                   |
+| --------- | ---------------------------------------------------------- |
+| January   | Update contact lists and neighborhood map                  |
+| February  | Host winter preparedness check (supplies, heating safety)  |
+| March     | Review and update neighborhood plan                        |
+| April     | Community training event (CPR, first aid, or CERT)         |
+| May       | Wildfire/summer hazard preparation (if applicable)         |
+| June      | Neighborhood social event with preparedness theme          |
+| July      | Hurricane/flood season preparation (if applicable)         |
+| August    | Back-to-school family preparedness review                  |
+| September | National Preparedness Month activities                     |
+| October   | Great ShakeOut earthquake drill (or relevant hazard drill) |
+| November  | Winter preparation and supply check                        |
+| December  | Year-end review and celebration                            |
 
 ### Measuring Community Resilience
 
 **Track these indicators over time:**
+
 - Number of households participating
 - Percentage of households with basic emergency kits
 - Number of people trained (CERT, CPR, first aid)
@@ -392,18 +411,21 @@ Create a simple map showing:
 ## Getting Started Checklist
 
 ### First Month
+
 - [ ] Talk to 5-10 neighbors about emergency preparedness
 - [ ] Identify 2-3 co-organizers
 - [ ] Host an initial meeting or casual gathering
 - [ ] Establish a communication channel for the group
 
 ### First Quarter
+
 - [ ] Conduct a skills and resource survey
 - [ ] Create a basic neighborhood map
 - [ ] Establish a check-in protocol
 - [ ] Research local CERT program availability
 
 ### First Six Months
+
 - [ ] Enroll in CERT or other training
 - [ ] Host a community training event
 - [ ] Conduct a practice check-in drill
@@ -411,13 +433,13 @@ Create a simple map showing:
 - [ ] Create a written neighborhood plan
 
 ### First Year
+
 - [ ] Complete CERT training (if available)
 - [ ] Conduct a full neighborhood drill
 - [ ] Establish mutual aid agreements
 - [ ] Connect with local emergency management
 - [ ] Review and refine plans based on experience
 - [ ] Celebrate your community's progress
-
 
 ## Process
 
@@ -426,7 +448,6 @@ Create a simple map showing:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -447,14 +468,12 @@ Create a simple map showing:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

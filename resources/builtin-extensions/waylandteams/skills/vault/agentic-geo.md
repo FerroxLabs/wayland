@@ -22,8 +22,8 @@ Trigger phrases:
 **2. Make the catalog machine-readable.** Agents read structured data more reliably than rendered HTML. Per priority SKU:
 
 - Product schema (JSON-LD): name, description, brand, sku, gtin, offers (price, currency, availability), aggregateRating, review.
-- Plain-prose description — declarative, specific, free of marketing fluff. Lead with what the product *is*.
-- Explicit "best-for" framing: who it serves, what use case, what it is *not* for. Agents extract these as filters.
+- Plain-prose description — declarative, specific, free of marketing fluff. Lead with what the product _is_.
+- Explicit "best-for" framing: who it serves, what use case, what it is _not_ for. Agents extract these as filters.
 - Honest named comparisons ("comparable to X in feature Y; differs in Z"). Agents reason comparatively.
 
 **3. Optimize the product feed.** Agentic checkout flows (Shopify's March 2026 agentic-storefront release; Amazon Rufus; Walmart Sparky) route via feeds — Google Merchant Center, Shopify's agent feed, Meta's shop feed. Audit feed fields: title (front-load brand + product type + key spec), description (200-500 words, plain language), price, availability, GTIN, high-res image URL, category, attribute fields (color, size, material, age group). Missing fields silently exclude you.
@@ -54,7 +54,9 @@ Trigger phrases:
 **Brief:** "We want to show up when people ask ChatGPT for products like ours."
 
 **Before** (vague):
-> *Add AI keywords to descriptions and write a blog post.*
+
+> _Add AI keywords to descriptions and write a blog post._
 
 **After** (probe-first, structured, 2026-05-16):
-> *Step one: run 20 buyer queries through ChatGPT shopping, Perplexity, and Gemini; log appearance rate as baseline. Step two: audit Product JSON-LD on top 10 SKUs — confirm name, description, gtin, offers, aggregateRating populate. Rewrite descriptions in declarative prose with "best-for" framing. Step three: confirm Shopify agentic-storefront opt-in (released March 2026; many stores default off). Step four: identify three forums and one subreddit where buyers ask comparison questions; build a 90-day authentic-presence plan with Copy. Measure: re-run the probe set at days 30, 60, 90; report appearance-rate and framing-quality deltas per query.*
+
+> _Step one: run 20 buyer queries through ChatGPT shopping, Perplexity, and Gemini; log appearance rate as baseline. Step two: audit Product JSON-LD on top 10 SKUs — confirm name, description, gtin, offers, aggregateRating populate. Rewrite descriptions in declarative prose with "best-for" framing. Step three: confirm Shopify agentic-storefront opt-in (released March 2026; many stores default off). Step four: identify three forums and one subreddit where buyers ask comparison questions; build a 90-day authentic-presence plan with Copy. Measure: re-run the probe set at days 30, 60, 90; report appearance-rate and framing-quality deltas per query._

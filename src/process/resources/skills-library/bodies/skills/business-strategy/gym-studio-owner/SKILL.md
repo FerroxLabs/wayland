@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning fitness"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning fitness'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Gym Studio Owner
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to open or improve operations for a gym, fitness studio, or yoga/pilates studio
 - The user needs help with membership models, class scheduling, instructor management, or equipment planning
 - The user wants guidance on member retention strategies, challenge programs, or community building
 - The user needs liability management, facility layout design, or financial planning for a fitness business
 
 **Do NOT use this skill when:**
+
 - The user wants personal fitness or workout programming (use relevant health-wellness skill)
 - The user is starting a general small business not in fitness (use business-planner instead)
 - The user needs salon, spa, or beauty business operations (use salon-owner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on gym studio owner
 - User asks about gym studio owner best practices or techniques
 - User wants a structured approach to gym studio owner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of gym studio owner
 
@@ -539,7 +543,6 @@ KEY METRICS:
 9. Not investing in community beyond the workouts
 10. Growing too fast without systems (adding locations before mastering one)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -552,13 +555,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with gym studio owner for a mid-size project."
 
 **Output:** A complete gym studio owner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security backend web-development"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security backend web-development'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Authentication Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to implement login, registration, or session management in a web or mobile application
 - User needs to choose between JWT, session cookies, OAuth 2.0, OpenID Connect, API keys, or passkeys for their specific system
 - User is designing a multi-tenant SaaS application and needs to handle authentication isolation between tenants
@@ -31,6 +33,7 @@ metadata:
 - User wants to implement social login (Google, GitHub, Apple) alongside native credentials
 
 **Do NOT use this skill when:**
+
 - User needs authorization (role-based access control, attribute-based access control, permission modeling) -- use the authorization-patterns skill instead
 - User needs to implement rate limiting or DDoS protection for login endpoints -- use the api-rate-limiting skill
 - User needs secrets management for application credentials (database passwords, API keys stored server-side) -- use the secrets-management skill
@@ -90,6 +93,7 @@ Use this decision tree:
 The implementation details that separate production-ready auth from toy implementations:
 
 **JWT (JSON Web Tokens):**
+
 - Use RS256 (RSA, asymmetric) for tokens that multiple services must verify. Never share a private key across services.
 - Use HS256 (HMAC, symmetric) only when the issuer and all verifiers are the same service or share a secret securely.
 - Minimum payload: `sub` (subject/user ID), `iat` (issued at), `exp` (expiration), `jti` (JWT ID for revocation lookup). Avoid putting sensitive data (email, role details) in the payload -- it is base64-encoded, not encrypted.
@@ -97,6 +101,7 @@ The implementation details that separate production-ready auth from toy implemen
 - If you must revoke JWTs immediately, maintain a deny-list in Redis keyed by `jti`. Check it on every request. This adds latency (~1ms at p99 in Redis) but is often worth it for security-critical apps.
 
 **Session cookies:**
+
 - Set `HttpOnly` (prevents XSS JavaScript access), `Secure` (HTTPS only), `SameSite=Lax` or `SameSite=Strict` (prevents CSRF).
 - `SameSite=Strict` breaks OAuth redirects from third-party IdPs -- use `SameSite=Lax` if supporting social login.
 - Session ID must be at least 128 bits of cryptographic randomness. Use `crypto.randomBytes(32)` (Node.js), `secrets.token_hex(32)` (Python), or equivalent.
@@ -104,6 +109,7 @@ The implementation details that separate production-ready auth from toy implemen
 - Regenerate session ID after login (prevents session fixation attacks).
 
 **Refresh token rotation:**
+
 - Issue a new refresh token on every use and immediately invalidate the old one.
 - If an already-used refresh token is presented, assume token theft -- invalidate the entire refresh token family (all tokens derived from the original login event). Log and alert.
 - Store refresh tokens as a secure hash (bcrypt or SHA-256) in the database, never in plaintext.
@@ -113,6 +119,7 @@ The implementation details that separate production-ready auth from toy implemen
 Password storage is a solved problem -- use the right algorithm and nothing else.
 
 **Password hashing algorithm selection (2024 guidance):**
+
 - **Argon2id** -- first choice. Winner of the Password Hashing Competition. Use a minimum time cost of 2, memory cost of 64MB, parallelism of 2. Adjust upward until hash time is 200--500ms on your server hardware.
 - **bcrypt** -- acceptable fallback if Argon2 is unavailable. Use work factor 12 or higher. Work factor 10 is minimum acceptable; factor 14+ is appropriate for high-security contexts. Factor 12 takes ~300ms on a modern server.
 - **scrypt** -- acceptable alternative. N=32768, r=8, p=1 is the minimum; N=65536 preferred.
@@ -120,11 +127,13 @@ Password storage is a solved problem -- use the right algorithm and nothing else
 - **NEVER use:** MD5, SHA-1, SHA-256 without a proper KDF, unsalted hashes, or any encryption (passwords should not be recoverable).
 
 **Credential validation during login:**
+
 - Use constant-time comparison to prevent timing attacks. Never use `==` or `equals()` for comparing tokens or hashes -- use `hmac.compare_digest()` (Python), `crypto.timingSafeEqual()` (Node.js), or `hash_equals()` (PHP).
 - Lock accounts or introduce progressive delays after failed attempts. Recommended: exponential backoff starting at attempt 5, hard lockout at attempt 10 with unlock via email. Alternatively, use a CAPTCHA after 3 failures (less disruptive).
 - Pepper passwords in addition to salting: apply an HMAC with an application-level secret before hashing. Store the pepper in a vault, not in the database. This means a database dump alone does not yield crackable hashes.
 
 **Credential stuffing protection:**
+
 - Check submitted passwords against Have I Been Pwned (HIBP) API using k-anonymity (send only first 5 characters of SHA-1 hash). Reject passwords found in breaches.
 - Implement login velocity monitoring: more than 5 login attempts per IP per minute is suspicious. More than 20 per minute is almost certainly automated.
 
@@ -134,22 +143,24 @@ MFA should be designed as a first-class feature, not bolted on. Plan the enrollm
 
 **Second factor options by security tier:**
 
-| Factor | Security | UX | Phishing Resistant | Notes |
-|--------|----------|----|--------------------|-------|
-| WebAuthn/Passkey | Very High | High | Yes | Best option when usable |
-| TOTP (Authenticator app) | High | Medium | No | TOTP codes can be phished in real time |
-| SMS OTP | Medium | High | No | SIM-swap attack vector; avoid for high-security |
-| Email OTP | Medium | High | No | Acceptable when email account is itself secured |
-| Push notification | High | Very High | Partial | Requires proprietary app or Duo/Okta |
-| Hardware key (FIDO2) | Very High | Medium | Yes | Best for privileged accounts |
+| Factor                   | Security  | UX        | Phishing Resistant | Notes                                           |
+| ------------------------ | --------- | --------- | ------------------ | ----------------------------------------------- |
+| WebAuthn/Passkey         | Very High | High      | Yes                | Best option when usable                         |
+| TOTP (Authenticator app) | High      | Medium    | No                 | TOTP codes can be phished in real time          |
+| SMS OTP                  | Medium    | High      | No                 | SIM-swap attack vector; avoid for high-security |
+| Email OTP                | Medium    | High      | No                 | Acceptable when email account is itself secured |
+| Push notification        | High      | Very High | Partial            | Requires proprietary app or Duo/Okta            |
+| Hardware key (FIDO2)     | Very High | Medium    | Yes                | Best for privileged accounts                    |
 
 **TOTP implementation specifics:**
+
 - Use RFC 6238 compliant TOTP. Code period: 30 seconds. Window tolerance: +/- 1 period (accept codes from t-1, t, t+1 to handle clock skew).
 - Secret must be 160 bits (20 bytes) minimum, generated with CSPRNG. Store encrypted at rest.
 - Allow up to 10 backup recovery codes. Each is single-use. Hash and store them the same way as passwords. Display them exactly once at enrollment.
 - Never allow TOTP code reuse within its validity window -- maintain a used-code cache in Redis with TTL matching the TOTP period.
 
 **MFA enrollment UX:**
+
 - Never force MFA enrollment mid-flow (it causes abandonment). Present it post-login on first session or via a dedicated settings page.
 - For enterprise/compliance contexts, enforce MFA via policy and give users a grace period (typically 7 days) before it becomes required.
 
@@ -158,12 +169,14 @@ MFA should be designed as a first-class feature, not bolted on. Plan the enrollm
 Authentication without observability is incomplete. These are required, not optional.
 
 **Security headers for auth endpoints:**
+
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` -- enforce HTTPS.
 - `Cache-Control: no-store` on all auth endpoints and token responses -- prevents caching of credentials.
 - `Content-Security-Policy` -- restricts where scripts can load from, mitigating XSS that could steal tokens.
 - `X-Frame-Options: DENY` on login pages -- prevents clickjacking attacks.
 
 **Audit logging -- every auth event must be logged:**
+
 - Successful login: timestamp, user ID, IP, user agent, auth method used, MFA used (boolean).
 - Failed login: same fields plus failure reason (wrong password, account locked, MFA failure).
 - Token issuance, refresh, and revocation.
@@ -172,6 +185,7 @@ Authentication without observability is incomplete. These are required, not opti
 - Do NOT log passwords, tokens, or secrets -- log only IDs and metadata.
 
 **Alerting thresholds:**
+
 - Alert on: 50+ failed logins to a single account in 5 minutes (brute force), 1000+ failed logins from a single IP in 1 minute (credential stuffing), any login from a new country for a high-privilege account, simultaneous active sessions from two geographically impossible locations (impossible travel).
 
 ### 8. Validate and Harden the Implementation
@@ -291,24 +305,31 @@ When responding to an authentication patterns question, structure output as foll
 ## Edge Cases
 
 ### Handling Token Refresh Race Conditions in SPAs
+
 When a SPA makes concurrent API requests and the access token expires mid-flight, multiple requests will simultaneously attempt to refresh the token. Without coordination, this generates multiple refresh requests, and all but the first will fail (since the refresh token is rotated). Solve this with a refresh lock: use a Promise-based singleton in the frontend that queues concurrent refresh attempts behind a single in-flight refresh call. All waiters receive the same new token. In practice this means holding a `refreshPromise` variable -- if it is null, start the refresh and assign the promise; if it is already set, return the existing promise. Release the lock only after the new token is stored.
 
 ### Implementing Auth in Multi-Tenant SaaS
+
 Each tenant may have different auth requirements: one tenant uses social login, another requires SAML SSO with their corporate IdP, a third enforces TOTP MFA. Model this with a per-tenant auth configuration table that specifies: allowed authentication methods, required MFA level, session timeout override, and IdP connection details. At login, resolve the user's tenant first (via email domain, subdomain, or explicit tenant selection), then apply that tenant's auth policy. Ensure that a token issued in Tenant A can never be used to access Tenant B's resources -- include a `tenant_id` claim in the JWT and validate it against the requested resource on every API call.
 
 ### Social Login Account Linking
+
 A user may sign up with Google, then later try to log in with GitHub using the same email address. Do NOT automatically merge these accounts -- this is a common account takeover vector (an attacker registers a GitHub account with the victim's email). Instead: if the email is already registered via a different method, prompt the user to log in with their existing method first, then offer to link the social account from settings. Only link accounts when the user is already authenticated. Always verify that the OAuth provider has confirmed the email address (`email_verified: true` in OIDC claims).
 
 ### Migrating Password Hashes to a Stronger Algorithm
+
 When inheriting a legacy system using MD5 or SHA-1 hashes, you cannot bulk-rehash without knowing plaintext passwords. Use an on-login migration: when a user successfully authenticates with the old algorithm, immediately rehash their plaintext password using Argon2id and store the new hash alongside a flag indicating the new algorithm. Expire the old hash. Add a column `hash_algorithm` or a version prefix to each stored hash. Over time, as users log in, the database migrates organically. Force-expire any remaining old-format hashes after 90--180 days and require a password reset for users who have not logged in within that window.
 
 ### WebAuthn/Passkey Implementation Pitfalls
+
 WebAuthn challenges must be cryptographically random (128 bits minimum), generated server-side, stored in session, and consumed within 60--120 seconds. Never allow challenge reuse. The `rpId` (relying party ID) must match the effective domain -- if your app is `app.example.com`, the `rpId` can be `app.example.com` or `example.com` but not `example.com.attacker.com`. Verify the `origin` in the authenticator data against your expected origin -- this prevents cross-origin credential use. For account recovery when a user loses their passkey, provide backup codes generated at passkey enrollment, and optionally allow a secondary passkey to be registered. Do not fall back to SMS OTP alone as it downgrades the security level.
 
 ### Logout and Token Invalidation
+
 True logout in a JWT-stateless system requires effort. Clearing the client-side token is not sufficient -- an attacker who has already exfiltrated the token can still use it until it expires. Implement logout as: (1) invalidate the refresh token in the database immediately, (2) add the access token's `jti` to a Redis deny-list with TTL equal to the remaining access token lifetime, (3) clear all cookies client-side, (4) redirect to the authorization server's logout endpoint if using OIDC (to clear the IdP session). For high-security applications, reduce access token TTL to 5 minutes so the deny-list TTL is negligible.
 
 ### Machine-to-Machine Service Authentication in Kubernetes
+
 In a Kubernetes environment, prefer workload identity over long-lived API keys. Use service account tokens projected into pods (short-lived, automatically rotated by the Kubernetes control plane), or use a service mesh (Istio, Linkerd) with mutual TLS (mTLS) for service-to-service authentication. If using OAuth 2.0 Client Credentials for M2M, store the client secret in Kubernetes Secrets encrypted at rest, or better, in an external vault with the Vault Agent sidecar or CSI driver injecting the secret at pod startup. Never mount secrets as environment variables in Kubernetes -- use file-based secret mounts so secrets are not exposed in process listings or crash dumps.
 
 ---
@@ -324,6 +345,7 @@ In a Kubernetes environment, prefer workload identity over long-lived API keys. 
 ## Authentication Pattern Recommendation: React SPA + Express API, Email/Password + Google SSO, MFA
 
 ### Context Classification
+
 - Auth type: Human-to-machine (H2M)
 - Client type: Single-Page Application (React) + REST API
 - Key constraints: First-party SPA only (no public API consumers), MFA required, Redis available, Google SSO needed
@@ -331,16 +353,17 @@ In a Kubernetes environment, prefer workload identity over long-lived API keys. 
 
 ### Pattern Decision Matrix
 
-| Criterion | Session Cookies | JWT (memory) + HttpOnly Refresh Cookie | localStorage JWT |
-|-----------|-----------------|----------------------------------------|-----------------|
-| XSS token theft | Excellent (HttpOnly) | Excellent (memory) | Poor (exposed) |
-| CSRF risk | Medium (mitigated by SameSite) | Low | Low |
-| Revocation | Excellent | Good (jti deny-list + refresh revoke) | Poor |
-| Horizontal scale (Redis) | Excellent | Good | Good |
-| SPA compatibility | Good | Excellent | Works (but avoid) |
-| Google SSO integration | Good | Excellent | Works (but avoid) |
+| Criterion                | Session Cookies                | JWT (memory) + HttpOnly Refresh Cookie | localStorage JWT  |
+| ------------------------ | ------------------------------ | -------------------------------------- | ----------------- |
+| XSS token theft          | Excellent (HttpOnly)           | Excellent (memory)                     | Poor (exposed)    |
+| CSRF risk                | Medium (mitigated by SameSite) | Low                                    | Low               |
+| Revocation               | Excellent                      | Good (jti deny-list + refresh revoke)  | Poor              |
+| Horizontal scale (Redis) | Excellent                      | Good                                   | Good              |
+| SPA compatibility        | Good                           | Excellent                              | Works (but avoid) |
+| Google SSO integration   | Good                           | Excellent                              | Works (but avoid) |
 
 ### Recommended Pattern
+
 **OAuth 2.0 Authorization Code + PKCE for Google SSO, with short-lived JWTs (access tokens in memory, refresh tokens in HttpOnly cookies), backed by Redis for session metadata and token revocation.**
 
 Rationale: A pure session-cookie approach works for first-party SPAs, but JWT + refresh tokens integrate more cleanly with the Google OIDC flow, handle token refresh races more elegantly in React (via interceptor pattern), and scale horizontally without session affinity. With Redis available, immediate revocation via jti deny-list is trivial to implement.
@@ -350,6 +373,7 @@ Rationale: A pure session-cookie approach works for first-party SPAs, but JWT + 
 ### Token Architecture
 
 **Access Token:**
+
 - Type: JWT, signed with RS256 (2048-bit RSA key pair)
 - TTL: 15 minutes
 - Storage: JavaScript memory variable (never localStorage)
@@ -357,6 +381,7 @@ Rationale: A pure session-cookie approach works for first-party SPAs, but JWT + 
 - Issued by: Your Express API after validating credentials or Google OIDC token
 
 **Refresh Token:**
+
 - TTL: 7 days
 - Rotation: Rolling (new refresh token on every use, old one invalidated)
 - Storage: HttpOnly, Secure, SameSite=Lax cookie (Lax required for Google redirect flow)
@@ -364,6 +389,7 @@ Rationale: A pure session-cookie approach works for first-party SPAs, but JWT + 
 - Revocation: On reuse of invalidated token, invalidate entire token family
 
 **Google SSO Token Handling:**
+
 - Use Google's OIDC endpoint (`https://accounts.google.com/.well-known/openid-configuration`)
 - After receiving the Google ID token, verify signature against Google's JWKS, check `aud` matches your client ID, check `exp`, check `hd` (hosted domain) if restricting to a specific Google Workspace
 - Exchange Google identity for your own internal JWT -- do not use Google tokens as your API's auth tokens
@@ -382,31 +408,26 @@ const PEPPER = process.env.PASSWORD_PEPPER; // 32-byte hex string from vault
 
 const ARGON2_OPTIONS = {
   type: argon2.argon2id,
-  memoryCost: 65536,    // 64 MB
-  timeCost: 3,          // 3 iterations
+  memoryCost: 65536, // 64 MB
+  timeCost: 3, // 3 iterations
   parallelism: 2,
   hashLength: 32,
 };
 
 export async function hashPassword(plaintext) {
   // Apply pepper before hashing -- pepper is not stored in DB
-  const peppered = crypto
-    .createHmac('sha256', PEPPER)
-    .update(plaintext)
-    .digest('hex');
+  const peppered = crypto.createHmac('sha256', PEPPER).update(plaintext).digest('hex');
   return argon2.hash(peppered, ARGON2_OPTIONS);
 }
 
 export async function verifyPassword(plaintext, storedHash) {
-  const peppered = crypto
-    .createHmac('sha256', PEPPER)
-    .update(plaintext)
-    .digest('hex');
+  const peppered = crypto.createHmac('sha256', PEPPER).update(plaintext).digest('hex');
   return argon2.verify(storedHash, peppered);
 }
 ```
 
 Breach check on registration/password change -- call HIBP k-anonymity API:
+
 ```javascript
 import crypto from 'crypto';
 
@@ -416,7 +437,7 @@ export async function isPasswordBreached(password) {
   const suffix = sha1.slice(5);
   const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
   const text = await response.text();
-  return text.split('\n').some(line => line.startsWith(suffix));
+  return text.split('\n').some((line) => line.startsWith(suffix));
 }
 ```
 
@@ -435,7 +456,7 @@ import crypto from 'crypto';
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,                   // 10 attempts per IP per window
+  max: 10, // 10 attempts per IP per window
   keyGenerator: (req) => req.body.email || req.ip, // per-account limiting
   skipSuccessfulRequests: true,
 });
@@ -448,7 +469,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   const dummyHash = '$argon2id$v=19$m=65536,t=3,p=2$...'; // precomputed dummy
   const validPassword = user
     ? await verifyPassword(password, user.passwordHash)
-    : await verifyPassword(password, dummyHash) && false; // always false for nonexistent user
+    : (await verifyPassword(password, dummyHash)) && false; // always false for nonexistent user
 
   if (!user || !validPassword) {
     // Do NOT distinguish "wrong password" from "no such user" in the response
@@ -472,7 +493,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     secure: true,
     sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: '/auth/refresh',             // Scope cookie to refresh endpoint only
+    path: '/auth/refresh', // Scope cookie to refresh endpoint only
   });
 
   res.json({ accessToken });
@@ -490,7 +511,11 @@ import crypto from 'crypto';
 import QRCode from 'qrcode';
 
 export function generateTOTPSecret() {
-  return crypto.randomBytes(20).toString('base64').replace(/[^A-Z2-7]/gi, 'A').toUpperCase();
+  return crypto
+    .randomBytes(20)
+    .toString('base64')
+    .replace(/[^A-Z2-7]/gi, 'A')
+    .toUpperCase();
 }
 
 export async function generateEnrollmentQR(user, secret) {
@@ -533,7 +558,9 @@ export function verifyTOTP(secret, token, redis) {
 let accessToken = null;
 let refreshPromise = null;
 
-export function setAccessToken(token) { accessToken = token; }
+export function setAccessToken(token) {
+  accessToken = token;
+}
 
 async function doRefresh() {
   const response = await fetch('/auth/refresh', {
@@ -551,7 +578,9 @@ async function doRefresh() {
 
 async function refreshAccessToken() {
   if (!refreshPromise) {
-    refreshPromise = doRefresh().finally(() => { refreshPromise = null; });
+    refreshPromise = doRefresh().finally(() => {
+      refreshPromise = null;
+    });
   }
   return refreshPromise; // All concurrent callers await the same promise
 }
@@ -590,6 +619,7 @@ export async function authenticatedFetch(url, options = {}) {
 ---
 
 ### Security Checklist
+
 - [x] Access tokens stored in JavaScript memory only (never localStorage)
 - [x] Refresh tokens in HttpOnly, Secure, SameSite=Lax cookie scoped to `/auth/refresh`
 - [x] Passwords hashed with Argon2id (64MB memory, 3 iterations, pepper applied)
@@ -604,6 +634,7 @@ export async function authenticatedFetch(url, options = {}) {
 - [x] Password reset tokens: 128-bit random, 30-minute TTL, single-use, stored hashed
 
 ### Known Trade-offs
+
 - JWT stateless verification is slightly undermined by the jti deny-list Redis check on every request (~0.5--1ms p99 overhead). This is an intentional tradeoff: immediate logout and MFA-session-invalidation capability are worth more than the latency savings of truly stateless verification.
 - `SameSite=Lax` on the refresh cookie (rather than `Strict`) is required for the Google OAuth redirect to work. CSRF risk on the refresh endpoint is mitigated by requiring the refresh token to be present in the cookie -- a CSRF attacker cannot read the new access token from the response.
 - TOTP is phishable in a real-time relay attack (attacker presents victim's TOTP code to the real server within the 30-second window). WebAuthn passkeys eliminate this. Plan passkey rollout for Q2 and push power users toward it proactively.

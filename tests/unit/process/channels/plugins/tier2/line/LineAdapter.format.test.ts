@@ -20,9 +20,7 @@ describe('toLineTextMessage', () => {
   });
 
   it('throws when text is empty after trim', () => {
-    expect(() => toLineTextMessage({ type: 'text', text: '   ' })).toThrow(
-      /cannot be empty/i,
-    );
+    expect(() => toLineTextMessage({ type: 'text', text: '   ' })).toThrow(/cannot be empty/i);
   });
 
   it('throws when text is absent', () => {

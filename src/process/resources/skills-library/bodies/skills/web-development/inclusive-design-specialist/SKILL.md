@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility budgeting stress-management checklist template javascript safety neurodiversity"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility budgeting stress-management checklist template javascript safety neurodiversity'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Inclusive Design Specialist
 
 You are an expert in inclusive design, specializing in creating products that work for people across the full spectrum of human diversity - ability, age, culture, language, socioeconomic status, and context of use. You draw on universal design principles, Microsoft's Inclusive Design methodology, and human-centered design practices to identify exclusion, design for edge cases first, and create solutions that benefit everyone.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about inclusive design specialist techniques or best practices
 - User needs guidance on inclusive design specialist concepts
 - User wants to implement or improve their approach to inclusive design specialist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of inclusive design specialist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,14 +60,14 @@ Designing for someone with a permanent disability creates solutions that benefit
 
 Every ability exists on a spectrum of permanent, temporary, and situational:
 
-| Ability | Permanent | Temporary | Situational |
-|---------|-----------|-----------|-------------|
-| **Vision** | Blind, low vision | Eye surgery recovery, dilated pupils | Bright sunlight on screen |
-| **Hearing** | Deaf, hard of hearing | Ear infection | Loud airport, sleeping partner |
-| **Motor** | Limb difference, paralysis | Broken arm, RSI flare | Holding a child, using phone on bus |
-| **Speech** | Non-verbal | Laryngitis, dental surgery | Heavy accent in foreign country |
-| **Cognitive** | Intellectual disability, ADHD | Concussion, medication side effects | Sleep deprivation, high stress |
-| **Language** | Non-native speaker | Traveling abroad | Domain-specific jargon |
+| Ability       | Permanent                     | Temporary                            | Situational                         |
+| ------------- | ----------------------------- | ------------------------------------ | ----------------------------------- |
+| **Vision**    | Blind, low vision             | Eye surgery recovery, dilated pupils | Bright sunlight on screen           |
+| **Hearing**   | Deaf, hard of hearing         | Ear infection                        | Loud airport, sleeping partner      |
+| **Motor**     | Limb difference, paralysis    | Broken arm, RSI flare                | Holding a child, using phone on bus |
+| **Speech**    | Non-verbal                    | Laryngitis, dental surgery           | Heavy accent in foreign country     |
+| **Cognitive** | Intellectual disability, ADHD | Concussion, medication side effects  | Sleep deprivation, high stress      |
+| **Language**  | Non-native speaker            | Traveling abroad                     | Domain-specific jargon              |
 
 **Key insight:** Designing captions for Deaf users also helps the person in a noisy airport, the non-native speaker, and the parent with a sleeping baby. One solution serves millions.
 
@@ -75,6 +76,7 @@ Every ability exists on a spectrum of permanent, temporary, and situational:
 The 7 Principles of Universal Design (developed at North Carolina State University):
 
 ### 1. Equitable Use
+
 The design is useful to people with diverse abilities.
 
 - Provide the same means of use for all - identical when possible, equivalent when not
@@ -84,6 +86,7 @@ The design is useful to people with diverse abilities.
 **Example:** A building entrance with a ramp that everyone uses (not a separate "accessible entrance" around back).
 
 **Digital example:**
+
 ```html
 <!-- Inequitable: separate "accessible version" link -->
 <a href="/accessible-version">Click here for accessible version</a>
@@ -91,9 +94,9 @@ The design is useful to people with diverse abilities.
 <!-- Equitable: one version that works for everyone -->
 <main>
   <video controls>
-    <source src="video.mp4" type="video/mp4">
-    <track kind="captions" src="captions.vtt" srclang="en" label="English">
-    <track kind="descriptions" src="descriptions.vtt" srclang="en" label="Audio descriptions">
+    <source src="video.mp4" type="video/mp4" />
+    <track kind="captions" src="captions.vtt" srclang="en" label="English" />
+    <track kind="descriptions" src="descriptions.vtt" srclang="en" label="Audio descriptions" />
   </video>
   <details>
     <summary>Read transcript</summary>
@@ -103,6 +106,7 @@ The design is useful to people with diverse abilities.
 ```
 
 ### 2. Flexibility in Use
+
 The design accommodates a wide range of preferences and abilities.
 
 - Provide choice in methods of use
@@ -111,19 +115,16 @@ The design accommodates a wide range of preferences and abilities.
 - Provide adaptability to the user's pace
 
 **Digital example:** Multiple ways to complete the same action:
+
 ```html
 <!-- Multiple input methods for the same task -->
 <div class="file-upload">
   <!-- Drag and drop (mouse users) -->
-  <div class="drop-zone" role="region" aria-label="Drop files here">
-    Drag files here
-  </div>
+  <div class="drop-zone" role="region" aria-label="Drop files here">Drag files here</div>
 
   <!-- File picker (keyboard, screen reader, mobile users) -->
-  <label for="file-input" class="upload-button">
-    Or choose files
-  </label>
-  <input type="file" id="file-input" multiple>
+  <label for="file-input" class="upload-button"> Or choose files </label>
+  <input type="file" id="file-input" multiple />
 
   <!-- Paste from clipboard (power users) -->
   <p class="hint">You can also paste images from your clipboard (Ctrl+V)</p>
@@ -131,6 +132,7 @@ The design accommodates a wide range of preferences and abilities.
 ```
 
 ### 3. Simple and Intuitive Use
+
 The design is easy to understand regardless of experience, knowledge, language, or concentration level.
 
 - Eliminate unnecessary complexity
@@ -140,6 +142,7 @@ The design is easy to understand regardless of experience, knowledge, language, 
 - Provide effective prompting and feedback
 
 ### 4. Perceptible Information
+
 The design communicates necessary information effectively regardless of ambient conditions or sensory abilities.
 
 - Use different modes (visual, verbal, tactile) for essential information
@@ -148,6 +151,7 @@ The design communicates necessary information effectively regardless of ambient 
 - Differentiate elements so they can be described (make it easy to give instructions)
 
 **Digital example:** Status communicated through multiple channels:
+
 ```html
 <!-- Color + icon + text: three channels for the same information -->
 <div class="status status-error" role="alert">
@@ -157,17 +161,18 @@ The design communicates necessary information effectively regardless of ambient 
 </div>
 
 <style>
-.status-error {
-  border-left: 4px solid #d32f2f;
-  background-color: #fde8e8;
-  color: #1a1a1a;
-  /* Never rely on color alone - the icon, label, and border
+  .status-error {
+    border-left: 4px solid #d32f2f;
+    background-color: #fde8e8;
+    color: #1a1a1a;
+    /* Never rely on color alone - the icon, label, and border
      all communicate "error" independently */
-}
+  }
 </style>
 ```
 
 ### 5. Tolerance for Error
+
 The design minimizes hazards and adverse consequences of accidental or unintended actions.
 
 - Arrange elements to minimize hazards and errors
@@ -176,6 +181,7 @@ The design minimizes hazards and adverse consequences of accidental or unintende
 - Discourage unconscious action in tasks that require vigilance
 
 ### 6. Low Physical Effort
+
 The design can be used efficiently and comfortably with minimum fatigue.
 
 - Allow users to maintain a neutral body position
@@ -184,9 +190,12 @@ The design can be used efficiently and comfortably with minimum fatigue.
 - Minimize sustained physical effort
 
 **Digital example:**
+
 ```css
 /* Generous touch targets reduce effort and errors */
-.button, .link, .form-control {
+.button,
+.link,
+.form-control {
   min-height: 44px; /* WCAG 2.5.8 target size */
   padding: 12px 24px;
 }
@@ -200,6 +209,7 @@ The design can be used efficiently and comfortably with minimum fatigue.
 ```
 
 ### 7. Size and Space for Approach and Use
+
 Appropriate size and space is provided for approach, reach, manipulation, and use regardless of body size, posture, or mobility.
 
 ## Inclusive Personas
@@ -226,30 +236,35 @@ Traditional personas often represent a narrow "average" user. Inclusive personas
 ### Example Inclusive Personas
 
 **Persona: Maria, 67**
+
 - Recently retired teacher, moderate low vision, uses Windows magnification at 175%
 - Desktop computer with 24" monitor, broadband internet
 - Wants to manage finances online but finds small text and hover interactions difficult
 - "I should not need my grandson's help to pay my bills."
 
 **Persona: James, 32**
+
 - Software developer with ADHD, uses multiple monitors
 - Fast connection, latest hardware, keyboard-centric workflow
 - Needs focused interfaces; distracting animations and notifications break his flow
 - "Every pop-up notification costs me 20 minutes of focus."
 
 **Persona: Aisha, 24**
+
 - University student, Deaf since birth, fluent in sign language, English as second language
 - iPhone, 4G connection, uses VoiceOver occasionally for proofreading
 - Needs captions, visual indicators for audio events, plain English
 - "If your tutorial is a video without captions, it does not exist for me."
 
 **Persona: Carlos, 45**
+
 - Construction foreman, uses phone one-handed on job sites
 - Android phone, cracked screen, dusty gloves, direct sunlight
 - Needs large touch targets, high contrast, offline capability
 - "I can't take off my gloves every time I need to check a delivery schedule."
 
 **Persona: Priya, 38**
+
 - Mother of three, intermittent 3G connection in rural area
 - Low-end Android phone, data-conscious, mostly uses WhatsApp
 - Needs fast load times, minimal data usage, works offline
@@ -261,38 +276,38 @@ Traditional personas often represent a narrow "average" user. Inclusive personas
 
 For each feature, ask:
 
-| Dimension | Edge Cases to Consider |
-|-----------|----------------------|
-| **Input** | No input, maximum length, special characters, RTL text, emoji, paste from PDF |
-| **Name** | Single name, hyphenated, apostrophe, very long name, non-Latin characters |
-| **Screen size** | 320px wide, 4K ultrawide, zoomed to 400%, landscape phone |
-| **Connection** | Offline, 2G, unstable (tunnel), high latency, metered data |
-| **Device** | Old phone, screen reader, switch device, keyboard only, touch only |
-| **Content** | Empty state, 1 item, 10,000 items, missing image, very long text |
-| **Language** | RTL languages, German (long words), CJK characters, translations 2x longer |
-| **Identity** | Non-binary gender options, chosen vs legal name, no fixed address |
-| **Time** | Different time zones, DST transitions, international date formats |
-| **Payment** | Prepaid, no credit card, different currencies, gift cards |
+| Dimension       | Edge Cases to Consider                                                        |
+| --------------- | ----------------------------------------------------------------------------- |
+| **Input**       | No input, maximum length, special characters, RTL text, emoji, paste from PDF |
+| **Name**        | Single name, hyphenated, apostrophe, very long name, non-Latin characters     |
+| **Screen size** | 320px wide, 4K ultrawide, zoomed to 400%, landscape phone                     |
+| **Connection**  | Offline, 2G, unstable (tunnel), high latency, metered data                    |
+| **Device**      | Old phone, screen reader, switch device, keyboard only, touch only            |
+| **Content**     | Empty state, 1 item, 10,000 items, missing image, very long text              |
+| **Language**    | RTL languages, German (long words), CJK characters, translations 2x longer    |
+| **Identity**    | Non-binary gender options, chosen vs legal name, no fixed address             |
+| **Time**        | Different time zones, DST transitions, international date formats             |
+| **Payment**     | Prepaid, no credit card, different currencies, gift cards                     |
 
 ### Name Field Inclusivity
 
 ```html
 <!-- Exclusive: assumes Western naming convention -->
 <label>First Name</label>
-<input name="first_name" required>
+<input name="first_name" required />
 <label>Last Name</label>
-<input name="last_name" required>
+<input name="last_name" required />
 
 <!-- Inclusive: single flexible field or optional structure -->
 <label for="full-name">Full name</label>
-<input id="full-name" name="full_name" autocomplete="name" required>
+<input id="full-name" name="full_name" autocomplete="name" required />
 <p class="hint">Enter your name as you'd like us to use it</p>
 
 <!-- If you must collect structured names -->
 <label for="given-name">Given name(s)</label>
-<input id="given-name" name="given_name" autocomplete="given-name">
+<input id="given-name" name="given_name" autocomplete="given-name" />
 <label for="family-name">Family name(s)</label>
-<input id="family-name" name="family_name" autocomplete="family-name">
+<input id="family-name" name="family_name" autocomplete="family-name" />
 <p class="hint">Not everyone has both - fill in what applies to you</p>
 ```
 
@@ -308,19 +323,21 @@ For each feature, ask:
 <!-- Inclusive - only ask if truly necessary -->
 <fieldset>
   <legend>Gender (optional - helps us personalize your experience)</legend>
-  <label><input type="radio" name="gender" value="woman"> Woman</label>
-  <label><input type="radio" name="gender" value="man"> Man</label>
-  <label><input type="radio" name="gender" value="nonbinary"> Non-binary</label>
-  <label><input type="radio" name="gender" value="self-describe"> I prefer to self-describe:
-    <input type="text" name="gender_custom" aria-label="Gender self-description">
+  <label><input type="radio" name="gender" value="woman" /> Woman</label>
+  <label><input type="radio" name="gender" value="man" /> Man</label>
+  <label><input type="radio" name="gender" value="nonbinary" /> Non-binary</label>
+  <label
+    ><input type="radio" name="gender" value="self-describe" /> I prefer to self-describe:
+    <input type="text" name="gender_custom" aria-label="Gender self-description" />
   </label>
-  <label><input type="radio" name="gender" value="prefer-not"> Prefer not to say</label>
+  <label><input type="radio" name="gender" value="prefer-not" /> Prefer not to say</label>
 </fieldset>
 ```
 
 ## Inclusive Design Review Checklist
 
 ### Content and Language
+
 - [ ] Content is written at an appropriate reading level
 - [ ] Jargon and acronyms are defined on first use
 - [ ] Instructions use plain, direct language
@@ -329,6 +346,7 @@ For each feature, ask:
 - [ ] No culturally specific idioms or metaphors that do not translate
 
 ### Visual Design
+
 - [ ] Color is never the sole means of conveying information
 - [ ] Text contrast meets WCAG AA (4.5:1 normal, 3:1 large)
 - [ ] Non-text contrast meets 3:1 for UI components and graphics
@@ -338,6 +356,7 @@ For each feature, ask:
 - [ ] Animations respect prefers-reduced-motion
 
 ### Interaction Design
+
 - [ ] All functions available by keyboard
 - [ ] All functions available by touch (no hover-dependent features)
 - [ ] Touch targets are at least 44x44 CSS pixels
@@ -347,6 +366,7 @@ For each feature, ask:
 - [ ] Error messages are specific and actionable
 
 ### Identity and Representation
+
 - [ ] Name fields accommodate diverse naming conventions
 - [ ] Gender fields are inclusive or omitted if not essential
 - [ ] Address fields work for international formats
@@ -355,6 +375,7 @@ For each feature, ask:
 - [ ] Avatars and defaults do not assume demographics
 
 ### Performance and Context
+
 - [ ] Core features work on slow connections (3G)
 - [ ] Page weight is under 1MB for primary views
 - [ ] Critical content works without JavaScript
@@ -362,6 +383,7 @@ For each feature, ask:
 - [ ] Content works on screens as narrow as 320px
 
 ### Technology
+
 - [ ] Semantic HTML is used throughout
 - [ ] ARIA is used only where HTML semantics are insufficient
 - [ ] All custom components follow ARIA Authoring Practices patterns
@@ -399,6 +421,7 @@ For each feature, ask:
 ### Design Review Questions
 
 At every design review, ask:
+
 1. Who benefits from this design?
 2. Who might be harmed or excluded?
 3. What assumptions are we making about the user?
@@ -407,7 +430,6 @@ At every design review, ask:
 6. What would this experience be like with a screen reader?
 7. Is there a simpler way to achieve the same goal?
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -415,7 +437,6 @@ At every design review, ask:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -436,14 +457,12 @@ At every design review, ask:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security guide best-practices"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security guide best-practices'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Application Secrets Security
@@ -24,17 +24,17 @@ Secrets management is the practice of securely storing, accessing, rotating, and
 
 ## Secret Types and Risk Levels
 
-| Secret Type | Risk Level | Rotation Frequency | Storage |
-|------------|------------|-------------------|---------|
-| Database credentials | Critical | 30-90 days | Vault/Secrets Manager |
-| API keys (production) | Critical | 90 days | Vault/Secrets Manager |
-| Encryption keys | Critical | Annually (with re-encryption) | HSM/KMS |
-| TLS certificates | High | Before expiry (auto-renew) | Certificate manager |
-| SSH keys | High | 90-180 days | Key management system |
-| OAuth client secrets | High | 90 days | Vault/Secrets Manager |
-| Service account tokens | High | 30-90 days | Vault/Secrets Manager |
-| API keys (development) | Medium | On compromise | .config (local only) |
-| Webhook secrets | Medium | 90 days | Vault/Secrets Manager |
+| Secret Type            | Risk Level | Rotation Frequency            | Storage               |
+| ---------------------- | ---------- | ----------------------------- | --------------------- |
+| Database credentials   | Critical   | 30-90 days                    | Vault/Secrets Manager |
+| API keys (production)  | Critical   | 90 days                       | Vault/Secrets Manager |
+| Encryption keys        | Critical   | Annually (with re-encryption) | HSM/KMS               |
+| TLS certificates       | High       | Before expiry (auto-renew)    | Certificate manager   |
+| SSH keys               | High       | 90-180 days                   | Key management system |
+| OAuth client secrets   | High       | 90 days                       | Vault/Secrets Manager |
+| Service account tokens | High       | 30-90 days                    | Vault/Secrets Manager |
+| API keys (development) | Medium     | On compromise                 | .config (local only)  |
+| Webhook secrets        | Medium     | 90 days                       | Vault/Secrets Manager |
 
 ## HashiCorp Vault
 
@@ -462,13 +462,13 @@ class SecretAuditLogger:
 
 ## Secret Scanning Tools Comparison
 
-| Tool | Type | Languages | CI/CD Integration | Cost |
-|------|------|-----------|-------------------|------|
-| Gitleaks | Pre-commit + CI | All | GitHub Actions, GitLab CI | Free |
-| TruffleHog | Git history scan | All | GitHub Actions | Free (OSS) |
-| GitGuardian | SaaS | All | GitHub, GitLab, Bitbucket | Free tier |
-| GitHub Secret Scanning | Native | All | GitHub native | Free (public repos) |
-| AWS Secrets Detection | SaaS | All | CodePipeline | Included with CodeGuru |
+| Tool                   | Type             | Languages | CI/CD Integration         | Cost                   |
+| ---------------------- | ---------------- | --------- | ------------------------- | ---------------------- |
+| Gitleaks               | Pre-commit + CI  | All       | GitHub Actions, GitLab CI | Free                   |
+| TruffleHog             | Git history scan | All       | GitHub Actions            | Free (OSS)             |
+| GitGuardian            | SaaS             | All       | GitHub, GitLab, Bitbucket | Free tier              |
+| GitHub Secret Scanning | Native           | All       | GitHub native             | Free (public repos)    |
+| AWS Secrets Detection  | SaaS             | All       | CodePipeline              | Included with CodeGuru |
 
 ## Decision Framework
 
@@ -482,6 +482,7 @@ class SecretAuditLogger:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing application secrets security solutions
 - Reviewing or improving existing application secrets security approaches
 - Making architectural or implementation decisions about application secrets security
@@ -489,6 +490,7 @@ class SecretAuditLogger:
 - Troubleshooting application secrets security-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -499,21 +501,26 @@ class SecretAuditLogger:
 # Application Secrets Security Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

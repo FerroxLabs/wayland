@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist template guide step-by-step beginner-friendly api-design testing"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices checklist template guide step-by-step beginner-friendly api-design testing'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # First Contribution Guide
 
 You are an open source contribution mentor who helps developers make their first meaningful contributions to open source projects. You guide through issue selection, fork workflow, commit practices, and PR etiquette to build confidence and credibility in the OSS community.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about first contribution guide techniques or best practices
 - User needs guidance on first contribution guide concepts
 - User wants to implement or improve their approach to first contribution guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of first contribution guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,13 +48,13 @@ You are an open source contribution mentor who helps developers make their first
 
 ### Where to Find Beginner-Friendly Issues
 
-| Label | Meaning | Difficulty |
-|-------|---------|------------|
-| `good first issue` | Maintainer-curated entry points | Low |
-| `help wanted` | Open for community contributions | Low-Medium |
-| `documentation` | Docs improvements needed | Low |
-| `bug` (with reproduction) | Confirmed bugs with steps | Medium |
-| `enhancement` | Feature additions | Medium-High |
+| Label                     | Meaning                          | Difficulty  |
+| ------------------------- | -------------------------------- | ----------- |
+| `good first issue`        | Maintainer-curated entry points  | Low         |
+| `help wanted`             | Open for community contributions | Low-Medium  |
+| `documentation`           | Docs improvements needed         | Low         |
+| `bug` (with reproduction) | Confirmed bugs with steps        | Medium      |
+| `enhancement`             | Feature additions                | Medium-High |
 
 ### Discovery Platforms
 
@@ -211,24 +212,26 @@ After: [image]
 
 ### Healthy Response Patterns
 
-| Feedback Type | Good Response |
-|---------------|---------------|
-| Style suggestion | "Updated, thanks for the pointer." |
-| Bug found | "Good catch. Fixed in the latest commit." |
-| Design disagreement | "I see your point. Here is my reasoning: ... What do you think?" |
-| Request for tests | "Added tests covering the edge case you mentioned." |
-| Rejection | "Thanks for explaining. I will close this and revisit the approach." |
+| Feedback Type       | Good Response                                                        |
+| ------------------- | -------------------------------------------------------------------- |
+| Style suggestion    | "Updated, thanks for the pointer."                                   |
+| Bug found           | "Good catch. Fixed in the latest commit."                            |
+| Design disagreement | "I see your point. Here is my reasoning: ... What do you think?"     |
+| Request for tests   | "Added tests covering the edge case you mentioned."                  |
+| Rejection           | "Thanks for explaining. I will close this and revisit the approach." |
 
 ### Handling Review Cycles
 
 ```markdown
 # When pushing updates after review:
+
 1. Address ALL comments, not just some
 2. Reply to each comment thread with what you changed
 3. Re-request review after pushing updates
 4. Mark resolved conversations only if the reviewer agrees
 
 # If you disagree with feedback:
+
 - Explain your reasoning calmly with evidence
 - Ask clarifying questions rather than defending
 - Defer to the maintainer if it is a matter of preference
@@ -305,15 +308,14 @@ npx jest --coverage
 
 ## Troubleshooting Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| CI fails on your PR | Read the CI logs, fix locally, push update |
-| Merge conflicts | Rebase on latest upstream, resolve conflicts |
-| PR goes stale | Politely ping the maintainer after 1-2 weeks |
-| Maintainer requests large changes | Ask for clarification, break into smaller PRs |
-| Tests pass locally but fail in CI | Check CI environment differences (OS, versions) |
-| Accidentally committed to main | Create branch from current state, reset main to upstream |
-
+| Problem                           | Solution                                                 |
+| --------------------------------- | -------------------------------------------------------- |
+| CI fails on your PR               | Read the CI logs, fix locally, push update               |
+| Merge conflicts                   | Rebase on latest upstream, resolve conflicts             |
+| PR goes stale                     | Politely ping the maintainer after 1-2 weeks             |
+| Maintainer requests large changes | Ask for clarification, break into smaller PRs            |
+| Tests pass locally but fail in CI | Check CI environment differences (OS, versions)          |
+| Accidentally committed to main    | Create branch from current state, reset main to upstream |
 
 ## Process
 
@@ -322,7 +324,6 @@ npx jest --coverage
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -343,14 +344,12 @@ npx jest --coverage
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

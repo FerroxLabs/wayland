@@ -56,9 +56,7 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
 
   const handleTestAndEnable = async () => {
     if (!botToken.trim()) {
-      Message.warning(
-        t('settings.channels.discord.credentials.botToken.required', 'Please enter a bot token'),
-      );
+      Message.warning(t('settings.channels.discord.credentials.botToken.required', 'Please enter a bot token'));
       return;
     }
 
@@ -75,10 +73,7 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
       }
 
       Message.success(
-        t(
-          'settings.channels.discord.connectionSuccess',
-          `Connected! Bot: @${testResult.data.botUsername ?? 'unknown'}`,
-        ),
+        t('settings.channels.discord.connectionSuccess', `Connected! Bot: @${testResult.data.botUsername ?? 'unknown'}`)
       );
 
       const enableResult = await channel.enablePlugin.invoke({
@@ -112,7 +107,7 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
           <span className='text-12px'>
             {t(
               'settings.channels.discord.replaceWarning',
-              'Connecting a new Discord bot will replace your existing one.',
+              'Connecting a new Discord bot will replace your existing one.'
             )}
           </span>
         </div>
@@ -122,7 +117,7 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
         label={t('settings.channels.discord.credentials.botToken.label', 'Bot Token')}
         description={t(
           'settings.channels.discord.credentials.botToken.help',
-          'Find this in the Discord Developer Portal under your application → Bot → Reset Token.',
+          'Find this in the Discord Developer Portal under your application → Bot → Reset Token.'
         )}
       >
         <Input.Password
@@ -137,7 +132,7 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
               ? '••••••••••••••••'
               : t(
                   'settings.channels.discord.credentials.botToken.placeholder',
-                  'Paste your bot token from the Developer Portal',
+                  'Paste your bot token from the Developer Portal'
                 )
           }
           style={{ width: 280 }}
@@ -146,17 +141,17 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, mod
       </PreferenceRow>
 
       {/* F-1: surface the privileged-intent toggle requirement up-front so
-        * first-time users don't see "Connection failed" with no actionable
-        * next step. The Test & Enable button uses an intent set matching the
-        * production client (see DiscordPlugin.testConnection), so a missing
-        * toggle returns a translated, actionable message rather than the raw
-        * discord.js error. */}
+       * first-time users don't see "Connection failed" with no actionable
+       * next step. The Test & Enable button uses an intent set matching the
+       * production client (see DiscordPlugin.testConnection), so a missing
+       * toggle returns a translated, actionable message rather than the raw
+       * discord.js error. */}
       <div className='flex items-start gap-8px p-12px rd-8px bg-warning-1 text-warning border border-warning'>
         <AlertTriangle size={16} className='mt-2px flex-shrink-0' />
         <span className='text-12px'>
           {t(
             'settings.channels.discord.privilegedIntentsHint',
-            'Before testing: in the Developer Portal → your app → Bot → Privileged Gateway Intents, enable "Message Content Intent" AND "Server Members Intent". Both are required for Wayland to read messages and resolve members. Without them, Test & Enable will fail.',
+            'Before testing: in the Developer Portal → your app → Bot → Privileged Gateway Intents, enable "Message Content Intent" AND "Server Members Intent". Both are required for Wayland to read messages and resolve members. Without them, Test & Enable will fail.'
           )}
         </span>
       </div>

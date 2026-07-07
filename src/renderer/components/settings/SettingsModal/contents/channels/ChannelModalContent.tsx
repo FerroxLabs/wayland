@@ -10,11 +10,7 @@ import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { channel, webui, type IWebUIStatus } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
 import { isElectronDesktop } from '@renderer/utils/platform';
-import {
-  disablePluginHttp,
-  enablePluginHttp,
-  syncChannelSettingsHttp,
-} from '@renderer/services/ChannelConfigService';
+import { disablePluginHttp, enablePluginHttp, syncChannelSettingsHttp } from '@renderer/services/ChannelConfigService';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
@@ -680,9 +676,12 @@ const ChannelModalContent: React.FC = () => {
               {lanCallbackUrl ? <div>LAN Callback URL: {lanCallbackUrl}</div> : null}
               {publicCallbackUrl ? <div>Public Callback URL (configured value): {publicCallbackUrl}</div> : null}
               <div className='mt-6px'>
-                Enabling WebUI remote access (LAN) alone is usually not sufficient for WeCom callbacks. WeCom servers require a publicly accessible HTTPS address.
+                Enabling WebUI remote access (LAN) alone is usually not sufficient for WeCom callbacks. WeCom servers
+                require a publicly accessible HTTPS address.
               </div>
-              <div>Recommended: use a reverse proxy with a TLS certificate, or expose via Cloudflare Tunnel / ngrok.</div>
+              <div>
+                Recommended: use a reverse proxy with a TLS certificate, or expose via Cloudflare Tunnel / ngrok.
+              </div>
             </div>
           )}
           {fields.map((field) => {

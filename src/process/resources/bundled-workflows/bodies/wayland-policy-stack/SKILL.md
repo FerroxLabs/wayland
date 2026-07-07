@@ -12,14 +12,15 @@ description: >-
   advice. Outputs are drafts; counsel review is required before publication.
 license: Apache-2.0
 type: workflow
-skills: "legal-tos legal-privacy legal-refund-policy"
+skills: 'legal-tos legal-privacy legal-refund-policy'
 metadata:
   author: wayland
   version: 1.0.0
   tags: legal tos privacy refund eula cookie compliance step-by-step business-legal
   category: business-legal
-  depends: ""
+  depends: ''
 ---
+
 # Policy Stack
 
 **Estimated time:** 45-60 minutes

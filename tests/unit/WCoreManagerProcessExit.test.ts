@@ -372,6 +372,19 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
     });
   });
 
+  // ── #505: bare error event terminalizes status ───────────────────
+
+  describe('error event without a following finish', () => {
+    it('sets status to finished on an error-only turn (no stream_end)', () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      expect(manager.status).toBe('running');
+
+      emitEvent(manager, { type: 'error', data: 'Anthropic API error', msg_id: 'msg-1' });
+
+      expect(manager.status).toBe('finished');
+    });
+  });
+
   // ── No old idle fallback behavior ────────────────────────────────
 
   describe('no idle fallback timer behavior', () => {

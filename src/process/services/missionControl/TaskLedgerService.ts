@@ -141,7 +141,17 @@ function compareEntries(a: LedgerEntry, b: LedgerEntry): number {
 }
 
 function tally(entries: LedgerEntry[]): LedgerCounts {
-  const counts: LedgerCounts = { running: 0, verifying: 0, pending: 0, blocked: 0, failed: 0, zombie: 0, done: 0, idle: 0, total: entries.length };
+  const counts: LedgerCounts = {
+    running: 0,
+    verifying: 0,
+    pending: 0,
+    blocked: 0,
+    failed: 0,
+    zombie: 0,
+    done: 0,
+    idle: 0,
+    total: entries.length,
+  };
   for (const e of entries) counts[e.status] += 1;
   return counts;
 }

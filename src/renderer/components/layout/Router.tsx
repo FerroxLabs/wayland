@@ -8,6 +8,7 @@ import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toa
 import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
 const Conversation = React.lazy(() => import('@renderer/pages/conversation'));
 const Guid = React.lazy(() => import('@renderer/pages/guid'));
+const TankPanel = React.lazy(() => import('@renderer/pages/tank'));
 const AssistantsLibraryPage = React.lazy(() => import('@renderer/pages/assistants/AssistantsLibraryPage'));
 const WorkflowsLibraryPage = React.lazy(() => import('@renderer/pages/workflows/WorkflowsLibraryPage'));
 const AgentSettings = React.lazy(() => import('@renderer/pages/settings/AgentSettings'));
@@ -38,6 +39,7 @@ const SkillsSettings = React.lazy(() => import('@renderer/pages/settings/SkillsS
 const SlashCommandsSettings = React.lazy(() => import('@renderer/pages/settings/SlashCommandsSettings'));
 const StorageSettings = React.lazy(() => import('@renderer/pages/settings/StorageSettings'));
 const DoctorSettings = React.lazy(() => import('@renderer/pages/settings/DoctorSettings'));
+const TankSettings = React.lazy(() => import('@renderer/pages/settings/TankSettings'));
 const WCoreSettings = React.lazy(() => import('@renderer/pages/settings/WCoreSettings'));
 const WCoreConfig = React.lazy(() => import('@renderer/pages/settings/WCoreConfig'));
 const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiSettings'));
@@ -104,6 +106,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route element={<ProtectedLayout layout={layout} />}>
             <Route index element={<Navigate to='/guid' replace />} />
             <Route path='/guid' element={withRouteFallback(Guid)} />
+            <Route path='/tank' element={withRouteFallback(TankPanel)} />
             <Route
               path='/conversation/:id'
               element={<ErrorBoundary>{withRouteFallback(Conversation)}</ErrorBoundary>}
@@ -160,6 +163,8 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/storage' element={withRouteFallback(StorageSettings)} />
             {/* Doctor - diagnostic health checks across all subsystems (#35). */}
             <Route path='/settings/doctor' element={withRouteFallback(DoctorSettings)} />
+            {/* Tank - autopilot server connection (URL + token). */}
+            <Route path='/settings/tank' element={withRouteFallback(TankSettings)} />
             {/* IJFW MEMORY (Decision 3b: the ONLY Skip toggle in the app) */}
             <Route path='/settings/ijfw' element={withRouteFallback(IjfwSettingsPanel)} />
             {/* ABOUT */}

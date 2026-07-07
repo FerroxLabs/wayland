@@ -12,14 +12,15 @@ description: >-
   a substitute for licensed legal advice. Outputs are drafts; counsel review is required.
 license: Apache-2.0
 type: workflow
-skills: "legal-employment"
+skills: 'legal-employment'
 metadata:
   author: wayland
   version: 1.0.0
   tags: legal employment offer ip-assignment non-compete step-by-step business-legal
   category: business-legal
-  depends: ""
+  depends: ''
 ---
+
 # Employment Package
 
 **Estimated time:** 20-30 minutes

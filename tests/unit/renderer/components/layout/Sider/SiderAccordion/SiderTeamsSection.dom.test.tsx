@@ -42,11 +42,7 @@ interface RenderOpts {
 function renderSection(opts: RenderOpts = {}) {
   return render(
     <MemoryRouter>
-      <SiderTeamsSection
-        collapsed={opts.collapsed ?? false}
-        pathname={opts.pathname ?? '/'}
-        siderTooltipProps={{}}
-      />
+      <SiderTeamsSection collapsed={opts.collapsed ?? false} pathname={opts.pathname ?? '/'} siderTooltipProps={{}} />
     </MemoryRouter>
   );
 }

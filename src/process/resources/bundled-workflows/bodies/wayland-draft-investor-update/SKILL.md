@@ -13,14 +13,15 @@ description: >-
   question one atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "pitch-investor-email finance-report"
+skills: 'pitch-investor-email finance-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: pitch investor-update reporting metrics fundraising step-by-step
   category: marketing
-  depends: "pitch-investor-email finance-report"
+  depends: 'pitch-investor-email finance-report'
 ---
+
 # Draft a Monthly Investor Update
 
 **Estimated time:** 20-30 minutes

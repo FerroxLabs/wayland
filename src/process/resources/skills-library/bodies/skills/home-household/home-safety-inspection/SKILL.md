@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist analysis"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist analysis'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Home Safety Inspection
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user's request falls into one of the following categorie
 - **Pre-sale preparation:** User is selling a home and wants to address safety deficiencies before listing or before a buyer's inspection
 
 **Do NOT use this skill when:**
+
 - The user suspects structural failure (foundation cracks, roof sagging, load-bearing wall damage) -- refer them to a licensed home inspector ($300-$500 typical cost) who follows ASHI or InterNACHI inspection standards
 - The user has visible mold growth exceeding 10 square feet or suspects hidden mold from musty odors and water intrusion history -- professional mold assessment and air sampling is required ($300-$600); DIY surface swabs are not reliable for hidden mold
 - The user needs commercial building safety compliance (fire suppression systems, ADA egress requirements, OSHA workplace standards, occupancy load calculations) -- use a commercial fire safety or code compliance specialist
@@ -91,6 +93,7 @@ Generate specific checks for each applicable area. Every room gets checked acros
 For every safety device in the home, document location, last known test date, manufacture date, and replacement due date. Key device specifications:
 
 **Smoke Detectors:**
+
 - Ionization detectors (most common, less expensive) respond faster to fast-flaming fires; photoelectric detectors respond faster to slow-smoldering fires (which are more common in residential fatalities)
 - Best practice: dual-sensor detectors or a combination of both types in the home
 - Minimum placement: inside every sleeping room, outside every sleeping area (in hallway), on every level including unfinished basement, in finished attic
@@ -101,6 +104,7 @@ For every safety device in the home, document location, last known test date, ma
 - Replace date is stamped on the back of the unit -- the manufacture date, not purchase date, is what matters
 
 **Carbon Monoxide Detectors:**
+
 - CO detectors are electrochemical sensors that degrade over time regardless of use; replacement at 5-7 years is non-negotiable
 - Placement: at least one on every level, one outside sleeping areas, one in rooms with a gas-burning appliance if the appliance room is separated from the main living area
 - NOT required in homes with 100% electric heat and appliances AND no attached garage -- but strongly recommended as a precaution
@@ -109,6 +113,7 @@ For every safety device in the home, document location, last known test date, ma
 - Do not place within 5 feet of the floor in garages (vehicle exhaust disperses, so mid-wall placement is correct)
 
 **Fire Extinguishers:**
+
 - Class A: ordinary combustibles (paper, wood, fabric)
 - Class B: flammable liquids (grease, gasoline, paint)
 - Class C: electrical fires
@@ -120,6 +125,7 @@ For every safety device in the home, document location, last known test date, ma
 - Units over 12 years old must be replaced or hydrostatically tested by a licensed fire extinguisher service
 
 **GFCI Outlets:**
+
 - GFCI (Ground Fault Circuit Interrupter) protection prevents electrocution by detecting a current difference of as little as 4-6 milliamps between hot and neutral wires and cutting power within 1/40th of a second
 - Required locations per current NEC (2020): all kitchen counter receptacles within 6 feet of a sink, all bathroom receptacles, garage receptacles, outdoor receptacles, unfinished basement receptacles, crawl space receptacles, boathouse receptacles, laundry area receptacles within 6 feet of a sink
 - GFCI outlets protect all downstream outlets on the same circuit when properly wired -- one GFCI outlet near the panel or first in the run can protect multiple outlets; check the "protected" label on downstream outlets
@@ -128,6 +134,7 @@ For every safety device in the home, document location, last known test date, ma
 - AFCI (Arc Fault Circuit Interrupter) breakers are also required in modern construction for bedroom circuits and increasingly all living spaces; these require panel-level inspection by an electrician
 
 **Garage Door Opener Auto-Reverse:**
+
 - The entrapment protection system must reverse the door before applying full force, OR must reverse on contact with an obstruction
 - Test 1 (force-reverse test): place a 2x4 flat on the ground under the center of the door. Close the door; it must reverse within 2 seconds of contact with the board
 - Test 2 (photoelectric sensor test): while the door is closing, pass your leg through the sensor beam; the door must reverse immediately
@@ -154,6 +161,7 @@ Deliver a complete maintenance calendar, not just a table. Pair each device with
 ### Step 8: Offer the Fire Escape Plan Framework
 
 Every home safety inspection must conclude with fire escape planning. This is consistently the most underutilized component of residential safety. Cover:
+
 - Two escape routes from every sleeping room (primary: door to hallway; secondary: window)
 - Window egress requirements: the window must open to at least 5.7 square feet of clear area, minimum 20 inches wide, minimum 24 inches tall, with the opening no more than 44 inches above the floor
 - Designated exterior meeting point at least 100 feet from the structure (a specific neighbor's mailbox, a tree, a driveway end)
@@ -327,6 +335,7 @@ Aluminum wiring was commonly used in residential construction between approximat
 Indicators of aluminum wiring: homes built 1965-1973, "AL" or "ALUMINUM" marked on the wiring jacket visible at the electrical panel, silver-colored wires at outlets or switches (copper is gold/orange), prior electrical work reports noting aluminum wiring.
 
 **Critical steps:**
+
 - Do not inspect the electrical panel interior yourself
 - Hire a licensed electrician to evaluate the system specifically for aluminum wiring
 - Acceptable remediation options (per CPSC): COPALUM crimp connectors (most reliable permanent solution, must be installed by a licensed electrician), AlumiConn connectors (acceptable alternative, also licensed installation), or complete rewiring with copper (most expensive, most comprehensive)
@@ -339,6 +348,7 @@ Indicators of aluminum wiring: homes built 1965-1973, "AL" or "ALUMINUM" marked 
 An attached garage is one of the most dangerous features in a home from a CO perspective. A car engine left running in an attached garage -- even with the garage door open -- can produce lethal CO concentrations in the living space within minutes because CO migrates through any gap in the shared firewall.
 
 **Requirements and checks:**
+
 - CO detector required in the living space adjoining the garage -- specifically on the shared wall or in the first room above the garage
 - The firewall between the garage and living space must be continuous 5/8-inch Type X gypsum board (or equivalent fire-rated assembly) with no unsealed penetrations. Check for: cable holes drilled and left open, gaps around pipes, unsealed recessed lights, gaps at the top of the wall where the ceiling meets the garage wall. Seal all penetrations with fire-rated caulk or spray foam
 - The door between garage and living space must be a fire-rated door (minimum 20-minute fire rating per IRC) with a self-closing mechanism and a positive-latching mechanism. Test by manually opening the door and releasing it -- it must close and latch fully without assistance
@@ -350,6 +360,7 @@ An attached garage is one of the most dangerous features in a home from a CO per
 Tenants have a different inspection framework because they share responsibility with a landlord and have limited ability to make structural modifications.
 
 **What to verify at move-in:**
+
 - Smoke detectors working in every required location (most jurisdictions require one per floor and inside every sleeping room). Document any deficiency with photos and a written notice to landlord -- in most jurisdictions, the landlord must remedy within 24-72 hours or faces liability
 - CO detector if gas appliances or attached garage are present. In many states, CO detector installation in rental units is a landlord legal obligation
 - GFCI outlets in kitchen and bathrooms -- test every one. Document failures in writing
@@ -359,6 +370,7 @@ Tenants have a different inspection framework because they share responsibility 
 - Identify the circuit breaker/fuse box location and how to access it in an emergency
 
 **What tenants can do themselves:**
+
 - Install plug-in CO detectors and smoke detectors even if the landlord claims they are not required -- these are inexpensive and non-permanent
 - Request all safety deficiency repairs in writing (email creates a timestamp and paper trail)
 - In most jurisdictions, a tenant can terminate a lease or withhold rent for health and safety violations if the landlord fails to remedy after proper written notice; recommend consulting a local tenant rights organization for jurisdiction-specific guidance
@@ -368,6 +380,7 @@ Tenants have a different inspection framework because they share responsibility 
 A home's hazard profile shifts meaningfully across seasons. Incorporate these seasonal triggers when the user's inspection request is tied to a time of year:
 
 **Spring (March-May):**
+
 - Test all smoke and CO detectors as part of the daylight saving time ritual (if applicable to region); replace all batteries
 - Inspect the roof and gutters for winter damage; clear gutters of debris; check downspout extensions are directing water away from foundation
 - Test sump pump: pour water into the pit to trigger the float switch; confirm pump activates and discharges properly. If the pump has a backup battery, test the backup
@@ -375,6 +388,7 @@ A home's hazard profile shifts meaningfully across seasons. Incorporate these se
 - Service HVAC: replace filters ($10-$30), schedule professional AC servicing if applicable, clear condensate drain with diluted bleach solution to prevent algae blockage
 
 **Fall (September-November):**
+
 - Second smoke/CO detector battery replacement trigger (if not using 10-year sealed units)
 - Chimney inspection and cleaning before first use of the season: creosote buildup (from wood burning) is a leading cause of chimney fires; hire a CSIA-certified chimney sweep annually if using a wood-burning fireplace or stove ($150-$300)
 - Disconnect and store outdoor hoses to prevent pipe freeze; locate and test the shut-off for each outdoor faucet
@@ -413,20 +427,20 @@ Solid-fuel burning appliances require a distinct set of safety checks beyond wha
 
 ### Safety Device Inventory
 
-| Device | Quantity Needed | Status Guidance |
-|--------|----------------|-----------------|
-| Smoke detector -- each bedroom | 1 per bedroom (confirm count) | Test each unit; check manufacture date on back. Any unit older than 2014 must be replaced immediately. A 1991 home may have original detectors -- these are 30+ years past their 10-year replacement schedule |
-| Smoke detector -- each floor hallway | 1 per floor (2 floors + basement) = 3 minimum | Same aging concern applies |
-| CO detector -- each floor | 1 per floor = 2 minimum above grade; 1 in basement near furnace/water heater area | A 1991 home very likely has NO CO detectors -- they were not widely required until the mid-2000s. Treat all CO detectors as missing until confirmed present and within replacement date |
-| CO detector -- outside sleeping areas | 1 per sleeping area grouping | Add to master bedroom hallway and any second hallway serving bedrooms |
-| Fire extinguisher -- kitchen | 1 (ABC-rated, minimum 2.5 lb, preferably 5 lb) | Mount on wall near exit path from kitchen, not directly beside the stove. Check gauge and tamper seal |
-| Fire extinguisher -- second floor | 1 | Mount in hallway near stair head |
-| Fire extinguisher -- garage | 1 (ABC-rated) | Mount near the garage entry door to house |
-| GFCI -- kitchen | Required within 6 feet of all sinks | 1991 construction should have GFCI per 1990 NEC; test every outlet with test/reset procedure |
-| GFCI -- bathrooms | 1 per bathroom (covers all outlets in the room if properly wired) | Test monthly |
-| GFCI -- garage | Required at all garage outlets | Test; 1991 garage receptacles should be GFCI-protected per 1990 NEC |
-| GFCI -- unfinished basement | Required at all basement outlets | Test; required since 1990 NEC. This home should have them; confirm and test |
-| GFCI -- outdoor | Required at all exterior outlets | Test |
+| Device                                | Quantity Needed                                                                   | Status Guidance                                                                                                                                                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Smoke detector -- each bedroom        | 1 per bedroom (confirm count)                                                     | Test each unit; check manufacture date on back. Any unit older than 2014 must be replaced immediately. A 1991 home may have original detectors -- these are 30+ years past their 10-year replacement schedule |
+| Smoke detector -- each floor hallway  | 1 per floor (2 floors + basement) = 3 minimum                                     | Same aging concern applies                                                                                                                                                                                    |
+| CO detector -- each floor             | 1 per floor = 2 minimum above grade; 1 in basement near furnace/water heater area | A 1991 home very likely has NO CO detectors -- they were not widely required until the mid-2000s. Treat all CO detectors as missing until confirmed present and within replacement date                       |
+| CO detector -- outside sleeping areas | 1 per sleeping area grouping                                                      | Add to master bedroom hallway and any second hallway serving bedrooms                                                                                                                                         |
+| Fire extinguisher -- kitchen          | 1 (ABC-rated, minimum 2.5 lb, preferably 5 lb)                                    | Mount on wall near exit path from kitchen, not directly beside the stove. Check gauge and tamper seal                                                                                                         |
+| Fire extinguisher -- second floor     | 1                                                                                 | Mount in hallway near stair head                                                                                                                                                                              |
+| Fire extinguisher -- garage           | 1 (ABC-rated)                                                                     | Mount near the garage entry door to house                                                                                                                                                                     |
+| GFCI -- kitchen                       | Required within 6 feet of all sinks                                               | 1991 construction should have GFCI per 1990 NEC; test every outlet with test/reset procedure                                                                                                                  |
+| GFCI -- bathrooms                     | 1 per bathroom (covers all outlets in the room if properly wired)                 | Test monthly                                                                                                                                                                                                  |
+| GFCI -- garage                        | Required at all garage outlets                                                    | Test; 1991 garage receptacles should be GFCI-protected per 1990 NEC                                                                                                                                           |
+| GFCI -- unfinished basement           | Required at all basement outlets                                                  | Test; required since 1990 NEC. This home should have them; confirm and test                                                                                                                                   |
+| GFCI -- outdoor                       | Required at all exterior outlets                                                  | Test                                                                                                                                                                                                          |
 
 **Immediate action on safety devices:** Assume all smoke and CO detectors in a 1991 home are at or past end-of-life unless manufacture dates can be confirmed as post-2015. Replace the entire smoke detector complement. Purchase and install CO detectors on each floor and outside sleeping areas before sleeping in the home with two young children.
 
@@ -436,23 +450,24 @@ Solid-fuel burning appliances require a distinct set of safety checks beyond wha
 
 #### Kitchen
 
-| Check Item | How to Verify | Status | Priority if Issue Found |
-|------------|--------------|--------|------------------------|
-| Smoke detector present and functional | Press test button; alarm must sound loudly. Check manufacture date on back | Likely expired -- 1991 home | Immediate |
-| Fire extinguisher mounted and accessible | Check wall mount near exit; gauge in green zone; tamper seal intact | Unknown -- likely missing | 1 week |
-| GFCI outlets within 6 feet of sink | Press TEST button at each outlet; power to outlet must cut | Should be present per 1990 NEC | Test today |
-| No overloaded outlets or power strips | No more than one heat-producing appliance (toaster, coffee maker, microwave) per circuit; daisy-chained power strips are a fire hazard | Inspect all counter outlets | 1 week |
-| Range anti-tip bracket installed | Grasp top of stove and pull forward firmly; if oven tilts, bracket is absent or failed | Very important with 2 and 4 year old in home -- a child pulling on open oven door can tip a full range onto themselves | Immediate |
-| Appliance cords in good condition | No fraying, cracking, or kinking; no cords running under rugs or pinched in cabinet doors | Visual inspection | 1 week |
-| Under-sink cabinet lock installed | Any lock that requires tool or two-handed adult operation | No lock in a 1991 home -- MISSING | Immediate |
-| Stove knob covers installed | Childproof covers over all gas or electric knob controls | Not a standard feature -- likely missing | 1 week |
+| Check Item                               | How to Verify                                                                                                                          | Status                                                                                                                 | Priority if Issue Found |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Smoke detector present and functional    | Press test button; alarm must sound loudly. Check manufacture date on back                                                             | Likely expired -- 1991 home                                                                                            | Immediate               |
+| Fire extinguisher mounted and accessible | Check wall mount near exit; gauge in green zone; tamper seal intact                                                                    | Unknown -- likely missing                                                                                              | 1 week                  |
+| GFCI outlets within 6 feet of sink       | Press TEST button at each outlet; power to outlet must cut                                                                             | Should be present per 1990 NEC                                                                                         | Test today              |
+| No overloaded outlets or power strips    | No more than one heat-producing appliance (toaster, coffee maker, microwave) per circuit; daisy-chained power strips are a fire hazard | Inspect all counter outlets                                                                                            | 1 week                  |
+| Range anti-tip bracket installed         | Grasp top of stove and pull forward firmly; if oven tilts, bracket is absent or failed                                                 | Very important with 2 and 4 year old in home -- a child pulling on open oven door can tip a full range onto themselves | Immediate               |
+| Appliance cords in good condition        | No fraying, cracking, or kinking; no cords running under rugs or pinched in cabinet doors                                              | Visual inspection                                                                                                      | 1 week                  |
+| Under-sink cabinet lock installed        | Any lock that requires tool or two-handed adult operation                                                                              | No lock in a 1991 home -- MISSING                                                                                      | Immediate               |
+| Stove knob covers installed              | Childproof covers over all gas or electric knob controls                                                                               | Not a standard feature -- likely missing                                                                               | 1 week                  |
 
 #### Main Floor Bathroom
 
-| Check Item | How to Verify | Status | Priority if Issue Found |
-|------------|--------------|--------|------------------------|
-| GFCI outlet present and functional | TEST/RESET procedure with lamp | Should be present | Test today |
-| No electrical items on counter near water | Hair dryers, electric razors stored away from sink | Visual | 1 week |
-| Water temperature from tap | Run hot water fully for 60 seconds; test with an instant-read kitchen thermometer | Target: 120°F or below. 1991 water heaters are often set to 140°F from factory | Immediate if over 120°F |
-| Non-slip mat in tub/shower | Confirm suction cups are intact and mat does not slide | Visual | 1 week |
+| Check Item                                | How to Verify                                                                     | Status                                                                         | Priority if Issue Found |
+| ----------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------- |
+| GFCI outlet present and functional        | TEST/RESET procedure with lamp                                                    | Should be present                                                              | Test today              |
+| No electrical items on counter near water | Hair dryers, electric razors stored away from sink                                | Visual                                                                         | 1 week                  |
+| Water temperature from tap                | Run hot water fully for 60 seconds; test with an instant-read kitchen thermometer | Target: 120°F or below. 1991 water heaters are often set to 140°F from factory | Immediate if over 120°F |
+| Non-slip mat in tub/shower                | Confirm suction cups are intact and mat does not slide                            | Visual                                                                         | 1 week                  |
+
 | Ventilation fan working

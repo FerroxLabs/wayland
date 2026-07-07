@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Astro Developer
@@ -35,21 +35,16 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: '[reference URL]',
-  output: 'static',  // 'static' | 'server' | 'hybrid'
-  integrations: [
-    mdx(),
-    sitemap(),
-    react(),
-    tailwind({ applyBaseStyles: false })
-  ],
-  adapter: vercel(),  // only needed for server/hybrid
+  output: 'static', // 'static' | 'server' | 'hybrid'
+  integrations: [mdx(), sitemap(), react(), tailwind({ applyBaseStyles: false })],
+  adapter: vercel(), // only needed for server/hybrid
   image: {
     domains: ['cdn.example.com'],
-    service: { entrypoint: 'astro/assets/services/sharp' }
+    service: { entrypoint: 'astro/assets/services/sharp' },
   },
   vite: {
-    ssr: { noExternal: ['some-package'] }
-  }
+    ssr: { noExternal: ['some-package'] },
+  },
 });
 ```
 
@@ -103,33 +98,36 @@ public/
 import { defineCollection, z, reference } from 'astro:content';
 
 const blog = defineCollection({
-  type: 'content',  // Markdown/MDX files
-  schema: ({ image }) => z.object({
-    title: z.string().max(80),
-    description: z.string().max(160),
-    pubDate: z.coerce.date(),
-    updatedDate: z.coerce.date().optional(),
-    author: reference('authors'),
-    cover: image().refine(img => img.width >= 800, {
-      message: 'Cover image must be at least 800px wide'
+  type: 'content', // Markdown/MDX files
+  schema: ({ image }) =>
+    z.object({
+      title: z.string().max(80),
+      description: z.string().max(160),
+      pubDate: z.coerce.date(),
+      updatedDate: z.coerce.date().optional(),
+      author: reference('authors'),
+      cover: image().refine((img) => img.width >= 800, {
+        message: 'Cover image must be at least 800px wide',
+      }),
+      tags: z.array(z.string()).default([]),
+      draft: z.boolean().default(false),
+      category: z.enum(['tutorial', 'opinion', 'release', 'case-study']),
     }),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-    category: z.enum(['tutorial', 'opinion', 'release', 'case-study'])
-  })
 });
 
 const authors = defineCollection({
-  type: 'data',  // JSON/YAML files
+  type: 'data', // JSON/YAML files
   schema: z.object({
     name: z.string(),
     bio: z.string(),
     avatar: z.string().url(),
-    social: z.object({
-      github: z.string().optional(),
-      twitter: z.string().optional()
-    }).optional()
-  })
+    social: z
+      .object({
+        github: z.string().optional(),
+        twitter: z.string().optional(),
+      })
+      .optional(),
+  }),
 });
 
 const docs = defineCollection({
@@ -138,8 +136,8 @@ const docs = defineCollection({
     title: z.string(),
     order: z.number(),
     section: z.string(),
-    updated: z.coerce.date().optional()
-  })
+    updated: z.coerce.date().optional(),
+  }),
 });
 
 export const collections = { blog, authors, docs };
@@ -266,7 +264,7 @@ import { atom, map, computed } from 'nanostores';
 export type CartItem = { id: string; name: string; price: number; qty: number };
 
 export const $cartItems = map<Record<string, CartItem>>({});
-export const $cartTotal = computed($cartItems, items =>
+export const $cartTotal = computed($cartItems, (items) =>
   Object.values(items).reduce((sum, i) => sum + i.price * i.qty, 0)
 );
 
@@ -274,7 +272,7 @@ export function addToCart(item: Omit<CartItem, 'qty'>) {
   const existing = $cartItems.get()[item.id];
   $cartItems.setKey(item.id, {
     ...item,
-    qty: existing ? existing.qty + 1 : 1
+    qty: existing ? existing.qty + 1 : 1,
   });
 }
 
@@ -295,7 +293,7 @@ export function CartDrawer() {
   const total = useStore($cartTotal);
   return (
     <aside>
-      {Object.values(items).map(item => (
+      {Object.values(items).map((item) => (
         <div key={item.id}>
           {item.name} x{item.qty} - ${item.price * item.qty}
           <button onClick={() => removeFromCart(item.id)}>Remove</button>
@@ -320,16 +318,16 @@ export const GET: APIRoute = async ({ url }) => {
   if (!query || query.length < 2) {
     return new Response(JSON.stringify({ error: 'Query too short' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const results = await searchIndex(query);  // your search logic
+  const results = await searchIndex(query); // your search logic
   return new Response(JSON.stringify({ results }), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=300'
-    }
+      'Cache-Control': 'public, max-age=300',
+    },
   });
 };
 ```
@@ -376,27 +374,28 @@ Use the built-in `<Image>` component from `astro:assets` with `widths`, `sizes`,
 
 ## Decision Matrix: Rendering Strategy
 
-| Content Type | Strategy | Config |
-|---|---|---|
-| Blog posts, docs, marketing | Static (SSG) | `output: 'static'` (default) |
-| User dashboard, auth pages | Server (SSR) | `output: 'hybrid'` + `prerender = false` |
-| Full dynamic app | Server | `output: 'server'` |
-| E-commerce product pages | Hybrid | Static pages + SSR cart/checkout |
-| API-backed search | Hybrid | Static shell + `client:idle` island |
+| Content Type                | Strategy     | Config                                   |
+| --------------------------- | ------------ | ---------------------------------------- |
+| Blog posts, docs, marketing | Static (SSG) | `output: 'static'` (default)             |
+| User dashboard, auth pages  | Server (SSR) | `output: 'hybrid'` + `prerender = false` |
+| Full dynamic app            | Server       | `output: 'server'`                       |
+| E-commerce product pages    | Hybrid       | Static pages + SSR cart/checkout         |
+| API-backed search           | Hybrid       | Static shell + `client:idle` island      |
 
 ## Decision Matrix: Client Directive Selection
 
-| Scenario | Directive | Rationale |
-|---|---|---|
-| Theme toggle, navigation state | `client:load` | Must be interactive immediately |
-| Search box, filters | `client:idle` | Can wait for browser idle |
-| Comments section, footer forms | `client:visible` | Below fold, load when seen |
-| Mobile-only hamburger menu | `client:media` | Only needed at small viewports |
-| Analytics, third-party widgets | `client:only` | No useful SSR output |
+| Scenario                       | Directive        | Rationale                       |
+| ------------------------------ | ---------------- | ------------------------------- |
+| Theme toggle, navigation state | `client:load`    | Must be interactive immediately |
+| Search box, filters            | `client:idle`    | Can wait for browser idle       |
+| Comments section, footer forms | `client:visible` | Below fold, load when seen      |
+| Mobile-only hamburger menu     | `client:media`   | Only needed at small viewports  |
+| Analytics, third-party widgets | `client:only`    | No useful SSR output            |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing astro developer solutions
 - Reviewing or improving existing astro developer approaches
 - Making architectural or implementation decisions about astro developer
@@ -404,6 +403,7 @@ Use the built-in `<Image>` component from `astro:assets` with `widths`, `sizes`,
 - Troubleshooting astro developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -414,21 +414,26 @@ Use the built-in `<Image>` component from `astro:assets` with `widths`, `sizes`,
 # Astro Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

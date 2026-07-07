@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management planning optimization"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management planning optimization'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Time Blocking
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to "time block" their week, schedule tasks into calendar slots, or create a structured daily plan with named time chunks
 - The user describes a fragmented workday -- feeling like they never have time for important work despite being busy all day
 - The user has a task list and working hours and wants help turning those into a concrete, hour-by-hour schedule
@@ -29,6 +31,7 @@ metadata:
 - The user wants to reduce decision fatigue about "what to work on next" by pre-assigning every hour of the workday
 
 **Do NOT use when:**
+
 - The user needs to decide which tasks matter most before scheduling anything -- use `eisenhower-matrix` or `task-prioritization` first, then return here
 - The user wants a single plan for just today, not a repeating weekly structure -- use `daily-planning`
 - The user wants to implement a full capture-process-review system with contexts and projects -- use `gtd-workflow`
@@ -69,6 +72,7 @@ Before assigning any tasks, map the immovable structure of the week.
 Use these four categories with strict definitions and minimum block sizes:
 
 **Deep Work blocks:**
+
 - Definition: Tasks that push your cognitive capabilities to their limit, create new value, and cannot be done at reduced attention. Requires zero interruption, ideally zero notifications.
 - Minimum viable block length: 90 minutes. Below 90 minutes, the brain does not reach the depth of focus needed for complex problem-solving -- the average time-on-task to reach flow state is 23 minutes, meaning a 60-minute block gives you roughly 37 minutes of actual deep work.
 - Maximum recommended single block: 3 hours. Beyond 3 hours, cognitive performance degrades sharply without recovery.
@@ -76,18 +80,21 @@ Use these four categories with strict definitions and minimum block sizes:
 - Energy requirement: Peak only. Never schedule deep work in low-energy windows.
 
 **Shallow Work blocks:**
+
 - Definition: Logistical, administrative, or communicative tasks that are necessary but do not require deep concentration. Could be done while mildly tired.
 - Block size: 30-60 minutes per batch. Batch email into two sessions per day (never continuous open inbox). Batch Slack/messaging into 3-4 discrete windows.
 - Examples: email responses, expense reports, scheduling meetings, filing, updating task lists, reading non-essential news.
 - Energy requirement: Low energy windows. Shallow work during peak hours is a cognitive budget waste.
 
 **Creative Work blocks:**
+
 - Definition: Tasks that require ideation, brainstorming, divergent thinking, or open-ended exploration. Different from deep work -- creativity benefits from slightly relaxed focus and associative thinking, not maximum concentration.
 - Block size: 60-120 minutes. Shorter sessions do not allow enough warm-up; longer sessions exhaust novelty.
 - Optimal timing: Late morning (after one deep work block has "warmed up" the brain) or mid-afternoon (post-nap equivalent energy window, 3-4 PM).
 - Examples: brainstorming, product ideation, writing first drafts (exploratory), design concepting.
 
 **Communication Work blocks:**
+
 - Definition: Meetings, calls, check-ins, 1-on-1s, team syncs. These are schedule anchors -- everything else is built around them.
 - Batching principle: Group meetings together on the same days or at the same time of day whenever possible. "Meeting days" and "deep work days" is a well-established scheduling pattern used by executives (the "maker's schedule vs. manager's schedule" framework from Paul Graham). For users who control their calendar, aim for 2 heavy meeting days and 3 light meeting days per week.
 - Recovery cost: Budget 15 minutes of transition buffer after any meeting over 30 minutes, and 5-10 minutes after standups.
@@ -268,6 +275,7 @@ The schedule is not the end product -- the ability to run and adjust it is.
 ## Edge Cases
 
 ### User Has Back-to-Back Meetings Most of the Day
+
 This is the most common failure mode for senior employees and managers. If the user's calendar shows fewer than two 90-minute contiguous gaps per day:
 
 - First, audit which meetings are optional vs. required. Many recurring meetings can be converted to async updates (a 5-minute written summary replaces a 30-minute status call). Help the user identify 2-3 meetings that could be eliminated or shortened.
@@ -276,6 +284,7 @@ This is the most common failure mode for senior employees and managers. If the u
 - Flag the schedule explicitly: "This week's schedule is meeting-constrained. You have [X] hours of protected deep work. To increase this, consider: converting [meeting A] to async, declining [meeting B], and blocking 8:00-10:00 AM as focus time in your calendar."
 
 ### User Works Irregular Hours (Freelancer, Shift Worker, or Non-Standard Schedule)
+
 Do not apply the 9-5 Monday-Friday template. Instead:
 
 - Ask for each day's available hours individually -- they may be different every day.
@@ -284,6 +293,7 @@ Do not apply the 9-5 Monday-Friday template. Instead:
 - For freelancers with client-driven scheduling: designate "client-available" windows (when clients can book calls) separate from "deep work" windows (which clients cannot touch). Client calls should be batched to specific days.
 
 ### User Reports No Clear Energy Pattern
+
 This is common for people in high-stress periods, people recovering from sleep deprivation, or people who have never paid attention to their energy.
 
 - Do not guess. Provide the circadian default: peak 9:00-11:30 AM, secondary peak 3:00-5:00 PM, trough 1:00-3:00 PM. Build the initial schedule on this baseline.
@@ -291,6 +301,7 @@ This is common for people in high-stress periods, people recovering from sleep d
 - Note that the afternoon trough is strongly influenced by meal size. A heavy lunch deepens the 1-3 PM slump; a light lunch with a short walk can reduce it to 30-45 minutes instead of 90.
 
 ### User Resists Including Breaks
+
 A substantial subset of users -- especially high performers and anxious workers -- resist scheduling breaks because they associate stopping work with falling behind.
 
 - Do not argue philosophically. Present the operational case: sustained attention degrades measurably after 60-90 minutes without rest. The NASA Fatigue Management guidelines, research on air traffic controller performance, and attention restoration theory all point to the same threshold. A 15-minute break after 90 minutes of deep work produces higher quality output in the subsequent block than continuous work would.
@@ -298,6 +309,7 @@ A substantial subset of users -- especially high performers and anxious workers 
 - For users with ADHD or hyperfocus patterns: breaks may actually feel disruptive mid-flow. In this case, use the Pomodoro variant -- 52 minutes work, 17 minutes rest -- which research shows aligns better with the natural attention rhythm for many ADHD profiles than the 90-minute default.
 
 ### User Has Caregiving Responsibilities With Unpredictable Timing
+
 Parents with young children, people caring for elderly relatives, or anyone with dependents requiring variable attention need a modified architecture:
 
 - Add two flex blocks per day instead of one -- one in the morning, one in the afternoon.
@@ -306,6 +318,7 @@ Parents with young children, people caring for elderly relatives, or anyone with
 - Build a "fragmented day" fallback plan: a set of 30-minute tasks that can be completed in standalone sessions, so that if caregiving demands fragment the day, something meaningful still gets done.
 
 ### User Has Previously Tried Time Blocking and Failed
+
 This is the user who says "I've tried this before and it never sticks." The failure modes are predictable:
 
 - **Over-precision failure:** The user made blocks too specific (8:37 AM: respond to email from David) and the schedule broke the moment one thing ran over. Solution: use 30-minute minimum block granularity and allow tasks to shift within a block type without guilt.
@@ -314,6 +327,7 @@ This is the user who says "I've tried this before and it never sticks." The fail
 - **Missing shutdown ritual:** Without the daily shutdown block, incomplete tasks pile up invisibly and the schedule becomes psychologically unsafe to look at. Solution: make the shutdown ritual the first habit installed, before the rest of the schedule is even built.
 
 ### User Is an Executive or Manager With 60%+ Meeting Load
+
 High meeting load is not a failure of time management -- it may be appropriate to the role. The goal is not to reduce meetings but to protect the remaining capacity intelligently.
 
 - Apply the "Maker/Manager" framework: identify which days are naturally meeting-heavy (Manager mode: responding, deciding, unblocking) and which can be protected (Maker mode: strategic work, deep thinking, writing).
@@ -334,6 +348,7 @@ High meeting load is not a failure of time management -- it may be appropriate t
 ## Weekly Time-Block Schedule
 
 ### Schedule Parameters
+
 - **Working hours:** 8:00 AM to 5:00 PM, Monday-Friday (45 hours gross)
 - **Peak energy window:** 8:00 AM -- 12:00 PM (mornings, pre-lunch)
 - **Secondary energy window:** 3:00 PM -- 5:00 PM
@@ -347,158 +362,166 @@ High meeting load is not a failure of time management -- it may be appropriate t
 ---
 
 ### Block Type Legend
-| Code | Type | Min Duration | Energy Zone | Notes |
-|------|------|-------------|-------------|-------|
-| [D] | Deep Work | 90 min | Peak only | Phone on Do Not Disturb; Slack closed |
-| [S] | Shallow Work | 30 min | Low | Email + Slack batched here only |
-| [C] | Creative Work | 60 min | Peak/Secondary | Exploratory thinking tasks |
-| [M] | Meeting/Comms | As scheduled | Any | Calendar anchor |
-| [B] | Buffer/Transition | 15 min | N/A | Mandatory; absorbs meeting overrun |
-| [F] | Flex/Overflow | 30 min | N/A | Absorbs task overruns; bonus [D] if unused |
-| [X] | Fixed Commitment | As scheduled | N/A | Immovable |
-| [R] | Rest/Break | 15 min | N/A | Step away from screen -- mandatory |
-| [L] | Lunch | 30 min | N/A | Protected; eat away from desk |
-| [Z] | Shutdown Ritual | 15 min | Low | Daily: review tomorrow, set #1 task |
+
+| Code | Type              | Min Duration | Energy Zone    | Notes                                      |
+| ---- | ----------------- | ------------ | -------------- | ------------------------------------------ |
+| [D]  | Deep Work         | 90 min       | Peak only      | Phone on Do Not Disturb; Slack closed      |
+| [S]  | Shallow Work      | 30 min       | Low            | Email + Slack batched here only            |
+| [C]  | Creative Work     | 60 min       | Peak/Secondary | Exploratory thinking tasks                 |
+| [M]  | Meeting/Comms     | As scheduled | Any            | Calendar anchor                            |
+| [B]  | Buffer/Transition | 15 min       | N/A            | Mandatory; absorbs meeting overrun         |
+| [F]  | Flex/Overflow     | 30 min       | N/A            | Absorbs task overruns; bonus [D] if unused |
+| [X]  | Fixed Commitment  | As scheduled | N/A            | Immovable                                  |
+| [R]  | Rest/Break        | 15 min       | N/A            | Step away from screen -- mandatory         |
+| [L]  | Lunch             | 30 min       | N/A            | Protected; eat away from desk              |
+| [Z]  | Shutdown Ritual   | 15 min       | Low            | Daily: review tomorrow, set #1 task        |
 
 ---
 
 ### Monday
-| Time | Code | Task / Activity | Duration | Notes |
-|------|------|----------------|----------|-------|
-| 8:00-9:00 | [D] | Technical spec -- Section 1: Architecture overview (target: complete section draft) | 60 min | Slack closed; phone DND |
-| 8:55-9:00 | [B] | Transition to standup -- close editor, open notes | 5 min | |
-| 9:00-9:15 | [X] | Team standup | 15 min | |
-| 9:15-9:30 | [B] | Post-standup reset: write action items, close open loops | 15 min | |
-| 9:30-11:30 | [D] | Technical spec -- Section 2: API design + data model (target: complete draft through data model) | 120 min | Slack closed; 90-min ultradian block + 30-min extension |
-| 11:30-11:45 | [R] | Break -- walk outside, no screens | 15 min | |
-| 11:45-12:15 | [D] | Code review: PR #142 (Martinez) -- full review with comments | 30 min | Shortened deep block; spec review appropriate here |
-| 12:15-12:45 | [L] | Lunch -- away from desk | 30 min | Protected |
-| 12:45-1:15 | [S] | Email batch 1: process inbox, respond to all under-5-minute items, flag longer ones | 30 min | First Slack check of day also here |
-| 1:15-1:45 | [S] | Slack catchup: respond to all threads, clear notifications | 30 min | |
-| 1:45-2:15 | [F] | Daily overflow block | 30 min | Use for spec overrun or PR if needed; bonus [S] if not needed |
-| 2:15-2:30 | [B] | Transition buffer | 15 min | |
-| 2:30-3:00 | [S] | Admin: update task list, check project board, file documents | 30 min | |
-| 3:00-4:30 | [D] | Feature branch development -- implement authentication endpoint (target: passing unit tests) | 90 min | Secondary energy window; Slack closed |
-| 4:30-4:45 | [B] | Transition | 15 min | |
-| 4:45-5:00 | [Z] | Shutdown ritual: review Tuesday's blocks, assign #1 task, process any flagged emails | 15 min | |
+
+| Time        | Code | Task / Activity                                                                                  | Duration | Notes                                                         |
+| ----------- | ---- | ------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------- |
+| 8:00-9:00   | [D]  | Technical spec -- Section 1: Architecture overview (target: complete section draft)              | 60 min   | Slack closed; phone DND                                       |
+| 8:55-9:00   | [B]  | Transition to standup -- close editor, open notes                                                | 5 min    |                                                               |
+| 9:00-9:15   | [X]  | Team standup                                                                                     | 15 min   |                                                               |
+| 9:15-9:30   | [B]  | Post-standup reset: write action items, close open loops                                         | 15 min   |                                                               |
+| 9:30-11:30  | [D]  | Technical spec -- Section 2: API design + data model (target: complete draft through data model) | 120 min  | Slack closed; 90-min ultradian block + 30-min extension       |
+| 11:30-11:45 | [R]  | Break -- walk outside, no screens                                                                | 15 min   |                                                               |
+| 11:45-12:15 | [D]  | Code review: PR #142 (Martinez) -- full review with comments                                     | 30 min   | Shortened deep block; spec review appropriate here            |
+| 12:15-12:45 | [L]  | Lunch -- away from desk                                                                          | 30 min   | Protected                                                     |
+| 12:45-1:15  | [S]  | Email batch 1: process inbox, respond to all under-5-minute items, flag longer ones              | 30 min   | First Slack check of day also here                            |
+| 1:15-1:45   | [S]  | Slack catchup: respond to all threads, clear notifications                                       | 30 min   |                                                               |
+| 1:45-2:15   | [F]  | Daily overflow block                                                                             | 30 min   | Use for spec overrun or PR if needed; bonus [S] if not needed |
+| 2:15-2:30   | [B]  | Transition buffer                                                                                | 15 min   |                                                               |
+| 2:30-3:00   | [S]  | Admin: update task list, check project board, file documents                                     | 30 min   |                                                               |
+| 3:00-4:30   | [D]  | Feature branch development -- implement authentication endpoint (target: passing unit tests)     | 90 min   | Secondary energy window; Slack closed                         |
+| 4:30-4:45   | [B]  | Transition                                                                                       | 15 min   |                                                               |
+| 4:45-5:00   | [Z]  | Shutdown ritual: review Tuesday's blocks, assign #1 task, process any flagged emails             | 15 min   |                                                               |
 
 ---
 
 ### Tuesday
-| Time | Code | Task / Activity | Duration | Notes |
-|------|------|----------------|----------|-------|
-| 8:00-8:55 | [D] | Feature branch development -- implement data persistence layer (target: schema migrations passing) | 55 min | Slack closed |
-| 8:55-9:00 | [B] | Transition to standup | 5 min | |
-| 9:00-9:15 | [X] | Team standup | 15 min | |
-| 9:15-9:30 | [B] | Post-standup reset | 15 min | |
-| 9:30-11:30 | [D] | Feature branch development -- continued (target: core business logic layer complete) | 120 min | Longest contiguous block of the week; protect fiercely |
-| 11:30-11:45 | [R] | Break | 15 min | |
-| 11:45-12:15 | [D] | Code review: PR #147 (Singh) -- full review with inline comments | 30 min | |
-| 12:15-12:45 | [L] | Lunch | 30 min | Protected |
-| 12:45-1:15 | [S] | Email batch 1: inbox processing | 30 min | |
-| 1:15-1:45 | [S] | Slack catchup | 30 min | |
-| 1:45-2:15 | [F] | Daily overflow block | 30 min | |
-| 2:15-3:00 | [S] | Admin: documentation updates, project board, expense reports | 45 min | |
-| 3:00-4:30 | [D] | Technical spec -- Section 3: Integration patterns and error handling | 90 min | |
-| 4:30-4:45 | [B] | Transition | 15 min | |
-| 4:45-5:00 | [Z] | Shutdown ritual | 15 min | |
+
+| Time        | Code | Task / Activity                                                                                    | Duration | Notes                                                  |
+| ----------- | ---- | -------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------ |
+| 8:00-8:55   | [D]  | Feature branch development -- implement data persistence layer (target: schema migrations passing) | 55 min   | Slack closed                                           |
+| 8:55-9:00   | [B]  | Transition to standup                                                                              | 5 min    |                                                        |
+| 9:00-9:15   | [X]  | Team standup                                                                                       | 15 min   |                                                        |
+| 9:15-9:30   | [B]  | Post-standup reset                                                                                 | 15 min   |                                                        |
+| 9:30-11:30  | [D]  | Feature branch development -- continued (target: core business logic layer complete)               | 120 min  | Longest contiguous block of the week; protect fiercely |
+| 11:30-11:45 | [R]  | Break                                                                                              | 15 min   |                                                        |
+| 11:45-12:15 | [D]  | Code review: PR #147 (Singh) -- full review with inline comments                                   | 30 min   |                                                        |
+| 12:15-12:45 | [L]  | Lunch                                                                                              | 30 min   | Protected                                              |
+| 12:45-1:15  | [S]  | Email batch 1: inbox processing                                                                    | 30 min   |                                                        |
+| 1:15-1:45   | [S]  | Slack catchup                                                                                      | 30 min   |                                                        |
+| 1:45-2:15   | [F]  | Daily overflow block                                                                               | 30 min   |                                                        |
+| 2:15-3:00   | [S]  | Admin: documentation updates, project board, expense reports                                       | 45 min   |                                                        |
+| 3:00-4:30   | [D]  | Technical spec -- Section 3: Integration patterns and error handling                               | 90 min   |                                                        |
+| 4:30-4:45   | [B]  | Transition                                                                                         | 15 min   |                                                        |
+| 4:45-5:00   | [Z]  | Shutdown ritual                                                                                    | 15 min   |                                                        |
 
 ---
 
 ### Wednesday (Meeting-Heavy Day)
-| Time | Code | Task / Activity | Duration | Notes |
-|------|------|----------------|----------|-------|
-| 8:00-8:55 | [D] | Feature branch development -- implement API endpoints (target: GET and POST endpoints operational) | 55 min | Slack closed; protect this window -- it's the only long morning gap |
-| 8:55-9:00 | [B] | Transition to standup | 5 min | |
-| 9:00-9:15 | [X] | Team standup | 15 min | |
-| 9:15-9:30 | [B] | Post-standup reset | 15 min | |
-| 9:30-11:00 | [D] | Technical spec -- Section 4: Testing strategy and acceptance criteria (target: complete draft) | 90 min | This completes the spec; total spec writing: ~4.5h across Mon-Wed |
-| 11:00-11:15 | [R] | Break | 15 min | |
-| 11:15-12:00 | [D] | Code review: PR #153 (Okonkwo) -- full review | 45 min | Completes all 3 PR reviews for the week |
-| 12:00-12:30 | [L] | Lunch | 30 min | Protected |
-| 12:30-1:00 | [S] | Email batch 1 + Slack catchup | 30 min | |
-| 1:00-1:45 | [S] | Admin + documentation | 45 min | |
-| 1:45-2:00 | [B] | Pre-meeting prep: review agenda, open notes for 1-on-1 | 15 min | |
-| 2:00-3:00 | [X] | 1-on-1 with manager | 60 min | |
-| 3:00-3:15 | [B] | Post-1-on-1 notes: capture action items, decisions, follow-ups | 15 min | |
-| 3:15-3:45 | [F] | Weekly flex block: urgent/unexpected tasks or spec final polish | 30 min | This is the week's primary flex block |
-| 3:45-4:30 | [S] | Email batch 2: longer responses, flagged items | 45 min | |
-| 4:30-4:45 | [B] | Transition | 15 min | |
-| 4:45-5:00 | [Z] | Shutdown ritual | 15 min | |
+
+| Time        | Code | Task / Activity                                                                                    | Duration | Notes                                                               |
+| ----------- | ---- | -------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
+| 8:00-8:55   | [D]  | Feature branch development -- implement API endpoints (target: GET and POST endpoints operational) | 55 min   | Slack closed; protect this window -- it's the only long morning gap |
+| 8:55-9:00   | [B]  | Transition to standup                                                                              | 5 min    |                                                                     |
+| 9:00-9:15   | [X]  | Team standup                                                                                       | 15 min   |                                                                     |
+| 9:15-9:30   | [B]  | Post-standup reset                                                                                 | 15 min   |                                                                     |
+| 9:30-11:00  | [D]  | Technical spec -- Section 4: Testing strategy and acceptance criteria (target: complete draft)     | 90 min   | This completes the spec; total spec writing: ~4.5h across Mon-Wed   |
+| 11:00-11:15 | [R]  | Break                                                                                              | 15 min   |                                                                     |
+| 11:15-12:00 | [D]  | Code review: PR #153 (Okonkwo) -- full review                                                      | 45 min   | Completes all 3 PR reviews for the week                             |
+| 12:00-12:30 | [L]  | Lunch                                                                                              | 30 min   | Protected                                                           |
+| 12:30-1:00  | [S]  | Email batch 1 + Slack catchup                                                                      | 30 min   |                                                                     |
+| 1:00-1:45   | [S]  | Admin + documentation                                                                              | 45 min   |                                                                     |
+| 1:45-2:00   | [B]  | Pre-meeting prep: review agenda, open notes for 1-on-1                                             | 15 min   |                                                                     |
+| 2:00-3:00   | [X]  | 1-on-1 with manager                                                                                | 60 min   |                                                                     |
+| 3:00-3:15   | [B]  | Post-1-on-1 notes: capture action items, decisions, follow-ups                                     | 15 min   |                                                                     |
+| 3:15-3:45   | [F]  | Weekly flex block: urgent/unexpected tasks or spec final polish                                    | 30 min   | This is the week's primary flex block                               |
+| 3:45-4:30   | [S]  | Email batch 2: longer responses, flagged items                                                     | 45 min   |                                                                     |
+| 4:30-4:45   | [B]  | Transition                                                                                         | 15 min   |                                                                     |
+| 4:45-5:00   | [Z]  | Shutdown ritual                                                                                    | 15 min   |                                                                     |
 
 ---
 
 ### Thursday
-| Time | Code | Task / Activity | Duration | Notes |
-|------|------|----------------|----------|-------|
-| 8:00-8:55 | [D] | Feature branch development -- implement error handling + validation layer | 55 min | Slack closed |
-| 8:55-9:00 | [B] | Transition | 5 min | |
-| 9:00-9:15 | [X] | Team standup | 15 min | |
-| 9:15-9:30 | [B] | Post-standup reset | 15 min | |
-| 9:30-11:30 | [D] | Feature branch development -- integration testing + bug fixes (target: end-to-end flow working) | 120 min | Deep block; this completes the 8h estimate for the feature branch |
-| 11:30-11:45 | [R] | Break | 15 min | |
-| 11:45-12:15 | [C] | Technical spec review -- read full draft, identify gaps, note open questions | 30 min | Transition from writing to reviewing; lower intensity |
-| 12:15-12:45 | [L] | Lunch | 30 min | Protected |
-| 12:45-1:15 | [S] | Email batch 1 | 30 min | |
-| 1:15-1:45 | [S] | Slack + project board update | 30 min | |
-| 1:45-2:15 | [F] | Daily overflow block | 30 min | |
-| 2:15-3:00 | [S] | Admin + documentation | 45 min | |
-| 3:00-4:30 | [D] | Spec revisions based on morning review -- finalize document | 90 min | Target: submit spec for review by EOD Thursday |
-| 4:30-4:45 | [B] | Transition | 15 min | |
-| 4:45-5:00 | [Z] | Shutdown ritual | 15 min | |
+
+| Time        | Code | Task / Activity                                                                                 | Duration | Notes                                                             |
+| ----------- | ---- | ----------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
+| 8:00-8:55   | [D]  | Feature branch development -- implement error handling + validation layer                       | 55 min   | Slack closed                                                      |
+| 8:55-9:00   | [B]  | Transition                                                                                      | 5 min    |                                                                   |
+| 9:00-9:15   | [X]  | Team standup                                                                                    | 15 min   |                                                                   |
+| 9:15-9:30   | [B]  | Post-standup reset                                                                              | 15 min   |                                                                   |
+| 9:30-11:30  | [D]  | Feature branch development -- integration testing + bug fixes (target: end-to-end flow working) | 120 min  | Deep block; this completes the 8h estimate for the feature branch |
+| 11:30-11:45 | [R]  | Break                                                                                           | 15 min   |                                                                   |
+| 11:45-12:15 | [C]  | Technical spec review -- read full draft, identify gaps, note open questions                    | 30 min   | Transition from writing to reviewing; lower intensity             |
+| 12:15-12:45 | [L]  | Lunch                                                                                           | 30 min   | Protected                                                         |
+| 12:45-1:15  | [S]  | Email batch 1                                                                                   | 30 min   |                                                                   |
+| 1:15-1:45   | [S]  | Slack + project board update                                                                    | 30 min   |                                                                   |
+| 1:45-2:15   | [F]  | Daily overflow block                                                                            | 30 min   |                                                                   |
+| 2:15-3:00   | [S]  | Admin + documentation                                                                           | 45 min   |                                                                   |
+| 3:00-4:30   | [D]  | Spec revisions based on morning review -- finalize document                                     | 90 min   | Target: submit spec for review by EOD Thursday                    |
+| 4:30-4:45   | [B]  | Transition                                                                                      | 15 min   |                                                                   |
+| 4:45-5:00   | [Z]  | Shutdown ritual                                                                                 | 15 min   |                                                                   |
 
 ---
 
 ### Friday
-| Time | Code | Task / Activity | Duration | Notes |
-|------|------|----------------|----------|-------|
-| 8:00-8:55 | [D] | Feature branch: write PR description, add inline code comments, prepare for review | 55 min | Submit feature branch PR before standup |
-| 8:55-9:00 | [B] | Transition | 5 min | |
-| 9:00-9:15 | [X] | Team standup | 15 min | |
-| 9:15-9:30 | [B] | Post-standup reset | 15 min | |
-| 9:30-10:30 | [S] | Email batch 1: full inbox processing, weekly unsubscribe pass | 60 min | Friday morning is good for slower email pace |
-| 10:30-11:00 | [S] | Slack: clear all threads, respond to anything missed this week | 30 min | |
-| 11:00-11:15 | [R] | Break | 15 min | |
-| 11:15-12:00 | [F] | Flex block: anything that slipped this week; or early start on next week prep | 45 min | |
-| 12:00-12:30 | [L] | Lunch | 30 min | Protected |
-| 12:30-1:30 | [S] | Weekly review: review what got done, what slipped, what needs to move to next week | 60 min | |
-| 1:30-2:30 | [S] | Next week planning: load tasks into Monday-Wednesday deep work blocks | 60 min | This is how the system stays alive |
-| 2:30-3:00 | [S] | Admin wrap-up: documentation, time tracking, expense reports | 30 min | |
-| 3:00-4:00 | [S] | Learning block: read one technical article or watch one talk (low stakes) | 60 min | Friday afternoons are for maintenance inputs, not deep outputs |
-| 4:00-4:30 | [S] | Clear workspace: close tabs, archive files, tidy digital environment | 30 min | |
-| 4:30-4:45 | [B] | Transition | 15 min | |
-| 4:45-5:00 | [Z] | Shutdown ritual: full week close, set #1 task for Monday | 15 min | |
+
+| Time        | Code | Task / Activity                                                                    | Duration | Notes                                                          |
+| ----------- | ---- | ---------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------- |
+| 8:00-8:55   | [D]  | Feature branch: write PR description, add inline code comments, prepare for review | 55 min   | Submit feature branch PR before standup                        |
+| 8:55-9:00   | [B]  | Transition                                                                         | 5 min    |                                                                |
+| 9:00-9:15   | [X]  | Team standup                                                                       | 15 min   |                                                                |
+| 9:15-9:30   | [B]  | Post-standup reset                                                                 | 15 min   |                                                                |
+| 9:30-10:30  | [S]  | Email batch 1: full inbox processing, weekly unsubscribe pass                      | 60 min   | Friday morning is good for slower email pace                   |
+| 10:30-11:00 | [S]  | Slack: clear all threads, respond to anything missed this week                     | 30 min   |                                                                |
+| 11:00-11:15 | [R]  | Break                                                                              | 15 min   |                                                                |
+| 11:15-12:00 | [F]  | Flex block: anything that slipped this week; or early start on next week prep      | 45 min   |                                                                |
+| 12:00-12:30 | [L]  | Lunch                                                                              | 30 min   | Protected                                                      |
+| 12:30-1:30  | [S]  | Weekly review: review what got done, what slipped, what needs to move to next week | 60 min   |                                                                |
+| 1:30-2:30   | [S]  | Next week planning: load tasks into Monday-Wednesday deep work blocks              | 60 min   | This is how the system stays alive                             |
+| 2:30-3:00   | [S]  | Admin wrap-up: documentation, time tracking, expense reports                       | 30 min   |                                                                |
+| 3:00-4:00   | [S]  | Learning block: read one technical article or watch one talk (low stakes)          | 60 min   | Friday afternoons are for maintenance inputs, not deep outputs |
+| 4:00-4:30   | [S]  | Clear workspace: close tabs, archive files, tidy digital environment               | 30 min   |                                                                |
+| 4:30-4:45   | [B]  | Transition                                                                         | 15 min   |                                                                |
+| 4:45-5:00   | [Z]  | Shutdown ritual: full week close, set #1 task for Monday                           | 15 min   |                                                                |
 
 ---
 
 ### Weekly Summary Table
-| Block Type | Hours/Week | % of Available Time | Target Range |
-|-----------|-----------|---------------------|-------------|
-| Deep Work [D] | 19.5h | 48% | 35-50% |
-| Creative Work [C] | 0.5h | 1% | 5-15% |
-| Shallow Work [S] | 9.75h | 24% | 15-25% |
-| Meetings [M] | 2.25h | 6% | 10-20% |
-| Buffers [B] | 3.5h | 9% | 8-12% |
-| Flex/Overflow [F] | 2.25h | 6% | 4-8% |
-| Rest/Break [R] | 1.25h | 3% | 5-8% |
-| Lunch [L] | 2.5h | 6% | 5-8% |
-| Shutdown [Z] | 1.25h | 3% | 2-4% |
-| **Total** | **42.75h** | **~100%** | |
 
-*Note: Creative Work is low this week because the task list is execution-heavy (spec writing and coding). In a week with more strategic or exploratory tasks, target 3-6h of [C] blocks.*
+| Block Type        | Hours/Week | % of Available Time | Target Range |
+| ----------------- | ---------- | ------------------- | ------------ |
+| Deep Work [D]     | 19.5h      | 48%                 | 35-50%       |
+| Creative Work [C] | 0.5h       | 1%                  | 5-15%        |
+| Shallow Work [S]  | 9.75h      | 24%                 | 15-25%       |
+| Meetings [M]      | 2.25h      | 6%                  | 10-20%       |
+| Buffers [B]       | 3.5h       | 9%                  | 8-12%        |
+| Flex/Overflow [F] | 2.25h      | 6%                  | 4-8%         |
+| Rest/Break [R]    | 1.25h      | 3%                  | 5-8%         |
+| Lunch [L]         | 2.5h       | 6%                  | 5-8%         |
+| Shutdown [Z]      | 1.25h      | 3%                  | 2-4%         |
+| **Total**         | **42.75h** | **~100%**           |              |
+
+_Note: Creative Work is low this week because the task list is execution-heavy (spec writing and coding). In a week with more strategic or exploratory tasks, target 3-6h of [C] blocks._
 
 ---
 
 ### Task Coverage Checklist
-| Task | Estimated Duration | Block(s) Assigned | Day(s) | Covered? |
-|------|--------------------|------------------|--------|---------|
-| Technical spec (writing + revisions) | 4.5h | Mon [D] 8-9 + 9:30-11:30; Tue [D] 3-4:30; Wed [D] 9:30-11; Thu [D] 3-4:30 | Mon, Tue, Wed, Thu | Yes |
-| Code review: PR #142 (Martinez) | 30 min | [D] 11:45 | Monday | Yes |
-| Code review: PR #147 (Singh) | 40 min | [D] 11:45 | Tuesday | Yes |
-| Code review: PR #153 (Okonkwo) | 45 min | [D] 11:15 | Wednesday | Yes |
-| Feature branch development | 8h | Tue [D] 8-9 + 9:30-11:30; Wed [D] 8-9; Thu [D] 8-9 + 9:30-11:30; Fri [D] 8-9 | Tue-Fri | Yes |
-| Email + Slack processing | ~5h | Daily [S] batches (2×30 min/day) | Mon-Fri | Yes |
-| Admin/documentation | ~2.5h | Daily [S] afternoon slots | Mon-Fri | Yes |
+
+| Task                                 | Estimated Duration | Block(s) Assigned                                                            | Day(s)             | Covered? |
+| ------------------------------------ | ------------------ | ---------------------------------------------------------------------------- | ------------------ | -------- |
+| Technical spec (writing + revisions) | 4.5h               | Mon [D] 8-9 + 9:30-11:30; Tue [D] 3-4:30; Wed [D] 9:30-11; Thu [D] 3-4:30    | Mon, Tue, Wed, Thu | Yes      |
+| Code review: PR #142 (Martinez)      | 30 min             | [D] 11:45                                                                    | Monday             | Yes      |
+| Code review: PR #147 (Singh)         | 40 min             | [D] 11:45                                                                    | Tuesday            | Yes      |
+| Code review: PR #153 (Okonkwo)       | 45 min             | [D] 11:15                                                                    | Wednesday          | Yes      |
+| Feature branch development           | 8h                 | Tue [D] 8-9 + 9:30-11:30; Wed [D] 8-9; Thu [D] 8-9 + 9:30-11:30; Fri [D] 8-9 | Tue-Fri            | Yes      |
+| Email + Slack processing             | ~5h                | Daily [S] batches (2×30 min/day)                                             | Mon-Fri            | Yes      |
+| Admin/documentation                  | ~2.5h              | Daily [S] afternoon slots                                                    | Mon-Fri            | Yes      |
 
 ---
 

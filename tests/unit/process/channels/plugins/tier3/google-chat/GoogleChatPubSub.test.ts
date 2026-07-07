@@ -149,18 +149,17 @@ describe('pubsubMessageToEvent', () => {
 // `message` handler directly and assert ack() behaviour without a real
 // streaming pull.
 
-const { mockSubscriptionOn, mockSubscriptionClose, mockPubSubClose, capturedHandlers } =
-  vi.hoisted(() => {
-    const capturedHandlers: Record<string, (...args: unknown[]) => void> = {};
-    return {
-      capturedHandlers,
-      mockSubscriptionClose: vi.fn().mockResolvedValue(undefined),
-      mockPubSubClose: vi.fn().mockResolvedValue(undefined),
-      mockSubscriptionOn: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
-        capturedHandlers[event] = handler;
-      }),
-    };
-  });
+const { mockSubscriptionOn, mockSubscriptionClose, mockPubSubClose, capturedHandlers } = vi.hoisted(() => {
+  const capturedHandlers: Record<string, (...args: unknown[]) => void> = {};
+  return {
+    capturedHandlers,
+    mockSubscriptionClose: vi.fn().mockResolvedValue(undefined),
+    mockPubSubClose: vi.fn().mockResolvedValue(undefined),
+    mockSubscriptionOn: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+      capturedHandlers[event] = handler;
+    }),
+  };
+});
 
 vi.mock('@google-cloud/pubsub', () => {
   const subscription = {
@@ -184,7 +183,12 @@ const SA_CREDS = {
   project_id: 'my-project',
 };
 
-function makeFakeMessage(envelope: unknown): { ack: ReturnType<typeof vi.fn>; nack: ReturnType<typeof vi.fn>; data: Buffer; attributes: Record<string, string> } {
+function makeFakeMessage(envelope: unknown): {
+  ack: ReturnType<typeof vi.fn>;
+  nack: ReturnType<typeof vi.fn>;
+  data: Buffer;
+  attributes: Record<string, string>;
+} {
   return {
     ack: vi.fn(),
     nack: vi.fn(),
@@ -194,7 +198,7 @@ function makeFakeMessage(envelope: unknown): { ack: ReturnType<typeof vi.fn>; na
 }
 
 async function startSubscriber(
-  onMessage: (m: IUnifiedIncomingMessage) => Promise<void>,
+  onMessage: (m: IUnifiedIncomingMessage) => Promise<void>
 ): Promise<GoogleChatPubSubSubscriber> {
   const subscriber = new GoogleChatPubSubSubscriber({
     subscriptionName: 'projects/my-project/subscriptions/wayland-sub',

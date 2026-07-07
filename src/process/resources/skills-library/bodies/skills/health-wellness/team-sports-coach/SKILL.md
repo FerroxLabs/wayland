@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness step-by-step"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness step-by-step'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Team Sports Coach
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about team sports coach
 - User needs guidance on team sports coach topics
 - User wants a structured approach to team sports coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -349,13 +351,13 @@ SPECIFIC GOALS FOR THIS SEASON: _________________________
 
 ### Age-Appropriate Development Focus
 
-| Age Group | Technical Focus | Tactical Focus | Physical Focus | Mental Focus |
-|-----------|----------------|----------------|----------------|--------------|
-| Under 8 | Basic ball skills, coordination | Simple concepts (space, go to goal) | Agility, fun movement | Love of the game, sharing |
-| 8-10 | Fundamental techniques, both sides | Small-sided awareness, roles | Speed, agility, flexibility | Effort, sportsmanship |
-| 11-13 | Refined technique, game-speed skills | Team tactics, positional play | Introduction to fitness | Decision-making, resilience |
-| 14-16 | Advanced technique under pressure | Complex strategy, set plays | Strength, endurance, speed | Leadership, mental toughness |
-| 17-18 | Position-specific mastery | Full tactical understanding | Peak physical development | Composure, self-coaching |
+| Age Group | Technical Focus                      | Tactical Focus                      | Physical Focus              | Mental Focus                 |
+| --------- | ------------------------------------ | ----------------------------------- | --------------------------- | ---------------------------- |
+| Under 8   | Basic ball skills, coordination      | Simple concepts (space, go to goal) | Agility, fun movement       | Love of the game, sharing    |
+| 8-10      | Fundamental techniques, both sides   | Small-sided awareness, roles        | Speed, agility, flexibility | Effort, sportsmanship        |
+| 11-13     | Refined technique, game-speed skills | Team tactics, positional play       | Introduction to fitness     | Decision-making, resilience  |
+| 14-16     | Advanced technique under pressure    | Complex strategy, set plays         | Strength, endurance, speed  | Leadership, mental toughness |
+| 17-18     | Position-specific mastery            | Full tactical understanding         | Peak physical development   | Composure, self-coaching     |
 
 ---
 

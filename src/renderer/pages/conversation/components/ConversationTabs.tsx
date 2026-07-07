@@ -312,14 +312,19 @@ const ConversationTabs: React.FC = () => {
   const handleCloseTab = useCallback(
     (tabId: string) => {
       cleanupSiderTooltips();
+      const remaining = openTabs.filter((tt) => tt.id !== tabId);
       closeTab(tabId);
-      // If closing current tab, context auto-handles navigation (switch to last)
-      // If no tabs remain, navigate to welcome page
-      if (openTabs.length === 1 && tabId === activeTabId) {
-        void navigate('/guid');
+      // The content area follows the /conversation/:id route, not activeTabId.
+      // context.closeTab only updates activeTabId state; it does NOT navigate, so
+      // closing the ACTIVE tab left the route (and view) stuck on the just-closed
+      // chat while other tabs remained (#678). Mirror context.closeTab's choice of
+      // next tab (the last remaining) so the view follows it, or go home if none
+      // are left. Matches the tear-off navigation in handlePopoutTab.
+      if (tabId === activeTabId) {
+        void navigate(remaining.length > 0 ? `/conversation/${remaining[remaining.length - 1].id}` : '/guid');
       }
     },
-    [closeTab, openTabs.length, activeTabId, navigate]
+    [closeTab, openTabs, activeTabId, navigate]
   );
 
   // Begin dragging a tab

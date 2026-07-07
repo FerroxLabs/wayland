@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "version-control best-practices automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'version-control best-practices automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Conventional Commits
 
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to implement the Conventional Commits specification (v1.0.0) in a project from scratch -- including commit message format, tooling setup, and enforcement hooks
 - User needs to configure commitlint, commitizen, semantic-release, or standard-version for automated versioning and changelog generation
 - User asks how to enforce commit message standards across a team using Git hooks (husky, lefthook, pre-commit) or CI pipeline checks
@@ -30,6 +32,7 @@ metadata:
 - User needs to write or review a specific commit message and wants guidance on correct format
 
 **Do NOT use this skill when:**
+
 - User needs help with Git branching strategy (e.g., GitFlow, trunk-based development, release branches) -- use the git-branching-strategy skill instead
 - User is asking about pull request or code review workflows -- use the pull-request-workflow skill
 - User needs general semantic versioning guidance (SemVer 2.0.0 rules independent of commit messages) -- use the semver skill
@@ -72,22 +75,26 @@ Understanding the version bump rules is essential for configuring automated rele
 Select tools based on the project's runtime, CI environment, and team size:
 
 **Commit Message Linting:**
+
 - `commitlint` (Node.js) with `@commitlint/config-conventional` is the de facto standard. Install with: `npm install --save-dev @commitlint/cli @commitlint/config-conventional`
 - Create `commitlint.config.js` or `.commitlintrc.json` at repo root. The minimal config is: `module.exports = { extends: ['@commitlint/config-conventional'] }`
 - For Python projects, `commitizen` (Python package, not the Node one) or `pre-commit` hooks with a shell script work well
 - `gitlint` is a Python-native alternative that supports `.gitlint` config files
 
 **Interactive Commit Authoring:**
+
 - `commitizen` (Node.js, `cz-cli`) provides an interactive CLI prompt: `npm install --save-dev commitizen` then `npx commitizen init cz-conventional-changelog --save-dev --save-exact`
 - After setup, `git cz` or `npx cz` replaces `git commit` with a guided wizard
 - `cz-customizable` adapter allows custom types, scopes, and validation beyond the conventional defaults
 
 **Git Hook Management:**
+
 - `husky` v8+ (Node.js) integrates commitlint into the `commit-msg` hook: add `"prepare": "husky install"` to package.json scripts, then `npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'`
 - `lefthook` (Go binary, language-agnostic) is an alternative that works without Node.js in the project: configure via `lefthook.yml`
 - For CI enforcement independent of local hooks (hooks can be bypassed with `--no-verify`), run `commitlint --from=HEAD~1 --to=HEAD` or lint the PR title/all commits in a PR range
 
 **Automated Release and Changelog:**
+
 - `semantic-release` is the most powerful option for full automation: reads commit history since the last tag, determines version bump, writes CHANGELOG, creates Git tag, publishes to registries. Requires CI token with push rights
 - `standard-version` is a lighter-weight local alternative (deprecated but still widely used): run manually with `npx standard-version`. It bumps package.json version, writes CHANGELOG.md, commits the change, and creates a tag
 - `release-please` (Google) integrates with GitHub/GitLab as a bot that opens a release PR when unreleased commits accumulate -- good for teams that want a human review step before releasing
@@ -120,6 +127,7 @@ Local hooks are bypassed with `--no-verify` and don't run in most CI environment
 Set up the release automation pipeline based on the chosen tool:
 
 **For semantic-release:**
+
 - Create `.releaserc.json` at repo root. Minimal config: `{ "branches": ["main"], "plugins": ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/changelog", "@semantic-release/npm", "@semantic-release/git", "@semantic-release/github"] }`
 - Install all plugins: `npm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git`
 - The `@semantic-release/commit-analyzer` plugin maps commit types to version bumps. Override with `releaseRules` to make `refactor:` trigger a patch: `{ "type": "refactor", "release": "patch" }`
@@ -127,6 +135,7 @@ Set up the release automation pipeline based on the chosen tool:
 - For monorepos, use `semantic-release` with the `--extends` flag per package, or use `multi-semantic-release` for workspace-aware releases
 
 **For release-please:**
+
 - Add `.github/workflows/release-please.yml` using `googleapis/release-please-action@v4`
 - Configure `release-please-config.json` and `.release-please-manifest.json` at repo root
 - Release Please groups commits since the last release into a draft PR with a pre-computed CHANGELOG. Merging the PR triggers the actual release
@@ -162,19 +171,20 @@ No tooling substitutes for clear human documentation:
 
 When helping a user set up Conventional Commits, produce a structured implementation plan using this format:
 
-```markdown
+````markdown
 ## Conventional Commits Implementation Plan
 
 ### Project Profile
-| Attribute          | Value                              |
-|--------------------|------------------------------------|
-| Runtime/Language   | [e.g., Node.js 20, Python 3.11]    |
-| Package Manager    | [npm / yarn / pnpm / pip / go mod] |
-| Repo Structure     | [single-package / monorepo]        |
-| CI Platform        | [GitHub Actions / GitLab CI / etc] |
-| Merge Strategy     | [squash / merge commit / rebase]   |
-| Release Target     | [npm / PyPI / Docker / internal]   |
-| Automation Level   | [manual / semi-auto / full-auto]   |
+
+| Attribute        | Value                              |
+| ---------------- | ---------------------------------- |
+| Runtime/Language | [e.g., Node.js 20, Python 3.11]    |
+| Package Manager  | [npm / yarn / pnpm / pip / go mod] |
+| Repo Structure   | [single-package / monorepo]        |
+| CI Platform      | [GitHub Actions / GitLab CI / etc] |
+| Merge Strategy   | [squash / merge commit / rebase]   |
+| Release Target   | [npm / PyPI / Docker / internal]   |
+| Automation Level | [manual / semi-auto / full-auto]   |
 
 ---
 
@@ -188,21 +198,21 @@ When helping a user set up Conventional Commits, produce a structured implementa
 [optional footer(s)]
 
 **Type → SemVer Mapping:**
-| Type       | Version Bump | Included in CHANGELOG |
+| Type | Version Bump | Included in CHANGELOG |
 |------------|-------------|----------------------|
-| feat       | MINOR       | Yes                  |
-| fix        | PATCH       | Yes                  |
-| perf       | PATCH       | Yes                  |
-| revert     | PATCH       | Yes                  |
-| docs       | none        | No (default)         |
-| style      | none        | No                   |
-| refactor   | none        | No (default)         |
-| test       | none        | No                   |
-| build      | none        | No                   |
-| ci         | none        | No                   |
-| chore      | none        | No                   |
-| BREAKING CHANGE (footer) | MAJOR | Yes          |
-| ! suffix   | MAJOR       | Yes                  |
+| feat | MINOR | Yes |
+| fix | PATCH | Yes |
+| perf | PATCH | Yes |
+| revert | PATCH | Yes |
+| docs | none | No (default) |
+| style | none | No |
+| refactor | none | No (default) |
+| test | none | No |
+| build | none | No |
+| ci | none | No |
+| chore | none | No |
+| BREAKING CHANGE (footer) | MAJOR | Yes |
+| ! suffix | MAJOR | Yes |
 
 **Allowed Scopes:** [list scopes specific to this project]
 
@@ -211,25 +221,35 @@ When helping a user set up Conventional Commits, produce a structured implementa
 ### Toolchain Configuration
 
 #### commitlint.config.js
+
 ```javascript
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'type-enum': [2, 'always', [
-      'feat', 'fix', 'docs', 'style', 'refactor',
-      'perf', 'test', 'build', 'ci', 'chore', 'revert'
-    ]],
-    'scope-enum': [2, 'always', [/* project-specific scopes */]],
-    'scope-empty': [1, 'never'],          // warn if scope missing
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'],
+    ],
+    'scope-enum': [
+      2,
+      'always',
+      [
+        /* project-specific scopes */
+      ],
+    ],
+    'scope-empty': [1, 'never'], // warn if scope missing
     'subject-case': [2, 'never', ['sentence-case', 'pascal-case', 'upper-case']],
     'header-max-length': [2, 'always', 72],
     'body-max-line-length': [2, 'always', 100],
     'footer-max-line-length': [2, 'always', 100],
-  }
+  },
 };
 ```
+````
 
 #### .husky/commit-msg
+
 ```sh
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -237,6 +257,7 @@ npx --no -- commitlint --edit "$1"
 ```
 
 #### package.json scripts
+
 ```json
 {
   "scripts": {
@@ -248,6 +269,7 @@ npx --no -- commitlint --edit "$1"
 ```
 
 #### CI Commit Lint Workflow (GitHub Actions)
+
 ```yaml
 name: Lint Commits
 on:
@@ -273,25 +295,35 @@ jobs:
 ### Release Configuration
 
 #### .releaserc.json (semantic-release)
+
 ```json
 {
   "branches": ["main"],
   "plugins": [
-    ["@semantic-release/commit-analyzer", {
-      "releaseRules": [
-        { "type": "refactor", "release": "patch" },
-        { "type": "docs", "scope": "README", "release": "patch" }
-      ]
-    }],
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          { "type": "refactor", "release": "patch" },
+          { "type": "docs", "scope": "README", "release": "patch" }
+        ]
+      }
+    ],
     "@semantic-release/release-notes-generator",
-    ["@semantic-release/changelog", {
-      "changelogFile": "CHANGELOG.md"
-    }],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
     "@semantic-release/npm",
-    ["@semantic-release/git", {
-      "assets": ["CHANGELOG.md", "package.json", "package-lock.json"],
-      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-    }],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json", "package-lock.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
     "@semantic-release/github"
   ]
 }
@@ -332,6 +364,7 @@ base URLs. Migration guide available in docs/migration/v4.md.
 ---
 
 ### Installation Commands
+
 ```bash
 # Core tooling
 npm install --save-dev \
@@ -353,6 +386,7 @@ npx commitizen init cz-conventional-changelog --save-dev --save-exact
 npx husky install
 npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
 ```
+
 ```
 
 ---
@@ -466,12 +500,14 @@ When commitlint is needed in a repo that has no `package.json` (a pure Go servic
 
 **Structure:**
 ```
+
 <type>(<scope>): <description>
 
 [optional body]
 
 [optional footer(s)]
-```
+
+````
 
 **Type → SemVer Mapping:**
 | Type       | Version Bump | Included in CHANGELOG |
@@ -522,7 +558,7 @@ jobs:
       - run: npm ci
       - name: Validate PR title
         run: echo "${{ github.event.pull_request.title }}" | npx commitlint --verbose
-```
+````
 
 Individual commit messages within the PR branch are developer convenience only -- they are not enforced and do not reach `main`. Document this in CONTRIBUTING.md to prevent confusion.
 
@@ -531,28 +567,28 @@ Individual commit messages within the PR branch are developer convenience only -
 ### commitlint Configuration
 
 **commitlint.config.js (repo root):**
+
 ```javascript
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'type-enum': [2, 'always', [
-      'feat', 'fix', 'docs', 'style', 'refactor',
-      'perf', 'test', 'build', 'ci', 'chore', 'revert', 'deps'
-    ]],
-    'scope-enum': [2, 'always', [
-      'api-server', 'sdk-client', 'workspace', 'ci',
-      'api-server/deps', 'sdk-client/deps'
-    ]],
-    'scope-empty': [2, 'never'],           // scope is required for this monorepo
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert', 'deps'],
+    ],
+    'scope-enum': [2, 'always', ['api-server', 'sdk-client', 'workspace', 'ci', 'api-server/deps', 'sdk-client/deps']],
+    'scope-empty': [2, 'never'], // scope is required for this monorepo
     'subject-case': [2, 'never', ['sentence-case', 'pascal-case', 'upper-case']],
     'header-max-length': [2, 'always', 72],
     'body-max-line-length': [2, 'always', 100],
     'footer-max-line-length': [2, 'always', 100],
-  }
+  },
 };
 ```
 
 **package.json (repo root):**
+
 ```json
 {
   "name": "my-monorepo",
@@ -578,6 +614,7 @@ module.exports = {
 ```
 
 **.husky/commit-msg:**
+
 ```sh
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -585,6 +622,7 @@ npx --no -- commitlint --edit "$1"
 ```
 
 **Initialization commands:**
+
 ```bash
 npm install
 npx husky install
@@ -597,11 +635,13 @@ chmod +x .husky/commit-msg
 ### Release Automation with release-please
 
 `release-please` is chosen over `semantic-release` here because:
+
 - It produces a review PR before publishing, giving the team a human checkpoint before npm publish
 - It has first-class monorepo support with per-package versioning
 - It does not require the CI runner to have npm publish credentials during analysis -- only during the final release merge
 
 **.github/workflows/release-please.yml:**
+
 ```yaml
 name: Release Please
 on:
@@ -650,6 +690,7 @@ jobs:
 ```
 
 **release-please-config.json:**
+
 ```json
 {
   "packages": {
@@ -672,6 +713,7 @@ jobs:
 ```
 
 **.release-please-manifest.json (initial state):**
+
 ```json
 {
   "packages/api-server": "2.4.1",
@@ -688,11 +730,13 @@ The `bootstrap-sha` is the SHA of the last commit before adoption -- release-ple
 ```
 feat(sdk-client): add TypeScript generics to request builder
 ```
+
 - Triggers: sdk-client MINOR bump (0.8.3 -> 0.9.0)
 
 ```
 fix(api-server): prevent race condition in session token refresh
 ```
+
 - Triggers: api-server PATCH bump (2.4.1 -> 2.4.2)
 
 ```
@@ -703,16 +747,19 @@ Consumers must migrate to /v2/* equivalents as documented
 in docs/migration/v1-to-v2.md. A compatibility shim is
 available for the next 90 days at /v1-compat/*.
 ```
+
 - Triggers: api-server MAJOR bump (2.4.1 -> 3.0.0)
 
 ```
 chore(sdk-client/deps): update axios from 1.6.2 to 1.7.0
 ```
+
 - Triggers: no version bump -- dependency housekeeping
 
 ```
 feat(workspace): add shared ESLint config for monorepo
 ```
+
 - Triggers: no version bump for either package -- workspace-level tooling change
 
 ---
@@ -746,11 +793,13 @@ Because we squash-merge PRs, **your PR title** must follow the convention.
 Individual commits within your branch are not enforced.
 
 ### Format
+
 ```
 <type>(<scope>): <description>
 ```
 
 ### Required Scopes
+
 - `api-server` -- REST API changes
 - `sdk-client` -- SDK library changes
 - `workspace` -- Root-level tooling (eslint, tsconfig, husky)
@@ -758,12 +807,14 @@ Individual commits within your branch are not enforced.
 - `api-server/deps` or `sdk-client/deps` -- Dependency updates
 
 ### Version Impact
+
 - `feat(sdk-client): ...` -- bumps sdk-client minor version
 - `fix(api-server): ...` -- bumps api-server patch version
 - `feat(api-server)!: ...` with `BREAKING CHANGE:` footer -- bumps api-server major version
 - `chore`, `docs`, `test`, `ci`, `style` -- no version bump
 
 ### Examples
+
 ```
 feat(sdk-client): add batch request support
 fix(api-server): handle empty request body in POST /orders

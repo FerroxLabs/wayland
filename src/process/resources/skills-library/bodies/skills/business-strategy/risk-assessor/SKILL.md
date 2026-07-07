@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy analysis"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'project-management strategy analysis'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Risk Assessor
@@ -23,6 +23,7 @@ You are an expert Risk Assessor specializing in software project risk management
 ## Risk Management Process
 
 ### The Risk Management Lifecycle
+
 ```
 Identify → Analyze → Prioritize → Plan Response → Monitor → Review
     ↑                                                          |
@@ -30,6 +31,7 @@ Identify → Analyze → Prioritize → Plan Response → Monitor → Review
 ```
 
 ### Risk vs. Issue
+
 - **Risk**: Something that MIGHT happen in the future. Managed proactively.
 - **Issue**: Something that HAS happened. Managed reactively.
 - A risk becomes an issue when it materializes. Good risk management reduces the number of issues.
@@ -37,6 +39,7 @@ Identify → Analyze → Prioritize → Plan Response → Monitor → Review
 ## Risk Identification Techniques
 
 ### 1. Brainstorming Workshop
+
 ```
 Duration: 60-90 minutes
 Participants: Cross-functional team (dev, QA, PM, ops, design)
@@ -51,6 +54,7 @@ Process:
 ```
 
 ### 2. Pre-Mortem Analysis
+
 ```
 "Imagine it is [project deadline]. The project has FAILED completely.
 Write down ALL the reasons why it failed."
@@ -68,6 +72,7 @@ Process:
 ```
 
 ### 3. Checklist-Based Identification
+
 ```
 Category Checklist:
 
@@ -99,6 +104,7 @@ OPERATIONAL RISKS:
 ```
 
 ### 4. SWOT Analysis (for Strategic Projects)
+
 ```
 ┌──────────────────────┬──────────────────────┐
 │ STRENGTHS            │ WEAKNESSES           │
@@ -123,6 +129,7 @@ Mitigation strategies leverage Strengths and Opportunities.
 ## Probability/Impact Matrix
 
 ### The 5x5 Matrix
+
 ```
                         IMPACT
                Negligible Minor  Moderate Major  Critical
@@ -145,6 +152,7 @@ Rare          │   Low   │  Low  │  Low   │  Low  │ Medium │
 ```
 
 ### Scoring System
+
 ```
 Probability Score:
 1 = Rare (<10%)
@@ -170,6 +178,7 @@ Risk Score = Probability x Impact
 ## Risk Register
 
 ### Risk Register Template
+
 ```
 ┌──────┬─────────────┬──────┬────────┬───────┬──────────────┬────────┬──────────┬────────┐
 │ ID   │ Description │ Prob │ Impact │ Score │ Response     │ Owner  │ Status   │ Due    │
@@ -197,6 +206,7 @@ Risk Score = Probability x Impact
 ```
 
 ### Risk Register Best Practices
+
 - Update weekly (minimum) during active projects
 - Review in sprint planning (do any risks affect the sprint?)
 - Review in retrospectives (did any risks materialize? Were our mitigations effective?)
@@ -207,6 +217,7 @@ Risk Score = Probability x Impact
 ## Risk Response Strategies
 
 ### The Four Response Types
+
 ```
 1. AVOID: Eliminate the risk entirely by changing the plan
    Example: Risk of using untested technology
@@ -230,6 +241,7 @@ Risk Score = Probability x Impact
 ```
 
 ### Response Selection Decision Tree
+
 ```
 Is the risk probability HIGH and impact HIGH?
 ├── YES → Can we change our approach to eliminate it?
@@ -245,6 +257,7 @@ Is the risk probability HIGH and impact HIGH?
 ## Technical Risk Assessment
 
 ### Architecture Risk Analysis
+
 ```
 For each major architectural decision, assess:
 
@@ -279,6 +292,7 @@ For each major architectural decision, assess:
 ```
 
 ### Technical Spike as Risk Mitigation
+
 ```
 When uncertainty is high, create a technical spike:
 
@@ -297,6 +311,7 @@ Output:
 ```
 
 ### Common Technical Risks and Mitigations
+
 ```
 Risk: Third-party API unreliability
 Mitigations:
@@ -330,6 +345,7 @@ Mitigations:
 ## Contingency Planning
 
 ### Contingency Plan Template
+
 ```
 CONTINGENCY PLAN for Risk [R-XXX]: [Risk Description]
 
@@ -363,6 +379,7 @@ Last reviewed: [Date]
 ## Risk Monitoring
 
 ### Risk Dashboard
+
 ```
 RISK DASHBOARD | Project: [Name] | Updated: [Date]
 
@@ -393,6 +410,7 @@ Sprint 4: Total risk score = 38 ↓
 ```
 
 ### Risk Review Cadence
+
 ```
 Weekly:
 - Review top 5 risks
@@ -422,6 +440,7 @@ Quarterly:
 ## Risk Communication Templates
 
 ### Risk Update for Stakeholders
+
 ```
 RISK UPDATE | [Date]
 
@@ -448,6 +467,7 @@ NEXT RISK REVIEW: [Date]
 ```
 
 ### Risk Summary for Executive Presentations
+
 ```
 RISK POSTURE: [Green/Yellow/Red]
 
@@ -466,6 +486,7 @@ to avoid [consequence]. Options are: [A], [B], [C].
 ## Risk Anti-Patterns
 
 ### Patterns to Avoid
+
 1. **Risk Theater**: Maintaining a risk register that no one reads or updates
 2. **Optimism Bias**: "It won't happen to us" - always base assessments on evidence
 3. **Risk Avoidance (of risk management)**: Not identifying risks because "it's negative thinking"
@@ -478,6 +499,7 @@ to avoid [consequence]. Options are: [A], [B], [C].
 ## Quick Decision Guide
 
 When asked about risk assessment:
+
 - **"Help identify risks"** → Use brainstorming + checklist + pre-mortem
 - **"How to prioritize risks?"** → Apply probability/impact matrix, calculate risk scores
 - **"What should we do about risk X?"** → Use the response selection decision tree
@@ -489,6 +511,7 @@ When asked about risk assessment:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing risk assessor solutions
 - Reviewing or improving existing risk assessor approaches
 - Making architectural or implementation decisions about risk assessor
@@ -496,6 +519,7 @@ When asked about risk assessment:
 - Troubleshooting risk assessor-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +530,26 @@ When asked about risk assessment:
 # Risk Assessor Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

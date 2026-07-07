@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tutoring teaching step-by-step study-skills"
-  category: "education"
-  subcategory: "tutoring"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tutoring teaching step-by-step study-skills'
+  category: 'education'
+  subcategory: 'tutoring'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Science Explanation
 
 ## When to Use
@@ -125,25 +126,30 @@ Correct conceptual change produces transferable understanding, not just the abil
 Certain science domains have well-documented, recurrent misconception families. Recognize and address them by domain.
 
 **Physics -- Mechanics:**
+
 - Impetus theory: students believe moving objects carry a "force" that gradually runs out, causing them to slow down. The Newtonian reality is that objects continue moving without force; force causes acceleration, not velocity. Leading question: "If an object in deep space (no air, no gravity) is moving at 10 m/s and no forces act on it -- what does it do in 10 years?"
 - Aristotelian intuition about falling objects: address with the vacuum thought experiment (feather and hammer on the Moon -- Apollo 15 demonstration is a useful reference scenario).
 - Conflation of heat and temperature: "If you put a metal spoon and a wooden spoon in the same drawer overnight, which feels colder when you touch them in the morning? Are they the same temperature? What does that tell us about heat flow vs. temperature?"
 
 **Biology -- Evolution:**
+
 - Teleological thinking: organisms develop traits "in order to" survive rather than through differential survival of pre-existing variation. Leading question: "For a giraffe to evolve a longer neck because it 'needs' to reach higher leaves, what would have to happen at the cellular level at the moment of need? Is there a mechanism for that?"
 - Inheritance of acquired characteristics (Lamarckian thinking): "If a bodybuilder has children, will they be stronger at birth? What does that tell us about whether traits gained in a lifetime are inherited?"
 - Human evolution: the "we evolved from monkeys" version. Leading question: "Imagine two siblings. Can one sibling be descended from the other? No -- but can they share a grandparent? That's the relationship between humans and other great apes."
 
 **Chemistry:**
+
 - Conservation of mass in reactions: students expect substances to disappear or appear from nowhere. Use the rusting iron scenario: "A steel wool pad left in the open air gains mass after a few days. Where did the extra mass come from?"
 - Electron behavior: the Bohr orbital model is almost universally overtaught and then must be corrected. Use: "If electrons were on fixed circular orbits, they would be accelerating (centripetal). Accelerating charges emit radiation and lose energy. What does that predict would happen to the atom? Why doesn't that happen?"
 - Acids and bases: students believe "more concentrated = more acidic = lower pH by a constant factor." The pH scale is logarithmic -- pH 3 is 10x more acidic than pH 4, not slightly more.
 
 **Earth Science:**
+
 - Deep time intuition failure: students cannot intuitively grasp geological time scales. Anchor with a linear analogy: "If the history of Earth were scaled to one calendar year, the first multicellular animals appear on November 12, dinosaurs go extinct on December 30, and all of recorded human history fits into the last 10 seconds of December 31."
 - Plate tectonics causation: students often believe plates float on liquid rock. The mantle is solid but behaves plastically on geological time scales. "Ice is solid, but glaciers flow -- slowly. What does that tell us about the relationship between 'solid' and 'flows'?"
 
 **Physics -- Waves and Light:**
+
 - Light as a particle vs. wave vs. quantum object: do not attempt to fully resolve wave-particle duality in a single session. Identify which model the student needs for their current level and be explicit: "At your level, the wave model will correctly predict everything you need. The fuller picture is more complex, but let's not jump ahead."
 - The misconception that sound and light are the same kind of wave: "Sound requires a medium to travel -- it can't move through a vacuum. Light travels fastest through a vacuum. What does that suggest about whether they're fundamentally the same kind of thing?"
 
@@ -312,6 +318,7 @@ This is common for deeply held intuitive models (especially teleological thinkin
 For example, a middle school student asking why the sky is blue -- the full answer involves Rayleigh scattering and wavelength-dependent scattering cross-sections. Do not give an inaccurate simplification, but also do not overwhelm with inaccessible formalism.
 
 Use the "level-appropriate truthful model" approach:
+
 - Give the correct qualitative mechanism: "Blue light bounces off air molecules much more easily than red light does, because of the size difference between the wavelength of blue light and air molecules."
 - Explicitly mark the level ceiling: "The full mathematical explanation involves wave physics that we'd normally cover in university physics. The version I just gave you is accurate -- it just doesn't tell you why blue light bounces more."
 - Never give an explanation you know to be false, even if "age-appropriate." Students carry incorrect simplified models into higher education and have to unlearn them.
@@ -321,6 +328,7 @@ Use the "level-appropriate truthful model" approach:
 Some concepts are so commonly misunderstood that fixing one misconception reveals a deeper one underneath. For example, correcting the "seasons = distance from Sun" misconception may reveal the student also doesn't understand why axial tilt causes seasonal temperature changes (they think tilt means northern hemisphere is "closer" to the Sun in summer).
 
 Handle this as a sequential session plan, not simultaneous correction:
+
 - Fix the most foundational misconception first and confirm it is genuinely corrected (via novel application test).
 - Name the next misconception and schedule or initiate a second round of the dissatisfaction-to-discovery sequence.
 - Document both in the output: "Misconception 1 corrected this session. Misconception 2 identified -- recommend addressing in next session."
@@ -330,6 +338,7 @@ Handle this as a sequential session plan, not simultaneous correction:
 Advanced students sometimes have a simplified model from earlier education that was correct at the time but is now a barrier. Common examples: the Bohr model of the atom being presented as fully accurate in middle school; food chains being presented without feedback loops or energy efficiency in early biology; Newtonian mechanics being presented without relativistic corrections.
 
 Do not tell the student their previous teacher was wrong. Instead:
+
 - Acknowledge the prior model explicitly: "The model you learned -- called the Bohr model -- is actually historically important and still used for many calculations. What we're about to do is extend it."
 - Use "scope of validity" framing: "The Bohr model is accurate when we're talking about hydrogen and making predictions about spectral lines. When we want to understand multi-electron atoms or chemical bonding, we need a fuller picture."
 - The extension feels like sophistication, not correction, which preserves the student's prior learning investment while scaffolding the upgrade.

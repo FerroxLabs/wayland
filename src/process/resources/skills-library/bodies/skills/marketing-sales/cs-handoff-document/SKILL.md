@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales template planning checklist"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales template planning checklist'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # CS Handoff Document
 
 ## When to Use
@@ -500,28 +501,29 @@ When a customer purchases multiple products, modules, or add-ons simultaneously,
 
 ### 1. Customer Profile
 
-| Field | Details |
-|-------|---------|
-| Company | Pinnacle Physical Therapy |
-| Industry | Outpatient Physical Therapy / Allied Health |
-| Company Size | ~45 providers and front-desk staff across 8 clinics |
-| HQ Location | Southeast US |
-| Other Locations | 8 outpatient clinic locations |
-| Product / Plan | Practice Management Software -- Scheduling + Billing Modules |
-| Seats / Units | 45 licensed users; 8 clinic locations |
-| Contract ACV | $28,800/year |
-| Contract MRR | $3,600/month |
-| Contract Term | 12 months |
-| Contract Start | [Current date] |
-| Renewal Date | [Current date + 12 months] |
-| Billing Frequency | Monthly |
-| Auto-Renews? | [Confirm -- ask sales rep] |
+| Field               | Details                                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Company             | Pinnacle Physical Therapy                                                                                               |
+| Industry            | Outpatient Physical Therapy / Allied Health                                                                             |
+| Company Size        | ~45 providers and front-desk staff across 8 clinics                                                                     |
+| HQ Location         | Southeast US                                                                                                            |
+| Other Locations     | 8 outpatient clinic locations                                                                                           |
+| Product / Plan      | Practice Management Software -- Scheduling + Billing Modules                                                            |
+| Seats / Units       | 45 licensed users; 8 clinic locations                                                                                   |
+| Contract ACV        | $28,800/year                                                                                                            |
+| Contract MRR        | $3,600/month                                                                                                            |
+| Contract Term       | 12 months                                                                                                               |
+| Contract Start      | [Current date]                                                                                                          |
+| Renewal Date        | [Current date + 12 months]                                                                                              |
+| Billing Frequency   | Monthly                                                                                                                 |
+| Auto-Renews?        | [Confirm -- ask sales rep]                                                                                              |
 | Expansion Potential | High -- additional modules (documentation, patient outcomes reporting) and potential headcount growth as clinics expand |
 
 **Why They Bought (Customer's Voice):**
 "We are losing revenue every week to no-shows we cannot backfill because we have no automated reminder system. Our billing team is manually entering insurance claims into a system that is 12 years old and cannot talk to any modern payer clearinghouse -- our clean claim rate is around 72% and we are spending 3 full days per week on rework and denials. CareTrack was built before telehealth existed and before modern payer APIs. We need a system that can handle today's billing complexity and get patients to actually show up for their appointments."
 
 **Pain Quantification:**
+
 - No-show revenue loss estimate: At an average PT session value of $175, if 8 clinics each have 3 avoidable no-shows per week, that is approximately $218,400/year in unrecovered lost appointment revenue
 - Insurance claim rework cost: If billing staff spend 3 days/week on claim rework at a burdened rate of $28/hour, that is approximately $43,680/year in wasted labor, plus the cost of delayed reimbursement
 - Current tool being replaced: CareTrack (12-year-old legacy practice management system) -- full migration required
@@ -530,6 +532,7 @@ When a customer purchases multiple products, modules, or add-ons simultaneously,
 Front-desk staff at each clinic use the scheduling module to manage daily appointment books, automated SMS and email reminders are sent to patients 48 hours and 2 hours before appointments, and providers receive mobile check-in notifications. On the billing side, completed appointment notes trigger automated claim submission to the payer clearinghouse, eligibility verification runs at booking, and remittance advice is reconciled automatically -- eliminating the manual entry workflow that currently generates a 28% claim error rate.
 
 **Buying Process Context:**
+
 - Sales cycle length: [X weeks -- fill in]
 - Decision-making style: Top-down approval from Linda Nguyen (VP Ops) with strong technical advocacy from Marcus Webb (IT Director)
 - Who drove the purchase internally: Marcus Webb -- evaluated 3 systems, produced a recommendation memo to Linda
@@ -539,17 +542,18 @@ Front-desk staff at each clinic use the scheduling module to manage daily appoin
 
 ### 2. Key Contacts
 
-| Name | Title | Role in Account | Email | Phone | Best Contact Method | What They Care About Most |
-|------|-------|----------------|-------|-------|---------------------|--------------------------|
-| Linda Nguyen | VP of Operations | Economic Buyer | [email] | [phone] | Email | Revenue impact, compliance, clean ROI narrative |
-| Marcus Webb | IT Director | Champion + Technical Contact | [email] | [phone] | Email / Slack | Clean implementation, integration stability, no surprises for Linda |
-| [Name TBD] | Billing Manager | Day-to-Day User (Billing) | [email] | [phone] | [Preference] | Claim accuracy, less manual rework, faster reimbursement |
-| [Name TBD] | Clinic Manager (Lead Location) | Day-to-Day User (Scheduling) | [email] | [phone] | [Preference] | Ease of use, reducing no-shows, staff not overwhelmed |
-| [Name TBD] | Front Desk Lead | End User Group Rep | [email] | [phone] | [Preference] | Simple scheduling UI, not more steps than CareTrack |
+| Name         | Title                          | Role in Account              | Email   | Phone   | Best Contact Method | What They Care About Most                                           |
+| ------------ | ------------------------------ | ---------------------------- | ------- | ------- | ------------------- | ------------------------------------------------------------------- |
+| Linda Nguyen | VP of Operations               | Economic Buyer               | [email] | [phone] | Email               | Revenue impact, compliance, clean ROI narrative                     |
+| Marcus Webb  | IT Director                    | Champion + Technical Contact | [email] | [phone] | Email / Slack       | Clean implementation, integration stability, no surprises for Linda |
+| [Name TBD]   | Billing Manager                | Day-to-Day User (Billing)    | [email] | [phone] | [Preference]        | Claim accuracy, less manual rework, faster reimbursement            |
+| [Name TBD]   | Clinic Manager (Lead Location) | Day-to-Day User (Scheduling) | [email] | [phone] | [Preference]        | Ease of use, reducing no-shows, staff not overwhelmed               |
+| [Name TBD]   | Front Desk Lead                | End User Group Rep           | [email] | [phone] | [Preference]        | Simple scheduling UI, not more steps than CareTrack                 |
 
 **⚠️ CONTACT GAPS:** Billing Manager and Clinic Manager names are unknown. CSM must obtain these in the kickoff call. These two users are higher daily-usage contacts than Marcus -- their adoption is critical to success.
 
 **Internal Champion Deep Dive:**
+
 - Name: Marcus Webb
 - Why he championed this deal: Marcus produced the evaluation memo and staked professional credibility on this recommendation. He is motivated to prove the selection was right. He has strong technical confidence but lower visibility into daily clinical workflows.
 - His relationship with Linda Nguyen: Appears strong -- she trusted his recommendation
@@ -562,23 +566,24 @@ Front-desk staff at each clinic use the scheduling module to manage daily appoin
 
 **3A. Tier 1 -- Contractual Commitments (in signed agreement)**
 
-| # | Commitment | Contract Reference | Specifics | Timeline | CS Owner |
-|---|-----------|-------------------|-----------|----------|----------|
-| 1 | Scheduling module | Order Form | Full scheduling module with automated SMS/email reminders for 8 locations | Go-live in 10 weeks | CSM |
-| 2 | Billing module | Order Form | Insurance claim submission, eligibility verification, ERA reconciliation | Go-live in 10 weeks | CSM + Billing Implementation Specialist |
-| 3 | Data migration from CareTrack | SOW (confirm if included) | [Confirm scope with sales rep -- was migration included in contract?] | Phase 2 | Technical Team |
-| 4 | Training | Order Form | [X hours of training -- confirm number from contract] | Phase 3 | CSM |
+| #   | Commitment                    | Contract Reference        | Specifics                                                                 | Timeline            | CS Owner                                |
+| --- | ----------------------------- | ------------------------- | ------------------------------------------------------------------------- | ------------------- | --------------------------------------- |
+| 1   | Scheduling module             | Order Form                | Full scheduling module with automated SMS/email reminders for 8 locations | Go-live in 10 weeks | CSM                                     |
+| 2   | Billing module                | Order Form                | Insurance claim submission, eligibility verification, ERA reconciliation  | Go-live in 10 weeks | CSM + Billing Implementation Specialist |
+| 3   | Data migration from CareTrack | SOW (confirm if included) | [Confirm scope with sales rep -- was migration included in contract?]     | Phase 2             | Technical Team                          |
+| 4   | Training                      | Order Form                | [X hours of training -- confirm number from contract]                     | Phase 3             | CSM                                     |
 
 **⚠️ CONTRACT VERIFICATION NEEDED:** Confirm with sales rep whether data migration from CareTrack is in the SOW or is expected as a CS-delivered service outside the contract scope. Migration scope must be confirmed before kickoff call.
 
 **3B. Tier 2 -- Verbal / Promised Commitments (NOT in contract)**
 
-| # | Commitment | Who Said It | When / Context | Specifics | Timeline | CS Owner | Risk Level |
-|---|-----------|------------|----------------|-----------|----------|----------|------------|
-| 1 | QuickBooks integration | Sales Rep | [Date/context -- confirm with rep] | Bi-directional sync of billing/revenue data with QuickBooks | 30 days post go-live | Technical Team | 🔴 HIGH |
+| #   | Commitment             | Who Said It | When / Context                     | Specifics                                                   | Timeline             | CS Owner       | Risk Level |
+| --- | ---------------------- | ----------- | ---------------------------------- | ----------------------------------------------------------- | -------------------- | -------------- | ---------- |
+| 1   | QuickBooks integration | Sales Rep   | [Date/context -- confirm with rep] | Bi-directional sync of billing/revenue data with QuickBooks | 30 days post go-live | Technical Team | 🔴 HIGH    |
 
 **⚠️ CRITICAL FLAG -- QuickBooks Integration:**
 This commitment is NOT in the contract but was verbally promised by the sales rep. Before the kickoff call, the CS Manager must:
+
 1. Confirm with the technical team whether a native QuickBooks integration exists or must be built
 2. Confirm the timeline -- 30 days post go-live is aggressive given the CareTrack migration is also in progress
 3. If the integration cannot be delivered in 30 days, the sales rep must contact Linda Nguyen or Marcus Webb proactively to reset the timeline before CS inherits the expectation
@@ -586,10 +591,10 @@ This commitment is NOT in the contract but was verbally promised by the sales re
 
 **3C. Tier 3 -- Discussed but NOT Promised (expansion signals)**
 
-| Topic | Context | Customer's Level of Interest | Follow-Up Timeline |
-|-------|---------|------------------------------|-------------------|
-| Patient outcomes reporting module | Marcus mentioned it in demo -- Linda nodded | Medium-High | Month 3 QBR |
-| Telehealth scheduling add-on | Linda asked about it -- "we are starting to think about that" | Medium | Month 6 |
-| Additional clinic locations | Pinnacle has plans to open 2 more clinics in 18 months | High expansion signal | Month 9 |
+| Topic                             | Context                                                       | Customer's Level of Interest | Follow-Up Timeline |
+| --------------------------------- | ------------------------------------------------------------- | ---------------------------- | ------------------ |
+| Patient outcomes reporting module | Marcus mentioned it in demo -- Linda nodded                   | Medium-High                  | Month 3 QBR        |
+| Telehealth scheduling add-on      | Linda asked about it -- "we are starting to think about that" | Medium                       | Month 6            |
+| Additional clinic locations       | Pinnacle has plans to open 2 more clinics in 18 months        | High expansion signal        | Month 9            |
 
-**Pricing
+\*\*Pricing

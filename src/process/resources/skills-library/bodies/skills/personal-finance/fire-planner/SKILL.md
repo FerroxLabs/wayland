@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing guide"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance investing guide'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # FIRE Planner
@@ -27,11 +27,13 @@ You are an expert in Financial Independence, Retire Early (FIRE) planning. You h
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about fire planner
 - User needs guidance on fire planner topics
 - User wants a structured approach to fire planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -145,13 +147,13 @@ YOUR FIRE NUMBER: $__________
 
 ### FIRE Variations
 
-| Variation | Annual Expenses | Approx. FIRE Number (25x) | Description |
-|-----------|----------------|--------------------------|-------------|
-| Lean FIRE | $25,000-$40,000 | $625K-$1M | Highly frugal, minimal lifestyle |
-| Regular FIRE | $40,000-$70,000 | $1M-$1.75M | Comfortable middle-class life |
-| Fat FIRE | $70,000-$150,000+ | $1.75M-$3.75M+ | Abundant lifestyle, travel, luxury |
-| Barista FIRE | Partial coverage | Lower than full FIRE | Part-time work covers gap |
-| Coast FIRE | N/A (stop saving) | Varies by age | Investments grow to full FIRE at traditional retirement |
+| Variation    | Annual Expenses   | Approx. FIRE Number (25x) | Description                                             |
+| ------------ | ----------------- | ------------------------- | ------------------------------------------------------- |
+| Lean FIRE    | $25,000-$40,000   | $625K-$1M                 | Highly frugal, minimal lifestyle                        |
+| Regular FIRE | $40,000-$70,000   | $1M-$1.75M                | Comfortable middle-class life                           |
+| Fat FIRE     | $70,000-$150,000+ | $1.75M-$3.75M+            | Abundant lifestyle, travel, luxury                      |
+| Barista FIRE | Partial coverage  | Lower than full FIRE      | Part-time work covers gap                               |
+| Coast FIRE   | N/A (stop saving) | Varies by age             | Investments grow to full FIRE at traditional retirement |
 
 ---
 
@@ -481,16 +483,16 @@ QUALITATIVE CHECK:
 
 ## Common FIRE Mistakes
 
-| Mistake | Why It Is a Problem | Better Approach |
-|---------|-------------------|----------------|
-| Underestimating expenses | Retirement spending is often higher than planned | Track carefully for 1+ year; add 10-20% buffer |
-| Ignoring healthcare costs | Can be $10K-25K+ annually pre-Medicare | Budget explicitly; research ACA subsidies |
-| No flexibility in withdrawal strategy | Fixed 4% fails more often over 50-year horizons | Use guardrails, flexible spending, variable withdrawal |
-| Over-optimizing frugality | Burnout, relationship stress, no enjoyment | FIRE is about freedom, not deprivation |
-| Not having purpose after FIRE | Depression, loss of identity, boredom | Plan what you retire TO; build structure and community |
-| Retiring without testing | Shock of actual retirement lifestyle | Take a mini-retirement or sabbatical first |
-| Ignoring inflation | $50K today is not $50K in 20 years | Use real (inflation-adjusted) return projections |
-| Single-income household risk | If working spouse stops, plan collapses | Both partners should understand and agree on the plan |
+| Mistake                               | Why It Is a Problem                              | Better Approach                                        |
+| ------------------------------------- | ------------------------------------------------ | ------------------------------------------------------ |
+| Underestimating expenses              | Retirement spending is often higher than planned | Track carefully for 1+ year; add 10-20% buffer         |
+| Ignoring healthcare costs             | Can be $10K-25K+ annually pre-Medicare           | Budget explicitly; research ACA subsidies              |
+| No flexibility in withdrawal strategy | Fixed 4% fails more often over 50-year horizons  | Use guardrails, flexible spending, variable withdrawal |
+| Over-optimizing frugality             | Burnout, relationship stress, no enjoyment       | FIRE is about freedom, not deprivation                 |
+| Not having purpose after FIRE         | Depression, loss of identity, boredom            | Plan what you retire TO; build structure and community |
+| Retiring without testing              | Shock of actual retirement lifestyle             | Take a mini-retirement or sabbatical first             |
+| Ignoring inflation                    | $50K today is not $50K in 20 years               | Use real (inflation-adjusted) return projections       |
+| Single-income household risk          | If working spouse stops, plan collapses          | Both partners should understand and agree on the plan  |
 
 ---
 
@@ -520,43 +522,49 @@ When guiding a user on FIRE planning, provide:
 **Savings rate:** 50% ($50,000/year invested)
 
 ### Your FIRE Number
+
 Annual expenses x 25 = $50,000 x 25 = **$1,250,000**
 This is the portfolio size that can sustain $50,000/year withdrawals (4% rule).
 
 ### Timeline Projection (7% average annual return)
-| Age | Year | Portfolio Value | Status |
-|-----|------|----------------|--------|
-| 30 | 0 | $150,000 | Starting point |
-| 35 | 5 | $511,000 | 41% to FIRE |
-| 40 | 10 | $1,015,000 | 81% to FIRE |
-| **42** | **12** | **$1,260,000** | **FIRE reached** |
-| 45 | 15 | $1,593,000 | Fat FIRE buffer |
+
+| Age    | Year   | Portfolio Value | Status           |
+| ------ | ------ | --------------- | ---------------- |
+| 30     | 0      | $150,000        | Starting point   |
+| 35     | 5      | $511,000        | 41% to FIRE      |
+| 40     | 10     | $1,015,000      | 81% to FIRE      |
+| **42** | **12** | **$1,260,000**  | **FIRE reached** |
+| 45     | 15     | $1,593,000      | Fat FIRE buffer  |
 
 **Projected FIRE age: 42** (12 years from now)
 
 ### FIRE Variants for Your Situation
-| Variant | Annual Spending | FIRE Number | Years to Reach |
-|---------|----------------|-------------|----------------|
-| Lean FIRE | $35,000 | $875,000 | ~9 years (age 39) |
-| Traditional FIRE | $50,000 | $1,250,000 | ~12 years (age 42) |
-| Fat FIRE | $75,000 | $1,875,000 | ~16 years (age 46) |
-| Barista FIRE | $50K - part-time income | $625,000-$875K | ~7-9 years |
+
+| Variant          | Annual Spending         | FIRE Number    | Years to Reach     |
+| ---------------- | ----------------------- | -------------- | ------------------ |
+| Lean FIRE        | $35,000                 | $875,000       | ~9 years (age 39)  |
+| Traditional FIRE | $50,000                 | $1,250,000     | ~12 years (age 42) |
+| Fat FIRE         | $75,000                 | $1,875,000     | ~16 years (age 46) |
+| Barista FIRE     | $50K - part-time income | $625,000-$875K | ~7-9 years         |
 
 ### Key Levers to Accelerate
-| Action | Impact on Timeline |
-|--------|-------------------|
-| Increase savings rate to 60% | FIRE at 40 instead of 42 |
-| Reduce expenses by $5K/year | FIRE number drops to $1,125,000 |
-| Side income of $10K/year | FIRE at 40 instead of 42 |
-| All three combined | FIRE at 37-38 |
+
+| Action                       | Impact on Timeline              |
+| ---------------------------- | ------------------------------- |
+| Increase savings rate to 60% | FIRE at 40 instead of 42        |
+| Reduce expenses by $5K/year  | FIRE number drops to $1,125,000 |
+| Side income of $10K/year     | FIRE at 40 instead of 42        |
+| All three combined           | FIRE at 37-38                   |
 
 ### Investment Strategy
+
 - Tax-advantaged first: max 401k ($23,000), max Roth IRA ($7,000)
 - Remainder ($20,000/year) in taxable brokerage
 - Asset allocation: 90/10 stocks/bonds at age 30, shift to 70/30 as you approach FIRE date
 - Low-cost index funds: total market + international (expense ratio under 0.10%)
 
 ### Risks to Plan For
+
 1. Sequence of returns risk (market crash right at retirement -- keep 2 years cash buffer)
 2. Healthcare costs (biggest expense before Medicare at 65) -- budget $500-$800/month
 3. Lifestyle inflation (the biggest FIRE killer -- track expenses religiously)

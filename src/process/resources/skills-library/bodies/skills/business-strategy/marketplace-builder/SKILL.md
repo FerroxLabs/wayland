@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Marketplace Builder
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to build a two-sided marketplace connecting buyers and sellers or service providers and customers
 - The user needs help solving the chicken-and-egg problem, managing liquidity, or designing trust and safety systems
 - The user wants guidance on marketplace pricing models, network effects, or platform governance
 - The user needs marketplace-specific metrics, supply/demand acquisition strategies, or scaling frameworks
 
 **Do NOT use this skill when:**
+
 - The user is building a single-seller e-commerce store (use ecommerce-advisor instead)
 - The user wants general startup guidance beyond marketplace dynamics (use startup-advisor instead)
 - The user needs subscription model design for a non-marketplace product (use subscription-model-designer instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on marketplace builder
 - User asks about marketplace builder best practices or techniques
 - User wants a structured approach to marketplace builder
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of marketplace builder
 
@@ -123,13 +127,13 @@ Generate artificial urgency or a launch event that brings both sides together si
 
 ### The Chicken-and-Egg Decision Matrix
 
-| Your Situation | Recommended Strategy |
-|---------------|---------------------|
-| Supply is fragmented and hard to aggregate | Seed supply manually + single-player tools |
-| Demand exists but is served poorly | Constrain market + be the supply initially |
-| Both sides exist but don't connect | Create an event + subsidize the harder side |
-| You have expertise on the supply side | Be the supply + transition to platform |
-| The market is geographic | Constrain to one area + seed supply locally |
+| Your Situation                             | Recommended Strategy                        |
+| ------------------------------------------ | ------------------------------------------- |
+| Supply is fragmented and hard to aggregate | Seed supply manually + single-player tools  |
+| Demand exists but is served poorly         | Constrain market + be the supply initially  |
+| Both sides exist but don't connect         | Create an event + subsidize the harder side |
+| You have expertise on the supply side      | Be the supply + transition to platform      |
+| The market is geographic                   | Constrain to one area + seed supply locally |
 
 ## Marketplace Liquidity
 
@@ -138,12 +142,14 @@ Generate artificial urgency or a launch event that brings both sides together si
 Liquidity is the probability that a user on either side of the marketplace will achieve a successful transaction. It is the single most important metric for marketplace health.
 
 **Signs of healthy liquidity:**
+
 - Buyers find what they want quickly
 - Sellers receive inquiries or orders consistently
 - Transaction volume grows month over month
 - Repeat usage is high on both sides
 
 **Signs of poor liquidity:**
+
 - Buyers search but don't find matches
 - Sellers list but receive no inquiries
 - High abandonment rates
@@ -156,6 +162,7 @@ Liquidity ≈ (Relevant Supply × Match Quality × Transaction Friction⁻¹)
 ```
 
 To improve liquidity, you must either:
+
 1. **Increase relevant supply** (not just any supply - supply that matches demand)
 2. **Improve match quality** (search, recommendations, curation)
 3. **Reduce transaction friction** (fewer steps, easier payments, more trust)
@@ -179,21 +186,22 @@ In a direct transaction (buyer meets seller), trust is personal. In a marketplac
 
 ### Trust Building Blocks
 
-| Mechanism | What It Does | Implementation |
-|-----------|-------------|----------------|
-| Identity verification | Proves users are who they claim | ID check, phone verification, social login |
-| Reviews and ratings | Creates reputation transparency | Post-transaction review system |
-| Transaction protection | Reduces financial risk | Escrow, refund policies, guarantees |
-| Content moderation | Prevents fraud and abuse | Automated filters + human review |
-| Insurance/guarantees | Covers worst-case scenarios | Host protection, buyer protection policies |
-| Dispute resolution | Handles conflicts fairly | Structured process with neutral arbitration |
-| Background checks | Screens for safety risks | Where legally required and appropriate |
+| Mechanism              | What It Does                    | Implementation                              |
+| ---------------------- | ------------------------------- | ------------------------------------------- |
+| Identity verification  | Proves users are who they claim | ID check, phone verification, social login  |
+| Reviews and ratings    | Creates reputation transparency | Post-transaction review system              |
+| Transaction protection | Reduces financial risk          | Escrow, refund policies, guarantees         |
+| Content moderation     | Prevents fraud and abuse        | Automated filters + human review            |
+| Insurance/guarantees   | Covers worst-case scenarios     | Host protection, buyer protection policies  |
+| Dispute resolution     | Handles conflicts fairly        | Structured process with neutral arbitration |
+| Background checks      | Screens for safety risks        | Where legally required and appropriate      |
 
 ### Review System Design
 
 Reviews are the lifeblood of marketplace trust:
 
 **Key principles:**
+
 - Both sides should be able to review each other
 - Reviews should be revealed simultaneously (to prevent retaliation)
 - Ratings should be granular enough to be useful but simple enough to complete (5-star scale + text)
@@ -201,6 +209,7 @@ Reviews are the lifeblood of marketplace trust:
 - Address fake reviews aggressively - they destroy platform credibility
 
 **Review health metrics:**
+
 - Review completion rate (target: >50% of transactions)
 - Average rating (if consistently >4.8, your system may not differentiate quality)
 - Review text length (longer = more useful signal)
@@ -210,26 +219,26 @@ Reviews are the lifeblood of marketplace trust:
 
 Common marketplace fraud patterns:
 
-| Fraud Type | Description | Prevention |
-|------------|-------------|------------|
-| Fake listings | Non-existent products or services | Verification, deposit requirements |
-| Disintermediation | Users bypassing the platform after connecting | Value-add services, payment protection |
-| Review manipulation | Fake positive or negative reviews | Verified purchase reviews, pattern detection |
-| Identity fraud | Fake accounts or stolen identities | ID verification, behavioral analysis |
-| Payment fraud | Chargebacks, stolen payment methods | Payment processor fraud tools, holds |
+| Fraud Type          | Description                                   | Prevention                                   |
+| ------------------- | --------------------------------------------- | -------------------------------------------- |
+| Fake listings       | Non-existent products or services             | Verification, deposit requirements           |
+| Disintermediation   | Users bypassing the platform after connecting | Value-add services, payment protection       |
+| Review manipulation | Fake positive or negative reviews             | Verified purchase reviews, pattern detection |
+| Identity fraud      | Fake accounts or stolen identities            | ID verification, behavioral analysis         |
+| Payment fraud       | Chargebacks, stolen payment methods           | Payment processor fraud tools, holds         |
 
 ## Marketplace Economics
 
 ### Revenue Models
 
-| Model | How It Works | When to Use |
-|-------|-------------|-------------|
-| Commission | Take a % of each transaction | Default for most marketplaces |
-| Subscription | Charge one or both sides monthly | When transactions are frequent |
-| Listing fee | Charge to post a listing | When listing itself has value |
-| Lead generation | Charge for introductions/leads | When transactions happen off-platform |
-| Freemium | Free basic + paid premium features | When you need volume first |
-| Advertising | Charge for promoted placement | When you have significant traffic |
+| Model           | How It Works                       | When to Use                           |
+| --------------- | ---------------------------------- | ------------------------------------- |
+| Commission      | Take a % of each transaction       | Default for most marketplaces         |
+| Subscription    | Charge one or both sides monthly   | When transactions are frequent        |
+| Listing fee     | Charge to post a listing           | When listing itself has value         |
+| Lead generation | Charge for introductions/leads     | When transactions happen off-platform |
+| Freemium        | Free basic + paid premium features | When you need volume first            |
+| Advertising     | Charge for promoted placement      | When you have significant traffic     |
 
 ### Commission Rate Strategy
 
@@ -238,6 +247,7 @@ Common marketplace fraud patterns:
 - The rate should reflect the value the platform provides
 
 **General ranges by category:**
+
 - Physical goods: 5-20%
 - Digital goods: 15-30%
 - Services: 10-25%
@@ -245,6 +255,7 @@ Common marketplace fraud patterns:
 - Commoditized goods: 3-10%
 
 **Factors that justify higher commission:**
+
 - Platform generates demand (not just connecting existing relationships)
 - Platform provides payment processing, insurance, or guarantees
 - Platform provides tools that increase supplier efficiency
@@ -268,16 +279,16 @@ Target: Positive contribution margin by transaction 2-3
 
 ### Key Marketplace Metrics
 
-| Metric | What It Measures | Healthy Range |
-|--------|-----------------|---------------|
-| GMV (Gross Merchandise Value) | Total transaction volume | Growing month-over-month |
-| Take rate | Revenue / GMV | 10-25% for most marketplaces |
-| Liquidity rate | Searches resulting in transactions | >30% |
-| Time to first transaction | New user activation speed | <7 days ideal |
-| Repeat rate | Users who transact again | >30% within 90 days |
-| Supply concentration | % of GMV from top 10% of suppliers | <40% (avoid over-reliance) |
-| Net revenue retention | Revenue from existing users year-over-year | >100% |
-| CAC by side | Customer acquisition cost for each side | Must be < LTV for both sides |
+| Metric                        | What It Measures                           | Healthy Range                |
+| ----------------------------- | ------------------------------------------ | ---------------------------- |
+| GMV (Gross Merchandise Value) | Total transaction volume                   | Growing month-over-month     |
+| Take rate                     | Revenue / GMV                              | 10-25% for most marketplaces |
+| Liquidity rate                | Searches resulting in transactions         | >30%                         |
+| Time to first transaction     | New user activation speed                  | <7 days ideal                |
+| Repeat rate                   | Users who transact again                   | >30% within 90 days          |
+| Supply concentration          | % of GMV from top 10% of suppliers         | <40% (avoid over-reliance)   |
+| Net revenue retention         | Revenue from existing users year-over-year | >100%                        |
+| CAC by side                   | Customer acquisition cost for each side    | Must be < LTV for both sides |
 
 ## Network Effects and Moats
 
@@ -313,18 +324,21 @@ Network effects can also work against you:
 ### The Three Phases of Marketplace Growth
 
 **Phase 1: Prove the Unit (0 to First Market)**
+
 - Pick the smallest market where you can achieve liquidity
 - Do everything manually - concierge onboarding, personal outreach, manual matching
 - Focus on transaction quality, not volume
 - Prove that both sides get value and will return
 
 **Phase 2: Playbook (First Market to 3-5 Markets)**
+
 - Document every process that worked in Market 1
 - Test if the playbook transfers to new markets
 - Identify what is universal vs. what needs local adaptation
 - Build the team and tools to replicate market launches
 
 **Phase 3: Scale (5+ Markets to Category Leadership)**
+
 - Automate the launch playbook
 - Invest in platform infrastructure (search, matching, payments, trust)
 - Expand categories or geographies systematically
@@ -332,14 +346,14 @@ Network effects can also work against you:
 
 ### Geographic Expansion Framework
 
-| Factor | Evaluate Before Expanding |
-|--------|--------------------------|
-| Market size | Is demand large enough to justify the investment? |
-| Supply availability | Can you recruit enough quality supply? |
-| Competitive landscape | Who else operates here? How entrenched? |
-| Regulatory environment | Any legal barriers to your marketplace model? |
+| Factor                   | Evaluate Before Expanding                                             |
+| ------------------------ | --------------------------------------------------------------------- |
+| Market size              | Is demand large enough to justify the investment?                     |
+| Supply availability      | Can you recruit enough quality supply?                                |
+| Competitive landscape    | Who else operates here? How entrenched?                               |
+| Regulatory environment   | Any legal barriers to your marketplace model?                         |
 | Operational requirements | Does this market need local operations, or can you serve it remotely? |
-| Cultural fit | Does your product need significant adaptation? |
+| Cultural fit             | Does your product need significant adaptation?                        |
 
 ## Platform Governance
 
@@ -378,7 +392,6 @@ When advising marketplace builders:
 - Help them define their minimum viable liquidity threshold
 - Be honest about timelines - most successful marketplaces take 2-5 years to reach meaningful scale
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -391,13 +404,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with marketplace builder for a mid-size project."
 
 **Output:** A complete marketplace builder framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

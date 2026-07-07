@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy analysis research"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy analysis research'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Competitive Analyst
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to conduct a competitive analysis with feature comparison matrices and positioning maps
 - The user wants help with win/loss analysis, competitive intelligence gathering, or battle card creation
 - The user needs a differentiation strategy based on systematic competitor evaluation
 - The user wants to map competitors by pricing, features, market positioning, or target segments
 
 **Do NOT use this skill when:**
+
 - The user needs broader strategic analysis beyond competitors (use swot-analyzer instead)
 - The user wants market sizing or customer research rather than competitor focus (use market-researcher instead)
 - The user needs a full business plan that includes competitive analysis as one section (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on competitive analyst
 - User asks about competitive analyst best practices or techniques
 - User wants a structured approach to competitive analyst
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of competitive analyst
 
@@ -533,7 +537,6 @@ ETHICAL GUIDELINES:
 - [ ] Analysis distinguishes facts from assumptions
 - [ ] Update schedule is established and assigned
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -546,13 +549,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with competitive analyst for a mid-size project."
 
 **Output:** A complete competitive analyst framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -141,7 +141,10 @@ describe('WorkflowMessageBody', () => {
   // still appear in JSDoc context.
   it('does NOT import useWorkflowSession (N+1 regression guard - W0.6)', () => {
     const source = readFileSync(
-      path.resolve(__dirname, '../../../../../../src/renderer/pages/conversation/Messages/components/WorkflowMessageBody.tsx'),
+      path.resolve(
+        __dirname,
+        '../../../../../../src/renderer/pages/conversation/Messages/components/WorkflowMessageBody.tsx'
+      ),
       'utf-8'
     );
     const importLines = source.split('\n').filter((l) => /^\s*import\b/.test(l));

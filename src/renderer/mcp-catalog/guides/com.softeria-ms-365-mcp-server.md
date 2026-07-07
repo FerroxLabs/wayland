@@ -15,7 +15,7 @@ steps:
   - id: azure-app
     title: Register an Azure AD application
     estSeconds: 180
-    externalAction: { label: "Open Azure portal", url: "https://portal.azure.com" }
+    externalAction: { label: 'Open Azure portal', url: 'https://portal.azure.com' }
     body: |
       You need your own Azure AD app registration so Microsoft Graph knows
       which client the MCP is. Free for personal Microsoft accounts; no Azure
@@ -39,9 +39,9 @@ steps:
     title: Configure permissions and paste IDs
     estSeconds: 180
     inputs:
-      - { name: MS365_CLIENT_ID, label: "Application (client) ID" }
-      - { name: MS365_TENANT_ID, label: "Directory (tenant) ID", default: "common" }
-      - { name: MS365_CLIENT_SECRET, label: "Client secret (optional)", secret: true }
+      - { name: MS365_CLIENT_ID, label: 'Application (client) ID' }
+      - { name: MS365_TENANT_ID, label: 'Directory (tenant) ID', default: 'common' }
+      - { name: MS365_CLIENT_SECRET, label: 'Client secret (optional)', secret: true }
     warning: |
       Use **common** as the tenant for personal Microsoft accounts. For work
       accounts, use your organization's tenant ID.
@@ -84,7 +84,7 @@ steps:
   - id: authorize
     title: Sign in with Microsoft
     estSeconds: 30
-    primaryAction: { label: "Sign in with Microsoft", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Microsoft', action: 'oauth-flow' }
     body: |
       Click **Sign in with Microsoft** below. A browser tab opens to
       Microsoft's consent screen - sign in with the same Microsoft 365
@@ -101,4 +101,3 @@ steps:
 
 The Softeria community MCP talks to Microsoft Graph using an Azure AD app you
 own. Free for personal accounts. About five to seven minutes end-to-end.
-

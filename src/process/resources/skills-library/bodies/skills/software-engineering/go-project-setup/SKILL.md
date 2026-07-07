@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Project Setup
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Initializing a new Go project from scratch, including module naming, directory layout, and initial tooling
 - Configuring `go.mod` and `go.sum` -- module paths, minimum version selection (MVS), `require`, `replace`, and `exclude` directives
 - Go workspace mode (`go.work`, `go.work.sum`) for multi-module development in a single repository
@@ -30,6 +32,7 @@ metadata:
 - Managing Go toolchain versions, including `go` directive in `go.mod` and `GOTOOLCHAIN` environment variable
 
 **Do NOT use this skill when:**
+
 - The user asks about Go language idioms, error handling patterns, interface design, or idiomatic Go code style -- use `go-idioms`
 - The user asks about writing Go tests, table-driven tests, testify, mocks, or benchmarks -- use `go-testing-patterns`
 - The user asks about goroutines, channels, `sync` primitives, or concurrent data structures -- use `go-concurrency-patterns`
@@ -246,7 +249,7 @@ hooks:
 ### .golangci.yml Template
 
 ```yaml
-version: "2"
+version: '2'
 
 run:
   timeout: 5m
@@ -299,7 +302,7 @@ issues:
       linters:
         - wrapcheck
         - errcheck
-    - path: "cmd/"
+    - path: 'cmd/'
       linters:
         - wrapcheck
 ```
@@ -550,7 +553,7 @@ clean:
 ### .golangci.yml
 
 ```yaml
-version: "2"
+version: '2'
 
 run:
   timeout: 5m
@@ -604,7 +607,7 @@ issues:
       linters:
         - wrapcheck
         - errcheck
-    - path: "cmd/"
+    - path: 'cmd/'
       linters:
         - wrapcheck
 ```

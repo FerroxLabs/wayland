@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills step-by-step"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills step-by-step'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Learning Path
 
 ## When to Use
@@ -30,6 +31,7 @@ Use this skill when a professional needs a structured, sequenced curriculum to b
 - A self-directed learner who cannot afford or access formal training needs a curriculum that uses freely available and low-cost resources without sacrificing quality or sequence
 
 **Do NOT use when:**
+
 - The user needs to identify WHICH skills to build before planning how to build them -- use `skill-gap-analysis` first, then return here
 - The user is preparing for a specific certification exam (AWS, PMP, CFA, etc.) -- use `certification-prep`, which handles exam-specific question banks, domain weighting, and pass-rate strategy
 - The user is a student on an academic course with assigned syllabi and institutional deadlines -- use `study-plan`, which handles lectures, assignments, and grade-based milestones
@@ -307,24 +309,24 @@ The learner may name a specific internal company resource, a paywalled platform,
 
 **Core sub-skills for this domain:**
 
-| Sub-Skill | Knowledge Type | Phase | Dependencies |
-|-----------|---------------|-------|--------------|
-| Python syntax: variables, types, operators | Declarative + Procedural | 1 | None |
-| Control flow: if/else, for loops | Procedural | 1 | Python syntax |
-| Functions: defining, calling, returning values | Procedural | 1 | Control flow |
-| File I/O: reading CSVs, writing CSVs | Procedural | 1 | Functions |
-| Lists and dictionaries | Procedural | 1 | Python syntax |
-| Pandas: reading data, inspecting DataFrames | Procedural | 2 | File I/O, lists/dicts |
-| Pandas: filtering, selecting, slicing | Procedural | 2 | Pandas basics |
-| Pandas: groupby, aggregation, pivot tables | Procedural + Adaptive | 2 | Pandas filtering |
-| Data cleaning: nulls, type casting, deduplication | Procedural + Adaptive | 2 | Pandas basics |
-| Merging and joining DataFrames | Procedural | 2 | Pandas basics |
-| Time series: date parsing, resampling, rolling windows | Procedural | 2 | Pandas groupby |
-| Matplotlib: line, bar, scatter charts | Procedural | 2 | Pandas basics |
-| Seaborn: styled charts for reporting | Procedural | 2 | Matplotlib basics |
-| End-to-end analysis script structure | Adaptive | 3 | All Phase 2 |
-| Translating Excel formulas to Pandas | Adaptive | 2 | Pandas filtering |
-| Exporting results to Excel/CSV for stakeholders | Procedural | 2 | Pandas basics |
+| Sub-Skill                                              | Knowledge Type           | Phase | Dependencies          |
+| ------------------------------------------------------ | ------------------------ | ----- | --------------------- |
+| Python syntax: variables, types, operators             | Declarative + Procedural | 1     | None                  |
+| Control flow: if/else, for loops                       | Procedural               | 1     | Python syntax         |
+| Functions: defining, calling, returning values         | Procedural               | 1     | Control flow          |
+| File I/O: reading CSVs, writing CSVs                   | Procedural               | 1     | Functions             |
+| Lists and dictionaries                                 | Procedural               | 1     | Python syntax         |
+| Pandas: reading data, inspecting DataFrames            | Procedural               | 2     | File I/O, lists/dicts |
+| Pandas: filtering, selecting, slicing                  | Procedural               | 2     | Pandas basics         |
+| Pandas: groupby, aggregation, pivot tables             | Procedural + Adaptive    | 2     | Pandas filtering      |
+| Data cleaning: nulls, type casting, deduplication      | Procedural + Adaptive    | 2     | Pandas basics         |
+| Merging and joining DataFrames                         | Procedural               | 2     | Pandas basics         |
+| Time series: date parsing, resampling, rolling windows | Procedural               | 2     | Pandas groupby        |
+| Matplotlib: line, bar, scatter charts                  | Procedural               | 2     | Pandas basics         |
+| Seaborn: styled charts for reporting                   | Procedural               | 2     | Matplotlib basics     |
+| End-to-end analysis script structure                   | Adaptive                 | 3     | All Phase 2           |
+| Translating Excel formulas to Pandas                   | Adaptive                 | 2     | Pandas filtering      |
+| Exporting results to Excel/CSV for stakeholders        | Procedural               | 2     | Pandas basics         |
 
 **Critical path sub-skills** (required for stated outcome): Python syntax, control flow, functions, File I/O, all Pandas sub-skills, Matplotlib basics, end-to-end script structure.
 
@@ -338,12 +340,13 @@ The learner may name a specific internal company resource, a paywalled platform,
 
 **Resources:**
 
-| Resource | Type | Estimated Time | Purpose |
-|----------|------|---------------|---------|
-| An interactive Python course that requires writing and running code in-browser for every lesson, covering variables through functions and file I/O, aimed at beginners with no CS background | Interactive course | 15-18 hours | Builds procedural fluency through immediate feedback -- do not substitute a video-only course |
-| Official Python documentation: Built-in Types page and Functions section | Reference | 2-3 hours | Builds documentation reading habit early; all Python syntax questions should be answerable here |
+| Resource                                                                                                                                                                                     | Type               | Estimated Time | Purpose                                                                                         |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------- | ----------------------------------------------------------------------------------------------- |
+| An interactive Python course that requires writing and running code in-browser for every lesson, covering variables through functions and file I/O, aimed at beginners with no CS background | Interactive course | 15-18 hours    | Builds procedural fluency through immediate feedback -- do not substitute a video-only course   |
+| Official Python documentation: Built-in Types page and Functions section                                                                                                                     | Reference          | 2-3 hours      | Builds documentation reading habit early; all Python syntax questions should be answerable here |
 
 **Practice Project: Excel-to-Python Translator**
+
 - Scope: 4 hours
 - Task: Take a real CSV of marketing data the learner already works with (or a sample with 500+ rows and 5+ columns including a date, a category column, and a numeric metric). Write a Python script -- no Pandas yet, only built-in Python -- that reads the CSV, calculates the sum and average of the numeric column, counts unique values in the category column, and writes a summary to a new CSV.
 - Constraint: The learner may not use any library other than the built-in `csv` module. No Pandas. This forces genuine engagement with Python's core data structures.
@@ -364,21 +367,23 @@ The learner may name a specific internal company resource, a paywalled platform,
 
 **Resources:**
 
-| Resource | Type | Estimated Time | Purpose |
-|----------|------|---------------|---------|
-| A comprehensive Pandas textbook or structured course covering all core DataFrame operations through groupby, merge, and time series, with exercises for each chapter | Book or structured course | 25-30 hours | Systematic coverage prevents the "I know some Pandas but have weird gaps" problem |
-| Pandas official documentation: 10 Minutes to Pandas + User Guide sections on Indexing, GroupBy, and Time Series | Reference | 3-4 hours | Pandas documentation is exceptionally well-written; learning to navigate it is itself a career skill |
-| The "Python for Excel Users" concept map: a reference table mapping common Excel operations (VLOOKUP, SUMIF, pivot table, conditional format) to their Pandas equivalents | Written reference / cheat sheet | 2 hours | Leverages 3 years of existing Excel mental models to accelerate Pandas acquisition -- reduces cognitive load significantly |
+| Resource                                                                                                                                                                  | Type                            | Estimated Time | Purpose                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| A comprehensive Pandas textbook or structured course covering all core DataFrame operations through groupby, merge, and time series, with exercises for each chapter      | Book or structured course       | 25-30 hours    | Systematic coverage prevents the "I know some Pandas but have weird gaps" problem                                          |
+| Pandas official documentation: 10 Minutes to Pandas + User Guide sections on Indexing, GroupBy, and Time Series                                                           | Reference                       | 3-4 hours      | Pandas documentation is exceptionally well-written; learning to navigate it is itself a career skill                       |
+| The "Python for Excel Users" concept map: a reference table mapping common Excel operations (VLOOKUP, SUMIF, pivot table, conditional format) to their Pandas equivalents | Written reference / cheat sheet | 2 hours        | Leverages 3 years of existing Excel mental models to accelerate Pandas acquisition -- reduces cognitive load significantly |
 
 **Practice Projects (two projects in Phase 2):**
 
-*Project 2A: Campaign Performance Aggregator (Week 5 of path, end of first half of Phase 2)*
+_Project 2A: Campaign Performance Aggregator (Week 5 of path, end of first half of Phase 2)_
+
 - Scope: 8-10 hours
 - Task: Given a dataset with columns for campaign name, channel, date, impressions, clicks, and conversions (use real data if available; otherwise generate with Python's random module per specific parameters provided), write a script that produces: (1) a summary table showing CTR and conversion rate by campaign and channel, (2) weekly totals for each metric, (3) identification of the top 3 performing campaigns by conversion rate, (4) a bar chart of impressions by channel saved as a PNG.
 - Constraint: The learner may not use any loop to process the DataFrame rows -- all operations must use Pandas vectorized operations (groupby, apply, agg). This forces abandonment of the row-by-row Excel mental model.
 - Success indicator: Script produces correct numbers (verify subset manually), chart is properly labeled with title and axis labels, and the whole script runs in under 5 seconds on a 100,000-row dataset.
 
-*Project 2B: Monthly Reporting Automator (Week 11 of path, end of Phase 2)*
+_Project 2B: Monthly Reporting Automator (Week 11 of path, end of Phase 2)_
+
 - Scope: 12-15 hours
 - Task: Build a script that takes a folder of 12 monthly CSV files (one per month of a year), reads them all, concatenates them, cleans any common data quality issues (nulls in numeric columns, inconsistent category naming, duplicate rows), produces a full-year summary with month-over-month growth rates, and exports the results to a multi-sheet Excel workbook with separate sheets for each summary table. Include at least 3 charts.
 - Constraint: The script must run correctly on all 12 files with a single execution -- no manually running it once per file. The learner decides the data quality cleaning rules and documents them in code comments.
@@ -398,6 +403,7 @@ The learner may name a specific internal company resource, a paywalled platform,
 **Phase Objective:** Complete a realistic, unscaffolded end-to-end analysis project that mirrors the learner's actual job. Produce a deliverable that could be shared with a manager or client without embarrassment. Consolidate and internalize all Phase 1 and 2 skills.
 
 **Capstone Project: Full Marketing Performance Review**
+
 - Scope: 25-35 hours over 5 weeks (1 week buffer for iteration)
 - Inputs: The learner's actual work data if possible (anonymized or with permission), or a publicly available marketing dataset with sufficient complexity (multiple channels, 12+ months of data, 50,000+ rows)
 - Required outputs:
@@ -416,16 +422,17 @@ The learner may name a specific internal company resource, a paywalled platform,
 
 ### Resource Selection Summary
 
-| Phase | Primary Resource | Type | Hours | Why This Position |
-|-------|-----------------|------|-------|------------------|
-| 1 | Interactive in-browser Python course (variables through file I/O) | Interactive course | 17 | Immediate code-running feedback critical at syntax acquisition stage |
-| 1 | Official Python docs: Built-in Types and Functions | Reference | 2 | Builds documentation habit before Pandas where the docs are more complex |
-| 2 | Comprehensive Pandas textbook or structured course | Book / course | 28 | Systematic coverage of all DataFrame operations; fills gaps that YouTube-hopping leaves |
-| 2 | Pandas official documentation: core sections | Reference | 4 | Pandas docs are excellent; navigating them is a core skill |
-| 2 | Excel-to-Python operation mapping | Cheat sheet | 2 | Leverages prior Excel expertise to reduce Phase 2 cognitive load |
-| 3 | Capstone project (self-directed) | Practice | 30 | Consolidation requires no more instruction -- only unscaffolded doing |
+| Phase | Primary Resource                                                  | Type               | Hours | Why This Position                                                                       |
+| ----- | ----------------------------------------------------------------- | ------------------ | ----- | --------------------------------------------------------------------------------------- |
+| 1     | Interactive in-browser Python course (variables through file I/O) | Interactive course | 17    | Immediate code-running feedback critical at syntax acquisition stage                    |
+| 1     | Official Python docs: Built-in Types and Functions                | Reference          | 2     | Builds documentation habit before Pandas where the docs are more complex                |
+| 2     | Comprehensive Pandas textbook or structured course                | Book / course      | 28    | Systematic coverage of all DataFrame operations; fills gaps that YouTube-hopping leaves |
+| 2     | Pandas official documentation: core sections                      | Reference          | 4     | Pandas docs are excellent; navigating them is a core skill                              |
+| 2     | Excel-to-Python operation mapping                                 | Cheat sheet        | 2     | Leverages prior Excel expertise to reduce Phase 2 cognitive load                        |
+| 3     | Capstone project (self-directed)                                  | Practice           | 30    | Consolidation requires no more instruction -- only unscaffolded doing                   |
 
 **70/20/10 Time Allocation Check:**
+
 - Active practice (70%): ~105 hours -- Phase 1 practice project (4 hrs), Phase 2 Project 2A (10 hrs), Phase 2 Project 2B (14 hrs), daily exercises from course chapters (30 hrs), capstone project (30 hrs), spaced retrieval checks (6 hrs), exploration and experimentation (11 hrs)
 - Structured instruction (20%): ~30 hours -- interactive course (17 hrs), textbook/structured course (13 hrs)
 - Community and reference (10%): ~15 hours -- documentation reading (6 hrs), Python/Pandas community forums for troubleshooting (5 hrs), reviewing other analysts' public notebooks (4 hrs)
@@ -434,14 +441,14 @@ The learner may name a specific internal company resource, a paywalled platform,
 
 ### Milestone Verification Schedule
 
-| Milestone | Date Target | Pass Condition | Fail Condition |
-|-----------|-------------|----------------|----------------|
-| Phase 1 complete | End of Week 3 | Writes Excel-to-Python project script independently in under 2 hours | Requires tutorial reference for basic syntax -- repeat functions/loops section |
-| Spaced retrieval check 1 | Week 4 (3 days after Phase 1) | Writes sum/mean/max/min function from memory in under 20 min | Takes 20+ min or requires lookups -- 30 min of targeted practice on that syntax |
-| Phase 2 midpoint | End of Week 8 | Project 2A runs correctly and passes constraint (no row loops) | Uses row-by-row processing -- must re-do groupby and aggregation sections |
-| Phase 2 complete | End of Week 13 | Project 2B runs correctly on all 12 files, exports clean Excel workbook | Requires basic Pandas syntax lookups 5+ times -- extend Phase 2 by 2 weeks |
-| Spaced retrieval check 2 | Week 14 (3 days after Phase 2) | Writes groupby, merge, and date filter syntax from memory | Any gaps -- one additional week of practice on the missing operations |
-| Path complete | End of Week 17 | Capstone project runs end-to-end, outputs are stakeholder-ready, no tutorial consulted | Output has significant quality gaps -- identify the specific sub-skill responsible and address it before declaring the path complete |
+| Milestone                | Date Target                    | Pass Condition                                                                         | Fail Condition                                                                                                                       |
+| ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Phase 1 complete         | End of Week 3                  | Writes Excel-to-Python project script independently in under 2 hours                   | Requires tutorial reference for basic syntax -- repeat functions/loops section                                                       |
+| Spaced retrieval check 1 | Week 4 (3 days after Phase 1)  | Writes sum/mean/max/min function from memory in under 20 min                           | Takes 20+ min or requires lookups -- 30 min of targeted practice on that syntax                                                      |
+| Phase 2 midpoint         | End of Week 8                  | Project 2A runs correctly and passes constraint (no row loops)                         | Uses row-by-row processing -- must re-do groupby and aggregation sections                                                            |
+| Phase 2 complete         | End of Week 13                 | Project 2B runs correctly on all 12 files, exports clean Excel workbook                | Requires basic Pandas syntax lookups 5+ times -- extend Phase 2 by 2 weeks                                                           |
+| Spaced retrieval check 2 | Week 14 (3 days after Phase 2) | Writes groupby, merge, and date filter syntax from memory                              | Any gaps -- one additional week of practice on the missing operations                                                                |
+| Path complete            | End of Week 17                 | Capstone project runs end-to-end, outputs are stakeholder-ready, no tutorial consulted | Output has significant quality gaps -- identify the specific sub-skill responsible and address it before declaring the path complete |
 
 ---
 

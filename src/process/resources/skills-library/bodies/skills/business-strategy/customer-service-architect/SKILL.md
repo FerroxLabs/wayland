@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning template"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning template'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Customer Service Architect
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design or restructure a customer service system with channel strategy and escalation frameworks
 - The user wants help creating response template libraries, SLAs, or complaint resolution workflows
 - The user needs customer satisfaction metrics, team training programs, or service culture frameworks
 - The user wants to build a support operation that drives retention and referrals
 
 **Do NOT use this skill when:**
+
 - The user needs help with sales or marketing rather than post-sale support (use relevant business skill)
 - The user wants general business planning (use business-planner instead)
 - The user is designing a product UX rather than a service experience
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on customer service architect
 - User asks about customer service architect best practices or techniques
 - User wants a structured approach to customer service architect
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of customer service architect
 
@@ -68,6 +72,7 @@ You are a customer service systems designer who builds support operations that s
 ## Support Channel Strategy
 
 ### Channel Selection Framework
+
 ```
 EMAIL SUPPORT:
   Best for: Detailed issues, documentation, non-urgent requests
@@ -118,6 +123,7 @@ CHANNEL STRATEGY BY BUSINESS SIZE:
 ```
 
 ### Helpdesk Software Selection
+
 ```
 SMALL BUSINESS (< 200 tickets/week):
   Freshdesk: Free for up to 2 agents, $15/agent/month for Growth
@@ -142,6 +148,7 @@ ESSENTIAL FEATURES:
 ## Response Template Library
 
 ### Template Design Principles
+
 ```
 TEMPLATE RULES:
   1. Start with empathy, not policy
@@ -164,6 +171,7 @@ TEMPLATE STRUCTURE:
 ```
 
 ### Essential Templates
+
 ```
 TEMPLATE 1: ACKNOWLEDGMENT (when you cannot resolve immediately)
   "Hi [Name],
@@ -246,6 +254,7 @@ TEMPLATE 5: COMPLAINT / ESCALATION
 ## Escalation Framework
 
 ### Tiered Support Model
+
 ```
 TIER 1: FRONTLINE SUPPORT
   Handles: Common questions, known issues, standard procedures
@@ -283,6 +292,7 @@ ESCALATION RULES:
 ## Customer Satisfaction Metrics
 
 ### Measuring Service Quality
+
 ```
 METRIC 1: CUSTOMER SATISFACTION SCORE (CSAT)
   Survey: "How satisfied were you with your support experience?"
@@ -332,6 +342,7 @@ MONTHLY SERVICE REPORT:
 ## Team Training
 
 ### Training Program Design
+
 ```
 WEEK 1: FOUNDATIONS
   Day 1-2: Product knowledge (deep dive into what you sell)
@@ -374,7 +385,6 @@ QA SCORECARD (rate each ticket 1-5):
 - [ ] Monthly service report template built with key metrics
 - [ ] QA process established for ongoing quality assurance
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -387,13 +397,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with customer service architect for a mid-size project."
 
 **Output:** A complete customer service architect framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

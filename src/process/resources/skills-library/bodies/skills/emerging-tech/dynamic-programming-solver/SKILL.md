@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming guide step-by-step beginner-friendly parenting"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming guide step-by-step beginner-friendly parenting'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Dynamic Programming Solver
 
 You are an expert competitive programming coach specializing in dynamic programming. You guide programmers through DP problem identification, state design, recurrence formulation, memoization vs tabulation tradeoffs, space optimization techniques, and the major DP pattern families.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about dynamic programming solver techniques or best practices
 - User needs guidance on dynamic programming solver concepts
 - User wants to implement or improve their approach to dynamic programming solver
 
 **Do NOT use when:**
+
 - The request falls outside the scope of dynamic programming solver
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,20 +39,21 @@ You are an expert competitive programming coach specializing in dynamic programm
 ### When to Use DP
 
 A problem is likely DP when it has:
+
 1. **Optimal substructure**: Optimal solution contains optimal solutions to subproblems
 2. **Overlapping subproblems**: Same subproblems are solved repeatedly
 3. **Decision at each step**: Choose from options, each leading to a subproblem
 
 ### DP vs Other Approaches
 
-| Signal | Approach | Example |
-|--------|----------|---------|
-| "Maximum/minimum cost to..." | DP | Min cost climbing stairs |
-| "Number of ways to..." | DP | Coin change combinations |
-| "Is it possible to..." | DP or Greedy | Subset sum |
-| "Longest/shortest sequence with property" | DP | Longest increasing subsequence |
-| "Local choice always optimal" | Greedy (not DP) | Activity selection |
-| "All combinations needed" | Backtracking (not DP) | Generate permutations |
+| Signal                                    | Approach              | Example                        |
+| ----------------------------------------- | --------------------- | ------------------------------ |
+| "Maximum/minimum cost to..."              | DP                    | Min cost climbing stairs       |
+| "Number of ways to..."                    | DP                    | Coin change combinations       |
+| "Is it possible to..."                    | DP or Greedy          | Subset sum                     |
+| "Longest/shortest sequence with property" | DP                    | Longest increasing subsequence |
+| "Local choice always optimal"             | Greedy (not DP)       | Activity selection             |
+| "All combinations needed"                 | Backtracking (not DP) | Generate permutations          |
 
 ## DP Framework
 
@@ -435,12 +437,12 @@ int maxIndependentSet(vector<vector<int>>& adj, int root) {
 
 ## Space Optimization Techniques
 
-| Original | Optimized | When |
-|----------|-----------|------|
-| dp[n][m] -> O(nm) | dp[2][m] -> O(m) | dp[i] depends only on dp[i-1] |
-| dp[n][m] -> O(nm) | dp[m] -> O(m) | In-place update with careful ordering |
-| dp[2^n][n] | No easy optimization | Bitmask DP, must keep all states |
-| dp[n][n] interval | No easy optimization | Interval DP needs all subintervals |
+| Original          | Optimized            | When                                  |
+| ----------------- | -------------------- | ------------------------------------- |
+| dp[n][m] -> O(nm) | dp[2][m] -> O(m)     | dp[i] depends only on dp[i-1]         |
+| dp[n][m] -> O(nm) | dp[m] -> O(m)        | In-place update with careful ordering |
+| dp[2^n][n]        | No easy optimization | Bitmask DP, must keep all states      |
+| dp[n][n] interval | No easy optimization | Interval DP needs all subintervals    |
 
 ```cpp
 // Rolling array technique for 2D DP
@@ -459,29 +461,29 @@ int uniquePaths(int m, int n) {
 
 ## Common Pitfalls
 
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Wrong loop direction in 0/1 knapsack | Items used multiple times | Iterate capacity backwards |
-| Missing base cases | Wrong answer or segfault | Carefully define dp[0], dp[0][0] |
-| State missing dimension | Same state maps to different answers | Add parameters until unique |
-| Integer overflow in counting | Wrong answer | Use long long or modular arithmetic |
-| Top-down without memoization | TLE (exponential) | Always cache results |
-| Bottom-up wrong fill order | Using uncomputed states | Ensure dependencies computed first |
-| Confusing combinations vs permutations | Wrong count | Check if order matters for coin change |
-| Not considering empty subsequence | Off-by-one | Define whether dp[0] means empty or first |
+| Mistake                                | Impact                               | Fix                                       |
+| -------------------------------------- | ------------------------------------ | ----------------------------------------- |
+| Wrong loop direction in 0/1 knapsack   | Items used multiple times            | Iterate capacity backwards                |
+| Missing base cases                     | Wrong answer or segfault             | Carefully define dp[0], dp[0][0]          |
+| State missing dimension                | Same state maps to different answers | Add parameters until unique               |
+| Integer overflow in counting           | Wrong answer                         | Use long long or modular arithmetic       |
+| Top-down without memoization           | TLE (exponential)                    | Always cache results                      |
+| Bottom-up wrong fill order             | Using uncomputed states              | Ensure dependencies computed first        |
+| Confusing combinations vs permutations | Wrong count                          | Check if order matters for coin change    |
+| Not considering empty subsequence      | Off-by-one                           | Define whether dp[0] means empty or first |
 
 ## DP Complexity Reference
 
-| Pattern | Time | Space | Space (Optimized) |
-|---------|------|-------|--------------------|
-| 1D linear | O(n) | O(n) | O(1) |
-| 0/1 Knapsack | O(nW) | O(nW) | O(W) |
-| LCS / Edit Distance | O(nm) | O(nm) | O(min(n,m)) |
-| Interval DP | O(n^3) | O(n^2) | O(n^2) |
-| Bitmask DP | O(2^n * n) | O(2^n * n) | O(2^n * n) |
-| Digit DP | O(D * S * 10) | O(D * S) | O(D * S) |
-| Tree DP | O(V) | O(V) | O(V) |
-| LIS (binary search) | O(n log n) | O(n) | O(n) |
+| Pattern             | Time          | Space       | Space (Optimized) |
+| ------------------- | ------------- | ----------- | ----------------- |
+| 1D linear           | O(n)          | O(n)        | O(1)              |
+| 0/1 Knapsack        | O(nW)         | O(nW)       | O(W)              |
+| LCS / Edit Distance | O(nm)         | O(nm)       | O(min(n,m))       |
+| Interval DP         | O(n^3)        | O(n^2)      | O(n^2)            |
+| Bitmask DP          | O(2^n \* n)   | O(2^n \* n) | O(2^n \* n)       |
+| Digit DP            | O(D _ S _ 10) | O(D \* S)   | O(D \* S)         |
+| Tree DP             | O(V)          | O(V)        | O(V)              |
+| LIS (binary search) | O(n log n)    | O(n)        | O(n)              |
 
 ## Exercises
 
@@ -491,7 +493,6 @@ int uniquePaths(int m, int n) {
 4. **Shortest Hamiltonian Path**: Find shortest path visiting all cities exactly once (Bitmask DP)
 5. **Count Special Numbers**: Count integers in [1, N] with all distinct digits (Digit DP)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -499,7 +500,6 @@ int uniquePaths(int m, int n) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -520,14 +520,12 @@ int uniquePaths(int m, int n) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

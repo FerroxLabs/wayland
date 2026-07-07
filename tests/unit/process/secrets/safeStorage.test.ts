@@ -21,12 +21,7 @@ vi.mock('electron', () => ({
   safeStorage: mockSafeStorage,
 }));
 
-import {
-  CIPHER_PREFIX,
-  decryptString,
-  encryptString,
-  isEncryptionAvailable,
-} from '@process/secrets/safeStorage';
+import { CIPHER_PREFIX, decryptString, encryptString, isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { FILE_CIPHER_PREFIX, _resetFileKeyStoreForTests } from '@process/secrets/fileKeyStore';
 
 describe('secrets/safeStorage', () => {
@@ -71,9 +66,7 @@ describe('secrets/safeStorage', () => {
 
   it('roundtrips plaintext through encrypt → decrypt', () => {
     mockSafeStorage.isEncryptionAvailable.mockReturnValue(true);
-    mockSafeStorage.encryptString.mockImplementation((plaintext: string) =>
-      Buffer.from(`enc(${plaintext})`)
-    );
+    mockSafeStorage.encryptString.mockImplementation((plaintext: string) => Buffer.from(`enc(${plaintext})`));
     mockSafeStorage.decryptString.mockImplementation((cipher: Buffer) => {
       const raw = cipher.toString('utf8');
       const match = raw.match(/^enc\((.*)\)$/);

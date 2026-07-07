@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning decision-making template"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning decision-making template'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vendor Evaluation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to select a software platform, SaaS tool, managed service, or physical goods supplier from multiple competing vendors and wants a structured, defensible decision process
 - A user is building an RFP evaluation matrix to score vendor responses against stated requirements and wants consistent criteria applied across all submissions
 - A user needs to justify a vendor selection to a procurement committee, CFO, or board and requires documented scoring rationale -- not just a gut-preference recommendation
@@ -34,6 +36,7 @@ metadata:
 - A user needs to compare a build-vs-buy decision where "build internally" is a legitimate alternative to external vendor selection
 
 **Do NOT use this skill when:**
+
 - The user wants to understand how their own product or service compares to competitors in the market -- use `competitive-analysis` instead
 - The user needs to structure a strategic partnership, channel agreement, or co-sell arrangement -- use `partnership-agreement-outline` instead
 - The user needs to review, redline, or assess the legal terms of a vendor contract -- that requires legal counsel and is outside the scope of scoring
@@ -65,16 +68,16 @@ Criteria are not generic across purchases. A software platform evaluation and a 
 
 **Standard criteria clusters and their typical weight ranges by category:**
 
-| Cluster | SaaS/Software | Managed Service | Physical Goods/Supplier |
-|---------|--------------|----------------|------------------------|
-| Functional Fit | 25-35% | 20-30% | 15-25% |
-| Total Cost of Ownership | 15-25% | 20-30% | 30-40% |
-| Vendor Stability & Risk | 10-15% | 15-20% | 10-15% |
-| Implementation & Onboarding | 10-15% | 10-15% | 5-10% |
-| Support & SLA | 10-15% | 15-20% | 10-15% |
-| Scalability | 10-20% | 5-10% | 10-15% |
-| Security & Compliance | 10-20% | 10-15% | 5-10% |
-| Integration & Ecosystem | 10-15% | 5-10% | 3-8% |
+| Cluster                     | SaaS/Software | Managed Service | Physical Goods/Supplier |
+| --------------------------- | ------------- | --------------- | ----------------------- |
+| Functional Fit              | 25-35%        | 20-30%          | 15-25%                  |
+| Total Cost of Ownership     | 15-25%        | 20-30%          | 30-40%                  |
+| Vendor Stability & Risk     | 10-15%        | 15-20%          | 10-15%                  |
+| Implementation & Onboarding | 10-15%        | 10-15%          | 5-10%                   |
+| Support & SLA               | 10-15%        | 15-20%          | 10-15%                  |
+| Scalability                 | 10-20%        | 5-10%           | 10-15%                  |
+| Security & Compliance       | 10-20%        | 10-15%          | 5-10%                   |
+| Integration & Ecosystem     | 10-15%        | 5-10%           | 3-8%                    |
 
 - Within each cluster, break down to 2-4 specific sub-criteria. For example, "Functional Fit" for a CRM platform might contain: pipeline management capability, reporting and analytics, mobile usability, and data import/export. For a 3PL supplier, it contains: order fulfillment accuracy rate, geographic coverage, EDI integration, and returns processing.
 - Limit the total criteria count to 8-12 weighted items. More than 12 creates false precision -- evaluators cannot meaningfully distinguish between 15 distinct dimensions.
@@ -88,12 +91,14 @@ Criteria are not generic across purchases. A software platform evaluation and a 
 Weight assignment is the single point of highest subjectivity in the process. Use one of two methods depending on stakeholder alignment:
 
 **Method 1 -- Direct Allocation (single decision-maker or aligned team):**
+
 - Distribute exactly 100 points across all weighted criteria
 - Start by assigning the most important criterion first, then work downward
 - No single criterion should exceed 30% of total weight (over-weighting one factor defeats the multi-criteria purpose)
 - No criterion included in weighted scoring should be below 5% (below 5%, the weight is cosmetic -- convert it to pass/fail or remove it)
 
 **Method 2 -- Pairwise Comparison (disagreeing stakeholders):**
+
 - List all criteria and compare each pair: "Is Criterion A more important than Criterion B for this decision?"
 - Tally how many times each criterion wins its comparisons
 - Convert win counts to percentage weights (wins / total comparisons = relative weight)
@@ -110,13 +115,13 @@ A 1-5 scale only has value if every evaluator interprets scores identically. Gen
 
 **Standard scoring definitions with evidence thresholds:**
 
-| Score | Label | Definition | Minimum Evidence Required |
-|-------|-------|-----------|--------------------------|
-| 1 | Does Not Meet | Capability is absent or vendor explicitly cannot deliver | Written vendor confirmation of gap, or absence in product documentation |
-| 2 | Partial / Major Gaps | Capability exists but requires significant workarounds, custom development, or third-party tools not included in pricing | Demo showing gap, or vendor roadmap item not yet delivered |
-| 3 | Meets Requirements | Capability is present, functional, and verified -- covers stated requirements with no material gaps | Demonstrated in product demo or documented in proposal with specifics |
-| 4 | Exceeds Requirements | Capability goes beyond stated requirements with proven quality | Reference customer confirming capability in production, or benchmark data |
-| 5 | Best-in-Class | Capability is a recognized competitive differentiator -- top quartile for this vendor category | Two or more independent references, industry analyst recognition, or head-to-head demonstration win |
+| Score | Label                | Definition                                                                                                               | Minimum Evidence Required                                                                           |
+| ----- | -------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| 1     | Does Not Meet        | Capability is absent or vendor explicitly cannot deliver                                                                 | Written vendor confirmation of gap, or absence in product documentation                             |
+| 2     | Partial / Major Gaps | Capability exists but requires significant workarounds, custom development, or third-party tools not included in pricing | Demo showing gap, or vendor roadmap item not yet delivered                                          |
+| 3     | Meets Requirements   | Capability is present, functional, and verified -- covers stated requirements with no material gaps                      | Demonstrated in product demo or documented in proposal with specifics                               |
+| 4     | Exceeds Requirements | Capability goes beyond stated requirements with proven quality                                                           | Reference customer confirming capability in production, or benchmark data                           |
+| 5     | Best-in-Class        | Capability is a recognized competitive differentiator -- top quartile for this vendor category                           | Two or more independent references, industry analyst recognition, or head-to-head demonstration win |
 
 - Evaluators should record the specific evidence type for every score they assign -- not just the number
 - Prohibit scores of 5 without at least one external reference or independently verifiable data point
@@ -130,27 +135,32 @@ A 1-5 scale only has value if every evaluator interprets scores identically. Gen
 Structured evaluation phases prevent late-stage information from retroactively distorting earlier scores.
 
 **Phase 1 -- Desk Review (before vendor contact):**
+
 - Score vendors on publicly available information: website, product documentation, G2/Gartner Peer Insights reviews, financial disclosures, security certifications
 - This establishes a baseline score before vendors begin their sales process -- baseline scores are less susceptible to presentation polish
 
 **Phase 2 -- RFP Response Review:**
+
 - Issue a structured RFP or questionnaire with specific questions mapped to each evaluation criterion
 - Require vendors to answer each question in a specified format and word limit
 - Flag non-answers and vague responses -- a vendor that avoids a direct question about uptime SLAs is telling you something important
 - Score responses immediately after reading, before the next vendor's response, to prevent recency bias
 
 **Phase 3 -- Demonstration and Proof of Concept:**
+
 - Create a standardized demo script with 5-8 specific scenarios drawn from your actual use cases
 - Do NOT let vendors lead their own demo agenda -- require them to demonstrate your use cases, not their highlights
 - Invite end users (not just IT or procurement) to score usability dimensions firsthand during demos
 - For high-stakes evaluations (over $100K), require a proof of concept with real data
 
 **Phase 4 -- Reference Checks:**
+
 - Contact at minimum two references per vendor: one that the vendor provides and one that you find independently
 - Use a structured reference question script: ask about implementation timeline accuracy, support response times (not general quality), any capability gaps discovered after go-live, and whether they would make the same choice again
 - Weight independently sourced references more heavily than vendor-provided references -- vendors curate favorable references
 
 **Phase 5 -- Commercial and Risk Review:**
+
 - Collect final pricing proposals with itemized cost breakdowns
 - Request vendor financial disclosures if the contract value exceeds $250K or if the vendor is under 5 years old
 - Verify compliance certifications are current (SOC 2 reports expire annually; verify the report date)
@@ -440,93 +450,94 @@ Score variance above 2 points on a 5-point scale for the same criterion between 
 
 ### Mandatory Requirements (Pass/Fail Gates)
 
-*Vendors failing any requirement are eliminated before weighted scoring.*
+_Vendors failing any requirement are eliminated before weighted scoring._
 
-| Requirement | Basis | Vendor A | Vendor B | Vendor C |
-|-------------|-------|----------|----------|----------|
-| Native Snowflake connector (no third-party ETL required) | Architecture requirement | PASS | PASS | PASS |
-| CRM integration (read + write back capability) | Sales ops requirement | PASS | PASS | PASS |
-| SOC 2 Type II certification (current, within 12 months) | Security policy | PASS | FAIL | PASS |
-| Annual cost within $130K ceiling (all-in Year 1) | Budget constraint | PASS ($95K) | PASS ($112K) | PASS ($108K) |
-| Row-level security for multi-department data access | Compliance / data governance | PASS | PASS | PASS |
+| Requirement                                              | Basis                        | Vendor A    | Vendor B     | Vendor C     |
+| -------------------------------------------------------- | ---------------------------- | ----------- | ------------ | ------------ |
+| Native Snowflake connector (no third-party ETL required) | Architecture requirement     | PASS        | PASS         | PASS         |
+| CRM integration (read + write back capability)           | Sales ops requirement        | PASS        | PASS         | PASS         |
+| SOC 2 Type II certification (current, within 12 months)  | Security policy              | PASS        | FAIL         | PASS         |
+| Annual cost within $130K ceiling (all-in Year 1)         | Budget constraint            | PASS ($95K) | PASS ($112K) | PASS ($108K) |
+| Row-level security for multi-department data access      | Compliance / data governance | PASS        | PASS         | PASS         |
 
 **Eliminated:** Vendor B -- SOC 2 Type II certification expired 14 months ago; renewal was "in progress" with no documentation provided. Security policy requires current certification. Vendor B is ineligible for weighted scoring.
 
 **Advancing to weighted scoring:** Vendor A, Vendor C
 
-*Note: Vendor B's Year 1 all-in cost was $72K license + $40K implementation = $112K. The cost advantage disappears when implementation is included. Even if security had been resolved, the cost case was weaker than initially presented.*
+_Note: Vendor B's Year 1 all-in cost was $72K license + $40K implementation = $112K. The cost advantage disappears when implementation is included. Even if security had been resolved, the cost case was weaker than initially presented._
 
 ---
 
 ### Evaluation Criteria and Weight Assignments
 
-*Weights agreed upon by all four evaluators on [date], before any vendor scores were assigned. Rationale documented below.*
+_Weights agreed upon by all four evaluators on [date], before any vendor scores were assigned. Rationale documented below._
 
-| # | Category | Criterion | Weight | Rationale |
-|---|----------|-----------|--------|-----------|
-| 1 | Functional Fit | Self-service dashboard creation for non-technical users | 20 | 80 of 120 users are consumers; adoption depends on ease of use |
-| 2 | Functional Fit | Advanced analytics and SQL-based modeling for power users | 15 | 40 power users need transformation logic and custom metrics |
-| 3 | Total Cost of Ownership | 3-year all-in TCO | 18 | Multi-year cost significantly affects budget planning |
-| 4 | Implementation | Time to value and implementation complexity | 10 | Q1 deadline creates hard constraint; delays are costly |
-| 5 | Support & SLA | Support responsiveness and uptime SLA | 10 | Finance team cannot tolerate dashboard outages during close periods |
-| 6 | Vendor Risk | Financial stability and product investment trajectory | 8 | Committing 3 years requires confidence in vendor continuity |
-| 7 | Vendor Risk | Vendor lock-in / data portability | 7 | Switching cost is high; contract exit terms and data export matter |
-| 8 | Scalability | Performance at 3x current data volume and user count | 7 | Company is growing 40% per year; must not need to re-platform in 18 months |
-| 9 | Ecosystem | Embedding and API capability for product team use cases | 5 | Product team wants to embed analytics in customer-facing product |
-| **Total** | | | **100** | |
+| #         | Category                | Criterion                                                 | Weight  | Rationale                                                                  |
+| --------- | ----------------------- | --------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| 1         | Functional Fit          | Self-service dashboard creation for non-technical users   | 20      | 80 of 120 users are consumers; adoption depends on ease of use             |
+| 2         | Functional Fit          | Advanced analytics and SQL-based modeling for power users | 15      | 40 power users need transformation logic and custom metrics                |
+| 3         | Total Cost of Ownership | 3-year all-in TCO                                         | 18      | Multi-year cost significantly affects budget planning                      |
+| 4         | Implementation          | Time to value and implementation complexity               | 10      | Q1 deadline creates hard constraint; delays are costly                     |
+| 5         | Support & SLA           | Support responsiveness and uptime SLA                     | 10      | Finance team cannot tolerate dashboard outages during close periods        |
+| 6         | Vendor Risk             | Financial stability and product investment trajectory     | 8       | Committing 3 years requires confidence in vendor continuity                |
+| 7         | Vendor Risk             | Vendor lock-in / data portability                         | 7       | Switching cost is high; contract exit terms and data export matter         |
+| 8         | Scalability             | Performance at 3x current data volume and user count      | 7       | Company is growing 40% per year; must not need to re-platform in 18 months |
+| 9         | Ecosystem               | Embedding and API capability for product team use cases   | 5       | Product team wants to embed analytics in customer-facing product           |
+| **Total** |                         |                                                           | **100** |                                                                            |
 
 ---
 
 ### Scoring Guide
 
-| Score | Label | Definition | Minimum Evidence Standard |
-|-------|-------|-----------|--------------------------|
-| 1 | Does Not Meet | Capability absent or explicitly unavailable | Vendor confirmed gap in writing or absent from product documentation |
-| 2 | Partial -- Major Gaps | Capability exists but requires significant workarounds or additional cost | Demo showed limitation; roadmap item not yet shipped |
-| 3 | Meets Adequately | Fully functional for stated requirements, no material gaps | Demonstrated in structured use-case demo or documented in proposal |
-| 4 | Exceeds | Goes beyond requirements; proven in production | Reference customer confirmed at scale in production environment |
-| 5 | Best-in-Class | Top-quartile capability with independently verified evidence | 2+ independent references or industry analyst recognition |
+| Score | Label                 | Definition                                                                | Minimum Evidence Standard                                            |
+| ----- | --------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1     | Does Not Meet         | Capability absent or explicitly unavailable                               | Vendor confirmed gap in writing or absent from product documentation |
+| 2     | Partial -- Major Gaps | Capability exists but requires significant workarounds or additional cost | Demo showed limitation; roadmap item not yet shipped                 |
+| 3     | Meets Adequately      | Fully functional for stated requirements, no material gaps                | Demonstrated in structured use-case demo or documented in proposal   |
+| 4     | Exceeds               | Goes beyond requirements; proven in production                            | Reference customer confirmed at scale in production environment      |
+| 5     | Best-in-Class         | Top-quartile capability with independently verified evidence              | 2+ independent references or industry analyst recognition            |
 
 ---
 
 ### Vendor Scoring Matrix
 
-| Criterion | Wt | Vendor A Score | V-A Wtd | Vendor C Score | V-C Wtd |
-|-----------|----|---------------|---------|---------------|---------|
-| Self-service UX for consumers | 20 | 5 -- Demo: drag-and-drop builder; 2 independent refs confirmed non-technical adoption within 2 weeks | 100 | 3 -- Demo functional but required training; ref noted 6-week ramp time | 60 |
-| Advanced analytics for power users | 15 | 3 -- SQL modeling supported; no native dbt integration (workaround required) | 45 | 5 -- Native semantic layer; dbt integration confirmed by 2 power-user references | 75 |
-| 3-year TCO | 18 | 4 -- $95K Yr1, $90K Yr2-3 = $275K; implementation included in quote | 72 | 3 -- $108K Yr1, $102K Yr2-3 = $312K; implementation $0 per proposal | 54 |
-| Implementation timeline | 10 | 5 -- References confirmed 6-8 week go-live; milestone-based delivery standard | 50 | 3 -- References reported 12-16 week average; Q1 deadline is at risk | 30 |
-| Support responsiveness / SLA | 10 | 4 -- 99.9% uptime SLA; 4-hour response for P1; dedicated CSM confirmed | 40 | 4 -- 99.95% uptime SLA; 2-hour P1 response; shared CSM at this contract value | 40 |
-| Financial stability | 8 | 3 -- Series C ($85M raised), 600+ enterprise customers, not yet profitable | 24 | 5 -- Publicly traded; $420M ARR; 10 consecutive quarters of profitability | 40 |
-| Vendor lock-in / exit cost | 7 | 4 -- Full data export in Parquet/CSV; 90-day transition assistance clause available | 28 | 3 -- Export available but no transition assistance; proprietary metric layer creates rework on exit | 21 |
-| Scalability at 3x volume | 7 | 3 -- Demo showed query degradation above 500M rows; engineering confirmed caching required | 21 | 5 -- Benchmarked at 10B+ rows; referenced by 3 customers with 50x our data volume | 35 |
-| Embedding and API capability | 5 | 3 -- Embedding available; API is REST-only; limited component-level embedding | 15 | 4 -- Full iFrame + SDK embedding; referenced by two SaaS companies embedding customer dashboards | 20 |
-| **TOTAL** | **100** | | **395/500** | | **375/500** |
-| **% of Maximum** | | | **79%** | | **75%** |
+| Criterion                          | Wt      | Vendor A Score                                                                                       | V-A Wtd     | Vendor C Score                                                                                      | V-C Wtd     |
+| ---------------------------------- | ------- | ---------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------- | ----------- |
+| Self-service UX for consumers      | 20      | 5 -- Demo: drag-and-drop builder; 2 independent refs confirmed non-technical adoption within 2 weeks | 100         | 3 -- Demo functional but required training; ref noted 6-week ramp time                              | 60          |
+| Advanced analytics for power users | 15      | 3 -- SQL modeling supported; no native dbt integration (workaround required)                         | 45          | 5 -- Native semantic layer; dbt integration confirmed by 2 power-user references                    | 75          |
+| 3-year TCO                         | 18      | 4 -- $95K Yr1, $90K Yr2-3 = $275K; implementation included in quote                                  | 72          | 3 -- $108K Yr1, $102K Yr2-3 = $312K; implementation $0 per proposal                                 | 54          |
+| Implementation timeline            | 10      | 5 -- References confirmed 6-8 week go-live; milestone-based delivery standard                        | 50          | 3 -- References reported 12-16 week average; Q1 deadline is at risk                                 | 30          |
+| Support responsiveness / SLA       | 10      | 4 -- 99.9% uptime SLA; 4-hour response for P1; dedicated CSM confirmed                               | 40          | 4 -- 99.95% uptime SLA; 2-hour P1 response; shared CSM at this contract value                       | 40          |
+| Financial stability                | 8       | 3 -- Series C ($85M raised), 600+ enterprise customers, not yet profitable                           | 24          | 5 -- Publicly traded; $420M ARR; 10 consecutive quarters of profitability                           | 40          |
+| Vendor lock-in / exit cost         | 7       | 4 -- Full data export in Parquet/CSV; 90-day transition assistance clause available                  | 28          | 3 -- Export available but no transition assistance; proprietary metric layer creates rework on exit | 21          |
+| Scalability at 3x volume           | 7       | 3 -- Demo showed query degradation above 500M rows; engineering confirmed caching required           | 21          | 5 -- Benchmarked at 10B+ rows; referenced by 3 customers with 50x our data volume                   | 35          |
+| Embedding and API capability       | 5       | 3 -- Embedding available; API is REST-only; limited component-level embedding                        | 15          | 4 -- Full iFrame + SDK embedding; referenced by two SaaS companies embedding customer dashboards    | 20          |
+| **TOTAL**                          | **100** |                                                                                                      | **395/500** |                                                                                                     | **375/500** |
+| **% of Maximum**                   |         |                                                                                                      | **79%**     |                                                                                                     | **75%**     |
 
 ---
 
 ### Total Cost of Ownership Comparison
 
-*All costs in USD. Term: 3 years. Basis: 40 creator seats + 80 viewer seats, current Snowflake data volume.*
+_All costs in USD. Term: 3 years. Basis: 40 creator seats + 80 viewer seats, current Snowflake data volume._
 
-| Cost Component | Vendor A | Vendor C | Notes |
-|---------------|---------|---------|-------|
-| Year 1 license / subscription | $95,000 | $108,000 | Vendor A includes implementation; Vendor C does not |
-| Implementation / setup | Included | $0 vendor cost | Vendor C claims no-cost implementation; references contradict this -- see hidden cost flag below |
-| Data migration from current tools | $8,000 (est.) | $8,000 (est.) | Internal IT estimate; equal for both |
-| Training (40 power users × 4 hrs) | $6,000 | $12,000 | Vendor C charges for advanced training; Vendor A includes it |
-| Integration development (CRM writeback) | $0 (native) | $0 (native) | Both vendors have native connector |
-| Annual support (Year 2-3) | $0 additional | $0 additional | Included in subscription for both |
-| Year 2 license renewal | $90,000 | $102,000 | 5% escalator Vendor A; 6% escalator Vendor C |
-| Year 3 license renewal | $90,000 | $102,000 | Same escalators applied |
-| **Year 1 All-In Total** | **$109,000** | **$128,000** | |
-| **3-Year TCO** | **$299,000** | **$332,000** | |
-| Cost per creator seat per year | $2,375 | $2,700 | Normalized per creator |
-| Cost per viewer seat per year | $265 | $336 | Normalized per viewer |
+| Cost Component                          | Vendor A      | Vendor C       | Notes                                                                                            |
+| --------------------------------------- | ------------- | -------------- | ------------------------------------------------------------------------------------------------ |
+| Year 1 license / subscription           | $95,000       | $108,000       | Vendor A includes implementation; Vendor C does not                                              |
+| Implementation / setup                  | Included      | $0 vendor cost | Vendor C claims no-cost implementation; references contradict this -- see hidden cost flag below |
+| Data migration from current tools       | $8,000 (est.) | $8,000 (est.)  | Internal IT estimate; equal for both                                                             |
+| Training (40 power users × 4 hrs)       | $6,000        | $12,000        | Vendor C charges for advanced training; Vendor A includes it                                     |
+| Integration development (CRM writeback) | $0 (native)   | $0 (native)    | Both vendors have native connector                                                               |
+| Annual support (Year 2-3)               | $0 additional | $0 additional  | Included in subscription for both                                                                |
+| Year 2 license renewal                  | $90,000       | $102,000       | 5% escalator Vendor A; 6% escalator Vendor C                                                     |
+| Year 3 license renewal                  | $90,000       | $102,000       | Same escalators applied                                                                          |
+| **Year 1 All-In Total**                 | **$109,000**  | **$128,000**   |                                                                                                  |
+| **3-Year TCO**                          | **$299,000**  | **$332,000**   |                                                                                                  |
+| Cost per creator seat per year          | $2,375        | $2,700         | Normalized per creator                                                                           |
+| Cost per viewer seat per year           | $265          | $336           | Normalized per viewer                                                                            |
 
 **Hidden cost flags:**
+
 - **Vendor A:** References noted that adding viewer seats beyond 80 triggers a per-seat overage at $120/seat/month -- significant if company grows 40% per year as planned. Model in 112 viewer seats in Year 2 = +$17,280/year potential overage.
 - **Vendor C:** Three of four references reported a "professional services engagement" averaging $18K-$25K in the first 90 days despite vendor claiming zero implementation cost. Year 1 all-in likely $126K-$133K with realistic implementation.
 
@@ -536,29 +547,30 @@ Score variance above 2 points on a 5-point scale for the same criterion between 
 
 **Vendor A -- Risk Assessment**
 
-| Risk Category | Assessment | Severity | Mitigation |
-|--------------|------------|---------|------------|
-| Financial stability | Series C, $85M raised, ~600 enterprise customers, unprofitable -- runway estimated 24-30 months at current burn | Medium | Require 12-month data export obligation in contract; escrow source code; annual financial health review clause |
-| Vendor lock-in | Data exports in open formats; transition assistance clause available as negotiated term -- good portability posture | Low | Include 90-day transition assistance and full data export in Parquet format in contract |
-| Implementation risk | References confirmed 6-8 week delivery consistently; milestone-based delivery is standard practice | Low | Include milestone payment: 50% at contract, 30% at data validation, 20% at go-live acceptance |
-| Product roadmap | dbt native integration on roadmap for Q3; semantic layer investment is active | Medium | Require roadmap commitment language or price protection for dbt integration when released |
-| Scalability | Performance degradation above 500M rows noted in demo; caching layer required | Medium | Conduct proof of concept with actual Snowflake data volume before contract signing |
+| Risk Category       | Assessment                                                                                                          | Severity | Mitigation                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| Financial stability | Series C, $85M raised, ~600 enterprise customers, unprofitable -- runway estimated 24-30 months at current burn     | Medium   | Require 12-month data export obligation in contract; escrow source code; annual financial health review clause |
+| Vendor lock-in      | Data exports in open formats; transition assistance clause available as negotiated term -- good portability posture | Low      | Include 90-day transition assistance and full data export in Parquet format in contract                        |
+| Implementation risk | References confirmed 6-8 week delivery consistently; milestone-based delivery is standard practice                  | Low      | Include milestone payment: 50% at contract, 30% at data validation, 20% at go-live acceptance                  |
+| Product roadmap     | dbt native integration on roadmap for Q3; semantic layer investment is active                                       | Medium   | Require roadmap commitment language or price protection for dbt integration when released                      |
+| Scalability         | Performance degradation above 500M rows noted in demo; caching layer required                                       | Medium   | Conduct proof of concept with actual Snowflake data volume before contract signing                             |
 
 **Vendor C -- Risk Assessment**
 
-| Risk Category | Assessment | Severity | Mitigation |
-|--------------|------------|---------|------------|
-| Financial stability | Publicly traded; $420M ARR; 10 years profitable -- lowest financial risk in evaluation | Very Low | Standard annual review sufficient |
-| Vendor lock-in | Proprietary semantic/metric layer creates significant rework on exit; no transition assistance in standard contract | High | Negotiate data portability clause and 60-day transition assistance as contract condition |
-| Implementation risk | References averaged 12-16 weeks; Q1 deadline at significant risk; "no-cost" implementation claim contradicted by references | High | Require signed implementation timeline with milestone penalties before proceeding |
-| Product roadmap | Mature platform; innovation pace slower than category; roadmap is incremental, not transformational | Low | Less relevant given 3-year stability of feature set |
-| Hidden implementation cost | 3 of 4 references paid $18K-$25K in professional services in Year 1 despite "zero implementation" promise | High | Require written confirmation of zero professional services cost, or re-baseline TCO to $130K Year 1 |
+| Risk Category              | Assessment                                                                                                                  | Severity | Mitigation                                                                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| Financial stability        | Publicly traded; $420M ARR; 10 years profitable -- lowest financial risk in evaluation                                      | Very Low | Standard annual review sufficient                                                                   |
+| Vendor lock-in             | Proprietary semantic/metric layer creates significant rework on exit; no transition assistance in standard contract         | High     | Negotiate data portability clause and 60-day transition assistance as contract condition            |
+| Implementation risk        | References averaged 12-16 weeks; Q1 deadline at significant risk; "no-cost" implementation claim contradicted by references | High     | Require signed implementation timeline with milestone penalties before proceeding                   |
+| Product roadmap            | Mature platform; innovation pace slower than category; roadmap is incremental, not transformational                         | Low      | Less relevant given 3-year stability of feature set                                                 |
+| Hidden implementation cost | 3 of 4 references paid $18K-$25K in professional services in Year 1 despite "zero implementation" promise                   | High     | Require written confirmation of zero professional services cost, or re-baseline TCO to $130K Year 1 |
 
 ---
 
 ### Vendor Profiles
 
 **Vendor A**
+
 - **Founded / HQ:** 2016, San Francisco
 - **Revenue / Funding:** $85M raised (Series C, 2022); revenue estimated $35-45M ARR based on disclosed customer count and typical ACV
 - **Customer Count:** ~600 enterprise customers publicly disclosed
@@ -573,6 +585,7 @@ Score variance above 2 points on a 5-point scale for the same criterion between 
   3. Financial runway risk -- Series C startup not yet profitable; 24-30 month runway estimated; acquisition or funding risk exists over a 3-year contract
 
 **Vendor C**
+
 - **Founded / HQ:** 2012, New York
 - **Revenue / Funding:** Publicly traded; $420M ARR; EBITDA positive for 10 consecutive quarters
 - **Customer Count:** 4,200+ customers disclosed in most recent earnings

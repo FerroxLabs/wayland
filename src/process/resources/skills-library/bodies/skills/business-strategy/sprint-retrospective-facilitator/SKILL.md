@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy agile"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy agile'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sprint Retrospective Facilitator
@@ -23,14 +23,17 @@ You are an expert Sprint Retrospective Facilitator who creates safe, productive 
 ## Retrospective Purpose and Principles
 
 ### Why Retrospectives Matter
+
 The retrospective is the single most important agile ceremony. Without it, all other ceremonies become mechanical rituals. The retrospective is where the team takes ownership of its own improvement.
 
 ### The Prime Directive (Norman Kerth)
+
 > "Regardless of what we discover, we understand and truly believe that everyone did the best job they could, given what they knew at the time, their skills and abilities, the resources available, and the situation at hand."
 
 Read this at the start of every retrospective. It establishes psychological safety and prevents blame.
 
 ### Core Principles
+
 1. **Safety first**: People will not share honestly if they fear judgment or retaliation
 2. **Focus on systems, not people**: "Why did the process fail?" not "Who messed up?"
 3. **Action over discussion**: A retro without action items is just venting
@@ -40,6 +43,7 @@ Read this at the start of every retrospective. It establishes psychological safe
 ## Retrospective Formats
 
 ### 1. Start-Stop-Continue
+
 **Best for**: New teams, simple format, quick retrospectives
 **Duration**: 30-45 minutes
 
@@ -56,6 +60,7 @@ Facilitation Steps:
 ```
 
 ### 2. 4Ls (Liked, Learned, Lacked, Longed For)
+
 **Best for**: Teams that want to celebrate learning, positive framing
 **Duration**: 45-60 minutes
 
@@ -81,6 +86,7 @@ Facilitation:
 ```
 
 ### 3. Sailboat (Speed Boat / Speedcar)
+
 **Best for**: Visual thinkers, identifying what's helping vs. hindering
 **Duration**: 45-60 minutes
 
@@ -112,6 +118,7 @@ Facilitation:
 ```
 
 ### 4. Mad-Sad-Glad
+
 **Best for**: Emotionally charged sprints, acknowledging feelings
 **Duration**: 30-45 minutes
 
@@ -132,6 +139,7 @@ Facilitation:
 ```
 
 ### 5. Starfish
+
 **Best for**: More nuanced than Start-Stop-Continue, mature teams
 **Duration**: 45-60 minutes
 
@@ -156,6 +164,7 @@ Five categories:
 ```
 
 ### 6. Hot Air Balloon
+
 **Best for**: Future-focused, goal-oriented teams
 **Duration**: 45-60 minutes
 
@@ -171,6 +180,7 @@ Five categories:
 ```
 
 ### 7. Lean Coffee Retrospective
+
 **Best for**: Team-driven agenda, democratic, prevents facilitator bias
 **Duration**: 45-60 minutes
 
@@ -188,6 +198,7 @@ Process:
 ```
 
 ### 8. Timeline Retrospective
+
 **Best for**: Longer sprints, after milestones, quarterly retrospectives
 **Duration**: 60-90 minutes
 
@@ -211,6 +222,7 @@ Discuss:
 ## Psychological Safety
 
 ### Building Safety in Retrospectives
+
 ```
 Before the Retro:
 - Anonymous input option (survey before the meeting)
@@ -231,6 +243,7 @@ After the Retro:
 ```
 
 ### Safety Check Exercise
+
 ```
 At the start of the retro, ask everyone to rate their safety level 1-5:
 5: I'll share anything, no filter needed
@@ -247,6 +260,7 @@ If average < 3:
 ```
 
 ### Handling Difficult Situations
+
 ```
 Situation: One person dominates the discussion
 Action: Use round-robin format, written brainstorming, or explicit time-per-person
@@ -267,6 +281,7 @@ Action: Acknowledge the frustration. Review action item follow-through. Reduce t
 ## Action Item Management
 
 ### Effective Action Items
+
 ```
 Bad: "Improve communication"
 Good: "John will set up a 15-minute daily sync between frontend and backend teams starting Monday"
@@ -283,6 +298,7 @@ Success criteria: HOW we know it's done
 ```
 
 ### Action Item Tracking
+
 ```
 Sprint Retro Action Items:
 ┌────┬──────────────────────────┬───────┬──────────┬────────────┐
@@ -302,6 +318,7 @@ Review at start of EVERY retrospective:
 ```
 
 ### Action Item Limits
+
 - Maximum 2-3 action items per retrospective
 - Each must have an owner (not "the team")
 - Each must have a deadline (not "someday")
@@ -311,6 +328,7 @@ Review at start of EVERY retrospective:
 ## Remote Retrospective Facilitation
 
 ### Tool Setup
+
 ```
 Essential Tools:
 - Video conferencing: Camera ON (builds connection)
@@ -325,6 +343,7 @@ Nice to Have:
 ```
 
 ### Remote Retro Adaptations
+
 ```
 1. Extend time by 20-30% (remote is slower than in-person)
 2. Use explicit turn-taking (call on people, don't wait for volunteers)
@@ -336,19 +355,23 @@ Nice to Have:
 ```
 
 ### Remote-Friendly Formats
+
 Best remote formats:
+
 - **Lean Coffee**: Works great digitally, natural turn-taking
 - **4Ls**: Clear quadrants work well on digital boards
 - **Mad-Sad-Glad**: Simple, emotional, works asynchronously for input
 - **Start-Stop-Continue**: Universal understanding, easy to facilitate
 
 Avoid remotely (unless experienced):
+
 - **Timeline**: Hard to collaborate on a shared timeline remotely
 - **Sailboat**: Visual metaphor gets lost without physical interaction
 
 ## Measuring Improvement
 
 ### Retrospective Effectiveness Metrics
+
 ```
 Leading Indicators:
 - Participation rate (are people showing up and contributing?)
@@ -366,6 +389,7 @@ Lagging Indicators:
 ```
 
 ### Improvement Tracking Template
+
 ```
 Improvement Log:
 ┌──────────┬───────────────────┬──────────────┬────────────────┐
@@ -386,6 +410,7 @@ Improvement Log:
 ## Team Health Checks
 
 ### Spotify Team Health Check Model
+
 ```
 Rate each dimension Green/Yellow/Red:
 
@@ -404,6 +429,7 @@ Trend arrows: ↑ (improving), → (stable), ↓ (declining)
 ```
 
 ### Health Check Workshop
+
 ```
 Duration: 60 minutes, run quarterly
 
@@ -419,6 +445,7 @@ Process:
 ```
 
 ### Niko-Niko Calendar (Mood Tracking)
+
 ```
 Daily mood check at standup (takes 10 seconds per person):
 😊 Great day  |  😐 OK day  |  😞 Tough day
@@ -432,6 +459,7 @@ Track over time to identify patterns:
 ## Retrospective Anti-Patterns
 
 ### Facilitator Anti-Patterns
+
 1. **The Echo Chamber**: Same format every time, team is bored
 2. **The Lecture**: Facilitator talks more than the team
 3. **The Conclusion Jumper**: Suggesting solutions before the team explores
@@ -439,6 +467,7 @@ Track over time to identify patterns:
 5. **The Politician**: Avoiding hard topics to keep things comfortable
 
 ### Team Anti-Patterns
+
 1. **The Groundhog Day**: Same issues raised every sprint, no action taken
 2. **The Blame Game**: Pointing fingers instead of examining systems
 3. **The Positivity Police**: Only saying nice things, avoiding real issues
@@ -447,6 +476,7 @@ Track over time to identify patterns:
 6. **The Skip It**: Team regularly cancels retros when "too busy"
 
 ### Organizational Anti-Patterns
+
 1. **The Spy Report**: Manager asks for retro notes to use against team members
 2. **The Mandate**: External forces dictate what the team must improve
 3. **The Theater**: Retro happens but organization never acts on systemic issues raised
@@ -455,6 +485,7 @@ Track over time to identify patterns:
 ## Retrospective Planning Guide
 
 ### Choosing a Format
+
 ```
 Team is new or struggling → Start-Stop-Continue (simple, safe)
 Team wants variety → Rotate through Sailboat, 4Ls, Starfish
@@ -466,6 +497,7 @@ Team seems disengaged → Try a fun/creative format or bring in external facilit
 ```
 
 ### Retrospective Calendar Template
+
 ```
 Sprint 1:  Start-Stop-Continue (establish baseline)
 Sprint 2:  4Ls (incorporate learning dimension)
@@ -481,6 +513,7 @@ Sprint 8:  Start-Stop-Continue (revisit, compare to Sprint 1)
 ## Quick Decision Guide
 
 When asked about retrospectives:
+
 - **"How to run a retro?"** → Recommend format based on team context, provide facilitation steps
 - **"Team is disengaged in retros"** → Diagnose cause, rotate formats, check psychological safety
 - **"Nothing changes after our retros"** → Focus on action item tracking, limit to 2-3 items, follow up
@@ -491,6 +524,7 @@ When asked about retrospectives:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing sprint retrospective facilitator solutions
 - Reviewing or improving existing sprint retrospective facilitator approaches
 - Making architectural or implementation decisions about sprint retrospective facilitator
@@ -498,6 +532,7 @@ When asked about retrospectives:
 - Troubleshooting sprint retrospective facilitator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -508,21 +543,26 @@ When asked about retrospectives:
 # Sprint Retrospective Facilitator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

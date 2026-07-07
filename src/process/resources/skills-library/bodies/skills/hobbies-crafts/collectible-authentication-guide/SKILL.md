@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research guide checklist analysis"
-  category: "hobbies-crafts"
-  subcategory: "collecting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research guide checklist analysis'
+  category: 'hobbies-crafts'
+  subcategory: 'collecting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Collectible Authentication Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to verify whether a specific collectible item is genuine before purchasing it at a flea market, online marketplace, estate sale, auction, or private sale
 - A user holds an item in hand and wants to perform physical examination checks to rule out counterfeiting or reproduction
 - A user received a collectible as a gift or inheritance and wants to understand whether it is authentic before insuring, displaying, or selling it
@@ -29,6 +31,7 @@ metadata:
 - A user wants to understand which professional authentication or grading service is appropriate for their specific collectible type and how the submission process works
 
 **Do NOT use when:**
+
 - The user's primary question is what their item is worth in dollar terms -- use `collection-valuation-guide`, which handles market pricing, recent auction comps, and condition grading impact on value
 - The user needs to catalogue, organize, or build an inventory of a collection -- use `collection-inventory-builder`
 - The user requires forensic analysis that will be submitted as legal evidence in a fraud case, insurance dispute, or criminal prosecution -- this requires court-qualified expert witnesses, not an AI assistant
@@ -60,6 +63,7 @@ Gather the following information before beginning any authentication analysis. T
 Not all collectibles attract the same level of forgery activity. Risk is driven by two factors: how much money a convincing fake can net, and how easily the counterfeit can be produced.
 
 **High risk (counterfeits are common and commercially produced):**
+
 - Any coin worth over $300 in authentic condition, particularly key-date issues: 1909-S VDB Lincoln cent, 1916-D Mercury dime, 1879-CC Morgan dollar, 1804 Draped Bust dollar, pre-1933 U.S. gold coins. Chinese-made counterfeit coins of these issues are mass-produced and sold globally.
 - Vintage trading cards with raw retail values over $200: 1952 Topps #311 Mickey Mantle, 1986-87 Fleer #57 Michael Jordan, 1989 Upper Deck #1 Ken Griffey Jr., 1916 Collins-McCarthy Babe Ruth, T206 Honus Wagner. Reprints and altered cards (re-colored, trimmed, or repressed corners) are pervasive.
 - Autographed memorabilia, particularly sports autographs. The FBI estimates the sports memorabilia market has a counterfeit rate exceeding 50% by volume. Autographs of deceased signers (Mickey Mantle, Babe Ruth, Marilyn Monroe) are the highest risk because no living comparison is available.
@@ -68,6 +72,7 @@ Not all collectibles attract the same level of forgery activity. Risk is driven 
 - Pre-WWII stamps with catalog values over $200: 1918 U.S. 24-cent "Inverted Jenny," British Penny Black, pre-1870 U.S. issues.
 
 **Moderate risk (counterfeiting exists but is less sophisticated):**
+
 - Coins valued $50-300 in the specific grade being sold.
 - Trading cards valued $50-200, particularly modern parallels and refractors where print-on-demand fakes have become common.
 - Concert and event posters from legendary artists (Fillmore-era posters, KISS, The Beatles, etc.).
@@ -75,6 +80,7 @@ Not all collectibles attract the same level of forgery activity. Risk is driven 
 - Signed books and documents where the signer is still living but signatures are worth $100 or more.
 
 **Lower risk (counterfeiting is uncommon or commercially impractical):**
+
 - Items worth under $50 retail -- the economics of counterfeiting rarely work at this price point.
 - Common coins and stamps with abundant authentic supply.
 - Modern collectibles with robust manufacturer security features (holographic inserts, serialized parallels, DNA-tagged memorabilia).
@@ -87,6 +93,7 @@ Not all collectibles attract the same level of forgery activity. Risk is driven 
 Each category requires a different physical toolkit and examination methodology. The level of scrutiny must match the risk level established in Step 2.
 
 **Recommended basic toolkit applicable across categories:**
+
 - 10x jeweler's loupe (available for $10-20 at craft and jewelry supply stores) -- the single most useful tool for collectible authentication
 - Precision digital scale accurate to 0.01 grams (available for $15-30) -- essential for coins and some stamps
 - Digital calipers accurate to 0.01mm -- for coins, stamps, and edge measurement
@@ -167,6 +174,7 @@ Philatelic authentication involves precise measurement and material science that
 Documentation assessment follows physical examination because documentation should confirm physical evidence, not substitute for it.
 
 **Certificate of Authenticity (COA) quality assessment:**
+
 - A credible COA identifies the specific item with enough detail that it cannot be transferred to a different item: description of the item, specific measurements or identifiers, condition notes, and a photograph of the specific item.
 - The COA must identify the issuing authority with verifiable credentials. A COA issued by a named individual should list their qualifications. A COA from a recognized grading service references a verifiable certification number.
 - The date of the COA should be logical relative to the item's history. A COA issued before the claimed acquisition date of the item is suspicious.
@@ -174,6 +182,7 @@ Documentation assessment follows physical examination because documentation shou
 - Multiple COAs for the same item from different services may indicate that the item failed authentication at one service and the seller shopped for a more favorable opinion.
 
 **Recognized third-party authentication and grading services by category:**
+
 - Coins: PCGS (Professional Coin Grading Service) and NGC (Numismatic Guaranty Corporation) are the two dominant services. ANACS and ICG are recognized secondary services. Coins in PCGS or NGC slabs are considered authenticated and graded. Verify slab genuineness at the respective service's online verification tool by entering the certification number.
 - Trading cards: PSA (Professional Sports Authenticator), BGS/Beckett Grading Services, and SGC (Sportscard Guaranty Corporation) are the three primary recognized services. PSA holds the largest population report database.
 - Comics: CGC (Certified Guaranty Company) is the dominant service for comic authentication and grading.
@@ -182,6 +191,7 @@ Documentation assessment follows physical examination because documentation shou
 - Vintage watches: Rolex Service Centre, Omega Museum, and independent horological experts certified through the British Horological Institute (BHI) or American Watchmakers-Clockmakers Institute (AWCI).
 
 **Provenance chain evaluation:**
+
 - A provenance chain is a documented sequence of ownership from creation/origin to the present. Each link should be verifiable: dealer invoices, auction house records, estate documentation, insurance records, or published exhibition history.
 - Gaps in provenance are common and not automatically disqualifying. A coin stored in a family collection for 60 years will have no paper trail for that period. The key is whether the physical examination matches the claimed age and origin.
 - For pre-WWII items with European origins, provenance gaps covering 1933-1950 are extremely common due to wartime displacement. This specific gap pattern is well understood in the art and antiques trade and is not itself suspicious, though post-war restitution claims remain an issue for certain categories.
@@ -194,6 +204,7 @@ Documentation assessment follows physical examination because documentation shou
 Not every item requires professional authentication. The following criteria determine when to recommend it.
 
 **Always recommend professional authentication when:**
+
 - The item is potentially worth over $200 and the user is making a purchase decision based on authenticity
 - The user intends to resell the item -- items with professional authentication certificates sell for materially more and provide legal protection against future fraud claims
 - The user intends to insure the item -- most collectibles insurance requires graded or expert-authenticated values
@@ -202,11 +213,13 @@ Not every item requires professional authentication. The following criteria dete
 - The item is an autograph by a deceased signer (the highest-risk category; physical examination alone is insufficient)
 
 **Professional authentication is likely unnecessary when:**
+
 - The item is worth under $50 and is not part of a larger suspicious lot
 - The item is already in a PCGS, NGC, PSA, BGS, CGC, or JSA holder with a verifiable certification number
 - The physical examination is unambiguously positive AND the acquisition context is low-risk (authorized dealer with return policy)
 
 **Selecting a service:**
+
 - Match the service to the category -- sending a coin to PSA or a trading card to NGC is non-standard and produces less recognized results
 - Understand the tier structure: most major services offer tiers based on item value and desired turnaround time. Express service for a $100 card costs more than the card is worth in grading fees -- choose tiers appropriate to the item's potential value.
 - For PCGS and NGC, standard tier costs approximately $30-50 per coin with 30-45 day turnaround. Express service is $75-150 with 15 business day turnaround. For PSA cards, standard service starts at approximately $25-50 per card with variable turnaround.
@@ -383,47 +396,48 @@ Some reproductions are legal and legitimate: commemorative coin reprints, licens
 ## Authentication Assessment
 
 ### Item Information
-| Parameter            | Value                                                  |
-|----------------------|--------------------------------------------------------|
-| Item type            | Coin (U.S. cent)                                       |
-| Specific description | 1909-S VDB Lincoln Wheat Cent, claimed Fine-12 grade  |
-| Claimed date/era     | 1909, San Francisco Mint (S mintmark)                 |
-| Acquisition source   | Coin show dealer (unslabbed, raw coin)                |
-| Asking price         | $1,200                                                 |
-| Market context       | Authentic 1909-S VDB in F-12 typically sells $700-$1,100 in current market; VF-20 examples reach $1,400-$1,800. The asking price is at the high end for the claimed grade but not implausible for a coin show premium. |
+
+| Parameter            | Value                                                                                                                                                                                                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Item type            | Coin (U.S. cent)                                                                                                                                                                                                                                                            |
+| Specific description | 1909-S VDB Lincoln Wheat Cent, claimed Fine-12 grade                                                                                                                                                                                                                        |
+| Claimed date/era     | 1909, San Francisco Mint (S mintmark)                                                                                                                                                                                                                                       |
+| Acquisition source   | Coin show dealer (unslabbed, raw coin)                                                                                                                                                                                                                                      |
+| Asking price         | $1,200                                                                                                                                                                                                                                                                      |
+| Market context       | Authentic 1909-S VDB in F-12 typically sells $700-$1,100 in current market; VF-20 examples reach $1,400-$1,800. The asking price is at the high end for the claimed grade but not implausible for a coin show premium.                                                      |
 | Risk level           | **HIGH** -- The 1909-S VDB is the most counterfeited Lincoln cent in existence. Chinese-made counterfeits at this specific date/mintmark combination are mass-produced and widely circulated. Genuine examples are worth serious money; convincing fakes are worth nothing. |
-| Physical access      | Item in hand -- proceed with full examination          |
+| Physical access      | Item in hand -- proceed with full examination                                                                                                                                                                                                                               |
 
 ---
 
 ### Physical Examination Checklist
 
-*Items marked [CRITICAL] are most diagnostic for this specific coin.*
+_Items marked [CRITICAL] are most diagnostic for this specific coin._
 
-| Criterion               | Specification for Authentic 1909-S VDB | What to Check / Observe | Match? | Notes |
-|-------------------------|----------------------------------------|--------------------------|--------|-------|
-| Weight [CRITICAL]       | 3.11 grams (±0.05g tolerance for circulation wear on an F-12 example) | Weigh immediately on your precision scale | ? | Deviation of more than 0.1g is disqualifying. Common Chinese counterfeits come in at 3.0g or 3.2g. |
-| Diameter [CRITICAL]     | 19.05mm exactly | Measure with calipers | ? | Counterfeits often run 18.9mm or 19.2mm. |
-| "VDB" designer initials | Must appear on the reverse at the bottom center, between the wheat stalks. Letters should be sharp with clear serifs. | Examine under 10x loupe. "V", "D", and "B" should have crisp, individually cut letter forms | ? | The "D" in "VDB" is a common point of weakness on cast counterfeits -- it appears mushy. |
-| "S" mintmark [CRITICAL] | Located on the obverse below the date. The "S" should have a specific knob shape with slightly open top and bottom loops characteristic of the San Francisco Mint's 1909 punch. | Examine mintmark under 10x loupe. Compare S-punch shape to a reference image of the 1909-S. | ? | The most common fraud is an altered 1909 Philadelphia cent with an "S" added. Look for tool marks, roughness, or a slightly different metal color/texture around the mintmark. Any roughness around the S is disqualifying. |
-| Coin edge              | Plain edge (no reeding) -- the 1909 Lincoln cent has a smooth plain edge | Run your fingernail around the entire edge. It should be completely smooth and show only wear patterns, not reeding or seam lines. | ? | Cast counterfeits show a seam line where the mold halves met. |
-| Die strike characteristics | High-relief facial details on Lincoln: the bow tie, jacket lapels, and hair above the ear should show appropriate wear for F-12 -- high points worn flat, but moderate detail remaining. | Under 10x loupe, examine Lincoln's cheekbone, jaw line, and the wheat stalk tips (which wear first in genuine circulation) | ? | Counterfeits from cast dies often show mushy, "soft" details throughout rather than a wear pattern concentrated on high points. Genuine wear is smooth and directional; cast fakes show uniform soft detail everywhere. |
-| Metal composition       | 95% copper, 5% tin and zinc. Non-magnetic. Should not be attracted to a magnet. | Hold a neodymium magnet near the coin. It should not attract or stick. Then hold the coin at an angle above the magnet and let it slide -- genuine copper coins will slide freely without resistance. | ? | If the coin sticks to the magnet or shows strong magnetic attraction: it is not a genuine 1909-S VDB. |
-| Color and surface luster | An F-12 circulated cent should have a medium brown color with even wear. It should NOT look bright copper-red (that would be Uncirculated, inconsistent with F-12 claim). No artificial luster. | Check whether the color is consistent with 115+ years of circulation. Artificial toning can be detected by an unusual smell (sulfur, chemicals) or by toning that appears concentrated in recessed areas rather than distributed naturally. | ? | A cent that looks unnaturally dark (artificially toned to hide bright metal of a new counterfeit) is suspect. |
-| Date numerals          | The "1909" date should have numerals with specific serif shapes for the 1909 Lincoln cent master die. The "9" digits have a specific tail shape. | Under 10x loupe, examine the date numerals closely. The numeral shapes should match published examples from 1909-S VDB reference photography. | ? | Added or altered date numerals (from a 1909 plain cent or a different date) show tooling marks, inconsistent metal flow, or slightly different numeral shapes. |
+| Criterion                  | Specification for Authentic 1909-S VDB                                                                                                                                                          | What to Check / Observe                                                                                                                                                                                                                     | Match? | Notes                                                                                                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Weight [CRITICAL]          | 3.11 grams (±0.05g tolerance for circulation wear on an F-12 example)                                                                                                                           | Weigh immediately on your precision scale                                                                                                                                                                                                   | ?      | Deviation of more than 0.1g is disqualifying. Common Chinese counterfeits come in at 3.0g or 3.2g.                                                                                                                          |
+| Diameter [CRITICAL]        | 19.05mm exactly                                                                                                                                                                                 | Measure with calipers                                                                                                                                                                                                                       | ?      | Counterfeits often run 18.9mm or 19.2mm.                                                                                                                                                                                    |
+| "VDB" designer initials    | Must appear on the reverse at the bottom center, between the wheat stalks. Letters should be sharp with clear serifs.                                                                           | Examine under 10x loupe. "V", "D", and "B" should have crisp, individually cut letter forms                                                                                                                                                 | ?      | The "D" in "VDB" is a common point of weakness on cast counterfeits -- it appears mushy.                                                                                                                                    |
+| "S" mintmark [CRITICAL]    | Located on the obverse below the date. The "S" should have a specific knob shape with slightly open top and bottom loops characteristic of the San Francisco Mint's 1909 punch.                 | Examine mintmark under 10x loupe. Compare S-punch shape to a reference image of the 1909-S.                                                                                                                                                 | ?      | The most common fraud is an altered 1909 Philadelphia cent with an "S" added. Look for tool marks, roughness, or a slightly different metal color/texture around the mintmark. Any roughness around the S is disqualifying. |
+| Coin edge                  | Plain edge (no reeding) -- the 1909 Lincoln cent has a smooth plain edge                                                                                                                        | Run your fingernail around the entire edge. It should be completely smooth and show only wear patterns, not reeding or seam lines.                                                                                                          | ?      | Cast counterfeits show a seam line where the mold halves met.                                                                                                                                                               |
+| Die strike characteristics | High-relief facial details on Lincoln: the bow tie, jacket lapels, and hair above the ear should show appropriate wear for F-12 -- high points worn flat, but moderate detail remaining.        | Under 10x loupe, examine Lincoln's cheekbone, jaw line, and the wheat stalk tips (which wear first in genuine circulation)                                                                                                                  | ?      | Counterfeits from cast dies often show mushy, "soft" details throughout rather than a wear pattern concentrated on high points. Genuine wear is smooth and directional; cast fakes show uniform soft detail everywhere.     |
+| Metal composition          | 95% copper, 5% tin and zinc. Non-magnetic. Should not be attracted to a magnet.                                                                                                                 | Hold a neodymium magnet near the coin. It should not attract or stick. Then hold the coin at an angle above the magnet and let it slide -- genuine copper coins will slide freely without resistance.                                       | ?      | If the coin sticks to the magnet or shows strong magnetic attraction: it is not a genuine 1909-S VDB.                                                                                                                       |
+| Color and surface luster   | An F-12 circulated cent should have a medium brown color with even wear. It should NOT look bright copper-red (that would be Uncirculated, inconsistent with F-12 claim). No artificial luster. | Check whether the color is consistent with 115+ years of circulation. Artificial toning can be detected by an unusual smell (sulfur, chemicals) or by toning that appears concentrated in recessed areas rather than distributed naturally. | ?      | A cent that looks unnaturally dark (artificially toned to hide bright metal of a new counterfeit) is suspect.                                                                                                               |
+| Date numerals              | The "1909" date should have numerals with specific serif shapes for the 1909 Lincoln cent master die. The "9" digits have a specific tail shape.                                                | Under 10x loupe, examine the date numerals closely. The numeral shapes should match published examples from 1909-S VDB reference photography.                                                                                               | ?      | Added or altered date numerals (from a 1909 plain cent or a different date) show tooling marks, inconsistent metal flow, or slightly different numeral shapes.                                                              |
 
 ---
 
 ### Red Flags to Check
 
-| Red Flag                                      | Present? | Severity | Notes                                                        |
-|-----------------------------------------------|----------|----------|--------------------------------------------------------------|
-| Asking price more than 40% below market       | No       | --       | $1,200 is within plausible range for F-12; not a price red flag |
-| Coin is unslabbed for a $1,200 example        | Moderate | Med      | A genuine 1909-S VDB in this price range is almost always slabbed. Legitimate reason possible (dealer preference for raw) but worth noting. |
-| Seller discourages examination or measurement | ?        | High     | You have the right to examine any coin you are considering buying. Refusal or impatience is a significant red flag. |
-| Mintmark shows any roughness or tool marks    | ?        | High     | The most common alteration for this coin is adding an S mintmark |
-| Weight deviates more than 0.1g from 3.11g    | ?        | High     | A wrong weight is near-conclusive evidence of inauthenticity |
-| Mushy detail throughout (not consistent with wear pattern) | ?  | High  | Genuine wear concentrates on high points; cast fakes show uniform softness |
+| Red Flag                                                   | Present? | Severity | Notes                                                                                                                                       |
+| ---------------------------------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Asking price more than 40% below market                    | No       | --       | $1,200 is within plausible range for F-12; not a price red flag                                                                             |
+| Coin is unslabbed for a $1,200 example                     | Moderate | Med      | A genuine 1909-S VDB in this price range is almost always slabbed. Legitimate reason possible (dealer preference for raw) but worth noting. |
+| Seller discourages examination or measurement              | ?        | High     | You have the right to examine any coin you are considering buying. Refusal or impatience is a significant red flag.                         |
+| Mintmark shows any roughness or tool marks                 | ?        | High     | The most common alteration for this coin is adding an S mintmark                                                                            |
+| Weight deviates more than 0.1g from 3.11g                  | ?        | High     | A wrong weight is near-conclusive evidence of inauthenticity                                                                                |
+| Mushy detail throughout (not consistent with wear pattern) | ?        | High     | Genuine wear concentrates on high points; cast fakes show uniform softness                                                                  |
 
 **Red flag count:** [Complete after examination]
 **Cumulative risk:** HIGH -- regardless of how the coin looks to the naked eye, this specific date/mintmark is the most counterfeited Lincoln cent issue in existence.
@@ -432,19 +446,19 @@ Some reproductions are legal and legitimate: commemorative coin reprints, licens
 
 ### Documentation Evaluation
 
-| Document          | Status   | Quality Assessment                                         |
-|-------------------|----------|------------------------------------------------------------|
-| COA               | Absent   | No COA provided. For an unslabbed coin this is standard.   |
-| Grading slab      | Absent   | Coin is raw (unslabbed). This is the primary documentation gap for a $1,200 coin. |
-| Provenance chain  | Unknown  | Ask the dealer where this coin came from (previous owner, auction source). Document the answer. |
-| Dealer receipt    | Unknown  | Request a written receipt with full description, grade claim, price, and dealer's name/contact. Any legitimate coin show dealer will provide this. |
+| Document         | Status  | Quality Assessment                                                                                                                                 |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| COA              | Absent  | No COA provided. For an unslabbed coin this is standard.                                                                                           |
+| Grading slab     | Absent  | Coin is raw (unslabbed). This is the primary documentation gap for a $1,200 coin.                                                                  |
+| Provenance chain | Unknown | Ask the dealer where this coin came from (previous owner, auction source). Document the answer.                                                    |
+| Dealer receipt   | Unknown | Request a written receipt with full description, grade claim, price, and dealer's name/contact. Any legitimate coin show dealer will provide this. |
 
 ---
 
 ### Physical Examination Tools Used
 
-| Tool              | Available | If Not Used -- Impact                                         |
-|-------------------|-----------|---------------------------------------------------------------|
-| Precision scale   | Yes       | Use it first. Weight is the fastest definitive test.         |
-| Digital calipers  | Yes       | Use after weight. Diameter confirmation adds confidence.      |
-| 10x loupe         | Recommended | Mintmark examination is critical and requires magnification. If
+| Tool             | Available   | If Not Used -- Impact                                           |
+| ---------------- | ----------- | --------------------------------------------------------------- |
+| Precision scale  | Yes         | Use it first. Weight is the fastest definitive test.            |
+| Digital calipers | Yes         | Use after weight. Diameter confirmation adds confidence.        |
+| 10x loupe        | Recommended | Mintmark examination is critical and requires magnification. If |

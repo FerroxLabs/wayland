@@ -40,11 +40,7 @@ const SiderTeamsEntry: React.FC<SiderTeamsEntryProps> = ({
           onClick={onClick}
           data-testid='sider-teams-entry'
         >
-          <Users
-            size={16}
-            className='block leading-none shrink-0'
-            style={{ lineHeight: 0 }}
-          />
+          <Users size={16} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
         </div>
       </Tooltip>
     );
@@ -62,11 +58,7 @@ const SiderTeamsEntry: React.FC<SiderTeamsEntryProps> = ({
         data-testid='sider-teams-entry'
       >
         <span className='w-20px h-20px flex items-center justify-center shrink-0'>
-          <Users
-            size={16}
-            className='block leading-none'
-            style={{ lineHeight: 0 }}
-          />
+          <Users size={16} className='block leading-none' style={{ lineHeight: 0 }} />
         </span>
         <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>{label}</span>
       </div>

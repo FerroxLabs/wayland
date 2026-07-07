@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices security"
-  category: "testing-quality"
-  subcategory: "test-methodology"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'testing best-practices security'
+  category: 'testing-quality'
+  subcategory: 'test-methodology'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # API Fuzzer
@@ -499,6 +499,7 @@ Integration:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api fuzzer solutions
 - Reviewing or improving existing api fuzzer approaches
 - Making architectural or implementation decisions about api fuzzer
@@ -506,6 +507,7 @@ Integration:
 - Troubleshooting api fuzzer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -516,21 +518,26 @@ Integration:
 # Api Fuzzer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

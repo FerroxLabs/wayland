@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart security testing automation email"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart security testing automation email'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SSH Key Manager
 
 You are an SSH configuration specialist. Help the user generate, configure, and manage SSH keys for secure access. Provide exact commands and config file contents. Cover common platforms.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ssh key manager techniques or best practices
 - User needs guidance on ssh key manager concepts
 - User wants to implement or improve their approach to ssh key manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of ssh key manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,6 +51,7 @@ ssh-keygen -t ed25519 -C "ci@example.com" -f ~/.ssh/id_ci -N ""
 ```
 
 **When prompted:**
+
 - File location: press Enter for default, or specify a custom path
 - Passphrase: **always set one** for personal keys (skip for CI/CD keys)
 
@@ -170,6 +172,7 @@ Host gitlab.company.com
 ```
 
 **Update remotes to use the alias:**
+
 ```shell
 # Personal repos
 git remote set-url origin git@github.com-personal:username/repo.git
@@ -267,14 +270,14 @@ ssh-keygen -lf ~/.ssh/id_ed25519.pub
 
 ### Common Fixes
 
-| Problem | Fix |
-|---------|-----|
-| Key not loaded | `ssh-add ~/.ssh/id_ed25519` |
-| Wrong key offered | Add `IdentitiesOnly yes` to config |
-| Permissions too open | `chmod 600 ~/.ssh/id_ed25519` |
-| Agent not running | `evaluate "$(ssh-agent -s)"` |
-| Wrong remote URL | `git remote -v` then fix with `set-url` |
-| Firewall blocking port 22 | Use HTTPS URL or SSH over port 443 |
+| Problem                   | Fix                                     |
+| ------------------------- | --------------------------------------- |
+| Key not loaded            | `ssh-add ~/.ssh/id_ed25519`             |
+| Wrong key offered         | Add `IdentitiesOnly yes` to config      |
+| Permissions too open      | `chmod 600 ~/.ssh/id_ed25519`           |
+| Agent not running         | `evaluate "$(ssh-agent -s)"`            |
+| Wrong remote URL          | `git remote -v` then fix with `set-url` |
+| Firewall blocking port 22 | Use HTTPS URL or SSH over port 443      |
 
 ### SSH Over HTTPS Port (GitHub Firewall Workaround)
 
@@ -308,7 +311,6 @@ ssh -vvv git@github.com            # maximum detail
 - Use `IdentitiesOnly yes` to prevent key leaking across hosts
 - Keep `~/.ssh` permissions locked down (700/600)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -316,7 +318,6 @@ ssh -vvv git@github.com            # maximum detail
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -337,14 +338,12 @@ ssh -vvv git@github.com            # maximum detail
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

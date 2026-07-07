@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isConversationPinned } from '@/renderer/pages/conversation/GroupedHistory/utils/groupingHelpers';
 import { formatConversationDate } from '@/renderer/utils/chat/timeline';
+import { formatUsd } from '@renderer/utils/format/tokens';
 import ProjectFilesPanel from './components/ProjectFilesPanel';
 import ProjectSettingsDrawer, { type SettingsSection } from './components/ProjectSettingsDrawer';
 import ProjectReferencePanel from './components/ProjectReferencePanel';
@@ -68,6 +69,7 @@ const ProjectWorkspacePage: React.FC = () => {
   const [canGenerate, setCanGenerate] = useState(false);
   const [setupReady, setSetupReady] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
+  const [projectSpendUsd, setProjectSpendUsd] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     if (!projectId) return;
@@ -97,6 +99,30 @@ const ProjectWorkspacePage: React.FC = () => {
     const unsub = ipcBridge.project.changed.on(() => void load());
     return () => unsub();
   }, [load]);
+
+  // Total spend so far across this project's chats. Reuses the existing
+  // Mission Control cost analytics aggregate (cost.byConversation) rather than
+  // a new per-project rollup - the conversation ids scope it to this project.
+  useEffect(() => {
+    if (conversations.length === 0) {
+      setProjectSpendUsd(null);
+      return;
+    }
+    let cancelled = false;
+    const ids = new Set(conversations.map((c) => c.id));
+    ipcBridge.cost.byConversation
+      .invoke({ fromMs: 0, toMs: Date.now() })
+      .then((rows) => {
+        if (cancelled) return;
+        setProjectSpendUsd(rows.filter((r) => ids.has(r.key)).reduce((sum, r) => sum + r.costUsd, 0));
+      })
+      .catch(() => {
+        if (!cancelled) setProjectSpendUsd(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [conversations]);
 
   const startNewChat = () => {
     navigate('/guid', {
@@ -226,6 +252,18 @@ const ProjectWorkspacePage: React.FC = () => {
             {setupReady ? t('projects.workspace.setupDone') : t('projects.workspace.setupTodo')}
           </button>
         )}
+
+        {/* Total spend across this project's chats - only shown once there is spend to report. */}
+        {projectSpendUsd !== null && projectSpendUsd > 0 && (
+          <div
+            className='flex items-center gap-7px px-12px py-7px rd-full text-12.5px font-600 text-t-primary flex-shrink-0'
+            style={{ border: '1px solid var(--color-border-2)' }}
+            title={t('missionControl.cost.totalSpend')}
+          >
+            {t('missionControl.cost.totalSpend')}: {formatUsd(projectSpendUsd)}
+          </div>
+        )}
+
         <Button type='text' icon={<SettingsIcon size={15} />} onClick={() => openSettings('general')}>
           {t('projects.workspace.settings')}
         </Button>
@@ -290,7 +328,7 @@ const ProjectWorkspacePage: React.FC = () => {
             ) : (
               <div className='flex flex-col gap-8px max-w-720px mx-auto'>
                 {[...conversations]
-                  .sort((a, b) => {
+                  .toSorted((a, b) => {
                     const pa = (a.extra as { pinnedAt?: number } | undefined)?.pinnedAt ?? 0;
                     const pb = (b.extra as { pinnedAt?: number } | undefined)?.pinnedAt ?? 0;
                     return pb - pa;

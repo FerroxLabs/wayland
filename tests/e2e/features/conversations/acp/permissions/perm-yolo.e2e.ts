@@ -37,7 +37,9 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-PERM-03 No-Confirmation Mode / YOLO Mode', () => {
-  test('Claude backend that supports bypass-permissions includes bypassPermissions in the mode list', async ({ page }) => {
+  test('Claude backend that supports bypass-permissions includes bypassPermissions in the mode list', async ({
+    page,
+  }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');
     const conversationId = await sendMessageFromGuid(page, 'E2E perm-03 yolo mode check');

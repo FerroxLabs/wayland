@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices clean-code code-review"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices clean-code code-review'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Code Reviewer
@@ -45,6 +45,7 @@ Scan the entire diff for:
 Work through each category systematically.
 
 #### Logic Correctness
+
 - [ ] Are edge cases handled (null, empty, zero, negative, overflow)?
 - [ ] Are loop boundaries correct (off-by-one)?
 - [ ] Are boolean conditions correct (De Morgan's law errors)?
@@ -53,6 +54,7 @@ Work through each category systematically.
 - [ ] Is state mutation safe and intentional?
 
 #### Security
+
 - [ ] Is user input validated and sanitized?
 - [ ] Are SQL queries parameterized (no string concatenation)?
 - [ ] Is authentication/authorization enforced on new endpoints?
@@ -62,6 +64,7 @@ Work through each category systematically.
 - [ ] Is CSRF/XSS protection maintained?
 
 #### Performance
+
 - [ ] Are there N+1 query patterns?
 - [ ] Are database queries indexed for the access pattern?
 - [ ] Are there unnecessary allocations in hot paths?
@@ -70,6 +73,7 @@ Work through each category systematically.
 - [ ] Are expensive operations cached appropriately?
 
 #### Maintainability
+
 - [ ] Is the code self-documenting through naming?
 - [ ] Are complex algorithms explained with comments?
 - [ ] Is the abstraction level consistent within functions?
@@ -78,6 +82,7 @@ Work through each category systematically.
 - [ ] Are public APIs documented?
 
 #### Naming
+
 - [ ] Do variable names reveal intent?
 - [ ] Are boolean variables phrased as questions (`isReady`, `hasPermission`)?
 - [ ] Do function names describe the action and return value?
@@ -85,6 +90,7 @@ Work through each category systematically.
 - [ ] Is naming consistent with surrounding codebase conventions?
 
 #### Testing
+
 - [ ] Are new code paths covered by tests?
 - [ ] Do tests verify behavior, not implementation?
 - [ ] Are edge cases tested?
@@ -96,34 +102,44 @@ Work through each category systematically.
 Assign every comment a severity level:
 
 ### BLOCKER
+
 Must fix before merge. The code is broken, insecure, or will cause data loss.
+
 ```
 [BLOCKER] This SQL query concatenates user input directly, creating a SQL injection vulnerability.
 Use parameterized queries: `db.query("SELECT * FROM users WHERE id = ?", [userId])`
 ```
 
 ### MAJOR
+
 Should fix before merge. Significant correctness, performance, or maintainability issue.
+
 ```
 [MAJOR] This loop fetches user details inside a loop over orders, creating an N+1 query.
 Batch-get all users with `getUsersByIds(orderUserIds)` before the loop.
 ```
 
 ### MINOR
+
 Improve if convenient. Style, naming, minor simplification.
+
 ```
 [MINOR] Consider renaming `data` to `userProfiles` for clarity. The current name does not
 convey what the variable holds.
 ```
 
 ### NIT
+
 Optional. Purely stylistic, take-it-or-leave-it.
+
 ```
 [NIT] This ternary could be simplified: `const label = isAdmin ? "Admin" : "User"`
 ```
 
 ### QUESTION
+
 Not a request for change but a request for understanding.
+
 ```
 [QUESTION] Why is the cache TTL set to 5 minutes here? The data changes infrequently,
 so a longer TTL might reduce load.
@@ -140,11 +156,13 @@ Every review comment should follow this structure:
 3. **How** to fix it (concrete suggestion or code snippet)
 
 Bad:
+
 ```
 This is confusing.
 ```
 
 Good:
+
 ```
 [MAJOR] The function `process()` handles three unrelated responsibilities: validation,
 transformation, and persistence. This makes it hard to test and modify independently.
@@ -156,6 +174,7 @@ can be tested and changed in isolation.
 ### Language-Specific Anti-Patterns to Flag
 
 #### JavaScript/TypeScript
+
 - Using `==` instead of `===`
 - Missing `await` on async functions
 - Mutating function arguments
@@ -165,6 +184,7 @@ can be tested and changed in isolation.
 - Index-based `for` loops when `.map()`/`.filter()` is clearer
 
 #### Python
+
 - Mutable default arguments (`def foo(items=[])`)
 - Bare `except:` clauses (swallows all exceptions)
 - Using `type()` instead of `isinstance()`
@@ -173,6 +193,7 @@ can be tested and changed in isolation.
 - Global state mutation
 
 #### Java
+
 - Catching `Exception` instead of specific types
 - Not closing resources (use try-with-resources)
 - Using raw types instead of generics
@@ -181,6 +202,7 @@ can be tested and changed in isolation.
 - Missing `@Supersede` annotations
 
 #### Go
+
 - Ignoring error returns (`_ = someFunc()`)
 - Using `panic` for normal error handling
 - Not checking `Close()` errors on writers
@@ -188,6 +210,7 @@ can be tested and changed in isolation.
 - Shared mutable state without synchronization
 
 #### Rust
+
 - Unnecessary `.clone()` calls
 - Using `.unwrap()` in library code
 - Not using `?` operator for error propagation
@@ -197,6 +220,7 @@ can be tested and changed in isolation.
 ## Review Comment Templates
 
 ### Approving with Minor Feedback
+
 ```
 LGTM with minor suggestions. The approach is sound, and the implementation is clean.
 I left a few [MINOR] and [NIT] comments for your consideration, but none are blocking.
@@ -204,6 +228,7 @@ Ship it.
 ```
 
 ### Requesting Changes
+
 ```
 Good progress on this feature. I found a few issues that should be addressed before merge:
 
@@ -214,6 +239,7 @@ The overall structure looks good. Please address the blockers and I will re-revi
 ```
 
 ### Large PR Guidance
+
 ```
 This PR touches 47 files across 6 modules. To make review more effective, consider
 splitting into:
@@ -278,6 +304,7 @@ Apply extra scrutiny to AI-generated code:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing code reviewer solutions
 - Reviewing or improving existing code reviewer approaches
 - Making architectural or implementation decisions about code reviewer
@@ -285,6 +312,7 @@ Apply extra scrutiny to AI-generated code:
 - Troubleshooting code reviewer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -295,21 +323,26 @@ Apply extra scrutiny to AI-generated code:
 # Code Reviewer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

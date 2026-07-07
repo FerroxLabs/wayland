@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "side-hustle-advisor digital-product-creator content-monetizer investment-advisor budget-builder"
+skills: 'side-hustle-advisor digital-product-creator content-monetizer investment-advisor budget-builder'
 trigger_phrases: >-
   I want to create passive income help me build passive income streams how to
   make money while I sleep build income-generating assets diversify my income
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: investing entrepreneurship personal-finance automation step-by-step planning
   category: business-operations
-  depends: "side-hustle-advisor digital-product-creator content-monetizer investment-advisor budget-builder"
+  depends: 'side-hustle-advisor digital-product-creator content-monetizer investment-advisor budget-builder'
 ---
+
 # Create Passive Income Streams
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -159,6 +160,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -169,7 +171,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Expecting truly passive from day one:** Every stream requires significant upfront work. "Passive" describes the maintenance phase, not the build phase.
 - **Ignoring the math:** Calculate your effective hourly rate for each stream. Some "passive" income pays less than minimum wage when you account for build time.
 - **No automation mindset:** If you are still manually processing orders after 6 months, you have not built passive income -- you have built a job.
-
 
 ### Timeline Considerations
 

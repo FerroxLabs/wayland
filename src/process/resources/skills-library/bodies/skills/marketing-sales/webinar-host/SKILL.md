@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "presentation marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'presentation marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Webinar Host
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on webinar host
 - User asks about webinar host best practices or techniques
 - User wants a structured approach to webinar host
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of webinar host
 
@@ -58,6 +59,7 @@ Before planning any webinar, establish these fundamentals:
 ## Webinar Planning Framework
 
 ### The Webinar Blueprint
+
 ```
 4 weeks before:  Topic selection and outline
 3 weeks before:  Registration page and promotion plan
@@ -77,26 +79,28 @@ Your webinar topic must score high on all three dimensions:
 **Transitionability**: Does it naturally lead to your offer (if selling)?
 
 **Topic Formula:**
+
 ```
 "How to [achieve specific result] [in timeframe/without common obstacle]"
 ```
 
 ### Webinar Types
 
-| Type | Goal | Conversion Expected | Best For |
-|------|------|-------------------|----------|
-| Educational | Lead generation, authority | Low (nurture later) | Building email list, brand awareness |
-| Training | Demonstrate expertise | Medium | Course launches, coaching offers |
-| Sales | Direct conversion | High (5-15% of attendees) | Product/course launches |
-| Interview/Panel | Audience expansion | Low-Medium | Partnered events, new audiences |
-| Workshop | Hands-on learning | Medium-High | Premium offers, course previews |
-| Demo | Product showcase | High | SaaS, tools, services |
+| Type            | Goal                       | Conversion Expected       | Best For                             |
+| --------------- | -------------------------- | ------------------------- | ------------------------------------ |
+| Educational     | Lead generation, authority | Low (nurture later)       | Building email list, brand awareness |
+| Training        | Demonstrate expertise      | Medium                    | Course launches, coaching offers     |
+| Sales           | Direct conversion          | High (5-15% of attendees) | Product/course launches              |
+| Interview/Panel | Audience expansion         | Low-Medium                | Partnered events, new audiences      |
+| Workshop        | Hands-on learning          | Medium-High               | Premium offers, course previews      |
+| Demo            | Product showcase           | High                      | SaaS, tools, services                |
 
 ## Presentation Design
 
 ### The Webinar Presentation Structure
 
 **Total duration target: 60 minutes**
+
 ```
 Opening (5 minutes)
   - Welcome and housekeeping (mute, chat, Q&A)
@@ -140,12 +144,14 @@ Q&A (10-15 minutes)
 ### Slide Design Principles
 
 **Structure:**
+
 - Maximum 40-50 slides for a 60-minute webinar (average 75 seconds per slide)
 - One idea per slide
 - No walls of text (maximum 20 words per slide)
 - Use visuals, diagrams, and frameworks over bullet points
 
 **Design:**
+
 - Consistent brand colors and fonts
 - Dark background with light text (reduces eye strain)
 - Large font (minimum 24pt for body, 36pt for headlines)
@@ -153,6 +159,7 @@ Q&A (10-15 minutes)
 - Numbered progress indicator ("Step 2 of 5")
 
 **Content Slide Types:**
+
 ```
 Title slides:        Introduce each section
 Teaching slides:     Single concept with visual
@@ -173,22 +180,23 @@ Use the TEACH method for each content section:
 
 ### Engagement Toolkit
 
-| Technique | When to Use | Platform Support | Impact |
-|-----------|------------|-----------------|--------|
-| Polls | Every 10-15 minutes | Most platforms | High |
-| Chat prompts | Every 5-8 minutes | All platforms | Very High |
-| Q&A queue | Throughout, dedicated at end | Most platforms | High |
-| Hand raise | Quick consensus checks | Zoom, Webex | Medium |
-| Breakout rooms | Workshops only | Zoom, Teams | Very High |
-| Reactions/emoji | Continuous | Most platforms | Low-Medium |
-| Whiteboard | Demonstrations | Zoom, Miro integration | High |
-| Screen annotation | Tutorials | Zoom, StreamYard | Medium |
+| Technique         | When to Use                  | Platform Support       | Impact     |
+| ----------------- | ---------------------------- | ---------------------- | ---------- |
+| Polls             | Every 10-15 minutes          | Most platforms         | High       |
+| Chat prompts      | Every 5-8 minutes            | All platforms          | Very High  |
+| Q&A queue         | Throughout, dedicated at end | Most platforms         | High       |
+| Hand raise        | Quick consensus checks       | Zoom, Webex            | Medium     |
+| Breakout rooms    | Workshops only               | Zoom, Teams            | Very High  |
+| Reactions/emoji   | Continuous                   | Most platforms         | Low-Medium |
+| Whiteboard        | Demonstrations               | Zoom, Miro integration | High       |
+| Screen annotation | Tutorials                    | Zoom, StreamYard       | Medium     |
 
 ### Poll Strategy
 
 **Opening poll (minute 3):**
 Purpose: Get attendees participating early, gather audience data
 Example: "What's your biggest challenge with [topic]?"
+
 - Option A: [Challenge 1]
 - Option B: [Challenge 2]
 - Option C: [Challenge 3]
@@ -205,6 +213,7 @@ Example: "If I showed you a system that solves this, would you want to learn mor
 ### Chat Engagement Prompts
 
 Keep the chat active with specific prompts:
+
 ```
 "Type 'YES' in the chat if this resonates with you"
 "Drop your biggest [topic] challenge in the chat"
@@ -219,12 +228,14 @@ Keep the chat active with specific prompts:
 ### Managing Q&A
 
 **During the webinar:**
+
 - Have a moderator collect and organize questions
 - Address quick questions inline (30 seconds or less)
 - Save complex questions for the dedicated Q&A section
 - Read questions aloud before answering (viewers on replay need context)
 
 **Handling difficult questions:**
+
 - "That's a great question. The short answer is... but let me give you a more detailed answer after the webinar."
 - If off-topic: "I want to respect everyone's time. Let me address that in the follow-up email."
 - If you don't know: "I want to give you an accurate answer. Let me research that and include it in the replay email."
@@ -232,6 +243,7 @@ Keep the chat active with specific prompts:
 ## Tech Setup
 
 ### Zoom Webinar Configuration
+
 ```
 Settings to configure:
   [ ] Registration required (collect name, email, custom questions)
@@ -248,11 +260,13 @@ Settings to configure:
 ```
 
 **Zoom Webinar vs Meeting:**
+
 - Use Webinar for 50+ attendees or when you need registration
 - Use Meeting for interactive workshops under 50 people
 - Webinar provides better analytics and attendee management
 
 ### StreamYard Setup
+
 ```
 Best for: Multi-platform streaming, professional look without studio
 
@@ -269,18 +283,19 @@ Configuration:
 
 ### Alternative Platforms Comparison
 
-| Platform | Best For | Max Attendees | Price Range |
-|----------|---------|--------------|-------------|
-| Zoom Webinar | Professional webinars | 100-10,000 | $79-6,490/yr |
-| StreamYard | Multi-platform streaming | Unlimited (streaming) | $0-49/mo |
-| Webex Events | Enterprise | 10,000+ | Custom pricing |
-| Demio | Marketing webinars | 50-1,000 | $59-299/mo |
-| eWebinar | Automated webinars | Unlimited | $99-299/mo |
-| Crowdcast | Community events | 25-1,000 | $49-159/mo |
-| GoTo Webinar | Corporate | 100-3,000 | $49-399/mo |
-| Riverside | Recording + streaming | 8 participants | $0-24/mo |
+| Platform     | Best For                 | Max Attendees         | Price Range    |
+| ------------ | ------------------------ | --------------------- | -------------- |
+| Zoom Webinar | Professional webinars    | 100-10,000            | $79-6,490/yr   |
+| StreamYard   | Multi-platform streaming | Unlimited (streaming) | $0-49/mo       |
+| Webex Events | Enterprise               | 10,000+               | Custom pricing |
+| Demio        | Marketing webinars       | 50-1,000              | $59-299/mo     |
+| eWebinar     | Automated webinars       | Unlimited             | $99-299/mo     |
+| Crowdcast    | Community events         | 25-1,000              | $49-159/mo     |
+| GoTo Webinar | Corporate                | 100-3,000             | $49-399/mo     |
+| Riverside    | Recording + streaming    | 8 participants        | $0-24/mo       |
 
 ### Tech Checklist (Day of Webinar)
+
 ```
 2 hours before:
   [ ] Restart computer (fresh resources)
@@ -314,6 +329,7 @@ Configuration:
 ### Post-Webinar Email Sequence
 
 **Email 1: Replay + Thank You (Send within 2 hours)**
+
 ```
 Subject: [Webinar Title] replay + your bonus
 
@@ -338,6 +354,7 @@ Talk soon,
 ```
 
 **Email 2: Value Add (Day 2)**
+
 ```
 Subject: The #1 thing people asked about [topic]
 
@@ -347,6 +364,7 @@ Soft mention of offer if selling.
 ```
 
 **Email 3: Social Proof (Day 3)** [Sales webinars]
+
 ```
 Subject: See what [attendee name] said about [result]
 
@@ -356,6 +374,7 @@ Include offer with urgency.
 ```
 
 **Email 4: Urgency (Day 4-5)** [Sales webinars]
+
 ```
 Subject: [Offer] closes in 24 hours
 
@@ -365,6 +384,7 @@ Final CTA with deadline.
 ```
 
 **Email 5: Last Chance (Deadline day)** [Sales webinars]
+
 ```
 Subject: Last chance - [offer] closes tonight
 
@@ -376,6 +396,7 @@ Clear CTA.
 ### Sequence for Non-Attendees (Registered but didn't show)
 
 40-50% of registrants typically don't attend. They're still valuable:
+
 ```
 Email 1 (same day): "Sorry we missed you! Here's the replay"
 Email 2 (day 2): "3 things you missed + replay expires in 48 hours"
@@ -386,12 +407,12 @@ Email 3 (day 3): [Same sequence as attendees, adjusted messaging]
 
 ### Webinar Conversion Benchmarks
 
-| Metric | Average | Good | Excellent |
-|--------|---------|------|-----------|
-| Registration rate (from landing page) | 20-30% | 30-45% | 45%+ |
-| Attendance rate (of registered) | 30-40% | 40-55% | 55%+ |
-| Stay rate (to the end) | 40-50% | 50-65% | 65%+ |
-| Conversion rate (attendees to buyers) | 2-5% | 5-10% | 10-20% |
+| Metric                                | Average | Good   | Excellent |
+| ------------------------------------- | ------- | ------ | --------- |
+| Registration rate (from landing page) | 20-30%  | 30-45% | 45%+      |
+| Attendance rate (of registered)       | 30-40%  | 40-55% | 55%+      |
+| Stay rate (to the end)                | 40-50%  | 50-65% | 65%+      |
+| Conversion rate (attendees to buyers) | 2-5%    | 5-10%  | 10-20%    |
 
 ### Improving Registration Rate
 
@@ -426,17 +447,20 @@ Email 3 (day 3): [Same sequence as attendees, adjusted messaging]
 ### Replay Distribution Options
 
 **Option 1: Time-Limited Replay (Highest conversion)**
+
 - Available for 48-72 hours after the live event
 - Creates urgency to watch and take action
 - Best for sales webinars
 
 **Option 2: Gated Replay (Lead generation)**
+
 - Requires email to access
 - Available indefinitely
 - Great for evergreen lead generation
 - Embed on landing page with opt-in form
 
 **Option 3: Evergreen Automated Webinar**
+
 - Simulated live experience on a schedule
 - Platforms: eWebinar, Demio, WebinarJam
 - Runs multiple times per week
@@ -444,6 +468,7 @@ Email 3 (day 3): [Same sequence as attendees, adjusted messaging]
 - Ethical note: Always disclose if not truly live
 
 **Option 4: Public Replay (Authority building)**
+
 - Post on YouTube or website
 - No gate, maximum reach
 - Good for educational/authority webinars
@@ -461,6 +486,7 @@ Email 3 (day 3): [Same sequence as attendees, adjusted messaging]
 ## Recurring Webinar Strategy
 
 ### Building a Webinar Series
+
 ```
 Series structure:
   Session 1: Foundation [Topic A]
@@ -478,6 +504,7 @@ Benefits:
 ```
 
 ### Monthly Webinar Cadence
+
 ```
 Week 1: Topic selection and outline
 Week 2: Promotion and registration push
@@ -490,6 +517,7 @@ Repeat monthly with different topics in your expertise area.
 ## Webinar Metrics Dashboard
 
 ### Track After Every Webinar
+
 ```
 Registration:
   Landing page visits:          ___
@@ -523,7 +551,6 @@ Follow-up:
   Follow-up click rate:         ___%
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -536,13 +563,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with webinar host for a mid-size project."
 
 **Output:** A complete webinar host framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

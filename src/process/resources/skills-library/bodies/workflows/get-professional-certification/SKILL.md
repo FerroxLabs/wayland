@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "career-pivot-advisor study-planner test-prep-coach learning-accelerator goal-setting-master"
+skills: 'career-pivot-advisor study-planner test-prep-coach learning-accelerator goal-setting-master'
 trigger_phrases: >-
   I want to get certified help me pass a certification exam which certification
   should I get certification study plan prepare for a professional exam AWS
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: study-skills career step-by-step planning
   category: career
-  depends: "career-pivot-advisor study-planner test-prep-coach learning-accelerator goal-setting-master"
+  depends: 'career-pivot-advisor study-planner test-prep-coach learning-accelerator goal-setting-master'
 ---
+
 # Get Professional Certification
 
 **Estimated time:** 6-16 weeks
@@ -164,6 +165,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

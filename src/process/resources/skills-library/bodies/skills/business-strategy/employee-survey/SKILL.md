@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning research analysis strategy"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template planning research analysis strategy'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Employee Survey Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to design or build an employee engagement survey, satisfaction survey, or culture assessment from scratch
 - A user needs to run a pulse survey -- a short, frequent check-in measuring sentiment on a specific theme (workload, manager support, return-to-office transition, post-reorg morale)
 - A user needs to measure the employee Net Promoter Score (eNPS) as a standalone metric or embedded in a broader survey
@@ -29,6 +31,7 @@ metadata:
 - A user is designing a lifecycle survey -- new hire 30/60/90-day check-ins or exit surveys measuring departure drivers
 
 **Do NOT use this skill when:**
+
 - The user wants a customer satisfaction or NPS survey (use a customer research or UX research skill -- the question design methodology, analysis, and anonymity considerations are fundamentally different)
 - The user needs structured interview evaluation scorecards or hiring rubrics (use `interview-guide` -- rating candidates uses behavioral anchoring, not Likert engagement scales)
 - The user wants to write formal performance reviews or conduct performance calibration (use `performance-review` -- performance assessment requires manager observation data, not anonymous self-report)
@@ -62,19 +65,20 @@ Standard engagement survey categories map to the major drivers of voluntary attr
 
 **The nine core categories and what each predicts:**
 
-| Category | Primary Outcome Predicted | Minimum Questions |
-|---|---|---|
-| Role clarity and meaning | Task performance, discretionary effort | 3 |
-| Manager effectiveness | Direct report retention, psychological safety | 4-5 |
-| Team dynamics and collaboration | Productivity, inclusion, innovation | 3-4 |
-| Growth and development | Attrition (especially high performers, under 35) | 3-4 |
-| Company leadership and strategy | Organizational commitment, trust | 3-4 |
-| Compensation and total rewards | Retention trigger, not engagement driver | 2-3 |
-| Work-life balance and wellbeing | Burnout risk, long-term performance | 3-4 |
-| Culture, belonging, and inclusion | DEI outcomes, retention of underrepresented groups | 3-5 |
-| Tools, processes, and resources | Frustration, efficiency, tech-enabled productivity | 2-3 |
+| Category                          | Primary Outcome Predicted                          | Minimum Questions |
+| --------------------------------- | -------------------------------------------------- | ----------------- |
+| Role clarity and meaning          | Task performance, discretionary effort             | 3                 |
+| Manager effectiveness             | Direct report retention, psychological safety      | 4-5               |
+| Team dynamics and collaboration   | Productivity, inclusion, innovation                | 3-4               |
+| Growth and development            | Attrition (especially high performers, under 35)   | 3-4               |
+| Company leadership and strategy   | Organizational commitment, trust                   | 3-4               |
+| Compensation and total rewards    | Retention trigger, not engagement driver           | 2-3               |
+| Work-life balance and wellbeing   | Burnout risk, long-term performance                | 3-4               |
+| Culture, belonging, and inclusion | DEI outcomes, retention of underrepresented groups | 3-5               |
+| Tools, processes, and resources   | Frustration, efficiency, tech-enabled productivity | 2-3               |
 
 **Category selection rules:**
+
 - A pulse survey should focus on no more than 3 categories -- the ones most relevant to the current business moment
 - A comprehensive annual survey includes all 9 categories for the first baseline; subsequent surveys may drop or rotate categories based on prior results
 - Always include manager effectiveness and growth -- these are the top two predictors of voluntary turnover in virtually every industry study (Gallup, McKinsey, Corporate Executive Board data all converge here)
@@ -88,6 +92,7 @@ Standard engagement survey categories map to the major drivers of voluntary attr
 Question quality determines result validity. Each question must pass a six-point quality check before inclusion.
 
 **Six-point question quality check:**
+
 1. **Single concept:** Does the question test exactly one idea? "My manager gives me feedback AND supports my career" tests two things -- split it.
 2. **Behavioral specificity:** Vague questions like "My manager is good" are unactionable. Specific questions like "My manager gives me feedback within one week of completing a significant project" are coachable.
 3. **Respondent knowledge:** Can every respondent answer this? "The company's financial strategy is sound" -- most employees cannot evaluate this. Reframe as "I trust that company leadership makes sound financial decisions."
@@ -96,6 +101,7 @@ Question quality determines result validity. Each question must pass a six-point
 6. **Action linkage:** Can a manager or HR team do something in response to a low score on this question? If not, reconsider its inclusion.
 
 **Likert scale standards:**
+
 - Use a **5-point scale** (1=Strongly Disagree, 2=Disagree, 3=Neither Agree nor Disagree, 4=Agree, 5=Strongly Agree) as the default
 - A **7-point scale** increases measurement precision but adds cognitive load -- use only when fine-grained discrimination is critical (e.g., academic research contexts)
 - **Do not use a 4-point forced-choice scale** (eliminating the neutral midpoint) -- it artificially inflates positive scores and frustrates employees who genuinely have no opinion
@@ -103,12 +109,14 @@ Question quality determines result validity. Each question must pass a six-point
 - The **eNPS question** (0-10 likelihood to recommend as employer) is the one intentional exception to the 5-point rule -- use the standard 0-10 scale to maintain comparability with industry benchmarks
 
 **Reverse-scored items:**
+
 - Include at least 2-3 negatively worded items in every survey to detect acquiescence bias (the tendency to agree with any statement regardless of content)
 - Standard reverse-scored items: "I am actively considering leaving the company in the next 12 months," "I often feel that my contributions go unnoticed," "Decision-making at this company seems arbitrary or unfair"
 - Score these items inversely (5 becomes 1, 4 becomes 2, etc.) before computing category or overall averages
 - Flag surveys where a respondent's reverse-scored item responses are dramatically inconsistent with their standard items -- this may indicate careless responding or systematic misunderstanding
 
 **Open-text question placement:**
+
 - Place one open-text question at the end of each category, not embedded in the middle
 - Standard formula: "What one thing would most improve [category area] for you at [Company]?"
 - Include a final global open-text question: "Is there anything else you'd like to share that the survey didn't cover?"
@@ -122,17 +130,20 @@ Question quality determines result validity. Each question must pass a six-point
 Anonymity is not just an ethical obligation -- it is the primary driver of response honesty. Compromised anonymity produces data that overestimates satisfaction and underrepresents concern.
 
 **Minimum reporting thresholds:**
+
 - **5 respondents** is the industry-standard minimum for reporting any group-level result. Below this threshold, suppress results entirely and communicate clearly why.
 - Some organizations use a **7-respondent threshold** in small teams where even 5 members might be identifiable by role or tenure -- use professional judgment and err toward protection.
 - For demographic cross-tabulation (e.g., Women in Engineering department) apply the threshold to the intersection, not the individual categories -- if only 3 women are in the Engineering department, do not report that cross-tab even if both "Women" and "Engineering" separately have 5+ respondents.
 
 **Survey platform considerations:**
+
 - Internal survey tools (Google Forms on a company domain, Microsoft Forms with SSO) create a perception of non-anonymity even when technically anonymous -- IP addresses are logged, form completion times are recorded, SSO authentication is visible to admins
 - Use a dedicated survey platform (Qualtrics, Culture Amp, Glint, Leapsome, SurveyMonkey Workday-connected) with explicit anonymity certifications
 - If budget requires an internal tool, have IT confirm in writing that no individual-level data is accessible, and share that confirmation with employees in the survey introduction
 - Third-party administration (an external firm collects and aggregates results before returning to HR) is the gold standard for organizations with trust deficits or recent employee relations issues
 
 **Data governance:**
+
 - Specify in advance who sees what: HR leadership sees full data, managers see team-level aggregates (above threshold only), employees see company-level results
 - Establish data retention policies -- raw survey data (individual responses) should be deleted after analysis is complete, not retained indefinitely
 - Open-text responses require additional care -- even anonymized qualitative responses can be identifiable if an employee describes a unique situation. Review all open-text data before distributing to managers.
@@ -145,6 +156,7 @@ Anonymity is not just an ethical obligation -- it is the primary driver of respo
 The introduction is a contract with employees. It determines whether they trust the process enough to respond honestly.
 
 **Required elements of a survey introduction:**
+
 1. **Why the survey exists:** Connect explicitly to a business context ("Following our expansion to three new offices, we want to understand how the experience of working here may differ across locations") -- not "We value your feedback."
 2. **What anonymity means specifically:** "Your responses are anonymous. Results are reported only at the group level, and no group smaller than 5 people will have results shared. Individual responses cannot be seen by your manager, HR, or anyone else."
 3. **How long it takes:** State the actual average completion time, not the maximum. A survey with 32 questions takes approximately 10-12 minutes at average reading speed with 2-3 seconds per response. Do not say "only 5 minutes" if it takes 12.
@@ -168,10 +180,12 @@ Raw survey data is useless without a structured analysis approach. Design the an
 **Priority matrix -- the most important analytical tool:**
 
 The priority matrix plots each question category on two axes:
+
 - **X-axis -- Current score:** How employees rate this category right now (low score = current pain point)
 - **Y-axis -- Correlation with overall engagement:** How strongly this category's score predicts whether an employee rates the company favorably overall (high correlation = high-leverage driver)
 
 This produces four quadrants:
+
 - **High correlation, low score (top-left):** CRITICAL priority -- this is hurting overall engagement most. Act immediately.
 - **High correlation, high score (top-right):** STRENGTH -- protect and maintain. Do not neglect this.
 - **Low correlation, low score (bottom-left):** MONITOR -- employees are dissatisfied here, but it is not driving overall engagement loss. Investigate further before investing resources.
@@ -180,12 +194,14 @@ This produces four quadrants:
 To calculate correlation with overall engagement: compute the Pearson correlation between each category's score and the respondent's overall satisfaction item score. This can be done in Excel (CORREL function) or any survey analytics platform.
 
 **Demographic analysis:**
+
 - Report demographic cuts only where group size exceeds threshold
 - Look for **driver differences**: the category that most strongly predicts overall engagement often differs by demographic group -- manager effectiveness may drive engagement for employees under 2 years tenure while growth and career path drives it for employees with 3-7 years
 - Flag any demographic group where the overall score differs from the company average by more than 0.5 points on a 5-point scale -- this is a meaningful gap requiring investigation
 - Do not assume causality from demographic differences -- a low score for a specific department may reflect team composition, specific manager behavior, role type, or workload rather than anything identity-related
 
 **Open-text analysis:**
+
 - Use thematic coding to group qualitative responses into 5-8 recurring themes
 - For surveys under 200 respondents, human coding by an HR analyst is sufficient and produces more nuanced themes than automated tools
 - For 200+ respondents, natural language processing tools (available in Qualtrics, Culture Amp, or standalone tools like MonkeyLearn) can accelerate first-pass theme identification, but a human review of the top 20 responses per theme is essential to validate accuracy
@@ -199,6 +215,7 @@ To calculate correlation with overall engagement: compute the Pearson correlatio
 Survey fatigue is not caused by too many surveys -- it is caused by surveys that produce no visible action. Every survey must be paired with a committed communication and action cycle.
 
 **Timeline for a standard annual survey:**
+
 - **Week 0:** Survey opens. Send launch communication with context and anonymity assurance.
 - **Week 1:** Mid-survey reminder. Share current response rate and why it matters ("We are at 58%, we need 70% for reliable team-level results").
 - **Week 2-3:** Survey closes. Begin analysis.
@@ -210,6 +227,7 @@ Survey fatigue is not caused by too many surveys -- it is caused by surveys that
 - **Next survey:** Include a question that directly measures whether the prior year's action was effective.
 
 **Choosing focus areas:**
+
 - Use the priority matrix to identify the 2-3 highest-leverage improvements
 - Focus areas must be actionable at the organizational level -- "compensation" is not a focus area unless leadership is prepared to act on it
 - Communicate candidly about areas that scored low but are not a focus area: "We heard you on compensation. We are not in a position to change base salaries this year, but we are reviewing the bonus structure in Q2."
@@ -487,16 +505,16 @@ Please complete by [date]. We will share results with everyone -- including the 
 
 #### Phase 1 Questions
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 1 | I understand why the recent organizational restructuring was necessary | 1-5 Likert | Standard |
-| 2 | Leadership has communicated clearly about the impact of the restructuring | 1-5 Likert | Standard |
-| 3 | I feel confident about the direction the company is heading | 1-5 Likert | Standard |
-| 4 | My manager has supported me well through the recent organizational changes | 1-5 Likert | Standard |
-| 5 | I feel the company genuinely values employee feedback | 1-5 Likert | Standard |
-| 6 | I am actively considering leaving the company in the next 12 months | 1-5 Likert | Reverse |
-| 7 | What is the most important thing leadership could do right now to improve trust and morale? | Open text | Qualitative |
-| 8 | On a scale of 0-10, how likely are you to recommend [Company] as a place to work today? | 0-10 | eNPS |
+| #   | Question                                                                                    | Scale      | Scoring     |
+| --- | ------------------------------------------------------------------------------------------- | ---------- | ----------- |
+| 1   | I understand why the recent organizational restructuring was necessary                      | 1-5 Likert | Standard    |
+| 2   | Leadership has communicated clearly about the impact of the restructuring                   | 1-5 Likert | Standard    |
+| 3   | I feel confident about the direction the company is heading                                 | 1-5 Likert | Standard    |
+| 4   | My manager has supported me well through the recent organizational changes                  | 1-5 Likert | Standard    |
+| 5   | I feel the company genuinely values employee feedback                                       | 1-5 Likert | Standard    |
+| 6   | I am actively considering leaving the company in the next 12 months                         | 1-5 Likert | Reverse     |
+| 7   | What is the most important thing leadership could do right now to improve trust and morale? | Open text  | Qualitative |
+| 8   | On a scale of 0-10, how likely are you to recommend [Company] as a place to work today?     | 0-10       | eNPS        |
 
 **Phase 1 analysis:** Compute mean scores for items 1-5 (after reverse-scoring item 6). Calculate eNPS from item 8. Theme open-text responses from item 7 into 3-5 categories. Share all results -- including low scores -- in an all-hands within 10 days. Announce 1-2 specific commitments in response to the open-text themes.
 
@@ -532,101 +550,101 @@ This is our comprehensive annual survey -- 36 questions across 7 areas of the em
 
 ##### Category 1: Manager Effectiveness (Priority Category -- known concern)
 
-*Measures quality of feedback, psychological safety, recognition, and development support from direct manager.*
+_Measures quality of feedback, psychological safety, recognition, and development support from direct manager._
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 1 | My manager gives me specific, actionable feedback on my work | 1-5 Likert | Standard |
-| 2 | I feel comfortable raising concerns or disagreements with my manager | 1-5 Likert | Standard |
-| 3 | My manager recognizes my contributions in a meaningful and timely way | 1-5 Likert | Standard |
-| 4 | My manager actively supports my career development, not just my current role | 1-5 Likert | Standard |
-| 5 | My manager communicates expectations clearly | 1-5 Likert | Standard |
-| OT | What is one thing your manager could do differently to better support you? | Open text | Qualitative |
+| #   | Question                                                                     | Scale      | Scoring     |
+| --- | ---------------------------------------------------------------------------- | ---------- | ----------- |
+| 1   | My manager gives me specific, actionable feedback on my work                 | 1-5 Likert | Standard    |
+| 2   | I feel comfortable raising concerns or disagreements with my manager         | 1-5 Likert | Standard    |
+| 3   | My manager recognizes my contributions in a meaningful and timely way        | 1-5 Likert | Standard    |
+| 4   | My manager actively supports my career development, not just my current role | 1-5 Likert | Standard    |
+| 5   | My manager communicates expectations clearly                                 | 1-5 Likert | Standard    |
+| OT  | What is one thing your manager could do differently to better support you?   | Open text  | Qualitative |
 
-*Note: Item 2 measures psychological safety, which is the strongest predictor of whether employees surface problems early. A low score on item 2 with a higher score on items 1 and 3 often indicates a manager who is technically skilled but creates a fear-based dynamic.*
+_Note: Item 2 measures psychological safety, which is the strongest predictor of whether employees surface problems early. A low score on item 2 with a higher score on items 1 and 3 often indicates a manager who is technically skilled but creates a fear-based dynamic._
 
 ---
 
 ##### Category 2: Growth and Development (Priority Category -- mid-IC attrition concern)
 
-*Measures career path clarity, access to learning, and perception of promotion fairness -- primary attrition drivers for 2-5 year tenure employees in tech.*
+_Measures career path clarity, access to learning, and perception of promotion fairness -- primary attrition drivers for 2-5 year tenure employees in tech._
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 6 | I have a clear understanding of what I need to do to advance my career at [Company] | 1-5 Likert | Standard |
-| 7 | I have access to learning and development resources that meaningfully help me grow | 1-5 Likert | Standard |
-| 8 | Promotions at [Company] are based on merit and demonstrated contribution | 1-5 Likert | Standard |
-| 9 | I am developing skills in my current role that will be valuable in my career | 1-5 Likert | Standard |
-| OT | What would most accelerate your professional growth at [Company]? | Open text | Qualitative |
+| #   | Question                                                                            | Scale      | Scoring     |
+| --- | ----------------------------------------------------------------------------------- | ---------- | ----------- |
+| 6   | I have a clear understanding of what I need to do to advance my career at [Company] | 1-5 Likert | Standard    |
+| 7   | I have access to learning and development resources that meaningfully help me grow  | 1-5 Likert | Standard    |
+| 8   | Promotions at [Company] are based on merit and demonstrated contribution            | 1-5 Likert | Standard    |
+| 9   | I am developing skills in my current role that will be valuable in my career        | 1-5 Likert | Standard    |
+| OT  | What would most accelerate your professional growth at [Company]?                   | Open text  | Qualitative |
 
 ---
 
 ##### Category 3: Company Leadership and Post-Reorg Trust
 
-*Elevated priority given 4-month-old restructuring. Measures transparency, strategic confidence, and leadership credibility.*
+_Elevated priority given 4-month-old restructuring. Measures transparency, strategic confidence, and leadership credibility._
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 10 | I trust that [Company]'s senior leadership makes decisions that are in the best long-term interest of the company | 1-5 Likert | Standard |
-| 11 | Senior leadership communicates openly and honestly, even when the news is difficult | 1-5 Likert | Standard |
-| 12 | I have confidence in [Company]'s strategy for the next 12-18 months | 1-5 Likert | Standard |
-| 13 | The reasoning behind the recent organizational changes has been explained clearly | 1-5 Likert | Standard |
-| OT | What would increase your confidence in company leadership? | Open text | Qualitative |
+| #   | Question                                                                                                          | Scale      | Scoring     |
+| --- | ----------------------------------------------------------------------------------------------------------------- | ---------- | ----------- |
+| 10  | I trust that [Company]'s senior leadership makes decisions that are in the best long-term interest of the company | 1-5 Likert | Standard    |
+| 11  | Senior leadership communicates openly and honestly, even when the news is difficult                               | 1-5 Likert | Standard    |
+| 12  | I have confidence in [Company]'s strategy for the next 12-18 months                                               | 1-5 Likert | Standard    |
+| 13  | The reasoning behind the recent organizational changes has been explained clearly                                 | 1-5 Likert | Standard    |
+| OT  | What would increase your confidence in company leadership?                                                        | Open text  | Qualitative |
 
 ---
 
 ##### Category 4: Role Clarity and Meaning
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 14 | I clearly understand what is expected of me in my role | 1-5 Likert | Standard |
-| 15 | My work contributes meaningfully to the company's goals | 1-5 Likert | Standard |
-| 16 | I have the tools and resources I need to do my job effectively | 1-5 Likert | Standard |
-| OT | What resources or clarity would most help you do your best work? | Open text | Qualitative |
+| #   | Question                                                         | Scale      | Scoring     |
+| --- | ---------------------------------------------------------------- | ---------- | ----------- |
+| 14  | I clearly understand what is expected of me in my role           | 1-5 Likert | Standard    |
+| 15  | My work contributes meaningfully to the company's goals          | 1-5 Likert | Standard    |
+| 16  | I have the tools and resources I need to do my job effectively   | 1-5 Likert | Standard    |
+| OT  | What resources or clarity would most help you do your best work? | Open text  | Qualitative |
 
 ---
 
 ##### Category 5: Team Dynamics and Collaboration
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 17 | My team collaborates effectively to achieve shared goals | 1-5 Likert | Standard |
-| 18 | I trust my teammates to do their part | 1-5 Likert | Standard |
-| 19 | Workload is distributed fairly across my team | 1-5 Likert | Standard |
-| 20 | My team operates in a psychologically safe environment where mistakes can be discussed openly | 1-5 Likert | Standard |
-| OT | What would improve how your team works together? | Open text | Qualitative |
+| #   | Question                                                                                      | Scale      | Scoring     |
+| --- | --------------------------------------------------------------------------------------------- | ---------- | ----------- |
+| 17  | My team collaborates effectively to achieve shared goals                                      | 1-5 Likert | Standard    |
+| 18  | I trust my teammates to do their part                                                         | 1-5 Likert | Standard    |
+| 19  | Workload is distributed fairly across my team                                                 | 1-5 Likert | Standard    |
+| 20  | My team operates in a psychologically safe environment where mistakes can be discussed openly | 1-5 Likert | Standard    |
+| OT  | What would improve how your team works together?                                              | Open text  | Qualitative |
 
 ---
 
 ##### Category 6: Work-Life Balance and Wellbeing
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 21 | My workload is sustainable over the long term | 1-5 Likert | Standard |
-| 22 | [Company]'s flexibility policies allow me to manage both my work and personal life effectively | 1-5 Likert | Standard |
-| 23 | I feel supported in maintaining my wellbeing while meeting my work responsibilities | 1-5 Likert | Standard |
-| OT | What one change would most improve your work-life balance? | Open text | Qualitative |
+| #   | Question                                                                                       | Scale      | Scoring     |
+| --- | ---------------------------------------------------------------------------------------------- | ---------- | ----------- |
+| 21  | My workload is sustainable over the long term                                                  | 1-5 Likert | Standard    |
+| 22  | [Company]'s flexibility policies allow me to manage both my work and personal life effectively | 1-5 Likert | Standard    |
+| 23  | I feel supported in maintaining my wellbeing while meeting my work responsibilities            | 1-5 Likert | Standard    |
+| OT  | What one change would most improve your work-life balance?                                     | Open text  | Qualitative |
 
 ---
 
 ##### Category 7: Culture and Belonging
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 24 | I feel I belong at [Company] | 1-5 Likert | Standard |
-| 25 | [Company]'s stated values are reflected in how decisions are made day-to-day | 1-5 Likert | Standard |
-| 26 | People of all backgrounds are treated fairly at [Company] | 1-5 Likert | Standard |
-| 27 | I feel comfortable being myself at work | 1-5 Likert | Standard |
-| OT | How could [Company] better live its values? | Open text | Qualitative |
+| #   | Question                                                                     | Scale      | Scoring     |
+| --- | ---------------------------------------------------------------------------- | ---------- | ----------- |
+| 24  | I feel I belong at [Company]                                                 | 1-5 Likert | Standard    |
+| 25  | [Company]'s stated values are reflected in how decisions are made day-to-day | 1-5 Likert | Standard    |
+| 26  | People of all backgrounds are treated fairly at [Company]                    | 1-5 Likert | Standard    |
+| 27  | I feel comfortable being myself at work                                      | 1-5 Likert | Standard    |
+| OT  | How could [Company] better live its values?                                  | Open text  | Qualitative |
 
 ---
 
 ##### Reverse-Scored and Attrition Risk Items
 
-| # | Question | Scale | Scoring |
-|---|----------|-------|---------|
-| 28 | I am actively considering leaving [Company] in the next 12 months | 1-5 Likert | Reverse (high score = high risk) |
-| 29 | I often feel that my contributions go unrecognized at [Company] | 1-5 Likert | Reverse |
-| 30 | I frequently feel overwhelmed by the volume of work expected of me | 1-5 Likert | Reverse |
+| #   | Question                                                           | Scale      | Scoring                          |
+| --- | ------------------------------------------------------------------ | ---------- | -------------------------------- |
+| 28  | I am actively considering leaving [Company] in the next 12 months  | 1-5 Likert | Reverse (high score = high risk) |
+| 29  | I often feel that my contributions go unrecognized at [Company]    | 1-5 Likert | Reverse                          |
+| 30  | I frequently feel overwhelmed by the volume of work expected of me | 1-5 Likert | Reverse                          |
 
-*Note: Item 28 is the most direct attrition risk indicator. Cross-tabulate with tenure band
+\*Note: Item 28 is the most direct attrition risk indicator. Cross-tabulate with tenure band

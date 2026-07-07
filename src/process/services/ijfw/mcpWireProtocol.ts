@@ -53,9 +53,7 @@ export function decode(buf: Buffer): DecodeResult {
     if (newlineIdx < 0) {
       // Partial line - verify it doesn't exceed bounds before returning remainder.
       if (cursor.length > MAX_LINE_BYTES) {
-        throw new DecodeError(
-          `unterminated line exceeds MAX_LINE_BYTES (${cursor.length} > ${MAX_LINE_BYTES})`,
-        );
+        throw new DecodeError(`unterminated line exceeds MAX_LINE_BYTES (${cursor.length} > ${MAX_LINE_BYTES})`);
       }
       break;
     }
@@ -66,9 +64,8 @@ export function decode(buf: Buffer): DecodeResult {
 
     const lineBuf = cursor.subarray(0, newlineIdx);
     // Tolerate \r\n line endings by stripping a single trailing CR (0x0d).
-    const trimmed = lineBuf.length > 0 && lineBuf[lineBuf.length - 1] === 0x0d
-      ? lineBuf.subarray(0, lineBuf.length - 1)
-      : lineBuf;
+    const trimmed =
+      lineBuf.length > 0 && lineBuf[lineBuf.length - 1] === 0x0d ? lineBuf.subarray(0, lineBuf.length - 1) : lineBuf;
     const lineText = trimmed.toString('utf-8');
 
     if (lineText.trim().length > 0) {
@@ -85,7 +82,7 @@ export function decode(buf: Buffer): DecodeResult {
 
   if (cursor.length > MAX_BUFFER_SIZE) {
     throw new DecodeError(
-      `remainder exceeds MAX_BUFFER_SIZE (${cursor.length} > ${MAX_BUFFER_SIZE}) - possible slow loris`,
+      `remainder exceeds MAX_BUFFER_SIZE (${cursor.length} > ${MAX_BUFFER_SIZE}) - possible slow loris`
     );
   }
 

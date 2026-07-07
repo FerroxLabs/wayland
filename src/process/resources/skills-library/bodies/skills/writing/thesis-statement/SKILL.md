@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing research"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing writing research'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Thesis Statement
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write, improve, or evaluate a thesis statement for an academic paper, essay, or dissertation chapter
 - A user has a topic or a vague claim and needs help sharpening it into a defensible, arguable academic argument
 - A user wants to know whether their existing thesis is "strong enough" or how to fix a weak one
@@ -29,6 +31,7 @@ metadata:
 - A user is writing in a specific discipline (history, literary studies, political science, psychology, philosophy, sociology) and needs a thesis that fits that field's argumentative conventions
 
 **Do NOT use this skill when:**
+
 - The user wants to structure an entire research paper (use `research-paper-structure` -- the thesis is one component of a full paper architecture)
 - The user wants to write an abstract (use `abstract-writing` -- abstracts summarize completed arguments; thesis development is upstream of that)
 - The user is writing a lab report or scientific abstract where the central claim takes the form of a formal hypothesis with operationalized variables (use `hypothesis-writing` if available)
@@ -223,6 +226,7 @@ Provide the chosen, refined thesis alongside the full output format. Include the
 ## Edge Cases
 
 ### The User Has Only a Vague Topic ("I Need to Write About Immigration")
+
 This is the most common starting point for undergraduate writers. Do not ask a single "narrow it down" question and wait. Instead, run an active narrowing sequence:
 
 1. Ask: "What aspect of immigration -- border policy, economic effects, cultural integration, legal status, historical patterns, media representation?"
@@ -232,24 +236,31 @@ This is the most common starting point for undergraduate writers. Do not ask a s
 Each answer narrows the thesis. A user who starts with "immigration" and ends with "Although public debate frames undocumented immigration as primarily an economic burden, wage suppression effects in low-skill labor markets are offset by immigrant consumer spending and tax contributions, making fiscal analysis a misleading framework for immigration policy" has moved from topic to thesis in three questions.
 
 ### The User's Thesis Is Already Written But Argues the Wrong Thing for Their Evidence
+
 This happens frequently when students write a thesis first and then collect evidence that only partially supports it, or when they write the thesis last based on what they actually argued but it does not match the body. Diagnose by asking the user to summarize their three main body arguments. If those arguments do not logically support the stated thesis, the thesis needs to be reverse-engineered from the body, not the other way around. Help the user identify the actual thesis hidden in their body paragraphs -- it is almost always in the final sentence of the third body section or in the conclusion.
 
 ### The User Is Writing a Comparative Thesis Without Stated Criteria
+
 A comparison without explicit evaluative criteria is not an argument -- it is a description of differences. "Hobbes and Locke have different views on the social contract" describes a difference. "Locke's social contract theory better accounts for legitimate resistance to authority than Hobbes's because it grounds political obligation in consent rather than fear, making it more useful as a framework for evaluating contemporary democratic legitimacy" names the criterion (useful as a framework for democratic legitimacy) and takes a position. When a user presents a comparative thesis, always check: "What are the criteria for comparison?" If they cannot name them, the thesis is not yet an argument.
 
 ### The User's Paper Is a Science or Social Science Paper With a Research Question and Hypotheses
+
 In empirical social science and natural science papers, the "thesis" is typically a research hypothesis: a directional, falsifiable prediction about the relationship between variables. This is structurally different from a humanities thesis. The thesis form is: "We hypothesize that [independent variable] will [increase/decrease/moderate] [dependent variable], as measured by [operationalized measure], because [theoretical mechanism]." The paper then describes how the study tests this prediction. When a user is writing this kind of paper, shift from the arguable-claim framework to the falsifiable-hypothesis framework. The five strength tests still apply but with modifications: "arguability" becomes "falsifiability," and "evidence feasibility" becomes "methodological feasibility."
 
 ### The User Has Two Thesis Statements and Cannot Choose Between Them
+
 This usually means the user has two related arguments they have not yet connected into a single, more complex claim. Before asking them to choose, attempt to synthesize: "Could Claim A be the mechanism that explains Claim B?" or "Could Claim B be the implication of Claim A?" If a synthesis is possible, write it as a two-part thesis: "X operates through mechanism Y, which means Z." If the two claims are genuinely unrelated and cannot be synthesized, the user has two papers. Help them identify which one better fits their evidence and their assignment parameters, and note that the other can be the basis of a future paper.
 
 ### The User Is Writing a Thesis Chapter (Dissertation Level), Not an Essay
+
 Dissertation chapters operate under different conventions. The thesis for a dissertation chapter is often a "thesis complex" -- a two-to-three sentence block in which the first sentence states the central claim, the second qualifies it or situates it in the literature, and the third states the chapter's specific intervention or contribution. Single-sentence thesis statements can feel thin at this level. The so-what test at the dissertation level means "what gap in the scholarly literature does this fill?" rather than "why does this matter in general." Dissertation-level theses must explicitly engage with the existing scholarly conversation -- they must name what previous scholars have argued and explain how this chapter moves beyond or against that consensus.
 
 ### The User Is Revising a Thesis That Has Already Been Approved by an Instructor
+
 If the user reports that their instructor approved their thesis but they want to make it stronger or more specific, proceed carefully. Do not substantially change the scope, the topic, or the central claim without flagging that the user should confirm the revision with their instructor. Instead, offer precision improvements: sharpen the verb, specify the mechanism, add a qualification that shows nuance. Do not turn a narrow approved thesis into a broad new argument -- the instructor's approval was for a specific paper.
 
 ### The Thesis Implies a Paper That Would Require Primary Research the User Cannot Do
+
 A thesis like "Social media algorithms increase depression in adolescent girls by suppressing dopaminergic reward pathways as measured by fMRI neuroimaging" would require laboratory equipment, IRB-approved human subjects research, and years of work. When a thesis implies empirical primary research the user cannot conduct, redirect to either: (a) a thesis about existing research ("Current fMRI studies suggest that social media algorithms may suppress dopaminergic reward pathways, though methodological inconsistencies across studies challenge this consensus") or (b) a theoretical/analytical thesis that works from existing published literature rather than new data collection.
 
 ---
@@ -351,13 +362,13 @@ Given a 12-page limit and access to journal articles, Option 1 or Option 2 is mo
 
 ### Strength Test Results
 
-| Test | Result | Notes |
-|------|--------|-------|
-| Specificity | Pass | Names specific mechanisms (institutional failure, executive overreach, constitutional design) rather than vague categories |
-| Arguability | Pass | Directly challenges the dominant populism-focused explanation; Mudde, Müller, and others would push back on this claim |
-| Scope | Pass | Two main claims (populism is not the cause; institutions are) map to 4 sections across 12 pages at 2-3 pages per section |
-| So-what | Pass | Stakes are explicit: reform strategies will fail if the diagnosis is wrong -- this claim matters for real-world democratic policy |
-| Evidence feasibility | Pass | Comparative political science literature on Hungary, Poland, US, and Turkey is abundant; institutionalist literature is well-developed and journal-accessible |
+| Test                 | Result | Notes                                                                                                                                                         |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Specificity          | Pass   | Names specific mechanisms (institutional failure, executive overreach, constitutional design) rather than vague categories                                    |
+| Arguability          | Pass   | Directly challenges the dominant populism-focused explanation; Mudde, Müller, and others would push back on this claim                                        |
+| Scope                | Pass   | Two main claims (populism is not the cause; institutions are) map to 4 sections across 12 pages at 2-3 pages per section                                      |
+| So-what              | Pass   | Stakes are explicit: reform strategies will fail if the diagnosis is wrong -- this claim matters for real-world democratic policy                             |
+| Evidence feasibility | Pass   | Comparative political science literature on Hungary, Poland, US, and Turkey is abundant; institutionalist literature is well-developed and journal-accessible |
 
 **Overall verdict:** Strong. Ready to draft.
 

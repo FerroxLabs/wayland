@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Stripe
     estSeconds: 30
-    primaryAction: { label: "Sign in with Stripe", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Stripe', action: 'oauth-flow' }
     warning: |
       **Test mode vs Live mode are separate authorizations.** Approving the
       test-mode session does NOT grant access to live data, and vice versa.

@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation step-by-step"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation step-by-step'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Knowledge Base Article
 
 ## When to Use
@@ -381,12 +382,12 @@ When you click a file to download it from the StorageCloud web app, desktop clie
 **Cause 1 (most common -- approximately 75% of cases): The file was moved to a folder you do not have permission to access.**
 Files in StorageCloud inherit the permissions of the folder they are in. If a file was moved by another user from a shared folder to a private or restricted folder, your access to the file is revoked automatically -- even if you had direct access to the file before the move.
 
-*How to identify this as your cause:* You can still see the file listed (it appears in search results or in a shared link), but clicking it produces the 403 error. You do not see the folder it currently lives in in your left-hand folder tree.
+_How to identify this as your cause:_ You can still see the file listed (it appears in search results or in a shared link), but clicking it produces the 403 error. You do not see the folder it currently lives in in your left-hand folder tree.
 
 **Cause 2: Your integration is using an expired or revoked API token.**
 If you are accessing the file through an API integration (such as a Zapier workflow, a custom script, or a connected third-party app), the API token your integration uses may have expired or been manually revoked. StorageCloud API tokens expire after 90 days unless configured otherwise on Enterprise plans.
 
-*How to identify this as your cause:* The 403 error occurs only when accessing the file through your integration or API script, not when you download the file manually through the web app. You may also see an error log entry in your integration tool referencing "token expired" or "invalid_token."
+_How to identify this as your cause:_ The 403 error occurs only when accessing the file through your integration or API script, not when you download the file manually through the web app. You may also see an error log entry in your integration tool referencing "token expired" or "invalid_token."
 
 ---
 
@@ -444,14 +445,14 @@ If you are accessing the file through an API integration (such as a Zapier workf
 
 If you have completed the steps for your identified cause and the 403 error continues, open a support ticket and have the following ready before contacting us:
 
-| Information to provide | Where to find it |
-|---|---|
-| Your account email address | Settings > Account > Profile |
-| The full file path of the affected file | Visible in the file's detail panel -- click the file, then click **Details** |
-| The folder path shown in search results | StorageCloud Search results, under the file name |
-| A screenshot of the full 403 error message | Capture the complete browser window including the URL bar |
-| Your API token ID (first 8 characters only -- never share the full token) | Settings > Developer > API Tokens |
-| Timestamp of the most recent failed attempt (with timezone) | Your browser's developer console > Network tab, or your integration's error log |
+| Information to provide                                                    | Where to find it                                                                |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Your account email address                                                | Settings > Account > Profile                                                    |
+| The full file path of the affected file                                   | Visible in the file's detail panel -- click the file, then click **Details**    |
+| The folder path shown in search results                                   | StorageCloud Search results, under the file name                                |
+| A screenshot of the full 403 error message                                | Capture the complete browser window including the URL bar                       |
+| Your API token ID (first 8 characters only -- never share the full token) | Settings > Developer > API Tokens                                               |
+| Timestamp of the most recent failed attempt (with timezone)               | Your browser's developer console > Network tab, or your integration's error log |
 
 **Contact support at:** support@storagecloud.example or via the **Help** chat widget in the bottom-right corner of the web app.
 **Expected response time:** Business (2 business days) | Pro (1 business day) | Enterprise (4 hours, 24/7)
@@ -468,13 +469,13 @@ If you have completed the steps for your identified cause and the 403 error cont
 
 ## Related Articles
 
-| Article | Why it is relevant |
-|---|---|
-| Understanding StorageCloud permissions and inheritance | Explains the folder permission model that underlies Cause 1 -- read this if your team frequently reorganizes files |
-| Generating and managing API tokens | Full reference for token creation, rotation, and scope configuration -- relevant to Cause 2 |
-| "403 Forbidden" error on file upload | Covers the separate case where the 403 error occurs on upload rather than download -- different causes and resolutions |
-| How to request access to a folder from its owner | Step-by-step guide for the permission request workflow referenced in Cause 1, Step 4 |
+| Article                                                | Why it is relevant                                                                                                     |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Understanding StorageCloud permissions and inheritance | Explains the folder permission model that underlies Cause 1 -- read this if your team frequently reorganizes files     |
+| Generating and managing API tokens                     | Full reference for token creation, rotation, and scope configuration -- relevant to Cause 2                            |
+| "403 Forbidden" error on file upload                   | Covers the separate case where the 403 error occurs on upload rather than download -- different causes and resolutions |
+| How to request access to a folder from its owner       | Step-by-step guide for the permission request workflow referenced in Cause 1, Step 4                                   |
 
 ---
 
-*Tags: 403 forbidden file download permission denied access denied previously accessible file API token expired revoked 403 error downloading forbidden error download*
+_Tags: 403 forbidden file download permission denied access denied previously accessible file API token expired revoked 403 error downloading forbidden error download_

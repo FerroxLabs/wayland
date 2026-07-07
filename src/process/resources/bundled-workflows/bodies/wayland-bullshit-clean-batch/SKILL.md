@@ -11,13 +11,13 @@ description: >-
   wants a scored audit rather than an automated cleanup.
 license: Apache-2.0
 type: workflow
-skills: "content-audit convert-bullshit-filter convert-voice"
+skills: 'content-audit convert-bullshit-filter convert-voice'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting bullshit-filter voice cleanup batch
   category: marketing
-  depends: "content-audit convert-bullshit-filter convert-voice"
+  depends: 'content-audit convert-bullshit-filter convert-voice'
 ---
 
 Batch version of the Bullshit Filter cleanup. Resolve a corpus of markdown
@@ -25,6 +25,7 @@ drafts, run the Filter across every draft, then rewrite the weakest lines in
 each and save the cleaned versions.
 
 Resolve the draft corpus in this order before running:
+
 1. Any folder or files the user attached to the conversation (read from the workspace).
 2. Else read markdown drafts from the directory the user supplies as `copy_dir`
    (the connected filesystem location or a synced content export).

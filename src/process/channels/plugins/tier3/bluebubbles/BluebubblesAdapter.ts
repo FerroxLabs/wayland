@@ -76,7 +76,7 @@ export function normalizeTapbackName(emoji: string): string {
   const name = TAPBACK_NAMES[trimmed];
   if (!name) {
     throw new Error(
-      `Unsupported BlueBubbles tapback: "${trimmed}". Supported: love, like, dislike, laugh, emphasize, question`,
+      `Unsupported BlueBubbles tapback: "${trimmed}". Supported: love, like, dislike, laugh, emphasize, question`
     );
   }
   return name;
@@ -90,9 +90,7 @@ function readString(obj: Record<string, unknown>, key: string): string | undefin
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {
-  return v !== null && typeof v === 'object' && !Array.isArray(v)
-    ? (v as Record<string, unknown>)
-    : null;
+  return v !== null && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
 }
 
 /**
@@ -135,10 +133,7 @@ export function extractHandleFromChatGuid(chatGuid: string | undefined): string 
  *   which have no text body and represent reactions, not new messages.
  * - Payloads where we cannot derive a sender address or chatGuid.
  */
-export function toUnifiedIncomingFromBluebubbles(
-  raw: unknown,
-  pluginType: string,
-): IUnifiedIncomingMessage | null {
+export function toUnifiedIncomingFromBluebubbles(raw: unknown, pluginType: string): IUnifiedIncomingMessage | null {
   const outer = asRecord(raw);
   if (!outer) return null;
 
@@ -151,8 +146,7 @@ export function toUnifiedIncomingFromBluebubbles(
   if (msg['isFromMe'] === true) return null;
 
   // Skip tapback/reaction events - they have associatedMessageType in 2000-3xxx range.
-  const assocType =
-    typeof msg['associatedMessageType'] === 'number' ? msg['associatedMessageType'] : undefined;
+  const assocType = typeof msg['associatedMessageType'] === 'number' ? msg['associatedMessageType'] : undefined;
   if (assocType !== undefined && assocType >= 2000 && assocType < 4000) return null;
 
   const chatGuid = extractChatGuid(msg);
@@ -163,8 +157,7 @@ export function toUnifiedIncomingFromBluebubbles(
   // `handle` entirely for DMs, in which case the address is recoverable
   // from the chatGuid via extractHandleFromChatGuid.
   const handleVal = msg['handle'] ?? msg['from'];
-  const handleRec =
-    asRecord(handleVal) ?? (typeof handleVal === 'string' ? { address: handleVal } : null);
+  const handleRec = asRecord(handleVal) ?? (typeof handleVal === 'string' ? { address: handleVal } : null);
   const senderAddress =
     (handleRec ? readString(handleRec, 'address') : undefined) ??
     (handleRec ? readString(handleRec, 'handle') : undefined) ??
@@ -182,12 +175,7 @@ export function toUnifiedIncomingFromBluebubbles(
   const messageId = readString(msg, 'guid') ?? readString(msg, 'id') ?? `bb-${Date.now()}`;
 
   const rawDate = msg['dateCreated'] ?? msg['date'];
-  const timestamp =
-    typeof rawDate === 'number'
-      ? rawDate > 1_000_000_000_000
-        ? rawDate
-        : rawDate * 1000
-      : Date.now();
+  const timestamp = typeof rawDate === 'number' ? (rawDate > 1_000_000_000_000 ? rawDate : rawDate * 1000) : Date.now();
 
   const text = readString(msg, 'text') ?? readString(msg, 'body') ?? '';
 
@@ -216,7 +204,7 @@ export function toUnifiedIncomingFromBluebubbles(
 export function buildTapbackPayload(
   chatGuid: string,
   messageGuid: string,
-  emoji: string,
+  emoji: string
 ): { chatGuid: string; selectedMessageGuid: string; reaction: string; partIndex: number } | null {
   let name: string;
   try {
@@ -242,8 +230,7 @@ export function extractTapbackFromPayload(raw: unknown): {
   const msg = asRecord(data);
   if (!msg) return null;
 
-  const assocType =
-    typeof msg['associatedMessageType'] === 'number' ? msg['associatedMessageType'] : undefined;
+  const assocType = typeof msg['associatedMessageType'] === 'number' ? msg['associatedMessageType'] : undefined;
   if (assocType === undefined) return null;
 
   const mapping = REACTION_TYPE_MAP.get(assocType);

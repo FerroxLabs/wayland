@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science template checklist"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science template checklist'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Data Catalog Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to create a data catalog, data dictionary, or metadata registry for one or more databases, schemas, or data platforms from scratch
 - The user wants to document existing tables and columns so analysts and business stakeholders can find and trust data without asking engineers every time
 - The user needs to establish governance metadata standards -- ownership, sensitivity classification, retention policy, PII flags -- as the foundation of a data governance program
@@ -29,6 +31,7 @@ metadata:
 - The user is preparing for a compliance audit (GDPR, CCPA, HIPAA) and needs a complete inventory of where personal data lives and how it flows
 
 **Do NOT use when:**
+
 - The user wants to design a new database schema or data model from scratch -- use `data-schema-design` instead
 - The user wants to define and implement data quality rules, checks, or SLA monitoring -- use `data-quality-rules` instead
 - The user wants to design or document an ETL or ELT pipeline -- use `etl-pipeline-design` instead
@@ -151,16 +154,16 @@ The tool choice must match the organization's scale, budget, and engineering cap
 
 ### Catalog Overview
 
-| Attribute | Value |
-|-----------|-------|
-| Scope | [X databases, Y schemas, Z tables] |
-| Primary Audience | [Analysts / Data Engineers / Compliance / Business Stakeholders] |
-| Catalog Tool | [Tool name, tier, and hosting model] |
-| Governance Standard | [Classification framework: Internal 4-level / SOC 2 / NIST] |
-| Data Steward Model | [Centralized / Federated -- list domain stewards] |
-| Phase | [Phase 1 of X: scope description] |
-| Initial Setup Date | [Date] |
-| Next Scheduled Audit | [Date] |
+| Attribute                 | Value                                                             |
+| ------------------------- | ----------------------------------------------------------------- |
+| Scope                     | [X databases, Y schemas, Z tables]                                |
+| Primary Audience          | [Analysts / Data Engineers / Compliance / Business Stakeholders]  |
+| Catalog Tool              | [Tool name, tier, and hosting model]                              |
+| Governance Standard       | [Classification framework: Internal 4-level / SOC 2 / NIST]       |
+| Data Steward Model        | [Centralized / Federated -- list domain stewards]                 |
+| Phase                     | [Phase 1 of X: scope description]                                 |
+| Initial Setup Date        | [Date]                                                            |
+| Next Scheduled Audit      | [Date]                                                            |
 | Catalog Health (at setup) | [X% tables with descriptions, Y% columns with PII classification] |
 
 ---
@@ -168,57 +171,63 @@ The tool choice must match the organization's scale, budget, and engineering cap
 ### Governance Tag Taxonomy
 
 #### 1. Data Sensitivity Classification
-| Tag | Definition | Assignment Criteria | Required Data Handling |
-|-----|-----------|--------------------|-----------------------|
-| Public | Aggregated or anonymized; safe for external sharing | No individual-level data; no business-sensitive metrics | No restrictions |
-| Internal | Non-sensitive business data | Business metrics not for external publication | Internal distribution only; no external sharing without VP approval |
-| Confidential | Sensitive business or personal data | Revenue by customer, employee salaries, B2B contract terms | Need-to-know access; encrypted at rest and in transit |
-| Restricted | Highly sensitive; regulatory obligation | PII, PHI, PCI, legal records, board materials | Encrypted at rest; masked in non-production; access logged; DSAR process required |
+
+| Tag          | Definition                                          | Assignment Criteria                                        | Required Data Handling                                                            |
+| ------------ | --------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Public       | Aggregated or anonymized; safe for external sharing | No individual-level data; no business-sensitive metrics    | No restrictions                                                                   |
+| Internal     | Non-sensitive business data                         | Business metrics not for external publication              | Internal distribution only; no external sharing without VP approval               |
+| Confidential | Sensitive business or personal data                 | Revenue by customer, employee salaries, B2B contract terms | Need-to-know access; encrypted at rest and in transit                             |
+| Restricted   | Highly sensitive; regulatory obligation             | PII, PHI, PCI, legal records, board materials              | Encrypted at rest; masked in non-production; access logged; DSAR process required |
 
 #### 2. PII Sub-Classification (Column Level)
-| Tag | Definition | Examples | Masking Requirement |
-|-----|-----------|---------|---------------------|
-| PII-Direct | Directly identifies an individual | Name, email, phone, SSN, national ID, passport | Hash or tokenize in non-production; mask in catalog previews |
-| PII-Quasi | Identifies an individual when combined with other data | Date of birth, ZIP code, gender, ethnicity | Suppress in any external-facing report; document combination risk |
-| PII-Behavioral | Activity linked to a named individual | Purchase history, browsing history, location history | Pseudonymize; document retention period |
-| PII-Sensitive | Special category personal data | Health, religion, political affiliation, biometrics | Highest restriction; explicit consent required; DPO sign-off needed |
-| Non-PII | No personal data content | Product IDs, timestamps, aggregate metrics | Standard handling per sensitivity level |
+
+| Tag            | Definition                                             | Examples                                             | Masking Requirement                                                 |
+| -------------- | ------------------------------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| PII-Direct     | Directly identifies an individual                      | Name, email, phone, SSN, national ID, passport       | Hash or tokenize in non-production; mask in catalog previews        |
+| PII-Quasi      | Identifies an individual when combined with other data | Date of birth, ZIP code, gender, ethnicity           | Suppress in any external-facing report; document combination risk   |
+| PII-Behavioral | Activity linked to a named individual                  | Purchase history, browsing history, location history | Pseudonymize; document retention period                             |
+| PII-Sensitive  | Special category personal data                         | Health, religion, political affiliation, biometrics  | Highest restriction; explicit consent required; DPO sign-off needed |
+| Non-PII        | No personal data content                               | Product IDs, timestamps, aggregate metrics           | Standard handling per sensitivity level                             |
 
 #### 3. Data Quality Tier
-| Tier | Definition | Entry Criteria | Exit Criteria (demotion) |
-|------|-----------|---------------|--------------------------|
-| Gold | Production-grade; safe for executive and customer-facing reporting | Owner assigned; description complete; ≥95% field population; monitoring SLA active; ≥6 months production history | Any criterion drops below threshold for 30+ days |
-| Silver | Documented; no active SLA | Owner assigned; description complete; ≥70% field population; no monitoring | Owner becomes unresponsive for 90 days; field population drops below 50% |
-| Bronze | Raw or exploratory; not validated | Default tier for all new tables | N/A -- Bronze is the floor |
+
+| Tier   | Definition                                                         | Entry Criteria                                                                                                   | Exit Criteria (demotion)                                                 |
+| ------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Gold   | Production-grade; safe for executive and customer-facing reporting | Owner assigned; description complete; ≥95% field population; monitoring SLA active; ≥6 months production history | Any criterion drops below threshold for 30+ days                         |
+| Silver | Documented; no active SLA                                          | Owner assigned; description complete; ≥70% field population; no monitoring                                       | Owner becomes unresponsive for 90 days; field population drops below 50% |
+| Bronze | Raw or exploratory; not validated                                  | Default tier for all new tables                                                                                  | N/A -- Bronze is the floor                                               |
 
 #### 4. Domain Tags
-| Tag | Scope | Domain Steward |
-|-----|-------|---------------|
-| [Domain name] | [What business entities and events fall under this domain] | [Name, team] |
+
+| Tag           | Scope                                                      | Domain Steward |
+| ------------- | ---------------------------------------------------------- | -------------- |
+| [Domain name] | [What business entities and events fall under this domain] | [Name, team]   |
 
 #### 5. Lifecycle Tags
-| Tag | Definition | Required Actions |
-|-----|-----------|-----------------|
-| Active | Currently in production use | Standard catalog maintenance applies |
-| Deprecated | Has a documented replacement; still readable | Must include replacement table, migration guide, and sunset date |
-| Archived | Moved to cold storage; no SLA | Document access method and retrieval SLA if any |
-| Pending-Deletion | Scheduled for hard deletion | Must list downstream consumers; provide 60-day notice minimum |
+
+| Tag              | Definition                                   | Required Actions                                                 |
+| ---------------- | -------------------------------------------- | ---------------------------------------------------------------- |
+| Active           | Currently in production use                  | Standard catalog maintenance applies                             |
+| Deprecated       | Has a documented replacement; still readable | Must include replacement table, migration guide, and sunset date |
+| Archived         | Moved to cold storage; no SLA                | Document access method and retrieval SLA if any                  |
+| Pending-Deletion | Scheduled for hard deletion                  | Must list downstream consumers; provide 60-day notice minimum    |
 
 #### 6. Regulatory Scope Tags (Table Level)
-| Tag | Applicability |
-|-----|--------------|
-| GDPR-Inscope | Table contains personal data of EU residents |
-| CCPA-Inscope | Table contains personal data of California residents |
-| HIPAA-Inscope | Table contains protected health information |
-| PCI-DSS-Inscope | Table contains cardholder data |
+
+| Tag             | Applicability                                        |
+| --------------- | ---------------------------------------------------- |
+| GDPR-Inscope    | Table contains personal data of EU residents         |
+| CCPA-Inscope    | Table contains personal data of California residents |
+| HIPAA-Inscope   | Table contains protected health information          |
+| PCI-DSS-Inscope | Table contains cardholder data                       |
 
 ---
 
 ### Business Glossary (Controlled Vocabulary)
 
-| Business Term | Definition | Disambiguation | Authoritative Source Table(s) |
-|--------------|-----------|---------------|-------------------------------|
-| [Term] | [Precise definition of the metric or concept] | [How this term differs from similar terms; e.g., "Revenue (Gross) vs. Revenue (Net)"] | [schema.table_name, column_name] |
+| Business Term | Definition                                    | Disambiguation                                                                        | Authoritative Source Table(s)    |
+| ------------- | --------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------- |
+| [Term]        | [Precise definition of the metric or concept] | [How this term differs from similar terms; e.g., "Revenue (Gross) vs. Revenue (Net)"] | [schema.table_name, column_name] |
 
 ---
 
@@ -232,40 +241,41 @@ The tool choice must match the organization's scale, budget, and engineering cap
 
 **Table Metadata:**
 
-| Attribute | Value |
-|-----------|-------|
-| Primary Owner | [Name, team, contact method] |
-| Backup Owner | [Name, team] |
-| Source System | [Application or API name and version] |
-| Ingestion Pipeline | [Pipeline/DAG name and link] |
-| Update Frequency | [Exact schedule: "Daily at 03:00 UTC via Airflow DAG shopify_orders_daily"] |
-| Expected Row Count | [Current count and growth rate: "245,000 rows; growing ~500/day"] |
-| Retention Policy | [Duration and deletion mechanism: "7 years; deleted via retention_cleanup_job"] |
-| Quality Tier | [Gold / Silver / Bronze] |
-| Sensitivity | [Public / Internal / Confidential / Restricted] |
-| PII Present | [Yes / No -- if Yes, list PII columns] |
-| Domain | [Tag from domain taxonomy] |
-| Lifecycle | [Active / Deprecated / Archived / Pending-Deletion] |
-| Regulatory Scope | [GDPR-Inscope / CCPA-Inscope / None] |
-| Known Issues | [Issue description + workaround. "None documented" is acceptable if explicitly verified] |
-| Last Reviewed | [Date and reviewer name] |
+| Attribute          | Value                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| Primary Owner      | [Name, team, contact method]                                                             |
+| Backup Owner       | [Name, team]                                                                             |
+| Source System      | [Application or API name and version]                                                    |
+| Ingestion Pipeline | [Pipeline/DAG name and link]                                                             |
+| Update Frequency   | [Exact schedule: "Daily at 03:00 UTC via Airflow DAG shopify_orders_daily"]              |
+| Expected Row Count | [Current count and growth rate: "245,000 rows; growing ~500/day"]                        |
+| Retention Policy   | [Duration and deletion mechanism: "7 years; deleted via retention_cleanup_job"]          |
+| Quality Tier       | [Gold / Silver / Bronze]                                                                 |
+| Sensitivity        | [Public / Internal / Confidential / Restricted]                                          |
+| PII Present        | [Yes / No -- if Yes, list PII columns]                                                   |
+| Domain             | [Tag from domain taxonomy]                                                               |
+| Lifecycle          | [Active / Deprecated / Archived / Pending-Deletion]                                      |
+| Regulatory Scope   | [GDPR-Inscope / CCPA-Inscope / None]                                                     |
+| Known Issues       | [Issue description + workaround. "None documented" is acceptable if explicitly verified] |
+| Last Reviewed      | [Date and reviewer name]                                                                 |
 
 **Column Documentation:**
 
-| Column | Type | Grain Role | Description | Example Values | Nullable | Null Meaning | PII Sub-Type | Sensitivity | Lineage Type | Lineage Source |
-|--------|------|-----------|-------------|----------------|----------|--------------|-------------|-------------|-------------|----------------|
-| [col] | [SQL type] | [PK/FK/Measure/Dimension/Metadata] | [Business description -- passes non-expert test] | [Synthetic examples] | [Y/N] | [Missing/NotApplicable/Unknown/Sentinel -- value if sentinel] | [PII sub-type or Non-PII] | [Sensitivity level] | [DirectCopy/TypeCast/Derived/Lookup] | [source.table.column or formula] |
+| Column | Type       | Grain Role                         | Description                                      | Example Values       | Nullable | Null Meaning                                                  | PII Sub-Type              | Sensitivity         | Lineage Type                         | Lineage Source                   |
+| ------ | ---------- | ---------------------------------- | ------------------------------------------------ | -------------------- | -------- | ------------------------------------------------------------- | ------------------------- | ------------------- | ------------------------------------ | -------------------------------- |
+| [col]  | [SQL type] | [PK/FK/Measure/Dimension/Metadata] | [Business description -- passes non-expert test] | [Synthetic examples] | [Y/N]    | [Missing/NotApplicable/Unknown/Sentinel -- value if sentinel] | [PII sub-type or Non-PII] | [Sensitivity level] | [DirectCopy/TypeCast/Derived/Lookup] | [source.table.column or formula] |
 
 **Lineage:**
-
 ```
+
 [Source Application] --> [Ingestion Pipeline] --> [Raw/Staging Table]
-                                                        |
-                                              [Transformation Job]
-                                                        |
-                                              [schema.table_name]  <-- this table
-                                             /          |            \
-                              [Dashboard A]    [ML Model B]     [Pipeline C]
+|
+[Transformation Job]
+|
+[schema.table_name] <-- this table
+/ | \
+ [Dashboard A] [ML Model B] [Pipeline C]
+
 ```
 
 - **Upstream (L2):** [Source application] -> [pipeline name] -> [staging schema.table] -> [transformation job] -> this table
@@ -405,7 +415,7 @@ When domains publish data products consumed by other domains, the catalog must h
 When the catalog is being built primarily to satisfy a regulatory audit rather than for analyst discoverability, the priorities shift significantly.
 
 - The GDPR Article 30 Records of Processing Activities (RoPA) is the specific artifact required. The catalog must be structured to generate the RoPA automatically: for each table, it must record the purpose of processing, the categories of data subjects, the categories of personal data, the legal basis for processing, the retention period, and the international transfer status (whether data leaves the EU). Design the catalog fields to map directly to RoPA fields.
-- For CCPA, the catalog must enable response to Data Subject Access Requests (DSAR) within the 45-day statutory deadline. This means every PII table must document the mechanism for extracting all data related to a specific individual (the exact query template, parameterized by subject identifier). "Run SELECT * FROM customers WHERE email = ? and JOIN to orders, events, and sessions" is a catalog field, not an engineering task to figure out under deadline.
+- For CCPA, the catalog must enable response to Data Subject Access Requests (DSAR) within the 45-day statutory deadline. This means every PII table must document the mechanism for extracting all data related to a specific individual (the exact query template, parameterized by subject identifier). "Run SELECT \* FROM customers WHERE email = ? and JOIN to orders, events, and sessions" is a catalog field, not an engineering task to figure out under deadline.
 - HIPAA-covered tables require the 18 HIPAA Safe Harbor identifiers to be tracked at the column level (name, date of birth, geographic subdivisions smaller than state, telephone number, fax, email, SSN, medical record number, health plan beneficiary number, account number, certificate/license number, vehicle identifiers, device identifiers, URLs, IP addresses, biometric identifiers, full-face photographs, unique identifying numbers). A column containing any of these identifiers in the context of health information must be tagged PII-Direct and HIPAA-Inscope.
 - Retain catalog entries for at least 7 years for audit purposes, even after the underlying table is deleted. Regulators may request documentation of data handling from years prior. The catalog's audit log (when entries were created, modified, who changed what) is itself a compliance artifact.
 
@@ -425,18 +435,18 @@ When the catalog is being built primarily to satisfy a regulatory audit rather t
 
 ### Catalog Overview
 
-| Attribute | Value |
-|-----------|-------|
-| Scope | 35 tables across 3 schemas (raw: 12 tables, staging: 11 tables, analytics: 12 tables) in Snowflake database ACME_ANALYTICS |
-| Primary Audience | 3 analysts (daily discoverability and query guidance), 2 data engineers (lineage and schema maintenance), VP of Data (governance oversight), Legal/Compliance (GDPR audit support) |
-| Catalog Tool | Tier 1: OpenMetadata (self-hosted on AWS EC2 t3.medium, ~$45/month) -- selected for strong Snowflake integration and non-technical-friendly UI. Migrate to Atlan if team grows beyond 8 analysts or tables exceed 300. |
-| Governance Standard | Internal 4-level sensitivity classification (Public / Internal / Confidential / Restricted) + PII sub-taxonomy (GDPR Article 4 aligned) |
-| Data Steward Model | Centralized: VP of Data is data governance lead; each data engineer is domain steward for tables they own |
-| GDPR Status | GDPR-Inscope: All tables in analytics.customers, analytics.orders, and raw.shopify_customers require GDPR documentation (Article 30 RoPA fields complete) |
-| Phase | Phase 1 (weeks 1--3): analytics schema only (12 tables, all Gold/Silver tier). Phase 2 (weeks 4--6): staging schema. Phase 3 (weeks 7--8): raw schema stubs. |
-| Initial Setup Date | 2026-03-01 |
-| Next Scheduled Audit | 2026-06-01 (quarterly) |
-| Catalog Health Target | 100% analytics tables with descriptions by end of Phase 1; 100% columns PII-classified by end of Phase 1 |
+| Attribute             | Value                                                                                                                                                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scope                 | 35 tables across 3 schemas (raw: 12 tables, staging: 11 tables, analytics: 12 tables) in Snowflake database ACME_ANALYTICS                                                                                             |
+| Primary Audience      | 3 analysts (daily discoverability and query guidance), 2 data engineers (lineage and schema maintenance), VP of Data (governance oversight), Legal/Compliance (GDPR audit support)                                     |
+| Catalog Tool          | Tier 1: OpenMetadata (self-hosted on AWS EC2 t3.medium, ~$45/month) -- selected for strong Snowflake integration and non-technical-friendly UI. Migrate to Atlan if team grows beyond 8 analysts or tables exceed 300. |
+| Governance Standard   | Internal 4-level sensitivity classification (Public / Internal / Confidential / Restricted) + PII sub-taxonomy (GDPR Article 4 aligned)                                                                                |
+| Data Steward Model    | Centralized: VP of Data is data governance lead; each data engineer is domain steward for tables they own                                                                                                              |
+| GDPR Status           | GDPR-Inscope: All tables in analytics.customers, analytics.orders, and raw.shopify_customers require GDPR documentation (Article 30 RoPA fields complete)                                                              |
+| Phase                 | Phase 1 (weeks 1--3): analytics schema only (12 tables, all Gold/Silver tier). Phase 2 (weeks 4--6): staging schema. Phase 3 (weeks 7--8): raw schema stubs.                                                           |
+| Initial Setup Date    | 2026-03-01                                                                                                                                                                                                             |
+| Next Scheduled Audit  | 2026-06-01 (quarterly)                                                                                                                                                                                                 |
+| Catalog Health Target | 100% analytics tables with descriptions by end of Phase 1; 100% columns PII-classified by end of Phase 1                                                                                                               |
 
 ---
 
@@ -444,56 +454,56 @@ When the catalog is being built primarily to satisfy a regulatory audit rather t
 
 #### 1. Data Sensitivity Classification
 
-| Tag | Definition | Assignment Criteria | Required Data Handling |
-|-----|-----------|--------------------|-----------------------|
-| Public | Safe for external publication | Aggregated or fully anonymized metrics; no individual rows; no business-sensitive figures | No restrictions; may appear in public marketing materials |
-| Internal | Business data; no regulatory obligation | Revenue metrics, funnel rates, product usage aggregates not broken down by individual | Internal sharing only; not in public reports |
-| Confidential | Sensitive business data | Individual customer order history when not linked to PII columns; employee table aggregates; B2B contract terms | Need-to-know access; no bulk export without VP approval |
-| Restricted | Personal data or highly sensitive financial data | Any column containing name, email, address, phone, IP; payment data; GDPR-regulated data | Encrypted at rest (Snowflake Dynamic Data Masking active); masked in non-production; all access logged in Snowflake ACCESS_HISTORY; DSAR process required |
+| Tag          | Definition                                       | Assignment Criteria                                                                                             | Required Data Handling                                                                                                                                    |
+| ------------ | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public       | Safe for external publication                    | Aggregated or fully anonymized metrics; no individual rows; no business-sensitive figures                       | No restrictions; may appear in public marketing materials                                                                                                 |
+| Internal     | Business data; no regulatory obligation          | Revenue metrics, funnel rates, product usage aggregates not broken down by individual                           | Internal sharing only; not in public reports                                                                                                              |
+| Confidential | Sensitive business data                          | Individual customer order history when not linked to PII columns; employee table aggregates; B2B contract terms | Need-to-know access; no bulk export without VP approval                                                                                                   |
+| Restricted   | Personal data or highly sensitive financial data | Any column containing name, email, address, phone, IP; payment data; GDPR-regulated data                        | Encrypted at rest (Snowflake Dynamic Data Masking active); masked in non-production; all access logged in Snowflake ACCESS_HISTORY; DSAR process required |
 
 #### 2. PII Sub-Classification (Column Level)
 
-| Tag | Definition | Acme-Specific Examples | GDPR Obligation |
-|-----|-----------|----------------------|----------------|
-| PII-Direct | Directly and uniquely identifies an EU resident | customer_email, customer_name, phone_number, shipping_address_line1, shopify_customer_id | Basis for processing required; deletion mechanism required; include in RoPA |
-| PII-Quasi | Can combine with other data to re-identify | date_of_birth, postal_code, country_code (when combined with purchase data) | Document re-identification risk; do not join with other quasi-identifiers in non-production |
-| PII-Behavioral | Activity linkable to a named individual | order_history linked to customer_id, session events linked to authenticated user | Retention period required; basis for processing required |
-| Non-PII | No personal data content | order_id, product_id, revenue_amount (not linked to individual in the same table), created_at | Standard handling per sensitivity level |
+| Tag            | Definition                                      | Acme-Specific Examples                                                                        | GDPR Obligation                                                                             |
+| -------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| PII-Direct     | Directly and uniquely identifies an EU resident | customer_email, customer_name, phone_number, shipping_address_line1, shopify_customer_id      | Basis for processing required; deletion mechanism required; include in RoPA                 |
+| PII-Quasi      | Can combine with other data to re-identify      | date_of_birth, postal_code, country_code (when combined with purchase data)                   | Document re-identification risk; do not join with other quasi-identifiers in non-production |
+| PII-Behavioral | Activity linkable to a named individual         | order_history linked to customer_id, session events linked to authenticated user              | Retention period required; basis for processing required                                    |
+| Non-PII        | No personal data content                        | order_id, product_id, revenue_amount (not linked to individual in the same table), created_at | Standard handling per sensitivity level                                                     |
 
 #### 3. Data Quality Tier
 
-| Tier | Criteria at Acme | Tables Currently at This Tier |
-|------|-----------------|-------------------------------|
-| Gold | Owner assigned; description complete; dbt tests running (not_null, unique, accepted_values, relationships); refreshed daily by 06:00 UTC with Airflow alerting if missed; ≥6 months production history | analytics.orders, analytics.customers, analytics.daily_revenue |
-| Silver | Owner assigned; description complete; no automated quality tests or monitoring SLA | analytics.product_events, analytics.marketing_attribution, staging.orders_cleaned |
-| Bronze | Default tier for all raw schema tables; stub entry only | All 12 raw.* tables until Phase 3 enrichment |
+| Tier   | Criteria at Acme                                                                                                                                                                                       | Tables Currently at This Tier                                                     |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Gold   | Owner assigned; description complete; dbt tests running (not_null, unique, accepted_values, relationships); refreshed daily by 06:00 UTC with Airflow alerting if missed; ≥6 months production history | analytics.orders, analytics.customers, analytics.daily_revenue                    |
+| Silver | Owner assigned; description complete; no automated quality tests or monitoring SLA                                                                                                                     | analytics.product_events, analytics.marketing_attribution, staging.orders_cleaned |
+| Bronze | Default tier for all raw schema tables; stub entry only                                                                                                                                                | All 12 raw.\* tables until Phase 3 enrichment                                     |
 
 #### 4. Domain Tags
 
-| Tag | Scope | Domain Steward |
-|-----|-------|---------------|
-| Commerce | Order transactions, revenue, refunds, fulfillment | Alex Kim, Data Engineering |
-| Customer | Customer profiles, account events, lifetime value | Alex Kim, Data Engineering |
-| Marketing | Campaign performance, attribution, lead sources | Jamie Lee, Data Engineering |
-| Product | Feature usage, sessions, onboarding, retention events | Jamie Lee, Data Engineering |
+| Tag       | Scope                                                 | Domain Steward              |
+| --------- | ----------------------------------------------------- | --------------------------- |
+| Commerce  | Order transactions, revenue, refunds, fulfillment     | Alex Kim, Data Engineering  |
+| Customer  | Customer profiles, account events, lifetime value     | Alex Kim, Data Engineering  |
+| Marketing | Campaign performance, attribution, lead sources       | Jamie Lee, Data Engineering |
+| Product   | Feature usage, sessions, onboarding, retention events | Jamie Lee, Data Engineering |
 
 #### 5. Lifecycle Tags
 
-| Tag | Current Usage at Acme |
-|-----|-----------------------|
-| Active | All 35 tables at catalog launch |
+| Tag        | Current Usage at Acme                                                                                                         |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Active     | All 35 tables at catalog launch                                                                                               |
 | Deprecated | None at launch -- first deprecation expected when staging.v1_orders is replaced by staging.orders_cleaned (scheduled Q2 2026) |
 
 #### 6. Regulatory Tags
 
-| Tag | Tables at Acme |
-|-----|---------------|
+| Tag          | Tables at Acme                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | GDPR-Inscope | analytics.customers, analytics.orders, analytics.product_events (when session linked to user_id), raw.shopify_customers, raw.shopify_orders |
 
 ---
 
 ### Business Glossary
 
-| Business Term | Definition | Disambiguation | Authoritative Source |
-|--------------|-----------|---------------|----------------------|
-| Revenue | Gross merchandise value: sum of order total_price including tax and shipping, before any refunds, for all orders with financial_status IN ('paid',
+| Business Term | Definition                                                                                                                                         | Disambiguation | Authoritative Source |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | -------------------- |
+| Revenue       | Gross merchandise value: sum of order total_price including tax and shipping, before any refunds, for all orders with financial_status IN ('paid', |

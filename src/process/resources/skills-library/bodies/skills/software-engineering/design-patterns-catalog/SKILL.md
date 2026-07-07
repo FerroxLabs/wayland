@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design-patterns clean-code architecture"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design-patterns clean-code architecture'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Design Patterns Catalog
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to select the right design pattern for a specific structural or behavioral problem in their codebase (e.g., "I have objects that need to notify each other without tight coupling")
 - A user is performing a code review or refactoring and wants to identify which canonical pattern applies to an existing implementation so they can align it with established conventions
 - A user is designing a new system component and needs a catalog-driven decision framework to choose between competing patterns (e.g., Factory vs. Abstract Factory vs. Builder for object construction)
@@ -29,6 +31,7 @@ metadata:
 - A user asks to identify a pattern from a code snippet or class diagram and explain what problem it solves
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on system-level architectural styles like microservices, event-driven architecture, or CQRS -- use the system-architecture skill instead
 - The user needs concrete refactoring mechanics (extract method, inline variable, replace conditional with polymorphism) -- use the refactoring skill instead
 - The user is asking about database normalization patterns, query optimization, or schema design -- use the database-design skill
@@ -120,7 +123,7 @@ Produce the formal record of the pattern selection decision.
 
 ## Output Format
 
-```
+````
 ## Design Pattern Recommendation
 
 ### Problem Statement
@@ -156,34 +159,37 @@ Collaboration:
 // Problem domain: [user's actual domain]
 
 [complete, runnable code with all participants and a usage example]
-```
+````
 
 ### Consequences
 
 **Benefits:**
+
 - [Specific benefit 1 -- quantify where possible, e.g., "eliminates the need for N×M subclasses"]
 - [Specific benefit 2]
 - [Specific benefit 3]
 
 **Liabilities:**
+
 - [Specific liability 1]
 - [Specific liability 2]
 
 ### Pattern Comparison
 
-| Criterion          | [Selected Pattern] | [Competing Pattern A] | [Competing Pattern B] |
-|--------------------|--------------------|-----------------------|-----------------------|
-| Intent             | [one phrase]       | [one phrase]          | [one phrase]          |
-| Who varies         | [answer]           | [answer]              | [answer]              |
-| Interface change   | [yes/no]           | [yes/no]              | [yes/no]              |
-| Undo support       | [yes/no]           | [yes/no]              | [yes/no]              |
-| Typical use case   | [phrase]           | [phrase]              | [phrase]              |
+| Criterion        | [Selected Pattern] | [Competing Pattern A] | [Competing Pattern B] |
+| ---------------- | ------------------ | --------------------- | --------------------- |
+| Intent           | [one phrase]       | [one phrase]          | [one phrase]          |
+| Who varies       | [answer]           | [answer]              | [answer]              |
+| Interface change | [yes/no]           | [yes/no]              | [yes/no]              |
+| Undo support     | [yes/no]           | [yes/no]              | [yes/no]              |
+| Typical use case | [phrase]           | [phrase]              | [phrase]              |
 
 **Choose [Selected Pattern] over alternatives when:** [precise decision rule]
 
 ### Refactoring Signals
 
 Code smells in the current codebase that this pattern addresses:
+
 - [Specific smell observed or described]
 - [Specific smell observed or described]
 
@@ -197,7 +203,8 @@ Code smells in the current codebase that this pattern addresses:
 - **Alternatives Considered:** [Pattern A] -- rejected because [reason]; [Pattern B] -- rejected because [reason]
 - **Consequences:** [What becomes easier, what becomes harder, what risks remain]
 - **Reassessment Trigger:** [Condition under which this decision should be revisited]
-```
+
+````
 
 ---
 
@@ -531,11 +538,12 @@ if __name__ == "__main__":
         print(f"--- {fmt.upper()} ({mime}) ---")
         print(content.decode("utf-8"))
         print()
-```
+````
 
 ### Consequences
 
 **Benefits:**
+
 - Adding JSON and Markdown formats requires zero modification to `ReportGenerator` or any existing renderer -- the Open/Closed Principle is satisfied
 - Each renderer is independently unit-testable with a mock `ReportData` object and no dependency on the others
 - Merge conflicts when two engineers add formats simultaneously are eliminated -- they each create a new file and add one line to the registry
@@ -543,20 +551,21 @@ if __name__ == "__main__":
 - Format-specific library imports (`openpyxl` for Excel, `weasyprint` for PDF) are isolated to individual renderer files, keeping unused dependencies out of the import chain for callers using only CSV or JSON
 
 **Liabilities:**
+
 - Clients must know which renderer to select -- this responsibility is shifted to the caller or to a registry lookup. If format selection requires complex business logic, that logic must live somewhere explicit
 - Stateless renderer instances in the registry are safe for concurrent use only if `render()` is free of instance-level mutation. Verify each renderer does not accumulate state between calls
 - If a renderer needs configuration (e.g., PDF page size, Excel column widths), that configuration must be injected at renderer construction time -- a parameterized renderer factory may be needed
 
 ### Pattern Comparison
 
-| Criterion               | Strategy                           | Template Method                          | Command                                       |
-|-------------------------|------------------------------------|------------------------------------------|-----------------------------------------------|
-| Intent                  | Swap entire algorithm              | Fix skeleton, override specific steps    | Encapsulate operation for queue/undo/logging  |
-| Inheritance vs. composition | Composition (inject object)   | Inheritance (subclass overrides)         | Composition (inject command object)           |
-| Who holds the algorithm  | ConcreteStrategy class            | Subclass methods                         | ConcreteCommand class                         |
-| Runtime swappability    | Yes -- set_renderer() at any time  | No -- determined at instantiation        | Yes -- commands queued and dispatched         |
-| Undo support            | No                                 | No                                       | Yes -- if ConcreteCommand implements undo()   |
-| Typical use case        | Format converters, sort algorithms | Report structure with pluggable sections | Async job queues, editor actions, audit logs  |
+| Criterion                   | Strategy                           | Template Method                          | Command                                      |
+| --------------------------- | ---------------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Intent                      | Swap entire algorithm              | Fix skeleton, override specific steps    | Encapsulate operation for queue/undo/logging |
+| Inheritance vs. composition | Composition (inject object)        | Inheritance (subclass overrides)         | Composition (inject command object)          |
+| Who holds the algorithm     | ConcreteStrategy class             | Subclass methods                         | ConcreteCommand class                        |
+| Runtime swappability        | Yes -- set_renderer() at any time  | No -- determined at instantiation        | Yes -- commands queued and dispatched        |
+| Undo support                | No                                 | No                                       | Yes -- if ConcreteCommand implements undo()  |
+| Typical use case            | Format converters, sort algorithms | Report structure with pluggable sections | Async job queues, editor actions, audit logs |
 
 **Choose Strategy over Template Method when:** The rendering algorithms have no shared skeleton -- PDF, CSV, and JSON generation use entirely different libraries and control flows with no common steps to factor into a base class. If all renderers shared a header-writing step and a body-writing step, Template Method would be appropriate.
 

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist guide beginner-friendly cloud testing safety emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist guide beginner-friendly cloud testing safety emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Natural Disaster Preparedness Guide
 
 > **Disclaimer:** This guide provides general disaster preparedness information. Always follow official guidance from local emergency management agencies, FEMA, the National Weather Service, and the Red Cross during actual emergencies. Risks vary significantly by geographic location. Know your specific local hazards.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about natural disaster prep techniques or best practices
 - User needs guidance on natural disaster prep concepts
 - User wants to implement or improve their approach to natural disaster prep
 
 **Do NOT use when:**
+
 - The request falls outside the scope of natural disaster prep
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ metadata:
 ### Before an Earthquake
 
 **Home preparation:**
+
 - [ ] Secure heavy furniture to walls (bookshelves, dressers, water heaters)
 - [ ] Install latches on cabinets (prevents contents from flying out)
 - [ ] Secure overhead lights and ceiling fans
@@ -64,6 +66,7 @@ metadata:
 - [ ] Have a wrench near the gas meter for shutoff
 
 **Emergency supplies:**
+
 - 72-hour kit (minimum), ideally 2 weeks
 - Water purification methods (pipes may break)
 - Heavy-duty shoes near each bed (broken glass)
@@ -75,6 +78,7 @@ metadata:
 ### During an Earthquake
 
 **If indoors:**
+
 - DROP to your hands and knees
 - Take COVER under a sturdy desk or table
 - HOLD ON until the shaking stops
@@ -83,14 +87,17 @@ metadata:
 - Do NOT stand in a doorway (this is a myth for modern buildings)
 
 **If outdoors:**
+
 - Move to an open area away from buildings, trees, and power lines
 - Drop to the ground and protect your head
 
 **If driving:**
+
 - Pull over to the side of the road away from overpasses, bridges, and buildings
 - Stay in the car until shaking stops
 
 ### After an Earthquake
+
 - Expect aftershocks (can be nearly as strong as the main quake)
 - Check for injuries and provide first aid
 - Check for gas leaks (smell, hissing sound) -- if detected, leave immediately and do not use any flame or electrical switches
@@ -106,6 +113,7 @@ metadata:
 ### Before Hurricane Season (June 1 - November 30)
 
 **Home preparation:**
+
 - [ ] Install or test hurricane shutters or have plywood cut to size for windows
 - [ ] Trim trees and remove dead branches
 - [ ] Reinforce garage doors (most vulnerable entry point)
@@ -116,6 +124,7 @@ metadata:
 - [ ] Identify shelters and evacuation routes
 
 **Supply checklist (in addition to standard 72-hour kit):**
+
 - [ ] Plywood or storm shutters for all windows
 - [ ] Generator (if used: NEVER run indoors or in garage)
 - [ ] Fuel for generator (stored safely outside)
@@ -126,14 +135,15 @@ metadata:
 
 ### Hurricane Watch vs. Warning
 
-| Alert | Meaning | Action |
-|-------|---------|--------|
-| Hurricane Watch | Hurricane conditions possible within 48 hours | Begin preparation, review plans, fill gas tanks |
-| Hurricane Warning | Hurricane conditions expected within 36 hours | Complete preparation, evacuate if ordered |
-| Storm Surge Watch | Life-threatening storm surge possible | Prepare for flooding, know elevation |
-| Storm Surge Warning | Life-threatening storm surge expected | Evacuate from surge zones immediately |
+| Alert               | Meaning                                       | Action                                          |
+| ------------------- | --------------------------------------------- | ----------------------------------------------- |
+| Hurricane Watch     | Hurricane conditions possible within 48 hours | Begin preparation, review plans, fill gas tanks |
+| Hurricane Warning   | Hurricane conditions expected within 36 hours | Complete preparation, evacuate if ordered       |
+| Storm Surge Watch   | Life-threatening storm surge possible         | Prepare for flooding, know elevation            |
+| Storm Surge Warning | Life-threatening storm surge expected         | Evacuate from surge zones immediately           |
 
 ### During a Hurricane (If Sheltering in Place)
+
 - Stay indoors, away from windows
 - Move to an interior room on the lowest floor
 - Close all interior doors (adds structural support)
@@ -142,6 +152,7 @@ metadata:
 - Turn refrigerator and freezer to coldest settings (food preservation during outage)
 
 ### After a Hurricane
+
 - Do not return home until authorities say it is safe
 - Avoid floodwater (contaminated, may hide hazards, can be electrically charged)
 - Document all damage with photos and video before cleanup
@@ -154,12 +165,14 @@ metadata:
 ## Disaster Type 3: Tornado Preparedness
 
 ### Tornado Risk Assessment
+
 - Know if you are in Tornado Alley or a tornado-prone area
 - Tornado season varies by region (spring and summer in most areas)
 - Tornadoes can happen at any time of day but are most common afternoon through evening
 - Mobile homes are extremely vulnerable -- identify a nearby sturdy shelter
 
 ### Preparation Checklist
+
 - [ ] Identify your safe room (interior room, lowest floor, no windows)
 - [ ] Basement, storm cellar, or reinforced interior room (bathroom, closet)
 - [ ] If in a mobile home, identify the nearest sturdy building
@@ -170,12 +183,13 @@ metadata:
 
 ### Tornado Watch vs. Warning
 
-| Alert | Meaning | Action |
-|-------|---------|--------|
-| Tornado Watch | Conditions are favorable for tornadoes | Stay alert, review plan, monitor weather |
-| Tornado Warning | A tornado has been sighted or detected on radar | Take shelter immediately |
+| Alert           | Meaning                                         | Action                                   |
+| --------------- | ----------------------------------------------- | ---------------------------------------- |
+| Tornado Watch   | Conditions are favorable for tornadoes          | Stay alert, review plan, monitor weather |
+| Tornado Warning | A tornado has been sighted or detected on radar | Take shelter immediately                 |
 
 ### During a Tornado
+
 - Go to your designated safe room immediately
 - Get under a sturdy piece of furniture
 - Cover yourself with a mattress, heavy blankets, or pillows
@@ -189,11 +203,13 @@ metadata:
 ## Disaster Type 4: Flood Preparedness
 
 ### Flood Risk Assessment
+
 - Check FEMA flood maps (msc.fema.gov) for your property's flood zone
 - Understand that flood damage is NOT covered by standard homeowner's insurance
 - National Flood Insurance Program (NFIP) policies have a 30-day waiting period
 
 ### Preparation Checklist
+
 - [ ] Know your flood zone designation
 - [ ] Purchase flood insurance (do not wait until a storm is coming)
 - [ ] Elevate electrical systems, water heaters, and appliances above flood level
@@ -215,6 +231,7 @@ metadata:
 - Avoid walking through floodwater (hidden hazards, contamination, electrical danger)
 
 ### After a Flood
+
 - Do not return until authorities declare it safe
 - Document all damage before cleanup
 - Photograph everything for insurance claims
@@ -231,12 +248,14 @@ metadata:
 ### Defensible Space (If You Live in a Wildfire Interface Area)
 
 **Zone 1 (0-5 feet from home):**
+
 - No combustible materials (mulch, plants, storage)
 - Non-flammable ground cover (gravel, concrete)
 - Clean roof and gutters of debris
 - Screen vents with 1/8-inch metal mesh
 
 **Zone 2 (5-30 feet from home):**
+
 - Space trees so crowns are 10+ feet apart
 - Remove dead vegetation and debris
 - Keep grass mowed to 4 inches or shorter
@@ -244,6 +263,7 @@ metadata:
 - Move firewood and propane tanks away from structures
 
 **Zone 3 (30-100 feet from home):**
+
 - Reduce density of trees and brush
 - Remove dead trees and vegetation
 - Create fuel breaks (driveways, gravel paths)
@@ -253,6 +273,7 @@ metadata:
 **When to go:** If authorities issue an evacuation order, leave IMMEDIATELY. Do not wait. Wildfires move faster than you think, especially uphill and with wind.
 
 **Go-bag essentials for wildfire:**
+
 - Standard go-bag plus:
 - N95 masks (smoke protection)
 - Eye protection (goggles)
@@ -261,6 +282,7 @@ metadata:
 - Charging cables and batteries
 
 **Before leaving:**
+
 - Close all windows and doors (do not lock -- firefighters may need access)
 - Remove flammable curtains from windows
 - Move combustible furniture to center of rooms
@@ -273,6 +295,7 @@ metadata:
 ## Disaster Type 6: Winter Storm Preparedness
 
 ### Preparation Checklist
+
 - [ ] Insulate pipes (especially in unheated areas)
 - [ ] Service heating system before winter
 - [ ] Stock heating fuel (propane, wood, heating oil)
@@ -283,6 +306,7 @@ metadata:
 - [ ] Stock extra medications (may not be able to get to pharmacy)
 
 **Winter storm supply additions:**
+
 - [ ] Extra blankets and warm clothing
 - [ ] Hand and foot warmers
 - [ ] High-calorie food that requires no cooking
@@ -291,6 +315,7 @@ metadata:
 - [ ] Extra pet food and supplies
 
 ### Vehicle Winter Emergency Kit
+
 - [ ] Blanket or sleeping bag
 - [ ] Extra warm clothing (hat, gloves, boots)
 - [ ] Non-perishable snacks and water
@@ -303,6 +328,7 @@ metadata:
 - [ ] Emergency flares or reflective triangles
 
 ### During a Winter Storm
+
 - Stay indoors if possible
 - If you must drive, tell someone your route and expected arrival time
 - If stranded in your vehicle, stay with the car, run the engine 10 minutes per hour for heat (crack a window to prevent CO poisoning), tie a bright cloth to the antenna
@@ -314,6 +340,7 @@ metadata:
 ## Post-Disaster Recovery
 
 ### Immediate Recovery Priorities
+
 1. Account for all family members
 2. Assess injuries and provide first aid
 3. Check structural safety before entering buildings
@@ -324,6 +351,7 @@ metadata:
 8. Apply for SBA disaster loans (if eligible)
 
 ### Insurance Review Checklist (Do This Before a Disaster)
+
 - [ ] Review homeowner's/renter's policy coverage and limits
 - [ ] Understand what is and is not covered
 - [ ] Purchase flood insurance if in or near a flood zone (not covered by standard policies)
@@ -338,6 +366,7 @@ metadata:
 ## Community Resilience
 
 ### Building Community Preparedness
+
 - Know your neighbors (especially vulnerable individuals -- elderly, disabled, those living alone)
 - Join or start a Community Emergency Response Team (CERT)
 - Participate in neighborhood watch and community groups
@@ -347,6 +376,7 @@ metadata:
 - Participate in local emergency preparedness exercises and drills
 
 ### Helping After a Disaster
+
 - Donate cash to established organizations (not unsolicited goods)
 - Volunteer through organized channels (Red Cross, local emergency management)
 - Check on neighbors, especially vulnerable populations
@@ -355,7 +385,6 @@ metadata:
 
 The time to prepare is before a disaster strikes. Know your risks, make a plan, build your supplies, and practice with your family. Even basic preparation dramatically improves outcomes for you and your community.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -363,7 +392,6 @@ The time to prepare is before a disaster strikes. Know your risks, make a plan, 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -384,14 +412,12 @@ The time to prepare is before a disaster strikes. Know your risks, make a plan, 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

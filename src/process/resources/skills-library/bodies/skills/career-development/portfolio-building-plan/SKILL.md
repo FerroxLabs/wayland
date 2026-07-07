@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "freelancing career planning template"
-  category: "career-development"
-  subcategory: "freelancing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'freelancing career planning template'
+  category: 'career-development'
+  subcategory: 'freelancing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Portfolio Building Plan
 
 ## When to Use
@@ -471,6 +472,7 @@ When the portfolio is already live but not converting, the diagnosis must preced
 **Confidential/NDA projects:** 2 (handled via anonymization protocol -- see notes)
 
 **Selection criteria weights for this portfolio:**
+
 1. Relevance to SaaS product teams -- highest weight (SaaS context is the primary filter)
 2. Demonstrability of process and decision-making (especially user research and interaction rationale)
 3. Measurability of outcome (activation rates, retention metrics, NPS changes, support ticket reduction, or qualitative business impact)
@@ -479,47 +481,47 @@ When the portfolio is already live but not converting, the diagnosis must preced
 
 **Project Selection Score Matrix:**
 
-| Project | Relevance (1-5) | Process Story (1-5) | Measurability (1-5) | Recency (1-5) | Variety Contribution (1-5) | Total (/25) | Status |
-|---------|----------------|---------------------|---------------------|--------------|---------------------------|-------------|--------|
-| SaaS dashboard redesign (Client A) | 5 | 5 | 4 | 5 | 4 | 23 | **Selected -- Anchor** |
-| Onboarding flow redesign (Client B) | 5 | 4 | 5 | 4 | 4 | 22 | **Selected** |
-| NDA: Enterprise SaaS nav overhaul | 5 | 5 | 3 | 5 | 3 | 21 | **Selected -- Anonymized** |
-| Landing page + pricing page redesign (Client C) | 4 | 3 | 5 | 4 | 4 | 20 | **Selected** |
-| Mobile app UX -- personal project | 3 | 4 | 2 | 5 | 5 | 19 | **Selected** |
-| NDA: B2B checkout flow | 4 | 2 | 3 | 5 | 2 | 16 | Excluded |
-| E-commerce website redesign (3.5 years old) | 2 | 3 | 3 | 2 | 3 | 13 | Excluded |
-| Brand identity project (not UX) | 1 | 3 | 2 | 4 | 2 | 12 | Excluded |
+| Project                                         | Relevance (1-5) | Process Story (1-5) | Measurability (1-5) | Recency (1-5) | Variety Contribution (1-5) | Total (/25) | Status                     |
+| ----------------------------------------------- | --------------- | ------------------- | ------------------- | ------------- | -------------------------- | ----------- | -------------------------- |
+| SaaS dashboard redesign (Client A)              | 5               | 5                   | 4                   | 5             | 4                          | 23          | **Selected -- Anchor**     |
+| Onboarding flow redesign (Client B)             | 5               | 4                   | 5                   | 4             | 4                          | 22          | **Selected**               |
+| NDA: Enterprise SaaS nav overhaul               | 5               | 5                   | 3                   | 5             | 3                          | 21          | **Selected -- Anonymized** |
+| Landing page + pricing page redesign (Client C) | 4               | 3                   | 5                   | 4             | 4                          | 20          | **Selected**               |
+| Mobile app UX -- personal project               | 3               | 4                   | 2                   | 5             | 5                          | 19          | **Selected**               |
+| NDA: B2B checkout flow                          | 4               | 2                   | 3                   | 5             | 2                          | 16          | Excluded                   |
+| E-commerce website redesign (3.5 years old)     | 2               | 3                   | 3                   | 2             | 3                          | 13          | Excluded                   |
+| Brand identity project (not UX)                 | 1               | 3                   | 2                   | 4             | 2                          | 12          | Excluded                   |
 
 **Final selected portfolio pieces:**
 
-| Display Order | Project | Client/Context | Anchor Skill | Why This Position |
-|--------------|---------|---------------|-------------|------------------|
-| 1 (Anchor) | SaaS dashboard redesign | Client A (SaaS analytics company) | Information architecture, data visualization | Strongest SaaS case study; clear before/after; measurable outcome; sets quality bar |
-| 2 | Onboarding flow redesign | Client B (project management SaaS) | User research, interaction design | Builds on anchor's SaaS theme; demonstrates research depth that dashboard piece does not |
-| 3 | Enterprise SaaS navigation overhaul | Enterprise SaaS company -- anonymized | IA, stakeholder management, enterprise UX | Shows scale and enterprise context; anonymization handled; adds seniority signal |
-| 4 | Landing page + pricing page | Client C (SaaS subscription tool) | Conversion optimization, visual design | Adds conversion and visual design skills; strong before/after metrics |
-| 5 | Mobile app UX -- personal project | Personal project (task management concept) | Mobile UX, prototyping, self-directed research | Rounds out mobile/native skills; framed honestly as personal project |
+| Display Order | Project                             | Client/Context                             | Anchor Skill                                   | Why This Position                                                                        |
+| ------------- | ----------------------------------- | ------------------------------------------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 1 (Anchor)    | SaaS dashboard redesign             | Client A (SaaS analytics company)          | Information architecture, data visualization   | Strongest SaaS case study; clear before/after; measurable outcome; sets quality bar      |
+| 2             | Onboarding flow redesign            | Client B (project management SaaS)         | User research, interaction design              | Builds on anchor's SaaS theme; demonstrates research depth that dashboard piece does not |
+| 3             | Enterprise SaaS navigation overhaul | Enterprise SaaS company -- anonymized      | IA, stakeholder management, enterprise UX      | Shows scale and enterprise context; anonymization handled; adds seniority signal         |
+| 4             | Landing page + pricing page         | Client C (SaaS subscription tool)          | Conversion optimization, visual design         | Adds conversion and visual design skills; strong before/after metrics                    |
+| 5             | Mobile app UX -- personal project   | Personal project (task management concept) | Mobile UX, prototyping, self-directed research | Rounds out mobile/native skills; framed honestly as personal project                     |
 
 **Skill coverage map:**
 
-| Skill/Service | Demonstrated By |
-|--------------|----------------|
-| User research (interviews, synthesis) | Onboarding flow redesign (Project 2) |
-| Information architecture | Dashboard redesign (Project 1), Enterprise nav (Project 3) |
-| Interaction design | Onboarding flow (Project 2), Mobile app (Project 5) |
-| Data visualization design | Dashboard redesign (Project 1) |
-| Conversion optimization | Landing/pricing page (Project 4) |
-| Enterprise/stakeholder UX | Enterprise nav overhaul (Project 3) |
-| Mobile/native UX | Mobile app personal project (Project 5) |
-| Usability testing | Not yet covered -- note for next case study addition |
+| Skill/Service                         | Demonstrated By                                            |
+| ------------------------------------- | ---------------------------------------------------------- |
+| User research (interviews, synthesis) | Onboarding flow redesign (Project 2)                       |
+| Information architecture              | Dashboard redesign (Project 1), Enterprise nav (Project 3) |
+| Interaction design                    | Onboarding flow (Project 2), Mobile app (Project 5)        |
+| Data visualization design             | Dashboard redesign (Project 1)                             |
+| Conversion optimization               | Landing/pricing page (Project 4)                           |
+| Enterprise/stakeholder UX             | Enterprise nav overhaul (Project 3)                        |
+| Mobile/native UX                      | Mobile app personal project (Project 5)                    |
+| Usability testing                     | Not yet covered -- note for next case study addition       |
 
 **Excluded projects and reasons:**
 
-| Project | Reason for Exclusion |
-|---------|---------------------|
-| NDA: B2B checkout flow | Process documentation is thin -- cannot write a compelling approach section; the interaction design skill is already covered by stronger pieces |
-| E-commerce website redesign | 3.5 years old; e-commerce is not SaaS; visual design standards have advanced since this project; irrelevant to target audience |
-| Brand identity project | Not UX work; including it dilutes the UX specialization signal and confuses target clients about what the user sells |
+| Project                     | Reason for Exclusion                                                                                                                            |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| NDA: B2B checkout flow      | Process documentation is thin -- cannot write a compelling approach section; the interaction design skill is already covered by stronger pieces |
+| E-commerce website redesign | 3.5 years old; e-commerce is not SaaS; visual design standards have advanced since this project; irrelevant to target audience                  |
+| Brand identity project      | Not UX work; including it dilutes the UX specialization signal and confuses target clients about what the user sells                            |
 
 ---
 
@@ -531,6 +533,6 @@ When the portfolio is already live but not converting, the diagnosis must preced
 
 **Site structure:**
 
-| Page | URL Slug | Primary Job | Key Elements |
-|------|----------|------------|-------------|
-| Homepage | / | Convert visitors to case study
+| Page     | URL Slug | Primary Job                    | Key Elements |
+| -------- | -------- | ------------------------------ | ------------ |
+| Homepage | /        | Convert visitors to case study |

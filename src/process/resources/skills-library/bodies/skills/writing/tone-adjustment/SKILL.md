@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing analysis"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing analysis'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Tone Adjustment
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to make text "more formal," "more casual," "friendlier," "more authoritative," "more empathetic," "less aggressive," "warmer," "more urgent," or any similar register-shift request
 - The user says their current draft feels "off" or "not quite right" and the problem is how it sounds rather than what it says
 - The user needs to repurpose existing content for a new audience (the same product update email rewritten for executives vs. frontline employees, or a technical explanation adapted from an expert audience to a general one)
@@ -29,6 +31,7 @@ metadata:
 - The user is preparing to communicate across a cultural or organizational hierarchy shift (writing up to a board, writing down to new hires, writing across to peers in another department)
 
 **Do NOT use this skill when:**
+
 - The user wants to restructure paragraphs, change section order, or reorganize argument flow -- use `structural-editing`
 - The user wants to fix grammar, spelling, or punctuation errors -- use `proofreading`
 - The user wants to change what the text says, add facts, remove claims, or update the content -- use `copy-editing`
@@ -93,6 +96,7 @@ This mapping prevents the most common error in tone adjustment: shifting one dim
 Work through each dimension that requires change, applying the correct techniques. Do not work sentence-by-sentence randomly -- work dimension by dimension to maintain consistency.
 
 **Increasing Formality (score 1--5):**
+
 - Remove contractions entirely (it's → it is, we've → we have, can't → cannot). In highly formal contexts, eliminate even possessive contractions.
 - Replace phrasal verbs with single-word equivalents: "look into" → "investigate," "find out" → "determine," "put off" → "postpone"
 - Replace Anglo-Saxon colloquials with Latinate equivalents where appropriate: "help" → "assist," "use" → "utilize" (sparingly -- "utilize" is overused and often wrong), "start" → "commence," "end" → "conclude"
@@ -101,6 +105,7 @@ Work through each dimension that requires change, applying the correct technique
 - Replace first-name references with title + surname in business contexts
 
 **Decreasing Formality:**
+
 - Introduce contractions at a natural rate (approximately one per 2--4 sentences for conversational tone)
 - Replace Latinate nominalizations with their verb forms: "the implementation of changes" → "implementing changes"; "the provision of assistance" → "helping"
 - Shorten sentences -- target 15--20 words average for conversational copy vs. 25--35 for formal prose
@@ -108,6 +113,7 @@ Work through each dimension that requires change, applying the correct technique
 - Use direct address (you, your) rather than "the reader" or "users"
 
 **Increasing Warmth:**
+
 - Acknowledge the reader's situation or perspective before making a request or assertion: "I know this comes at a busy time -- here is what we need."
 - Shift from third person ("employees are encouraged to") to second person ("you are welcome to," "we encourage you to")
 - Add transitional phrases that signal care rather than mere transaction: "I wanted to make sure you had everything you need before the deadline."
@@ -115,12 +121,14 @@ Work through each dimension that requires change, applying the correct technique
 - Reduce imperative mood for non-urgent directives: "Submit by Friday" → "Please submit by Friday" or "When you get a chance, could you submit this by Friday?"
 
 **Decreasing Warmth (for objective, institutional, or legal contexts):**
+
 - Move to third person: "Users may request a refund" instead of "You can ask for a refund"
 - Remove personal anecdotes, emotional acknowledgment, or empathetic framing
 - Replace informal transitional language with formal connectives: "Also" → "Furthermore," "But" → "However," "So" → "Therefore"
 - Remove exclamations and enthusiasm markers
 
 **Increasing Authority:**
+
 - Eliminate hedging language: delete "might," "perhaps," "it seems," "arguably," "one could argue," "I think," "in my opinion" unless the hedging is factually necessary (i.e., genuine uncertainty)
 - Convert conditional constructions to declarative: "This could potentially improve performance" → "This improves performance"
 - Replace passive voice with active voice and name the agent: "Mistakes were made" → "The team made three errors"
@@ -128,12 +136,14 @@ Work through each dimension that requires change, applying the correct technique
 - Replace vague quantifiers ("many," "some," "often") with specific ones ("73%," "three of the five teams," "in Q3 2023")
 
 **Decreasing Authority (softening, hedging for diplomatic contexts):**
+
 - Add hedging language deliberately to soften assertions: "This approach tends to improve outcomes" rather than "This approach improves outcomes"
 - Use conditional mood to invite collaboration: "You might consider..." "One option would be..."
 - Add explicit acknowledgment that other views exist: "While others may approach this differently..."
 - Replace declarative statements with questions when the goal is to prompt reflection rather than direct
 
 **Increasing Energy:**
+
 - Shorten sentences. The most impactful individual change in energy is sentence length. Cut average sentence length by 30--40% to create urgency.
 - Move verbs forward. Start sentences with their subjects and put the verb in position 2 or 3.
 - Remove nominalizations (turning verbs to nouns). "Make a decision" → "Decide." "Provide support" → "Support." "Conduct an investigation" → "Investigate."
@@ -141,6 +151,7 @@ Work through each dimension that requires change, applying the correct technique
 - Vary sentence rhythm: mix one short punchy sentence with two medium ones. The short one lands harder because of the contrast.
 
 **Decreasing Energy (for deliberate, measured contexts):**
+
 - Increase average sentence length with well-constructed compound and complex sentences
 - Add qualifying clauses that demonstrate thoroughness: "...taking into account the constraints of the current budget cycle..."
 - Replace imperatives with conditional or passive constructions
@@ -172,6 +183,7 @@ Flag any sentence where meaning preservation required a compromise and explain t
 ### Step 7: Produce the Full Deliverable
 
 Deliver the output in three parts:
+
 1. The before/after comparison table with tone markers for every substantive change
 2. The full adjusted document, ready to use
 3. The adjustment summary with dimension scores, techniques applied, and meaning preservation notes
@@ -272,27 +284,35 @@ Deliver the output in three parts:
 ## Edge Cases
 
 ### "Formal but Friendly" and Other Apparently Contradictory Requests
+
 These requests reveal a common misconception: that formality and warmth are opposites. They are not -- they are independent dimensions. A letter from a hospital consultant explaining a difficult diagnosis can be highly formal (Latinate vocabulary, no contractions, complex syntax) and highly warm (explicit empathetic acknowledgment, first-person engagement with the patient's situation, validation of their concern before delivering information). The technique is to raise the formality dimension using vocabulary and syntax choices while simultaneously raising the warmth dimension using pronoun choices, empathetic framing, and acknowledgment of the reader's experience. The result is the register of a skilled professional who respects both protocol and people. Show the user the six-dimension matrix and explain that you are targeting high scores on both axes independently.
 
 ### Adjusting Tone in Only a Section of a Larger Document
+
 When the user specifies that only one section needs to change, make the adjustment to that section -- but also flag the tonal boundary. The adjusted section will create a seam in the document where the register shifts. In some cases (e.g., a formal report with a deliberately conversational executive summary) this is intentional and appropriate. In others, it will feel jarring. Offer to smooth the two or three sentences at each boundary of the adjusted section to create a gradual transition rather than an abrupt register shift. Also note to the user that the rest of the document, if it will be read alongside the adjusted section, may now feel inconsistent by comparison.
 
 ### Source Text with Multiple Tonal Registers Already Present
+
 Some documents mix registers intentionally -- a marketing email that starts warm and casual and shifts to formal for legal disclaimers, or a research article with a conversational abstract and technical body. When asked to "adjust the tone" of such a document, clarify which sections are in scope. Do not flatten a deliberately mixed-register document into uniform tone without confirming that uniformity is the goal. Map the existing registers in your diagnosis and ask whether each section should be adjusted or preserved.
 
 ### Culturally Specific Registers (AAVE, Formal British English, Indian English business norms, etc.)
+
 Cultural register is not incorrect tone -- it is a valid linguistic variety with its own formality-warmth-authority spectrum. If a user writes in a culturally specific register and asks to "make it more professional," clarify: professional by whose standard? A request to shift from AAVE to General American English is not a tone adjustment -- it is a register change with cultural and identity implications that the user should make consciously. Ask explicitly: "Are you looking to adjust within the register you're already using, or to shift to a different variety entirely?" Do not assume that the user's cultural register is informal or unprofessional by default.
 
 ### Emotionally Charged Source Text (Complaints, Apologies, Conflict Communication)
+
 When the source text contains a complaint, grievance, demand, or emotional escalation, tone adjustment must not dilute the legitimacy of the underlying position. Softening a complaint should not become sanitizing it. If the user wants to make an angry email "more professional," the adjusted version should communicate the same substance -- the same concern, the same accountability ask, the same consequence -- with more controlled, formal language rather than with reduced stakes. Watch for these specific transformation traps: "this is unacceptable" becoming "we have some concerns" (stakes reduced), "you failed to deliver" becoming "there may have been a miscommunication" (accountability shifted), "I expect a refund" becoming "I would appreciate your consideration" (demand weakened). Flag any such shift and offer the user the choice between the toned-down version and a version that preserves full assertiveness at higher formality.
 
 ### User Is Unsure What Tone They Want
+
 When a user says "it doesn't feel right but I'm not sure what to change," do not begin adjusting immediately. Use the six-dimension scale as a diagnostic conversation tool. Ask the user: "If you had to say which of these is the biggest problem -- it sounds too stiff/too casual, too cold/too personal, too uncertain/too pushy, too rushed/too slow -- which would it be?" From that answer, identify which single dimension is the primary problem and adjust that dimension by one increment (e.g., formality from 4 to 3). Show the user the result and ask if it feels closer. Iterative one-dimension adjustment is more useful than a full multi-dimension overhaul when the user cannot articulate the target.
 
 ### The Author's Voice Is the Problem
+
 Sometimes what feels like a tone problem is actually a voice consistency problem -- the text sounds like it was written by committee, or it has sections clearly written by different contributors with different natural registers. In this case, tone adjustment alone cannot fix the problem. Identify this scenario early: if the inconsistency is between sections rather than between the text and its target register, note that the issue is voice consistency rather than tone and that a broader editing pass may be needed.
 
 ### Legal, Medical, or Compliance Text
+
 Certain documents -- terms of service, medical consent forms, compliance notices, insurance documents -- have regulatory constraints on their language. Tone adjustment must work within the compliance envelope. Raising warmth or reducing formality in such a document may not be possible beyond a certain point without creating regulatory or legal risk. Flag this explicitly at the start of the report: "This document appears to contain regulated language. Tone adjustments have been limited to sections that do not affect legal or compliance language. The following sections have been left unchanged: [list]."
 
 ---
@@ -317,7 +337,7 @@ Certain documents -- terms of service, medical consent forms, compliance notices
 ### Tone Dimension Analysis
 
 | Dimension    | Source Score (1–5) | Target Score (1–5) | Change |
-|--------------|--------------------|--------------------|--------|
+| ------------ | ------------------ | ------------------ | ------ |
 | Formality    | 2                  | 4                  | ↑↑     |
 | Warmth       | 3                  | 3                  | =      |
 | Authority    | 1                  | 4                  | ↑↑↑    |
@@ -331,17 +351,17 @@ Certain documents -- terms of service, medical consent forms, compliance notices
 
 ### Before/After Comparison
 
-| # | Original | Adjusted | Dimension | Technique Applied |
-|---|----------|----------|-----------|-------------------|
-| 1 | "Hi everyone, I just wanted to give you a quick update on where things stand." | "Team, this is your Q3 update." | Formality ↑, Authority ↑ | Removed apologetic opener "just wanted to"; replaced vague "where things stand" with direct declarative; removed contraction |
-| 2 | "So Q3 was a bit of a mixed bag" | "Q3 results were mixed." | Authority ↑, Formality ↑ | Removed filler "So"; removed hedging diminutive "a bit of"; declarative statement replaces vague idiom |
-| 3 | "we sort of missed our revenue target (came in at $2.1M vs. the $2.4M we were hoping for)" | "Revenue came in at $2.1M against a $2.4M target -- a 12.5% shortfall." | Authority ↑, Concreteness ↑ | Removed "sort of" hedge; removed apologetic "we were hoping for" (replaced with neutral "target"); added calculated percentage to transform vague gap into specific metric |
-| 4 | "but I think we made some good progress in other areas" | "Performance in other areas was strong." | Authority ↑ | Removed "I think" opinion hedge; replaced vague "good progress" with assertive evaluation; removed qualifying "some" |
-| 5 | "Subscriptions are growing, which is great" | "Subscription growth accelerated in Q3." | Authority ↑, Energy ↑, Concreteness ↑ | Removed approval marker "which is great" (writer's enthusiasm is not relevant to investors); replaced with declarative; verb "accelerated" is stronger than "growing" and implies direction |
-| 6 | "we've been kind of working on some product improvements that I believe will hopefully pay off" | "We have three product improvements in active development, with release planned for Q4." | Authority ↑↑, Concreteness ↑↑ | Eliminated "kind of," "I believe," and "hopefully" -- all hedges; replaced vague "some product improvements" with specific quantity; replaced vague future hope with concrete timeline |
-| 7 | "We'll try to do better next quarter." | "Our Q4 target is $2.6M, with subscription growth as the primary driver." | Authority ↑↑, Concreteness ↑↑ | "Try to do better" is the most damaging sentence in the original -- it signals lack of confidence and lack of a plan to investors. Replaced with a specific target and a named strategy. Note: if a specific Q4 target has not been set, use "Our Q4 revenue target will be communicated at the board meeting on [date]." |
-| 8 | "Sorry for the shorter update -- things have been pretty hectic." | [Removed entirely] | Authority ↑, Formality ↑ | Apologies for communication brevity are not appropriate in investor updates. Investors read short updates as efficient, not inadequate. The apology undermines authority without adding value. |
-| 9 | "Let me know if you have any questions!" | "Questions and follow-up requests can be directed to [contact] or raised at the Q3 call on [date]." | Formality ↑, Authority ↑ | Replaced informal closing with structured invitation; replaced enthusiasm marker with specific action channel and date |
+| #   | Original                                                                                        | Adjusted                                                                                            | Dimension                             | Technique Applied                                                                                                                                                                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "Hi everyone, I just wanted to give you a quick update on where things stand."                  | "Team, this is your Q3 update."                                                                     | Formality ↑, Authority ↑              | Removed apologetic opener "just wanted to"; replaced vague "where things stand" with direct declarative; removed contraction                                                                                                                                                                                              |
+| 2   | "So Q3 was a bit of a mixed bag"                                                                | "Q3 results were mixed."                                                                            | Authority ↑, Formality ↑              | Removed filler "So"; removed hedging diminutive "a bit of"; declarative statement replaces vague idiom                                                                                                                                                                                                                    |
+| 3   | "we sort of missed our revenue target (came in at $2.1M vs. the $2.4M we were hoping for)"      | "Revenue came in at $2.1M against a $2.4M target -- a 12.5% shortfall."                             | Authority ↑, Concreteness ↑           | Removed "sort of" hedge; removed apologetic "we were hoping for" (replaced with neutral "target"); added calculated percentage to transform vague gap into specific metric                                                                                                                                                |
+| 4   | "but I think we made some good progress in other areas"                                         | "Performance in other areas was strong."                                                            | Authority ↑                           | Removed "I think" opinion hedge; replaced vague "good progress" with assertive evaluation; removed qualifying "some"                                                                                                                                                                                                      |
+| 5   | "Subscriptions are growing, which is great"                                                     | "Subscription growth accelerated in Q3."                                                            | Authority ↑, Energy ↑, Concreteness ↑ | Removed approval marker "which is great" (writer's enthusiasm is not relevant to investors); replaced with declarative; verb "accelerated" is stronger than "growing" and implies direction                                                                                                                               |
+| 6   | "we've been kind of working on some product improvements that I believe will hopefully pay off" | "We have three product improvements in active development, with release planned for Q4."            | Authority ↑↑, Concreteness ↑↑         | Eliminated "kind of," "I believe," and "hopefully" -- all hedges; replaced vague "some product improvements" with specific quantity; replaced vague future hope with concrete timeline                                                                                                                                    |
+| 7   | "We'll try to do better next quarter."                                                          | "Our Q4 target is $2.6M, with subscription growth as the primary driver."                           | Authority ↑↑, Concreteness ↑↑         | "Try to do better" is the most damaging sentence in the original -- it signals lack of confidence and lack of a plan to investors. Replaced with a specific target and a named strategy. Note: if a specific Q4 target has not been set, use "Our Q4 revenue target will be communicated at the board meeting on [date]." |
+| 8   | "Sorry for the shorter update -- things have been pretty hectic."                               | [Removed entirely]                                                                                  | Authority ↑, Formality ↑              | Apologies for communication brevity are not appropriate in investor updates. Investors read short updates as efficient, not inadequate. The apology undermines authority without adding value.                                                                                                                            |
+| 9   | "Let me know if you have any questions!"                                                        | "Questions and follow-up requests can be directed to [contact] or raised at the Q3 call on [date]." | Formality ↑, Authority ↑              | Replaced informal closing with structured invitation; replaced enthusiasm marker with specific action channel and date                                                                                                                                                                                                    |
 
 ---
 
@@ -372,12 +392,14 @@ Questions and follow-up requests can be directed to [contact] or raised at the Q
 ### Adjustment Summary
 
 **Dimensions shifted:**
+
 - Formality: 2 → 4 (significant increase -- contractions removed, colloquialisms eliminated, register raised throughout)
 - Authority: 1 → 4 (major increase -- this was the primary problem in the source text)
 - Concreteness: 2 → 4 (major increase -- vague language replaced with specific metrics and timelines)
 - Energy: 2 → 3 (moderate increase -- sentence length reduced, nominalization removed, stronger verbs introduced)
 
 **Techniques applied:**
+
 - **Hedging elimination:** Removed "sort of," "kind of," "I think," "I believe," "hopefully," "a bit of," "some" throughout
 - **Filler opener removal:** Removed "So," "Just wanted to," "Hi everyone" where they weakened the opening
 - **Vague quantifier replacement:** "Some good progress" → specific claims; "some product improvements" → "three product improvements"

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility breathing checklist template guide testing automation best-practices"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility breathing checklist template guide testing automation best-practices'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Assistive Technology Guide
 
 You are an expert in assistive technology compatibility, specializing in ensuring digital products work with the full range of input and output devices that people with disabilities use. Beyond screen readers, you cover switch access, eye tracking, voice control, screen magnification, braille displays, head pointers, and mouth sticks. You help teams understand these technologies, design for them, and test with them.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about assistive technology guide techniques or best practices
 - User needs guidance on assistive technology guide concepts
 - User wants to implement or improve their approach to assistive technology guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of assistive technology guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -46,31 +47,31 @@ You are an expert in assistive technology compatibility, specializing in ensurin
 
 ### Input Technologies
 
-| Technology | Users | How It Works |
-|-----------|-------|-------------|
-| **Screen reader** | Blind, low vision | Reads content aloud; keyboard navigation |
-| **Screen magnifier** | Low vision | Enlarges portion of screen 2x-16x |
-| **Voice control** | Motor disabilities, RSI | Speaks commands and dictates text |
-| **Switch access** | Severe motor disabilities | One or two buttons scan through options |
-| **Eye tracking** | ALS, spinal cord injury, cerebral palsy | Camera tracks gaze to move cursor |
-| **Head pointer** | Limited hand use | Head-mounted pointer controls cursor |
-| **Mouth stick / head wand** | Quadriplegia | Physical pointer for keyboard/screen |
-| **Sip-and-puff** | Severe motor disabilities | Breath pressure acts as switch input |
-| **Braille display** | Blind, deafblind | Tactile output of text; input via braille keys |
-| **Alternative keyboard** | Motor, cognitive | Large keys, key guards, reduced layouts |
-| **Joystick / trackball** | Motor disabilities | Alternative pointing devices |
-| **On-screen keyboard** | Motor disabilities | Virtual keyboard operated by any pointer |
+| Technology                  | Users                                   | How It Works                                   |
+| --------------------------- | --------------------------------------- | ---------------------------------------------- |
+| **Screen reader**           | Blind, low vision                       | Reads content aloud; keyboard navigation       |
+| **Screen magnifier**        | Low vision                              | Enlarges portion of screen 2x-16x              |
+| **Voice control**           | Motor disabilities, RSI                 | Speaks commands and dictates text              |
+| **Switch access**           | Severe motor disabilities               | One or two buttons scan through options        |
+| **Eye tracking**            | ALS, spinal cord injury, cerebral palsy | Camera tracks gaze to move cursor              |
+| **Head pointer**            | Limited hand use                        | Head-mounted pointer controls cursor           |
+| **Mouth stick / head wand** | Quadriplegia                            | Physical pointer for keyboard/screen           |
+| **Sip-and-puff**            | Severe motor disabilities               | Breath pressure acts as switch input           |
+| **Braille display**         | Blind, deafblind                        | Tactile output of text; input via braille keys |
+| **Alternative keyboard**    | Motor, cognitive                        | Large keys, key guards, reduced layouts        |
+| **Joystick / trackball**    | Motor disabilities                      | Alternative pointing devices                   |
+| **On-screen keyboard**      | Motor disabilities                      | Virtual keyboard operated by any pointer       |
 
 ### Output Technologies
 
-| Technology | Users | What It Provides |
-|-----------|-------|-----------------|
-| **Screen reader speech** | Blind | Audio output of screen content |
-| **Braille display** | Deafblind, blind | Tactile text output |
-| **Screen magnifier** | Low vision | Enlarged visual content |
-| **Captions** | Deaf, hard of hearing | Text for audio content |
-| **Audio descriptions** | Blind | Narration of visual content |
-| **Haptic feedback** | Deaf, deafblind | Vibration alerts |
+| Technology               | Users                 | What It Provides               |
+| ------------------------ | --------------------- | ------------------------------ |
+| **Screen reader speech** | Blind                 | Audio output of screen content |
+| **Braille display**      | Deafblind, blind      | Tactile text output            |
+| **Screen magnifier**     | Low vision            | Enlarged visual content        |
+| **Captions**             | Deaf, hard of hearing | Text for audio content         |
+| **Audio descriptions**   | Blind                 | Narration of visual content    |
+| **Haptic feedback**      | Deaf, deafblind       | Vibration alerts               |
 
 ## Switch Access
 
@@ -83,6 +84,7 @@ Switch users interact with digital interfaces using one or more physical switche
 3. **Group scanning**: Items are grouped; first select a group, then scan within it
 
 Switch configurations:
+
 - **One switch**: Auto-scan with single press to select (most common)
 - **Two switches**: One to advance, one to select
 - **Multiple switches**: Directional scanning or direct selection
@@ -90,6 +92,7 @@ Switch configurations:
 ### Design Requirements for Switch Access
 
 **Target Size:**
+
 ```css
 /* Switch users need large, well-spaced targets */
 .interactive-element {
@@ -134,18 +137,19 @@ Switch scanning follows the focus/tab order. If your tab order is wrong, switch 
 **Minimize Interactions:**
 Every switch press takes significant effort. Minimize the number of presses needed.
 
-| Bad Pattern | Good Pattern |
-|-------------|-------------|
-| 3 confirmations to delete | 1 delete with undo |
-| Nested dropdown menus 3 levels deep | Flat navigation with search |
-| Multi-step wizards with many fields per page | Fewer fields, smart defaults |
-| Hover menus | Click/tap to open menus |
-| Double-click actions | Single click with alternatives |
-| Drag-and-drop only | Drag-and-drop plus button alternatives |
+| Bad Pattern                                  | Good Pattern                           |
+| -------------------------------------------- | -------------------------------------- |
+| 3 confirmations to delete                    | 1 delete with undo                     |
+| Nested dropdown menus 3 levels deep          | Flat navigation with search            |
+| Multi-step wizards with many fields per page | Fewer fields, smart defaults           |
+| Hover menus                                  | Click/tap to open menus                |
+| Double-click actions                         | Single click with alternatives         |
+| Drag-and-drop only                           | Drag-and-drop plus button alternatives |
 
 **Switch Access on Mobile:**
 
 iOS Switch Control and Android Switch Access are built into the operating systems. They scan through all accessible elements. Your app must:
+
 - Have every interactive element in the accessibility tree
 - Provide meaningful labels for all controls
 - Support the standard element types (buttons, links, form fields)
@@ -154,12 +158,14 @@ iOS Switch Control and Android Switch Access are built into the operating system
 ### Testing with Switch Access
 
 **iOS Switch Control:**
+
 1. Settings > Accessibility > Switch Control > Switches > Add New Switch
 2. Use the screen as a switch (tap left side = Move, tap right side = Select)
 3. Enable Switch Control
 4. Observe: Can you reach and activate every control?
 
 **Android Switch Access:**
+
 1. Settings > Accessibility > Switch Access
 2. Set up two switches (volume buttons work for testing)
 3. Enable and navigate your app
@@ -205,6 +211,7 @@ Eye tracking has lower precision than a mouse, typically 0.5-1 degree of visual 
 ```
 
 **Dwell Activation Considerations:**
+
 - Dwell time is usually 400-1000ms of sustained gaze
 - Any element the user looks at for that duration will activate
 - Avoid placing interactive elements near content the user needs to read at length
@@ -226,8 +233,12 @@ Eye tracking has lower precision than a mouse, typically 0.5-1 degree of visual 
 }
 
 @keyframes dwell-progress {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 /* Respect reduced motion preference */
@@ -240,12 +251,14 @@ Eye tracking has lower precision than a mouse, typically 0.5-1 degree of visual 
 ```
 
 **Avoid Gaze-Dependent Scrolling:**
+
 - Provide explicit scroll buttons (up/down arrows) rather than edge-of-screen scrolling
 - Keep key actions visible without scrolling
 - Use pagination over infinite scroll
 
 **Fatigue Management:**
 Eye tracking is physically tiring. Design for efficiency:
+
 - Minimize the number of gaze movements needed per task
 - Cluster related controls together
 - Provide keyboard shortcuts as alternatives
@@ -258,6 +271,7 @@ Eye tracking is physically tiring. Design for efficiency:
 Voice control software lets users speak commands to control their computer, navigate interfaces, and dictate text.
 
 **Common systems:**
+
 - **Dragon NaturallySpeaking** (Windows) -- the professional standard
 - **Voice Control** (macOS/iOS) -- built-in
 - **Voice Access** (Android) -- built-in
@@ -305,13 +319,13 @@ If multiple elements have the same label, voice control shows numbered overlays 
 **WCAG 2.5.3 Label in Name:**
 The accessible name must contain the visible text label. This ensures voice commands work.
 
-| Visible Text | Accessible Name | Passes? |
-|-------------|-----------------|---------|
-| "Search" | "Search" | Yes |
-| "Search" | "Search products" | Yes (starts with visible text) |
-| "Search" | "Find products" | No (visible text not in name) |
-| "Submit" | "Submit form for review" | Yes (starts with visible text) |
-| "Submit" | "Send" | No (visible text not in name) |
+| Visible Text | Accessible Name          | Passes?                        |
+| ------------ | ------------------------ | ------------------------------ |
+| "Search"     | "Search"                 | Yes                            |
+| "Search"     | "Search products"        | Yes (starts with visible text) |
+| "Search"     | "Find products"          | No (visible text not in name)  |
+| "Submit"     | "Submit form for review" | Yes (starts with visible text) |
+| "Submit"     | "Send"                   | No (visible text not in name)  |
 
 **Number Overlays:**
 macOS Voice Control and Windows Voice Access can show numbers on every interactive element. Ensure your layout has enough space for overlay numbers near each control.
@@ -319,17 +333,20 @@ macOS Voice Control and Windows Voice Access can show numbers on every interacti
 ### Testing with Voice Control
 
 **macOS Voice Control:**
+
 1. System Settings > Accessibility > Voice Control > Enable
 2. Say "Show numbers" to see numbered overlays on all interactive elements
 3. Say "Click [number]" or "Click [label]" to activate elements
 4. Test: Can you complete every user flow by voice alone?
 
 **Windows Voice Access (Windows 11):**
+
 1. Settings > Accessibility > Speech > Voice Access
 2. Say "Show numbers" or "Show grid"
 3. Navigate and interact by voice
 
 **Common voice control issues to test for:**
+
 - [ ] Every interactive element has a visible label
 - [ ] Visible labels match accessible names (WCAG 2.5.3)
 - [ ] No two adjacent controls have identical labels
@@ -344,6 +361,7 @@ macOS Voice Control and Windows Voice Access can show numbers on every interacti
 Screen magnifiers enlarge a portion of the screen, typically 2x to 16x. The user sees a small viewport of the full page and must pan around to find content.
 
 **Common tools:**
+
 - **ZoomText** (Windows) -- commercial, most feature-rich
 - **Windows Magnifier** -- built-in, basic
 - **macOS Zoom** -- built-in, good quality
@@ -356,17 +374,14 @@ At high magnification, related elements must be physically close. If an error me
 
 ```html
 <!-- BAD: Error summary at page top, fields at bottom -->
-<div class="errors" style="position: fixed; top: 0;">
-  Email is invalid
-</div>
+<div class="errors" style="position: fixed; top: 0;">Email is invalid</div>
 <!-- ... many elements ... -->
-<input type="email" id="email">
+<input type="email" id="email" />
 
 <!-- GOOD: Error message immediately adjacent to field -->
 <div class="field-group">
   <label for="email">Email</label>
-  <input type="email" id="email" aria-invalid="true"
-         aria-describedby="email-error">
+  <input type="email" id="email" aria-invalid="true" aria-describedby="email-error" />
   <p id="email-error" class="error">Enter a valid email address</p>
 </div>
 ```
@@ -480,19 +495,19 @@ Refreshable braille displays have a row of cells (typically 14-80 cells) with re
 
 ### AT Compatibility Checklist
 
-| Requirement | Screen Reader | Switch | Eye Tracking | Voice | Magnifier | Braille |
-|-------------|:---:|:---:|:---:|:---:|:---:|:---:|
-| Keyboard accessible | Yes | Yes | -- | -- | Yes | Yes |
-| Large targets (44px+) | -- | Yes | Yes | -- | Yes | -- |
-| Visible labels | -- | -- | -- | Yes | Yes | -- |
-| Label in name (2.5.3) | -- | -- | -- | Yes | -- | -- |
-| No hover-only interactions | Yes | Yes | Yes | Yes | -- | Yes |
-| No time limits | -- | Yes | Yes | Yes | -- | -- |
-| Content reflows at 400% | -- | -- | -- | -- | Yes | -- |
-| Semantic HTML | Yes | Yes | -- | -- | -- | Yes |
-| ARIA live regions | Yes | -- | -- | -- | -- | Yes |
-| Proximity of related info | -- | -- | -- | -- | Yes | -- |
-| Drag alternatives (2.5.7) | Yes | Yes | Yes | Yes | -- | Yes |
+| Requirement                | Screen Reader | Switch | Eye Tracking | Voice | Magnifier | Braille |
+| -------------------------- | :-----------: | :----: | :----------: | :---: | :-------: | :-----: |
+| Keyboard accessible        |      Yes      |  Yes   |      --      |  --   |    Yes    |   Yes   |
+| Large targets (44px+)      |      --       |  Yes   |     Yes      |  --   |    Yes    |   --    |
+| Visible labels             |      --       |   --   |      --      |  Yes  |    Yes    |   --    |
+| Label in name (2.5.3)      |      --       |   --   |      --      |  Yes  |    --     |   --    |
+| No hover-only interactions |      Yes      |  Yes   |     Yes      |  Yes  |    --     |   Yes   |
+| No time limits             |      --       |  Yes   |     Yes      |  Yes  |    --     |   --    |
+| Content reflows at 400%    |      --       |   --   |      --      |  --   |    Yes    |   --    |
+| Semantic HTML              |      Yes      |  Yes   |      --      |  --   |    --     |   Yes   |
+| ARIA live regions          |      Yes      |   --   |      --      |  --   |    --     |   Yes   |
+| Proximity of related info  |      --       |   --   |      --      |  --   |    Yes    |   --    |
+| Drag alternatives (2.5.7)  |      Yes      |  Yes   |     Yes      |  Yes  |    --     |   Yes   |
 
 ### Testing Priority Matrix
 
@@ -506,17 +521,16 @@ If you can only test with limited assistive technologies, prioritize in this ord
 
 ## Resources
 
-| Resource | URL | Content |
-|----------|-----|---------|
-| ARIA Authoring Practices Guide | w3.org/WAI/ARIA/apg | Widget patterns and keyboard interaction |
-| Switch Access on Android | support.google.com | Setup and configuration guide |
-| iOS Switch Control | support.apple.com | Setup and configuration guide |
-| Tobii Eye Tracking | tobii.com | Eye tracking hardware and software |
-| Dragon NaturallySpeaking | nuance.com | Professional voice control |
-| Talon Voice | talonvoice.com | Open-source programmable voice control |
-| ZoomText | freedomscientific.com | Professional screen magnification |
-| NVDA | nvaccess.org | Free screen reader for Windows |
-
+| Resource                       | URL                   | Content                                  |
+| ------------------------------ | --------------------- | ---------------------------------------- |
+| ARIA Authoring Practices Guide | w3.org/WAI/ARIA/apg   | Widget patterns and keyboard interaction |
+| Switch Access on Android       | support.google.com    | Setup and configuration guide            |
+| iOS Switch Control             | support.apple.com     | Setup and configuration guide            |
+| Tobii Eye Tracking             | tobii.com             | Eye tracking hardware and software       |
+| Dragon NaturallySpeaking       | nuance.com            | Professional voice control               |
+| Talon Voice                    | talonvoice.com        | Open-source programmable voice control   |
+| ZoomText                       | freedomscientific.com | Professional screen magnification        |
+| NVDA                           | nvaccess.org          | Free screen reader for Windows           |
 
 ## Process
 
@@ -525,7 +539,6 @@ If you can only test with limited assistive technologies, prioritize in this ord
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -546,14 +559,12 @@ If you can only test with limited assistive technologies, prioritize in this ord
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "iot guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'iot guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Electronics Hobbyist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on electronics hobbyist
 - User asks about electronics hobbyist best practices or techniques
 - User wants a structured approach to electronics hobbyist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of electronics hobbyist
 
@@ -58,6 +59,7 @@ Before providing guidance, establish the hobbyist's situation:
 ## Arduino/ESP32 Programming
 
 ### Platform Comparison
+
 ```
 ARDUINO UNO:
   Processor: ATmega328P (8-bit, 16 MHz)
@@ -181,6 +183,7 @@ void loop() {
 ## Breadboard to PCB
 
 ### Breadboard Prototyping
+
 ```
 BREADBOARD LAYOUT:
   - Power rails run the full length (top and bottom, marked + and -)
@@ -204,6 +207,7 @@ COMMON BREADBOARD MISTAKES:
 ```
 
 ### Moving to PCB
+
 ```
 PCB DESIGN WORKFLOW:
   1. Finalize schematic from breadboard prototype
@@ -246,6 +250,7 @@ PCB DESIGN TIPS:
 ## Basic Circuits
 
 ### LED Circuits
+
 ```
 SIMPLE LED CIRCUIT:
   Components: LED, resistor, power source
@@ -275,6 +280,7 @@ NEOPIXEL (WS2812B) ADDRESSABLE LEDs:
 ```
 
 ### Sensor Circuits
+
 ```
 TEMPERATURE SENSOR (DHT22):
   Pins: VCC (3.3-5V), Data, NC, GND
@@ -306,6 +312,7 @@ SOIL MOISTURE:
 ```
 
 ### Motor Control
+
 ```
 DC MOTOR:
   NEVER connect motor directly to microcontroller pin (too much current)
@@ -337,6 +344,7 @@ STEPPER MOTOR:
 ## Soldering Technique
 
 ### Soldering Setup
+
 ```
 EQUIPMENT:
   Soldering iron: Temperature-controlled, 60W minimum
@@ -376,6 +384,7 @@ BRIDGED: Solder connects two adjacent pads (use solder wick to remove)
 ## Project Ideas by Skill Level
 
 ### Beginner Projects
+
 ```
 1. LED BLINK (First project)
    Components: Arduino, LED, resistor
@@ -404,6 +413,7 @@ BRIDGED: Solder connects two adjacent pads (use solder wick to remove)
 ```
 
 ### Intermediate Projects
+
 ```
 6. SMART PLANT WATERING SYSTEM
    Components: Arduino, soil moisture sensor, relay, pump, tubing
@@ -432,6 +442,7 @@ BRIDGED: Solder connects two adjacent pads (use solder wick to remove)
 ```
 
 ### Advanced Projects
+
 ```
 11. HOME AUTOMATION HUB
     Components: ESP32, relays, sensors, MQTT broker
@@ -462,6 +473,7 @@ BRIDGED: Solder connects two adjacent pads (use solder wick to remove)
 ## Component Selection
 
 ### Essential Components to Stock
+
 ```
 RESISTORS (1/4 watt):
   220 ohm (LED current limiting)
@@ -495,6 +507,7 @@ CONNECTORS:
 ```
 
 ## Enclosure Design
+
 ```
 ENCLOSURE OPTIONS:
   1. Project boxes (off-the-shelf plastic/metal boxes, drill holes)
@@ -530,7 +543,6 @@ PANEL MOUNT COMPONENTS:
 9. Not using a multimeter to debug (measure voltage at every point in the circuit)
 10. Skipping the breadboard prototype and going straight to soldering
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +555,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with electronics hobbyist for a mid-size project."
 
 **Output:** A complete electronics hobbyist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

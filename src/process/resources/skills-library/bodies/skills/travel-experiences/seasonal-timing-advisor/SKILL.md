@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research planning guide"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research planning guide'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Seasonal Timing Advisor
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user's primary question is about WHEN to travel, not what to do or how to pay for it.
 
 **Trigger scenarios -- use this skill when:**
+
 - The user asks an open-ended "best time to visit" question for any destination at the city, region, or country level ("When should I go to Patagonia?", "What's the best month for Morocco?")
 - The user wants to compare two or more specific travel windows and needs help choosing ("Should I go to Iceland in June or September?")
 - The user is optimizing for a single dimension -- lowest crowds, cheapest flights, best weather, longest daylight -- and needs month-by-month data to support that decision
@@ -37,6 +39,7 @@ Use this skill when the user's primary question is about WHEN to travel, not wha
 - The user is comparing two or more destinations and wants to know which one is best visited in a specific month they have available
 
 **Do NOT use this skill when:**
+
 - The user already knows their travel dates and needs day-by-day planning -- use `trip-itinerary-builder` instead
 - The user needs to know what outdoor or adventure activities are available in a specific season at a specific destination -- use `adventure-activity-planner` instead
 - The user's primary concern is minimizing total trip cost through flight timing, credit card points, or fare class strategy -- use `budget-travel-planner` or `airfare-search-strategy` instead
@@ -75,6 +78,7 @@ Before building the matrix, understand the destination's climate structure. This
 Compile data for all 12 months. Use the following specific variables:
 
 **Weather variables:**
+
 - Average daytime high (°C and °F)
 - Average overnight low (°C and °F)
 - Average monthly rainfall in millimeters
@@ -84,6 +88,7 @@ Compile data for all 12 months. Use the following specific variables:
 - Extreme weather risk: typhoon probability, monsoon intensity, heat index warnings, frost probability
 
 **Crowd variables (1-5 scale):**
+
 - 1 = Near-empty. Major attractions accessible without queuing. Accommodation walk-in available.
 - 2 = Quiet. Small crowds at popular sites. Booking 2-4 weeks ahead sufficient.
 - 3 = Moderate. Noticeable tourist presence. Booking 1-2 months ahead recommended. 20-30 minute waits at top attractions.
@@ -92,11 +97,13 @@ Compile data for all 12 months. Use the following specific variables:
 - Note both international tourist volume AND domestic holiday impacts separately when they diverge
 
 **Cost variables:**
+
 - Accommodation cost tier relative to annual average: Very Low (<70% of average), Low (70-85%), Average (85-115%), High (115-140%), Peak (>140%)
 - Flight cost trend relative to annual average -- note that flights and hotels often peak at different times (hotels peak during school holidays; flights peak slightly earlier as people book)
 - Note specific event-driven price spikes that break the normal seasonal pattern (Formula 1 races, major concerts, religious festivals that fill regional hotels)
 
 **Events and phenomena:**
+
 - Local public holidays that reduce services or create domestic travel surges
 - International festivals with positive draw value (Carnival in Rio, Oktoberfest, Diwali)
 - Natural phenomena windows (foliage, bloom, migration, aurora, bioluminescence)
@@ -108,21 +115,25 @@ Compile data for all 12 months. Use the following specific variables:
 Apply a weighted scoring framework based on the user's stated priority order:
 
 **If weather is the top priority:**
+
 - Identify the "comfort zone" for the stated activity. For sightseeing: 16-26°C with fewer than 8 rain days per month is generally optimal for walking-heavy travel. For beach: 28-33°C with low humidity and minimal rain. For skiing: consistent snowpack, temperatures below -5°C at elevation. For wildlife photography: whatever season produces the target animal behavior, even if uncomfortable.
 - Score each month on a 1-5 weather comfort scale for the stated activity, not generically. July in Marrakech (43°C) scores 5 for heat endurance travelers and 1 for sightseeing walkers.
 - Flag months with high weather variability -- a month that averages 22°C but swings between 12°C and 32°C within the month scores lower than a stable 20°C month, because planning and packing become unpredictable.
 
 **If crowds are the top priority:**
+
 - Identify months that score 1-2 on the crowd scale
 - Cross-check that these months have at least minimally acceptable weather for the stated activity (a crowd rating of 1 is useless if the destination is underwater in monsoon)
 - Identify the "sweet spot" months -- typically the 2-4 weeks at the edges of shoulder season where tourist infrastructure is still fully operational but visitor numbers have dropped 30-50% from peak
 
 **If cost is the top priority:**
+
 - Identify months where accommodation costs are 20%+ below annual average
 - Note that the cheapest month is rarely the same as the lowest-crowd month -- some destinations have low prices AND high crowds during domestic holiday periods, while others have low prices AND low crowds during weather-challenged months
 - Calculate approximate savings: a destination where peak accommodation averages $180/night and off-season averages $90/night represents a real $630 saving on a 9-night trip -- contextualize the numbers
 
 **Balanced priority scoring method:**
+
 - Assign each month a composite score: Weather Score (out of 5) + Crowd Score (out of 5, where 5 = emptiest) + Value Score (out of 5, where 5 = cheapest)
 - Months scoring 11-15 out of 15 are the sweet spot candidates
 - These almost always fall in what travel professionals call "true shoulder season" -- the 3-6 week windows just before and after peak season
@@ -332,14 +343,18 @@ Deliver outputs in three tiers:
 ## Edge Cases
 
 ### Destinations Spanning Multiple Climate Zones
+
 Countries like Peru, Vietnam, Colombia, India, and the United States contain multiple distinct climate systems that cannot be analyzed with a single matrix. When a user names such a destination:
+
 - Ask which specific region(s) they plan to visit before building any matrix
 - If they plan to travel through multiple zones in one trip, build a matrix for each zone and identify the month that represents the best compromise across all zones -- stating clearly which zone benefits and which sacrifices
 - In Vietnam, for example, the dry season runs south to north across the country from November to April, meaning January is ideal for Ho Chi Minh City, February-March for Hoi An, and April for Hanoi -- a traveler moving north has a built-in seasonal alignment if they sequence the itinerary correctly
 - Never apply a country-level generalization to a specific regional destination: "best time to visit India" is not answerable as a single matrix; "best time to visit Rajasthan" is
 
 ### Year-Round Tropical Destinations with Minimal Temperature Variation
+
 Destinations like Singapore, Bali, Zanzibar, Costa Rica's Pacific coast, and the Maldives have average temperatures that vary less than 4°C across the year. Generic temperature-based seasonal analysis adds minimal value. Instead, focus the analysis on:
+
 - Wet season vs. dry season (rainfall day count and intensity, not temperature)
 - Ocean conditions for diving and snorkeling: visibility (measured in meters), sea state, marine life presence by month
 - Humidity index rather than temperature: 28°C at 85% humidity feels different from 28°C at 55% humidity, and the difference is month-dependent
@@ -348,7 +363,9 @@ Destinations like Singapore, Bali, Zanzibar, Costa Rica's Pacific coast, and the
 - Note that "off-season" in these destinations often means "rain arrives in the afternoon but mornings are clear" rather than "consistently bad weather" -- this is an important distinction that makes off-season viable for most travelers
 
 ### Traveler Locked to School Holiday Windows
+
 When a family with school-age children or a teacher can only travel in June-August, December-January, or spring break weeks, they are locked into the most popular travel periods globally. Do not simply say "these are peak times" and leave it there. Instead:
+
 - Identify which WEEK within the summer window is least crowded at the destination -- in European city destinations, the last 10 days of August are significantly less crowded than July as French and German school holidays end
 - For beach destinations, identify which beach region at the destination is least known to the dominant tourist source market
 - For theme parks and major landmarks, identify early-morning entry strategies (rope drop timing, early admission perks) that partially offset peak crowding
@@ -356,14 +373,18 @@ When a family with school-age children or a teacher can only travel in June-Augu
 - Frame the analysis as "best option within your constraint" rather than apologizing for the constraint
 
 ### Multi-Destination Trips with Competing Seasonal Logic
+
 A trip combining Morocco and Portugal, Thailand and Nepal, Argentina and Peru, or Japan and Taiwan creates a situation where the optimal month differs by destination. Handle this as follows:
+
 - Build a brief matrix for EACH destination in the itinerary
 - Identify months that fall within at least the "acceptable" range (weather score 3+, crowd score 3+) for ALL destinations simultaneously
 - Score the compromise months: "October works well for Japan (excellent), is acceptable for Taiwan (slightly hot but manageable), and avoids the worst crowding in both"
 - State explicitly which destination gets the better of the timing compromise and which accepts a sub-optimal window -- the user may be able to sequence their itinerary to give each destination its best days (e.g., entering Thailand via the North in November when it's dry and cool, moving south to the Gulf islands in December when the Gulf coast enters dry season)
 
 ### Destinations with Safety or Political Seasonality
+
 Some destinations have periods of elevated unrest, protest activity, or travel advisory changes that are partially seasonal -- around election cycles, anniversaries of political events, or religious calendar tensions. Handle carefully:
+
 - Note the period as a "logistics risk window" without political characterization
 - State that during these periods, transportation disruptions, attraction closures, and accommodation cancellations become more likely
 - Do not advise the user on the political situation itself
@@ -371,14 +392,18 @@ Some destinations have periods of elevated unrest, protest activity, or travel a
 - If the safety concern is weather-based (monsoon flooding, typhoon risk), be specific about the historical impact: "September 2023 saw major flooding in [region] that closed the main road access to [attraction] for 12 days" is more useful than "flooding is possible."
 
 ### Extreme Seasonality Destinations (Arctic, Antarctic, High Desert, Monsoon-Dominated)
+
 Some destinations have months that are genuinely unsuitable and should not be dressed up with manufactured positives:
+
 - Arctic destinations (Svalbard, northern Iceland, northern Norway above the Arctic Circle) have 24-hour darkness from late November to late January. This is not "peaceful" or "atmospheric" for a general traveler -- it is functionally dark during all potential sightseeing hours. State this clearly.
 - Antarctic cruise itineraries operate only November through March (Southern Hemisphere summer). Outside this window, no passenger vessels operate. This is a hard constraint, not a preference.
 - Monsoon-affected destinations like Rajasthan in July-August, or the Indian coast during the southwest monsoon (June-September), receive 80-90% of annual rainfall in 90 days. Some areas experience consecutive rain days lasting 5-10 days. Note the difference between monsoon destinations where infrastructure handles rain (Bali, where life continues during rain) vs. monsoon destinations where flooding disrupts roads and access (parts of Rajasthan, where rural temple sites become inaccessible).
 - For these extreme-seasonality destinations, explicitly number the viable months: "This destination has 5 genuinely good visiting months (October-February), 3 marginal months, and 4 months when visiting is either physically very challenging or logistically impossible."
 
 ### The "Event or Bust" Traveler
+
 Some users are traveling specifically for one event -- Carnival in Rio, Oktoberfest, the Running of the Bulls, a specific music festival, cherry blossom peak, the wildebeest crossing -- and the date is non-negotiable. For these users:
+
 - Confirm the event dates (and for variable-timing phenomena, the typical date range and how to track forecasts)
 - Shift the analysis to what TIME WITHIN the event window is best: the first weekend of Oktoberfest is less crowded than the last weekend; the quietest days of cherry blossom season are the first 2-3 days of bloom before full peak; the best wildebeest crossing days are unpredictable but morning game drives improve odds
 - Note the accommodation and logistics reality for event-driven travel: rooms within 5km of Oktoberfest book out 12+ months ahead; Rio hotels during Carnival are 3-5x normal prices; Kyoto hotels during cherry blossom peak are sold out by January for March-April availability
@@ -403,29 +428,30 @@ Some users are traveling specifically for one event -- Carnival in Rio, Oktoberf
 
 ### Month-by-Month Matrix
 
-| Month | Avg High | Avg Low | Rain Days | Humidity | Sun Hrs/Day | Crowds (1-5) | Cost vs. Avg | Key Events / Notes |
-|-------|----------|---------|-----------|----------|-------------|--------------|--------------|-------------------|
-| Jan | 18C/64F | 6C/43F | 8 | Moderate | 6.5 | 2 | Low | Marrakech Jazz Festival (Jan). Cold desert nights (-2C possible). |
-| Feb | 20C/68F | 7C/45F | 7 | Moderate | 7.5 | 2 | Low | Almond blossom in Ourika Valley. Still cold overnight inland. |
-| Mar | 22C/72F | 9C/48F | 7 | Moderate | 8 | 3 | Average | Warming rapidly. Wildflowers in Atlas foothills. Pleasant medina walking. |
-| Apr | 26C/79F | 12C/54F | 6 | Low-Moderate | 9 | 3-4 | Average-High | Easter week drives European crowds (Level 4 that week). Otherwise comfortable. |
-| May | 30C/86F | 16C/61F | 4 | Low | 10 | 3 | Average | Marrakech pushing toward hot. Sahara comfortable (35C daytime, cool nights). |
-| Jun | 35C/95F | 20C/68F | 2 | Low | 11 | 2 | Low | Marrakech reaches 38-40C by late June. Physically demanding for medina walking. |
-| Jul | 38C/100F | 23C/73F | 1 | Very Low | 11.5 | 2 | Low | Sahara reaches 45C+. Fez interior can hit 42C. Not recommended for this itinerary. |
-| Aug | 38C/100F | 23C/73F | 1 | Very Low | 11 | 2-3 | Low-Average | As July but some European visitors despite heat. Oujda Festival of Rai music. |
-| Sep | 34C/93F | 20C/68F | 3 | Low | 9.5 | 2 | Low-Average | Still hot but falling. Late September approaching tolerable. Fez Sacred Music postponement window. |
-| Oct | 27C/81F | 14C/57F | 5 | Low-Moderate | 8.5 | 2-3 | Average | Excellent conditions. Sahara perfect (28C days, cool nights). Date harvest season. |
-| Nov | 22C/72F | 10C/50F | 7 | Moderate | 7 | 2 | Low-Average | Very comfortable. Quieting fast after October. Evenings cool -- layer needed. |
-| Dec | 19C/66F | 7C/45F | 8 | Moderate | 6.5 | 2 | Low | Cold nights (near 0C in Sahara desert camps). Festive atmosphere in coastal cities. |
+| Month | Avg High | Avg Low | Rain Days | Humidity     | Sun Hrs/Day | Crowds (1-5) | Cost vs. Avg | Key Events / Notes                                                                                 |
+| ----- | -------- | ------- | --------- | ------------ | ----------- | ------------ | ------------ | -------------------------------------------------------------------------------------------------- |
+| Jan   | 18C/64F  | 6C/43F  | 8         | Moderate     | 6.5         | 2            | Low          | Marrakech Jazz Festival (Jan). Cold desert nights (-2C possible).                                  |
+| Feb   | 20C/68F  | 7C/45F  | 7         | Moderate     | 7.5         | 2            | Low          | Almond blossom in Ourika Valley. Still cold overnight inland.                                      |
+| Mar   | 22C/72F  | 9C/48F  | 7         | Moderate     | 8           | 3            | Average      | Warming rapidly. Wildflowers in Atlas foothills. Pleasant medina walking.                          |
+| Apr   | 26C/79F  | 12C/54F | 6         | Low-Moderate | 9           | 3-4          | Average-High | Easter week drives European crowds (Level 4 that week). Otherwise comfortable.                     |
+| May   | 30C/86F  | 16C/61F | 4         | Low          | 10          | 3            | Average      | Marrakech pushing toward hot. Sahara comfortable (35C daytime, cool nights).                       |
+| Jun   | 35C/95F  | 20C/68F | 2         | Low          | 11          | 2            | Low          | Marrakech reaches 38-40C by late June. Physically demanding for medina walking.                    |
+| Jul   | 38C/100F | 23C/73F | 1         | Very Low     | 11.5        | 2            | Low          | Sahara reaches 45C+. Fez interior can hit 42C. Not recommended for this itinerary.                 |
+| Aug   | 38C/100F | 23C/73F | 1         | Very Low     | 11          | 2-3          | Low-Average  | As July but some European visitors despite heat. Oujda Festival of Rai music.                      |
+| Sep   | 34C/93F  | 20C/68F | 3         | Low          | 9.5         | 2            | Low-Average  | Still hot but falling. Late September approaching tolerable. Fez Sacred Music postponement window. |
+| Oct   | 27C/81F  | 14C/57F | 5         | Low-Moderate | 8.5         | 2-3          | Average      | Excellent conditions. Sahara perfect (28C days, cool nights). Date harvest season.                 |
+| Nov   | 22C/72F  | 10C/50F | 7         | Moderate     | 7           | 2            | Low-Average  | Very comfortable. Quieting fast after October. Evenings cool -- layer needed.                      |
+| Dec   | 19C/66F  | 7C/45F  | 8         | Moderate     | 6.5         | 2            | Low          | Cold nights (near 0C in Sahara desert camps). Festive atmosphere in coastal cities.                |
 
-*Crowd scale: 1 = near-empty | 2 = quiet | 3 = moderate | 4 = busy | 5 = peak overload*
-*Cost vs. average: Very Low = <70% | Low = 70-85% | Avg = 85-115% | High = 115-140% | Peak = >140%*
+_Crowd scale: 1 = near-empty | 2 = quiet | 3 = moderate | 4 = busy | 5 = peak overload_
+_Cost vs. average: Very Low = <70% | Low = 70-85% | Avg = 85-115% | High = 115-140% | Peak = >140%_
 
 ---
 
 ### Season Breakdown
 
 #### Peak Season: March-May and Late September-October
+
 - **Dates:** March 10 through May 20; September 20 through October 31
 - **Weather:** March-May brings ideal temperatures (22-30C) with minimal rain. September-October is warm (27-34C) declining to comfortable. Both windows are Morocco's most reliably pleasant seasons.
 - **Crowds:** Level 3, rising to 4 during Easter week (dates vary -- confirm year's Easter before booking). French and Spanish travelers dominate spring; British and German travelers dominate autumn. Marrakech riads and Sahara desert camps require booking 6-10 weeks ahead in these windows.
@@ -434,6 +460,7 @@ Some users are traveling specifically for one event -- Carnival in Rio, Oktoberf
 - **Concrete drawbacks:** Easter week specifically creates Marrakech crowd spikes. Marrakech's Jemaa el-Fna square is at its most hectic in late October as European half-term holidays arrive.
 
 #### Shoulder Season: November and Late February-Early March
+
 - **Leading shoulder (late February-early March):** February 20 to March 10. Pre-Easter, pre-peak conditions. Fez and Marrakech are noticeably quieter. Temperatures reach 18-22C -- slightly cooler than peak but entirely comfortable for medina walking. Riad availability is high. Sahara nights are cold (5-8C at camp) -- a sleeping bag liner is essential.
 - **Trailing shoulder (November):** November 1-30. Post-peak drop-off is fast. Tourist volume falls 35-40% from October within the first week of November. Temperatures remain comfortable (18-22C highs) but evenings cool significantly (10C by late November). Rain frequency increases slightly to 7 days/month -- typically short afternoon events.
 - **Cost savings:** 15-25% below peak window accommodation rates. Desert camps drop to low-season pricing by mid-November.
@@ -441,6 +468,7 @@ Some users are traveling specifically for one event -- Carnival in Rio, Oktoberf
 - **Genuine risks:** Late November Sahara nights can reach 3-5C -- sleeping bags in desert camps are essential, not optional. Rain systems moving in from the Atlantic occasionally produce 2-3 consecutive rain days in coastal Essaouira. The Atlas Mountain passes can see early-season snow by late November, occasionally closing the Tizi n'Tichka road between Marrakech and the Draa Valley.
 
 #### Off-Season: June Through August
+
 - **Weather reality:** June-August is NOT merely "warm" -- Marrakech averages 38C in July, with peaks reaching 44C. The medinas, with their narrow covered souks that trap heat, become physically unpleasant for extended walking by 10 AM. The Sahara reaches 45-50C during daytime hours in July -- Erg Chebbi camel rides operate only before 7 AM and after 5 PM, and the heat haze eliminates the photographic clarity that makes the desert compelling.
 - **Crowds:** Level 2 -- genuinely few tourists, for obvious reasons. Mostly budget backpackers and heat-tolerant travelers.
 - **Maximum savings:** Accommodation runs 30-40% below annual average. Desert camp glamping is cheapest of the year. Flights from Europe are cheapest, though airport transfers and logistics cost the same.
@@ -451,39 +479,39 @@ Some users are traveling specifically for one event -- Carnival in Rio, Oktoberf
 
 ### Composite Scoring Summary
 
-*Weather scored for: sightseeing-intensive itinerary with heat avoidance as primary constraint*
+_Weather scored for: sightseeing-intensive itinerary with heat avoidance as primary constraint_
 
-| Month | Weather Score (/5) | Value Score (/5) | Crowd Score (/5) | Total (/15) | Verdict |
-|-------|-------------------|-----------------|-----------------|-------------|---------|
-| Jan | 3 | 4 | 4 | 11 | Good -- cold nights limit Sahara experience |
-| Feb | 3 | 4 | 4 | 11 | Good -- cold improving, almond blossom bonus |
-| Mar | 5 | 3 | 3 | 11 | Very Good -- heat avoidance comfortable |
-| Apr | 4 | 3 | 3 | 10 | Good -- Easter week reduces score |
-| May | 3 | 3 | 3 | 9 | Acceptable -- Marrakech warming fast |
-| Jun | 1 | 4 | 4 | 9 | Not recommended -- heat deal-breaker |
-| Jul | 1 | 5 | 5 | 11 | Score misleads -- heat makes visit impractical for this itinerary |
-| Aug | 1 | 4 | 4 | 9 | Same as July |
-| Sep | 2 | 4 | 4 | 10 | Late September only -- heat still significant |
-| Oct | 5 | 3 | 3 | 11 | Excellent -- primary sweet spot |
-| Nov | 5 | 4 | 4 | 13 | **Best overall** -- primary recommendation |
-| Dec | 3 | 4 | 4 | 11 | Good -- Sahara cold nights are the main limit |
+| Month | Weather Score (/5) | Value Score (/5) | Crowd Score (/5) | Total (/15) | Verdict                                                           |
+| ----- | ------------------ | ---------------- | ---------------- | ----------- | ----------------------------------------------------------------- |
+| Jan   | 3                  | 4                | 4                | 11          | Good -- cold nights limit Sahara experience                       |
+| Feb   | 3                  | 4                | 4                | 11          | Good -- cold improving, almond blossom bonus                      |
+| Mar   | 5                  | 3                | 3                | 11          | Very Good -- heat avoidance comfortable                           |
+| Apr   | 4                  | 3                | 3                | 10          | Good -- Easter week reduces score                                 |
+| May   | 3                  | 3                | 3                | 9           | Acceptable -- Marrakech warming fast                              |
+| Jun   | 1                  | 4                | 4                | 9           | Not recommended -- heat deal-breaker                              |
+| Jul   | 1                  | 5                | 5                | 11          | Score misleads -- heat makes visit impractical for this itinerary |
+| Aug   | 1                  | 4                | 4                | 9           | Same as July                                                      |
+| Sep   | 2                  | 4                | 4                | 10          | Late September only -- heat still significant                     |
+| Oct   | 5                  | 3                | 3                | 11          | Excellent -- primary sweet spot                                   |
+| Nov   | 5                  | 4                | 4                | 13          | **Best overall** -- primary recommendation                        |
+| Dec   | 3                  | 4                | 4                | 11          | Good -- Sahara cold nights are the main limit                     |
 
-*Note: July scores 11 numerically but is excluded from recommendations because the weather score of 1 represents a hard deal-breaker (extreme heat that violates the user's stated constraint), not merely a low preference.*
+_Note: July scores 11 numerically but is excluded from recommendations because the weather score of 1 represents a hard deal-breaker (extreme heat that violates the user's stated constraint), not merely a low preference._
 
 ---
 
 ### Natural Phenomena and Event Calendar
 
-| Month | Phenomenon / Event | Type | Visitor Impact |
-|-------|-------------------|------|----------------|
-| Jan | Marrakech Jazz Festival | Festival | Positive -- adds cultural programming to a quiet month |
-| Feb | Almond blossom, Ourika Valley | Natural | Positive -- visual spectacle within day-trip range of Marrakech |
-| Apr (varies) | Easter week | Holiday | Negative -- European school holiday drives Level 4 crowds; avoid specific week |
-| May-Jun | Rose Festival, Kelaat M'Gouna | Festival | Positive draw -- dramatic rose valley in bloom if routing through Draa Valley |
-| Jun | Fez Sacred Music Festival | Festival | Positive -- world-class programming, but adds crowds to already-hot month |
-| Oct | Date harvest season | Natural | Positive -- local markets fill with fresh dates; cultural richness |
-| Nov | Marrakech Film Festival (varies) | Cultural | Mixed -- hotel prices spike in Marrakech for the week; worth checking dates |
-| Nov-Dec | Sahara clear nights for stargazing | Natural | Positive -- lowest humidity and minimal cloud cover for desert camps |
+| Month        | Phenomenon / Event                 | Type     | Visitor Impact                                                                 |
+| ------------ | ---------------------------------- | -------- | ------------------------------------------------------------------------------ |
+| Jan          | Marrakech Jazz Festival            | Festival | Positive -- adds cultural programming to a quiet month                         |
+| Feb          | Almond blossom, Ourika Valley      | Natural  | Positive -- visual spectacle within day-trip range of Marrakech                |
+| Apr (varies) | Easter week                        | Holiday  | Negative -- European school holiday drives Level 4 crowds; avoid specific week |
+| May-Jun      | Rose Festival, Kelaat M'Gouna      | Festival | Positive draw -- dramatic rose valley in bloom if routing through Draa Valley  |
+| Jun          | Fez Sacred Music Festival          | Festival | Positive -- world-class programming, but adds crowds to already-hot month      |
+| Oct          | Date harvest season                | Natural  | Positive -- local markets fill with fresh dates; cultural richness             |
+| Nov          | Marrakech Film Festival (varies)   | Cultural | Mixed -- hotel prices spike in Marrakech for the week; worth checking dates    |
+| Nov-Dec      | Sahara clear nights for stargazing | Natural  | Positive -- lowest humidity and minimal cloud cover for desert camps           |
 
 ---
 
@@ -520,4 +548,4 @@ Some users are traveling specifically for one event -- Carnival in Rio, Oktoberf
 ### Avoid Advisory
 
 | Period | Specific Reason to Avoid | Severity (1-5) | Exception Case |
-|--------|--------------------------|----------------|----------------|
+| ------ | ------------------------ | -------------- | -------------- |

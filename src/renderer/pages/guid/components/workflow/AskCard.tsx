@@ -43,11 +43,7 @@ export const AskCard: React.FC<AskCardProps> = ({ ask, onSubmit, onSkip }) => {
   // Read-only collapsed state when this ask has already been answered.
   if (ask.answer !== null) {
     return (
-      <div
-        className={`${styles.root} ${styles.answered}`}
-        data-testid='askcard'
-        data-state='answered'
-      >
+      <div className={`${styles.root} ${styles.answered}`} data-testid='askcard' data-state='answered'>
         <div className={styles.question}>{ask.question}</div>
         <div className={styles.answeredRow}>
           <span className={styles.answeredAnswer}>{ask.answer}</span>
@@ -130,20 +126,10 @@ export const AskCard: React.FC<AskCardProps> = ({ ask, onSubmit, onSkip }) => {
       case 'boolean':
         return (
           <div className={styles.chipRow} data-testid='askcard-boolean-row'>
-            <Button
-              size='small'
-              type='secondary'
-              shape='round'
-              onClick={() => handleBoolean(true)}
-            >
+            <Button size='small' type='secondary' shape='round' onClick={() => handleBoolean(true)}>
               Yes
             </Button>
-            <Button
-              size='small'
-              type='secondary'
-              shape='round'
-              onClick={() => handleBoolean(false)}
-            >
+            <Button size='small' type='secondary' shape='round' onClick={() => handleBoolean(false)}>
               No
             </Button>
           </div>
@@ -205,35 +191,17 @@ export const AskCard: React.FC<AskCardProps> = ({ ask, onSubmit, onSkip }) => {
       <div className={styles.inputZone}>{renderInput()}</div>
       {ask.type !== 'boolean' && (
         <div className={styles.actionRow}>
-          <Button
-            type='primary'
-            size='small'
-            icon={<Send size={12} />}
-            onClick={handleSend}
-            data-testid='askcard-send'
-          >
+          <Button type='primary' size='small' icon={<Send size={12} />} onClick={handleSend} data-testid='askcard-send'>
             {SEND_LABEL}
           </Button>
-          <Button
-            type='text'
-            size='mini'
-            className={styles.skipLink}
-            onClick={onSkip}
-            data-testid='askcard-skip'
-          >
+          <Button type='text' size='mini' className={styles.skipLink} onClick={onSkip} data-testid='askcard-skip'>
             {SKIP_LABEL}
           </Button>
         </div>
       )}
       {ask.type === 'boolean' && (
         <div className={styles.actionRow}>
-          <Button
-            type='text'
-            size='mini'
-            className={styles.skipLink}
-            onClick={onSkip}
-            data-testid='askcard-skip'
-          >
+          <Button type='text' size='mini' className={styles.skipLink} onClick={onSkip} data-testid='askcard-skip'>
             {SKIP_LABEL}
           </Button>
         </div>

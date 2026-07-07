@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "career-pivot-advisor resume-builder linkedin-optimizer interview-coach salary-negotiator"
+skills: 'career-pivot-advisor resume-builder linkedin-optimizer interview-coach salary-negotiator'
 trigger_phrases: >-
   I want to change careers help me switch industries career pivot plan how to
   change my career career transition guide ready for a new career pivot to a new
@@ -25,8 +25,9 @@ metadata:
     career interview-prep resume-writing salary-negotiation step-by-step
     planning
   category: career
-  depends: "career-pivot-advisor resume-builder linkedin-optimizer interview-coach salary-negotiator"
+  depends: 'career-pivot-advisor resume-builder linkedin-optimizer interview-coach salary-negotiator'
 ---
+
 # Career Pivot
 
 **Estimated time:** 4-12 weeks
@@ -170,6 +171,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

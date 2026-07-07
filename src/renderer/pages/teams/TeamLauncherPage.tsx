@@ -37,10 +37,7 @@ import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import { isSelectableSpecialist } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
 import type { TTeam, TeamAgent } from '@/common/types/teamTypes';
-import type {
-  SuggestRosterResult,
-  SuggestSpecialist,
-} from '@process/team/suggestRoster';
+import type { SuggestRosterResult, SuggestSpecialist } from '@process/team/suggestRoster';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { isImageAvatar } from '@/renderer/utils/avatar';
 import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
@@ -280,9 +277,7 @@ const TeamLauncherPage: React.FC = () => {
       })) as SuggestRosterResult & { __bridgeError?: boolean; message?: string };
 
       if (result && result.__bridgeError) {
-        Message.error(
-          result.message ?? t('teams.launcher.suggestError', { defaultValue: 'Failed to suggest roster' })
-        );
+        Message.error(result.message ?? t('teams.launcher.suggestError', { defaultValue: 'Failed to suggest roster' }));
         return;
       }
 
@@ -321,9 +316,7 @@ const TeamLauncherPage: React.FC = () => {
     if (launchingRef.current) return;
     const trimmedName = state.name.trim();
     if (!trimmedName) {
-      Message.warning(
-        t('teams.launcher.nameRequired', { defaultValue: 'Please enter a team name' })
-      );
+      Message.warning(t('teams.launcher.nameRequired', { defaultValue: 'Please enter a team name' }));
       return;
     }
     if (!state.leader) {
@@ -383,9 +376,7 @@ const TeamLauncherPage: React.FC = () => {
       })) as TTeam & { __bridgeError?: boolean; message?: string };
 
       if (team && team.__bridgeError) {
-        Message.error(
-          team.message ?? t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' })
-        );
+        Message.error(team.message ?? t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' }));
         resetForRetry();
         return;
       }
@@ -426,14 +417,10 @@ const TeamLauncherPage: React.FC = () => {
       : teamId || '';
   const subtitle = isBuildMyOwn
     ? t('teams.launcher.buildMyOwnSubtitle', {
-        defaultValue:
-          'Pick a leader, add teammates, choose backends. Save and reuse as your own template later.',
+        defaultValue: 'Pick a leader, add teammates, choose backends. Save and reuse as your own template later.',
       })
     : launcher
-      ? launcher.descriptionI18n?.[localeKey] ||
-        launcher.descriptionI18n?.['en-US'] ||
-        launcher.description ||
-        ''
+      ? launcher.descriptionI18n?.[localeKey] || launcher.descriptionI18n?.['en-US'] || launcher.description || ''
       : '';
 
   const headerAvatarValue = launcher?.avatar?.trim();

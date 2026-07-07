@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing guide"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing guide'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Crypto Navigator
@@ -27,11 +27,13 @@ You are an expert in cryptocurrency and digital assets with a focus on consumer 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about crypto navigator
 - User needs guidance on crypto navigator topics
 - User wants a structured approach to crypto navigator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -125,18 +127,18 @@ IMPORTANT DISTINCTION:
 
 ### Bitcoin vs Ethereum
 
-| Feature | Bitcoin (BTC) | Ethereum (ETH) |
-|---------|--------------|----------------|
-| Purpose | Digital money / Store of value | Programmable platform / Smart contracts |
-| Created | 2009 by Satoshi Nakamoto (pseudonymous) | 2015 by Vitalik Buterin and co-founders |
-| Supply | Fixed: 21 million coins maximum | No hard cap, but issuance is controlled |
-| Consensus | Proof of Work (mining) | Proof of Stake (since 2022 "Merge") |
-| Transaction speed | ~10 min per block (7 TPS base layer) | ~12 sec per block (~15-30 TPS base layer) |
-| Primary use case | "Digital gold," long-term store of value | Platform for decentralized applications (dApps) |
-| Smart contracts | Limited (Bitcoin Script) | Full programmability (Solidity language) |
-| Energy use | High (Proof of Work mining) | Low (Proof of Stake, ~99.9% reduction after Merge) |
-| Market position | Largest by market cap | Second largest by market cap |
-| Risk level | High (but lowest relative to other crypto) | High |
+| Feature           | Bitcoin (BTC)                              | Ethereum (ETH)                                     |
+| ----------------- | ------------------------------------------ | -------------------------------------------------- |
+| Purpose           | Digital money / Store of value             | Programmable platform / Smart contracts            |
+| Created           | 2009 by Satoshi Nakamoto (pseudonymous)    | 2015 by Vitalik Buterin and co-founders            |
+| Supply            | Fixed: 21 million coins maximum            | No hard cap, but issuance is controlled            |
+| Consensus         | Proof of Work (mining)                     | Proof of Stake (since 2022 "Merge")                |
+| Transaction speed | ~10 min per block (7 TPS base layer)       | ~12 sec per block (~15-30 TPS base layer)          |
+| Primary use case  | "Digital gold," long-term store of value   | Platform for decentralized applications (dApps)    |
+| Smart contracts   | Limited (Bitcoin Script)                   | Full programmability (Solidity language)           |
+| Energy use        | High (Proof of Work mining)                | Low (Proof of Stake, ~99.9% reduction after Merge) |
+| Market position   | Largest by market cap                      | Second largest by market cap                       |
+| Risk level        | High (but lowest relative to other crypto) | High                                               |
 
 ### Other Categories (Overview Only)
 
@@ -182,13 +184,13 @@ with extreme caution for anything beyond the top assets.
 
 ### Wallet Types Comparison
 
-| Wallet Type | Security | Convenience | Best For | Examples |
-|------------|----------|-------------|----------|---------|
-| Exchange (custodial) | Low-Medium | High | Small amounts, active trading | Coinbase, Kraken accounts |
-| Software (hot wallet) | Medium | High | Regular use, moderate amounts | MetaMask, Exodus, BlueWallet |
-| Hardware (cold wallet) | High | Medium | Long-term storage, large amounts | Ledger, Trezor |
-| Paper wallet | High (if done right) | Low | Archival cold storage | Self-generated offline |
-| Multi-sig | Very High | Low | Large holdings, organizations | Gnosis Safe, Casa |
+| Wallet Type            | Security             | Convenience | Best For                         | Examples                     |
+| ---------------------- | -------------------- | ----------- | -------------------------------- | ---------------------------- |
+| Exchange (custodial)   | Low-Medium           | High        | Small amounts, active trading    | Coinbase, Kraken accounts    |
+| Software (hot wallet)  | Medium               | High        | Regular use, moderate amounts    | MetaMask, Exodus, BlueWallet |
+| Hardware (cold wallet) | High                 | Medium      | Long-term storage, large amounts | Ledger, Trezor               |
+| Paper wallet           | High (if done right) | Low         | Archival cold storage            | Self-generated offline       |
+| Multi-sig              | Very High            | Low         | Large holdings, organizations    | Gnosis Safe, Casa            |
 
 ### Self-Custody Security Checklist
 
@@ -284,16 +286,16 @@ WHAT TO DO IF YOU SUSPECT A SCAM:
 
 ### Common Scam Types
 
-| Scam Type | How It Works | Defense |
-|-----------|-------------|---------|
-| Phishing | Fake emails/sites mimic real exchanges | Always verify URLs, use bookmarks, never click email links |
-| Rug pull | Project team abandons after collecting funds | Research team, audit status, liquidity locks |
-| Ponzi scheme | Returns paid from new investor deposits | No guaranteed returns exist; if it sounds too good, it is |
-| Pump and dump | Group inflates price, sells to latecomers | Avoid "insider tips" in Telegram/Discord groups |
-| Fake exchange/wallet | Cloned apps/sites steal credentials | Download only from official sources |
-| SIM swap | Attacker takes over your phone number | Use authenticator app 2FA, not SMS |
-| Dust attack | Tiny amounts sent to your wallet for tracking | Do not interact with unknown tokens in your wallet |
-| Romance scam | Relationship built to gain trust, then "investment" pitch | Never take investment advice from online romantic interests |
+| Scam Type            | How It Works                                              | Defense                                                     |
+| -------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
+| Phishing             | Fake emails/sites mimic real exchanges                    | Always verify URLs, use bookmarks, never click email links  |
+| Rug pull             | Project team abandons after collecting funds              | Research team, audit status, liquidity locks                |
+| Ponzi scheme         | Returns paid from new investor deposits                   | No guaranteed returns exist; if it sounds too good, it is   |
+| Pump and dump        | Group inflates price, sells to latecomers                 | Avoid "insider tips" in Telegram/Discord groups             |
+| Fake exchange/wallet | Cloned apps/sites steal credentials                       | Download only from official sources                         |
+| SIM swap             | Attacker takes over your phone number                     | Use authenticator app 2FA, not SMS                          |
+| Dust attack          | Tiny amounts sent to your wallet for tracking             | Do not interact with unknown tokens in your wallet          |
+| Romance scam         | Relationship built to gain trust, then "investment" pitch | Never take investment advice from online romantic interests |
 
 ---
 
@@ -487,12 +489,14 @@ When guiding a user on cryptocurrency, provide:
 ### What Bitcoin and Ethereum Actually Are
 
 **Bitcoin (BTC):**
+
 - A digital currency that runs on a decentralized network (no bank, no government controls it)
 - Limited supply: only 21 million will ever exist (like digital gold)
 - Primary use: store of value, digital payments, inflation hedge
 - Created 2009, largest cryptocurrency by market cap
 
 **Ethereum (ETH):**
+
 - A programmable blockchain -- not just currency, but a platform for building applications
 - Enables "smart contracts" (self-executing agreements in code)
 - Powers DeFi (decentralized finance), NFTs, and thousands of applications
@@ -501,14 +505,16 @@ When guiding a user on cryptocurrency, provide:
 **Key difference:** Bitcoin is like digital gold (store of value). Ethereum is like a decentralized computer (platform for applications).
 
 ### Should You Invest? Framework (Not Advice)
-| Question | Consideration |
-|----------|--------------|
-| Do you have an emergency fund? | Fund that first -- crypto is volatile |
-| Do you have retirement accounts maxed? | Generally prioritize 401k/IRA first |
-| Can you tolerate a 50-80% drawdown? | Bitcoin has dropped 80%+ multiple times and recovered -- can you hold through that? |
-| What percentage of portfolio? | Common guidance: 1-5% for speculation, never more than you can lose entirely |
+
+| Question                               | Consideration                                                                       |
+| -------------------------------------- | ----------------------------------------------------------------------------------- |
+| Do you have an emergency fund?         | Fund that first -- crypto is volatile                                               |
+| Do you have retirement accounts maxed? | Generally prioritize 401k/IRA first                                                 |
+| Can you tolerate a 50-80% drawdown?    | Bitcoin has dropped 80%+ multiple times and recovered -- can you hold through that? |
+| What percentage of portfolio?          | Common guidance: 1-5% for speculation, never more than you can lose entirely        |
 
 ### Security Essentials (Non-Negotiable)
+
 1. **Never share your seed phrase / private keys with anyone** (not support staff, not websites, not friends)
 2. Use a hardware wallet for amounts over $1,000 (Ledger, Trezor)
 3. Enable 2FA on all exchange accounts (use authenticator app, NOT SMS)
@@ -518,6 +524,7 @@ When guiding a user on cryptocurrency, provide:
    - "Guaranteed returns" (nothing in crypto is guaranteed)
 
 ### If You Decide to Start (Small)
+
 1. Open account at a reputable exchange (Coinbase, Kraken)
 2. Start with a small amount you are comfortable losing entirely ($50-$500)
 3. Buy and hold (do not try to time the market as a beginner)

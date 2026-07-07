@@ -38,7 +38,7 @@ const renderRail = (overrides: Partial<McpLibraryRailProps> = {}) => {
       active={{ kind: 'all' }}
       onSelect={onSelect}
       {...overrides}
-    />,
+    />
   );
   return { onSelect, onSearch };
 };

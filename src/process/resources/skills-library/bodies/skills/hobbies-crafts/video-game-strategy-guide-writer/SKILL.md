@@ -15,13 +15,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide template writing step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide template writing step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Video Game Strategy Guide Writer
@@ -48,17 +48,17 @@ metadata:
 
 2. **Select the guide structure based on genre.** Use the genre-structure mapping:
 
-   | Game Genre | Primary Structure | Key Sections |
-   |------------|-------------------|--------------|
-   | RPG/Action RPG | Progression-based | Character builds, stat priorities, equipment progression, quest walkthrough, boss guides |
-   | FPS/TPS | Mechanic + map-based | Weapon comparisons, map callouts, positioning guides, sensitivity settings, team compositions |
-   | Real-time Strategy | Decision tree + build order | Opening build orders, unit counters, economic benchmarks, map-specific strategies |
-   | Turn-based Strategy | Tier list + synergy | Unit/character tier lists, team composition synergies, resource management, turn optimization |
-   | Survival/Crafting | Progression ladder | Early/mid/late game priorities, crafting recipes ranked by value, base layout guides |
-   | Puzzle | Solution patterns | Mechanic explanation, solution logic, common patterns, difficulty spike walkthroughs |
-   | Fighting | Frame data + matchup | Move lists with properties, combo routes, matchup charts, neutral game strategies |
-   | MOBA | Role-based + meta | Champion/hero guides, role fundamentals, item builds, macro strategy, patch notes analysis |
-   | Platformer | Level-by-level | Movement techniques, level walkthroughs, collectible locations, speedrun routes |
+   | Game Genre          | Primary Structure           | Key Sections                                                                                  |
+   | ------------------- | --------------------------- | --------------------------------------------------------------------------------------------- |
+   | RPG/Action RPG      | Progression-based           | Character builds, stat priorities, equipment progression, quest walkthrough, boss guides      |
+   | FPS/TPS             | Mechanic + map-based        | Weapon comparisons, map callouts, positioning guides, sensitivity settings, team compositions |
+   | Real-time Strategy  | Decision tree + build order | Opening build orders, unit counters, economic benchmarks, map-specific strategies             |
+   | Turn-based Strategy | Tier list + synergy         | Unit/character tier lists, team composition synergies, resource management, turn optimization |
+   | Survival/Crafting   | Progression ladder          | Early/mid/late game priorities, crafting recipes ranked by value, base layout guides          |
+   | Puzzle              | Solution patterns           | Mechanic explanation, solution logic, common patterns, difficulty spike walkthroughs          |
+   | Fighting            | Frame data + matchup        | Move lists with properties, combo routes, matchup charts, neutral game strategies             |
+   | MOBA                | Role-based + meta           | Champion/hero guides, role fundamentals, item builds, macro strategy, patch notes analysis    |
+   | Platformer          | Level-by-level              | Movement techniques, level walkthroughs, collectible locations, speedrun routes               |
 
 3. **Build the mechanic explanation pattern.** For each game mechanic the guide covers:
 
@@ -76,7 +76,6 @@ metadata:
    | Early | 1-20 | [action] | [action] | [action] | [trap] |
    | Mid | 20-50 | [action] | [action] | [action] | [trap] |
    | Late | 50+ | [action] | [action] | [action] | [trap] |
-
    - Each row represents a game phase (early, mid, late, endgame)
    - Priorities are ranked actions the player should focus on
    - The "Avoid" column lists common mistakes or traps for that phase
@@ -85,6 +84,7 @@ metadata:
 5. **Design decision trees for branching content.** For games with meaningful choices:
 
    **The Decision Node format:**
+
    ```
    [Decision Point]: [What the player must choose]
    |
@@ -122,7 +122,6 @@ metadata:
    | 1 | 100%-70% | [attack name]: [what it does] | [how to avoid it] | [when to deal damage] |
    | 2 | 70%-30% | [new attacks added] | [adjusted strategy] | [adjusted windows] |
    | 3 | 30%-0% | [enrage or final patterns] | [survival priority] | [final push strategy] |
-
    - Include a "common mistakes" section: what causes most players to fail this encounter
    - Include a "gear check" note: what stats or equipment make the fight significantly easier
 
@@ -229,12 +228,14 @@ metadata:
 ## Strategy Guide Framework: [Action RPG Title]
 
 ### Guide Brief
+
 - Game: [Title], Action RPG
 - Guide scope: Beginner guide -- first 10 hours, character builds, first boss
 - Target audience: New to this game and the action RPG genre
 - Game version: [version/patch number]
 
 ### Quick-Start: 5 Things Every New Player Should Know
+
 1. **Choose a melee build for your first character.** Ranged and magic builds require more game knowledge to play effectively. Melee builds are more forgiving because you can take hits while learning enemy patterns.
 2. **Do not spread your stat points evenly.** Focus 70% of stat points into your primary damage stat and 30% into your survivability stat. Even distribution creates a character that is mediocre at everything.
 3. **Explore every area before moving to the next.** The game rewards thorough exploration with hidden equipment, resources, and experience. Rushing the main path under-levels your character.
@@ -242,41 +243,45 @@ metadata:
 5. **Save your premium currency for inventory expansion.** The most common beginner mistake is spending premium currency on cosmetics. Inventory space lets you carry more resources and equipment, which translates to sustained progress.
 
 ### Mechanic Explanation: Damage Calculation
-| Element | Content |
-|---------|---------|
-| What it is | The formula that determines how much health an enemy loses when you hit them |
-| Why it matters | Understanding the formula tells you which stats and equipment to prioritize for maximum damage output |
-| How it works | Base damage = (Weapon damage + Stat bonus) x Skill multiplier - Enemy defense. Stat bonus = Primary stat x 1.5 (rounded down). If the result is below 1, the hit does 1 damage minimum. Critical hits multiply the final result by 1.5x (or 2.0x with the critical damage passive). |
-| When to use it | Use this formula to compare weapons: a weapon with 10 higher base damage but a slower attack speed may deal less total damage than a faster weapon. Calculate damage-per-second, not damage-per-hit. |
+
+| Element        | Content                                                                                                                                                                                                                                                                             |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What it is     | The formula that determines how much health an enemy loses when you hit them                                                                                                                                                                                                        |
+| Why it matters | Understanding the formula tells you which stats and equipment to prioritize for maximum damage output                                                                                                                                                                               |
+| How it works   | Base damage = (Weapon damage + Stat bonus) x Skill multiplier - Enemy defense. Stat bonus = Primary stat x 1.5 (rounded down). If the result is below 1, the hit does 1 damage minimum. Critical hits multiply the final result by 1.5x (or 2.0x with the critical damage passive). |
+| When to use it | Use this formula to compare weapons: a weapon with 10 higher base damage but a slower attack speed may deal less total damage than a faster weapon. Calculate damage-per-second, not damage-per-hit.                                                                                |
 
 ### Progression Chart: First 10 Hours
-| Phase | Hours | Priority 1 | Priority 2 | Priority 3 | Avoid |
-|-------|-------|------------|------------|------------|-------|
-| Tutorial (0-1h) | 0-1 | Complete all tutorial missions (they give unique starter equipment) | Experiment with both melee and ranged attacks to find your preference | Talk to every NPC in the starting area (some give free items) | Do not skip the tutorial boss -- it teaches the dodge mechanic |
-| Early exploration (1-4h) | 1-4 | Follow the main quest to unlock the crafting system | Gather every resource you find (crafting materials are scarce early) | Upgrade your weapon to +3 at the first forge | Do not sell crafting materials to vendors -- they are worth more as crafted items |
-| Pre-boss preparation (4-8h) | 4-8 | Complete side quests in the first two zones (experience and gear rewards) | Craft the [specific armor set] for the fire resistance it provides (needed for the first boss) | Stock up on 10+ healing items from gathering or purchase | Do not attempt the first boss below level 12 -- the damage check is strict |
-| First boss (8-10h) | 8-10 | Study the boss attack patterns in Phase 1 before committing to offense | Use the fire resistance gear crafted earlier | Keep 2 healing items in reserve for Phase 3 (the enrage phase) | Do not panic-heal at full health -- healing items are limited |
+
+| Phase                       | Hours | Priority 1                                                                | Priority 2                                                                                     | Priority 3                                                     | Avoid                                                                             |
+| --------------------------- | ----- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Tutorial (0-1h)             | 0-1   | Complete all tutorial missions (they give unique starter equipment)       | Experiment with both melee and ranged attacks to find your preference                          | Talk to every NPC in the starting area (some give free items)  | Do not skip the tutorial boss -- it teaches the dodge mechanic                    |
+| Early exploration (1-4h)    | 1-4   | Follow the main quest to unlock the crafting system                       | Gather every resource you find (crafting materials are scarce early)                           | Upgrade your weapon to +3 at the first forge                   | Do not sell crafting materials to vendors -- they are worth more as crafted items |
+| Pre-boss preparation (4-8h) | 4-8   | Complete side quests in the first two zones (experience and gear rewards) | Craft the [specific armor set] for the fire resistance it provides (needed for the first boss) | Stock up on 10+ healing items from gathering or purchase       | Do not attempt the first boss below level 12 -- the damage check is strict        |
+| First boss (8-10h)          | 8-10  | Study the boss attack patterns in Phase 1 before committing to offense    | Use the fire resistance gear crafted earlier                                                   | Keep 2 healing items in reserve for Phase 3 (the enrage phase) | Do not panic-heal at full health -- healing items are limited                     |
 
 ### Build Comparison: Starter Builds
-| Attribute | Warrior (Melee) | Ranger (Ranged) | Mage (Caster) |
-|-----------|-----------------|-----------------|----------------|
-| Playstyle | Close range, high durability, moderate damage | Mid range, mobile, sustained damage | Long range, high burst, fragile |
-| Difficulty | Easy -- can take hits while learning | Medium -- must maintain distance | Hard -- requires positioning and cooldown management |
-| Strengths | Survives mistakes, strong against single targets | Safe damage from distance, good for exploration | Highest damage potential, area attacks |
-| Weaknesses | Slow against groups, limited range | Lower burst damage, weaker against fast enemies | Very low health, punished hard for positioning errors |
-| Key stats | Strength (70%), Vitality (30%) | Dexterity (70%), Vitality (30%) | Intelligence (70%), Vitality (30%) |
-| Key gear | Heaviest armor available, highest-damage melee weapon | Medium armor, fastest ranged weapon | Light armor, highest magic power staff |
-| Best for | First playthrough, learning the game, solo play | Second playthrough, group play | Experienced players, optimization runs |
-| Beginner-friendly | Yes -- the most forgiving build for learning enemy patterns and game mechanics | Somewhat -- safe but requires more awareness | No -- high skill floor, not recommended for first character |
+
+| Attribute         | Warrior (Melee)                                                                | Ranger (Ranged)                                 | Mage (Caster)                                               |
+| ----------------- | ------------------------------------------------------------------------------ | ----------------------------------------------- | ----------------------------------------------------------- |
+| Playstyle         | Close range, high durability, moderate damage                                  | Mid range, mobile, sustained damage             | Long range, high burst, fragile                             |
+| Difficulty        | Easy -- can take hits while learning                                           | Medium -- must maintain distance                | Hard -- requires positioning and cooldown management        |
+| Strengths         | Survives mistakes, strong against single targets                               | Safe damage from distance, good for exploration | Highest damage potential, area attacks                      |
+| Weaknesses        | Slow against groups, limited range                                             | Lower burst damage, weaker against fast enemies | Very low health, punished hard for positioning errors       |
+| Key stats         | Strength (70%), Vitality (30%)                                                 | Dexterity (70%), Vitality (30%)                 | Intelligence (70%), Vitality (30%)                          |
+| Key gear          | Heaviest armor available, highest-damage melee weapon                          | Medium armor, fastest ranged weapon             | Light armor, highest magic power staff                      |
+| Best for          | First playthrough, learning the game, solo play                                | Second playthrough, group play                  | Experienced players, optimization runs                      |
+| Beginner-friendly | Yes -- the most forgiving build for learning enemy patterns and game mechanics | Somewhat -- safe but requires more awareness    | No -- high skill floor, not recommended for first character |
 
 ### Boss Guide: [First Major Boss Name]
-| Element | Detail |
-|---------|--------|
-| Name | [Boss name] |
-| Location | [Area name], end of the first major zone |
-| Recommended level | 12 minimum, 14 recommended |
-| Recommended gear | Fire resistance armor (+30% minimum), upgraded weapon (+3 or higher) |
-| Phase count | 3 phases |
+
+| Element           | Detail                                                               |
+| ----------------- | -------------------------------------------------------------------- |
+| Name              | [Boss name]                                                          |
+| Location          | [Area name], end of the first major zone                             |
+| Recommended level | 12 minimum, 14 recommended                                           |
+| Recommended gear  | Fire resistance armor (+30% minimum), upgraded weapon (+3 or higher) |
+| Phase count       | 3 phases                                                             |
 
 **Phase-by-Phase Breakdown:**
 | Phase | Health Range | Key Attacks | Safe Response | Punish Window |
@@ -286,15 +291,17 @@ metadata:
 | 3 (Enrage) | 30%-0% | All Phase 2 attacks but 30% faster. **Enrage Roar**: buffs the boss's damage by 50%. | Same dodges but with tighter timing. Prioritize survival over damage. Use healing items here. | The punish windows are 1 second shorter. Only attack during Fire Breath recovery (now 3 seconds). |
 
 **Common Mistakes:**
+
 - Attacking during Phase 3 without a punish window (greed kills more players than the boss does)
 - Not bringing fire resistance gear (Fire Breath deals 3x more damage without it)
 - Using all healing items in Phase 1-2 and having none for the enrage phase
 
 ### Glossary
-| Term | Definition |
-|------|-----------|
-| Stat bonus | The additional damage provided by your character's primary stat (Strength for melee, Dexterity for ranged, Intelligence for magic) |
-| Punish window | The period after a boss attack where the boss is vulnerable and you can safely deal damage |
-| Enrage | A boss mechanic that increases the boss's damage and speed when its health drops below a threshold |
-| Fire resistance | A defensive stat that reduces damage from fire-type attacks by a percentage |
-| DPS | Damage per second -- total damage output over time, accounting for attack speed |
+
+| Term            | Definition                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Stat bonus      | The additional damage provided by your character's primary stat (Strength for melee, Dexterity for ranged, Intelligence for magic) |
+| Punish window   | The period after a boss attack where the boss is vulnerable and you can safely deal damage                                         |
+| Enrage          | A boss mechanic that increases the boss's damage and speed when its health drops below a threshold                                 |
+| Fire resistance | A defensive stat that reduces damage from fire-type attacks by a percentage                                                        |
+| DPS             | Damage per second -- total damage output over time, accounting for attack speed                                                    |

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database backend automation"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database backend automation'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Database Migration Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is planning schema changes to a live production database and needs a zero-downtime or minimal-downtime strategy
 - User is asking how to rename columns, add NOT NULL constraints, split or merge tables, or change data types without breaking running application code
 - User wants to implement a versioned migration system using tools like Flyway, Liquibase, Alembic, golang-migrate, or Active Record migrations
@@ -30,6 +32,7 @@ metadata:
 - User needs to establish a migration workflow with CI/CD integration, including dry-run validation, checksum verification, and rollback procedures
 
 **Do NOT use this skill when:**
+
 - User needs help with ORM query optimization or index tuning -- use the database-query-optimization skill instead
 - User is asking about ETL pipelines moving data between systems -- that is a data-pipeline skill
 - User wants to set up database replication, failover, or read replicas -- use the database-high-availability skill
@@ -69,12 +72,14 @@ A migration cannot be planned in isolation -- it requires full knowledge of what
 Select the pattern based on the migration type from Step 1:
 
 **Pattern A -- Direct Apply (additive only):**
+
 - Add a nullable column, a new table, or a CONCURRENTLY-built index.
 - Deploy migration first, then deploy application code that uses it.
 - Rollback: drop the new column or index.
 - Example: `ALTER TABLE orders ADD COLUMN shipped_at TIMESTAMPTZ;`
 
 **Pattern B -- Expand-Contract (for column renames, type changes, table splits):**
+
 - Phase 1 (Expand): Add the new column/table alongside the old one. Deploy application code that writes to BOTH old and new simultaneously. Duration: one full release cycle.
 - Phase 2 (Backfill): Populate the new column from the old using batched UPDATE statements (see Step 5).
 - Phase 3 (Cut over): Deploy application code that reads exclusively from the new column/table.
@@ -82,12 +87,14 @@ Select the pattern based on the migration type from Step 1:
 - This pattern requires 3-4 separate deployments. Build this timeline into the project plan.
 
 **Pattern C -- Online Schema Change (for large table structural changes):**
+
 - For tables over 1 GB or with high write throughput, use tooling like `pt-online-schema-change` (MySQL), `gh-ost` (GitHub Online Schema Change, MySQL), or `pg_repack` (Postgres) to avoid exclusive table locks.
 - These tools create a shadow table, apply the structural change, sync data via triggers, then perform an atomic rename swap.
 - Validate that replication lag stays under acceptable thresholds (typically < 30 seconds) during the online schema change.
 - Test OSC tooling in a staging environment with production-scale data (or a realistic subset -- at minimum 10% of production row count).
 
 **Pattern D -- Constraint addition without full table lock:**
+
 - For NOT NULL: backfill nulls first, then use a check constraint `ADD CONSTRAINT col_not_null CHECK (col IS NOT NULL) NOT VALID`, then `VALIDATE CONSTRAINT`. In Postgres 12+, you can then convert to a true NOT NULL using `SET NOT NULL` which uses the validated constraint to skip a full table scan.
 - For UNIQUE: create a `UNIQUE INDEX CONCURRENTLY` first, then `ADD CONSTRAINT ... USING INDEX` to convert it to a constraint atomically.
 - For foreign keys: use `ADD CONSTRAINT ... NOT VALID` to add without scanning existing rows, then `VALIDATE CONSTRAINT` in a separate transaction to validate existing data with a lower lock level.
@@ -168,7 +175,7 @@ Every migration that reaches production becomes part of the permanent history of
 
 When helping a user with a database migration, produce output in the following structure:
 
-```
+````
 ## Migration Plan: [brief description]
 
 ### Classification
@@ -210,9 +217,10 @@ BEGIN;
 -- [migration SQL here]
 
 COMMIT;
-```
+````
 
 #### Backfill Script (if applicable)
+
 **Run as:** [migration framework | background job | manual]
 **Batch size:** [N rows]
 **Monitor:** [what to watch]
@@ -231,11 +239,13 @@ END $$;
 ```
 
 ### Rollback Procedure
+
 1. [Step 1 with exact SQL or command]
 2. [Step 2]
 3. [Verification query to confirm rollback succeeded]
 
 ### Post-Migration Validation
+
 ```sql
 -- Run immediately after migration applies
 -- [Verification queries asserting expected schema state]
@@ -244,10 +254,12 @@ END $$;
 ```
 
 ### Follow-Up Actions
+
 - [ ] [Contract phase ticket created with due date]
 - [ ] [Schema documentation updated]
 - [ ] [ADR written if non-standard pattern used]
-```
+
+````
 
 ---
 
@@ -404,9 +416,10 @@ CREATE OR REPLACE VIEW user_search_view AS
   FROM users;
 
 COMMIT;
-```
+````
 
 **Post-Phase-1 Validation:**
+
 ```sql
 -- Confirm column exists and types are correct
 SELECT column_name, data_type, character_maximum_length, is_nullable
@@ -426,6 +439,7 @@ SELECT viewname, definition FROM pg_views WHERE viewname = 'user_search_view';
 **Deploy Release 1 after Phase 1 migration is confirmed applied.**
 
 Application code changes required in Release 1:
+
 - On every write to `users` (INSERT or UPDATE), write the same value to both `username` and `display_name`.
 - On reads, continue reading from `username` (display_name may be NULL during backfill).
 - Example ORM change (ActiveRecord pseudocode):
@@ -443,7 +457,7 @@ Application code changes required in Release 1:
 
 **Run as:** Background job deployed with Release 1 -- NOT as a Flyway migration (too slow for migration framework sequence)
 **Batch size:** 5,000 rows per transaction
-**Total estimated time:** 80,000,000 rows / 5,000 per batch = 16,000 batches * ~6 seconds per batch (UPDATE + sleep) ≈ 27 hours
+**Total estimated time:** 80,000,000 rows / 5,000 per batch = 16,000 batches \* ~6 seconds per batch (UPDATE + sleep) ≈ 27 hours
 **Monitor:** Poll replication lag every 30 seconds; pause if lag > 30s
 
 ```sql
@@ -505,6 +519,7 @@ END $$;
 ```
 
 **Backfill Completion Verification:**
+
 ```sql
 -- Must return 0 before proceeding to Phase 3
 SELECT COUNT(*) FROM users WHERE display_name IS NULL;
@@ -613,6 +628,7 @@ COMMIT;
 ```
 
 **Post-Phase-4 Validation:**
+
 ```sql
 -- Confirm username column is gone
 SELECT column_name FROM information_schema.columns
@@ -633,17 +649,18 @@ SELECT COUNT(*) FROM user_search_view LIMIT 1;
 
 ### Rollback Procedures by Phase
 
-| Phase | Rollback Method | Estimated Time |
-|-------|----------------|----------------|
-| Phase 1 (Expand DDL) | `ALTER TABLE users DROP COLUMN display_name;` | < 1 second |
-| Phase 2 (Dual Write App) | Redeploy Release 0 (app only) | 5-10 minutes (Kubernetes rollback) |
-| Phase 2b (Backfill) | Stop background job; display_name remains partially populated but app still reads username | Instant |
-| Phase 3 (NOT NULL + Read Switch) | `ALTER TABLE users ALTER COLUMN display_name DROP NOT NULL;` then redeploy Release 1 | < 1 second DDL + 5-10 min app rollback |
-| Phase 4 (Drop username) | **BACKUP RESTORE ONLY** -- no in-place recovery | 30-120 minutes depending on backup size |
+| Phase                            | Rollback Method                                                                            | Estimated Time                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------- |
+| Phase 1 (Expand DDL)             | `ALTER TABLE users DROP COLUMN display_name;`                                              | < 1 second                              |
+| Phase 2 (Dual Write App)         | Redeploy Release 0 (app only)                                                              | 5-10 minutes (Kubernetes rollback)      |
+| Phase 2b (Backfill)              | Stop background job; display_name remains partially populated but app still reads username | Instant                                 |
+| Phase 3 (NOT NULL + Read Switch) | `ALTER TABLE users ALTER COLUMN display_name DROP NOT NULL;` then redeploy Release 1       | < 1 second DDL + 5-10 min app rollback  |
+| Phase 4 (Drop username)          | **BACKUP RESTORE ONLY** -- no in-place recovery                                            | 30-120 minutes depending on backup size |
 
 ---
 
 ### Follow-Up Actions
+
 - [ ] Follow-up ticket created: "Contract Phase -- Drop username column" (due: 2024-03-29, 72 hours after Release 2 stability confirmed)
 - [ ] `migration_progress` table cleaned up after backfill: `DELETE FROM migration_progress WHERE migration_name = 'backfill_display_name';`
 - [ ] Internal ERD updated to reflect `display_name` column

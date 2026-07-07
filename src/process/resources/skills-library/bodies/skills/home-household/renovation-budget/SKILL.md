@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance planning decision-making budgeting"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance planning decision-making budgeting'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Renovation Budget
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how much a specific home renovation project will cost (kitchen, bathroom, basement, addition, deck, roof, windows, flooring, etc.)
 - A user wants a structured budget before meeting with contractors or applying for a home equity loan
 - A user needs cost-per-square-foot benchmarks to sanity-check a contractor's bid
@@ -30,6 +32,7 @@ metadata:
 - A user is planning a phased renovation over multiple years and wants to understand cost implications of sequencing
 
 **Do NOT use when:**
+
 - The user is building a new home from scratch -- new construction uses entirely different cost structures (stick-frame cost per sqft, site work, foundation, utility hookups) that do not map to renovation pricing
 - The user needs commercial or multi-family renovation analysis -- commercial builds involve different labor classifications, permitting complexity, ADA compliance costs, and occupancy requirements
 - The user wants real estate investment ROI calculations -- net present value, cap rate analysis, and rental yield math belong in a personal finance or real estate investment skill
@@ -70,22 +73,23 @@ Tier classification is the single most important scoping decision. Misclassifyin
 
 Use the following national median baseline ranges. These represent fully installed cost including materials, labor, permits, and a standard 15% contingency. They are NOT contractor markup-free material costs.
 
-| Project Type | Budget/Cosmetic | Mid-Range | Upscale |
-|---|---|---|---|
-| Kitchen | $75-$130/sqft | $130-$275/sqft | $275-$500+/sqft |
-| Primary bathroom | $60-$110/sqft | $110-$225/sqft | $225-$450+/sqft |
-| Secondary/hall bathroom | $50-$90/sqft | $90-$180/sqft | $180-$350+/sqft |
-| Basement finishing | $25-$45/sqft | $45-$80/sqft | $80-$160+/sqft |
-| Bedroom or living room refresh | $15-$30/sqft | $30-$65/sqft | $65-$130+/sqft |
-| Whole-home renovation | $35-$55/sqft | $55-$110/sqft | $110-$225+/sqft |
-| Deck addition (pressure-treated) | $15-$25/sqft | $25-$45/sqft | $45-$100+/sqft |
-| Exterior siding replacement | $4-$8/sqft | $8-$18/sqft | $18-$40+/sqft |
-| Roof replacement (asphalt) | $3-$5/sqft | $5-$10/sqft | $10-$20+/sqft |
-| Window replacement (per window) | $300-$500/ea | $500-$900/ea | $900-$2,000+/ea |
-| Flooring only (per sqft installed) | $3-$6/sqft | $6-$14/sqft | $14-$30+/sqft |
-| HVAC replacement (central system) | $5,000-$8,000 flat | $8,000-$14,000 flat | $14,000-$25,000+ flat |
+| Project Type                       | Budget/Cosmetic    | Mid-Range           | Upscale               |
+| ---------------------------------- | ------------------ | ------------------- | --------------------- |
+| Kitchen                            | $75-$130/sqft      | $130-$275/sqft      | $275-$500+/sqft       |
+| Primary bathroom                   | $60-$110/sqft      | $110-$225/sqft      | $225-$450+/sqft       |
+| Secondary/hall bathroom            | $50-$90/sqft       | $90-$180/sqft       | $180-$350+/sqft       |
+| Basement finishing                 | $25-$45/sqft       | $45-$80/sqft        | $80-$160+/sqft        |
+| Bedroom or living room refresh     | $15-$30/sqft       | $30-$65/sqft        | $65-$130+/sqft        |
+| Whole-home renovation              | $35-$55/sqft       | $55-$110/sqft       | $110-$225+/sqft       |
+| Deck addition (pressure-treated)   | $15-$25/sqft       | $25-$45/sqft        | $45-$100+/sqft        |
+| Exterior siding replacement        | $4-$8/sqft         | $8-$18/sqft         | $18-$40+/sqft         |
+| Roof replacement (asphalt)         | $3-$5/sqft         | $5-$10/sqft         | $10-$20+/sqft         |
+| Window replacement (per window)    | $300-$500/ea       | $500-$900/ea        | $900-$2,000+/ea       |
+| Flooring only (per sqft installed) | $3-$6/sqft         | $6-$14/sqft         | $14-$30+/sqft         |
+| HVAC replacement (central system)  | $5,000-$8,000 flat | $8,000-$14,000 flat | $14,000-$25,000+ flat |
 
 **Important calibration notes:**
+
 - Kitchens and bathrooms are NOT priced purely by square footage -- they are dominated by fixture and cabinet costs. A 100 sqft kitchen and a 175 sqft kitchen may have similar cabinet costs. Use the per-sqft ranges only as a first approximation; break them into line items for accuracy.
 - Basement finishing cost depends heavily on ceiling height, egress window requirements, and moisture mitigation needs. A wet basement adds $3,000-$15,000 before finish work begins.
 - Whole-home renovation rates apply when 60%+ of the home's interior is being renovated simultaneously. Economies of scale from shared mobilization and simultaneous trades reduce per-sqft cost compared to room-by-room work.
@@ -99,6 +103,7 @@ Never present only a cost-per-sqft total. Always decompose the budget into categ
 **Standard cost allocation percentages by project type:**
 
 For a kitchen renovation:
+
 - Cabinets: 25-35% of total project cost (largest single line item by far)
 - Countertops: 8-12% of total
 - Appliances: 10-20% of total (user-supplied vs. contractor-supplied changes this)
@@ -111,6 +116,7 @@ For a kitchen renovation:
 - Dumpster rental and debris removal: 1-2% of total
 
 For a bathroom renovation:
+
 - Tile (floor and wall): 20-30% of total
 - Labor (tile setter, plumber, electrician, finish carpenter): 35-45% of total
 - Vanity and countertop: 10-15% of total
@@ -121,6 +127,7 @@ For a bathroom renovation:
 - Accessories (towel bars, mirror, medicine cabinet): 2-4% of total
 
 **Labor cost breakdown by trade (national median hourly/daily rates):**
+
 - General contractor overhead and profit: typically 15-25% markup on all subs and materials
 - Plumber: $85-$150/hour; rough-in work billed per fixture or per day ($800-$1,500/day)
 - Licensed electrician: $80-$140/hour; panel upgrade adds $1,500-$4,000 flat
@@ -138,21 +145,22 @@ Contingency is not a slush fund -- it is a calculated risk premium based on meas
 
 **Contingency rate decision matrix:**
 
-| Condition | Contingency Add |
-|---|---|
-| Home built after 2000, no known issues | 10% base |
-| Home built 1980-2000, standard conditions | +3-5% (total 13-15%) |
-| Home built 1960-1980 | +5-8% (total 15-18%) |
-| Home built before 1960 | +10-12% (total 20-22%) |
-| Known prior water damage (even if repaired) | +5% additional |
-| Renovation involves opening walls or subfloor | +3-5% additional |
-| Project in high-seismic or hurricane zone (additional code requirements) | +3-7% additional |
-| Supply chain volatility for specialty materials | +2-5% additional |
-| Homeowner has never renovated before (decision fatigue, change orders) | +3-5% additional |
+| Condition                                                                | Contingency Add        |
+| ------------------------------------------------------------------------ | ---------------------- |
+| Home built after 2000, no known issues                                   | 10% base               |
+| Home built 1980-2000, standard conditions                                | +3-5% (total 13-15%)   |
+| Home built 1960-1980                                                     | +5-8% (total 15-18%)   |
+| Home built before 1960                                                   | +10-12% (total 20-22%) |
+| Known prior water damage (even if repaired)                              | +5% additional         |
+| Renovation involves opening walls or subfloor                            | +3-5% additional       |
+| Project in high-seismic or hurricane zone (additional code requirements) | +3-7% additional       |
+| Supply chain volatility for specialty materials                          | +2-5% additional       |
+| Homeowner has never renovated before (decision fatigue, change orders)   | +3-5% additional       |
 
 Cap the total contingency recommendation at 30% -- beyond that, the underlying estimate is too uncertain to be useful and the project requires a professional assessment before budgeting.
 
 **What contingency actually covers (itemize this for the user):**
+
 - Subfloor damage discovered during demo: $500-$4,000 to sister or replace joists
 - Hidden water damage in walls: $1,000-$8,000 depending on extent and mold presence
 - Outdated wiring requiring panel upgrade or new circuits: $1,500-$5,000
@@ -170,23 +178,24 @@ Cost-versus-value analysis tells the homeowner what fraction of renovation spend
 
 **National median cost recovery rates (Remodeling Magazine Cost vs. Value methodology):**
 
-| Project | Average Cost Recovery |
-|---|---|
-| Garage door replacement | 90-100% (highest ROI of any project) |
-| Minor kitchen remodel (cosmetic, $10K-$20K) | 72-82% |
-| Manufactured stone veneer exterior | 88-96% |
-| Entry door replacement (steel) | 75-85% |
-| Deck addition (wood) | 65-75% |
-| Window replacement (vinyl) | 64-72% |
-| Major kitchen remodel ($50K+) | 52-62% |
-| Primary bathroom addition | 54-65% |
-| Bathroom remodel (mid-range) | 60-70% |
-| Primary suite addition | 50-62% |
-| Basement finishing | 58-68% |
-| Roof replacement (asphalt) | 55-65% |
-| Second-story addition | 45-58% |
+| Project                                     | Average Cost Recovery                |
+| ------------------------------------------- | ------------------------------------ |
+| Garage door replacement                     | 90-100% (highest ROI of any project) |
+| Minor kitchen remodel (cosmetic, $10K-$20K) | 72-82%                               |
+| Manufactured stone veneer exterior          | 88-96%                               |
+| Entry door replacement (steel)              | 75-85%                               |
+| Deck addition (wood)                        | 65-75%                               |
+| Window replacement (vinyl)                  | 64-72%                               |
+| Major kitchen remodel ($50K+)               | 52-62%                               |
+| Primary bathroom addition                   | 54-65%                               |
+| Bathroom remodel (mid-range)                | 60-70%                               |
+| Primary suite addition                      | 50-62%                               |
+| Basement finishing                          | 58-68%                               |
+| Roof replacement (asphalt)                  | 55-65%                               |
+| Second-story addition                       | 45-58%                               |
 
 **Contextual rules for cost-versus-value interpretation:**
+
 - ROI is highest when the home is under-improved relative to neighborhood comparables. Renovating the worst kitchen on the block recovers far more than renovating an already-nice kitchen.
 - ROI is lowest when the renovation is taste-specific (unusual tile patterns, non-neutral colors, highly personalized layouts).
 - In a strong seller's market with low inventory, buyers accept homes as-is more readily -- renovation ROI compresses because unimproved homes also sell well.
@@ -200,6 +209,7 @@ Cost-versus-value analysis tells the homeowner what fraction of renovation spend
 For each budget, provide at least three specific, quantified cost-saving strategies. These must be specific to the project type, not generic advice.
 
 **Kitchen-specific savings:**
+
 - Stock cabinets vs. semi-custom: saves $3,000-$8,000 on a typical kitchen. Stock cabinets from major home improvement retailers are available in 3-inch increments; filler strips close gaps. Quality has improved significantly -- stock boxes are now comparable to semi-custom construction.
 - Laminate countertops vs. quartz: saves $1,500-$4,500. Modern laminate with realistic stone patterns is indistinguishable from a distance and appropriate for budget and mid-range tiers.
 - Keep existing cabinet layout: moving a sink across the room costs $1,500-$4,000 in plumbing labor alone (extending drain lines, relocating vents). Moving an island with electrical adds another $800-$2,000.
@@ -207,12 +217,14 @@ For each budget, provide at least three specific, quantified cost-saving strateg
 - Tile backsplash DIY installation: a motivated homeowner can tile a backsplash over a weekend with proper prep. Saves $300-$800 in labor; materials are identical.
 
 **Bathroom-specific savings:**
+
 - Prefab shower surround vs. custom tile: saves $1,500-$4,000. Acrylic surrounds have 40-year life spans, require no grout maintenance, and install in half the time.
 - Standard toilet vs. wall-hung: wall-hung toilets require a steel carrier frame installed in the wall ($800-$1,500 extra) and complicate future repairs. Save $600-$1,200 by using a floor-mounted close-coupled toilet.
 - Vanity from a supply house vs. custom built: prefabricated vanities with pre-cut tops are $400-$1,200; custom-built vanity with separate countertop runs $2,000-$5,000+.
 - Resurface vs. replace tub: professional tub resurfacing (reglazing) costs $400-$650 and lasts 10-15 years with proper care. Tub replacement plus tile work runs $2,000-$6,000.
 
 **Universal savings strategies:**
+
 - Do your own demolition: gut demo on a bathroom or kitchen takes 1-2 days and saves $800-$2,500 in labor. Requires proper PPE, dumpster rental ($300-$500), and verification of asbestos/lead status before disturbing materials.
 - Purchase materials directly and pay contractor labor only: most general contractors mark up materials 10-20%. Buying tile, flooring, and fixtures directly saves this markup -- but the contractor must agree to this arrangement in advance.
 - Sequence work to avoid trade return trips: mobilization charges are real. Plan work so plumber rough-ins, electrical rough-ins, inspection, drywall, and finish trades flow in sequence without gaps. Each unnecessary return trip costs $150-$400 minimum.
@@ -358,27 +370,35 @@ Assemble all calculations into the structured output format. Every budget must i
 ## Edge Cases
 
 ### Fixed Budget Constraint
+
 When the user states a specific dollar ceiling, the calculation works backward. Divide the stated budget by (1 + contingency rate as decimal) to find the working base budget. Example: user has $30,000 for a kitchen remodel in a 1990 home. Contingency rate: 17%. Working base budget: $30,000 ÷ 1.17 = $25,600. At $125-$275/sqft mid-range, $25,600 supports 93-205 sqft. For a 150 sqft kitchen, the affordable tier is low mid-range -- achievable with stock or semi-custom cabinets, laminate or entry-level quartz countertops, and LVP flooring. Present this as a scope statement: "Your $30,000 budget (including 17% contingency) supports a mid-range kitchen refresh at approximately 150 sqft if you use stock cabinetry, laminate or entry-level quartz countertops, and LVP flooring. Full custom cabinets or stone tile flooring would push the project into a range your budget cannot absorb."
 
 ### Phased Renovation
+
 When renovation is planned across multiple calendar years, add 5-8% to the total estimated cost for phasing inefficiency. This covers: repeated mobilization fees (each phase has setup and teardown costs), temporary finishes between phases (patching drywall where future trades will re-open), protecting completed work during active construction in adjacent areas, and the certainty that material and labor costs will increase between phases. Additionally: if Phase 1 involves any shared systems (electrical panel, plumbing stack, HVAC) that Phase 2 also touches, it is almost always cheaper to address those systems in Phase 1 even if Phase 2 is two years away. Opening walls twice costs more than opening them once. Identify and flag shared-system dependencies explicitly.
 
 ### Home Built Before 1960 -- Known and Unknown Hazards
+
 Homes pre-dating 1960 may contain: lead paint on all painted surfaces (pre-1978), asbestos in floor tiles (9x9 vinyl floor tile from the 1950s-60s is almost certainly asbestos-containing), pipe insulation (wrap on heating pipes), roof felt, drywall joint compound (pre-1977), and exterior siding (asbestos cement shingles). Knob-and-tube wiring (pre-1940s) cannot legally be covered with insulation and triggers a full panel and wiring evaluation in most jurisdictions when a permit is pulled. Galvanized steel water supply pipes are nearly 70 years old in a 1955 home -- they are near or at end of life and have reduced interior diameter from corrosion. Cast iron drain lines may be partially deteriorated. Add $2,500-$5,000 per identified hazard type to the contingency register. Do not price abatement as a certainty -- price it as a probabilistic contingency item.
 
 ### Homeowner Plans Significant DIY Labor
+
 When the user intends to do meaningful work themselves (beyond minor tasks like painting), present a modified budget that separates "owner-supplied labor" from "contractor labor" as distinct lines. Quantify the labor savings using the trade rates from Step 4. Then add critical caveats: (1) Most jurisdictions require licensed electricians and plumbers to pull permits -- DIY electrical and plumbing may not pass inspection. (2) DIY work that must be re-done by a contractor due to code failure can cost more than hiring a professional from the start. (3) Tile installation, drywall finishing, and cabinet installation are skill-dependent -- a poor tile job is expensive to remediate. Reserve DIY for demolition, painting, and fixture installation where quality risk is lowest and licensing is not required.
 
 ### Post-Disaster Renovation (Flood, Fire, Mold)
+
 When the renovation follows water damage, fire, or significant mold, the budget must include remediation costs before any renovation scope begins. Water damage remediation: $1,500-$10,000 depending on extent, class of water (clean, gray, or black), and whether mold is present. Mold remediation: $500-$6,000 for a contained bathroom wall; $10,000-$30,000 for structural framing contamination. Fire damage: smoke and soot cleaning of HVAC and ductwork adds $2,000-$5,000; structural char evaluation is required before rebuilding. In all post-disaster cases, note that if the homeowner has a homeowners insurance claim in progress, the insurance adjuster's estimate (produced in Xactimate) uses different unit pricing than standard contractor estimates. The homeowner may need a public adjuster if the insurance estimate appears to undervalue the loss.
 
 ### Renovation to Sell (Pre-Listing Prep)
+
 When the user states they are renovating specifically to sell the home, shift the framing of the entire analysis toward cost-versus-value ROI rather than quality of finish. Key guidance for pre-listing renovations: (1) Never exceed the top-of-market comparable for the neighborhood -- over-improving produces the lowest ROI. (2) Focus on high-ROI items first: garage door replacement, fresh exterior paint, cleaned landscaping, minor kitchen refresh, and fresh neutral interior paint. (3) Avoid upscale finishes entirely -- future buyers have their own tastes and will not pay a premium for your specific premium choices. (4) Budget for staging ($1,500-$3,500) and professional photography ($300-$800) as part of the renovation-to-sell investment -- these have among the highest measurable ROI of any pre-listing expenditure.
 
 ### New Addition vs. Renovation
+
 When the user wants to add square footage (bump-out, sunroom, second story, accessory dwelling unit), flag that addition costs use different unit pricing from renovation costs. Additions involve: new foundation or structural extension ($15,000-$40,000 for a ground-level addition depending on type), new roofline tie-in, exterior wall framing, new exterior envelope (siding, windows, roofing), and full interior finish. Addition costs typically run $150-$350/sqft of new gross floor area for a basic mid-range quality -- this is 2-3x higher per sqft than interior renovation because every square foot of addition requires full structural, envelope, and finish work from scratch. Ensure the user understands this distinction before budgeting.
 
 ### Luxury Material Long Lead Times
+
 When the project involves premium materials with long manufacturing or shipping lead times -- custom cabinetry (8-16 weeks), imported stone slabs (4-10 weeks), specialty tile (6-12 weeks), custom windows and doors (10-20 weeks) -- flag that project scheduling must account for procurement. A common and expensive mistake: starting demolition before materials are on-site. A gutted kitchen waiting 10 weeks for cabinets costs the homeowner in temporary kitchen setup ($500-$2,000), contractor remobilization fees ($500-$1,500), and potential storage fees for early-delivered materials. Recommend the user confirm all material lead times and have materials on-site or in confirmed transit before demo begins.
 
 ---
@@ -394,102 +414,110 @@ When the project involves premium materials with long manufacturing or shipping 
 ## Renovation Budget: Primary Bathroom -- Mid-Range
 
 ### Project Summary
-| Parameter              | Value                                        |
-|------------------------|----------------------------------------------|
-| Project type           | Primary bathroom                             |
-| Renovation area        | 75 sqft                                      |
-| Renovation tier        | Mid-Range (trending Upscale due to drain relocation) |
-| Home age               | 1987 (1980--2000 era)                        |
-| Layout changes         | Yes -- shower drain relocation required       |
-| Cost-per-sqft range    | $130--$225/sqft (adjusted upward for drain work) |
-| Contingency rate       | 20% (1980--2000 era + wall/subfloor opening) |
-| Geographic adjustment  | National baseline -- verify against local contractor quotes |
+
+| Parameter             | Value                                                       |
+| --------------------- | ----------------------------------------------------------- |
+| Project type          | Primary bathroom                                            |
+| Renovation area       | 75 sqft                                                     |
+| Renovation tier       | Mid-Range (trending Upscale due to drain relocation)        |
+| Home age              | 1987 (1980--2000 era)                                       |
+| Layout changes        | Yes -- shower drain relocation required                     |
+| Cost-per-sqft range   | $130--$225/sqft (adjusted upward for drain work)            |
+| Contingency rate      | 20% (1980--2000 era + wall/subfloor opening)                |
+| Geographic adjustment | National baseline -- verify against local contractor quotes |
 
 ---
 
 ### Line-Item Budget
-| Category                     | Estimated Cost   | % of Subtotal |
-|------------------------------|------------------|---------------|
-| Materials (all items)        | $8,500           | 42%           |
-| Labor (all trades)           | $9,200           | 46%           |
-| Permits and inspections      | $600             | 3%            |
-| Debris removal / dumpster    | $400             | 2%            |
-| Design / planning            | $1,300           | 7%            |
-| **Subtotal (base estimate)** | **$20,000**      | **100%**      |
-| Contingency (20%)            | $4,000           | --            |
-| **Total Budget**             | **$24,000**      | --            |
 
-*Cost per sqft on base estimate: $267/sqft -- above the mid-range ceiling due to drain relocation. This is appropriate and expected.*
+| Category                     | Estimated Cost | % of Subtotal |
+| ---------------------------- | -------------- | ------------- |
+| Materials (all items)        | $8,500         | 42%           |
+| Labor (all trades)           | $9,200         | 46%           |
+| Permits and inspections      | $600           | 3%            |
+| Debris removal / dumpster    | $400           | 2%            |
+| Design / planning            | $1,300         | 7%            |
+| **Subtotal (base estimate)** | **$20,000**    | **100%**      |
+| Contingency (20%)            | $4,000         | --            |
+| **Total Budget**             | **$24,000**    | --            |
+
+_Cost per sqft on base estimate: $267/sqft -- above the mid-range ceiling due to drain relocation. This is appropriate and expected._
 
 ---
 
 ### Material Cost Detail
-| Material / Component         | Specification                              | Estimated Range    |
-|------------------------------|--------------------------------------------|--------------------|
-| Floor tile                   | 12x24 porcelain, mid-grade                 | $700--$1,200       |
-| Shower wall tile             | Large-format porcelain or ceramic, 75 sqft | $1,200--$2,500     |
-| Shower pan / linear drain    | Custom mud bed with linear drain           | $400--$800         |
-| Shower valve and trim        | Thermostatic or pressure-balance, chrome   | $350--$700         |
-| Shower glass enclosure       | Semi-frameless, 36--48" entry              | $900--$2,200       |
-| Double vanity (60")          | Pre-fabricated, soft-close, with top       | $1,200--$2,500     |
-| Faucets (x2)                 | Single-hole or 3-hole, brushed nickel      | $200--$500         |
-| Toilet                       | Elongated comfort height, 1.28 gpf         | $200--$500         |
-| Vanity light fixture         | LED bar, 36--48"                           | $150--$400         |
-| Exhaust fan                  | 110 CFM with timer, code-required          | $100--$250         |
-| Accessories                  | Towel bars, robe hook, toilet paper holder | $150--$400         |
-| Drywall and backer board     | Cement board in wet areas                  | $200--$500         |
-| Paint and primer             | Bathroom-specific moisture-resistant       | $100--$200         |
+
+| Material / Component      | Specification                              | Estimated Range |
+| ------------------------- | ------------------------------------------ | --------------- |
+| Floor tile                | 12x24 porcelain, mid-grade                 | $700--$1,200    |
+| Shower wall tile          | Large-format porcelain or ceramic, 75 sqft | $1,200--$2,500  |
+| Shower pan / linear drain | Custom mud bed with linear drain           | $400--$800      |
+| Shower valve and trim     | Thermostatic or pressure-balance, chrome   | $350--$700      |
+| Shower glass enclosure    | Semi-frameless, 36--48" entry              | $900--$2,200    |
+| Double vanity (60")       | Pre-fabricated, soft-close, with top       | $1,200--$2,500  |
+| Faucets (x2)              | Single-hole or 3-hole, brushed nickel      | $200--$500      |
+| Toilet                    | Elongated comfort height, 1.28 gpf         | $200--$500      |
+| Vanity light fixture      | LED bar, 36--48"                           | $150--$400      |
+| Exhaust fan               | 110 CFM with timer, code-required          | $100--$250      |
+| Accessories               | Towel bars, robe hook, toilet paper holder | $150--$400      |
+| Drywall and backer board  | Cement board in wet areas                  | $200--$500      |
+| Paint and primer          | Bathroom-specific moisture-resistant       | $100--$200      |
 
 ---
 
 ### Labor Cost Detail
-| Trade                        | Scope of Work                                              | Estimated Range  |
-|------------------------------|------------------------------------------------------------|------------------|
-| Plumber                      | Remove tub, relocate drain 18--24", set new shower rough-in, connect vanity, set toilet | $2,500--$4,000 |
-| Tile setter                  | Demo old tile, install cement board, tile floor (75 sqft) and shower walls (approx. 90 sqft), grout and seal | $2,500--$4,500 |
-| Electrician                  | New exhaust fan circuit (likely required by code), GFCI outlets, vanity light circuit | $600--$1,200 |
-| Finish carpenter / general   | Demo, vanity installation, accessories, paint, trim        | $1,500--$2,500   |
-| Drywall                      | Patch and finish after plumbing and electrical rough-in    | $400--$800       |
+
+| Trade                      | Scope of Work                                                                                                | Estimated Range |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| Plumber                    | Remove tub, relocate drain 18--24", set new shower rough-in, connect vanity, set toilet                      | $2,500--$4,000  |
+| Tile setter                | Demo old tile, install cement board, tile floor (75 sqft) and shower walls (approx. 90 sqft), grout and seal | $2,500--$4,500  |
+| Electrician                | New exhaust fan circuit (likely required by code), GFCI outlets, vanity light circuit                        | $600--$1,200    |
+| Finish carpenter / general | Demo, vanity installation, accessories, paint, trim                                                          | $1,500--$2,500  |
+| Drywall                    | Patch and finish after plumbing and electrical rough-in                                                      | $400--$800      |
 
 ---
 
 ### Contingency Risk Register
-| Risk Item                                  | Probability | Estimated Cost if Triggered  |
-|--------------------------------------------|-------------|------------------------------|
-| Subfloor rot beneath tub (common in 1987 homes with original caulk) | High | $800--$3,000 |
-| Shower drain relocation hits cross-member or cast iron stack requiring reroute | Medium | $600--$2,000 |
-| Existing exhaust fan ductwork not code-compliant (terminates in attic vs. exterior) | Medium | $300--$700 |
-| Galvanized supply stub-outs corroded, require copper or PEX replacement at valves | Low--Medium | $400--$1,200 |
-| Tile adhesion failure on original concrete subfloor (grind or self-level required) | Low | $300--$800 |
 
-*Total contingency: $4,000 -- within the estimated risk exposure above. If all risks triggered simultaneously, exposure would reach $8,000, which is why 20% contingency is the minimum for this scope.*
+| Risk Item                                                                           | Probability | Estimated Cost if Triggered |
+| ----------------------------------------------------------------------------------- | ----------- | --------------------------- |
+| Subfloor rot beneath tub (common in 1987 homes with original caulk)                 | High        | $800--$3,000                |
+| Shower drain relocation hits cross-member or cast iron stack requiring reroute      | Medium      | $600--$2,000                |
+| Existing exhaust fan ductwork not code-compliant (terminates in attic vs. exterior) | Medium      | $300--$700                  |
+| Galvanized supply stub-outs corroded, require copper or PEX replacement at valves   | Low--Medium | $400--$1,200                |
+| Tile adhesion failure on original concrete subfloor (grind or self-level required)  | Low         | $300--$800                  |
+
+_Total contingency: $4,000 -- within the estimated risk exposure above. If all risks triggered simultaneously, exposure would reach $8,000, which is why 20% contingency is the minimum for this scope._
 
 ---
 
 ### Cost vs. Value Analysis
-| Metric                           | Value                                              |
-|----------------------------------|----------------------------------------------------|
-| Total renovation budget          | $24,000                                            |
-| Project type resale recovery     | 60--70% (primary bathroom remodel, national median)|
-| Estimated resale value added     | $14,400--$16,800                                   |
-| Net homeowner cost after recovery| $7,200--$9,600                                     |
-| Primary value driver             | Both -- daily living quality and resale appeal     |
-| Market context note              | Recovery rate is higher in markets where comparable homes have updated primary baths. If neighbors have updated baths, this renovation closes a competitive gap and may recover 70--80%. If the neighborhood has mostly original baths, recovery is closer to the national median. |
+
+| Metric                            | Value                                                                                                                                                                                                                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Total renovation budget           | $24,000                                                                                                                                                                                                                                                                            |
+| Project type resale recovery      | 60--70% (primary bathroom remodel, national median)                                                                                                                                                                                                                                |
+| Estimated resale value added      | $14,400--$16,800                                                                                                                                                                                                                                                                   |
+| Net homeowner cost after recovery | $7,200--$9,600                                                                                                                                                                                                                                                                     |
+| Primary value driver              | Both -- daily living quality and resale appeal                                                                                                                                                                                                                                     |
+| Market context note               | Recovery rate is higher in markets where comparable homes have updated primary baths. If neighbors have updated baths, this renovation closes a competitive gap and may recover 70--80%. If the neighborhood has mostly original baths, recovery is closer to the national median. |
 
 ---
 
 ### Cost-Saving Opportunities
-| Strategy                                           | Estimated Savings   | Trade-Off                                                    |
-|----------------------------------------------------|---------------------|--------------------------------------------------------------|
-| Framed shower with acrylic panel vs. custom tile   | $2,500--$4,500      | Less custom appearance; appropriate for resale-focused projects but less premium than tile |
-| Single vanity (48") vs. double vanity (60")        | $400--$1,000        | Reduces counter space; impacts functionality for two-person households |
-| Standard mud-bed shower pan vs. linear drain       | $300--$600          | Conventional center drain is less contemporary in appearance but fully functional and easier to maintain |
-| Owner-supplied toilet and faucets                  | $150--$400 in markup| Homeowner must coordinate delivery timing and accept responsibility for product selection |
-| DIY demolition (remove tub, old tile, vanity)      | $600--$1,200        | 1--2 days labor; requires dumpster ($300--$500) and verified asbestos/lead status before disturbing any 1987-era materials |
+
+| Strategy                                         | Estimated Savings    | Trade-Off                                                                                                                  |
+| ------------------------------------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Framed shower with acrylic panel vs. custom tile | $2,500--$4,500       | Less custom appearance; appropriate for resale-focused projects but less premium than tile                                 |
+| Single vanity (48") vs. double vanity (60")      | $400--$1,000         | Reduces counter space; impacts functionality for two-person households                                                     |
+| Standard mud-bed shower pan vs. linear drain     | $300--$600           | Conventional center drain is less contemporary in appearance but fully functional and easier to maintain                   |
+| Owner-supplied toilet and faucets                | $150--$400 in markup | Homeowner must coordinate delivery timing and accept responsibility for product selection                                  |
+| DIY demolition (remove tub, old tile, vanity)    | $600--$1,200         | 1--2 days labor; requires dumpster ($300--$500) and verified asbestos/lead status before disturbing any 1987-era materials |
 
 ---
 
 ### Assumptions and Caveats
+
 - Existing subfloor is structurally sound and not waterlogged beneath the current tub area. Opening the floor may reveal damage requiring joist sistering or subfloor replacement.
 - No asbestos is present in existing floor tile or wall materials. The home was built in 1987, after the primary asbestos phase-out, but some products continued into the late 1980s. If any floor tile or adhesive appears to be original 9x9 vinyl composition tile, test before disturbing.
 - The existing electrical panel has capacity for one new circuit for the exhaust fan. If the panel is a Federal Pacific or Zinsco brand (common in 1987 homes and subject to recall concerns), budget an additional $2,000-$4,000 for panel replacement -- this is outside this project scope but should be flagged.
@@ -499,6 +527,7 @@ When the project involves premium materials with long manufacturing or shipping 
 ---
 
 ### Next Steps Checklist
+
 - [ ] Obtain 3 competitive bids from licensed local contractors; ask each to scope the drain relocation specifically and confirm their plumber has inspected the access point under the subfloor before pricing
 - [ ] Have existing floor tile and any vinyl sheet goods tested for asbestos by a certified inspector before demo ($150-$300) -- 1987 is close enough to the hazard era to warrant testing
 - [ ] Confirm permit requirements with your local building department: plumbing permit (drain relocation) and electrical permit (new circuit) are almost certainly required; verify whether a separate building permit is needed

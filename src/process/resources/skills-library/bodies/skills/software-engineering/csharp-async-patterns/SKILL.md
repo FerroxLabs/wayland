@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'csharp backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # C# Async Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - `async`/`await` usage, pitfalls, or anti-patterns in C# (deadlocks, `.Result`/`.Wait()` blocking, fire-and-forget)
 - `Task<T>` vs `ValueTask<T>` selection -- when to use each, allocation costs, misuse risks
 - `CancellationToken` propagation, linked token sources, timeout patterns, cooperative cancellation design
@@ -32,6 +34,7 @@ metadata:
 - Parallel async work patterns -- `Task.WhenAll`, `Task.WhenAny`, bounded parallelism with `SemaphoreSlim`
 
 **Do NOT use this skill when:**
+
 - The user asks about modern C# language idioms unrelated to async (records, pattern matching, file-scoped namespaces) -- use `csharp-modern-idioms`
 - The user asks about CPU-bound parallel processing with `Parallel.For`, PLINQ, or `System.Threading.Channels` architecture -- use `csharp-performance`
 - The user asks about ASP.NET Core middleware, Minimal API async endpoints, or Blazor async lifecycles in an architectural sense -- use `csharp-aspnet-patterns`
@@ -52,6 +55,7 @@ Identify which category the user's problem falls into before suggesting any code
 - **Bridging legacy or callback APIs** -- `BeginXxx`/`EndXxx` APM, event-based EAP, P/Invoke callbacks: use `TaskCompletionSource<T>`.
 
 Ask these diagnostic questions:
+
 - Is this library code or application code? Library code must use `ConfigureAwait(false)` on every await.
 - Does the operation complete synchronously in the common/hot path? If yes, consider `ValueTask<T>`.
 - Is cancellation required? Yes unless this is a truly fire-and-forget operation (rare).
@@ -64,6 +68,7 @@ Ask these diagnostic questions:
 This is the single most misunderstood decision in C# async. Use the following criteria:
 
 **Use `Task<T>` (the default) when:**
+
 - The operation almost always genuinely awaits (completes asynchronously most of the time)
 - The result will be awaited multiple times (multiple `await` on same task, `.Result` access after completion)
 - The task will be stored in a field and awaited later
@@ -71,12 +76,14 @@ This is the single most misunderstood decision in C# async. Use the following cr
 - The method has multiple `await` points (the allocation cost is amortized over the work)
 
 **Use `ValueTask<T>` when ALL of these are true:**
+
 - The operation completes synchronously in the hot/common path (e.g., a cache hit before an async cache miss)
 - The result is awaited exactly once and immediately
 - You have profiling evidence that `Task<T>` allocation is a measurable bottleneck (thousands of calls per second)
 - The ValueTask is NOT stored, re-awaited, or converted to a Task without calling `.AsTask()`
 
 **Hard rules about `ValueTask<T>` misuse:**
+
 - Never `await` a `ValueTask<T>` more than once -- it is undefined behavior after the first await
 - Never call `.Result` on a `ValueTask<T>` that is not yet complete
 - Never store `ValueTask<T>` in a variable and use it after the producing method has been called again (especially from pooled `IValueTaskSource<T>`)
@@ -89,25 +96,31 @@ This is the single most misunderstood decision in C# async. Use the following cr
 CancellationToken is not optional in production code. Every method that performs I/O or long-running work must accept a `CancellationToken`. Apply these rules:
 
 **Parameter position:** Always the last parameter with default `default` for public APIs:
+
 ```csharp
 public async Task<Order> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
 ```
 
 **Propagation rules:**
+
 - Pass the token to EVERY awaited async call downstream. Missing even one link breaks the cancellation chain.
 - Pass the token to `HttpClient.SendAsync`, `DbCommand.ExecuteReaderAsync`, `Stream.ReadAsync`, `Task.Delay`, `SemaphoreSlim.WaitAsync` -- all accept it.
 - If you use `Task.Run` for CPU-bound work, pass the token to `Task.Run` AND check it inside the lambda.
 
 **Creating linked sources:**
+
 - Use `CancellationTokenSource.CreateLinkedTokenSource(externalToken, internalToken)` when you need to impose a local timeout on top of an external cancellation:
+
 ```csharp
 using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 cts.CancelAfter(TimeSpan.FromSeconds(30));
 await DoWorkAsync(cts.Token);
 ```
+
 - Always `Dispose` the `CancellationTokenSource` -- it holds unmanaged resources. Use `using` or `await using`.
 
 **Handling cancellation in loops:**
+
 ```csharp
 while (!cancellationToken.IsCancellationRequested)
 {
@@ -116,6 +129,7 @@ while (!cancellationToken.IsCancellationRequested)
 // OR prefer:
 cancellationToken.ThrowIfCancellationRequested();
 ```
+
 - Prefer `ThrowIfCancellationRequested()` for methods that should surface `OperationCanceledException`; use `IsCancellationRequested` only when you need to do cleanup before returning.
 
 ---
@@ -125,15 +139,18 @@ cancellationToken.ThrowIfCancellationRequested();
 `ConfigureAwait(false)` tells the runtime not to capture the current `SynchronizationContext` or `TaskScheduler` when resuming after an await. This is one of the most commonly misapplied patterns.
 
 **When `ConfigureAwait(false)` IS required:**
+
 - In any library/NuGet package code -- you do not know what context the caller runs in, and failing to use it can deadlock in WinForms, WPF, or classic ASP.NET callers that block on `.Result` or `.Wait()`
 - In any code that will run in a UI application's library layer but does not need to return to the UI thread after the await
 
 **When `ConfigureAwait(false)` is NOT needed:**
+
 - In ASP.NET Core application code -- ASP.NET Core has no `SynchronizationContext`, so `ConfigureAwait(false)` has no behavioral effect (though it is not harmful)
 - In code that explicitly needs to resume on the UI thread (e.g., updating a WPF control after an awaited database call)
 - In the outermost application entry points (top-level `await` in `Main`)
 
 **The classic deadlock pattern to diagnose and explain:**
+
 ```csharp
 // DEADLOCK in WinForms/WPF/classic ASP.NET:
 public string GetData()
@@ -162,12 +179,14 @@ private async Task<string> GetDataAsync()
 Use `IAsyncEnumerable<T>` when data is produced incrementally -- do not buffer everything into a `List<T>` before returning it.
 
 **When to use `IAsyncEnumerable<T>`:**
+
 - Database result sets with thousands of rows (use with EF Core's `ToAsyncEnumerable()` or Dapper with `QueryUnbufferedAsync`)
 - Paginated API responses where each page requires a separate HTTP call
 - Real-time event streams, log tailing, SSE (Server-Sent Events) bridging
 - Any producer where results become available before all work is complete
 
 **Implementation rules:**
+
 ```csharp
 public async IAsyncEnumerable<Product> GetProductsAsync(
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -182,11 +201,13 @@ public async IAsyncEnumerable<Product> GetProductsAsync(
     }
 }
 ```
+
 - Always use `[EnumeratorCancellation]` attribute on the `CancellationToken` parameter of an async iterator -- this allows `WithCancellation()` calls from the consumer to propagate correctly
 - The `[EnumeratorCancellation]` attribute is on the parameter, not the method
 - The compiler generates a state machine; `yield return` inside `async` methods with `IAsyncEnumerable<T>` return type is valid C# 8+
 
 **Consumer pattern:**
+
 ```csharp
 await foreach (var product in repo.GetProductsAsync()
     .WithCancellation(cancellationToken)
@@ -203,6 +224,7 @@ await foreach (var product in repo.GetProductsAsync()
 `Task.WhenAll` with unbounded parallelism is a common mistake. When fanning out 10,000 tasks simultaneously, you exhaust connection pools, hit rate limits, and cause cascading failures.
 
 **Safe fan-out pattern using `SemaphoreSlim`:**
+
 ```csharp
 private static async Task<IEnumerable<Result>> ProcessInParallelAsync<T>(
     IEnumerable<T> items,
@@ -228,12 +250,14 @@ private static async Task<IEnumerable<Result>> ProcessInParallelAsync<T>(
 ```
 
 **Concurrency limits by resource type:**
+
 - HTTP calls to an external API: 4--16 concurrent (respect rate limits; default `HttpClient` connection limit is 10 per host)
 - SQL database queries: equal to connection pool size / 2 (default pool max is 100, so ~50 concurrent is safe)
 - File I/O: 1--4 (disk seeks dominate above this)
 - CPU-bound work launched via `Task.Run`: `Environment.ProcessorCount` or `Environment.ProcessorCount - 1`
 
 **`Task.WhenAny` for timeouts and racing:**
+
 ```csharp
 var workTask = DoLongWorkAsync(cancellationToken);
 var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
@@ -250,7 +274,9 @@ return await workTask.ConfigureAwait(false);
 `async void` is a trap. Exceptions thrown inside `async void` methods crash the process (in most runtimes) because there is no `Task` for the caller to observe.
 
 **Legitimate uses of `async void`:**
+
 - Top-level event handlers in WinForms/WPF where the signature is mandated:
+
 ```csharp
 private async void Button_Click(object sender, EventArgs e)
 {
@@ -266,9 +292,11 @@ private async void Button_Click(object sender, EventArgs e)
     }
 }
 ```
+
 - Always wrap in try/catch -- the event handler is the last line of defense
 
 **Fire-and-forget with error handling (never use `async void` for this):**
+
 ```csharp
 // BAD: exceptions are unobserved
 _ = DoBackgroundWorkAsync(); // suppresses warning but exception is lost
@@ -296,22 +324,25 @@ DoBackgroundWorkAsync(cancellationToken).FireAndForget(logger, cancellationToken
 Guide the user to the root cause of async bugs using this checklist:
 
 **Deadlock diagnosis:**
+
 1. Is `.Result`, `.Wait()`, or `.GetAwaiter().GetResult()` called anywhere on the call stack? (blocking on async)
 2. Is the code running in a context with a single-threaded `SynchronizationContext` (WinForms, WPF, classic ASP.NET)?
 3. Does the awaited method lack `ConfigureAwait(false)`?
-If all three are true: classic deadlock. Fix by adding `ConfigureAwait(false)` throughout the library chain, or by making the call stack fully async.
+   If all three are true: classic deadlock. Fix by adding `ConfigureAwait(false)` throughout the library chain, or by making the call stack fully async.
 
 **Thread pool starvation diagnosis:**
+
 1. Are there many synchronous `.Wait()` or `.Result` calls in hot paths?
 2. Is thread pool usage consistently near `Environment.ProcessorCount * 2` active threads?
 3. Are async operations queued but not starting for seconds?
-Fix: make the entire call chain async. Never block thread pool threads.
+   Fix: make the entire call chain async. Never block thread pool threads.
 
 **Unobserved exception diagnosis:**
+
 1. Is a `Task` returned from an async method discarded with `_` or no assignment?
 2. Is `async void` used outside event handlers?
 3. Is `TaskScheduler.UnobservedTaskException` firing in logs?
-Fix: always `await` tasks or use the fire-and-forget wrapper above. Subscribe to `TaskScheduler.UnobservedTaskException` as a last-resort global handler.
+   Fix: always `await` tasks or use the fire-and-forget wrapper above. Subscribe to `TaskScheduler.UnobservedTaskException` as a last-resort global handler.
 
 ---
 
@@ -319,7 +350,7 @@ Fix: always `await` tasks or use the fire-and-forget wrapper above. Subscribe to
 
 When answering a C# async question, structure your response as follows:
 
-```
+````
 ## Problem Classification
 [I/O-bound async | Streaming | Parallel fan-out | Legacy bridge | Cancellation design]
 Root cause identified: [specific issue, e.g., deadlock from missing ConfigureAwait, ValueTask misuse, unbounded parallelism]
@@ -352,7 +383,7 @@ Rationale: [1-2 sentences explaining why this fits]
 
 ### Testing Guidance
 - [How to test this async pattern -- fake delays, CancellationTokenSource, etc.]
-```
+````
 
 ---
 
@@ -385,6 +416,7 @@ Rationale: [1-2 sentences explaining why this fits]
 ### Legacy Codebase with Synchronous Interfaces
 
 When a codebase has interfaces that return `string` or `IEnumerable<T>` and you cannot change the interface, do not add `async` to the implementing method and call `.GetAwaiter().GetResult()` inside it -- this recreates all the deadlock risk. Instead:
+
 - Create a parallel `Async` interface (`IOrderRepositoryAsync`) and implement it alongside the synchronous version
 - Migrate callers to the async interface incrementally
 - If you absolutely must call async code from a synchronous context, use a dedicated thread: `Task.Run(() => GetDataAsync(token)).GetAwaiter().GetResult()` -- this prevents the deadlock because `Task.Run` runs on a thread pool thread without a `SynchronizationContext`. Still, document why this is unavoidable.
@@ -392,6 +424,7 @@ When a codebase has interfaces that return `string` or `IEnumerable<T>` and you 
 ### EF Core and IAsyncEnumerable
 
 EF Core's `ToAsyncEnumerable()` returns `IAsyncEnumerable<T>`, but the DbContext must remain open for the duration of the enumeration. If the DbContext is scoped (common in ASP.NET Core), and you yield items out to a higher layer that outlives the scope, you will get a `DbContext disposed` exception mid-stream.
+
 - Do not return raw `IAsyncEnumerable<T>` from repositories that use scoped DbContexts across tier boundaries
 - Either materialize the results within the repository scope, or ensure the consumer awaits the full enumeration within the same scope
 - Use `await using var context = _factory.CreateDbContext()` pattern with `IDbContextFactory<T>` when you need the DbContext lifetime tied to the streaming operation
@@ -399,6 +432,7 @@ EF Core's `ToAsyncEnumerable()` returns `IAsyncEnumerable<T>`, but the DbContext
 ### HttpClient and CancellationToken
 
 `HttpClient.SendAsync` with a `CancellationToken` will throw `OperationCanceledException` when the token is cancelled, but it also throws `OperationCanceledException` (not `TaskCanceledException`) when the `HttpClient.Timeout` is exceeded in older .NET versions. In .NET 5+, timeout throws `TaskCanceledException` with `InnerException` of `TimeoutException`. Always check the exception chain:
+
 ```csharp
 catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
 {
@@ -415,6 +449,7 @@ catch (OperationCanceledException ex) when (ex.InnerException is TimeoutExceptio
 ### async/await in Constructors
 
 C# constructors cannot be `async`. Developers sometimes call `.GetAwaiter().GetResult()` in a constructor, which introduces blocking. The correct patterns are:
+
 - **Factory method pattern:** `public static async Task<MyService> CreateAsync(...)` that awaits initialization and returns the fully constructed instance
 - **Lazy initialization:** Defer async initialization to the first use with a `Lazy<Task<T>>` or a private `_initialized` flag and an `EnsureInitializedAsync()` method called at the start of each public method
 - **`IHostedService.StartAsync`:** In ASP.NET Core, async startup work belongs in `StartAsync`, not the constructor
@@ -422,6 +457,7 @@ C# constructors cannot be `async`. Developers sometimes call `.GetAwaiter().GetR
 ### ValueTask Pooling via IValueTaskSource
 
 Advanced libraries (like `System.IO.Pipelines` and `System.Net.Sockets`) pool `IValueTaskSource<T>` instances to achieve zero-allocation async paths. If you implement `IValueTaskSource<T>`:
+
 - The source can only be in one of three states: pending, succeeded, faulted -- never recycle it back to the pool before the consumer has completed its await
 - `GetResult()` must only be called once; calling it twice corrupts state
 - Use `ManualResetValueTaskSourceCore<T>` (in `System.Threading.Tasks.Sources`) as the backing implementation -- do not implement the interface manually from scratch
@@ -430,12 +466,14 @@ Advanced libraries (like `System.IO.Pipelines` and `System.Net.Sockets`) pool `I
 ### Async Streams with Exceptions Mid-Sequence
 
 When an `IAsyncEnumerable<T>` producer throws mid-sequence, the consumer's `await foreach` will surface the exception at the next `MoveNextAsync()` call. The producer's `finally` and `using` blocks ARE executed -- the compiler-generated state machine ensures cleanup on `DisposeAsync()`. However:
+
 - If the consumer disposes the enumerator early (breaks out of `await foreach`), `DisposeAsync()` is called -- ensure the producer disposes its resources in `finally` blocks, not after the final `yield return`
 - Never `yield return` inside a `try/catch` block that catches `Exception` broadly -- it prevents the compiler from generating correct state machine transitions and produces a compiler error in C# prior to C# 8.0 iterator semantics updates
 
 ### Thread Pool Starvation in Azure Functions / AWS Lambda
 
 Serverless runtimes impose tight thread pool limits. A common failure mode: sync-over-async calls during cold starts stall the thread pool, causing subsequent requests to queue and timeout.
+
 - In Azure Functions, enable `FUNCTIONS_WORKER_PROCESS_COUNT` and ensure the host is fully async
 - Never use `.Result` or `.Wait()` in Azure Functions middleware or DI factory methods
 - Monitor thread pool starvation with EventSource / `ThreadPool.GetAvailableThreads()` -- if available worker threads drop below `ProcessorCount * 2`, starvation is occurring
@@ -451,9 +489,11 @@ Serverless runtimes impose tight thread pool limits. A common failure mode: sync
 **Output:**
 
 ## Problem Classification
+
 **I/O-bound async + deadlock from blocking + unobserved exceptions (fire-and-forget)**
 
 Root causes identified:
+
 1. `GetPaymentStatusAsync().Result` on a WPF UI thread blocks the SynchronizationContext, which deadlocks when the async method tries to resume on the same context
 2. Background retry tasks are discarded (fire-and-forget without error observation), causing exceptions to be swallowed
 
@@ -466,6 +506,7 @@ Root causes identified:
 The call chain must become fully async from the button click handler down to the HTTP call. There is no shortcut.
 
 **Before (deadlocks):**
+
 ```csharp
 // WPF ViewModel -- DEADLOCKS
 public void RefreshStatus()
@@ -476,6 +517,7 @@ public void RefreshStatus()
 ```
 
 **After (correct):**
+
 ```csharp
 // WPF ViewModel -- correct async command pattern
 public ICommand RefreshCommand => new AsyncRelayCommand(RefreshStatusAsync);
@@ -506,6 +548,7 @@ private async Task RefreshStatusAsync(CancellationToken cancellationToken = defa
 ```
 
 **In the payment service (library code -- must use ConfigureAwait(false)):**
+
 ```csharp
 public class PaymentService : IPaymentService
 {
@@ -545,12 +588,14 @@ public class PaymentService : IPaymentService
 ### Fix 2 -- Replace Fire-and-Forget with Observable Background Tasks
 
 **Before (exceptions silently lost):**
+
 ```csharp
 // Nobody awaits this -- if it throws, the exception disappears
 _ = RetryPaymentAsync(paymentId);
 ```
 
 **After (exceptions are logged, task is tracked):**
+
 ```csharp
 // Extension method for safe fire-and-forget
 public static class TaskExtensions
@@ -603,6 +648,7 @@ protected override void OnClosed(EventArgs e)
 ### Fix 3 -- Add CancellationToken with Timeout to the Retry Logic
 
 **Retry with timeout and cancellation:**
+
 ```csharp
 private async Task RetryPaymentAsync(
     Guid paymentId,
@@ -659,13 +705,13 @@ private async Task RetryPaymentAsync(
 
 ### Decision Matrix
 
-| Concern | Old Approach | Fixed Approach | Why It Matters |
-|---|---|---|---|
-| UI thread blocking | `.Result` in ViewModel | `async Task` command pattern | Prevents SynchronizationContext deadlock |
-| Library awaits | No ConfigureAwait | `ConfigureAwait(false)` on all awaits | Removes context capture; safe for any caller |
-| Background exceptions | Discarded `_` task | `FireAndForget` with ContinueWith | All failures logged; no silent data loss |
-| Per-request timeout | None | Linked CTS with `CancelAfter` | Prevents retry storms hanging indefinitely |
-| Cancellation at shutdown | None | `CancellationTokenSource` on window close | Clean shutdown without lingering background work |
+| Concern                  | Old Approach           | Fixed Approach                            | Why It Matters                                   |
+| ------------------------ | ---------------------- | ----------------------------------------- | ------------------------------------------------ |
+| UI thread blocking       | `.Result` in ViewModel | `async Task` command pattern              | Prevents SynchronizationContext deadlock         |
+| Library awaits           | No ConfigureAwait      | `ConfigureAwait(false)` on all awaits     | Removes context capture; safe for any caller     |
+| Background exceptions    | Discarded `_` task     | `FireAndForget` with ContinueWith         | All failures logged; no silent data loss         |
+| Per-request timeout      | None                   | Linked CTS with `CancelAfter`             | Prevents retry storms hanging indefinitely       |
+| Cancellation at shutdown | None                   | `CancellationTokenSource` on window close | Clean shutdown without lingering background work |
 
 ---
 

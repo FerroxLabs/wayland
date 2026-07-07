@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "proposal writing planning"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'proposal writing planning'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Project Proposal Writing
 
 ## When to Use
@@ -63,10 +64,10 @@ The problem statement is the most important section of any proposal. Decision-ma
 
 - **Current state description:** What is happening today, in specific, observable terms (not "support is overwhelmed" -- "the support team receives 180 inbound requests per week and handles them through a single shared email inbox with no assignment logic")
 - **Quantified cost of the current state:** Translate pain into dollars, hours, or risk level. Use at least two of these quantification lenses:
-  - *Direct cost:* Labor hours wasted × hourly loaded cost (salary + benefits + overhead, typically 1.25x--1.4x base salary)
-  - *Opportunity cost:* Revenue not captured because of the limitation
-  - *Risk cost:* Probability × impact of the risk event occurring (e.g., a 30% chance of a $200K compliance fine = $60K expected loss)
-  - *Replacement cost:* What it would cost to fix the damage after the problem causes harm
+  - _Direct cost:_ Labor hours wasted × hourly loaded cost (salary + benefits + overhead, typically 1.25x--1.4x base salary)
+  - _Opportunity cost:_ Revenue not captured because of the limitation
+  - _Risk cost:_ Probability × impact of the risk event occurring (e.g., a 30% chance of a $200K compliance fine = $60K expected loss)
+  - _Replacement cost:_ What it would cost to fix the damage after the problem causes harm
 - **Root cause:** Why does the problem exist? This is critical -- it proves you understand the problem deeply enough to solve it, and it pre-empts "why hasn't this already been fixed?"
 - **Trajectory:** Is the problem static, worsening, or accelerating? Proposals that show a worsening trend ("customer base grew 30% this year; support tickets grew 47%") create urgency that static descriptions do not
 - **Connection to organizational priorities:** Link explicitly to a strategic objective the approver already owns. If the company is in a growth phase, link to scalability. If the company is managing costs, link to efficiency. If the company is dealing with a compliance requirement, link to risk reduction
@@ -80,6 +81,7 @@ Never present a single recommendation. Approvers instinctively push back on prop
 - **Option 3 -- The Proposed Solution (recommended):** The full-scope recommendation. Frame it as the recommendation, not the ideal. Acknowledge what it requires and why the return justifies it
 
 For the recommended solution, address four dimensions concisely:
+
 - What it delivers (outcomes and success metrics, not activities)
 - How it works at a high level (one paragraph -- not a technical specification)
 - Why this approach over the alternatives (criteria-based comparison)
@@ -452,13 +454,13 @@ Each month, three Finance Analysts spend two full business days -- the 27th thro
 
 ### Cost of the Current State
 
-| Cost Dimension | Annual Impact |
-|----------------|--------------|
-| Labor: 576 analyst-hours/year × $65/hour loaded rate | $37,440 |
-| Billing dispute resolution: triage, customer communication, credit issuance | $22,000 (4-quarter actual) |
-| Delayed month-end close: finance team overtime in first week of each month | $8,100 |
-| Risk exposure: probability of a material billing error reaching an enterprise account (est. 15% × $80K avg. ARR impact) | $12,000 (expected annual) |
-| **Total estimated annual cost** | **$79,540** |
+| Cost Dimension                                                                                                          | Annual Impact              |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Labor: 576 analyst-hours/year × $65/hour loaded rate                                                                    | $37,440                    |
+| Billing dispute resolution: triage, customer communication, credit issuance                                             | $22,000 (4-quarter actual) |
+| Delayed month-end close: finance team overtime in first week of each month                                              | $8,100                     |
+| Risk exposure: probability of a material billing error reaching an enterprise account (est. 15% × $80K avg. ARR impact) | $12,000 (expected annual)  |
+| **Total estimated annual cost**                                                                                         | **$79,540**                |
 
 ### Root Cause
 
@@ -480,12 +482,12 @@ This proposal directly supports two organizational priorities established in the
 
 Maintain the current manual process. Costs continue to compound as transaction volume grows.
 
-| Year | Cumulative Cost of Inaction |
-|------|----------------------------|
-| Year 1 | $79,540 |
-| Year 2 | $105,000 (estimated, at current growth rate with additional analyst hire) |
-| Year 3 | $138,000 (estimated, with continued growth) |
-| **3-Year Total** | **$322,540** |
+| Year             | Cumulative Cost of Inaction                                               |
+| ---------------- | ------------------------------------------------------------------------- |
+| Year 1           | $79,540                                                                   |
+| Year 2           | $105,000 (estimated, at current growth rate with additional analyst hire) |
+| Year 3           | $138,000 (estimated, with continued growth)                               |
+| **3-Year Total** | **$322,540**                                                              |
 
 This option does not address the enterprise billing SLA commitment and creates a material risk to the Series C readiness audit if month-end close time cannot be reduced.
 
@@ -503,13 +505,13 @@ The integration will be built and maintained by a vendor-managed professional se
 
 #### Criteria-Based Comparison
 
-| Criterion | Weight | Do Nothing | Standardize Manual | Recommended Integration |
-|-----------|--------|------------|-------------------|------------------------|
-| Eliminates root cause | 30% | ✗ | ✗ | ✓ |
-| Scalable with growth | 25% | ✗ | ✗ | ✓ |
-| Meets 5-day close target | 20% | ✗ | Partial | ✓ |
-| Time to value | 15% | -- | 30 days | 90 days |
-| 3-year total cost | 10% | $322,540 | $316,540 | $141,000 |
+| Criterion                | Weight | Do Nothing | Standardize Manual | Recommended Integration |
+| ------------------------ | ------ | ---------- | ------------------ | ----------------------- |
+| Eliminates root cause    | 30%    | ✗          | ✗                  | ✓                       |
+| Scalable with growth     | 25%    | ✗          | ✗                  | ✓                       |
+| Meets 5-day close target | 20%    | ✗          | Partial            | ✓                       |
+| Time to value            | 15%    | --         | 30 days            | 90 days                 |
+| 3-year total cost        | 10%    | $322,540   | $316,540           | $141,000                |
 
 ---
 
@@ -517,37 +519,37 @@ The integration will be built and maintained by a vendor-managed professional se
 
 ### Investment Summary
 
-| Cost Item | One-Time | Annual Recurring | 3-Year Total |
-|-----------|----------|-----------------|-------------|
-| iPaaS platform license (3 connectors) | -- | $18,000 | $54,000 |
-| Implementation and integration build | $42,000 | -- | $42,000 |
-| Internal engineering time (20 hours × $140/hr loaded) | $2,800 | -- | $2,800 |
-| Analyst training and process documentation | $4,200 | -- | $4,200 |
-| Contingency reserve (15%) | $7,350 | -- | $7,350 |
-| Annual platform support and maintenance | -- | $10,550 | $31,650 |
-| **Total** | **$56,350** | **$28,550** | **$141,000** |
+| Cost Item                                             | One-Time    | Annual Recurring | 3-Year Total |
+| ----------------------------------------------------- | ----------- | ---------------- | ------------ |
+| iPaaS platform license (3 connectors)                 | --          | $18,000          | $54,000      |
+| Implementation and integration build                  | $42,000     | --               | $42,000      |
+| Internal engineering time (20 hours × $140/hr loaded) | $2,800      | --               | $2,800       |
+| Analyst training and process documentation            | $4,200      | --               | $4,200       |
+| Contingency reserve (15%)                             | $7,350      | --               | $7,350       |
+| Annual platform support and maintenance               | --          | $10,550          | $31,650      |
+| **Total**                                             | **$56,350** | **$28,550**      | **$141,000** |
 
 Note: The budget range indicated in the project brief ($40K--$60K) covers the first-year implementation cost. This proposal presents the full 3-year TCO for a complete financial picture, as the CFO review process requires 3-year cost disclosure for SaaS platform commitments.
 
 ### Expected Benefits
 
-| Benefit | Measurement | Conservative Estimate | Base Estimate | Source |
-|---------|-------------|----------------------|---------------|--------|
-| Labor recovered: analyst time | 576 hrs/yr × loaded rate | $31,000/yr | $37,440/yr | Timesheet data, 4 quarters |
-| Billing dispute reduction (est. 85% reduction) | Dispute cost per incident | $15,000/yr | $18,700/yr | Finance dispute log, 4 quarters |
-| Eliminated overtime in first week of month | Overtime pay records | $6,500/yr | $8,100/yr | Payroll records |
-| Risk exposure reduction | Expected value of material billing error | $8,500/yr | $12,000/yr | Risk assessment |
-| **Total Annual Benefit** | | **$61,000/yr** | **$76,240/yr** | |
+| Benefit                                        | Measurement                              | Conservative Estimate | Base Estimate  | Source                          |
+| ---------------------------------------------- | ---------------------------------------- | --------------------- | -------------- | ------------------------------- |
+| Labor recovered: analyst time                  | 576 hrs/yr × loaded rate                 | $31,000/yr            | $37,440/yr     | Timesheet data, 4 quarters      |
+| Billing dispute reduction (est. 85% reduction) | Dispute cost per incident                | $15,000/yr            | $18,700/yr     | Finance dispute log, 4 quarters |
+| Eliminated overtime in first week of month     | Overtime pay records                     | $6,500/yr             | $8,100/yr      | Payroll records                 |
+| Risk exposure reduction                        | Expected value of material billing error | $8,500/yr             | $12,000/yr     | Risk assessment                 |
+| **Total Annual Benefit**                       |                                          | **$61,000/yr**        | **$76,240/yr** |                                 |
 
 ### Return Analysis
 
-| Metric | Conservative | Base Case |
-|--------|-------------|-----------|
-| Total 3-Year Investment | $141,000 | $141,000 |
-| Total 3-Year Benefit | $183,000 | $228,720 |
-| Net Benefit | $42,000 | $87,720 |
-| ROI | 30% | 62% |
-| Payback Period | 14 months | 9 months |
+| Metric                  | Conservative | Base Case |
+| ----------------------- | ------------ | --------- |
+| Total 3-Year Investment | $141,000     | $141,000  |
+| Total 3-Year Benefit    | $183,000     | $228,720  |
+| Net Benefit             | $42,000      | $87,720   |
+| ROI                     | 30%          | 62%       |
+| Payback Period          | 14 months    | 9 months  |
 
 Even in the conservative case, the project returns positive net value within 14 months and delivers full payback well within the 3-year horizon. If benefits are 30% below the conservative estimate and costs run 20% over budget, the project still breaks even within 22 months.
 
@@ -563,11 +565,11 @@ Even in the conservative case, the project returns positive net value within 14 
 
 ### Phases
 
-| Phase | Description | Key Deliverables | Timeline | Resources | Gate Criteria |
-|-------|-------------|-----------------|----------|-----------|---------------|
-| Phase 1: Design and Build | Vendor maps data schemas; builds and configures connectors for Salesforce, Stripe, and NetSuite | Connector configuration, field-mapping documentation, exception report template | Weeks 1--5 | Vendor team + 0.1 FTE Engineer | All three system APIs accessible; mapping signed off by Finance Operations |
-| Phase 2: Testing and UAT | Parallel running -- automated reconciliation runs alongside manual process; discrepancies compared | UAT sign-off document, exception rate baseline established | Weeks 6--9 | Vendor team + 0.25 FTE Analyst | <2% variance between automated and manual output over 2 full run cycles |
-| Phase 3: Cutover and Handover | Manual process retired; analyst team trained on exception-only workflow; monitoring dashboards live | Training completion records, runbook, monitoring alerts configured | Weeks 10--12 | 0.25 FTE Analyst + Vendor support | Exception workflow validated; Finance team confirms readiness |
+| Phase                         | Description                                                                                         | Key Deliverables                                                                | Timeline     | Resources                         | Gate Criteria                                                              |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------ | --------------------------------- | -------------------------------------------------------------------------- |
+| Phase 1: Design and Build     | Vendor maps data schemas; builds and configures connectors for Salesforce, Stripe, and NetSuite     | Connector configuration, field-mapping documentation, exception report template | Weeks 1--5   | Vendor team + 0.1 FTE Engineer    | All three system APIs accessible; mapping signed off by Finance Operations |
+| Phase 2: Testing and UAT      | Parallel running -- automated reconciliation runs alongside manual process; discrepancies compared  | UAT sign-off document, exception rate baseline established                      | Weeks 6--9   | Vendor team + 0.25 FTE Analyst    | <2% variance between automated and manual output over 2 full run cycles    |
+| Phase 3: Cutover and Handover | Manual process retired; analyst team trained on exception-only workflow; monitoring dashboards live | Training completion records, runbook, monitoring alerts configured              | Weeks 10--12 | 0.25 FTE Analyst + Vendor support | Exception workflow validated; Finance team confirms readiness              |
 
 ### Dependencies and Prerequisites
 
@@ -579,20 +581,20 @@ Even in the conservative case, the project returns positive net value within 14 
 
 ## Risk Analysis
 
-| Risk | Category | Impact | Likelihood | Risk Score | Mitigation | Residual Risk |
-|------|----------|--------|------------|------------|------------|---------------|
-| Data schema inconsistency discovered mid-implementation (e.g., Stripe customer IDs do not align with NetSuite account IDs) | Technical | High | Medium | High | Vendor has conducted a pre-implementation schema review; a 3-day contingency buffer is built into Phase 1. If schema issues require custom transformation logic, this is covered by the 15% contingency | Medium |
-| Finance analyst resistance to exception-only workflow after years of hands-on reconciliation | Organizational | Medium | Medium | Medium | Analysts have been consulted during proposal development and expressed support; Phase 2 parallel running preserves their ability to validate before manual process is retired | Low |
-| Vendor delivery delay pushing cutover past Q2 month-end cycle | Financial | Medium | Low | Low | Contract will include a week 9 milestone with a $5,000 penalty clause for delays caused by vendor; internal Engineering access commitments are confirmed | Low |
+| Risk                                                                                                                       | Category       | Impact | Likelihood | Risk Score | Mitigation                                                                                                                                                                                              | Residual Risk |
+| -------------------------------------------------------------------------------------------------------------------------- | -------------- | ------ | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| Data schema inconsistency discovered mid-implementation (e.g., Stripe customer IDs do not align with NetSuite account IDs) | Technical      | High   | Medium     | High       | Vendor has conducted a pre-implementation schema review; a 3-day contingency buffer is built into Phase 1. If schema issues require custom transformation logic, this is covered by the 15% contingency | Medium        |
+| Finance analyst resistance to exception-only workflow after years of hands-on reconciliation                               | Organizational | Medium | Medium     | Medium     | Analysts have been consulted during proposal development and expressed support; Phase 2 parallel running preserves their ability to validate before manual process is retired                           | Low           |
+| Vendor delivery delay pushing cutover past Q2 month-end cycle                                                              | Financial      | Medium | Low        | Low        | Contract will include a week 9 milestone with a $5,000 penalty clause for delays caused by vendor; internal Engineering access commitments are confirmed                                                | Low           |
 
 ---
 
 ## Concerns and Responses
 
-| Anticipated Concern | Response |
-|--------------------|---------|
-| "We've evaluated integration tools before and they were expensive to maintain." | This proposal uses pre-built connectors for all three platforms rather than custom-built integrations. Maintenance is covered by the vendor's platform support contract at $10,550/year. The Finance Operations team manages the exception workflow with no Engineering dependency post-launch. |
-| "What if Stripe or NetSuite changes their API and breaks the integration?" | The iPaaS vendor guarantees connector compatibility as part of the platform support SLA, including API version updates within 30 days of a platform change. This is a standard clause in enterprise iPaaS contracts and has been confirmed with the vendor. |
+| Anticipated Concern                                                                                                        | Response                                                                                                                                                                                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "We've evaluated integration tools before and they were expensive to maintain."                                            | This proposal uses pre-built connectors for all three platforms rather than custom-built integrations. Maintenance is covered by the vendor's platform support contract at $10,550/year. The Finance Operations team manages the exception workflow with no Engineering dependency post-launch.               |
+| "What if Stripe or NetSuite changes their API and breaks the integration?"                                                 | The iPaaS vendor guarantees connector compatibility as part of the platform support SLA, including API version updates within 30 days of a platform change. This is a standard clause in enterprise iPaaS contracts and has been confirmed with the vendor.                                                   |
 | "The 9-month payback assumes we capture all the labor savings -- what if the analysts just get reassigned to other tasks?" | The proposal identifies 576 analyst-hours per year currently spent on reconciliation. Recovering these hours creates capacity for the Q2 financial reporting automation initiative and the FP&A dashboard project, both of which are on Finance's 2026 roadmap and currently blocked by capacity constraints. |
 
 ---
@@ -612,12 +614,13 @@ April 30, 2026 -- to execute the vendor contract by May 5 and begin Phase 1 befo
 Each month of delay costs approximately $6,600 in continued labor and dispute costs based on the trailing 4-quarter average. A 2-month delay to a June start pushes the payback period from 9 months to 11 months and means the team absorbs another manual month-end cycle at the beginning of Series C preparation.
 
 **If approved, the immediate next steps are:**
+
 1. Vendor contract executed within 5 business days of approval
 2. Engineering API credential provisioning scheduled within 3 business days of approval
 3. Phase 1 kickoff meeting scheduled for the first week of May with vendor, Finance Operations, and Engineering
 
 ---
 
-*Appendix A: 4-quarter billing dispute log with cost detail*
-*Appendix B: iPaaS vendor evaluation scorecard (3 vendors evaluated)*
-*Appendix C: Detailed 3-year financial model with monthly cash flow*
+_Appendix A: 4-quarter billing dispute log with cost detail_
+_Appendix B: iPaaS vendor evaluation scorecard (3 vendors evaluated)_
+_Appendix C: Detailed 3-year financial model with monthly cash flow_

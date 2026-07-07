@@ -8,14 +8,14 @@
 
 Claude Code has two parallel multi-agent systems with fundamentally different design philosophies:
 
-| Dimension          | Subagent System                      | Teammate/Team System                          |
-| ------------------ | ------------------------------------ | --------------------------------------------- |
-| **Topology**       | Star (one leader, many followers)    | Flat (equal peers)                            |
-| **Communication**  | Function call return values          | File mailbox + memory queue (dual channel)    |
-| **Lifecycle**      | One-shot call, destroyed after use   | Persistent, listening in a while loop         |
-| **Message trigger**| Actively invoked                     | Push-injected (appears automatically as a new conversation turn) |
-| **Failure isolation** | Subagent failure doesn't affect the main agent | Any node crash affects the whole team |
-| **Best for**       | Dispatch → Execute → Aggregate       | Negotiate → Discuss → Decide                  |
+| Dimension             | Subagent System                                | Teammate/Team System                                             |
+| --------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| **Topology**          | Star (one leader, many followers)              | Flat (equal peers)                                               |
+| **Communication**     | Function call return values                    | File mailbox + memory queue (dual channel)                       |
+| **Lifecycle**         | One-shot call, destroyed after use             | Persistent, listening in a while loop                            |
+| **Message trigger**   | Actively invoked                               | Push-injected (appears automatically as a new conversation turn) |
+| **Failure isolation** | Subagent failure doesn't affect the main agent | Any node crash affects the whole team                            |
+| **Best for**          | Dispatch → Execute → Aggregate                 | Negotiate → Discuss → Decide                                     |
 
 **In short: Subagent is like calling a function; Team is like an enterprise group chat - messages pop up on their own, no polling required.**
 
@@ -85,21 +85,21 @@ type TeammateMessage = {
 
 **Complete set of 13 message types:**
 
-| Message Type                  | Description                        |
-| ----------------------------- | ---------------------------------- |
-| `permission_request`          | Request for operation permission   |
-| `permission_response`         | Permission response                |
-| `sandbox_permission_request`  | Sandbox permission request         |
-| `sandbox_permission_response` | Sandbox permission response        |
-| `shutdown_request`            | Request to shut down a Teammate    |
-| `shutdown_approved`           | Shutdown approved                  |
-| `shutdown_rejected`           | Shutdown rejected                  |
-| `team_permission_update`      | Team permission update             |
-| `mode_set_request`            | Set mode request                   |
-| `plan_approval_request`       | Plan approval request              |
-| `plan_approval_response`      | Plan approval response             |
-| `idle_notification`           | Teammate idle notification         |
-| `task_assignment`             | Task assignment                    |
+| Message Type                  | Description                      |
+| ----------------------------- | -------------------------------- |
+| `permission_request`          | Request for operation permission |
+| `permission_response`         | Permission response              |
+| `sandbox_permission_request`  | Sandbox permission request       |
+| `sandbox_permission_response` | Sandbox permission response      |
+| `shutdown_request`            | Request to shut down a Teammate  |
+| `shutdown_approved`           | Shutdown approved                |
+| `shutdown_rejected`           | Shutdown rejected                |
+| `team_permission_update`      | Team permission update           |
+| `mode_set_request`            | Set mode request                 |
+| `plan_approval_request`       | Plan approval request            |
+| `plan_approval_response`      | Plan approval response           |
+| `idle_notification`           | Teammate idle notification       |
+| `task_assignment`             | Task assignment                  |
 
 ---
 
@@ -300,16 +300,16 @@ throw Error(
 
 ### Per-Module Replication Assessment
 
-| Module                              | Replication % | Notes                                                                  |
-| ----------------------------------- | ------------- | ---------------------------------------------------------------------- |
-| **File mailbox + file lock**        | 92%           | `proper-lockfile` is a standard npm library; lock→read→write→unlock can be precisely copied |
-| **Message format + 13 types**       | 85%           | Structure is known; a complete subset can be implemented               |
-| **Message send routing**            | 88%           | File write logic is clear; memory queue can be approximated with a Map |
-| **Message reception (push model)**  | 35%           | Underlying layer requires injecting a "new conversation turn" - this is built into the Claude Code runtime and cannot be replicated externally |
-| **Persistent event loop**           | 25%           | 500ms polling can be approximated, but the Bun event loop driver cannot be replicated |
-| **Team Lead permission structure**  | 50%           | 3-way shutdown can be approximated via prompting; plan approval has no system-level enforcement |
-| **Prompt / identity injection**     | 75%           | The original text is known and can be used directly; the SendMessage built-in training semantic layer cannot be replicated |
-| **Feature flag**                    | 30%           | env var can activate it, but the killswitch is server-side controlled  |
+| Module                             | Replication % | Notes                                                                                                                                          |
+| ---------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **File mailbox + file lock**       | 92%           | `proper-lockfile` is a standard npm library; lock→read→write→unlock can be precisely copied                                                    |
+| **Message format + 13 types**      | 85%           | Structure is known; a complete subset can be implemented                                                                                       |
+| **Message send routing**           | 88%           | File write logic is clear; memory queue can be approximated with a Map                                                                         |
+| **Message reception (push model)** | 35%           | Underlying layer requires injecting a "new conversation turn" - this is built into the Claude Code runtime and cannot be replicated externally |
+| **Persistent event loop**          | 25%           | 500ms polling can be approximated, but the Bun event loop driver cannot be replicated                                                          |
+| **Team Lead permission structure** | 50%           | 3-way shutdown can be approximated via prompting; plan approval has no system-level enforcement                                                |
+| **Prompt / identity injection**    | 75%           | The original text is known and can be used directly; the SendMessage built-in training semantic layer cannot be replicated                     |
+| **Feature flag**                   | 30%           | env var can activate it, but the killswitch is server-side controlled                                                                          |
 
 **Overall replication rate: 60–65%**
 
@@ -347,13 +347,13 @@ Each role's CLAUDE.md should clearly state: `My inbox: ~/.claude/memory/inboxes/
 
 ### Do Not Build
 
-| What Not to Build                             | Reason                                                           |
-| --------------------------------------------- | ---------------------------------------------------------------- |
-| Full event loop replication                   | Changing from request-response to actor is a system replacement; extremely poor ROI |
-| Using the official Team mode as production infrastructure | The killswitch can be pulled at any time; feature stability cannot be relied upon |
-| Fully replacing Subagent with pure Team       | Breaks the existing stable system, loses the main agent's global view |
-| More than 10 concurrent agents                | Production data: 125MB each, 292 agents = 36.8GB; enforce a hard cap |
-| Peer DM summary system                        | Each DM requires an extra LLM call; high cost; debugging feature, not a product feature |
+| What Not to Build                                         | Reason                                                                                  |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Full event loop replication                               | Changing from request-response to actor is a system replacement; extremely poor ROI     |
+| Using the official Team mode as production infrastructure | The killswitch can be pulled at any time; feature stability cannot be relied upon       |
+| Fully replacing Subagent with pure Team                   | Breaks the existing stable system, loses the main agent's global view                   |
+| More than 10 concurrent agents                            | Production data: 125MB each, 292 agents = 36.8GB; enforce a hard cap                    |
+| Peer DM summary system                                    | Each DM requires an extra LLM call; high cost; debugging feature, not a product feature |
 
 ### MVP (1–2 days)
 
@@ -413,16 +413,16 @@ All three noted this file was overlooked. It provides `send/poll/receive` + a `w
 
 ### Revised Replication Rates
 
-| Dimension                     | Original Report | Post-Debate Consensus                                                                                          |
-| ----------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Overall replication rate**  | 60–65%          | **65–75%** (using Claude models) / **50–60%** (using other models)                                             |
-| File mailbox + protocol layer | 92%             | **90–95%** (nearly copy-paste ready)                                                                           |
-| Message reception (push model)| 35%             | **75–85%** (polling + message injection is fully achievable)                                                   |
-| Persistent event loop         | 25%             | **70–80%** (skeleton is reusable; fine-grained logic needs rewriting)                                          |
-| Runner core                   | Not assessed    | **30–50%** (skeleton is simple, but auto-compaction/permissions/abort are deeply coupled to Claude Code)       |
-| Permission system             | 50%             | **40%** (UI Bridge is not portable; Mailbox path is usable; `createInProcessCanUseTool()` at 323 lines is the hard core) |
-| Prompt engineering            | 75%             | **55–70%** (Claude models natively compatible with XML) / **20–30%** (other models require full rewrite)       |
-| SendMessage semantic layer    | 30%             | **Disputed** (Laochui: no training binding; Xiaokuai: indirect evidence, 60% confidence; Agou: gap exists but can be narrowed via prompting) |
+| Dimension                      | Original Report | Post-Debate Consensus                                                                                                                        |
+| ------------------------------ | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Overall replication rate**   | 60–65%          | **65–75%** (using Claude models) / **50–60%** (using other models)                                                                           |
+| File mailbox + protocol layer  | 92%             | **90–95%** (nearly copy-paste ready)                                                                                                         |
+| Message reception (push model) | 35%             | **75–85%** (polling + message injection is fully achievable)                                                                                 |
+| Persistent event loop          | 25%             | **70–80%** (skeleton is reusable; fine-grained logic needs rewriting)                                                                        |
+| Runner core                    | Not assessed    | **30–50%** (skeleton is simple, but auto-compaction/permissions/abort are deeply coupled to Claude Code)                                     |
+| Permission system              | 50%             | **40%** (UI Bridge is not portable; Mailbox path is usable; `createInProcessCanUseTool()` at 323 lines is the hard core)                     |
+| Prompt engineering             | 75%             | **55–70%** (Claude models natively compatible with XML) / **20–30%** (other models require full rewrite)                                     |
+| SendMessage semantic layer     | 30%             | **Disputed** (Laochui: no training binding; Xiaokuai: indirect evidence, 60% confidence; Agou: gap exists but can be narrowed via prompting) |
 
 ### Key Disagreements (Not Fully Resolved)
 
@@ -445,16 +445,16 @@ All three noted this file was overlooked. It provides `send/poll/receive` + a `w
 
 Minimum closed-loop agreed upon by all three:
 
-| Component                                                  | Lines       | Source                                   |
-| ---------------------------------------------------------- | ----------- | ---------------------------------------- |
-| FileMailbox (lock/read/write/unlock)                       | ~150 lines  | Port from `teammateMailbox.ts` (trimmed) |
-| MemoryMailbox (in-process)                                 | 73 lines    | **Direct port** from `mailbox.ts`        |
-| Message type definitions (text + idle + task_assignment)   | ~60–80 lines | Port                                    |
-| TeammateContext (AsyncLocalStorage)                        | ~50 lines   | Direct port                              |
-| Runner main loop (while + run + idle + poll)               | ~200–400 lines | Rewrite                               |
-| LLM call wrapper (AgentRuntime adapter)                    | ~100–150 lines | Rewrite (depends on existing API)     |
-| Prompt injection (system prompt + XML format)              | ~50–80 lines | Port + adjust                           |
-| Leader side (spawn + send task + receive result)           | ~100–150 lines | Rewrite                               |
+| Component                                                | Lines          | Source                                   |
+| -------------------------------------------------------- | -------------- | ---------------------------------------- |
+| FileMailbox (lock/read/write/unlock)                     | ~150 lines     | Port from `teammateMailbox.ts` (trimmed) |
+| MemoryMailbox (in-process)                               | 73 lines       | **Direct port** from `mailbox.ts`        |
+| Message type definitions (text + idle + task_assignment) | ~60–80 lines   | Port                                     |
+| TeammateContext (AsyncLocalStorage)                      | ~50 lines      | Direct port                              |
+| Runner main loop (while + run + idle + poll)             | ~200–400 lines | Rewrite                                  |
+| LLM call wrapper (AgentRuntime adapter)                  | ~100–150 lines | Rewrite (depends on existing API)        |
+| Prompt injection (system prompt + XML format)            | ~50–80 lines   | Port + adjust                            |
+| Leader side (spawn + send task + receive result)         | ~100–150 lines | Rewrite                                  |
 
 **Prerequisite:** A callable LLM API (e.g., Anthropic SDK). If starting from scratch, add 2 days.
 
@@ -468,12 +468,12 @@ Minimum closed-loop agreed upon by all three:
 
 #### Production-Grade Path (6–12 weeks)
 
-| Phase   | Duration | Content                                                    |
-| ------- | -------- | ---------------------------------------------------------- |
-| Phase 1 | 2–3 weeks | Full port of Mailbox + Identity + Protocol                |
+| Phase   | Duration  | Content                                                     |
+| ------- | --------- | ----------------------------------------------------------- |
+| Phase 1 | 2–3 weeks | Full port of Mailbox + Identity + Protocol                  |
 | Phase 2 | 3–4 weeks | Runner abstraction layer + AgentRuntime LLM API integration |
-| Phase 3 | 2–3 weeks | Backend + TeamCreate/SendMessage/TeamDelete               |
-| Phase 4 | 2 weeks  | Permission system (Mailbox path) + robustness             |
+| Phase 3 | 2–3 weeks | Backend + TeamCreate/SendMessage/TeamDelete                 |
+| Phase 4 | 2 weeks   | Permission system (Mailbox path) + robustness               |
 
 ### Final Conclusion Replacing Section XII
 

@@ -11,7 +11,10 @@ const makeStore = (initial: StoreData = {}) => {
     async get<K extends keyof IConfigStorageRefer>(key: K): Promise<IConfigStorageRefer[K]> {
       return data[key] as IConfigStorageRefer[K];
     },
-    async set<K extends keyof IConfigStorageRefer>(key: K, value: IConfigStorageRefer[K]): Promise<IConfigStorageRefer[K]> {
+    async set<K extends keyof IConfigStorageRefer>(
+      key: K,
+      value: IConfigStorageRefer[K]
+    ): Promise<IConfigStorageRefer[K]> {
       data[key] = value;
       return value;
     },
@@ -30,14 +33,12 @@ describe('migrateSkillsPreferences', () => {
           { id: 'a1', name: 'A1', enabled: true, isPreset: true, enabledSkills: ['skill-alpha', 'skill-beta'] },
           { id: 'a2', name: 'A2', enabled: true, isPreset: true, enabledSkills: ['skill-beta', 'skill-gamma'] },
         ],
-        'acp.customAgents': [
-          { id: 'c1', name: 'C1', enabled: true, enabledSkills: ['skill-delta'] },
-        ],
+        'acp.customAgents': [{ id: 'c1', name: 'C1', enabled: true, enabledSkills: ['skill-delta'] }],
       });
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs).toBeDefined();
       // Union of skill-alpha, skill-beta, skill-gamma (from assistants) + skill-delta (from custom agent)
       expect(new Set(prefs!.pinned)).toEqual(new Set(['skill-alpha', 'skill-beta', 'skill-gamma', 'skill-delta']));
@@ -45,14 +46,12 @@ describe('migrateSkillsPreferences', () => {
 
     it('produces an empty pinned array when no assistants have enabledSkills', async () => {
       const store = makeStore({
-        assistants: [
-          { id: 'a1', name: 'A1', enabled: true, isPreset: true },
-        ],
+        assistants: [{ id: 'a1', name: 'A1', enabled: true, isPreset: true }],
       });
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs).toBeDefined();
       expect(prefs!.pinned).toEqual([]);
     });
@@ -62,7 +61,7 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs).toBeDefined();
       expect(prefs!.pinned).toEqual([]);
       expect(prefs!.disabled).toEqual([]);
@@ -75,7 +74,7 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs!.disabled).toEqual([]);
     });
 
@@ -84,7 +83,7 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs!.revision).toBe(1);
     });
 
@@ -94,7 +93,7 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs!.disabled).toEqual([]);
     });
 
@@ -104,7 +103,7 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       expect(prefs!.disabled).toContain('wayland-skills');
     });
   });
@@ -119,14 +118,12 @@ describe('migrateSkillsPreferences', () => {
       const store = makeStore({
         'migration.skillsPreferences_v1': true,
         'skills.preferences': existingPrefs,
-        assistants: [
-          { id: 'a1', name: 'A1', enabled: true, isPreset: true, enabledSkills: ['skill-new'] },
-        ],
+        assistants: [{ id: 'a1', name: 'A1', enabled: true, isPreset: true, enabledSkills: ['skill-new'] }],
       });
 
       await migrateSkillsPreferences(store);
 
-      const prefs = (store._raw())['skills.preferences'];
+      const prefs = store._raw()['skills.preferences'];
       // Must be unchanged - second run is a no-op
       expect(prefs!.pinned).toEqual(['skill-already-pinned']);
       expect(prefs!.disabled).toEqual(['skill-already-disabled']);
@@ -137,21 +134,19 @@ describe('migrateSkillsPreferences', () => {
 
       await migrateSkillsPreferences(store);
 
-      expect((store._raw())['migration.skillsPreferences_v1']).toBe(true);
+      expect(store._raw()['migration.skillsPreferences_v1']).toBe(true);
     });
 
     it('running twice produces identical output', async () => {
       const store = makeStore({
-        assistants: [
-          { id: 'a1', name: 'A1', enabled: true, isPreset: true, enabledSkills: ['skill-x', 'skill-y'] },
-        ],
+        assistants: [{ id: 'a1', name: 'A1', enabled: true, isPreset: true, enabledSkills: ['skill-x', 'skill-y'] }],
       });
 
       await migrateSkillsPreferences(store);
-      const after1 = JSON.stringify((store._raw())['skills.preferences']);
+      const after1 = JSON.stringify(store._raw()['skills.preferences']);
 
       await migrateSkillsPreferences(store);
-      const after2 = JSON.stringify((store._raw())['skills.preferences']);
+      const after2 = JSON.stringify(store._raw()['skills.preferences']);
 
       expect(after1).toBe(after2);
     });
@@ -163,8 +158,8 @@ describe('migrateSkillsPreferences', () => {
       const { resolveSkillsPrecedence } = await import('../../../src/common/config/skillsMigration');
 
       const result = resolveSkillsPrecedence(
-        ['skill-a', 'skill-b', 'skill-c'],   // per-assistant enabledSkills
-        { pinned: ['skill-a'], disabled: ['skill-b'], revision: 1 }   // global prefs
+        ['skill-a', 'skill-b', 'skill-c'], // per-assistant enabledSkills
+        { pinned: ['skill-a'], disabled: ['skill-b'], revision: 1 } // global prefs
       );
 
       // skill-b is globally disabled → must be excluded even though per-assistant enables it
@@ -178,10 +173,11 @@ describe('migrateSkillsPreferences', () => {
     it('resolveSkillsPrecedence: skill in pinned but also in disabled → disabled wins', async () => {
       const { resolveSkillsPrecedence } = await import('../../../src/common/config/skillsMigration');
 
-      const result = resolveSkillsPrecedence(
-        ['skill-conflict'],
-        { pinned: ['skill-conflict'], disabled: ['skill-conflict'], revision: 1 }
-      );
+      const result = resolveSkillsPrecedence(['skill-conflict'], {
+        pinned: ['skill-conflict'],
+        disabled: ['skill-conflict'],
+        revision: 1,
+      });
 
       expect(result).not.toContain('skill-conflict');
     });

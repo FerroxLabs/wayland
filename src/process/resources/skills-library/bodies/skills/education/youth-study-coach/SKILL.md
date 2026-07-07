@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching study-skills guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Youth Study Coach
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on youth study coach
 - User asks about youth study coach best practices or techniques
 - User wants a structured approach to youth study coach
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of youth study coach
 
@@ -62,7 +63,9 @@ This skill provides direct, student-facing homework support -- like having a tut
 The goal is to help you understand the material so you can handle similar problems on your own. Getting the right answer matters, but understanding WHY it is the right answer matters more.
 
 ### How Tutoring Works Here
+
 Start by asking guiding questions to help you discover the answer yourself:
+
 - "What do you already know about this?"
 - "What is the question actually asking you to do?"
 - "Can you explain this part back to me in your own words?"
@@ -73,6 +76,7 @@ Start by asking guiding questions to help you discover the answer yourself:
 If guiding questions are not getting you there, switch to direct explanation -- teach the concept, then have you try a similar problem to make sure it clicked.
 
 ### When to Just Explain
+
 - You genuinely have not been taught the concept yet
 - You have tried and are truly stuck, not just guessing
 - A foundational skill is missing (you need to learn X before you can do Y)
@@ -96,6 +100,7 @@ If guiding questions are not getting you there, switch to direct explanation -- 
 - [ ] Snack available to prevent hunger breaks
 
 ### Digital Environment Setup
+
 - Install website blockers during study time (Cold Turkey, Freedom, Forest app)
 - Set phone to Do Not Disturb mode
 - Close social media and messaging apps on computer
@@ -104,12 +109,13 @@ If guiding questions are not getting you there, switch to direct explanation -- 
 - Consider app-based timers (Forest, Focus Keeper) for gamified focus
 
 ### Time of Day Optimization
-| Student Type | Best Homework Time | Reasoning |
-|-------------|-------------------|-----------|
-| Morning person | Right after school (with brief break) | Energy highest earlier |
-| Afternoon slump | After a snack and 30-minute active break | Recharge before focus |
-| Evening focuser | After dinner, before bedtime routine | Natural peak focus time |
-| Inconsistent | Same time daily regardless | Building habit is priority |
+
+| Student Type    | Best Homework Time                       | Reasoning                  |
+| --------------- | ---------------------------------------- | -------------------------- |
+| Morning person  | Right after school (with brief break)    | Energy highest earlier     |
+| Afternoon slump | After a snack and 30-minute active break | Recharge before focus      |
+| Evening focuser | After dinner, before bedtime routine     | Natural peak focus time    |
+| Inconsistent    | Same time daily regardless               | Building habit is priority |
 
 **Key rule:** Build a consistent routine. Same time, same place, every day.
 
@@ -138,12 +144,12 @@ Block time for each assignment. Include short breaks.
 
 ### The Pomodoro Technique (Modified for Age)
 
-| Age Group | Work Block | Break | Notes |
-|-----------|-----------|-------|-------|
-| Grades K-2 | 10-15 minutes | 5 minutes | Very short attention spans |
-| Grades 3-5 | 15-20 minutes | 5 minutes | Building stamina |
-| Grades 6-8 | 20-25 minutes | 5 minutes | Standard modified Pomodoro |
-| Grades 9-12 | 25-30 minutes | 5 minutes | Full Pomodoro approach |
+| Age Group   | Work Block    | Break     | Notes                      |
+| ----------- | ------------- | --------- | -------------------------- |
+| Grades K-2  | 10-15 minutes | 5 minutes | Very short attention spans |
+| Grades 3-5  | 15-20 minutes | 5 minutes | Building stamina           |
+| Grades 6-8  | 20-25 minutes | 5 minutes | Standard modified Pomodoro |
+| Grades 9-12 | 25-30 minutes | 5 minutes | Full Pomodoro approach     |
 
 **Break activities (active, not screens):** Stretch, get water, walk around, do jumping jacks, pet an animal, step outside briefly.
 
@@ -179,11 +185,13 @@ Long-term projects/upcoming tests:
 ### Math
 
 **Common struggle points by level:**
+
 - **Elementary (K-5):** Number sense, basic operations, fractions, word problems
 - **Middle School (6-8):** Pre-algebra, ratios, negative numbers, geometry basics
 - **High School (9-12):** Algebra, geometry proofs, trigonometry, calculus concepts
 
 **Math help techniques:**
+
 1. **Read the problem aloud** -- many errors come from misreading
 2. **Identify what is being asked** before trying to solve
 3. **Draw it out** -- visual representations help with word problems and geometry
@@ -198,11 +206,13 @@ Long-term projects/upcoming tests:
 ### Reading and Language Arts
 
 **Reading comprehension strategies:**
+
 - **Before reading:** Preview headings, images, bold words. Ask "What do I think this will be about?"
 - **During reading:** Pause every paragraph to summarize. Note confusing parts. Visualize the text.
 - **After reading:** Summarize in own words. Identify main idea vs. supporting details. Make connections.
 
 **Writing support approach:**
+
 1. **Brainstorm before writing** (mind map, list, free-write)
 2. **Create an outline** (thesis, main points, evidence for each)
 3. **Write a rough draft** without worrying about perfection
@@ -211,6 +221,7 @@ Long-term projects/upcoming tests:
 6. **Read aloud** -- ears catch what eyes miss
 
 **Writing help checklist:**
+
 - [ ] Does it answer the prompt/question?
 - [ ] Is there a clear thesis or main idea?
 - [ ] Does each paragraph have a topic sentence?
@@ -222,6 +233,7 @@ Long-term projects/upcoming tests:
 ### Science
 
 **Science homework approach:**
+
 1. **Start with the vocabulary** -- understanding terms is half the battle
 2. **Connect to real life** -- "Where do you see this in the world?"
 3. **Use diagrams and models** -- visual learning is powerful in science
@@ -233,6 +245,7 @@ Long-term projects/upcoming tests:
 ### Social Studies and History
 
 **History homework approach:**
+
 1. **Build context first** -- "What was happening in the world at this time?"
 2. **Create timelines** for chronological understanding
 3. **Use maps** to understand geography's role in events
@@ -241,6 +254,7 @@ Long-term projects/upcoming tests:
 6. **Use primary sources** to make history feel real and immediate
 
 **Essay approach for history:**
+
 - State a clear thesis (argument or interpretation)
 - Use specific evidence from sources
 - Analyze evidence (explain WHY it supports your thesis)
@@ -250,6 +264,7 @@ Long-term projects/upcoming tests:
 ### Foreign Language
 
 **Language homework support:**
+
 1. **Flashcards** for vocabulary (physical or Quizlet/Anki)
 2. **Practice speaking aloud** -- pronunciation matters
 3. **Read assigned text aloud** before translating
@@ -264,6 +279,7 @@ Long-term projects/upcoming tests:
 ### Explaining Concepts by Age
 
 **Grades K-2 (Ages 5-8):**
+
 - Use physical manipulatives (blocks, counters, drawings)
 - Keep explanations to 1-2 sentences
 - Use familiar comparisons ("It's like when you...")
@@ -272,6 +288,7 @@ Long-term projects/upcoming tests:
 - Read problems to them if reading is still developing
 
 **Grades 3-5 (Ages 8-11):**
+
 - Use visual aids and diagrams
 - Break problems into clear steps
 - Encourage them to explain their thinking
@@ -280,6 +297,7 @@ Long-term projects/upcoming tests:
 - Connect learning to their interests
 
 **Grades 6-8 (Ages 11-14):**
+
 - Ask guiding questions rather than telling answers
 - Help them organize multi-step assignments
 - Teach study skills explicitly (note-taking, outlining, time management)
@@ -288,6 +306,7 @@ Long-term projects/upcoming tests:
 - Help them see connections between subjects
 
 **Grades 9-12 (Ages 14-18):**
+
 - Act as a sounding board, not a teacher
 - Help with planning and organization of complex projects
 - Discuss concepts at a higher level (analysis, synthesis, evaluation)
@@ -301,15 +320,15 @@ Long-term projects/upcoming tests:
 
 ### Understanding Low Motivation
 
-| Root Cause | Signs | Approach |
-|-----------|-------|----------|
-| Material too hard | Frustration, avoidance, tears | Break into smaller steps, address skill gaps |
-| Material too easy | Boredom, rushing, careless errors | Challenge with extension activities |
-| Lack of relevance | "Why do I need this?" | Connect to their interests and goals |
-| Overwhelm | Shutting down, not starting | Prioritize and tackle one small piece |
-| Perfectionism | Won't start unless sure it will be perfect | Normalize mistakes as learning |
-| Fixed mindset | "I'm bad at math" | Growth mindset language and evidence |
-| External issues | Distraction, mood changes | Address emotional needs first |
+| Root Cause        | Signs                                      | Approach                                     |
+| ----------------- | ------------------------------------------ | -------------------------------------------- |
+| Material too hard | Frustration, avoidance, tears              | Break into smaller steps, address skill gaps |
+| Material too easy | Boredom, rushing, careless errors          | Challenge with extension activities          |
+| Lack of relevance | "Why do I need this?"                      | Connect to their interests and goals         |
+| Overwhelm         | Shutting down, not starting                | Prioritize and tackle one small piece        |
+| Perfectionism     | Won't start unless sure it will be perfect | Normalize mistakes as learning               |
+| Fixed mindset     | "I'm bad at math"                          | Growth mindset language and evidence         |
+| External issues   | Distraction, mood changes                  | Address emotional needs first                |
 
 ### Growth Mindset Phrases
 
@@ -322,12 +341,14 @@ Long-term projects/upcoming tests:
 ### Reward Systems (Use Thoughtfully)
 
 **For younger students (K-5):**
+
 - Sticker charts for completed homework sessions
 - Extra screen time or special activity after homework
 - "Homework-free pass" for one night after a streak of completion
 - Choice of fun activity after completion
 
 **For older students (6-12):**
+
 - Autonomy rewards (choosing dinner, weekend activity)
 - Connecting homework completion to desired privileges
 - Natural consequences (grades, teacher feedback)
@@ -340,7 +361,9 @@ Long-term projects/upcoming tests:
 ## Phase 6: Getting Help and Building Independence
 
 ### When to Ask for More Help
+
 If you are spending way more time on homework than your classmates, or you keep getting stuck on the same types of problems, it is time to get extra support:
+
 - **Ask your teacher** -- go to office hours or stay after class. Teachers want to help.
 - **Study with a classmate** who understands the material well
 - **Use free online resources** -- Khan Academy, CK-12, Crash Course, your school's tutoring center
@@ -348,6 +371,7 @@ If you are spending way more time on homework than your classmates, or you keep 
 - **Talk to your school counselor** if you think you might learn differently and need accommodations
 
 ### Building Independence Over Time
+
 - **Grades K-2:** It is normal to need a lot of help. Focus on building good habits.
 - **Grades 3-5:** Try every problem yourself first. Ask for help when you are truly stuck.
 - **Grades 6-8:** Manage your own planner and routine. Ask for help strategically.
@@ -358,12 +382,14 @@ If you are spending way more time on homework than your classmates, or you keep 
 ## Long-Term Study Skills to Develop
 
 ### Note-Taking Methods
+
 - **Cornell Method:** Divide page into notes, cues, and summary sections
 - **Outline Method:** Hierarchical organization of main ideas and details
 - **Mind Mapping:** Visual web of connected concepts
 - **Charting:** Table format for comparing information
 
 ### Test Preparation Strategy
+
 1. Start reviewing 5-7 days before the test (not the night before)
 2. Organize notes and identify key topics
 3. Create study materials (flashcards, summaries, practice problems)
@@ -373,7 +399,6 @@ If you are spending way more time on homework than your classmates, or you keep 
 7. Get good sleep the night before (more valuable than last-minute cramming)
 
 The goal is not just to finish tonight's homework -- it is to become a stronger, more confident learner. Every time you push through something hard, you are building skills that will help you for years to come.
-
 
 ## Output Format
 
@@ -387,13 +412,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with youth study coach for a mid-size project."
 
 **Output:** A complete youth study coach framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

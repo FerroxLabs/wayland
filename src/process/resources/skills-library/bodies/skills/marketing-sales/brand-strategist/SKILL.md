@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "branding marketing strategy"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'branding marketing strategy'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Brand Strategist
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Is building a brand from scratch and needs a complete identity framework -- from purpose and positioning through visual identity and voice guidelines
 - Has an existing brand experiencing drift, inconsistency, or identity confusion across channels and needs a structured audit and realignment
 - Is preparing for a rebrand due to a merger, market pivot, leadership change, or need to shed negative associations
@@ -28,6 +30,7 @@ metadata:
 - Needs to audit brand health using perception metrics, consistency checks, and share-of-voice data before a funding round, acquisition, or campaign
 
 **Do NOT use this skill when:**
+
 - The user needs specific graphic design execution -- refer to a design or creative direction skill instead
 - The request is about marketing campaign planning, media buying, or paid advertising -- use a campaign strategy or media planning skill
 - The user needs SEO or content marketing strategy -- those are distinct disciplines with their own frameworks
@@ -333,27 +336,35 @@ SECTION 7: BRAND HEALTH METRICS
 ## Edge Cases
 
 ### The Founder-Identity Trap
+
 Many early-stage brands are built entirely around the founder's personal brand -- the founder's face is the logo, their biography is the story, their relationships are the customer acquisition engine. This creates catastrophic risk when the founder exits, has a public controversy, or wants to step back. If the user's brand is currently indistinguishable from a personal brand, acknowledge the equity that exists there, then build a transition plan: (1) develop a brand identity that the founder endorses but does not embody; (2) shift the story from "founder's journey" to "customer's journey"; (3) develop team and customer voices that carry the brand independently. Do not attempt to immediately strip the founder from the brand -- the equity is real and valuable. Transition over 12-18 months.
 
 ### Competing Internal Stakeholder Visions
+
 When multiple executives or founders have fundamentally different views of what the brand should be, attempting to synthesize them without a facilitated decision-making process produces lowest-common-denominator positioning -- a brand that offends no one and stands for nothing. Recognize this pattern when the user describes contradictory input ("our CEO wants premium, our CMO wants accessible"). Recommend a structured positioning workshop before any strategy document is written. The workshop output is a single agreed positioning decision, not a compromise that tries to be both premium and accessible simultaneously. If direct conflict exists at the leadership level, brand strategy work cannot produce durable results until that conflict is resolved.
 
 ### Acquired Brand Integration
+
 When a company acquires another brand and needs to determine whether to absorb, endorse, or maintain it independently, the decision cannot be made on brand alone. The key questions are: (1) Does the acquired brand's target audience overlap with or complement the acquiring brand's audience? (2) Does the acquired brand have higher, lower, or comparable NPS and reputation scores? (3) Is the acquired brand known for a category or capability the acquirer wants to claim? (4) What did customers explicitly say they were buying when they bought the acquired brand? Integration decisions driven purely by cost savings (eliminating a brand to reduce marketing complexity) often destroy acquired equity that took years to build. Document the equity first, then make the architecture decision.
 
 ### Rebrand During a Business Crisis
+
 Occasionally users request a rebrand as a response to a PR crisis, product failure, or ethical scandal. This is one of the most dangerous applications of rebranding because: (1) if the problem is behavioral, a new logo does not fix it and customers recognize the tactic as cynical; (2) the rebrand draws attention to the crisis rather than allowing it to recede; (3) it consumes resources needed for fixing the actual operational or ethical problem. The correct sequence is: resolve the underlying issue, demonstrate changed behavior over 12+ months, then consider a brand evolution that reflects the genuine change. If a user requests a rebrand in response to a crisis, address the operational fix first and explicitly flag this sequencing risk.
 
 ### Brand Strategy for a Multi-Sided Marketplace
+
 Brands that serve fundamentally different audiences on each side of a marketplace (drivers and riders; buyers and sellers; creators and consumers) face a structural brand tension: the same brand must speak credibly to audiences with completely different needs, motivations, and vocabularies. Attempting to write a single positioning statement that serves both sides produces language that serves neither. The solution is a brand architecture that: (1) maintains one master brand identity with shared values and visual system; (2) develops separate voice, tone, and messaging frameworks for each audience side; (3) documents the unifying brand promise that is credible to both audiences at the abstract level (reliability, trust, opportunity) while allowing surface-level customization for each. Do not try to write one elevator pitch that works for both audiences -- write two, both anchored in the same brand foundation.
 
 ### Highly Regulated Industries
+
 In financial services, healthcare, pharmaceutical, legal, and insurance sectors, brand voice and messaging guidelines must account for regulatory language requirements that constrain what can be said, how certainty can be expressed, and what claims require disclaimers. Common failure: a brand team develops a voice that is direct, conversational, and bold, then the legal team adds mandatory disclosures and qualifications that completely undermine the voice. The solution is to involve compliance and legal in the voice development process, not as a downstream approver. Document the "pre-compliance voice" and then create a "compliance-integrated voice" that achieves regulatory requirements while maintaining the brand character. Specifically: identify which claim types require disclaimers and design the copy format so disclaimers feel like a natural extension of the voice rather than an interruption.
 
 ### Legacy Brand With High Unaided Awareness
+
 When advising a brand that has genuinely high unaided awareness (30%+ in its category) but outdated positioning or visual identity, the primary risk is destroying recognition equity through over-aggressive change. Changes to logos, brand colors, or taglines for brands at this recognition level have historically caused significant customer confusion and market share loss (see numerous examples of major retail and financial brand logo changes that triggered immediate customer backlash). The recommendation framework: (1) measure what specific visual and verbal elements drive the most recognition before changing anything; (2) treat those elements as protected unless there is a compelling strategic reason to change them; (3) evolve everything else deliberately; (4) test any proposed identity changes with a minimum of 200 target audience members before launch, measuring unaided recognition both before and after the proposed change.
 
 ### International and Multi-Cultural Brand Expansion
+
 A brand built for one cultural context faces specific failure modes when expanding internationally: (1) color associations that are positive in one culture may be negative in another (white represents purity in Western markets, mourning in some Asian markets; red represents danger in North American brand contexts, prosperity and celebration in Chinese consumer culture); (2) brand names and taglines that work in one language may be nonsensical, offensive, or unpronounceable in target markets; (3) humor and irreverence that reads as confident in one culture may read as disrespectful in another. Before advising on international brand extension: (1) audit the brand name, tagline, and color palette for the top 3 target international markets using native speakers and cultural consultants; (2) determine whether the brand strategy should be globally consistent with local execution adaptations (glocal model) or whether separate regional brand identities are warranted; (3) do not assume that international markets can simply translate existing materials -- transcreation (recreating the content to achieve the same effect in a new cultural context) is almost always required.
 
 ---
@@ -392,11 +403,11 @@ A world where the best architectural work comes from studios, not just large fir
 
 **CORE VALUES:**
 
-| Value | In Practice, This Means | Behavioral Example |
-|---|---|---|
-| Made for architects, by design | Every feature maps to a real phase of architectural practice. We do not ship generic features and call them architecture-specific. | When building the dashboard, we interviewed 40 principals about how they actually track SD, DD, CDs, and CA -- not how project management theory says they should. |
-| Honest simplicity | We say no to features that add complexity without purpose. We never describe ourselves as "powerful" unless we can immediately show the specific problem solved. | When a user asks for a Gantt chart, we ask what decision they are trying to make before deciding whether to build it. |
-| Independent studios first | Our roadmap is driven by the needs of 5-20 person firms, not by trying to scale up-market to large firms. Features that serve large firms but complicate small studio workflows do not get built. | We have turned down two enterprise pilots because the requested customization would have cluttered the interface for our core user. |
+| Value                          | In Practice, This Means                                                                                                                                                                           | Behavioral Example                                                                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Made for architects, by design | Every feature maps to a real phase of architectural practice. We do not ship generic features and call them architecture-specific.                                                                | When building the dashboard, we interviewed 40 principals about how they actually track SD, DD, CDs, and CA -- not how project management theory says they should. |
+| Honest simplicity              | We say no to features that add complexity without purpose. We never describe ourselves as "powerful" unless we can immediately show the specific problem solved.                                  | When a user asks for a Gantt chart, we ask what decision they are trying to make before deciding whether to build it.                                              |
+| Independent studios first      | Our roadmap is driven by the needs of 5-20 person firms, not by trying to scale up-market to large firms. Features that serve large firms but complicate small studio workflows do not get built. | We have turned down two enterprise pilots because the requested customization would have cluttered the interface for our core user.                                |
 
 **BRAND PROMISE:**
 Project management that works the way architecture works -- not the other way around.
@@ -414,11 +425,13 @@ Secondary: Studio operations managers and office managers at the same firm size 
 **Competitive Set:**
 
 Direct competitors:
+
 - Asana -- horizontal project management, not architecture-specific, requires significant manual configuration to reflect design phases, widely adopted so firms have existing workflows
 - Monday.com -- highly visual horizontal PM tool, similarly requires configuration, good for visual thinkers but not architecture-phase aware
 - ArchiSnapper -- field reporting and punch lists for construction phase specifically, not full-project-lifecycle management
 
 Indirect competitors:
+
 - Custom spreadsheet systems -- extremely common, high switching cost because of embedded institutional knowledge, zero monthly fee which is a real objection
 - Deltek Ajera / Vantagepoint -- full ERP systems for architecture firms, powerful but extremely complex and expensive, primarily used by 50+ person firms
 
@@ -456,11 +469,11 @@ White space: Architecture-specific AND simple enough for a 5-person studio to ad
 
 **Voice Personality Traits:**
 
-| Trait | This Means We... | This Does NOT Mean... | Example |
-|---|---|---|---|
-| Technically credible | Use correct architecture industry terminology. Know the difference between SD and DD, understand what CA means operationally, reference AIA contract documents correctly. | Show off jargon or exclude non-architect users like office managers. | "Your CD set is due in 14 days. Three submittal reviews are still open." Not: "Your project deliverable milestone is approaching with pending review items." |
-| Refreshingly direct | State what the product does and does not do. Never oversell features. Say "we don't do X yet" instead of "our roadmap is continually evolving." | Be blunt to the point of coldness, or use directness to avoid empathy in support contexts. | "Roofline does not replace your accounting software. It connects to it." |
-| Quietly confident | Let the product experience carry the brand. Do not need superlatives. Do not claim to be "the best" or "the only." State facts and trust the audience to draw conclusions. | Sound arrogant, dismissive of competitors, or overstate what we can prove. | "Architects who switch from spreadsheets typically close their last spreadsheet within 30 days. That's the metric we track." |
+| Trait                | This Means We...                                                                                                                                                           | This Does NOT Mean...                                                                      | Example                                                                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Technically credible | Use correct architecture industry terminology. Know the difference between SD and DD, understand what CA means operationally, reference AIA contract documents correctly.  | Show off jargon or exclude non-architect users like office managers.                       | "Your CD set is due in 14 days. Three submittal reviews are still open." Not: "Your project deliverable milestone is approaching with pending review items." |
+| Refreshingly direct  | State what the product does and does not do. Never oversell features. Say "we don't do X yet" instead of "our roadmap is continually evolving."                            | Be blunt to the point of coldness, or use directness to avoid empathy in support contexts. | "Roofline does not replace your accounting software. It connects to it."                                                                                     |
+| Quietly confident    | Let the product experience carry the brand. Do not need superlatives. Do not claim to be "the best" or "the only." State facts and trust the audience to draw conclusions. | Sound arrogant, dismissive of competitors, or overstate what we can prove.                 | "Architects who switch from spreadsheets typically close their last spreadsheet within 30 days. That's the metric we track."                                 |
 
 **Tone by Context:**
 

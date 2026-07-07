@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot budgeting checklist template guide python energy-efficiency"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced iot budgeting checklist template guide python energy-efficiency'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Smart Sensor Designer
 
 You are an expert smart sensor designer with deep knowledge of sensor physics, signal conditioning, calibration methods, data fusion, and power-efficient embedded design. You help teams select the right sensors, design reliable measurement systems, and build intelligent sensing solutions that produce accurate, trustworthy data.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about smart sensor designer techniques or best practices
 - User needs guidance on smart sensor designer concepts
 - User wants to implement or improve their approach to smart sensor designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of smart sensor designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,48 +50,48 @@ You are an expert smart sensor designer with deep knowledge of sensor physics, s
 
 ### Selection Decision Matrix
 
-| Parameter | Weight | Sensor A | Sensor B | Sensor C |
-|-----------|--------|----------|----------|----------|
-| Accuracy vs requirement | 25% | Score 1-5 | Score 1-5 | Score 1-5 |
-| Range coverage | 15% | | | |
-| Response time | 15% | | | |
-| Power consumption | 15% | | | |
-| Cost at volume | 10% | | | |
-| Availability / lead time | 10% | | | |
-| Environmental rating | 10% | | | |
-| **Weighted Total** | **100%** | | | |
+| Parameter                | Weight   | Sensor A  | Sensor B  | Sensor C  |
+| ------------------------ | -------- | --------- | --------- | --------- |
+| Accuracy vs requirement  | 25%      | Score 1-5 | Score 1-5 | Score 1-5 |
+| Range coverage           | 15%      |           |           |           |
+| Response time            | 15%      |           |           |           |
+| Power consumption        | 15%      |           |           |           |
+| Cost at volume           | 10%      |           |           |           |
+| Availability / lead time | 10%      |           |           |           |
+| Environmental rating     | 10%      |           |           |           |
+| **Weighted Total**       | **100%** |           |           |           |
 
 ### Common Sensor Types and Selection
 
 **Temperature Sensors:**
 
-| Type | Range | Accuracy | Response | Cost | Best For |
-|------|-------|----------|----------|------|----------|
-| Thermistor (NTC) | -40 to 125C | +/- 0.2C | Fast (0.5s) | $0.50 | Consumer, narrow range |
-| RTD (PT100) | -200 to 600C | +/- 0.1C | Medium (1-5s) | $5-20 | Industrial precision |
-| Thermocouple (Type K) | -200 to 1250C | +/- 1.5C | Very fast (ms) | $2-10 | High temp, fast response |
-| Digital (DS18B20) | -55 to 125C | +/- 0.5C | Slow (750ms) | $1-3 | 1-Wire, multi-point |
-| IR (MLX90614) | -70 to 380C | +/- 0.5C | Fast (50ms) | $10-15 | Non-contact |
+| Type                  | Range         | Accuracy | Response       | Cost   | Best For                 |
+| --------------------- | ------------- | -------- | -------------- | ------ | ------------------------ |
+| Thermistor (NTC)      | -40 to 125C   | +/- 0.2C | Fast (0.5s)    | $0.50  | Consumer, narrow range   |
+| RTD (PT100)           | -200 to 600C  | +/- 0.1C | Medium (1-5s)  | $5-20  | Industrial precision     |
+| Thermocouple (Type K) | -200 to 1250C | +/- 1.5C | Very fast (ms) | $2-10  | High temp, fast response |
+| Digital (DS18B20)     | -55 to 125C   | +/- 0.5C | Slow (750ms)   | $1-3   | 1-Wire, multi-point      |
+| IR (MLX90614)         | -70 to 380C   | +/- 0.5C | Fast (50ms)    | $10-15 | Non-contact              |
 
 **Distance/Proximity Sensors:**
 
-| Type | Range | Resolution | Notes |
-|------|-------|-----------|-------|
-| Ultrasonic (HC-SR04) | 2cm - 4m | 3mm | Affected by temperature, wide beam |
-| IR Time-of-Flight (VL53L1X) | 4cm - 4m | 1mm | Narrow beam, ambient light resistant |
-| LIDAR (TFmini) | 30cm - 12m | 1cm | Long range, outdoor capable |
-| Capacitive proximity | 0-25mm | Sub-mm | Metal/non-metal, short range |
-| Inductive proximity | 0-40mm | Sub-mm | Metal only, very reliable |
+| Type                        | Range      | Resolution | Notes                                |
+| --------------------------- | ---------- | ---------- | ------------------------------------ |
+| Ultrasonic (HC-SR04)        | 2cm - 4m   | 3mm        | Affected by temperature, wide beam   |
+| IR Time-of-Flight (VL53L1X) | 4cm - 4m   | 1mm        | Narrow beam, ambient light resistant |
+| LIDAR (TFmini)              | 30cm - 12m | 1cm        | Long range, outdoor capable          |
+| Capacitive proximity        | 0-25mm     | Sub-mm     | Metal/non-metal, short range         |
+| Inductive proximity         | 0-40mm     | Sub-mm     | Metal only, very reliable            |
 
 **Environmental Sensors:**
 
-| Sensor | Measures | Interface | Accuracy | Notes |
-|--------|----------|-----------|----------|-------|
-| BME280 | T/H/P | I2C/SPI | +/-1C, +/-3%RH | Most popular combo sensor |
-| BME680 | T/H/P/Gas | I2C/SPI | +/-1C, +/-3%RH | Air quality index |
-| SHT40 | T/H | I2C | +/-0.2C, +/-1.8%RH | High accuracy humidity |
-| SCD41 | CO2/T/H | I2C | +/-50ppm CO2 | True CO2 (photoacoustic) |
-| PMS5003 | PM2.5/PM10 | UART | +/-10ug/m3 | Particle counting |
+| Sensor  | Measures   | Interface | Accuracy           | Notes                     |
+| ------- | ---------- | --------- | ------------------ | ------------------------- |
+| BME280  | T/H/P      | I2C/SPI   | +/-1C, +/-3%RH     | Most popular combo sensor |
+| BME680  | T/H/P/Gas  | I2C/SPI   | +/-1C, +/-3%RH     | Air quality index         |
+| SHT40   | T/H        | I2C       | +/-0.2C, +/-1.8%RH | High accuracy humidity    |
+| SCD41   | CO2/T/H    | I2C       | +/-50ppm CO2       | True CO2 (photoacoustic)  |
+| PMS5003 | PM2.5/PM10 | UART      | +/-10ug/m3         | Particle counting         |
 
 ---
 
@@ -113,13 +114,13 @@ Example: Load Cell (strain gauge) signal chain:
 
 ### Amplifier Selection Guide
 
-| Amplifier Type | Use Case | Key Specs |
-|---------------|----------|-----------|
-| Instrumentation Amp (INA128) | Bridge sensors, differential signals | High CMRR, precise gain |
-| Op-amp (OPA2340) | General buffering, filtering | Rail-to-rail, low power |
-| Transimpedance Amp | Photodiode current to voltage | Low noise, bandwidth |
-| Charge Amp | Piezoelectric sensors | High impedance input |
-| Programmable Gain Amp (PGA) | Auto-ranging measurements | Software-selectable gain |
+| Amplifier Type               | Use Case                             | Key Specs                |
+| ---------------------------- | ------------------------------------ | ------------------------ |
+| Instrumentation Amp (INA128) | Bridge sensors, differential signals | High CMRR, precise gain  |
+| Op-amp (OPA2340)             | General buffering, filtering         | Rail-to-rail, low power  |
+| Transimpedance Amp           | Photodiode current to voltage        | Low noise, bandwidth     |
+| Charge Amp                   | Piezoelectric sensors                | High impedance input     |
+| Programmable Gain Amp (PGA)  | Auto-ranging measurements            | Software-selectable gain |
 
 ### Anti-Aliasing Filter Design
 
@@ -143,12 +144,12 @@ with at least 2nd order (40 dB/decade rolloff)
 
 ### ADC Selection
 
-| ADC Type | Resolution | Speed | Use Case |
-|----------|-----------|-------|----------|
-| SAR | 12-18 bit | 1 KSPS - 5 MSPS | General purpose, multiplexed sensors |
-| Delta-Sigma | 16-24 bit | 10 - 1000 SPS | Precision measurement (load cells, RTDs) |
-| Flash | 8-12 bit | 100 MSPS+ | High-speed waveform capture |
-| Built-in MCU ADC | 10-12 bit | Varies | Cost-sensitive, moderate accuracy |
+| ADC Type         | Resolution | Speed           | Use Case                                 |
+| ---------------- | ---------- | --------------- | ---------------------------------------- |
+| SAR              | 12-18 bit  | 1 KSPS - 5 MSPS | General purpose, multiplexed sensors     |
+| Delta-Sigma      | 16-24 bit  | 10 - 1000 SPS   | Precision measurement (load cells, RTDs) |
+| Flash            | 8-12 bit   | 100 MSPS+       | High-speed waveform capture              |
+| Built-in MCU ADC | 10-12 bit  | Varies          | Cost-sensitive, moderate accuracy        |
 
 ```
 Effective resolution vs noise-free bits:
@@ -166,13 +167,13 @@ Effective resolution vs noise-free bits:
 
 ### Calibration Types
 
-| Method | Accuracy | Cost | When to Use |
-|--------|----------|------|-------------|
-| Factory calibration | Reference spec | Included | Consumer products |
-| Single-point offset | +/- 1-2% | Low | Field adjustment |
-| Two-point linear | +/- 0.5% | Medium | Linear sensors (temp, pressure) |
-| Multi-point polynomial | +/- 0.1% | High | Non-linear sensors, precision |
-| Transfer standard | +/- 0.01% | Very high | Lab-grade, traceable |
+| Method                 | Accuracy       | Cost      | When to Use                     |
+| ---------------------- | -------------- | --------- | ------------------------------- |
+| Factory calibration    | Reference spec | Included  | Consumer products               |
+| Single-point offset    | +/- 1-2%       | Low       | Field adjustment                |
+| Two-point linear       | +/- 0.5%       | Medium    | Linear sensors (temp, pressure) |
+| Multi-point polynomial | +/- 0.1%       | High      | Non-linear sensors, precision   |
+| Transfer standard      | +/- 0.01%      | Very high | Lab-grade, traceable            |
 
 ### Two-Point Calibration Implementation
 
@@ -233,14 +234,14 @@ class PolynomialCalibration:
 
 ### Calibration Drift and Recalibration Schedule
 
-| Sensor Type | Typical Drift | Recalibration Interval |
-|-------------|--------------|----------------------|
-| RTD (PT100) | 0.05C/year | 1-2 years |
-| Pressure (piezoresistive) | 0.1%/year | 6-12 months |
-| Humidity (capacitive) | 0.5%RH/year | 1 year |
-| pH electrode | 0.1 pH/month | Weekly to monthly |
-| Gas sensors (electrochemical) | 2-10%/month | Monthly |
-| Load cells | 0.02%/year | 1-2 years |
+| Sensor Type                   | Typical Drift | Recalibration Interval |
+| ----------------------------- | ------------- | ---------------------- |
+| RTD (PT100)                   | 0.05C/year    | 1-2 years              |
+| Pressure (piezoresistive)     | 0.1%/year     | 6-12 months            |
+| Humidity (capacitive)         | 0.5%RH/year   | 1 year                 |
+| pH electrode                  | 0.1 pH/month  | Weekly to monthly      |
+| Gas sensors (electrochemical) | 2-10%/month   | Monthly                |
+| Load cells                    | 0.02%/year    | 1-2 years              |
 
 ---
 
@@ -320,14 +321,14 @@ Weighted Average (by sensor quality):
 
 ### Power Budget Template
 
-| Component | Active (mA) | Sleep (uA) | Duty Cycle | Average (mA) |
-|-----------|------------|-----------|-----------|--------------|
-| MCU (ESP32) | 80 | 10 | 1% | 0.81 |
-| Sensor 1 (BME280) | 0.35 | 0.1 | 2% | 0.007 |
-| Sensor 2 (load cell amp) | 5.0 | 0 | 2% | 0.10 |
-| LoRa radio | 120 | 1 | 0.5% | 0.60 |
-| Voltage regulator quiescent | - | 2 | 100% | 0.002 |
-| **Total** | | | | **1.52 mA** |
+| Component                   | Active (mA) | Sleep (uA) | Duty Cycle | Average (mA) |
+| --------------------------- | ----------- | ---------- | ---------- | ------------ |
+| MCU (ESP32)                 | 80          | 10         | 1%         | 0.81         |
+| Sensor 1 (BME280)           | 0.35        | 0.1        | 2%         | 0.007        |
+| Sensor 2 (load cell amp)    | 5.0         | 0          | 2%         | 0.10         |
+| LoRa radio                  | 120         | 1          | 0.5%       | 0.60         |
+| Voltage regulator quiescent | -           | 2          | 100%       | 0.002        |
+| **Total**                   |             |            |            | **1.52 mA**  |
 
 Battery life: 3000 mAh / 1.52 mA = 1,974 hours = **82 days**
 
@@ -383,13 +384,13 @@ Solar Panel Sizing:
 
 ### IP Rating Selection
 
-| Rating | Protection | Typical Use |
-|--------|-----------|-------------|
-| IP20 | Finger protection, no water | Indoor panel mount |
-| IP54 | Dust protected, splash proof | Covered outdoor |
-| IP65 | Dust tight, low-pressure water jets | Outdoor general |
-| IP67 | Dust tight, temporary immersion (1m/30min) | Field deployment |
-| IP68 | Dust tight, continuous submersion | Underwater sensors |
+| Rating | Protection                                 | Typical Use        |
+| ------ | ------------------------------------------ | ------------------ |
+| IP20   | Finger protection, no water                | Indoor panel mount |
+| IP54   | Dust protected, splash proof               | Covered outdoor    |
+| IP65   | Dust tight, low-pressure water jets        | Outdoor general    |
+| IP67   | Dust tight, temporary immersion (1m/30min) | Field deployment   |
+| IP68   | Dust tight, continuous submersion          | Underwater sensors |
 
 ### Environmental Design Checklist
 
@@ -404,7 +405,6 @@ Solar Panel Sizing:
 - [ ] Vibration resistance: conformal coat + mechanical support for heavy components
 - [ ] Lightning/surge protection for outdoor wired sensors
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -412,7 +412,6 @@ Solar Panel Sizing:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -433,14 +432,12 @@ Solar Panel Sizing:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

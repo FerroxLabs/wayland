@@ -7,9 +7,7 @@
   "websiteUrl": "https://developers.asana.com/docs/mcp",
   "repository": { "url": "https://github.com/Asana/asana-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.asana.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.asana.com" }],
   "x-wayland": {
     "tier": "worker",
     "categories": ["productivity", "tasks"],

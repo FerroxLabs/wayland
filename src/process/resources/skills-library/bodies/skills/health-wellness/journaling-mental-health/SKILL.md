@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care journaling emotional-health"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care journaling emotional-health'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Journaling Mental Health
 
 > **Disclaimer:** This skill provides general wellness information for educational and self-awareness purposes only. It does NOT constitute medical advice, diagnosis, or treatment. Journaling is a complementary self-care practice -- it is not a substitute for professional mental health support. If you are experiencing a mental health crisis, persistent distress, or thoughts of self-harm, contact a licensed mental health professional or a crisis line immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to build a journaling practice specifically to support emotional awareness, stress management, mood tracking, or general psychological wellbeing
 - A user asks about mood tracking journals, emotional check-ins, or identifying personal emotional patterns over time
 - A user wants structured journaling prompts for self-reflection and wants guidance on which type fits their situation
@@ -34,6 +36,7 @@ metadata:
 - A user wants to build gratitude, self-compassion, or growth-mindset habits through a daily writing practice
 
 **Do NOT use when:**
+
 - A user's therapist or counselor has assigned specific journaling exercises as part of a treatment plan -- those are clinically tailored and should not be overridden (refer back to their provider)
 - A user wants to process a specific traumatic event through writing -- Trauma-focused writing (such as expressive writing protocols for PTSD developed by Pennebaker) requires clinical oversight and is outside this skill's scope
 - A user is in acute emotional crisis -- journaling is not crisis intervention; direct them to emergency services or a crisis line first
@@ -63,6 +66,7 @@ Before producing any template, collect the following information. Ask all of the
 Choose 1 primary format and optionally 1 alternate format based on the user's goal, time, and emotional style. Never recommend more than 2 formats at the start -- format overload leads to abandonment.
 
 **Format 1 -- Mood Tracking Journal**
+
 - Structure: Date / Time of Entry | Mood Rating (1-10) | Primary Emotion (single word from the Feelings Wheel: e.g., frustrated, content, anxious, grateful) | Trigger Event (1-2 sentences: what happened right before this mood) | Body Sensation (where do you feel this in your body?) | Response Taken (what did you do or want to do?)
 - Session time: 3-5 minutes
 - Best for: Users who feel disconnected from their emotions, want to identify patterns, or are working on emotional awareness with a therapist
@@ -70,6 +74,7 @@ Choose 1 primary format and optionally 1 alternate format based on the user's go
 - Pattern analysis trigger: After 2 weeks of entries, the user should look for: which emotions appear most frequently, which triggers repeat, and whether mood ratings cluster around specific days or times
 
 **Format 2 -- Cognitive Reframing Journal (CBT-Informed)**
+
 - Structure: Situation (factual, what happened) | Automatic Thought (the first thought that arose, in quotes) | Emotion + Intensity (0-100%) | Evidence Supporting the Thought | Evidence Against the Thought | Balanced Alternative Thought | Emotion After Reframing + Intensity (0-100%)
 - Session time: 10-15 minutes
 - Best for: Users who identify repetitive negative thinking, catastrophizing, or find themselves locked in mental loops about specific situations
@@ -77,6 +82,7 @@ Choose 1 primary format and optionally 1 alternate format based on the user's go
 - Important constraint: This format should not be used on high-trauma content. If the situation involves a past traumatic event, recommend a different format and suggest speaking with a professional
 
 **Format 3 -- Stream-of-Consciousness Dump (Expressive Writing)**
+
 - Structure: None -- timed, unedited, unstructured writing. No rereading required or recommended immediately after.
 - Session time: 5-10 minutes (Pennebaker's original research used 15-20 minutes over 3-4 consecutive days; for ongoing maintenance, 5-10 minutes is sufficient)
 - Best for: Users who feel mentally cluttered, overwhelmed, or anxious and want to externalize mental noise rather than analyze it
@@ -84,6 +90,7 @@ Choose 1 primary format and optionally 1 alternate format based on the user's go
 - Appropriate pairing: Best used on alternating days with a structured format, not as the sole practice for someone who wants to build long-term self-awareness
 
 **Format 4 -- Prompt-Based Reflection Journal**
+
 - Structure: One prompt at the top of the entry, followed by open-ended written response (5-15 sentences). No required fields.
 - Session time: 5-10 minutes
 - Best for: Beginners who face blank-page paralysis, or users who have been writing the same things repeatedly and need fresh angles
@@ -91,6 +98,7 @@ Choose 1 primary format and optionally 1 alternate format based on the user's go
 - Prompt categories to rotate: self-compassion prompts, values clarification prompts, body awareness prompts, relationship prompts, future-self prompts, meaning-making prompts
 
 **Format 5 -- Daily Check-In Template (Minimum Viable Journaling)**
+
 - Structure: 3-5 fixed short-answer fields answered in 1-3 sentences each. No open-ended sections.
 - Session time: 3-5 minutes
 - Best for: Busy users, consistency-focused users, users who have repeatedly failed to maintain longer practices, or users who want the shortest sustainable habit
@@ -100,6 +108,7 @@ Choose 1 primary format and optionally 1 alternate format based on the user's go
 ### Step 3: Build the Specific Journal Template
 
 For each selected format, produce:
+
 - The exact blank template with labeled fields (not descriptions of fields -- actual usable fields)
 - A fully completed example entry using realistic, specific content (not placeholder text)
 - Any special instructions for that format (e.g., "Do not edit while writing" for the stream-of-consciousness format)
@@ -130,6 +139,7 @@ Map journaling sessions to specific days and times based on the user's available
 Produce a table of at least 5 specific obstacles and their solutions. This is not generic advice -- each solution must be specific to the journaling context.
 
 Common obstacles with domain-specific solutions:
+
 - Blank page paralysis -- specific intervention
 - "Writing makes me feel worse" -- format switching protocol
 - Skipped multiple days and feel like a failure -- re-entry protocol
@@ -141,6 +151,7 @@ Common obstacles with domain-specific solutions:
 ### Step 7: Include Guidance on Knowing When to Seek Professional Support
 
 Provide clear, non-alarmist language about signals that suggest journaling alone is not sufficient:
+
 - Persistent themes of hopelessness or worthlessness appearing in entries over 2+ weeks without any change
 - Entries that feel more distressing to write over time rather than less
 - Inability to identify a single positive experience across 10+ consecutive entries despite trying
@@ -309,7 +320,9 @@ Frame this section as: "Journaling is working when..." and "Journaling may need 
 ## Edge Cases
 
 ### The User Has Tried Journaling Multiple Times and Always Quits
+
 This is a format mismatch problem in most cases, not a willpower or motivation problem. Ask specifically: "What format were you using when you quit?" and "What made you stop -- was it time pressure, not knowing what to write, feeling like it wasn't doing anything, or something else?" Map each answer to a diagnosis:
+
 - "I didn't know what to write" -- prescribe the Prompt-Based Reflection format and provide all 14 prompts upfront
 - "It took too long" -- prescribe the Daily Check-In Template (3 minutes maximum) and reinforce that brevity is a feature, not a compromise
 - "It felt like it wasn't doing anything" -- prescribe the Mood Tracking format with the weekly review, which produces visible data within 7 days
@@ -318,9 +331,11 @@ This is a format mismatch problem in most cases, not a willpower or motivation p
 Never prescribe the same format they previously quit. The psychological barrier to trying a format that failed before is higher than starting something genuinely new.
 
 ### The User Reports That Writing About Emotions Makes Them Feel Worse
+
 This is a documented phenomenon called "co-rumination" -- using journaling to rehearse negative thoughts rather than process them. Indicators include: entries that get longer and more detailed about negative events over time, entries that always end at the same negative conclusion, or the user reporting they feel more distressed after writing than before.
 
 Intervention protocol:
+
 1. Immediately discontinue the Cognitive Reframing format, which requires dwelling on negative thoughts in detail
 2. Switch to the Stream-of-Consciousness Dump with the explicit instruction NOT to reread the entry
 3. Add a mandatory closing ritual to every entry: the last 2-3 sentences of every session must describe something present, concrete, and neutral or positive ("Right now I am sitting in my living room. The lamp is on. The room is quiet.")
@@ -328,7 +343,9 @@ Intervention protocol:
 5. If writing consistently increases distress even after these format changes, instruct the user to pause journaling and consult a licensed mental health professional before resuming
 
 ### The User Wants to Track Mood Patterns Analytically and Visualize Trends
+
 This user typically has a data-oriented personality and responds better to numbers and patterns than narrative. Serve this need specifically:
+
 - Recommend the Mood Tracking Journal format as primary
 - Suggest a simple supplementary tracking method: a mood log table in a spreadsheet with columns for Date, Mood Score (1-10), Primary Emotion, and one-word Trigger category
 - After 2 weeks, they can calculate: average mood by day of week, most frequent emotion categories, most frequent trigger categories, and correlation between specific triggers and lowest mood scores
@@ -336,7 +353,9 @@ This user typically has a data-oriented personality and responds better to numbe
 - Recommend they share interesting patterns with a therapist if they have one, as the data can accelerate therapy work
 
 ### The User Has a Therapist and Wants a Complementary Practice
+
 Frame the journaling practice explicitly as "between-session support" not as a replacement for therapy. Practical guidance:
+
 - Recommend the Prompt-Based Reflection format or Cognitive Reframing format, as these tend to surface material useful in therapy sessions
 - Suggest the user bring 1-2 journal entries or observations to each therapy session, rather than summarizing everything verbally
 - Do NOT suggest the user bring all entries -- this can create dependency on sharing every entry rather than using it for personal processing
@@ -344,21 +363,27 @@ Frame the journaling practice explicitly as "between-session support" not as a r
 - Avoid prompts that dig into specific past traumatic events without the therapist's knowledge -- keep prompts anchored in recent experiences (last 1-7 days) unless the therapist has specifically suggested historical exploration
 
 ### The User Is Concerned About Privacy (Fear of Someone Reading the Journal)
+
 This is one of the most underaddressed barriers to journaling and one of the most common reasons people write vaguely or stop entirely. Practical solutions by medium:
+
 - **Digital:** Use a notes app or document with password protection or device-level biometric lock. Apps with specific journal privacy features (passcode entry, no cloud backup) can be useful. Alternatively, write in a locked folder on a device only they access.
 - **Handwritten:** Keep the journal in a private location. Some users prefer to tear out and destroy entries they do not want to keep -- this is entirely valid and does not undermine the practice. Writing and then discarding is still writing.
 - **Alternative framing:** Some users write in intentionally vague or coded language when privacy is a concern. This is a valid adaptation but may reduce the depth of self-reflection. If safety is a genuine concern (e.g., user lives with someone controlling or abusive), recommend digital options with no visible app icon or passcode-protected apps before anything else.
 - Never dismiss privacy concerns as irrational -- for some users, the risk of someone reading their journal is real and significant.
 
 ### The User Is Going Through an Acute Life Stressor (Breakup, Job Loss, Grief, Major Illness)
+
 Adjust the practice for high-emotional-load periods:
+
 - Reduce required frequency. If they were doing 4 days per week, drop to 2 during the acute period. Compliance under stress is harder; failure creates shame; shame stops the practice entirely.
 - Do NOT recommend the Cognitive Reframing Journal during acute grief or loss. Requiring someone in acute grief to write "evidence against my thought that things will never get better" is invalidating. The Stream-of-Consciousness Dump or Prompt-Based Reflection with self-compassion prompts is appropriate.
 - Include prompts from the self-compassion domain: "What would I say to a close friend going through exactly what I am going through right now?" "What does my body need today that it hasn't gotten?" "What have I managed to do today despite how hard things feel?"
 - Explicitly state that the journaling practice may need to pause entirely during periods of acute crisis, and that pausing is not failure -- it is appropriate self-care.
 
 ### The User Is a Teenager or Young Adult (Under 21)
+
 The core formats and methodologies apply equally to younger users, but several adaptations improve fit:
+
 - Use voice-to-text or digital formats by default -- younger users are dramatically less likely to sustain handwritten practices
 - The Prompt-Based Reflection format is typically most effective for this age group due to lower self-reflective experience
 - Avoid the Cognitive Reframing Journal for users under 16 without parental or therapeutic context -- the level of metacognitive abstraction required (examining and questioning one's own thoughts) requires a developmental baseline that varies significantly in adolescence
@@ -372,6 +397,7 @@ The core formats and methodologies apply equally to younger users, but several a
 **Input:** "I've been really anxious lately -- not clinically diagnosed or anything, just a lot of racing thoughts at night. I've tried journaling before but I always stop after a week because I don't know what to write. I have about 10 minutes before bed and I prefer structure to free writing. I've never been consistent with anything like this."
 
 **Analysis before output:**
+
 - Goal: Reduce nighttime racing thoughts and cognitive overload; improve sleep onset
 - History: Repeated attempts, quit due to blank-page paralysis -- classic format mismatch
 - Time: 10 minutes, evening (pre-sleep -- ideal for reflective wind-down)
@@ -403,15 +429,16 @@ The core formats and methodologies apply equally to younger users, but several a
 
 **Blank Template:**
 
-**Date:** _______________
-**Today's mood score (1-10):** _____ 
-**One word that describes today:** _______________
-**The moment that took the most mental energy today:** _______________
-**One thing I handled reasonably well (even if imperfectly):** _______________
-**One thing I'm carrying into tomorrow that I want to set down for tonight:** _______________
-**Tomorrow's one small intention:** _______________
+**Date:** ******\_\_\_******
+**Today's mood score (1-10):** **\_**
+**One word that describes today:** ******\_\_\_******
+**The moment that took the most mental energy today:** ******\_\_\_******
+**One thing I handled reasonably well (even if imperfectly):** ******\_\_\_******
+**One thing I'm carrying into tomorrow that I want to set down for tonight:** ******\_\_\_******
+**Tomorrow's one small intention:** ******\_\_\_******
 
 **Instructions for this format:**
+
 - Write in the same physical or digital location every time. Consistency of place strengthens the habit loop.
 - Keep every field to 1-3 sentences maximum. This is not a comprehensive diary -- it is a mental clearing mechanism. Length is not the goal.
 - The "set down for tonight" field is a deliberate cognitive technique: writing down an unresolved concern signals to your brain that the thought has been captured and does not need to be actively held. This is a concrete technique from sleep research on "scheduled worry" -- externalizing concerns before sleep reduces their intrusion during sleep onset.
@@ -437,7 +464,7 @@ The core formats and methodologies apply equally to younger users, but several a
 
 **Blank Template:**
 
-**Date:** _______________
+**Date:** ******\_\_\_******
 **Today's prompt:** [choose from the library below or use any prompt from the 14-day list]
 **My response:**
 [Write for 5-8 minutes in response to the prompt. No structure required. Just follow the question wherever it takes you.]
@@ -455,34 +482,34 @@ The main thing is whether the project my team submitted will get approved by the
 
 ### 14-Day Prompt Library
 
-*Use these on any scheduled journaling day instead of or after the check-in template.*
+_Use these on any scheduled journaling day instead of or after the check-in template._
 
-| Day | Focus Area | Prompt |
-|-----|------------|--------|
-| 1 | Self-Awareness | What was one moment today when you felt your body tense up or brace? What was happening right before it? |
-| 2 | Behavioral Reflection | What is one thing you said yes to this week that you wished you had said no to -- and what made it hard to decline? |
-| 3 | Body Awareness | Where in your body do you tend to carry stress? What does it feel like right now as you sit here? |
-| 4 | Relationships | Who did you feel most like yourself around in the last 7 days? What was it about that interaction? |
-| 5 | Strengths | What is one situation from this week where you managed something difficult without realizing it in the moment? |
-| 6 | Values | If this week had a theme -- something your choices and reactions kept circling back to -- what would that theme be? |
-| 7 | Weekly Review | Look back at your entries from this week. What emotion appeared most often? What triggered it most consistently? What does that tell you about what matters to you right now? |
-| 8 | Future Self | What would a version of you who is sleeping well and feeling calm be doing differently on a typical Tuesday evening? |
-| 9 | Gratitude -- Specific | What happened in the last 48 hours that you would have missed if you had not been paying attention? |
-| 10 | Perspective Shift | What is the most stressful thing on your mind right now? What will be true about it in 6 months -- will it still feel this large? |
-| 11 | Self-Compassion | What have you expected of yourself this week that you would never expect of a close friend going through the same circumstances? |
-| 12 | Meaning | What is one small thing you do regularly that, if you had to explain to someone else why it matters, you could articulate clearly? |
-| 13 | Behavioral Intention | What is one specific, small thing you could do tomorrow that would make tomorrow's evening check-in entry slightly easier to write than tonight's? |
-| 14 | Weekly Review | Looking at the past two weeks of entries together: what is the most common "mental energy drain" you identified? What would it look like to reduce it by even 20% in the coming week? |
+| Day | Focus Area            | Prompt                                                                                                                                                                                |
+| --- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Self-Awareness        | What was one moment today when you felt your body tense up or brace? What was happening right before it?                                                                              |
+| 2   | Behavioral Reflection | What is one thing you said yes to this week that you wished you had said no to -- and what made it hard to decline?                                                                   |
+| 3   | Body Awareness        | Where in your body do you tend to carry stress? What does it feel like right now as you sit here?                                                                                     |
+| 4   | Relationships         | Who did you feel most like yourself around in the last 7 days? What was it about that interaction?                                                                                    |
+| 5   | Strengths             | What is one situation from this week where you managed something difficult without realizing it in the moment?                                                                        |
+| 6   | Values                | If this week had a theme -- something your choices and reactions kept circling back to -- what would that theme be?                                                                   |
+| 7   | Weekly Review         | Look back at your entries from this week. What emotion appeared most often? What triggered it most consistently? What does that tell you about what matters to you right now?         |
+| 8   | Future Self           | What would a version of you who is sleeping well and feeling calm be doing differently on a typical Tuesday evening?                                                                  |
+| 9   | Gratitude -- Specific | What happened in the last 48 hours that you would have missed if you had not been paying attention?                                                                                   |
+| 10  | Perspective Shift     | What is the most stressful thing on your mind right now? What will be true about it in 6 months -- will it still feel this large?                                                     |
+| 11  | Self-Compassion       | What have you expected of yourself this week that you would never expect of a close friend going through the same circumstances?                                                      |
+| 12  | Meaning               | What is one small thing you do regularly that, if you had to explain to someone else why it matters, you could articulate clearly?                                                    |
+| 13  | Behavioral Intention  | What is one specific, small thing you could do tomorrow that would make tomorrow's evening check-in entry slightly easier to write than tonight's?                                    |
+| 14  | Weekly Review         | Looking at the past two weeks of entries together: what is the most common "mental energy drain" you identified? What would it look like to reduce it by even 20% in the coming week? |
 
 ---
 
 ### Weekly Schedule
 
-| Day | Time | Format | Duration | Habit Anchor |
-|-----|------|--------|----------|--------------|
-| Monday | Evening | Daily Check-In | 5-7 min | After brushing teeth, before getting into bed |
-| Wednesday | Evening | Daily Check-In or Prompt (your choice) | 8-10 min | After brushing teeth, before getting into bed |
-| Sunday | Evening | Prompt-Based Reflection + Weekly Review | 10 min | After any wind-down activity (tea, shower, reading) |
+| Day       | Time    | Format                                  | Duration | Habit Anchor                                        |
+| --------- | ------- | --------------------------------------- | -------- | --------------------------------------------------- |
+| Monday    | Evening | Daily Check-In                          | 5-7 min  | After brushing teeth, before getting into bed       |
+| Wednesday | Evening | Daily Check-In or Prompt (your choice)  | 8-10 min | After brushing teeth, before getting into bed       |
+| Sunday    | Evening | Prompt-Based Reflection + Weekly Review | 10 min   | After any wind-down activity (tea, shower, reading) |
 
 **Habit Anchor:** After brushing your teeth at night is the most effective anchor for this user profile -- it is already a nightly consistent behavior with a clear endpoint, and the physical transition (bathroom to bed area) reinforces that journaling is part of the wind-down sequence, not an additional task.
 
@@ -491,7 +518,8 @@ The main thing is whether the project my team submitted will get approved by the
 ---
 
 ### Weekly Review Questions
-*Answer these on Sunday after your regular entry:*
+
+_Answer these on Sunday after your regular entry:_
 
 1. Look at your mood scores across this week's entries. What is the range (highest score to lowest score)? What was happening on the lowest-score day?
 2. Did the same stressor, worry, or theme appear in more than one entry this week? Name it specifically.
@@ -501,29 +529,31 @@ The main thing is whether the project my team submitted will get approved by the
 
 ### Getting Unstuck
 
-| Problem | Specific Solution |
-|---------|-------------------|
-| "I stare at the blank template and nothing comes" | Open the 14-day prompt library, pick any prompt you have not used, and write your response to it for exactly 5 minutes. The check-in template is optional -- any writing counts. |
-| "I missed 2 weeks and now starting again feels weird" | Write tonight. Write one sentence for each field if a full entry feels too hard. "I haven't written in two weeks. Tonight was hard. My mood score is 4. That's enough for tonight." Streaks are not the goal -- return is the goal. |
-| "Every entry sounds exactly the same -- same stressor, same mood score" | Switch to the prompt-based format for 2-3 consecutive sessions using the perspective-shift or future-self prompts (Days 8 and 10 in the library). Same-entry repetition means the check-in fields are no longer surfacing new information -- a different question angle will. |
-| "Writing about my racing thoughts right before bed makes my mind more active, not less" | Move journaling to 60 minutes before bed instead of 20 minutes before. If the window is right before sleep, try reducing the entry to 3 fields only: mood score, one thing I'm setting down for tonight, and tomorrow's intention. Under-stimulating entries wind the brain down; over-analytical entries can wind it up. |
-| "I'm worried someone in my house will read it" | For digital journaling, use a notes app with biometric lock (fingerprint or face ID) and turn off any preview notifications. For handwritten, keep the journal in a bag or drawer with a physical cover that does not label its contents, or write entries on loose paper and discard each one after writing -- the benefit comes from the act of writing, not from keeping the archive. |
-| "I feel guilty if I skip a scheduled day" | Guilt means the practice has become a source of self-criticism rather than self-support. That is the opposite of the goal. When you skip a day, write one sentence at any point in the next 24 hours: "I skipped yesterday. Tonight I'm at a [X] mood. Tomorrow I'll try again." One sentence resets the habit without making the missed session larger than it is. |
+| Problem                                                                                 | Specific Solution                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "I stare at the blank template and nothing comes"                                       | Open the 14-day prompt library, pick any prompt you have not used, and write your response to it for exactly 5 minutes. The check-in template is optional -- any writing counts.                                                                                                                                                                                                         |
+| "I missed 2 weeks and now starting again feels weird"                                   | Write tonight. Write one sentence for each field if a full entry feels too hard. "I haven't written in two weeks. Tonight was hard. My mood score is 4. That's enough for tonight." Streaks are not the goal -- return is the goal.                                                                                                                                                      |
+| "Every entry sounds exactly the same -- same stressor, same mood score"                 | Switch to the prompt-based format for 2-3 consecutive sessions using the perspective-shift or future-self prompts (Days 8 and 10 in the library). Same-entry repetition means the check-in fields are no longer surfacing new information -- a different question angle will.                                                                                                            |
+| "Writing about my racing thoughts right before bed makes my mind more active, not less" | Move journaling to 60 minutes before bed instead of 20 minutes before. If the window is right before sleep, try reducing the entry to 3 fields only: mood score, one thing I'm setting down for tonight, and tomorrow's intention. Under-stimulating entries wind the brain down; over-analytical entries can wind it up.                                                                |
+| "I'm worried someone in my house will read it"                                          | For digital journaling, use a notes app with biometric lock (fingerprint or face ID) and turn off any preview notifications. For handwritten, keep the journal in a bag or drawer with a physical cover that does not label its contents, or write entries on loose paper and discard each one after writing -- the benefit comes from the act of writing, not from keeping the archive. |
+| "I feel guilty if I skip a scheduled day"                                               | Guilt means the practice has become a source of self-criticism rather than self-support. That is the opposite of the goal. When you skip a day, write one sentence at any point in the next 24 hours: "I skipped yesterday. Tonight I'm at a [X] mood. Tomorrow I'll try again." One sentence resets the habit without making the missed session larger than it is.                      |
 
 ---
 
 ### How to Know Your Practice Is Working
 
 **Journaling is helping when:**
+
 - You notice you are identifying specific emotions (frustrated, disappointed, relieved) rather than just "stressed" or "bad" after 2-3 weeks -- this is emotional vocabulary expanding, which is a real and measurable benefit
 - The "carrying into tomorrow" field becomes easier to write over time because you are getting better at naming what is actually bothering you
 - You begin to notice recurring patterns without actively trying to -- a specific day of the week, a specific type of interaction, or a specific time of day that consistently produces a lower mood score
 - You reach for the journal on a hard day because it genuinely helps, not only because you scheduled it
 
 **Consider bringing a professional into your support picture when:**
+
 - You have been writing for 3+ weeks and entries consistently end in the same place of hopelessness, with no sense of movement or relief
 - The racing thoughts you are trying to manage at night are significantly affecting your sleep, work, or daily functioning over multiple weeks, despite a consistent journaling practice
 - You notice themes of worthlessness, self-harm, or persistent inability to find any positive material across 10 or more consecutive entries
 - The journal begins to feel like the only thing that keeps you functional -- if it feels compulsive rather than supportive, that is a signal to speak with a licensed mental health professional
 
-*A good therapist will welcome knowing you journal. The self-awareness you build here makes every form of professional support more effective -- it is not a replacement, it is a foundation.*
+_A good therapist will welcome knowing you journal. The self-awareness you build here makes every form of professional support more effective -- it is not a replacement, it is a foundation._

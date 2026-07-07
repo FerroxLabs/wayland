@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production design"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production design'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Motion Graphics
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on motion graphics
 - User asks about motion graphics best practices or techniques
 - User wants a structured approach to motion graphics
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of motion graphics
 
@@ -60,7 +61,9 @@ Before providing motion graphics guidance:
 ## Design Principles for Motion
 
 ### Visual Hierarchy in Motion
+
 Static design principles do not disappear when elements move -- they intensify:
+
 - **Size**: Larger elements draw attention first. Animate the most important element largest.
 - **Contrast**: High contrast elements stand out. Use contrast in color, brightness, and scale to guide the eye.
 - **Position**: Center and upper-left naturally draw the eye first. Use position changes to shift focus.
@@ -68,6 +71,7 @@ Static design principles do not disappear when elements move -- they intensify:
 - **Motion itself**: The moving element in a static composition commands attention. Use stillness and motion as a hierarchy tool.
 
 ### Typography in Motion
+
 - Choose typefaces that are legible at the sizes and durations you are using. Script fonts that are beautiful in print may be unreadable at small sizes or short durations.
 - Sans-serif fonts generally perform better in motion (cleaner, more geometric, easier to animate).
 - Limit yourself to 2 typefaces per project (one for headlines, one for body/supporting text).
@@ -75,6 +79,7 @@ Static design principles do not disappear when elements move -- they intensify:
 - Line spacing (leading) and letter spacing (tracking) need to be more generous in motion than in print to maintain legibility.
 
 ### Color in Motion
+
 - Work within a defined palette. 3-5 colors maximum for most projects.
 - Use color transitions to signify changes in topic, mood, or section.
 - Ensure sufficient contrast between text and background (WCAG AA minimum: 4.5:1 contrast ratio).
@@ -82,6 +87,7 @@ Static design principles do not disappear when elements move -- they intensify:
 - Test your colors on multiple devices. What looks perfect on your calibrated monitor may shift on a phone or projector.
 
 ### Composition for Motion
+
 - Use a grid. Divide your frame into sections and align elements consistently.
 - Leave breathing room. Crowded frames in motion feel chaotic.
 - Design for the full frame. Even if the animation centers on one element, the entire frame is visible.
@@ -91,7 +97,9 @@ Static design principles do not disappear when elements move -- they intensify:
 ## Storyboarding for Motion Graphics
 
 ### The Styleframe
+
 Before animating, create styleframes -- fully designed, static frames that represent key moments in the animation:
+
 1. **Opening frame**: What does the first visual look like?
 2. **Key transition frames**: What do the major section changes look like?
 3. **Content frames**: How does information appear when fully displayed?
@@ -100,7 +108,9 @@ Before animating, create styleframes -- fully designed, static frames that repre
 Styleframes are design deliverables. They should look polished enough to present to a client for style approval before animation begins.
 
 ### The Animatic
+
 After styleframes are approved:
+
 1. Import the styleframes into After Effects or your editing software
 2. Time them to the audio track (voiceover, music, or both)
 3. Add simple dissolves or position changes to indicate intended transitions
@@ -112,22 +122,27 @@ This step prevents the most common motion graphics problem: animating before the
 ## Title Design
 
 ### Film and Video Title Sequences
+
 Title sequences set the tone for the entire viewing experience:
+
 - **Minimalist**: Clean typography over black or footage. Focus on font selection, timing, and subtle animation.
 - **Montage-based**: Titles integrated with edited footage. Text as a graphic element within the visual storytelling.
 - **Standalone sequence**: A self-contained animated piece that establishes mood, theme, and visual language (think Saul Bass, Kyle Cooper).
 - **Kinetic typography**: The titles themselves are the visual content, animated to convey meaning and energy.
 
 Design considerations:
+
 - Match the genre and tone of the content (a horror film's titles should feel different from a romantic comedy)
 - Hierarchy: film title is the hero, then cast names, then crew credits
 - Duration: each title should remain readable. Credit names typically appear for 3-5 seconds.
 - Legal requirements: union contracts (SAG, DGA, WGA) may specify credit order, size, and duration.
 
 ### Lower Thirds
+
 Lower thirds identify speakers, locations, or topics on screen:
 
 Design principles:
+
 - Position in the lower third of the frame (hence the name), typically left-aligned
 - Two lines: primary (name/title) and secondary (organization/role)
 - Animate on, hold, animate off. Total duration: 4-7 seconds. Hold for at least 3 seconds.
@@ -136,6 +151,7 @@ Design principles:
 - Keep it simple. The lower third supports the content; it should not compete with it.
 
 Animation pattern:
+
 1. Animate on: 15-20 frames (wipe, slide, scale, or opacity fade)
 2. Hold: 3-5 seconds
 3. Animate off: 10-15 frames (reverse of animate on, or a different exit)
@@ -143,6 +159,7 @@ Animation pattern:
 ## Animated Explainer Videos
 
 ### Structure
+
 1. **Hook (0-10 seconds)**: Present the problem or question that the viewer relates to
 2. **Problem expansion (10-30 seconds)**: Deepen the problem. Show why it matters.
 3. **Solution introduction (30-60 seconds)**: Introduce the product, service, or concept
@@ -151,6 +168,7 @@ Animation pattern:
 6. **Call to action (150-180 seconds)**: Tell the viewer what to do next
 
 ### Visual Style Options
+
 - **Flat design**: 2D vector graphics with bold colors. Clean, modern, scalable.
 - **Isometric**: 2.5D perspective that adds depth without full 3D. Technical, detailed.
 - **Character-driven**: Animated characters guide the viewer through the narrative. Relatable, engaging.
@@ -159,6 +177,7 @@ Animation pattern:
 - **3D**: Full three-dimensional environments and objects. Premium feel, higher production cost.
 
 ### Workflow for Explainer Production
+
 1. Script approval (the script drives everything)
 2. Voiceover recording
 3. Styleframes designed to key moments in the script
@@ -171,7 +190,9 @@ Animation pattern:
 ## Kinetic Typography
 
 ### Principles
+
 Kinetic typography makes text a visual performance:
+
 - **Emphasis through scale**: Important words get bigger. Filler words stay small.
 - **Emphasis through timing**: Important words appear on beat or hold longer.
 - **Spatial movement**: Words can enter, exit, bounce, shake, expand, contract, or transform.
@@ -179,6 +200,7 @@ Kinetic typography makes text a visual performance:
 - **Emotional movement**: Angry words shake. Quiet words fade. Fast words zip. Slow words drift.
 
 ### Technical Approach in After Effects
+
 1. Import the audio (voiceover, song lyrics, or speech)
 2. Break the text into individual words or phrases on separate text layers
 3. Time each word to the audio using markers
@@ -190,6 +212,7 @@ Kinetic typography makes text a visual performance:
 ## Logo Animation
 
 ### Approaches
+
 - **Reveal**: The logo is gradually revealed through a wipe, draw-on, or mask animation
 - **Assembly**: Logo elements (icon, wordmark) animate separately and come together
 - **Transformation**: An abstract shape morphs into the logo
@@ -198,6 +221,7 @@ Kinetic typography makes text a visual performance:
 - **Simple and elegant**: A subtle scale, fade, or position change. Often the most effective.
 
 ### Best Practices
+
 - Duration: 3-7 seconds for most uses. Shorter for social media bumpers.
 - The logo should be fully visible and static for at least 1.5 seconds before the animation ends
 - Match the animation style to the brand personality (playful brands get bouncy animation, luxury brands get smooth and minimal)
@@ -208,12 +232,14 @@ Kinetic typography makes text a visual performance:
 ## After Effects Workflow
 
 ### Project Setup
+
 1. Create a new project and set the working color space (sRGB for web, Rec. 709 for broadcast)
 2. Create a composition at the target resolution and frame rate
 3. Import all assets: design files (AI, PSD with layers), audio, reference materials
 4. Organize the Project panel into folders: Assets, Comps, Pre-comps, Audio, Reference
 
 ### Essential Techniques
+
 - **Pre-composing**: Group related layers into a sub-composition. Keeps the main timeline clean. Apply effects to the group as a whole.
 - **Null objects**: Invisible controllers. Parent multiple layers to a null to move them as a group while maintaining individual animation.
 - **Adjustment layers**: Apply effects (color, blur, distortion) to everything below the adjustment layer.
@@ -222,6 +248,7 @@ Kinetic typography makes text a visual performance:
 - **Motion blur**: Enable per-layer and per-composition. Adds realism to fast movement. Disable for graphic, snappy styles.
 
 ### Animation Workflow
+
 1. Set key poses using keyframes (position, scale, rotation, opacity)
 2. Switch to the Graph Editor immediately
 3. Adjust value and speed curves for intentional easing
@@ -231,6 +258,7 @@ Kinetic typography makes text a visual performance:
 7. Refine until every movement feels intentional
 
 ### Performance and Rendering
+
 - Use proxies for complex compositions during work
 - Purge memory regularly (Edit > Purge > All Memory & Disk Cache)
 - Multi-frame rendering: enable in Preferences for significantly faster rendering on multi-core systems
@@ -240,6 +268,7 @@ Kinetic typography makes text a visual performance:
 ## Apple Motion Workflow
 
 ### Strengths of Motion
+
 - Real-time playback and preview (no RAM preview wait)
 - Excellent integration with Final Cut Pro (publish parameters to FCP)
 - Behavior-based animation: apply physics-like behaviors (gravity, orbit, random motion) instead of keyframing everything
@@ -247,10 +276,12 @@ Kinetic typography makes text a visual performance:
 - Good for broadcast graphics, FCP templates, and repetitive design tasks
 
 ### When to Use Motion vs After Effects
+
 - **Motion**: FCP integration, real-time preview, broadcast templates, behavior-driven animation, simpler projects
 - **After Effects**: Complex compositing, advanced expressions, extensive plugin ecosystem, character animation, detailed keyframe control, larger team workflows
 
 ### Key Motion Techniques
+
 - **Behaviors**: Drag and drop animation presets (Fade In/Out, Grow/Shrink, Spin, Throw, Gravity). Stack behaviors for complex motion.
 - **Replicator**: Duplicate a layer in patterns (grid, circle, spiral) with animation offsets.
 - **Particle Emitter**: Create particle systems for snow, fire, sparkles, abstract backgrounds.
@@ -260,6 +291,7 @@ Kinetic typography makes text a visual performance:
 ## Building a Motion Design Practice
 
 ### Portfolio Development
+
 - Create 5-10 pieces that represent the type of work you want to do
 - Include a range: title sequence, explainer excerpt, logo animation, social media set, broadcast package
 - Present work in context (show the title sequence over the film footage, not isolated)
@@ -267,6 +299,7 @@ Kinetic typography makes text a visual performance:
 - Host on Vimeo (better compression, professional reputation) and embed on your portfolio site
 
 ### Pricing Motion Graphics Work
+
 - **Hourly rate**: Appropriate for ongoing relationships and small projects. Track time accurately.
 - **Day rate**: Common in broadcast and agency work. Typically 8-10 hours.
 - **Project rate**: Best for defined-scope projects. Estimate hours, add 20% buffer, multiply by your hourly rate.
@@ -275,6 +308,7 @@ Kinetic typography makes text a visual performance:
 Factor in: design time (storyboarding, styleframes), animation time, revision rounds, render time, project management, and licensing costs for fonts, music, or plugins.
 
 ### Continuous Skill Building
+
 - Recreate motion graphics you admire. Reverse-engineering teaches technique.
 - Follow Motionographer, Art of the Title, and Stash Magazine for inspiration and industry awareness.
 - Learn a new technique or tool each month.
@@ -285,23 +319,25 @@ Factor in: design time (storyboarding, styleframes), animation time, revision ro
 ## Common Mistakes in Motion Graphics
 
 ### Design Mistakes
+
 - Overcrowding the frame with too many elements moving simultaneously. The viewer's eye needs a clear path.
 - Using too many typefaces or inconsistent styling. Stick to the design system.
 - Ignoring the brief's brand guidelines in favor of personal aesthetic preferences
 - Designing for the desktop monitor without testing at mobile or presentation sizes
 
 ### Animation Mistakes
+
 - Linear keyframes everywhere. Without easing, motion feels mechanical and lifeless.
 - Excessive motion blur on graphic elements where it is not appropriate
 - All elements animating at the same speed and with the same easing. Variety creates interest.
 - Overusing plugins and presets without understanding the underlying technique. The result looks generic.
 
 ### Workflow Mistakes
+
 - Animating before the timing is approved. Always create an animatic first.
 - Poor project organization that makes revisions painful and time-consuming
 - Not pre-composing groups of layers, leading to unmanageable timelines with hundreds of layers
 - Rendering final output without previewing the entire piece at full resolution
-
 
 ## Output Format
 
@@ -315,13 +351,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with motion graphics for a mid-size project."
 
 **Output:** A complete motion graphics framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

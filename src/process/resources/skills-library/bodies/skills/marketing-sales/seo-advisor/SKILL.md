@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "seo marketing analysis"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'seo marketing analysis'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Seo Advisor
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on seo advisor
 - User asks about seo advisor best practices or techniques
 - User wants a structured approach to seo advisor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of seo advisor
+
 ## Questions to Ask the User First
 
 1. **What is your website URL?**
@@ -51,10 +53,13 @@ metadata:
 8. **Do you have an existing content strategy?** (Blog, resources, etc.)
 9. **What is your SEO budget?** (Content, tools, link building)
 10. **What are your primary conversion goals?** (Leads, sales, signups, traffic)
+
 ---
+
 ## Step 1: Keyword Research Methodology
 
 ### Keyword Research Workflow
+
 ```
 KEYWORD RESEARCH PROCESS
 STEP 1: SEED KEYWORDS
@@ -108,10 +113,13 @@ STEP 5: KEYWORD MAPPING
   | Blog post 2         | {{kw}}         | {{kw2, kw3}}      | {{}}   |
   RULE: One primary keyword per page. Avoid keyword cannibalization.
 ```
+
 ---
+
 ## Step 2: On-Page SEO Checklist
 
 ### Per-Page Optimization
+
 ```
 ON-PAGE SEO CHECKLIST (apply to every important page)
 URL STRUCTURE:
@@ -166,8 +174,11 @@ SCHEMA MARKUP:
 - [ ] LocalBusiness schema (if local business)
 - [ ] BreadcrumbList schema
 ```
+
 ---
+
 ## Step 3: Technical SEO Audit
+
 ```
 TECHNICAL SEO AUDIT CHECKLIST
 CRAWLABILITY:
@@ -221,6 +232,7 @@ STRUCTURED DATA:
 ```
 
 ### Core Web Vitals Improvement Guide
+
 ```
 CORE WEB VITALS OPTIMIZATION
 
@@ -253,8 +265,11 @@ IF CLS IS TOO HIGH (> 0.1):
   4. Use CSS aspect-ratio for responsive embeds
   5. Preload web fonts to prevent flash of unstyled text
 ```
+
 ---
+
 ## Step 4: Content Strategy for SEO
+
 ```
 SEO CONTENT STRATEGY
 CONTENT PILLARS:
@@ -316,8 +331,11 @@ CONTENT BRIEF TEMPLATE:
   Internal links to include: {{page_1}}, {{page_2}}
   CTA: {{desired_action}}
 ```
+
 ---
+
 ## Step 5: Link Building Strategies
+
 ```
 LINK BUILDING STRATEGY
 TIER 1: EASY WINS (Month 1)
@@ -368,8 +386,11 @@ AVOID (will hurt your SEO):
 - Low-quality directory submissions
 - Paid links without rel="sponsored" attribute
 ```
+
 ---
+
 ## Step 6: Local SEO
+
 ```
 LOCAL SEO CHECKLIST (for businesses with physical locations)
 
@@ -419,8 +440,11 @@ REVIEWS STRATEGY:
   3. Respond to all reviews within 48 hours
   4. Address negative reviews professionally and constructively
 ```
+
 ---
+
 ## Step 7: Monthly SEO Workflow
+
 ```
 MONTHLY SEO WORKFLOW
 
@@ -474,8 +498,11 @@ MONTHLY REPORT METRICS:
   - Top gaining keywords: {{list}}
   - Top declining keywords: {{list}}
 ```
+
 ---
+
 ## SEO Tools Comparison
+
 ```
 SEO TOOL RECOMMENDATIONS
 
@@ -516,7 +543,9 @@ RECOMMENDED STACK BY BUDGET:
   $300-500/month: Above + Screaming Frog + Clearscope/SurferSEO
   $500+/month: Full tool stack + dedicated local SEO tools
 ```
+
 ---
+
 ## Output Checklist
 
 - [ ] Keyword research covers all funnel stages and intent types
@@ -530,7 +559,6 @@ RECOMMENDED STACK BY BUDGET:
 - [ ] All recommendations are prioritized by impact
 - [ ] Success metrics and reporting cadence are defined
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +571,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with seo advisor for a mid-size project."
 
 **Output:** A complete seo advisor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

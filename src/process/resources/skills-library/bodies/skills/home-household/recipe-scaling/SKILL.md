@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning planning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking meal-planning planning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Recipe Scaling
 
 ## When to Use
@@ -76,6 +77,7 @@ The multiplier is the mathematical foundation of every adjustment that follows.
 Not all ingredients scale the same way. Every ingredient in the recipe must be assigned to a scaling category before any math is done.
 
 **Category 1 -- Direct Linear Scale (multiply by the full multiplier):**
+
 - Flour, grains, starches
 - Dairy (milk, cream, buttermilk, yogurt, sour cream)
 - Most vegetables and proteins in cooking recipes
@@ -84,12 +86,14 @@ Not all ingredients scale the same way. Every ingredient in the recipe must be a
 - Sweeteners (sugar, honey, maple syrup, brown sugar) for cooking recipes -- see baking note below
 
 **Category 2 -- Capped Leavening (never exceed 2.5x original amount):**
+
 - Baking powder: scale linearly up to 2.5x, then cap. For batches beyond 2.5x, hold at 2.5x the original.
 - Baking soda: same cap at 2.5x. Baking soda is approximately 4x as potent as baking powder -- over-use causes rapid over-rise, collapse during cooling, and a persistent metallic or soapy aftertaste.
 - Baking powder + baking soda together: cap each independently at 2.5x.
 - Cream of tartar (when used as a leavening activator): cap at 2.5x alongside baking soda.
 
 **Category 3 -- Reduced-Scale Strong Flavoring (multiply by 75% of the scaling factor for scale-ups over 2x):**
+
 - Table salt and kosher salt: salt perception is non-linear; a batch scaled to 3x will taste saltier than 3x if you add 3x the salt
 - Ground black pepper, cayenne, chili flakes, and other pungent dried spices
 - Vanilla extract: controversial -- most bakers scale vanilla linearly, but for batches over 3x, 75% scaling is acceptable; add more to taste
@@ -100,21 +104,25 @@ Not all ingredients scale the same way. Every ingredient in the recipe must be a
 - Fish sauce, soy sauce, Worcestershire, miso: scale at 75%
 
 **Category 4 -- Fat Reduction for Large Baking Batches (reduce by 5-10% for batches over 3x):**
+
 - Butter, vegetable oil, shortening in baking recipes
 - The reduction compensates for the way fat distributes through a larger batter mass -- excess fat at scale weakens structure and prevents proper rise
 - For cooking recipes (sautéing, braising), fat scales linearly
 
 **Category 5 -- Liquid Reduction for Large Baking Batches (reduce by 10% for batches over 3x):**
+
 - Water, milk, buttermilk, coffee, juice when used as the primary baking liquid
 - The surface area to volume ratio changes in a larger pan -- evaporation is proportionally less, leaving more residual moisture
 - This reduction applies to baking only; soups, sauces, and braising liquids scale linearly
 
 **Category 6 -- Whole-Unit Rounding (eggs, cans, packages):**
+
 - Eggs: always round to the nearest whole egg, with one exception -- if the recipe calls for 1 egg and you are halving it, beat one whole egg and measure 2 tablespoons (approximately half a large egg)
 - Cans: do not round to the nearest can. Calculate the weight in ounces, then specify the exact amount: "Use 28 oz from a 28-oz can and 12 oz from a second can"
 - Yeast packets: see yeast-specific rules in Step 4
 
 **Category 7 -- Time-Sensitive Leavening with Modified Rules (yeast):**
+
 - Yeast scales linearly up to 2.0x
 - For batches 2.0x to 4.0x, use 1.5x the original yeast, not 2x or more
 - Excess yeast produces a pronounced yeasty or alcoholic off-flavor and can exhaust the available sugars before the dough is fully developed
@@ -157,6 +165,7 @@ Pan size affects heat distribution, batter depth, and baking time. This step is 
 Time and temperature are the most variable adjustments -- treat all time estimates as starting points, not absolutes.
 
 **Baking time adjustments for oven-baked goods:**
+
 - Same pan size, same number of pans (batches baked sequentially): temperature unchanged, time unchanged
 - Same pan size but oven loaded with multiple pans simultaneously: increase time by 5-10 minutes and rotate pans at halfway point; hot air circulation is impeded
 - Larger pan with the same batter depth: temperature unchanged, time may increase by 5-10 minutes (more thermal mass in the pan itself)
@@ -164,12 +173,14 @@ Time and temperature are the most variable adjustments -- treat all time estimat
 - Smaller pan than original or converted to muffins/cupcakes: increase temperature by 25°F (15°C) and reduce time by 25-35%
 
 **Stovetop time adjustments:**
+
 - Doubling a sauté or stir-fry: increase cook time by 15-25% but the more important variable is pan size -- do not crowd ingredients; cook in batches if necessary
 - Doubling a soup or stew: reduce liquids by 10-15% at first addition; liquids can always be added later
 - Halving a soup or stew: check that the liquid still covers the solids sufficiently; you may need proportionally more liquid than the scale suggests
 - Reduction sauces: time for reduction does not scale linearly -- a larger pan with more surface area may actually reduce faster; a deeper pot with the same volume will reduce more slowly
 
 **Doneness tests always override time estimates:**
+
 - Baked goods: internal temperature probe (chocolate cake done at 210°F / 99°C; yeast bread done at 190-210°F / 88-99°C depending on style; custard done at 170-175°F / 77-79°C)
 - Toothpick test for cakes: clean toothpick = done; moist crumbs = done; wet batter = not done
 - Bread: hollow sound when tapped on the bottom; pull away from pan sides
@@ -289,13 +300,14 @@ When a recipe calls for 1/2 teaspoon baking powder and the user is halving it to
 ### High-Altitude Baking (Above 3,500 Feet / 1,065 Meters)
 
 High altitude changes atmospheric pressure, which means CO₂ from leavening expands faster and liquids evaporate more quickly in the oven. These adjustments apply in addition to any scaling adjustments:
+
 - Reduce baking powder by 20-25% of the scaled (already capped) amount
 - Reduce baking soda by 20-25% of the scaled (already capped) amount
 - Increase liquid by 2-4 tablespoons per cup of flour in the recipe
 - Reduce granulated sugar by 1-2 tablespoons per cup in the recipe (excess sugar weakens structure more severely at altitude)
 - Increase oven temperature by 15-25°F
 - Above 6,500 feet (2,000 meters), the reduction in baking powder/soda increases to 25-30%
-Note: apply altitude adjustments to the post-scaled, post-capped quantities, not to the original amounts.
+  Note: apply altitude adjustments to the post-scaled, post-capped quantities, not to the original amounts.
 
 ### Recipes Using Weight Measurements (Grams or Ounces)
 
@@ -335,19 +347,19 @@ When the user wants to convert a two-layer 9-inch round cake to a 9x13 sheet cak
 
 ### Scaled Ingredients
 
-| Ingredient | Original | Exact Scaled (×2.75) | Practical Measure | Scaling Category & Notes |
-|------------|----------|----------------------|-------------------|--------------------------|
-| All-purpose flour | 2 cups | 5.5 cups | 5 1/2 cups | Category 1 -- direct linear scale |
-| Granulated sugar | 2 cups | 5.5 cups | 5 1/2 cups | Category 1 -- direct linear scale |
-| Cocoa powder | 3/4 cup | 2.0625 cups | 2 cups | Category 1 -- rounded down to nearest 1/4 cup; cocoa is forgiving within 3% |
-| Baking soda | 2 tsp | 5.5 tsp (exceeds cap) | **5 tsp (2.5x cap)** | Category 2 -- CAPPED. Exact math gives 5.5 tsp but leavening is capped at 2.5x the original (5 tsp). Excess causes rapid over-rise, center collapse, and metallic aftertaste. |
-| Baking powder | 1 tsp | 2.75 tsp (exceeds cap) | **2 1/2 tsp (2.5x cap)** | Category 2 -- CAPPED. Exact math gives 2.75 tsp; capped at 2.5 tsp. |
-| Salt | 1 tsp | 2.75 tsp (unadjusted) | **2 tsp (75% rule)** | Category 3 -- reduced to 75% multiplier. 2.75 tsp × 0.75 = 2.06 tsp, rounded to 2 tsp. Salt perception is non-linear; taste batter and adjust before baking. |
-| Eggs | 2 | 5.5 | **6 eggs** | Category 6 -- rounded up to nearest whole egg. For cakes, rounding up 0.5 egg adds minimal excess moisture and maintains structure. |
-| Buttermilk | 1 cup | 2.75 cups | **2 1/2 cups** | Category 5 -- liquid reduction for baking at 2.75x. Exact 2.75 cups reduced by ~10% = 2.475 cups, rounded to 2 1/2 cups. Prevents overly wet batter structure. |
-| Hot water | 1 cup | 2.75 cups | **2 1/2 cups** | Category 5 -- same 10% liquid reduction applied. This is the primary thinning liquid; reduction is especially important here. |
-| Vegetable oil | 1/2 cup | 1.375 cups | **1 1/4 cups** | Category 4 -- fat reduced by ~10% for structural integrity at 2.75x scale. Exact 1.375 cups reduced to 1.25 cups. |
-| Vanilla extract | 2 tsp | 5.5 tsp | 5 1/2 tsp | Category 1 -- vanilla scales linearly in baking; it does not overpower in the same way almond extract does. Measure as 1 tbsp + 2 1/2 tsp for convenience. |
+| Ingredient        | Original | Exact Scaled (×2.75)   | Practical Measure        | Scaling Category & Notes                                                                                                                                                      |
+| ----------------- | -------- | ---------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All-purpose flour | 2 cups   | 5.5 cups               | 5 1/2 cups               | Category 1 -- direct linear scale                                                                                                                                             |
+| Granulated sugar  | 2 cups   | 5.5 cups               | 5 1/2 cups               | Category 1 -- direct linear scale                                                                                                                                             |
+| Cocoa powder      | 3/4 cup  | 2.0625 cups            | 2 cups                   | Category 1 -- rounded down to nearest 1/4 cup; cocoa is forgiving within 3%                                                                                                   |
+| Baking soda       | 2 tsp    | 5.5 tsp (exceeds cap)  | **5 tsp (2.5x cap)**     | Category 2 -- CAPPED. Exact math gives 5.5 tsp but leavening is capped at 2.5x the original (5 tsp). Excess causes rapid over-rise, center collapse, and metallic aftertaste. |
+| Baking powder     | 1 tsp    | 2.75 tsp (exceeds cap) | **2 1/2 tsp (2.5x cap)** | Category 2 -- CAPPED. Exact math gives 2.75 tsp; capped at 2.5 tsp.                                                                                                           |
+| Salt              | 1 tsp    | 2.75 tsp (unadjusted)  | **2 tsp (75% rule)**     | Category 3 -- reduced to 75% multiplier. 2.75 tsp × 0.75 = 2.06 tsp, rounded to 2 tsp. Salt perception is non-linear; taste batter and adjust before baking.                  |
+| Eggs              | 2        | 5.5                    | **6 eggs**               | Category 6 -- rounded up to nearest whole egg. For cakes, rounding up 0.5 egg adds minimal excess moisture and maintains structure.                                           |
+| Buttermilk        | 1 cup    | 2.75 cups              | **2 1/2 cups**           | Category 5 -- liquid reduction for baking at 2.75x. Exact 2.75 cups reduced by ~10% = 2.475 cups, rounded to 2 1/2 cups. Prevents overly wet batter structure.                |
+| Hot water         | 1 cup    | 2.75 cups              | **2 1/2 cups**           | Category 5 -- same 10% liquid reduction applied. This is the primary thinning liquid; reduction is especially important here.                                                 |
+| Vegetable oil     | 1/2 cup  | 1.375 cups             | **1 1/4 cups**           | Category 4 -- fat reduced by ~10% for structural integrity at 2.75x scale. Exact 1.375 cups reduced to 1.25 cups.                                                             |
+| Vanilla extract   | 2 tsp    | 5.5 tsp                | 5 1/2 tsp                | Category 1 -- vanilla scales linearly in baking; it does not overpower in the same way almond extract does. Measure as 1 tbsp + 2 1/2 tsp for convenience.                    |
 
 ---
 
@@ -369,21 +381,21 @@ When the user wants to convert a two-layer 9-inch round cake to a 9x13 sheet cak
 
 ### Cooking Time and Temperature
 
-| Parameter | Original | Scaled | Reason |
-|-----------|----------|--------|--------|
-| Oven temperature | 350°F (175°C) | **325°F (165°C)** | The scaled batter is deeper in the pans. At 350°F, the exterior crust and edges will set and darken before the center reaches doneness temperature. Dropping 25°F allows more even heat penetration. |
-| Bake time | 30-35 min | **42-52 min (check at 40 min)** | More batter per pan = more thermal mass to heat through. The actual time depends on how the batter is distributed across pans (see Pan Configuration below). Begin checking with a toothpick at 40 minutes. |
-| Doneness test | Toothpick | **Toothpick + internal temp** | Insert a toothpick in the center -- it should come out with moist crumbs, not wet batter. For highest confidence, an instant-read probe in the thickest part of the center should read 205-210°F (96-99°C). Time is an estimate only. |
+| Parameter        | Original      | Scaled                          | Reason                                                                                                                                                                                                                                |
+| ---------------- | ------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Oven temperature | 350°F (175°C) | **325°F (165°C)**               | The scaled batter is deeper in the pans. At 350°F, the exterior crust and edges will set and darken before the center reaches doneness temperature. Dropping 25°F allows more even heat penetration.                                  |
+| Bake time        | 30-35 min     | **42-52 min (check at 40 min)** | More batter per pan = more thermal mass to heat through. The actual time depends on how the batter is distributed across pans (see Pan Configuration below). Begin checking with a toothpick at 40 minutes.                           |
+| Doneness test    | Toothpick     | **Toothpick + internal temp**   | Insert a toothpick in the center -- it should come out with moist crumbs, not wet batter. For highest confidence, an instant-read probe in the thickest part of the center should read 205-210°F (96-99°C). Time is an estimate only. |
 
 ---
 
 ### Pan Configuration
 
-| Original Pan | Volume | Scaled Pan Option | Volume | Batter Depth Assessment |
-|--------------|--------|-------------------|--------|-------------------------|
-| Two 9-inch round pans | ~12 cups total | **Option A: Three 9-inch round pans** | ~18 cups total | Best match -- same batter depth per pan (approximately 2 inches), produces a 3-layer cake |
-| Two 9-inch round pans | ~12 cups total | **Option B: Two 9x13 pans** | ~28 cups total | Shallower batter -- reduce bake time by 8-12 min, increase temp back to 350°F |
-| Two 9-inch round pans | ~12 cups total | **Option C: One 9x13 + one 9-inch round** | ~20 cups total | Uneven depths; bake separately and check each pan individually |
+| Original Pan          | Volume         | Scaled Pan Option                         | Volume         | Batter Depth Assessment                                                                   |
+| --------------------- | -------------- | ----------------------------------------- | -------------- | ----------------------------------------------------------------------------------------- |
+| Two 9-inch round pans | ~12 cups total | **Option A: Three 9-inch round pans**     | ~18 cups total | Best match -- same batter depth per pan (approximately 2 inches), produces a 3-layer cake |
+| Two 9-inch round pans | ~12 cups total | **Option B: Two 9x13 pans**               | ~28 cups total | Shallower batter -- reduce bake time by 8-12 min, increase temp back to 350°F             |
+| Two 9-inch round pans | ~12 cups total | **Option C: One 9x13 + one 9-inch round** | ~20 cups total | Uneven depths; bake separately and check each pan individually                            |
 
 **Recommended configuration: Option A -- three 9-inch round pans.**
 This produces the closest match to the original batter depth (approximately 2 inches of batter per pan), meaning the temperature and time guidance above applies directly. The result is a visually impressive 3-layer cake appropriate for 22 servings. Grease and flour all three pans; alternatively, line the bottoms with parchment circles. To ensure even layers, weigh the total batter on a kitchen scale and divide by three, measuring into each pan by weight.
@@ -402,12 +414,12 @@ This produces the closest match to the original batter depth (approximately 2 in
 
 ### Quick Reference: Scaling Rules Applied in This Example
 
-| Rule | Trigger | What Was Done |
-|------|---------|---------------|
-| Leavening cap | Multiplier > 2.5x | Both baking soda and baking powder capped at 2.5x the original |
-| Salt reduction | Multiplier > 2.0x | Salt scaled at 75% of multiplier, not 100% |
-| Liquid reduction | Multiplier > 3.0x... | *(This multiplier is 2.75x; reduction applied as a precautionary measure given the recipe's high liquid ratio)* |
-| Fat reduction | Multiplier > 3.0x... | *(Applied precautionarily at 2.75x given the high combined liquid + fat volume)* |
-| Egg rounding | Any fractional egg | Rounded up from 5.5 to 6 whole eggs |
-| Temperature reduction | Deeper batter in same pan size | Reduced from 350°F to 325°F |
-| Time increase | More batter per pan | Increased from 30-35 min to 42-52 min; check at 40 min |
+| Rule                  | Trigger                        | What Was Done                                                                                                   |
+| --------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Leavening cap         | Multiplier > 2.5x              | Both baking soda and baking powder capped at 2.5x the original                                                  |
+| Salt reduction        | Multiplier > 2.0x              | Salt scaled at 75% of multiplier, not 100%                                                                      |
+| Liquid reduction      | Multiplier > 3.0x...           | _(This multiplier is 2.75x; reduction applied as a precautionary measure given the recipe's high liquid ratio)_ |
+| Fat reduction         | Multiplier > 3.0x...           | _(Applied precautionarily at 2.75x given the high combined liquid + fat volume)_                                |
+| Egg rounding          | Any fractional egg             | Rounded up from 5.5 to 6 whole eggs                                                                             |
+| Temperature reduction | Deeper batter in same pan size | Reduced from 350°F to 325°F                                                                                     |
+| Time increase         | More batter per pan            | Increased from 30-35 min to 42-52 min; check at 40 min                                                          |

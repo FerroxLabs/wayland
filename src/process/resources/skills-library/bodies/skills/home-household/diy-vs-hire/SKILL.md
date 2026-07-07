@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance decision-making planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance decision-making planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # DIY vs. Hire
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks directly "Should I do this myself or hire someone?" for a specific home improvement or maintenance task
 - A user describes a project and wants to understand the skill level, risk, or permit requirements before committing to an approach
 - A user is calculating whether the cost savings of DIY justify the time and effort for a particular job
@@ -29,6 +31,7 @@ metadata:
 - A user asks whether a specific type of work legally requires a licensed professional in their jurisdiction
 
 **Do NOT use when:**
+
 - The user needs a step-by-step how-to guide for executing a specific task -- use task-specific skills like `paint-a-room`, `tile-installation`, or `drywall-repair` once the DIY decision is made
 - The user needs a full renovation budget breakdown across multiple scopes of work -- use `renovation-budget` instead
 - The user wants help finding, screening, or negotiating with contractors -- this skill does not source or evaluate service providers
@@ -88,14 +91,16 @@ This is a factual determination, not an opinion. Permit requirements are set by 
 
 Calculate each scenario with full-cost accounting, not just material cost.
 
-*DIY Total Cost:*
+_DIY Total Cost:_
+
 - Materials at retail price (not contractor pricing)
 - Tool purchase or rental -- be specific. A tile saw rental is $60-$80/day. A drywall lift rental is $45-$60/day. Purchasing a quality oscillating multi-tool is $80-$150.
 - Disposal fees -- dumpster rental ($300-$600 for a 10-yard bin) or per-bag disposal for construction debris
 - Time value -- ask the user their approximate hourly value or use a conservative $25-$35/hour as a default. A 20-hour DIY project carries $500-$700 in opportunity cost.
 - Retry/correction cost -- for MEDIUM and HIGH skill projects, budget 15-25% for material waste, mistakes, and rework
 
-*Professional Total Cost:*
+_Professional Total Cost:_
+
 - Materials at contractor pricing (typically 10-20% below retail, but marked up 15-25% on invoices)
 - Labor at local market rates -- use these ranges as defaults (verify these are ballpark figures and actual rates vary by region and market conditions):
   - General handyman: $60-$100/hour
@@ -108,7 +113,7 @@ Calculate each scenario with full-cost accounting, not just material cost.
 - Permit pulling fee if applicable (contractors often charge $150-$500 to pull and manage permits)
 - Cleanup and disposal (usually included in professional bids)
 
-*Savings Threshold:* If DIY saves less than 20-25% after accounting for time value, the benefit is marginal. Below 15% savings, professional work is almost always the better value -- you gain a warranty on labor, the work is insured, and you preserve your time.
+_Savings Threshold:_ If DIY saves less than 20-25% after accounting for time value, the benefit is marginal. Below 15% savings, professional work is almost always the better value -- you gain a warranty on labor, the work is insured, and you preserve your time.
 
 **Factor 5 -- Consequence of Failure**
 
@@ -125,6 +130,7 @@ Rate what happens if the work is done incorrectly and the failure is not caught 
 Score the project using this logic. Apply rules in order -- the first applicable rule determines the base recommendation.
 
 **Rule 1 -- Mandatory HIRE (no exceptions):**
+
 - ANY factor rated HIGH for safety AND the user does not have professional trade experience in that specific trade
 - Gas line work of any kind (not just line extension -- includes appliance connections beyond the flexible connector)
 - Electrical service entrance work, meter base work, or service panel modifications (adding circuits, replacing the panel, upgrading service)
@@ -133,16 +139,19 @@ Score the project using this logic. Apply rules in order -- the first applicable
 - Structural element modification (removing walls, enlarging openings, modifying ridge beams or headers) without an engineer's sign-off
 
 **Rule 2 -- Strong recommendation to HIRE:**
+
 - Permit is REQUIRED and the jurisdiction requires licensed contractor for that trade
 - Consequence of failure is HIGH AND the user rates themselves as no experience or only cosmetic experience
 - Three or more factors are MEDIUM and the user has no experience beyond cosmetic projects
 
 **Rule 3 -- DIY WITH PREPARATION:**
+
 - Skill is MEDIUM, safety is LOW or MEDIUM, permit is NONE or POSSIBLE, consequence is LOW or MEDIUM, and user has at least some experience with adjacent work
 - Skill is HIGH but user has directly relevant trade background (licensed or formerly licensed, or worked in the trade)
 - A clearly defined stopping point exists where a professional can be called if the DIY portion goes wrong without creating an unsafe condition
 
 **Rule 4 -- DIY:**
+
 - All five factors are LOW
 - Skill is MEDIUM but user has directly relevant experience completing similar projects successfully
 - Permit is NONE, consequence of failure is LOW, safety is LOW
@@ -162,6 +171,7 @@ If the user has not given enough information to calculate specific costs, use ra
 Every project has one or two non-obvious complications that turn a routine job into a problem. Identify these for the specific project and surface them explicitly.
 
 Examples of gotchas by project type:
+
 - **Ceiling fan in a new location:** Requires a new switch leg or wireless remote -- if no existing wiring path exists, this becomes a MEDIUM electrical project, not a simple fixture swap
 - **Replacing a toilet:** The existing flange may be corroded, broken, or set too low or high for the new toilet -- a $150 toilet job can become a $400 flange repair if not checked first
 - **Adding a bathroom exhaust fan:** Venting the fan to the attic instead of through the roof is a very common DIY mistake that causes mold from moisture accumulation -- the duct must terminate outside
@@ -318,24 +328,31 @@ names the one most critical thing to get right.]
 ## Edge Cases
 
 ### Rental Property (User is a Tenant)
+
 The assessment changes fundamentally. Most home improvement work requires landlord authorization regardless of who pays for it. Tenants are typically permitted to: hang artwork (small fasteners), install temporary fixtures that can be removed without damage, replace light bulbs, and perform very minor repairs. Tenants are typically NOT permitted to: paint walls, install flooring, modify plumbing or electrical, add shelving that requires wall anchors, or install any appliance requiring utility connection. Before assessing a project, ask whether the user owns the property. If they are a renter, redirect the conversation to whether landlord approval is possible, and assess only if approval is confirmed or if the scope is explicitly cosmetic and removable.
 
 ### Pre-1978 Construction (Lead Paint and Asbestos Risk)
+
 Homes built before 1978 likely contain lead-based paint on surfaces that have been repainted over -- disturbing these surfaces during demolition, sanding, or drilling creates a regulated hazard. Homes built before 1980 may contain asbestos in: floor tiles (9x9 vinyl tiles are a strong indicator), pipe insulation, duct wrap, textured ceiling finishes (popcorn ceilings), and roof shingles. Any project involving demolition, sanding painted surfaces, or disturbing textured finishes in pre-1978/1980 construction must include a hazmat check before proceeding. The correct sequence is: (1) assume hazardous material is present, (2) have the material tested by a certified lab before disturbing it, (3) if positive, hire a licensed abatement contractor. This is not optional -- EPA RRP (Renovation, Repair, and Painting) Rule applies to contractors, but homeowners working on their own residence have fewer legal restrictions while facing the same health risks.
 
 ### Emergency Situation (Active Failure)
+
 When a system is actively failing -- pipe leaking, circuit tripping repeatedly, furnace not igniting in winter -- skip the full cost comparison matrix and prioritize containment. The immediate actions that are always DIY-appropriate: turn off the water at the nearest shutoff valve or main, trip the circuit breaker, close the gas shutoff valve at the appliance. After containment, the full assessment applies to the permanent repair. Do not let a cost comparison conversation delay a user from stopping an active water leak. State the emergency containment steps first, then conduct the standard assessment for the repair.
 
 ### Experienced Professional or Tradesperson
+
 If the user discloses they hold or formerly held a trade license, or worked in a trade professionally, adjust the Skill Requirement and Safety Risk ratings accordingly for that specific trade. A licensed master electrician can DIY electrical panel work. A retired plumber can perform drain-waste-vent rough-in. However, even licensed professionals must pull permits when permits are required -- the permit exception for owner-occupied home improvement exists in some jurisdictions but should be verified, not assumed. Also note: trade competency is trade-specific. A licensed electrician is not automatically qualified to assess structural work.
 
 ### Historic District or Designated Landmark Property
+
 Properties in local, state, or federal historic districts face restrictions that go far beyond standard building code. These can include: mandatory approval of exterior material changes (even replacing like-for-like siding), restrictions on window replacement (double-pane insulated glass units may not be permitted if they alter the historic character), required use of period-appropriate materials, and design review board approval before permits are issued. Even interior modifications in nationally registered properties can be restricted if the owner is taking federal tax credits. Before completing the assessment for any project involving exterior changes, ask whether the property is in a historic district. If yes, add a mandatory step: contact the local historic preservation office before any permit application or construction decision.
 
 ### Scope Creep Discovery (Finding Hidden Problems Mid-Project)
+
 A very common scenario: user starts a LOW-rated DIY project, opens a wall or floor, and discovers a HIGH-rated problem -- a water-damaged floor joist, knob-and-tube wiring in a wall they are renovating, a corroded main drain line under the concrete slab. Address this by building a "stop and call" threshold into every assessment for MEDIUM and HIGH consequence projects. The threshold should be specific: "If you open the wall and find insulation that looks like gray or white fluffy material instead of fiberglass batts or foam, stop work -- this may be vermiculite or asbestos-containing cellulose and requires testing before proceeding." Generic "call a professional if you're not comfortable" advice fails users at exactly the moment they need specific guidance.
 
 ### Project Spans Multiple Trades or Skill Levels
+
 Many projects involve multiple scopes with different risk profiles. A bathroom remodel might include: tile work (MEDIUM skill, LOW risk -- DIY appropriate), plumbing rough-in relocation (HIGH skill, REQUIRED permit -- hire), electrical for a new outlet circuit (HIGH skill, REQUIRED permit -- hire), and exhaust fan installation at an existing location (MEDIUM skill, NONE permit -- DIY with preparation). When a project spans multiple trade levels, break it into components and assess each separately. The correct output is a hybrid recommendation: "DIY the tile and paint; hire a licensed plumber for the drain relocation and a licensed electrician for the new circuit."
 
 ---
@@ -355,41 +372,45 @@ Many projects involve multiple scopes with different risk profiles. A bathroom r
 ---
 
 ### Factor Analysis
-| Factor                    | Rating          | Notes                                                    |
-|---------------------------|-----------------|----------------------------------------------------------|
-| Skill requirement         | MEDIUM          | Tile layout, thin-set coverage, and grout application require learned technique. Floor tile is more forgiving than wall tile because gravity is not working against you, but lippage (tiles not flush with each other) is the primary failure mode and requires careful technique to avoid. |
-| Safety risk               | LOW             | Demo involves a floor-level work surface. Main risks are cuts from broken tile and knee strain. Knee pads are required; heavy gloves during demo. |
-| Permit/code requirements  | NONE            | Replacing floor tile in kind at the same location is cosmetic work in virtually every jurisdiction. No permit required. |
-| Cost comparison           | DIY FAVORED     | DIY at approximately $380-$480 vs. professional at $700-$900. Savings of $320-$520 (47-55%) justify the time investment for a cost-motivated user. |
-| Consequence of failure    | MEDIUM          | Hollow spots under tile (insufficient thin-set coverage) cause cracking and water intrusion under the tile over time, eventually requiring re-demo and re-tile. Incorrect grout application causes haze that is difficult to remove after cure. Both failures are fixable but cost time and materials to redo. |
+
+| Factor                   | Rating      | Notes                                                                                                                                                                                                                                                                                                          |
+| ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Skill requirement        | MEDIUM      | Tile layout, thin-set coverage, and grout application require learned technique. Floor tile is more forgiving than wall tile because gravity is not working against you, but lippage (tiles not flush with each other) is the primary failure mode and requires careful technique to avoid.                    |
+| Safety risk              | LOW         | Demo involves a floor-level work surface. Main risks are cuts from broken tile and knee strain. Knee pads are required; heavy gloves during demo.                                                                                                                                                              |
+| Permit/code requirements | NONE        | Replacing floor tile in kind at the same location is cosmetic work in virtually every jurisdiction. No permit required.                                                                                                                                                                                        |
+| Cost comparison          | DIY FAVORED | DIY at approximately $380-$480 vs. professional at $700-$900. Savings of $320-$520 (47-55%) justify the time investment for a cost-motivated user.                                                                                                                                                             |
+| Consequence of failure   | MEDIUM      | Hollow spots under tile (insufficient thin-set coverage) cause cracking and water intrusion under the tile over time, eventually requiring re-demo and re-tile. Incorrect grout application causes haze that is difficult to remove after cure. Both failures are fixable but cost time and materials to redo. |
 
 ---
 
 ### Cost Breakdown
-| Line Item                       | DIY Estimate      | Professional Estimate |
-|---------------------------------|-------------------|-----------------------|
-| Tile (55 sq ft + 10% overage)   | $110-$220         | $110-$220             |
-| Thin-set mortar (50 lb bag)     | $20               | Included in labor rate|
-| Grout (10 lb bag)               | $18               | Included in labor rate|
-| Tile spacers, mixing bucket, float, sponges | $25-$35 | Not applicable       |
-| Tile saw rental (1-day)         | $65               | Not applicable        |
-| Demo tools (floor scraper, chisel set) | $25-$40 or owned | Not applicable  |
-| Disposal (construction debris bag or haul) | $20-$40 | Typically included   |
-| Labor / Time value (16 hrs @ $30/hr) | $480         | $350-$500 labor       |
-| Contingency (tile waste, rework) | $30-$50          | $0 (warranty covers)  |
-| **Total**                       | **$793-$948**     | **$810-$1,100**       |
-| **Savings (DIY vs. Hire, excl. time value)** | **$315-$480 (47-55%)** -- $160-$470 net after time value | |
 
-*Note: Time value is included for full-cost accounting, but if the user views this as a weekend project they would otherwise spend at home, the opportunity cost is lower. The raw material-and-tool savings of $315-$480 are the more relevant figure for a cost-motivated user who has flexible weekend time.*
+| Line Item                                    | DIY Estimate                                             | Professional Estimate  |
+| -------------------------------------------- | -------------------------------------------------------- | ---------------------- |
+| Tile (55 sq ft + 10% overage)                | $110-$220                                                | $110-$220              |
+| Thin-set mortar (50 lb bag)                  | $20                                                      | Included in labor rate |
+| Grout (10 lb bag)                            | $18                                                      | Included in labor rate |
+| Tile spacers, mixing bucket, float, sponges  | $25-$35                                                  | Not applicable         |
+| Tile saw rental (1-day)                      | $65                                                      | Not applicable         |
+| Demo tools (floor scraper, chisel set)       | $25-$40 or owned                                         | Not applicable         |
+| Disposal (construction debris bag or haul)   | $20-$40                                                  | Typically included     |
+| Labor / Time value (16 hrs @ $30/hr)         | $480                                                     | $350-$500 labor        |
+| Contingency (tile waste, rework)             | $30-$50                                                  | $0 (warranty covers)   |
+| **Total**                                    | **$793-$948**                                            | **$810-$1,100**        |
+| **Savings (DIY vs. Hire, excl. time value)** | **$315-$480 (47-55%)** -- $160-$470 net after time value |                        |
+
+_Note: Time value is included for full-cost accounting, but if the user views this as a weekend project they would otherwise spend at home, the opportunity cost is lower. The raw material-and-tool savings of $315-$480 are the more relevant figure for a cost-motivated user who has flexible weekend time._
 
 ---
 
 ### Rationale
+
 Bathroom floor tile replacement is the canonical entry-level tile project -- the scale is small, the work is floor-level, and mistakes are visible before grout is applied so corrections can be made. The main argument against DIY here is the MEDIUM consequence of failure: hollow spots under tiles cause future cracking and water intrusion that can damage the subfloor, meaning a failed tile job is not just cosmetic. This risk is manageable, however, because proper thin-set coverage technique (back-buttering the tile in addition to combing the subfloor, pressing firmly, and checking for hollow spots by tapping before grout) is learnable and verifiable during installation -- not a hidden failure. The single most critical skill is consistent thin-set coverage: every tile should have 95%+ contact with the mortar bed when lifted and checked during the first few tiles set.
 
 ---
 
 ### Project-Specific Gotchas
+
 - **Subfloor condition under the existing tile.** When you demo the old tile, you may find water-damaged or soft subfloor, especially around the toilet base or near the tub/shower edge. Probe the subfloor with a screwdriver after demo -- if it sinks or feels spongy, you have a rot issue that must be repaired before tiling. Soft subfloor under new tile will cause grout cracking within months. This is the most common scope-creep scenario in bathroom floor projects.
 - **Toilet removal is required.** You cannot properly tile around a toilet -- the tile must go under the toilet flange area. Remove the toilet before tiling. This is a 30-minute task but requires a new wax ring on reinstallation ($8-$12). If the flange is corroded, broken, or sits more than 1/4 inch above or below the finished tile surface, you will need a flange extender kit or a plumber to reset the flange. Check the flange condition during demo, before purchasing tile.
 - **Tile saw is necessary -- a circular saw is not a substitute.** Your circular saw cannot make the precise straight cuts needed for border tiles and the cuts around the toilet flange. A $65/day tile saw rental is non-negotiable for a professional result. Score cuts with a carbide scoring tool are acceptable for straight lines only; a jigsaw with a diamond blade can handle curved cuts around the toilet flange in a pinch.
@@ -400,6 +421,7 @@ Bathroom floor tile replacement is the canonical entry-level tile project -- the
 ### Preparation Checklist
 
 **Tools to acquire:**
+
 - [ ] Tile saw -- rent for $65/day from a tool rental center; plan to tile on Day 2 after Day 1 demo and layout
 - [ ] V-notch or square-notch trowel (1/4 inch notch for floor tile up to 12x12; 3/8 inch for larger format) -- purchase $12-$18, do not improvise with a paint scraper
 - [ ] Rubber grout float -- purchase $10-$15
@@ -409,6 +431,7 @@ Bathroom floor tile replacement is the canonical entry-level tile project -- the
 - [ ] Non-contact tile lippage tester or a long straightedge (48-inch level) -- purchase $25 or use an existing level
 
 **Materials to have on-site before starting:**
+
 - [ ] Tile -- 55 sq ft + 10% overage = 61 sq ft; round up to account for the tile layout you choose
 - [ ] Polymer-modified thin-set mortar (not premixed mastic for floor tile) -- 50 lb covers approximately 40-50 sq ft at 3/8 inch bed
 - [ ] Unsanded grout (for joints 1/8 inch or less) or sanded grout (for joints wider than 1/8 inch) -- 10 lb covers approximately 50 sq ft
@@ -417,16 +440,19 @@ Bathroom floor tile replacement is the canonical entry-level tile project -- the
 - [ ] Cement board or uncoupling membrane if existing subfloor requires a fresh substrate layer (inspect during demo)
 
 **Safety equipment:**
+
 - [ ] Heavy leather gloves during tile demolition -- broken tile edges are extremely sharp
 - [ ] Safety glasses during demolition and tile cutting -- tile chips are a serious eye hazard
 - [ ] Knee pads throughout the entire project -- not just for comfort; kneeling on concrete subfloor for 4+ hours causes real injury
 
 **Technique checkpoints:**
+
 - [ ] Before grouting: tap every tile with a knuckle or the handle of a screwdriver. A hollow sound indicates insufficient thin-set contact. Remove and reset any hollow tile before grout is applied.
 - [ ] During the first 3-4 tiles: lift one tile immediately after setting to inspect thin-set coverage. You should see 95% or more of the tile back covered in mortar. If coverage is low, add back-buttering (apply a thin coat of thin-set directly to the tile back before setting in addition to the combed mortar on the floor).
 - [ ] Layout dry run before any adhesive is applied: lay the tiles out without mortar to check the pattern, verify cut tile sizes at the perimeter (aim for cut tiles no smaller than half a tile), and identify the starting point that produces the most balanced appearance.
 
 **Stop and call a professional if:**
+
 - The subfloor feels soft or spongy anywhere, especially near the toilet flange, tub, or shower threshold -- this indicates water damage and requires subfloor repair before tiling
 - The toilet flange is broken, severely corroded, or more than 1/4 inch out of plane with the finished tile surface -- flange repair or reset requires a plumber
 - You discover vinyl floor tiles that are 9x9 inches with a felt or fibrous backing -- these are likely asbestos-containing and must be tested before any disturbance
@@ -440,12 +466,14 @@ Bathroom floor tile replacement is the canonical entry-level tile project -- the
 **Reasonable bid range for this scope:** $700-$1,100 total for a 55 sq ft floor, including materials, labor, toilet pull-and-reset, and cleanup. Bids below $500 for this scope suggest unlicensed workers, very low-grade materials, or a misunderstanding of the scope.
 
 **Questions to ask during estimates:**
+
 - "Does your price include pulling and resetting the toilet and purchasing a new wax ring?"
 - "What thin-set product do you use, and is it polymer-modified?" (Polymer-modified thin-set is the correct answer for bathroom floors; premixed mastic is not appropriate for wet areas)
 - "What do you do if you find water damage or a damaged flange after demo? Will that be a change order, and what is your rate for that additional scope?"
 - "What is your warranty on the tile work against cracking or grout failure?"
 
 **Red flags for this project:**
+
 - Contractor who proposes to tile directly over the existing tile without removing it -- in a bathroom, this adds height that affects the toilet flange and door clearance and does not address any underlying issues with the existing installation
 - Bid that does not include pulling the toilet -- this is not optional; it indicates the contractor plans to cut around the toilet rather than tile under it properly
 - Contractor who cannot name the thin-set product they plan to use or who proposes to use premixed mastic (tube or bucket adhesive) for a floor in a wet area

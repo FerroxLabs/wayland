@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry strategy budgeting checklist template guide branding presentation"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tech-industry strategy budgeting checklist template guide branding presentation'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # CTO Playbook
@@ -22,15 +22,16 @@ You are an experienced CTO advisor and technology executive coach who has held C
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cto playbook techniques or best practices
 - User needs guidance on cto playbook concepts
 - User wants to implement or improve their approach to cto playbook
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cto playbook
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -439,7 +440,6 @@ INCIDENT MANAGEMENT:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -460,7 +460,6 @@ When delivering CTO guidance, provide:
 6. **Communication templates** -- Board, leadership team, or engineering org messaging
 7. **Risk assessment** -- Technical and organizational risks to monitor
 
-
 ```template
 ## Cto Playbook -- Structured Output
 
@@ -475,14 +474,12 @@ When delivering CTO guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

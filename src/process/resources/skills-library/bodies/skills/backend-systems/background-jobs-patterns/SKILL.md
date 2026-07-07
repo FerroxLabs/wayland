@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend architecture optimization"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend architecture optimization'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Background Jobs Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to offload work from the request/response cycle -- tasks taking longer than 200ms that a user should not wait for synchronously
 - User is designing or debugging a job queue system (Sidekiq, Celery, BullMQ, Resque, Delayed Job, Faktory, Temporal, or similar)
 - User asks how to handle retry logic, dead letter queues, job deduplication, or idempotency in async workers
@@ -30,6 +32,7 @@ metadata:
 - User asks about job prioritization, rate limiting, concurrency control, or backpressure patterns
 
 **Do NOT use this skill when:**
+
 - User needs stream processing architecture for continuous data pipelines -- see the event streaming skill in backend infrastructure
 - User is asking about distributed transactions or sagas across microservices -- see the distributed systems consistency skill
 - User needs a message broker selection guide (RabbitMQ vs. Kafka vs. SQS as standalone infrastructure) -- see the message broker skill
@@ -131,32 +134,35 @@ When helping a user design or review background job infrastructure, structure th
 
 ### Job Classification Summary
 
-| Job Class | Type | Latency Class | Delivery Guarantee | Est. Volume/hr | Payload Size |
-|---|---|---|---|---|---|
-| [job name] | [CPU/IO] | [interactive/near-rt/background/batch] | [at-most/at-least/exactly-once] | [number] | [KB] |
+| Job Class  | Type     | Latency Class                          | Delivery Guarantee              | Est. Volume/hr | Payload Size |
+| ---------- | -------- | -------------------------------------- | ------------------------------- | -------------- | ------------ |
+| [job name] | [CPU/IO] | [interactive/near-rt/background/batch] | [at-most/at-least/exactly-once] | [number]       | [KB]         |
 
 ### Queue Backend Recommendation
 
 **Selected Backend:** [Redis/PostgreSQL/RabbitMQ/SQS/Temporal]
 
 **Rationale:**
+
 - [Specific reason tied to job classification above]
 - [Operational constraints considered]
 - [Trade-offs accepted]
 
 **Rejected alternatives:**
+
 - [Backend]: [Specific reason it was eliminated]
 
 ### Queue Topology
-
 ```
+
 [queue_name] (concurrency: N, priority: high/medium/low)
-  ├── JobClass1 (timeout: Xs, max_retries: N)
-  ├── JobClass2 (timeout: Xs, max_retries: N)
-  └── JobClass3 (timeout: Xs, max_retries: N)
+├── JobClass1 (timeout: Xs, max_retries: N)
+├── JobClass2 (timeout: Xs, max_retries: N)
+└── JobClass3 (timeout: Xs, max_retries: N)
 
-[queue_name]_dlq (alert_threshold: N jobs)
-```
+[queue_name]\_dlq (alert_threshold: N jobs)
+
+````
 
 ### Retry and Error Policy
 
@@ -185,23 +191,23 @@ class [JobName]
   queue_as :[queue_name]
   retry_on [TransientError], wait: :exponentially_longer, attempts: [N]
   discard_on [PermanentError]
-  
+
   # Payload: pass IDs only, fetch fresh inside perform
   def perform([resource_id], correlation_id:)
     return if already_processed?([resource_id])  # idempotency guard
-    
+
     # fetch fresh data
     # execute work
     # mark as processed (within same transaction if DB-backed)
   end
-  
+
   private
-  
+
   def already_processed?(resource_id)
     # implementation
   end
 end
-```
+````
 
 ### Observability Checklist
 
@@ -218,6 +224,7 @@ end
 - DLQ review process: [describe or link to runbook]
 - Worker scaling procedure: [describe trigger conditions and steps]
 - Queue drain emergency procedure: [describe steps for critical outages]
+
 ```
 
 ---
@@ -316,18 +323,20 @@ When a downstream dependency (database, external API) slows from 50ms to 2000ms 
 #### Queue Topology
 
 ```
+
 critical (Sidekiq, concurrency: 10)
-  └── Billing::InvoicePdfRenderJob (timeout: 30s, max_retries: 3)
+└── Billing::InvoicePdfRenderJob (timeout: 30s, max_retries: 3)
 
 default (Sidekiq, concurrency: 20)
-  ├── Notifications::InvoiceEmailJob (timeout: 60s, max_retries: 15)
-  └── Billing::MonthlyInvoiceGenerationJob (timeout: 120s, max_retries: 5)
+├── Notifications::InvoiceEmailJob (timeout: 60s, max_retries: 15)
+└── Billing::MonthlyInvoiceGenerationJob (timeout: 120s, max_retries: 5)
 
 integrations (Sidekiq, concurrency: 2)
-  └── Integrations::QuickBooksSyncJob (timeout: 90s, max_retries: 25)
+└── Integrations::QuickBooksSyncJob (timeout: 90s, max_retries: 25)
 
-[each queue]_dlq (Sidekiq dead set, alert_threshold: 5 jobs)
-```
+[each queue]\_dlq (Sidekiq dead set, alert_threshold: 5 jobs)
+
+````
 
 Note: `integrations` queue is intentionally capped at concurrency 2 -- the rate limit on QuickBooks (100 req/min) means 2 workers each processing 1 job/~1.2s saturates the limit safely with headroom.
 
@@ -378,7 +387,7 @@ class Billing::InvoicePdfRenderJob < ApplicationJob
   def perform(invoice_id, correlation_id: nil)
     # Propagate trace context for APM
     Datadog::Tracing.trace('invoice.pdf_render', tags: { correlation_id: }) do
-      
+
       # Idempotency guard: check before acquiring lock
       invoice = Invoice.find(invoice_id)  # raises Invoice::NotFoundError if missing
       return if invoice.pdf_generated_at.present?
@@ -419,7 +428,7 @@ class Billing::InvoicePdfRenderJob < ApplicationJob
     end
   end
 end
-```
+````
 
 ```ruby
 # app/jobs/billing/monthly_invoice_fan_out_job.rb
@@ -430,7 +439,7 @@ class Billing::MonthlyInvoiceFanOutJob < ApplicationJob
 
   def perform(year:, month:)
     billing_period = "#{year}-#{month.to_s.rjust(2, '0')}"
-    
+
     # Cursor-based batching: avoid loading 50k records into memory
     Account.active.in_batches(of: 500) do |batch|
       jobs = batch.map do |account|
@@ -451,8 +460,8 @@ end
 ```yaml
 # config/schedule.yml (Sidekiq-Cron)
 monthly_invoice_fan_out:
-  cron: "0 2 1 * *"           # 2:00 AM on 1st of every month
-  class: "Billing::MonthlyInvoiceFanOutJob"
+  cron: '0 2 1 * *' # 2:00 AM on 1st of every month
+  class: 'Billing::MonthlyInvoiceFanOutJob'
   # Args passed as keyword arguments resolved at runtime
   args:
     year: <%= Date.today.year %>

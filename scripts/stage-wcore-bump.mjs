@@ -90,9 +90,7 @@ for (const line of checksumsText.split('\n')) {
   block[file] = `sha256:${hex.toLowerCase()}`;
 }
 
-const missing = REQUIRED_ARCHIVES.filter(
-  (suffix) => !Object.keys(block).some((file) => file.endsWith(`-${suffix}`))
-);
+const missing = REQUIRED_ARCHIVES.filter((suffix) => !Object.keys(block).some((file) => file.endsWith(`-${suffix}`)));
 if (missing.length) {
   fail(`checksums for ${tag} are missing ${missing.length} archive(s): ${missing.join(', ')}`);
 }
@@ -114,11 +112,14 @@ const postinstallVersion = postinstallMatch[1];
 
 console.log(`\nStage bundled wayland-core bump: ${currentVersion} -> ${tag}\n`);
 if (postinstallVersion !== currentVersion) {
-  console.log(`  (headless installer pin was out of lockstep at ${postinstallVersion} - it will be realigned to ${tag})\n`);
+  console.log(
+    `  (headless installer pin was out of lockstep at ${postinstallVersion} - it will be realigned to ${tag})\n`
+  );
 }
 console.log('Resolved checksums (from the published wayland-core-checksums.txt):');
 for (const [file, sha] of Object.entries(orderedBlock)) console.log(`  ${file}\n    ${sha}`);
-if (alreadyPinned) console.log(`\nNote: ${tag} already has a block in bundled-wcore-shasums.json - it will be overwritten.`);
+if (alreadyPinned)
+  console.log(`\nNote: ${tag} already has a block in bundled-wcore-shasums.json - it will be overwritten.`);
 
 if (!write) {
   console.log('\nDRY RUN - no files changed. Re-run with --write to apply:');
@@ -135,18 +136,12 @@ for (const [k, v] of Object.entries(shasums)) {
 fs.writeFileSync(SHASUMS_FILE, JSON.stringify(reordered, null, 2) + '\n', 'utf-8');
 fs.writeFileSync(
   PREPARE_FILE,
-  prepareSrc.replace(
-    /const DEFAULT_WCORE_VERSION = '[^']+';/,
-    `const DEFAULT_WCORE_VERSION = '${tag}';`
-  ),
+  prepareSrc.replace(/const DEFAULT_WCORE_VERSION = '[^']+';/, `const DEFAULT_WCORE_VERSION = '${tag}';`),
   'utf-8'
 );
 fs.writeFileSync(
   POSTINSTALL_FILE,
-  postinstallSrc.replace(
-    /const WCORE_VERSION = '[^']+';/,
-    `const WCORE_VERSION = '${tag}';`
-  ),
+  postinstallSrc.replace(/const WCORE_VERSION = '[^']+';/, `const WCORE_VERSION = '${tag}';`),
   'utf-8'
 );
 

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care stress-management emotional-health"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care stress-management emotional-health'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Stress Management Toolkit
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health or wellness practices. If you are experiencing a mental health emergency, contact emergency services or a crisis line immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Describes ongoing daily stress from identifiable sources (work deadlines, caregiving demands, financial pressure, academic load, life transitions) and wants structured coping tools
 - Asks to build a personalized stress management plan, stress relief system, or coping toolkit
 - Reports physical tension symptoms associated with stress -- tight jaw, raised shoulders, shallow breathing, stomach knots, tension headaches -- and wants non-clinical strategies
@@ -34,6 +36,7 @@ metadata:
 - Wants to build long-term stress resilience rather than just address an immediate episode
 
 **Do NOT use this skill when -- use a more appropriate skill or referral instead:**
+
 - The user describes panic attacks with physical symptoms (racing heart, derealization, feeling of dying) -- this requires clinical support, not a general wellness toolkit
 - The user references trauma, flashbacks, intrusive memories, or hypervigilance -- trauma-informed care from a licensed professional is required, not self-help techniques
 - The user expresses thoughts of self-harm, suicide, or harming others -- immediately provide crisis resources (988 Suicide and Crisis Lifeline in the US) and stop the skill
@@ -63,6 +66,7 @@ Ask the user for their stress profile before building anything. Do not skip this
 Before proceeding, apply this decision gate. If any red-flag indicator is present, do not build the toolkit -- redirect instead.
 
 **Red-flag indicators that require referral:**
+
 - User describes stress as unmanageable for more than 4-6 weeks without any relief periods
 - User reports inability to sleep for more than 3-4 nights per week consistently (beyond occasional poor nights)
 - User mentions they are not eating, not leaving their home, or not performing basic self-care due to how they feel
@@ -353,14 +357,14 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 
 ### Stress Profile Summary
 
-| Element | Detail |
-|---|---|
-| Primary stressors | Short-staffed shifts / high clinical demand / shift work schedule disruption |
-| Peak stress timing | During night shifts, particularly during understaffed periods |
-| Physical stress signals | Jaw clenching, upper back tension |
-| Daily time available | ~10 minutes total |
-| Previous approaches | Meditation app -- helpful concept, but voice-guided format unusable during active work |
-| Key constraint | Active clinical environment during peak stress -- techniques must be silent, invisible, and instruction-free once learned |
+| Element                 | Detail                                                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Primary stressors       | Short-staffed shifts / high clinical demand / shift work schedule disruption                                              |
+| Peak stress timing      | During night shifts, particularly during understaffed periods                                                             |
+| Physical stress signals | Jaw clenching, upper back tension                                                                                         |
+| Daily time available    | ~10 minutes total                                                                                                         |
+| Previous approaches     | Meditation app -- helpful concept, but voice-guided format unusable during active work                                    |
+| Key constraint          | Active clinical environment during peak stress -- techniques must be silent, invisible, and instruction-free once learned |
 
 ---
 
@@ -374,13 +378,16 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 ---
 
 ### Layer 1: Daily Maintenance Protocol
+
 **Duration:** 5 minutes total, split across pre-shift and post-shift
 **Why this was chosen:** Box breathing reduces cortisol-driven baseline arousal before shifts begin, which lowers the height of the stress spikes during shift. Abbreviated PMR targets your specific tension sites (jaw, upper back) and reduces residual muscular tension that is likely contributing to your post-shift inability to sleep.
 
 #### Technique A: Box Breathing (4-4-4-4)
+
 **When:** In your car before entering the hospital -- anchor to "engine off, before opening the car door"
 
 **How to do it:**
+
 1. Sit upright in the driver's seat with your hands resting in your lap, engine off
 2. Exhale completely through your mouth to start with empty lungs
 3. Inhale slowly through your nose for exactly 4 seconds (count silently: 1-and-2-and-3-and-4)
@@ -397,9 +404,11 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 ---
 
 #### Technique B: Abbreviated PMR -- Jaw, Shoulders, and Upper Back
+
 **When:** In bed after arriving home, before attempting sleep -- anchor to "lying down after getting into bed"
 
 **How to do it:**
+
 1. Lie on your back with arms loosely at your sides
 2. **Jaw:** Clench your teeth and tighten your jaw and cheek muscles as hard as you comfortably can for 6 seconds. Then release completely -- let your mouth hang slightly open, feel the jaw muscles go soft. Hold the release for 12 seconds. Notice the warmth and heaviness spreading through your face.
 3. **Shoulders:** Draw both shoulders up toward your ears as hard as you can for 6 seconds. Release suddenly -- let them drop. Hold release for 12 seconds.
@@ -414,12 +423,15 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 ---
 
 ### Layer 2: Acute Stress Protocol
+
 **Duration:** 10-30 seconds (physiological sigh) to 90 seconds (STOP)
 **When:** When short-staffing becomes apparent at the start of shift, after a difficult patient interaction, when you notice your jaw clenching during shift, when a situation escalates unexpectedly
 **Why this was chosen:** Your work environment prevents voice-guided or lengthy techniques. Both of these require zero equipment, zero preparation, and are completely invisible to patients and colleagues.
 
 #### Technique A: Physiological Sigh (Primary Reset)
+
 **How to do it:**
+
 1. Take a normal inhale through your nose
 2. At the top of that inhale, take a second quick sniff through your nose to fully top off the lungs (you will feel the chest lift a second time)
 3. Release a long, slow exhale through your mouth -- let it extend as long as naturally comfortable
@@ -433,7 +445,9 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 ---
 
 #### Technique B: STOP Technique (for mental escalation)
+
 **How to do it:**
+
 1. **STOP:** Internally tell yourself to pause for 5 seconds. Step to one side if possible -- even one step creates a micro-boundary between you and the stressor.
 2. **TAKE** two slow breaths -- inhale for 4 seconds, exhale for 6 seconds. The longer exhale is the key.
 3. **OBSERVE:** Silently name what is happening in your body ("jaw is locked, shoulders are up") and what you are feeling ("I feel overwhelmed and unsupported right now"). Naming the state activates the prefrontal cortex and reduces the raw intensity of the stress response.
@@ -446,12 +460,15 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 ---
 
 ### Layer 3: Evening Decompression Protocol
+
 **Duration:** 5 minutes
 **When:** After changing out of work clothes at home -- anchor to "clothes changed, before lying down." Do NOT do this while still in scrubs or at your work bag -- create a physical separation.
 **Why this was chosen:** Your primary symptom is post-shift racing mind that prevents sleep. Structured journaling externalizes the mental content of the shift -- it moves the thoughts from inside your head to outside, which reduces the cognitive arousal keeping you awake. Writing by hand (not on a phone) is strongly recommended because the slower pace moderates the emotional intensity.
 
 #### Technique: Three-Prompt Stress Journal
+
 **How to do it:**
+
 1. Set a timer for 5 minutes -- having a hard stop prevents the exercise from becoming rumination
 2. With a pen and a dedicated notebook (not your phone, not a work app), write responses to these three prompts. Do not re-read as you write -- forward motion only.
    - **Prompt 1:** "The hardest moment of tonight's shift was..."
@@ -468,17 +485,18 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 
 ### 7-Day Starter Plan
 
-| Day | Pre-Shift (In Car) | During Shift (On Demand) | Post-Shift (At Home) |
-|-----|-------------------|--------------------------|---------------------|
-| 1 | Box Breathing, 3 min -- after turning engine off | -- | -- |
-| 2 | Box Breathing, 3 min | -- | -- |
-| 3 | Box Breathing, 3 min | Physiological sigh available | -- |
-| 4 | Box Breathing, 3 min | Physiological sigh available | -- |
-| 5 | Box Breathing, 3 min | Physiological sigh + STOP available | Three-Prompt Journal, 5 min -- after changing clothes |
-| 6 | Box Breathing, 3 min | Full acute protocol | Three-Prompt Journal, 5 min + Abbreviated PMR in bed |
-| 7 | Full Layer 1: Box Breathing 3 min | Full Layer 2 | Full Layer 3: Journal 5 min + PMR in bed 3 min |
+| Day | Pre-Shift (In Car)                               | During Shift (On Demand)            | Post-Shift (At Home)                                  |
+| --- | ------------------------------------------------ | ----------------------------------- | ----------------------------------------------------- |
+| 1   | Box Breathing, 3 min -- after turning engine off | --                                  | --                                                    |
+| 2   | Box Breathing, 3 min                             | --                                  | --                                                    |
+| 3   | Box Breathing, 3 min                             | Physiological sigh available        | --                                                    |
+| 4   | Box Breathing, 3 min                             | Physiological sigh available        | --                                                    |
+| 5   | Box Breathing, 3 min                             | Physiological sigh + STOP available | Three-Prompt Journal, 5 min -- after changing clothes |
+| 6   | Box Breathing, 3 min                             | Full acute protocol                 | Three-Prompt Journal, 5 min + Abbreviated PMR in bed  |
+| 7   | Full Layer 1: Box Breathing 3 min                | Full Layer 2                        | Full Layer 3: Journal 5 min + PMR in bed 3 min        |
 
 **Anchor behaviors used:**
+
 - Pre-shift anchor: Engine off in hospital parking lot -- before opening car door
 - Post-shift anchor: Changing out of work clothes -- journal immediately after; PMR when lying in bed
 
@@ -486,13 +504,13 @@ The toolkit emphasis shifts: cognitive reframing becomes more central because ex
 
 ### Technique Quick-Reference Card
 
-| Technique | Layer | Time | Best For | Invisible at Work? |
-|-----------|-------|------|----------|--------------------|
-| Box Breathing 4-4-4-4 | Maintenance | 3 min | Pre-shift cortisol reduction, baseline arousal | Yes |
-| Abbreviated PMR (jaw/shoulders) | Maintenance | 3-4 min | Sleep onset, post-shift tension release | No (done in bed) |
-| Physiological Sigh | Acute | 10-15 sec | Any stress spike, jaw clenching trigger | Yes |
-| STOP Technique | Acute | 60-90 sec | Mental escalation, overwhelm during crisis | Yes |
-| Three-Prompt Journal | Decompression | 5 min | Post-shift mental racing, sleep interference | No (done at home) |
+| Technique                       | Layer         | Time      | Best For                                       | Invisible at Work? |
+| ------------------------------- | ------------- | --------- | ---------------------------------------------- | ------------------ |
+| Box Breathing 4-4-4-4           | Maintenance   | 3 min     | Pre-shift cortisol reduction, baseline arousal | Yes                |
+| Abbreviated PMR (jaw/shoulders) | Maintenance   | 3-4 min   | Sleep onset, post-shift tension release        | No (done in bed)   |
+| Physiological Sigh              | Acute         | 10-15 sec | Any stress spike, jaw clenching trigger        | Yes                |
+| STOP Technique                  | Acute         | 60-90 sec | Mental escalation, overwhelm during crisis     | Yes                |
+| Three-Prompt Journal            | Decompression | 5 min     | Post-shift mental racing, sleep interference   | No (done at home)  |
 
 ---
 
@@ -510,4 +528,5 @@ Answer these at the end of your first week of use (after your third shift in the
 ---
 
 ### When to Seek Additional Support
+
 Night shift nursing is one of the highest chronic-stress occupational categories identified in health research. If after 3-4 weeks of consistent practice you still feel that your stress is unmanageable, that you are emotionally depleted most of the time, or that you are dreading shifts in a way that does not lift, speaking with a licensed mental health professional is an important next step. Occupational burnout in healthcare has specific clinical features that go beyond what a self-help toolkit can address -- and seeking support is consistent with the same standard of care you hold for your patients.

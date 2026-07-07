@@ -184,7 +184,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
         });
 
         if (!ok) {
-          res.status(400).json({ success: false, msg: 'Could not save the overlay (invalid id, too large, or write failed).' });
+          res
+            .status(400)
+            .json({ success: false, msg: 'Could not save the overlay (invalid id, too large, or write failed).' });
           return;
         }
 

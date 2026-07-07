@@ -186,9 +186,11 @@ export class LarkPlugin extends BasePlugin {
       // Resolve the bot's open_id so we can filter @mentions in group chats.
       // Best-effort: the SDK call may fail without the right scope; tolerate it.
       try {
-        const appInfo = await (this.client as unknown as {
-          application?: { v6?: { application?: { get?: (req: unknown) => Promise<unknown> } } };
-        }).application?.v6?.application?.get?.({ path: { app_id: appId } });
+        const appInfo = await (
+          this.client as unknown as {
+            application?: { v6?: { application?: { get?: (req: unknown) => Promise<unknown> } } };
+          }
+        ).application?.v6?.application?.get?.({ path: { app_id: appId } });
         const data = (appInfo as { data?: { app?: { bot_id?: string }; application?: { bot_id?: string } } })?.data;
         const openId: string | undefined = data?.app?.bot_id || data?.application?.bot_id || undefined;
         if (openId) {
@@ -288,8 +290,7 @@ export class LarkPlugin extends BasePlugin {
     // the DEFAULT_DISPLAY_NAME constant. Mirrors the R17 WeixinPlugin pattern
     // so admins can override the surfaced bot name without forking the plugin.
     const configured = this.config?.credentials?.displayName as string | undefined;
-    const displayName =
-      (configured && configured.trim()) || this.botInfo.name || DEFAULT_DISPLAY_NAME;
+    const displayName = (configured && configured.trim()) || this.botInfo.name || DEFAULT_DISPLAY_NAME;
     return {
       id: this.botInfo.appId,
       displayName,
@@ -576,9 +577,11 @@ export class LarkPlugin extends BasePlugin {
     }
 
     try {
-      const resp = await (this.client as unknown as {
-        contact?: { v3?: { user?: { get?: (req: unknown) => Promise<unknown> } } };
-      }).contact?.v3?.user?.get?.({
+      const resp = await (
+        this.client as unknown as {
+          contact?: { v3?: { user?: { get?: (req: unknown) => Promise<unknown> } } };
+        }
+      ).contact?.v3?.user?.get?.({
         path: { user_id: openId },
         params: { user_id_type: 'open_id' },
       });

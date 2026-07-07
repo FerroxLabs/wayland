@@ -31,6 +31,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Renovate And Sell House
 
 **Estimated time:** 3-6 months
@@ -170,6 +171,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

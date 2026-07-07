@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "hiking planning checklist step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'hiking planning checklist step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Hiking Trip Planner
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about planning a day hike or overnight backpacking trip
 - User wants help choosing a trail based on fitness level and preferences
 - User needs a gear checklist for hiking
@@ -29,6 +30,7 @@ metadata:
 - User mentions trail selection, elevation gain, or difficulty ratings
 
 **Do NOT use when:**
+
 - User asks about competitive trail running or race training (use `beginner-running-plan`)
 - User needs mountaineering or technical climbing guidance
 - User asks about long-distance thru-hiking logistics (multi-week trips)
@@ -225,18 +227,20 @@ metadata:
 ## Hiking Trip Plan
 
 ### Trip Overview
-| Parameter          | Value                                          |
-|--------------------|-------------------------------------------------|
-| Trip type          | Day hike                                        |
-| Location           | Front Range trails near Denver, CO              |
-| Distance           | 5-7 miles round trip                            |
-| Elevation gain     | 1,000-1,500 ft total                            |
-| Estimated duration | 3.5-4.5 hours including breaks                  |
-| Difficulty rating  | Moderate                                        |
-| Group size         | 2 hikers                                        |
+
+| Parameter          | Value                                                      |
+| ------------------ | ---------------------------------------------------------- |
+| Trip type          | Day hike                                                   |
+| Location           | Front Range trails near Denver, CO                         |
+| Distance           | 5-7 miles round trip                                       |
+| Elevation gain     | 1,000-1,500 ft total                                       |
+| Estimated duration | 3.5-4.5 hours including breaks                             |
+| Difficulty rating  | Moderate                                                   |
+| Group size         | 2 hikers                                                   |
 | Season             | Early October -- expect 40-65F, possible afternoon showers |
 
 ### Trail Selection Criteria
+
 - Distance range: 5-7 miles (fit but new to hiking -- moderate tier with slight reduction)
 - Max elevation gain: 1,500 ft (moderate difficulty, accounts for altitude adjustment)
 - Surface type: Dirt and rocky -- standard Front Range conditions
@@ -245,17 +249,20 @@ metadata:
 - Altitude note: Denver-area trailheads start at 5,500-8,500 ft. If you are visiting from a lower elevation, choose a trailhead below 7,500 ft and allow 1 day for acclimatization
 
 ### Estimated Timeline
-| Time    | Activity                                        |
-|---------|-------------------------------------------------|
-| 7:30 AM | Depart trailhead (early start for best weather) |
-| 8:45 AM | Reach midpoint landmark -- 10-minute break      |
-| 9:30 AM | Reach turnaround point or summit                |
-| 9:45 AM | Begin return                                    |
-| 11:15 AM| Return to trailhead                             |
-| 12:00 PM| **Turnaround time (non-negotiable)**            |
+
+| Time     | Activity                                        |
+| -------- | ----------------------------------------------- |
+| 7:30 AM  | Depart trailhead (early start for best weather) |
+| 8:45 AM  | Reach midpoint landmark -- 10-minute break      |
+| 9:30 AM  | Reach turnaround point or summit                |
+| 9:45 AM  | Begin return                                    |
+| 11:15 AM | Return to trailhead                             |
+| 12:00 PM | **Turnaround time (non-negotiable)**            |
 
 ### Gear Checklist
+
 #### Navigation & Safety
+
 - [ ] Trail map (downloaded offline -- cell service unreliable on many Front Range trails)
 - [ ] Headlamp with fresh batteries
 - [ ] Basic first aid kit
@@ -264,6 +271,7 @@ metadata:
 - [ ] Multi-tool or knife
 
 #### Clothing & Insulation
+
 - [ ] Moisture-wicking base layer top
 - [ ] Insulating mid-layer (fleece or light puffy jacket -- October mornings are cold at altitude)
 - [ ] Windproof and water-resistant outer shell
@@ -274,39 +282,47 @@ metadata:
 - [ ] Gloves (lightweight)
 
 #### Food & Water
+
 - [ ] 2 liters of water per person (4 liters total)
 - [ ] Trail mix or energy bars: 3-4 per person (800-1,200 calories total)
 - [ ] Electrolyte packets: 1 per person
 - [ ] Small lunch or substantial snack for the turnaround point
 
 #### Sun Protection
+
 - [ ] Sunscreen SPF 30+ (UV is stronger at altitude)
 - [ ] Sunglasses with UV protection
 
 ### Safety Protocol
+
 #### Pre-Trip (7 Days Out)
+
 - [ ] Check trail conditions on the local ranger district or trail-reporting community
 - [ ] Review the 10-day weather forecast for the specific trailhead elevation
 - [ ] Confirm Saturday availability for both hikers
 
 #### Pre-Trip (1 Day Out)
+
 - [ ] File trip plan with a friend or family member: trail name, trailhead location, expected departure and return times, vehicle description
 - [ ] Check final weather forecast -- postpone if thunderstorms are forecast before noon
 - [ ] Pack all gear and verify water and snack quantities
 - [ ] Charge phones fully
 
 #### Morning of Hike
+
 - [ ] Eat a high-carbohydrate breakfast by 6:30 AM
 - [ ] Do a 5-minute gear check at the trailhead
 - [ ] Confirm turnaround time: 12:00 PM regardless of progress
 
 #### Turnaround Rules
+
 1. Turn back at 12:00 PM regardless of how far you have hiked
 2. Turn back immediately if either hiker experiences headache with nausea or dizziness (possible altitude sickness -- descend to lower elevation)
 3. Turn back if thunder is audible or lightning is visible -- descend below treeline immediately and avoid ridgelines
 4. Turn back if water supply drops below 0.5 liters per person with more than 2 miles remaining
 
 ### Emergency Information
+
 - Trip plan filed with: [Name and phone number -- fill in before Saturday]
 - Nearest emergency services: [Varies by trailhead -- look up closest hospital to your chosen trail]
 - In case of emergency: Call 911. Most Front Range trailheads have cell service at the parking area even if coverage is intermittent on the trail

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Startup Advisor
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user is building a startup and needs guidance on lean methodology, MVP definition, or product-market fit measurement
 - The user wants help with funding strategy, key metrics, or deciding whether to pivot
 - The user needs stage-appropriate advice from ideation through scale for a venture-backed business
 - The user wants to understand startup economics, fundraising rounds, or growth metrics
 
 **Do NOT use this skill when:**
+
 - The user is bootstrapping without plans to raise funding (use bootstrapper-playbook instead)
 - The user wants to write a formal business plan (use business-planner instead)
 - The user needs to build a specific pitch deck for investors (use pitch-deck-builder instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on startup advisor
 - User asks about startup advisor best practices or techniques
 - User wants a structured approach to startup advisor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of startup advisor
 
@@ -443,28 +447,28 @@ ALTERNATIVE FUNDING:
 
 ### Top 20 Reasons Startups Fail (and How to Avoid Them)
 
-| Rank | Pitfall | Prevention |
-|------|---------|------------|
-| 1 | No market need | Validate before building. Talk to 50+ customers. |
-| 2 | Ran out of cash | Know your runway. Raise before you need to. |
-| 3 | Wrong team | Co-founder alignment on vision, values, and commitment. |
-| 4 | Got outcompeted | Focus on speed and customer intimacy, not features. |
-| 5 | Pricing/cost issues | Test pricing early. Know your unit economics. |
-| 6 | Poor product | Ship fast, get feedback, iterate weekly. |
-| 7 | No business model | Know how you make money from Day 1. |
-| 8 | Poor marketing | Find one channel that works before diversifying. |
-| 9 | Ignored customers | Talk to customers weekly. Build feedback loops. |
-| 10 | Bad timing | Study market readiness. Why now matters. |
-| 11 | Lost focus | Say no to 90% of ideas. Do one thing well. |
-| 12 | Team disharmony | Written co-founder agreement. Regular check-ins. |
-| 13 | Pivot gone wrong | Pivot based on data, not desperation. |
-| 14 | Lack of passion | Work on problems you genuinely care about. |
-| 15 | Bad location | Remote-first or relocate to where your customers are. |
-| 16 | No financing | Build relationships with investors before you need money. |
-| 17 | Legal challenges | Get legal advice early on IP, contracts, and compliance. |
-| 18 | No network | Join communities, attend events, help others first. |
-| 19 | Burnout | Pace yourself. This is a marathon, not a sprint. |
-| 20 | Fail to pivot | Set kill criteria before experiments. Be honest. |
+| Rank | Pitfall             | Prevention                                                |
+| ---- | ------------------- | --------------------------------------------------------- |
+| 1    | No market need      | Validate before building. Talk to 50+ customers.          |
+| 2    | Ran out of cash     | Know your runway. Raise before you need to.               |
+| 3    | Wrong team          | Co-founder alignment on vision, values, and commitment.   |
+| 4    | Got outcompeted     | Focus on speed and customer intimacy, not features.       |
+| 5    | Pricing/cost issues | Test pricing early. Know your unit economics.             |
+| 6    | Poor product        | Ship fast, get feedback, iterate weekly.                  |
+| 7    | No business model   | Know how you make money from Day 1.                       |
+| 8    | Poor marketing      | Find one channel that works before diversifying.          |
+| 9    | Ignored customers   | Talk to customers weekly. Build feedback loops.           |
+| 10   | Bad timing          | Study market readiness. Why now matters.                  |
+| 11   | Lost focus          | Say no to 90% of ideas. Do one thing well.                |
+| 12   | Team disharmony     | Written co-founder agreement. Regular check-ins.          |
+| 13   | Pivot gone wrong    | Pivot based on data, not desperation.                     |
+| 14   | Lack of passion     | Work on problems you genuinely care about.                |
+| 15   | Bad location        | Remote-first or relocate to where your customers are.     |
+| 16   | No financing        | Build relationships with investors before you need money. |
+| 17   | Legal challenges    | Get legal advice early on IP, contracts, and compliance.  |
+| 18   | No network          | Join communities, attend events, help others first.       |
+| 19   | Burnout             | Pace yourself. This is a marathon, not a sprint.          |
+| 20   | Fail to pivot       | Set kill criteria before experiments. Be honest.          |
 
 ---
 
@@ -516,7 +520,6 @@ QUARTERLY:
 - [ ] Founder is encouraged but given honest feedback
 - [ ] Templates provided are ready to use immediately
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -529,13 +532,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with startup advisor for a mid-size project."
 
 **Output:** A complete startup advisor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

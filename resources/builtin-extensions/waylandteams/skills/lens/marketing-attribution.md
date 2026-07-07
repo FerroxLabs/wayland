@@ -18,7 +18,7 @@ Trigger phrases:
 
 ## Procedure
 
-**1. Count conversions in the window.** Below 100 conversions, refuse to assign attribution. You have *signal* — proof a channel produces something — not *attribution*, which needs volume to distinguish contribution from noise. State the number, the floor, and the date the floor hits at current run-rate.
+**1. Count conversions in the window.** Below 100 conversions, refuse to assign attribution. You have _signal_ — proof a channel produces something — not _attribution_, which needs volume to distinguish contribution from noise. State the number, the floor, and the date the floor hits at current run-rate.
 
 **2. Pick the model that matches the question.** Four common models, each answers a different question:
 
@@ -56,7 +56,9 @@ Trigger phrases:
 **Brief:** "Meta says 240 conversions last month at $35 CPA. Looks great. Double the budget?"
 
 **Before:**
-> *Yes — $35 CPA well under our $90 target. Scale Meta 2x next month.*
+
+> _Yes — $35 CPA well under our $90 target. Scale Meta 2x next month._
 
 **After:**
-> *Window: 30 days. Total conversions in order record: 310. Meta-reported: 240 (claims 77%). Google-reported: 180 (claims 58%). Sum across platforms: 560, well above 310 — every platform over-claims. Reading order-record UTMs: last-click Meta 95 (31%), last-click organic 110 (35%), last-click direct/branded 75 (24%). First-click Meta 160 (52%), first-click organic 85 (27%), first-click podcast 35 (11%). Diagnosis: Meta does discovery; organic and branded search close. Pure last-click under-credits Meta by ~65 conversions; pure first-click over-credits it. Recommendation: hold Meta budget one cycle, run a 2-week MMM-lite holdout to confirm causal contribution before scaling. Re-measure 2026-05-31.*
+
+> _Window: 30 days. Total conversions in order record: 310. Meta-reported: 240 (claims 77%). Google-reported: 180 (claims 58%). Sum across platforms: 560, well above 310 — every platform over-claims. Reading order-record UTMs: last-click Meta 95 (31%), last-click organic 110 (35%), last-click direct/branded 75 (24%). First-click Meta 160 (52%), first-click organic 85 (27%), first-click podcast 35 (11%). Diagnosis: Meta does discovery; organic and branded search close. Pure last-click under-credits Meta by ~65 conversions; pure first-click over-credits it. Recommendation: hold Meta budget one cycle, run a 2-week MMM-lite holdout to confirm causal contribution before scaling. Re-measure 2026-05-31._

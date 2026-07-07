@@ -177,7 +177,9 @@ describe('MessageActivity', () => {
         showCost
         message={make({
           status: 'done',
-          nodes: [{ id: 'c1', kind: 'tool', callId: 'c1', name: 'Bash', status: 'done', startTime: 1000, endTime: 2000 }],
+          nodes: [
+            { id: 'c1', kind: 'tool', callId: 'c1', name: 'Bash', status: 'done', startTime: 1000, endTime: 2000 },
+          ],
           perTurnCost: [{ turn: 1, model: 'gpt-x', provider: 'openai', costUsd: 0.0123 }],
         })}
       />

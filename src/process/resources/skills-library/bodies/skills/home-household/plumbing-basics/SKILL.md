@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance troubleshooting step-by-step"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance troubleshooting step-by-step'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Plumbing Basics for Homeowners
 
 ## When to Use
@@ -66,6 +67,7 @@ Before providing any instructions, gather complete problem information to avoid 
 Apply the following decision framework before providing any repair instructions:
 
 **GREEN -- DIY Safe for most homeowners with basic tools:**
+
 - Toilet flapper replacement, fill valve adjustment, handle replacement, wax ring replacement (if toilet is already unbolted)
 - Plunging a drain (cup plunger for sinks, flange plunger for toilets)
 - Hand-cranking a drain snake/auger up to 25 feet on a sink or tub drain
@@ -77,6 +79,7 @@ Apply the following decision framework before providing any repair instructions:
 - Thawing an accessible frozen pipe with a hair dryer
 
 **YELLOW -- DIY Possible but requires honest skill assessment:**
+
 - Replacing a ball valve or gate valve shutoff (requires turning off water at main, some soldering or push-fit connector knowledge)
 - Replacing a two-handle shower/tub valve cartridge (requires identifying the valve brand and obtaining the exact replacement cartridge -- Moen, Delta, Kohler all use proprietary parts)
 - Replacing a wax ring on a toilet that needs to be unbolted and re-set (manageable but messy and physically demanding)
@@ -84,6 +87,7 @@ Apply the following decision framework before providing any repair instructions:
 - Anode rod inspection and replacement in a water heater
 
 **RED -- Call a licensed plumber:**
+
 - Any repair requiring cutting and soldering copper pipe
 - Pipe repair behind walls, under slabs, or in inaccessible chases
 - Water pressure issues affecting the whole house (could be pressure regulator failure, municipal supply issue, or galvanized buildup)
@@ -333,6 +337,7 @@ Before doing anything, confirm this is a single-fixture, grease-type clog and no
 For drain clearing and P-trap work, **no water shutoff is needed** -- you are working on the drain side, which is gravity-fed with no pressure.
 
 However, before opening the P-trap:
+
 - Place a 2-gallon bucket directly under the P-trap curve
 - Plug the drain basket from above with a rag to prevent water from flowing down while you work
 - If you have a garbage disposal, make sure it is **switched off at the wall switch** and the power cord is unplugged from the outlet under the sink before any work near the disposal housing
@@ -343,26 +348,26 @@ However, before opening the P-trap:
 
 ### Tools Needed
 
-| Tool | Purpose | Household Alternative |
-|------|---------|----------------------|
-| Adjustable slip-joint pliers or channel-lock pliers | Loosening P-trap slip-joint nuts | None -- needed for plastic nuts |
-| Small bucket (2 gallon) | Catching water from P-trap | Large bowl |
-| Old toothbrush | Scrubbing P-trap interior | Small wire brush |
-| Rubber gloves | Protecting hands from drain sludge | Latex or nitrile disposable gloves |
-| Safety glasses | Required -- prior Drano use means caustic residue may splash | None -- do not skip this |
-| Flashlight or headlamp | Seeing inside drain with cabinet door open | Phone flashlight |
-| Hand drain auger (also called a drain snake), 15-25 ft | Clearing grease past the P-trap reach | Plumber's snake rental ($20/day at hardware stores) |
+| Tool                                                   | Purpose                                                      | Household Alternative                               |
+| ------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------- |
+| Adjustable slip-joint pliers or channel-lock pliers    | Loosening P-trap slip-joint nuts                             | None -- needed for plastic nuts                     |
+| Small bucket (2 gallon)                                | Catching water from P-trap                                   | Large bowl                                          |
+| Old toothbrush                                         | Scrubbing P-trap interior                                    | Small wire brush                                    |
+| Rubber gloves                                          | Protecting hands from drain sludge                           | Latex or nitrile disposable gloves                  |
+| Safety glasses                                         | Required -- prior Drano use means caustic residue may splash | None -- do not skip this                            |
+| Flashlight or headlamp                                 | Seeing inside drain with cabinet door open                   | Phone flashlight                                    |
+| Hand drain auger (also called a drain snake), 15-25 ft | Clearing grease past the P-trap reach                        | Plumber's snake rental ($20/day at hardware stores) |
 
 ---
 
 ### Materials Needed
 
-| Part/Material | Specification | Estimated Cost |
-|---------------|--------------|----------------|
-| Replacement P-trap slip-joint washers (optional) | 1-1/2 inch PVC slip-joint washers, pack of 3 | $2-4 |
-| Baking soda and white vinegar | For follow-up maintenance flush | $3-5 (pantry items) |
-| Hand drain auger | 15-25 ft with hand crank, 3/16 or 1/4-inch cable | $20-35 if purchasing |
-| Plumber's grease (optional) | Silicone-based, for lubricating P-trap nuts | $4-6 |
+| Part/Material                                    | Specification                                    | Estimated Cost       |
+| ------------------------------------------------ | ------------------------------------------------ | -------------------- |
+| Replacement P-trap slip-joint washers (optional) | 1-1/2 inch PVC slip-joint washers, pack of 3     | $2-4                 |
+| Baking soda and white vinegar                    | For follow-up maintenance flush                  | $3-5 (pantry items)  |
+| Hand drain auger                                 | 15-25 ft with hand crank, 3/16 or 1/4-inch cable | $20-35 if purchasing |
+| Plumber's grease (optional)                      | Silicone-based, for lubricating P-trap nuts      | $4-6                 |
 
 **Note:** Do NOT buy any more Drano, Liquid-Plumr, or lye/acid-based drain products. They are ineffective on grease (the primary kitchen drain clog material), and because you already poured one application, there is residual caustic chemical sitting in your P-trap right now. This is exactly why the safety glasses are mandatory for the next step.
 
@@ -412,14 +417,14 @@ With the P-trap reassembled, fill one or both basins completely to the overflow 
 
 ### Preventive Maintenance
 
-| Action | Frequency | Why It Matters | Cost |
-|--------|-----------|----------------|------|
-| Hot water flush -- boil a full kettle and pour it slowly down the drain | Monthly | Melts grease deposits before they solidify into a clog | $0 |
-| Baking soda + vinegar flush | Monthly | Mild degreasing, odor control, neutralizes grease coating | $1 |
-| Never pour cooking grease, bacon fat, butter, or coconut oil down the drain | Always | These solidify at pipe temperature (55-65°F) and cause the majority of kitchen clogs | $0 |
-| Dish soap + hot water flush after any greasy cooking | After each use | Keeps drain walls clear of daily grease accumulation | $0 |
-| Full P-trap cleaning (remove and scrub) | Every 2-3 years | Removes accumulated waxy buildup that resists flushing | $0-4 |
-| Enzyme drain maintainer (not chemical drain cleaner) | Monthly | Biological digestion of grease and organic matter in drain walls | $8-15/month |
+| Action                                                                      | Frequency       | Why It Matters                                                                       | Cost        |
+| --------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------ | ----------- |
+| Hot water flush -- boil a full kettle and pour it slowly down the drain     | Monthly         | Melts grease deposits before they solidify into a clog                               | $0          |
+| Baking soda + vinegar flush                                                 | Monthly         | Mild degreasing, odor control, neutralizes grease coating                            | $1          |
+| Never pour cooking grease, bacon fat, butter, or coconut oil down the drain | Always          | These solidify at pipe temperature (55-65°F) and cause the majority of kitchen clogs | $0          |
+| Dish soap + hot water flush after any greasy cooking                        | After each use  | Keeps drain walls clear of daily grease accumulation                                 | $0          |
+| Full P-trap cleaning (remove and scrub)                                     | Every 2-3 years | Removes accumulated waxy buildup that resists flushing                               | $0-4        |
+| Enzyme drain maintainer (not chemical drain cleaner)                        | Monthly         | Biological digestion of grease and organic matter in drain walls                     | $8-15/month |
 
 **Important note on in-sink garbage disposals:** Garbage disposals create a false sense of drainage capacity. Food ground by the disposal still passes through the same P-trap and drain branch as any other kitchen drain. Starchy foods (pasta, rice, potato peels) and fibrous foods (celery, onion skins, artichoke leaves) should never go into the disposal -- they form dense clogs that augers cannot clear and often require professional hydro-jetting ($200-400).
 
@@ -437,10 +442,10 @@ With the P-trap reassembled, fill one or both basins completely to the overflow 
 
 ### Cost Comparison Summary
 
-| Option | Cost | Time | Risk |
-|--------|------|------|------|
-| DIY (plunger + P-trap clean + auger) | $0-35 (if you buy an auger) / $0 if you rent or own one | 30-60 minutes | Minimal -- worst case is a $10-18 P-trap replacement if a plastic fitting cracks |
-| Hire a plumber for drain clearing | $150-300 (service call + 1 hour labor) | Schedule 1-3 days out | Professional guarantee; plumber will identify downstream issues |
-| Ignore the problem | $150-500 (complete clog requiring power auger) + potential water damage to cabinet floor from backed-up overflow | Worsens over weeks | Grease clogs set harder over time; complete blockage is inevitable |
+| Option                               | Cost                                                                                                             | Time                  | Risk                                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------- |
+| DIY (plunger + P-trap clean + auger) | $0-35 (if you buy an auger) / $0 if you rent or own one                                                          | 30-60 minutes         | Minimal -- worst case is a $10-18 P-trap replacement if a plastic fitting cracks |
+| Hire a plumber for drain clearing    | $150-300 (service call + 1 hour labor)                                                                           | Schedule 1-3 days out | Professional guarantee; plumber will identify downstream issues                  |
+| Ignore the problem                   | $150-500 (complete clog requiring power auger) + potential water damage to cabinet floor from backed-up overflow | Worsens over weeks    | Grease clogs set harder over time; complete blockage is inevitable               |
 
 **Bottom line:** This is one of the clearest DIY wins in residential plumbing. The P-trap cleaning and auger work are straightforward, the tools are inexpensive, and the risk of making things worse is very low. The only reason to call a plumber immediately rather than attempting this repair is if multiple fixtures are draining slowly simultaneously -- that condition definitively exceeds what any DIY drain work can address.

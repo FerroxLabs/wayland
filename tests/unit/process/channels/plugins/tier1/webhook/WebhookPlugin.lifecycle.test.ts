@@ -64,9 +64,7 @@ describe('WebhookPlugin lifecycle', () => {
 
   it('flips to error when outboundUrl is not a valid URL', async () => {
     const plugin = new WebhookPlugin();
-    await expect(
-      plugin.initialize(makeConfig({ outboundUrl: 'not-a-url' }))
-    ).rejects.toThrow(/not a valid URL/i);
+    await expect(plugin.initialize(makeConfig({ outboundUrl: 'not-a-url' }))).rejects.toThrow(/not a valid URL/i);
     expect(plugin.status).toBe('error');
   });
 

@@ -115,9 +115,7 @@ describe('composePrompt', () => {
       mockBridge.mockReturnValueOnce({ constitution: c.constitution, overlay: c.overlay });
       const result = composePrompt({ assistantId: c.assistantId, basePrompt: c.basePrompt });
 
-      const parts = [c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter(
-        (p) => p && p.length > 0
-      );
+      const parts = [c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter((p) => p && p.length > 0);
       const expectedText = parts.join(SEP);
       const expectedTokens = Math.ceil(expectedText.length / 4);
 

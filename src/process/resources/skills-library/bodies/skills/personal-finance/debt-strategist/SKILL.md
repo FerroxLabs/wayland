@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance debt-management guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance debt-management guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Debt Strategist
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants a strategy to pay off multiple debts
 - User needs to choose between avalanche and snowball repayment methods
 - User wants to know how to prioritize debts by type and interest rate
 - User needs a debt payoff timeline and action plan
 
 **Do NOT use this skill when:**
+
 - User needs bankruptcy guidance -- refer to bankruptcy attorney
 - User needs debt negotiation or settlement -- refer to qualified professional
 - User wants budgeting help unrelated to debt -- use budget-builder
@@ -94,17 +96,19 @@ TOTAL MONTHLY DEBT BUDGET:                       $__________
 **Order:** Sort debts by balance, lowest to highest (ignore interest rates).
 
 **Pros:**
+
 - Quick psychological wins build momentum
 - Reduces number of bills faster
 - Proven behavioral success rate
 
 **Cons:**
+
 - May pay more total interest than avalanche
 - Mathematically suboptimal
 
 **Best for:** People who need motivation, have multiple small debts, or have struggled with consistency in the past.
 
-> **Further reading:** Dave Ramsey's *The Total Money Makeover* provides a complete, step-by-step financial program built around the debt snowball approach. His program includes an emergency fund strategy, debt elimination, and long-term wealth building. For the full system, see his books or ramseysolutions.com.
+> **Further reading:** Dave Ramsey's _The Total Money Makeover_ provides a complete, step-by-step financial program built around the debt snowball approach. His program includes an emergency fund strategy, debt elimination, and long-term wealth building. For the full system, see his books or ramseysolutions.com.
 
 ### Strategy 2: Debt Avalanche (Mathematical Optimum)
 
@@ -113,11 +117,13 @@ TOTAL MONTHLY DEBT BUDGET:                       $__________
 **Order:** Sort debts by interest rate, highest to lowest (ignore balances).
 
 **Pros:**
+
 - Minimizes total interest paid
 - Mathematically optimal
 - Fastest total payoff if followed consistently
 
 **Cons:**
+
 - Highest-rate debt may have a large balance (slow first win)
 - Requires more discipline without early victories
 
@@ -159,9 +165,10 @@ First debt free:    __________      __________
 ```
 
 **Calculation logic for each month:**
+
 1. Apply minimum payments to all debts
 2. Apply extra payment to the target debt (smallest balance or highest rate)
-3. Calculate interest accrued on remaining balances: balance * (APR / 12)
+3. Calculate interest accrued on remaining balances: balance \* (APR / 12)
 4. When target debt reaches $0, redirect its full payment to the next target
 5. Repeat until all debts are $0
 
@@ -172,6 +179,7 @@ First debt free:    __________      __________
 ### When Consolidation Makes Sense
 
 Evaluate consolidation if:
+
 - You have multiple high-interest debts (over 15% APR)
 - You qualify for a consolidation loan under 10% APR
 - You will NOT run up the original credit cards again
@@ -200,6 +208,7 @@ RECOMMENDATION: [Consolidate / Do not consolidate]
 ```
 
 ### Red Flags for Consolidation
+
 - Consolidation rate is not significantly lower than current weighted average
 - Long loan term makes total cost higher despite lower rate
 - You have not addressed the spending behavior that created the debt
@@ -237,6 +246,7 @@ NET SAVINGS: $__________
 ```
 
 ### Balance Transfer Rules
+
 1. You MUST pay off the transferred balance before the promo period ends
 2. Do not make new purchases on the balance transfer card
 3. Set up autopay for at least the minimum
@@ -250,17 +260,20 @@ NET SAVINGS: $__________
 ### Federal Student Loan Options
 
 **Income-Driven Repayment (IDR) Plans:**
+
 - **SAVE (formerly REPAYE):** 5-10% of discretionary income; forgiveness at 20-25 years
 - **PAYE:** 10% of discretionary income; capped at standard payment; 20-year forgiveness
 - **IBR:** 10-15% of discretionary income; 20-25 year forgiveness
 - **ICR:** 20% of discretionary income or 12-year fixed adjusted payment; 25-year forgiveness
 
 **Public Service Loan Forgiveness (PSLF):**
+
 - Requires: federal Direct Loans, IDR plan, qualifying employer (government, 501c3), 120 qualifying payments
 - Submit Employment Certification Form annually
 - After 120 payments (10 years), remaining balance forgiven tax-free
 
 **Decision framework:**
+
 - High income relative to debt: Standard or avalanche extra payments
 - Low income relative to debt: IDR plan
 - Public service career: PSLF path
@@ -337,13 +350,14 @@ DTI = $__________ / $__________ x 100 = ____%
 ```
 
 ### DTI Benchmarks
-| DTI Range | Assessment |
-|-----------|-----------|
-| Under 20% | Excellent -- strong financial position |
-| 20-35% | Healthy -- manageable debt load |
-| 36-43% | Caution -- may struggle to get new credit |
-| 44-50% | Danger zone -- financial stress likely |
-| Over 50% | Crisis -- seek professional help immediately |
+
+| DTI Range | Assessment                                   |
+| --------- | -------------------------------------------- |
+| Under 20% | Excellent -- strong financial position       |
+| 20-35%    | Healthy -- manageable debt load              |
+| 36-43%    | Caution -- may struggle to get new credit    |
+| 44-50%    | Danger zone -- financial stress likely       |
+| Over 50%  | Crisis -- seek professional help immediately |
 
 ---
 
@@ -370,12 +384,14 @@ DEBT FREE          | __________  | __________  | $0.00
 ## Emergency Situations
 
 ### If You Cannot Make Minimum Payments
+
 1. Contact creditors BEFORE missing payments -- ask for hardship programs
 2. Prioritize in this order: housing, utilities, food, transportation, secured debts, unsecured debts
 3. Look into nonprofit credit counseling (NFCC member agencies)
 4. Consider whether bankruptcy consultation is appropriate (last resort, but sometimes the right answer)
 
 ### If You Receive a Windfall
+
 1. Maintain $1,000-2,000 emergency buffer
 2. Apply the rest to debt using your chosen strategy order
 3. Do not "reward yourself" with the entire windfall -- commit at least 80% to debt
@@ -403,30 +419,36 @@ When delivering a debt strategy, provide:
 ## Debt Payoff Strategy
 
 ### Debt Inventory
-| Debt | Balance | APR | Minimum | Priority (Avalanche) |
-|------|---------|-----|---------|---------------------|
-| Credit Card 1 | $8,000 | 22% | $160 | 1 (highest rate) |
-| Credit Card 2 | $3,000 | 18% | $60 | 2 |
-| Student Loans | $12,000 | 5% | $125 | 3 (lowest rate) |
-| **Total** | **$23,000** | -- | **$345** | -- |
+
+| Debt          | Balance     | APR | Minimum  | Priority (Avalanche) |
+| ------------- | ----------- | --- | -------- | -------------------- |
+| Credit Card 1 | $8,000      | 22% | $160     | 1 (highest rate)     |
+| Credit Card 2 | $3,000      | 18% | $60      | 2                    |
+| Student Loans | $12,000     | 5%  | $125     | 3 (lowest rate)      |
+| **Total**     | **$23,000** | --  | **$345** | --                   |
 
 ### Recommended: Avalanche Method
+
 Extra payment budget: $800/month (above minimums)
 Total monthly toward debt: $800 + $345 = $1,145
 
 **Phase 1 (Months 1-10):** All $800 extra to CC1 ($960/mo to CC1)
+
 - CC1 paid off in ~10 months, saving ~$1,800 in interest vs. snowball
 
 **Phase 2 (Months 11-14):** All $960 (freed CC1 payment + extra) to CC2
+
 - CC2 paid off in ~4 months
 
 **Phase 3 (Months 15-26):** All $1,020 to student loans
+
 - Student loans paid off in ~12 months
 
 **Total payoff time:** ~26 months
 **Total interest paid:** ~$3,200 (vs. ~$4,100 with snowball method)
 
 ### Acceleration Opportunity
+
 Check if CC1 qualifies for a 0% balance transfer card. Moving $8,000 to 0% for 18 months saves ~$1,400 in interest and frees cash to attack CC2 simultaneously.
 
 ## Edge Cases

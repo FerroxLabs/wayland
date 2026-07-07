@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tax-planning personal-finance freelancing budgeting"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tax-planning personal-finance freelancing budgeting'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Quarterly Tax Estimator
 
 > **Disclaimer:** This skill provides educational information about tax concepts and general guidance for personal financial planning. It does NOT constitute tax advice, legal advice, or accounting services. Individual tax circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified CPA, enrolled agent, or tax attorney before making tax decisions. Tax law changes frequently -- verify all rates, thresholds, and due dates with the IRS and your state tax authority for the current tax year.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A self-employed individual, freelancer, independent contractor, or sole proprietor asks how much to pay in estimated quarterly taxes
 - A user asks how to avoid an IRS underpayment penalty as a freelancer or gig worker
 - A user has received a large 1099-NEC or 1099-MISC and wants to understand what they owe
@@ -39,6 +41,7 @@ metadata:
 - A user wants to determine the safest payment amount to protect against penalties while not tying up excess cash
 
 **Do NOT use this skill when:**
+
 - The user needs to prepare or file their actual annual Form 1040 -- use `tax-filing-prep` instead
 - The user wants a system for tracking business deductions throughout the year -- use `tax-deduction-tracker` instead
 - The user is asking about Solo 401(k), SEP-IRA, HSA, or other tax-advantaged accounts as a strategy -- use `tax-advantaged-optimizer` instead (though mention the interaction with taxable income here)
@@ -410,41 +413,41 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Income Projection
 
-| Income Source | Annual Projection | Notes |
-|---------------|------------------:|-------|
-| Freelance / 1099 UX design income | $95,000 | Primary SE income |
-| Interest income (savings) | $800 | Ordinary income, not SE income |
-| W-2 wages | $0 | None |
-| **Total Gross Income** | **$95,800** | |
+| Income Source                     | Annual Projection | Notes                          |
+| --------------------------------- | ----------------: | ------------------------------ |
+| Freelance / 1099 UX design income |           $95,000 | Primary SE income              |
+| Interest income (savings)         |              $800 | Ordinary income, not SE income |
+| W-2 wages                         |                $0 | None                           |
+| **Total Gross Income**            |       **$95,800** |                                |
 
 ---
 
 ### Self-Employment Tax Calculation
 
-| Step | Item | Calculation | Amount |
-|------|------|------------|-------:|
-| 1 | Gross SE income | | $95,000 |
-| 2 | Business expenses | Software, home office, equipment | ($12,000) |
-| 3 | **Net SE income (Schedule C profit)** | | **$83,000** |
-| 4 | SE income subject to SE tax | $83,000 × 0.9235 | $76,651 |
-| 5 | SE tax -- full 15.3% (below $168,600 SS wage base) | $76,651 × 15.3% | $11,728 |
-| 6 | Additional Medicare Tax | $83,000 is below $200,000 threshold | $0 |
-| 7 | **Total SE tax** | | **$11,728** |
-| 8 | Deductible SE tax (above-the-line) | $11,728 ÷ 2 | **($5,864)** |
+| Step | Item                                               | Calculation                         |       Amount |
+| ---- | -------------------------------------------------- | ----------------------------------- | -----------: |
+| 1    | Gross SE income                                    |                                     |      $95,000 |
+| 2    | Business expenses                                  | Software, home office, equipment    |    ($12,000) |
+| 3    | **Net SE income (Schedule C profit)**              |                                     |  **$83,000** |
+| 4    | SE income subject to SE tax                        | $83,000 × 0.9235                    |      $76,651 |
+| 5    | SE tax -- full 15.3% (below $168,600 SS wage base) | $76,651 × 15.3%                     |      $11,728 |
+| 6    | Additional Medicare Tax                            | $83,000 is below $200,000 threshold |           $0 |
+| 7    | **Total SE tax**                                   |                                     |  **$11,728** |
+| 8    | Deductible SE tax (above-the-line)                 | $11,728 ÷ 2                         | **($5,864)** |
 
 ---
 
 ### AGI Calculation
 
-| Item | Amount | Notes |
-|------|-------:|-------|
-| Gross SE income | $95,000 | |
-| Interest income | $800 | |
-| Gross total income | $95,800 | |
-| Less: Deductible SE tax | ($5,864) | Half of $11,728 SE tax |
-| Less: Self-employed health insurance | ($0) | User did not specify -- add if applicable |
-| Less: SEP-IRA / Solo 401(k) contributions | ($0) | User did not specify -- significant opportunity |
-| **Adjusted Gross Income (AGI)** | **$89,936** | |
+| Item                                      |      Amount | Notes                                           |
+| ----------------------------------------- | ----------: | ----------------------------------------------- |
+| Gross SE income                           |     $95,000 |                                                 |
+| Interest income                           |        $800 |                                                 |
+| Gross total income                        |     $95,800 |                                                 |
+| Less: Deductible SE tax                   |    ($5,864) | Half of $11,728 SE tax                          |
+| Less: Self-employed health insurance      |        ($0) | User did not specify -- add if applicable       |
+| Less: SEP-IRA / Solo 401(k) contributions |        ($0) | User did not specify -- significant opportunity |
+| **Adjusted Gross Income (AGI)**           | **$89,936** |                                                 |
 
 **Opportunity flag:** A SEP-IRA contribution of up to $20,750 (25% of $83,000 net SE earnings) would reduce AGI to approximately $69,186 and lower total tax by roughly $4,500--$5,000. This is worth exploring with a tax professional.
 
@@ -452,41 +455,42 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Taxable Income Calculation
 
-| Item | Amount |
-|------|-------:|
-| AGI | $89,936 |
-| Less: 2024 standard deduction (single) | ($14,600) |
-| **Taxable Income** | **$75,336** |
+| Item                                   |      Amount |
+| -------------------------------------- | ----------: |
+| AGI                                    |     $89,936 |
+| Less: 2024 standard deduction (single) |   ($14,600) |
+| **Taxable Income**                     | **$75,336** |
 
 ---
 
 ### Federal Income Tax Calculation (2024 Single Brackets -- Verify)
 
-| Bracket | Income Range in Bracket | Rate | Tax |
-|---------|------------------------:|----:|----:|
-| 10% | $0 -- $11,600 | 10% | $1,160 |
-| 12% | $11,601 -- $47,150 | 12% | $4,266 |
-| 22% | $47,151 -- $75,336 | 22% | $6,201 |
-| **Ordinary income tax subtotal** | | | **$11,627** |
-| Interest income is included above | $800 taxed at 22% marginal rate | -- | (included) |
-| Long-term capital gains | $0 | 0%/15% | $0 |
-| **Total federal income tax** | | | **$11,627** |
+| Bracket                           |         Income Range in Bracket |   Rate |         Tax |
+| --------------------------------- | ------------------------------: | -----: | ----------: |
+| 10%                               |                   $0 -- $11,600 |    10% |      $1,160 |
+| 12%                               |              $11,601 -- $47,150 |    12% |      $4,266 |
+| 22%                               |              $47,151 -- $75,336 |    22% |      $6,201 |
+| **Ordinary income tax subtotal**  |                                 |        | **$11,627** |
+| Interest income is included above | $800 taxed at 22% marginal rate |     -- |  (included) |
+| Long-term capital gains           |                              $0 | 0%/15% |          $0 |
+| **Total federal income tax**      |                                 |        | **$11,627** |
 
 ---
 
 ### Total Tax Liability Summary
 
-| Component | Amount |
-|-----------|-------:|
-| SE tax | $11,728 |
-| Federal income tax | $11,627 |
-| Additional Medicare Tax | $0 |
-| **Gross estimated federal tax** | **$23,355** |
-| Less: Tax credits | ($0) |
-| Less: W-2 withholding | ($0) |
+| Component                                           |      Amount |
+| --------------------------------------------------- | ----------: |
+| SE tax                                              |     $11,728 |
+| Federal income tax                                  |     $11,627 |
+| Additional Medicare Tax                             |          $0 |
+| **Gross estimated federal tax**                     | **$23,355** |
+| Less: Tax credits                                   |        ($0) |
+| Less: W-2 withholding                               |        ($0) |
 | **Net federal tax to cover via estimated payments** | **$23,355** |
 
 **Effective rates:**
+
 - On gross SE income ($95,000): 24.6%
 - On net SE income ($83,000): 28.1%
 - Recommended set-aside percentage: **28--29% of gross client payments**
@@ -495,12 +499,12 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Safe Harbor Analysis
 
-| Method | Basis | Total Required | Quarterly Payment |
-|--------|-------|---------------:|------------------:|
-| 100% of prior year tax | Prior year Form 1040 Line 24: $18,400 | $18,400 | $4,600 |
-| 110% of prior year tax | AGI check: prior year AGI was similar to current year, likely below $150K -- 100% rule applies | N/A | N/A |
-| 90% of current year estimate | $23,355 × 0.90 | $21,020 | $5,255 |
-| **Recommended quarterly payment** | **90% current year is higher and ensures fuller coverage** | **$21,020** | **$5,255** |
+| Method                            | Basis                                                                                          | Total Required | Quarterly Payment |
+| --------------------------------- | ---------------------------------------------------------------------------------------------- | -------------: | ----------------: |
+| 100% of prior year tax            | Prior year Form 1040 Line 24: $18,400                                                          |        $18,400 |            $4,600 |
+| 110% of prior year tax            | AGI check: prior year AGI was similar to current year, likely below $150K -- 100% rule applies |            N/A |               N/A |
+| 90% of current year estimate      | $23,355 × 0.90                                                                                 |        $21,020 |            $5,255 |
+| **Recommended quarterly payment** | **90% current year is higher and ensures fuller coverage**                                     |    **$21,020** |        **$5,255** |
 
 **Safe harbor recommendation:** Pay $5,255/quarter based on 90% of current year estimate. This is higher than the prior year safe harbor ($4,600) but preferable because: (a) income is tracking similarly to prior year and the current year estimate is reliable, and (b) paying 90% of current year leaves only ~$2,335 to settle at April filing -- a manageable amount. The prior year safe harbor of $4,600/quarter would still protect against penalties, but would leave a larger April balance due. **Choose based on cash flow preference:** if $5,255/quarter is too tight, $4,600/quarter (prior year safe harbor) is legally protected against penalties.
 
@@ -508,14 +512,14 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Quarterly Payment Schedule
 
-| Quarter | Income Period | Federal Due Date | Payment Amount | Cumulative Paid |
-|---------|--------------|-----------------|---------------:|----------------:|
-| Q1 | Jan 1 -- Mar 31 | **April 15, 2024** | $5,255 | $5,255 |
-| Q2 | Apr 1 -- May 31 | **June 17, 2024** | $5,255 | $10,510 |
-| Q3 | Jun 1 -- Aug 31 | **September 16, 2024** | $5,255 | $15,765 |
-| Q4 | Sep 1 -- Dec 31 | **January 15, 2025** | $5,255 | $21,020 |
-| **Total** | | | **$21,020** | |
-| Remaining balance at April filing | | April 15, 2025 | ~$2,335 | $23,355 |
+| Quarter                           | Income Period   | Federal Due Date       | Payment Amount | Cumulative Paid |
+| --------------------------------- | --------------- | ---------------------- | -------------: | --------------: |
+| Q1                                | Jan 1 -- Mar 31 | **April 15, 2024**     |         $5,255 |          $5,255 |
+| Q2                                | Apr 1 -- May 31 | **June 17, 2024**      |         $5,255 |         $10,510 |
+| Q3                                | Jun 1 -- Aug 31 | **September 16, 2024** |         $5,255 |         $15,765 |
+| Q4                                | Sep 1 -- Dec 31 | **January 15, 2025**   |         $5,255 |         $21,020 |
+| **Total**                         |                 |                        |    **$21,020** |                 |
+| Remaining balance at April filing |                 | April 15, 2025         |        ~$2,335 |         $23,355 |
 
 **State taxes:** Texas has no individual income tax. No state estimated payments required. 🎉
 
@@ -525,23 +529,23 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Monthly Tax Set-Aside Plan
 
-| Month | Action | Amount | Running Balance |
-|-------|--------|-------:|----------------:|
-| January | Transfer to HYSA | $1,752 | $1,752 |
-| February | Transfer to HYSA | $1,752 | $3,504 |
-| March | Transfer to HYSA | $1,752 | $5,256 |
-| **April 15** | **Pay Q1 federal estimated tax** | **($5,255)** | **$1** |
-| April | Transfer to HYSA | $1,752 | $1,753 |
-| May | Transfer to HYSA | $1,752 | $3,505 |
-| **June 17** | **Pay Q2 federal estimated tax** | **($5,255)** | **$2,250** |
-| July | Transfer to HYSA | $1,752 | $4,002 |
-| August | Transfer to HYSA | $1,752 | $5,754 |
-| **September 16** | **Pay Q3 federal estimated tax** | **($5,255)** | **$499** |
-| October | Transfer to HYSA | $1,752 | $2,251 |
-| November | Transfer to HYSA | $1,752 | $4,003 |
-| December | Transfer to HYSA | $1,752 | $5,755 |
-| **January 15** | **Pay Q4 federal estimated tax** | **($5,255)** | **$500** |
-| [Continue saving through April filing] | | | |
+| Month                                  | Action                           |       Amount | Running Balance |
+| -------------------------------------- | -------------------------------- | -----------: | --------------: |
+| January                                | Transfer to HYSA                 |       $1,752 |          $1,752 |
+| February                               | Transfer to HYSA                 |       $1,752 |          $3,504 |
+| March                                  | Transfer to HYSA                 |       $1,752 |          $5,256 |
+| **April 15**                           | **Pay Q1 federal estimated tax** | **($5,255)** |          **$1** |
+| April                                  | Transfer to HYSA                 |       $1,752 |          $1,753 |
+| May                                    | Transfer to HYSA                 |       $1,752 |          $3,505 |
+| **June 17**                            | **Pay Q2 federal estimated tax** | **($5,255)** |      **$2,250** |
+| July                                   | Transfer to HYSA                 |       $1,752 |          $4,002 |
+| August                                 | Transfer to HYSA                 |       $1,752 |          $5,754 |
+| **September 16**                       | **Pay Q3 federal estimated tax** | **($5,255)** |        **$499** |
+| October                                | Transfer to HYSA                 |       $1,752 |          $2,251 |
+| November                               | Transfer to HYSA                 |       $1,752 |          $4,003 |
+| December                               | Transfer to HYSA                 |       $1,752 |          $5,755 |
+| **January 15**                         | **Pay Q4 federal estimated tax** | **($5,255)** |        **$500** |
+| [Continue saving through April filing] |                                  |              |                 |
 
 **Monthly transfer amount: $1,752/month** ($5,255 ÷ 3, rounded up by $1)
 **Recommended account:** A high-yield savings account currently earning 4.5--5.0% APY. On an average balance of ~$2,600 across the year, this generates approximately $100--$130 in interest -- a small but free return on money you were holding anyway.
@@ -550,18 +554,18 @@ California, New York, and a few other states impose underpayment penalties that 
 
 ### Summary Card (Quick Reference)
 
-| Key Figure | Amount |
-|-----------|-------:|
-| Total projected gross income | $95,800 |
-| Net SE income (after business deductions) | $83,000 |
-| SE tax | $11,728 |
-| Federal income tax | $11,627 |
-| **Total federal tax liability** | **$23,355** |
-| Effective rate on gross SE income | 24.6% |
-| Quarterly estimated payment | $5,255 |
-| Monthly set-aside | $1,752 |
-| Balance due at April filing | ~$2,335 |
-| State taxes | $0 (Texas) |
+| Key Figure                                |      Amount |
+| ----------------------------------------- | ----------: |
+| Total projected gross income              |     $95,800 |
+| Net SE income (after business deductions) |     $83,000 |
+| SE tax                                    |     $11,728 |
+| Federal income tax                        |     $11,627 |
+| **Total federal tax liability**           | **$23,355** |
+| Effective rate on gross SE income         |       24.6% |
+| Quarterly estimated payment               |      $5,255 |
+| Monthly set-aside                         |      $1,752 |
+| Balance due at April filing               |     ~$2,335 |
+| State taxes                               |  $0 (Texas) |
 
 ---
 

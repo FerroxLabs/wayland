@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting teaching template"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting teaching template'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Homework Help Strategies
 
 ## When to Use
 
 **Use this skill when:**
+
 - A parent asks how to help their child with homework without doing it for them or taking over the session
 - A parent wants to build a sustainable homework routine that reduces nightly conflict and stress
 - A child is resisting, avoiding, or shutting down around homework and the parent needs concrete strategies
@@ -30,6 +32,7 @@ metadata:
 - A parent has multiple children at different grade levels and cannot manage overlapping homework sessions
 
 **Do NOT use when:**
+
 - The user is asking for direct academic tutoring in a specific subject (use a subject-specific tutoring approach instead)
 - The user describes symptoms consistent with a learning disability, dyslexia, dyscalculia, ADHD, or processing disorders -- refer to evaluation through the school psychologist or a developmental pediatrician; homework structure alone will not address these
 - The user is building a formal homeschool curriculum (use an education planning skill instead)
@@ -105,22 +108,26 @@ This is the core skill that prevents parents from taking over the homework. The 
 Different subjects have different breakdown patterns and require different scaffolding approaches.
 
 **Mathematics:**
+
 - The single most common issue in math homework is misreading the problem, not inability to compute. Always start with reading aloud.
 - For multi-step word problems: have the child underline what is known and circle what is being asked. This is the identify-organize-plan approach used in Singapore Math and many common core frameworks.
 - For computation errors: teach the child to estimate first. "About what should the answer be?" A child multiplying 23 x 4 who gets 212 can self-detect the error if they know the answer should be "close to 80."
 - For children who blank on procedures: "Does your teacher have a steps chart or anchor chart in the classroom?" Many teachers provide these -- the child should have them in their binder. If not, ask the teacher for one.
 
 **Reading Comprehension:**
+
 - For children who read the passage but cannot answer questions: have them re-read one paragraph at a time and pause to summarize in one sentence. The problem is usually passive reading, not inability to read.
 - For vocabulary questions: teach the parent to ask "What are the words around the unknown word saying? Does the sentence give you any clues?" -- this is the context clue strategy. Do not immediately define the word for the child.
 - For written response questions (answer in complete sentences): have the child verbally answer first. "Tell me what you think the answer is." Once they can say it, writing it is easier. Many children know the answer but cannot convert oral language to written language quickly.
 
 **Writing Assignments:**
+
 - For children who stare at a blank page: use the talk-before-write technique. The parent asks "What are you going to say?" and the child talks through their ideas. The parent can write key words (not sentences) on scratch paper. Then the child writes from the word map.
 - For children who write one sentence and stop: ask "What is one more thing you want to say about that?" This is the elaboration prompt and avoids editing the first draft prematurely.
 - The parent should not edit grammar or spelling during the drafting phase -- it interrupts the child's thinking process. Editing is a separate step after the ideas are on the page.
 
 **Spelling and Vocabulary:**
+
 - The look-cover-write-check method is one of the most researched self-study techniques for spelling: look at the word carefully, cover it, write it from memory, then check. Repeat for missed words. This is more effective than copying a word five times.
 - For vocabulary homework: have the child create their own example sentence using the word in a context from their own life. This creates semantic encoding that produces better retention than copying the textbook definition.
 
@@ -264,6 +271,7 @@ Parents often either never contact the teacher (suffering in silence) or contact
 ## Edge Cases
 
 ### Child Who Completely Refuses to Start
+
 A flat refusal to begin homework is almost always an avoidance behavior driven by one of three things: anxiety about failure, accumulated frustration from previous sessions, or an executive function challenge with task initiation. Do not respond to refusal by escalating demands or threats.
 
 Apply the two-minute start rule: "You only have to try for two minutes. If you are completely stuck after two minutes, we will write a note to the teacher and put it away." This strategy lowers the perceived stakes and is almost always accepted. Once a child starts -- even reluctantly -- the initiation barrier is crossed and most children continue.
@@ -271,6 +279,7 @@ Apply the two-minute start rule: "You only have to try for two minutes. If you a
 If flat refusal persists for more than two consecutive weeks despite consistent environment, routine, and low-pressure starts, this pattern warrants a teacher conference. Persistent refusal often signals either a comprehension gap so significant that the child has concluded the work is impossible, or a school-related anxiety issue that requires support beyond homework structure.
 
 ### Child Who Rushes and Produces Careless Work
+
 This pattern is different from avoidance -- the child wants homework to be over and is trading accuracy for speed. The behavioral function is escape from the task, not inability.
 
 Build a mandatory quality-check step into the session structure before the wrap-up phase. Have the child read each answer aloud. The parent does not identify errors -- the parent asks: "Does that answer make sense to you? How do you know?" Auditory re-processing catches a significant percentage of errors that visual review misses, because reading aloud forces a slower processing speed and activates a different modality.
@@ -278,6 +287,7 @@ Build a mandatory quality-check step into the session structure before the wrap-
 Do not correct every error. Circling three errors for self-correction is more effective than correcting twelve -- the child learns the habit of checking, and the cognitive work stays with the child.
 
 ### Parent Does Not Understand the Material
+
 This is especially common with mathematics curriculum from grades 3 onward, where methods like partial products, decomposition, tape diagrams, and area models may be unfamiliar to parents educated under different frameworks.
 
 This is not a problem -- it is actually an asset when managed correctly. The correct parent response is: "I don't know this method. Can you teach it to me?" Having the child explain the method activates retrieval practice -- one of the most robust learning mechanisms in cognitive science. The child who can teach a concept to someone else has achieved a deeper encoding than the child who can merely execute it on paper.
@@ -285,6 +295,7 @@ This is not a problem -- it is actually an asset when managed correctly. The cor
 If the parent does not recognize anything in the assignment, the child should look for worked examples in the textbook or the class notes. If neither exists and the child is equally lost, this is a documentation moment for the teacher communication log.
 
 ### Multiple Children at Different Grade Levels With Overlapping Homework Needs
+
 This is one of the most logistically complex scenarios in homework management.
 
 The recommended approach: stagger start times by 15-20 minutes. The child with the heaviest homework load or the greatest need for support starts first. The second child begins during the first child's independent work phase. If this is not possible (e.g., the children must start at the same time due to schedule constraints), set each child up with their assignment audit and the first independent work period simultaneously, then rotate check-ins. Older children should have longer independent work windows, giving the parent concentrated time with the younger child during the older child's independent phase.
@@ -292,16 +303,19 @@ The recommended approach: stagger start times by 15-20 minutes. The child with t
 Avoid providing simultaneous active help to two children -- divided attention means neither child receives quality scaffolding, and the parent's cognitive load produces more errors in the guidance provided.
 
 ### Homework Consistently Exceeds Expected Time Across All Subjects
+
 If a child consistently requires 2-3x the expected homework time and this is not limited to one subject, the causes to investigate are: (1) the overall homework load assigned is excessive relative to grade-level guidelines -- this is a school policy issue, (2) the child has a processing speed difference that affects all written work -- this warrants evaluation, or (3) the home environment is introducing enough distraction or interruption to fragment the work sessions significantly.
 
 Distinguish between these by running a clean-environment test: one week with optimal conditions (consistent time, no screens, no siblings, parent nearby but not interacting) and careful time logging. If the time remains far above expected levels in optimal conditions, the issue is internal to the child (processing, comprehension, or stamina) and requires teacher or specialist consultation. If the time drops toward normal, the environment was the variable.
 
 ### Child With Perfectionism Who Cannot Finish Because Nothing Is "Good Enough"
+
 Perfectionism in homework is distinct from conscientiousness. A perfectionistic child erases and rewrites letters until they look right, re-reads sentences compulsively, or refuses to submit work with any perceived errors even after spending far more time than required.
 
 The intervention is structure, not encouragement to lower standards. Introduce a time box: "You have 8 minutes for this section. When the timer goes off, we move on." Frame completion as the goal, not perfection: "Your teacher needs to see your thinking, not a perfect paper." Allow the child to make one small mark indicating they know something could be improved -- giving the child agency to flag imperfection without being immobilized by it. If perfectionism is present across multiple areas of the child's life (not just homework) and is causing significant distress, mention to the parent that this pattern warrants a conversation with the school counselor.
 
 ### Child Who Can Do Homework With Parent Present but Fails Quizzes and Tests
+
 This is a critical signal that the parent is over-scaffolding. If the child only produces correct work when the parent is in the room asking guiding questions, the parent's presence has become a support structure the child cannot replicate independently during assessments.
 
 The intervention is a gradual release of support. Week 1: parent in the same room, minimal interaction. Week 2: parent in adjacent room, child comes to parent with questions (not the reverse). Week 3: child completes the full assignment before any parent check-in. The goal of guided homework support is to make itself unnecessary -- the child should be developing strategies, not developing dependence on the parent's strategy prompts.
@@ -317,44 +331,48 @@ The intervention is a gradual release of support. Week 1: parent in the same roo
 ## Homework Help Plan: 4th Grade -- September
 
 ### Environment Setup
-| Variable | Recommendation | Notes |
-|----------|---------------|-------|
-| Homework start time | 4:15 PM | 30-45 minute break after school -- snack plus free choice activity |
-| Workspace | Kitchen table, cleared | TV off, tablets in another room, phone face-down |
-| Target duration | 40 minutes | Grade 4 guideline: 40 min/night. Hard stop at 60 minutes |
-| Parent proximity | Same room, doing a parallel quiet task | Do NOT sit at the table with him during work phase |
-| Materials ready | 2 pencils, eraser, scratch paper, math binder with class notes | Store in a dedicated homework bin so there is no setup time |
+
+| Variable            | Recommendation                                                 | Notes                                                              |
+| ------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Homework start time | 4:15 PM                                                        | 30-45 minute break after school -- snack plus free choice activity |
+| Workspace           | Kitchen table, cleared                                         | TV off, tablets in another room, phone face-down                   |
+| Target duration     | 40 minutes                                                     | Grade 4 guideline: 40 min/night. Hard stop at 60 minutes           |
+| Parent proximity    | Same room, doing a parallel quiet task                         | Do NOT sit at the table with him during work phase                 |
+| Materials ready     | 2 pencils, eraser, scratch paper, math binder with class notes | Store in a dedicated homework bin so there is no setup time        |
 
 ---
 
 ### Daily Session Structure
-| Phase | Duration | What He Does | Your Role |
-|-------|----------|--------------|-----------|
-| Transition | 35 min | Snack, outdoor play or free choice | Minimal -- let him fully decompress |
-| Assignment audit | 3 min | Lists all assignments, estimates time for each, puts math first | Sit with him for this step only -- help sequence |
-| Math -- independent phase | 10 min | Works through problems without asking for help | Sit nearby doing your own task. Do not watch or comment. |
-| Math check-in | 5-8 min | Shows you where he is stuck, asks specific questions | Use guiding questions below. Do not solve for him. |
-| Other subjects | 15-20 min | Reading, spelling, social studies, etc. | Available if he asks -- do not initiate |
-| Wrap-up | 3 min | Packs everything into folder | Ask: "What is one thing you figured out today?" |
-| **Total target** | **~40 min** | | |
+
+| Phase                     | Duration    | What He Does                                                    | Your Role                                                |
+| ------------------------- | ----------- | --------------------------------------------------------------- | -------------------------------------------------------- |
+| Transition                | 35 min      | Snack, outdoor play or free choice                              | Minimal -- let him fully decompress                      |
+| Assignment audit          | 3 min       | Lists all assignments, estimates time for each, puts math first | Sit with him for this step only -- help sequence         |
+| Math -- independent phase | 10 min      | Works through problems without asking for help                  | Sit nearby doing your own task. Do not watch or comment. |
+| Math check-in             | 5-8 min     | Shows you where he is stuck, asks specific questions            | Use guiding questions below. Do not solve for him.       |
+| Other subjects            | 15-20 min   | Reading, spelling, social studies, etc.                         | Available if he asks -- do not initiate                  |
+| Wrap-up                   | 3 min       | Packs everything into folder                                    | Ask: "What is one thing you figured out today?"          |
+| **Total target**          | **~40 min** |                                                                 |                                                          |
 
 **Important note on the 90-minute sessions:** The current 90-minute duration is a significant red flag that something structural is off -- either the assignment load is too heavy for grade level, the home environment is introducing fragmentation, or there is a comprehension gap in math that homework time alone cannot fix. Run this optimized structure for one week with careful logging. If sessions still consistently run past 60 minutes under clean conditions, contact the teacher with your documentation.
 
 ---
 
 ### Guiding Questions for Math (Specifically)
-| When He Says | Do NOT Say | Say This Instead |
-|-------------|------------|------------------|
-| "I don't understand this problem" | "Okay, let's do it together" | "Read the problem out loud to me. What is it asking you to find?" |
-| "I don't know this method" | Explaining a different method | "What did your teacher show the class today? Can you show me in your notes?" |
-| "Just tell me how to do it" | Walking through the steps | "I know this is hard. What is the very first piece of information the problem gives you?" |
-| "The answer is wrong but I don't know why" | Pointing to the error | "Let's estimate. About what should this answer be? Does your answer fit?" |
-| "I've been on this one problem forever" | Continuing to work on it | "Put a star next to it and move on. We'll note it for your teacher." |
-| Crying or shutting down | "You need to calm down and focus" | "Let's take 3 minutes. Get some water and walk around. We'll come back to this." |
+
+| When He Says                               | Do NOT Say                        | Say This Instead                                                                          |
+| ------------------------------------------ | --------------------------------- | ----------------------------------------------------------------------------------------- |
+| "I don't understand this problem"          | "Okay, let's do it together"      | "Read the problem out loud to me. What is it asking you to find?"                         |
+| "I don't know this method"                 | Explaining a different method     | "What did your teacher show the class today? Can you show me in your notes?"              |
+| "Just tell me how to do it"                | Walking through the steps         | "I know this is hard. What is the very first piece of information the problem gives you?" |
+| "The answer is wrong but I don't know why" | Pointing to the error             | "Let's estimate. About what should this answer be? Does your answer fit?"                 |
+| "I've been on this one problem forever"    | Continuing to work on it          | "Put a star next to it and move on. We'll note it for your teacher."                      |
+| Crying or shutting down                    | "You need to calm down and focus" | "Let's take 3 minutes. Get some water and walk around. We'll come back to this."          |
 
 ---
 
 ### Addressing the Unfamiliar Math Method
+
 You said you do not recognize the math method his class is using. This is common -- 4th grade math often uses area models, partial products, and decomposition strategies that look very different from standard algorithms.
 
 **Do not teach him a different method.** Even if a familiar method produces the correct answer, using it will confuse him when the teacher assesses his understanding of the method they taught.
@@ -384,16 +402,17 @@ This is a gradual release of responsibility model -- the same structure good tea
 Track this for seven school nights, then bring the data to a teacher conference:
 
 | Date | Assignment | Time Started | Time Finished | Total Time | Could he do it independently? | Emotional level (1-3) | Notes |
-|------|-----------|-------------|--------------|------------|------------------------------|----------------------|-------|
-| Mon | | | | | Y / Partially / No | | |
-| Tue | | | | | Y / Partially / No | | |
-| Wed | | | | | Y / Partially / No | | |
-| Thu | | | | | Y / Partially / No | | |
-| Fri | | | | | Y / Partially / No | | |
+| ---- | ---------- | ------------ | ------------- | ---------- | ----------------------------- | --------------------- | ----- |
+| Mon  |            |              |               |            | Y / Partially / No            |                       |       |
+| Tue  |            |              |               |            | Y / Partially / No            |                       |       |
+| Wed  |            |              |               |            | Y / Partially / No            |                       |       |
+| Thu  |            |              |               |            | Y / Partially / No            |                       |       |
+| Fri  |            |              |               |            | Y / Partially / No            |                       |       |
 
 ---
 
 ### Escalation Checklist -- Contact the Teacher When:
+
 - [x] Sessions consistently exceed 60 minutes (current: 90 minutes -- this threshold is already met; contact now)
 - [ ] He cannot explain or demonstrate the math method at all after looking at his notes
 - [ ] He can do the work with guided questions but fails independent assessments -- confirms a scaffolding dependency problem

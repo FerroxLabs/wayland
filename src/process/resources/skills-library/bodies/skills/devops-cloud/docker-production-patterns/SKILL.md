@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud security"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud security'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Docker Production Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure Dockerfiles, Compose files, or container configurations for production workloads
 - User wants to harden a container setup that currently runs in development and needs to be production-ready
 - User needs guidance on multi-stage builds, image size reduction, non-root execution, or layer caching strategy
@@ -29,6 +31,7 @@ metadata:
 - User wants to implement a container scanning, signing, or supply chain security workflow
 
 **Do NOT use this skill when:**
+
 - User needs Kubernetes-specific orchestration patterns (pod specs, Deployments, StatefulSets, HPA) -- use a Kubernetes skill instead
 - User is asking about CI/CD pipeline configuration in isolation (GitHub Actions, GitLab CI) -- use a CI/CD pipeline skill
 - User needs infrastructure-as-code for provisioning the container host (Terraform, Pulumi, CloudFormation) -- use an IaC skill
@@ -64,6 +67,7 @@ Multi-stage builds are the foundational pattern for production images. They sepa
 - Name every stage clearly: `FROM node:20-alpine AS deps`, `FROM node:20-alpine AS builder`, `FROM node:20-alpine AS runner`.
 
 **Canonical multi-stage pattern (Node.js):**
+
 ```dockerfile
 FROM node:20.11.1-alpine3.19 AS deps
 WORKDIR /app
@@ -112,6 +116,7 @@ Production containers without resource limits are a reliability risk. A single r
 - **PID limits:** Set `pids_limit: 100` (or an appropriate value) to prevent fork bombs and runaway process spawning within the container.
 
 **Example health check in Dockerfile:**
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -qO- http://localhost:3000/healthz || exit 1
@@ -165,6 +170,7 @@ Structure Compose files to support multiple environments without duplication.
 When producing Docker production pattern artifacts, deliver the following structure:
 
 ### Dockerfile (Multi-Stage Production Template)
+
 ```dockerfile
 # syntax=docker/dockerfile:1.7
 # ---------------------------------------------------------------
@@ -216,8 +222,9 @@ CMD ["node", "dist/server.js"]
 ```
 
 ### docker-compose.yml (Production Base)
+
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   app:
@@ -227,10 +234,10 @@ services:
       - frontend
       - backend
     ports:
-      - "127.0.0.1:3000:3000"   # Bind to loopback; proxy handles external traffic
+      - '127.0.0.1:3000:3000' # Bind to loopback; proxy handles external traffic
     environment:
       NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL}   # Injected at runtime, not stored in compose file
+      DATABASE_URL: ${DATABASE_URL} # Injected at runtime, not stored in compose file
       LOG_LEVEL: ${LOG_LEVEL:-info}
     secrets:
       - api_key
@@ -238,15 +245,15 @@ services:
       - type: tmpfs
         target: /tmp
         tmpfs:
-          size: 104857600   # 100 MB
+          size: 104857600 # 100 MB
     deploy:
       replicas: 2
       resources:
         limits:
-          cpus: "0.75"
+          cpus: '0.75'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
       update_config:
         parallelism: 1
@@ -265,10 +272,10 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/healthz']
       interval: 30s
       timeout: 5s
       start_period: 15s
@@ -280,8 +287,8 @@ services:
     networks:
       - frontend
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -298,7 +305,7 @@ networks:
     driver: bridge
   backend:
     driver: bridge
-    internal: true   # No external connectivity; only for service-to-service
+    internal: true # No external connectivity; only for service-to-service
 
 volumes:
   caddy_data:
@@ -306,30 +313,30 @@ volumes:
 
 secrets:
   api_key:
-    external: true   # Managed outside compose, injected by secrets manager
+    external: true # Managed outside compose, injected by secrets manager
 ```
 
 ### Decision Matrix
 
-| Factor | Alpine Base | Slim (Debian) | Distroless | UBI Minimal |
-|---|---|---|---|---|
-| Image size | 5-15 MB overhead | 70-100 MB overhead | Minimal | ~70 MB overhead |
-| Shell available | Yes (ash) | Yes (bash/sh) | No | Yes (bash) |
-| Package manager | apk | apt | None | dnf/microdnf |
-| Attack surface | Low | Medium | Very low | Medium |
-| Debug ease | Medium | High | Very hard | High |
-| RHEL compliance | No | No | No | Yes |
-| Recommended for | Most services | Services needing glibc | Security-critical services | Enterprise RHEL environments |
+| Factor          | Alpine Base      | Slim (Debian)          | Distroless                 | UBI Minimal                  |
+| --------------- | ---------------- | ---------------------- | -------------------------- | ---------------------------- |
+| Image size      | 5-15 MB overhead | 70-100 MB overhead     | Minimal                    | ~70 MB overhead              |
+| Shell available | Yes (ash)        | Yes (bash/sh)          | No                         | Yes (bash)                   |
+| Package manager | apk              | apt                    | None                       | dnf/microdnf                 |
+| Attack surface  | Low              | Medium                 | Very low                   | Medium                       |
+| Debug ease      | Medium           | High                   | Very hard                  | High                         |
+| RHEL compliance | No               | No                     | No                         | Yes                          |
+| Recommended for | Most services    | Services needing glibc | Security-critical services | Enterprise RHEL environments |
 
-| Security Control | Implementation | Priority |
-|---|---|---|
-| Non-root user | `adduser --system` + `USER` directive | Critical |
-| Read-only filesystem | `read_only: true` + tmpfs mounts | High |
-| Capability drop | `cap_drop: [ALL]` | Critical |
-| No new privileges | `security_opt: no-new-privileges:true` | Critical |
-| Image pinning | Digest or patch version tag | High |
-| Vulnerability scanning | Trivy in CI, weekly scheduled scans | High |
-| Secret management | Docker Secrets or external vault | Critical |
+| Security Control       | Implementation                         | Priority |
+| ---------------------- | -------------------------------------- | -------- |
+| Non-root user          | `adduser --system` + `USER` directive  | Critical |
+| Read-only filesystem   | `read_only: true` + tmpfs mounts       | High     |
+| Capability drop        | `cap_drop: [ALL]`                      | Critical |
+| No new privileges      | `security_opt: no-new-privileges:true` | Critical |
+| Image pinning          | Digest or patch version tag            | High     |
+| Vulnerability scanning | Trivy in CI, weekly scheduled scans    | High     |
+| Secret management      | Docker Secrets or external vault       | Critical |
 
 ---
 
@@ -480,7 +487,7 @@ CMD ["uvicorn", "src.main:app", \
 ### docker-compose.yml (Base -- version controlled)
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   api:
@@ -490,7 +497,7 @@ services:
       - frontend
       - backend
     ports:
-      - "127.0.0.1:8000:8000"
+      - '127.0.0.1:8000:8000'
     environment:
       DATABASE_URL: postgresql+asyncpg://appuser:${DB_PASSWORD}@postgres:5432/myapp
       REDIS_URL: redis://redis:6379/0
@@ -503,7 +510,7 @@ services:
       - type: tmpfs
         target: /tmp
         tmpfs:
-          size: 52428800    # 50 MB
+          size: 52428800 # 50 MB
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -512,10 +519,10 @@ services:
       replicas: 2
       resources:
         limits:
-          cpus: "1.0"
+          cpus: '1.0'
           memory: 512M
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
       update_config:
         parallelism: 1
@@ -530,8 +537,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     depends_on:
       postgres:
         condition: service_healthy
@@ -551,7 +558,7 @@ services:
       - db_password
     volumes:
       - pgdata:/var/lib/postgresql/data
-    shm_size: "256m"   # Required for Postgres shared memory buffers
+    shm_size: '256m' # Required for Postgres shared memory buffers
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -559,13 +566,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.0"
+          cpus: '2.0'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U appuser -d myapp"]
+      test: ['CMD-SHELL', 'pg_isready -U appuser -d myapp']
       interval: 10s
       timeout: 5s
       start_period: 30s
@@ -573,8 +580,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   redis:
     image: redis:7.2.4-alpine3.19
@@ -594,13 +601,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
         reservations:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 128M
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       start_period: 5s
@@ -608,8 +615,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "5m"
-        max-file: "2"
+        max-size: '5m'
+        max-file: '2'
 
   proxy:
     image: caddy:2.8.4-alpine
@@ -617,9 +624,9 @@ services:
     networks:
       - frontend
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"   # HTTP/3 QUIC
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3 QUIC
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -633,20 +640,20 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 128M
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
 networks:
   frontend:
     driver: bridge
   backend:
     driver: bridge
-    internal: true   # Postgres and Redis unreachable from outside
+    internal: true # Postgres and Redis unreachable from outside
 
 volumes:
   pgdata:
@@ -655,7 +662,7 @@ volumes:
 
 secrets:
   external_api_key:
-    external: true   # Created via: docker secret create external_api_key ./api_key.txt
+    external: true # Created via: docker secret create external_api_key ./api_key.txt
   db_password:
     external: true
 ```
@@ -781,11 +788,11 @@ EXTERNAL_API_KEY = _read_secret("external_api_key")
 
 For 500 RPS with FastAPI + Uvicorn (4 async workers per container, 2 containers = 8 workers total):
 
-| Configuration | Estimated RPS capacity | Notes |
-|---|---|---|
-| 1 container, 4 workers | 200-400 RPS | No redundancy |
-| 2 containers, 4 workers each | 400-800 RPS | Meets 500 RPS with headroom |
-| 2 containers, 4 workers + Redis cache | 800-1500 RPS | Cache hit reduces DB load |
+| Configuration                         | Estimated RPS capacity | Notes                       |
+| ------------------------------------- | ---------------------- | --------------------------- |
+| 1 container, 4 workers                | 200-400 RPS            | No redundancy               |
+| 2 containers, 4 workers each          | 400-800 RPS            | Meets 500 RPS with headroom |
+| 2 containers, 4 workers + Redis cache | 800-1500 RPS           | Cache hit reduces DB load   |
 
 With Redis caching frequently-accessed data and async database connections via `asyncpg`, 500 RPS is well within capacity for this stack. Monitor actual latency under load -- if p99 exceeds 100ms, add a third container replica before increasing worker count (more workers per process increases memory consumption without improving I/O-bound throughput).
 

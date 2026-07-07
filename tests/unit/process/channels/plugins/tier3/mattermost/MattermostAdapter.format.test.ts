@@ -74,11 +74,7 @@ describe('toMattermostPostPayload', () => {
   });
 
   it('includes root_id when provided', () => {
-    const result = toMattermostPostPayload(
-      'channel-123',
-      { type: 'text', text: 'reply' },
-      'root-post-id',
-    );
+    const result = toMattermostPostPayload('channel-123', { type: 'text', text: 'reply' }, 'root-post-id');
     expect(result.root_id).toBe('root-post-id');
   });
 

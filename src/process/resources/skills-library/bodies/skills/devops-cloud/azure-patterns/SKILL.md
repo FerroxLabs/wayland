@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cloud architecture frameworks"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cloud architecture frameworks'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Azure Architecture Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to architect a new Azure workload and needs a pattern recommendation (Hub-Spoke networking, CQRS, Saga, Strangler Fig, etc.)
 - User is evaluating architectural trade-offs on Azure -- for example, deciding between Azure Service Bus vs Event Hubs, AKS vs Container Apps vs App Service, or Cosmos DB vs Azure SQL
 - User needs a production-ready template or reference architecture for a specific Azure scenario (event-driven microservices, multi-region active-active, API gateway pattern, etc.)
@@ -30,6 +32,7 @@ metadata:
 - User asks about cost-optimization patterns on Azure (Reserved Instances vs Savings Plans, Azure Spot for batch, right-sizing via Azure Advisor, autoscale triggers)
 
 **Do NOT use this skill when:**
+
 - User needs Terraform, Bicep, or ARM template authoring guidance -- use the infrastructure-as-code skill in this subcategory
 - User is asking about CI/CD pipeline design for Azure DevOps or GitHub Actions -- use the ci-cd-pipelines skill
 - User needs Kubernetes-specific workload configuration (Deployments, Helm, Kustomize) even if running on AKS -- use the kubernetes skill
@@ -87,23 +90,27 @@ Apply this decision framework in order:
 Match the workload type to a named pattern:
 
 #### Event-Driven / Async Patterns
+
 - **Competing Consumers:** Multiple workers reading from a single Azure Service Bus queue. Set `MaxDeliveryCount` to 5 and configure a Dead Letter Queue (DLQ). Use message sessions when ordering matters within a group.
 - **Event Sourcing + CQRS:** Write side publishes domain events to Event Hubs (partition key = aggregate ID for ordering). Read side is a separate Azure Function (event processor) that materializes projections into Cosmos DB. Use Event Hubs Capture to ADLS Gen2 as the durable event store.
 - **Choreography Saga:** Each microservice publishes a domain event on success or a compensating event on failure to Service Bus Topics with subscriptions per service. Prefer over Orchestration Saga when <5 participants to avoid a central orchestrator bottleneck.
 - **Orchestration Saga:** Use Azure Durable Functions with the `orchestrator` pattern for complex transactions across >5 services. State is durable in Azure Storage. Handle compensation with explicit rollback activities.
 
 #### Resilience Patterns
+
 - **Retry with Exponential Backoff:** Azure SDKs implement this natively. For custom HTTP clients, use Polly with `WaitAndRetryAsync`, max 3 retries, base delay 200ms, jitter via `DecorrelatedJitterBackoffV2`. Never retry on HTTP 400, 401, 403, 404 -- only on 429, 500, 502, 503, 504.
 - **Circuit Breaker:** Polly `CircuitBreakerAsync` -- open after 5 consecutive failures, half-open after 30 seconds. Pair with Azure API Management (APIM) circuit breaker policy for gateway-level protection. Log circuit state transitions to Application Insights.
 - **Bulkhead:** Separate thread pools or connection pools per downstream dependency. In AKS, implement as separate Deployments with distinct resource limits. Use `ResourceQuota` per namespace to prevent noisy-neighbor consumption.
 - **Health Endpoint Monitoring:** Every service exposes `/health/live` (liveness) and `/health/ready` (readiness). Azure Container Apps and AKS both configure these as probe targets. Back-end dependency checks (DB ping, cache ping, Service Bus connectivity) belong only in the readiness probe -- never in liveness.
 
 #### Scaling Patterns
+
 - **Horizontal Pod Autoscaler + KEDA:** For AKS, combine HPA (CPU/memory) with KEDA ScaledObjects (queue depth, event rate). KEDA `TriggerAuthentication` should reference Azure Workload Identity -- not connection strings.
 - **Throttling + Rate Limiting:** Implement at APIM layer using `rate-limit-by-key` policy (e.g., 100 calls/minute per subscription key). Use Azure Front Door WAF rules for DDoS rate limiting upstream of APIM.
 - **Queue-Based Load Leveling:** Decouple HTTP ingress from processing via Service Bus queues. Size the queue to absorb at least 10 minutes of peak traffic (calculate: peak_RPS × 600 = minimum message capacity buffer).
 
 #### Integration Patterns
+
 - **Gateway Aggregation:** APIM as the single entry point -- aggregate multiple downstream microservice calls into a single API response using APIM's `send-request` policy and parallel fanout. Reduces client round trips from N to 1.
 - **Strangler Fig:** Route traffic via Azure Front Door or APIM using URL-based routing rules. Legacy system handles `/api/v1/*`, new system handles `/api/v2/*`. Gradually migrate paths. Use APIM transformation policies to normalize response schemas during transition.
 - **Anti-Corruption Layer:** When integrating legacy on-premises systems, deploy an Azure Integration Services layer (Logic Apps Standard + APIM) that translates between legacy data contracts and modern schemas. Never let legacy schema leak into the new domain model.
@@ -203,13 +210,13 @@ Key Integrations:     [list of external systems]
 
 ### Service Selection Decision Matrix
 
-| Dimension | Option 1 | Option 2 | Option 3 | Recommendation | Rationale |
-|-----------|----------|----------|----------|----------------|-----------|
-| Compute | App Service P3v3 | Container Apps | AKS Standard D4s_v5 | [choice] | [reason] |
-| Messaging | Service Bus Standard | Service Bus Premium | Event Hubs Standard | [choice] | [reason] |
-| Primary DB | Azure SQL General Purpose | Azure SQL Hyperscale | Cosmos DB NoSQL | [choice] | [reason] |
-| Cache | Redis Basic C1 | Redis Standard C2 | Redis Enterprise E10 | [choice] | [reason] |
-| API Gateway | APIM Consumption | APIM Standard v2 | APIM Premium | [choice] | [reason] |
+| Dimension   | Option 1                  | Option 2             | Option 3             | Recommendation | Rationale |
+| ----------- | ------------------------- | -------------------- | -------------------- | -------------- | --------- |
+| Compute     | App Service P3v3          | Container Apps       | AKS Standard D4s_v5  | [choice]       | [reason]  |
+| Messaging   | Service Bus Standard      | Service Bus Premium  | Event Hubs Standard  | [choice]       | [reason]  |
+| Primary DB  | Azure SQL General Purpose | Azure SQL Hyperscale | Cosmos DB NoSQL      | [choice]       | [reason]  |
+| Cache       | Redis Basic C1            | Redis Standard C2    | Redis Enterprise E10 | [choice]       | [reason]  |
+| API Gateway | APIM Consumption          | APIM Standard v2     | APIM Premium         | [choice]       | [reason]  |
 
 ### Pattern Recommendation Card
 
@@ -349,11 +356,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
 
 ### Cost Estimate Range
 
-| Load Level | Estimated Monthly Cost | Top Cost Driver | Optimization Lever |
-|------------|------------------------|-----------------|-------------------|
-| 50% expected | $[low] | [service] | [action] |
-| 100% expected | $[mid] | [service] | [action] |
-| 200% expected | $[high] | [service] | [action] |
+| Load Level    | Estimated Monthly Cost | Top Cost Driver | Optimization Lever |
+| ------------- | ---------------------- | --------------- | ------------------ |
+| 50% expected  | $[low]                 | [service]       | [action]           |
+| 100% expected | $[mid]                 | [service]       | [action]           |
+| 200% expected | $[high]                | [service]       | [action]           |
 
 ---
 
@@ -386,6 +393,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
 ### Multi-Region Active-Active with Stateful Workloads
 
 Active-Active requires more than deploying the same resources in two regions. Address:
+
 - **Data synchronization latency:** Cosmos DB multi-master sync is asynchronous (~10-100ms cross-region). Any read-after-write pattern that crosses regions will observe stale data under Eventual consistency. Identify all such patterns and either accept eventual consistency explicitly or use Strong/Bounded Staleness (which routes all writes through a single master region, negating the write-locality benefit of Active-Active).
 - **Traffic routing:** Azure Front Door with `LatencyBasedRouting` sends users to the nearest healthy origin. Health probes must check application-level health (including DB connectivity), not just TCP port availability. A region with a healthy TCP port but a broken database connection will continue receiving traffic and generating errors.
 - **Session affinity conflicts:** Active-Active plus session affinity (cookie-based in Front Door) negates geographic load distribution. Eliminate server-side session state -- use distributed cache (Redis Enterprise with geo-replication) or JWT-based stateless auth.
@@ -393,6 +401,7 @@ Active-Active requires more than deploying the same resources in two regions. Ad
 ### Legacy On-Premises Integration via ExpressRoute
 
 Integrating a new Azure workload with on-premises systems via ExpressRoute introduces routing complexity:
+
 - **Address space conflicts:** On-premises RFC 1918 ranges often overlap with default Azure VNet ranges (10.0.0.0/8). Use non-overlapping address planning from day one -- allocating 172.16.0.0/12 to Azure and 10.0.0.0/8 to on-premises avoids BGP route conflicts.
 - **DNS resolution:** On-premises resolvers cannot resolve Azure Private DNS zones by default. Deploy Azure DNS Private Resolver with inbound endpoints in the hub VNet. Configure on-premises conditional forwarders to forward `privatelink.blob.core.windows.net` and similar zones to the resolver inbound IP.
 - **Bandwidth throttling:** ExpressRoute circuits are provisioned at fixed bandwidth (50Mbps to 100Gbps). Large data migrations or bulk transfers to Azure Storage can saturate the circuit and impact real-time workloads sharing the same circuit. Use ExpressRoute with two circuits in active-passive (FastPath) for production, or use Azure Data Box for initial bulk data transfer.
@@ -400,6 +409,7 @@ Integrating a new Azure workload with on-premises systems via ExpressRoute intro
 ### APIM at Scale (>1000 RPS Sustained)
 
 API Management throughput varies dramatically by tier:
+
 - **Consumption tier:** Scales automatically but has a 20,000 calls/minute hard limit per subscription and adds ~50-100ms latency due to cold start. Never use for predictable production load.
 - **Standard v2 tier:** Fixed 4 units, approximately 800-1600 RPS depending on policy complexity. Under heavy policy execution (JWT validation, `send-request` fanout, transformation), throughput drops significantly. Load test with representative policy chains before go-live.
 - **Premium tier with multiple scale units:** Each unit adds approximately 500 RPS of baseline capacity. Deploy across two availability zones (requires Premium tier) for 99.95% SLA. Cache responses via APIM built-in cache or external Redis for read-heavy endpoints to reduce backend load and increase effective throughput.
@@ -408,6 +418,7 @@ API Management throughput varies dramatically by tier:
 ### Azure Kubernetes Service Cluster Upgrade Pressure
 
 AKS Kubernetes version support windows are shorter than teams expect:
+
 - Each Kubernetes minor version is supported for approximately 12 months after GA on AKS. After that, the node pool cannot be patched and the cluster becomes non-compliant for CIS Benchmark controls.
 - **Node image auto-upgrade:** Enable `nodeOSUpgradeChannel: NodeImage` for automated OS patching without Kubernetes version upgrade. This applies OS-level CVE patches weekly without disrupting workloads.
 - **Cluster auto-upgrade:** Set `upgradeChannel: patch` (not `stable` or `rapid`) for production -- patch channel upgrades only within the current minor version (e.g., 1.28.x -> 1.28.y), minimizing breaking change risk.
@@ -417,6 +428,7 @@ AKS Kubernetes version support windows are shorter than teams expect:
 ### Cosmos DB Partition Key Design Failure
 
 Poor partition key selection is the most common Cosmos DB production failure mode:
+
 - **Hot partition symptom:** 429 (Too Many Requests) errors concentrated on a subset of logical partitions. Azure Monitor Cosmos DB metric `NormalizedRUConsumption` shows spikes on specific partitions while others are idle.
 - **Diagnosis:** Use Cosmos DB Data Explorer's "Partition Key Statistics" to identify partition size distribution. Any single logical partition approaching 20GB indicates a hot partition key.
 - **Common bad keys:** `status` (only 3-5 distinct values), `date` (all today's writes go to one partition), `tenantId` (if one tenant dominates traffic), `type` (enum with few values).
@@ -426,6 +438,7 @@ Poor partition key selection is the most common Cosmos DB production failure mod
 ### Regulated Workloads (PCI DSS v4 / HIPAA)
 
 Regulated workloads on Azure require architectural constraints beyond standard best practices:
+
 - **PCI DSS v4 Requirement 1 (Network Security):** Cardholder data environment (CDE) must be in a dedicated subscription with a dedicated VNet. No peering between CDE VNet and non-CDE VNets is allowed without firewall inspection of all traffic. Use Azure Firewall Premium with TLS inspection as the peering gateway.
 - **PCI DSS v4 Requirement 10 (Audit Logging):** All administrative actions, authentication events, and data access must be logged with tamper-evident storage. Route Azure Activity Logs, Azure AD Sign-in Logs, and resource diagnostic logs to an immutable Storage Account (WORM -- Write Once Read Many, with a legal hold or time-based retention lock). Log retention: minimum 12 months, 3 months immediately available.
 - **HIPAA Technical Safeguards:** Azure SQL with Always Encrypted for PHI columns (client-side encryption -- Azure cannot decrypt data at rest). Cosmos DB with CMK. All data movement through Azure Data Factory must use managed VNet integration runtime (no public IP).
@@ -462,14 +475,14 @@ Budget Constraint:    Startup -- optimize for cost; accept operational trade-off
 
 ### Service Selection Decision Matrix
 
-| Dimension | Option 1 | Option 2 | Option 3 | Recommendation | Rationale |
-|-----------|----------|----------|----------|----------------|-----------|
-| Compute | App Service P2v3 | Azure Container Apps | AKS Standard | **Container Apps** | Team knows containers; AKS operational overhead unjustified at this scale; App Service lacks KEDA scaling |
-| Order Queue | Service Bus Standard | Service Bus Premium | Event Hubs | **Service Bus Standard** | Standard tier supports queues + topics with DLQ; sessions for per-customer ordering; Premium unnecessary at 500 orders/min |
-| Primary DB | Cosmos DB NoSQL | Azure SQL General Purpose | Azure SQL Hyperscale | **Azure SQL General Purpose (GP_Gen5_4)** | Multi-tenant relational schema with FK constraints; order domain is highly relational; Cosmos DB adds complexity without benefit at this scale |
-| Cache | Redis Basic C1 | Redis Standard C2 | No cache | **Redis Standard C2** | Inventory reservation hot path needs sub-ms reads; Standard C2 gives 6GB memory + replication; Basic has no SLA |
-| API Gateway | APIM Consumption | APIM Standard v2 | None / App Gateway | **APIM Standard v2** | Per-tenant rate limiting, subscription keys, JWT validation; Consumption too low for sustained load; Standard v2 fits budget |
-| Blob Storage | LRS Standard | ZRS Standard | GRS Standard | **ZRS Standard** | EU-resident requirement, no cross-region replication needed; ZRS protects against zone failure; GRS would replicate outside EU |
+| Dimension    | Option 1             | Option 2                  | Option 3             | Recommendation                            | Rationale                                                                                                                                      |
+| ------------ | -------------------- | ------------------------- | -------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compute      | App Service P2v3     | Azure Container Apps      | AKS Standard         | **Container Apps**                        | Team knows containers; AKS operational overhead unjustified at this scale; App Service lacks KEDA scaling                                      |
+| Order Queue  | Service Bus Standard | Service Bus Premium       | Event Hubs           | **Service Bus Standard**                  | Standard tier supports queues + topics with DLQ; sessions for per-customer ordering; Premium unnecessary at 500 orders/min                     |
+| Primary DB   | Cosmos DB NoSQL      | Azure SQL General Purpose | Azure SQL Hyperscale | **Azure SQL General Purpose (GP_Gen5_4)** | Multi-tenant relational schema with FK constraints; order domain is highly relational; Cosmos DB adds complexity without benefit at this scale |
+| Cache        | Redis Basic C1       | Redis Standard C2         | No cache             | **Redis Standard C2**                     | Inventory reservation hot path needs sub-ms reads; Standard C2 gives 6GB memory + replication; Basic has no SLA                                |
+| API Gateway  | APIM Consumption     | APIM Standard v2          | None / App Gateway   | **APIM Standard v2**                      | Per-tenant rate limiting, subscription keys, JWT validation; Consumption too low for sustained load; Standard v2 fits budget                   |
+| Blob Storage | LRS Standard         | ZRS Standard              | GRS Standard         | **ZRS Standard**                          | EU-resident requirement, no cross-region replication needed; ZRS protects against zone failure; GRS would replicate outside EU                 |
 
 ---
 
@@ -562,18 +575,18 @@ The order processing flow works as follows:
 
 ### Cost Estimate (West Europe, USD/month approximate)
 
-| Component | SKU | 50% Load | 100% Load | 200% Load |
-|-----------|-----|----------|-----------|-----------|
-| Container Apps | Consumption-based (2-20 replicas) | $90 | $160 | $290 |
-| Azure SQL | GP_Gen5_4, 100GB | $370 | $370 | $520 (scale to GP_Gen5_8) |
-| Redis Cache | Standard C2 | $95 | $95 | $95 |
-| Service Bus | Standard tier | $10 | $18 | $35 |
-| APIM | Standard v2 | $145 | $145 | $290 (add units) |
-| Key Vault | Standard (operations) | $5 | $8 | $15 |
-| Storage (ZRS) | 100GB blobs + queues | $5 | $8 | $12 |
-| Log Analytics | ~10GB/day ingestion | $45 | $70 | $130 |
-| Application Insights | Adaptive sampling 20% | $15 | $25 | $45 |
-| **Total** | | **~$780** | **~$899** | **~$1,432** |
+| Component            | SKU                               | 50% Load  | 100% Load | 200% Load                 |
+| -------------------- | --------------------------------- | --------- | --------- | ------------------------- |
+| Container Apps       | Consumption-based (2-20 replicas) | $90       | $160      | $290                      |
+| Azure SQL            | GP_Gen5_4, 100GB                  | $370      | $370      | $520 (scale to GP_Gen5_8) |
+| Redis Cache          | Standard C2                       | $95       | $95       | $95                       |
+| Service Bus          | Standard tier                     | $10       | $18       | $35                       |
+| APIM                 | Standard v2                       | $145      | $145      | $290 (add units)          |
+| Key Vault            | Standard (operations)             | $5        | $8        | $15                       |
+| Storage (ZRS)        | 100GB blobs + queues              | $5        | $8        | $12                       |
+| Log Analytics        | ~10GB/day ingestion               | $45       | $70       | $130                      |
+| Application Insights | Adaptive sampling 20%             | $15       | $25       | $45                       |
+| **Total**            |                                   | **~$780** | **~$899** | **~$1,432**               |
 
 Top cost driver at all load levels: Azure SQL General Purpose. Optimization lever: evaluate Azure SQL Serverless (GP_S_Gen5_4) for steady-state workload -- Serverless auto-pauses after 1 hour idle (saving compute cost overnight) with autopause-resume latency of ~30 seconds, acceptable given async order processing architecture.
 

@@ -14,14 +14,15 @@ description: >-
   one atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "pitch-dd-prep"
+skills: 'pitch-dd-prep'
 metadata:
   author: wayland
   version: 1.0.0
   tags: pitch fundraising due-diligence data-room investor step-by-step planning
   category: marketing
-  depends: "pitch-dd-prep"
+  depends: 'pitch-dd-prep'
 ---
+
 # Prep for Due Diligence
 
 **Estimated time:** 30-45 minutes

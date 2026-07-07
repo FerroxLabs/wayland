@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing automation best-practices"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing automation best-practices'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Integration Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design or improve integration tests that verify interactions between two or more real components -- databases, message queues, HTTP APIs, caches, or third-party services
 - A user asks how to structure tests that span service boundaries, such as testing a REST endpoint that writes to PostgreSQL and publishes to a Kafka topic
 - A user needs to decide between real infrastructure vs. test doubles (fakes, stubs, mocks, contract tests) for a given integration boundary
@@ -29,6 +31,7 @@ metadata:
 - A user needs to verify data consistency, transactional behavior, or eventual consistency semantics across system components
 
 **Do NOT use this skill when:**
+
 - The user needs unit testing guidance -- unit tests mock all external dependencies and test a single class or function in isolation; redirect to a unit testing skill
 - The user needs end-to-end (E2E) or browser-based testing -- those involve full UI flows through a deployed environment; redirect to an E2E testing skill
 - The user needs a contract testing (consumer-driven contract) deep-dive -- Pact and similar tools have their own skill
@@ -62,15 +65,15 @@ Different integration boundaries warrant different levels of realism. Apply this
 
 **Decision matrix:**
 
-| Boundary Type | Recommended Strategy | Acceptable Fallback |
-|---|---|---|
-| Owned relational DB | Testcontainers (real DB) | In-memory same dialect only |
-| Owned NoSQL store | Testcontainers | Embedded emulator if available |
-| Owned message broker | Testcontainers / embedded broker | In-process fake with same API |
-| Internal service API | Consumer contract test | WireMock stub with recorded responses |
-| Third-party REST API | WireMock stub + contract | Recorded HTTP cassette (VCR) |
-| Cloud blob storage (S3) | LocalStack in container | SDK-provided fake |
-| File system | Real temp directory | None -- always use real FS |
+| Boundary Type           | Recommended Strategy             | Acceptable Fallback                   |
+| ----------------------- | -------------------------------- | ------------------------------------- |
+| Owned relational DB     | Testcontainers (real DB)         | In-memory same dialect only           |
+| Owned NoSQL store       | Testcontainers                   | Embedded emulator if available        |
+| Owned message broker    | Testcontainers / embedded broker | In-process fake with same API         |
+| Internal service API    | Consumer contract test           | WireMock stub with recorded responses |
+| Third-party REST API    | WireMock stub + contract         | Recorded HTTP cassette (VCR)          |
+| Cloud blob storage (S3) | LocalStack in container          | SDK-provided fake                     |
+| File system             | Real temp directory              | None -- always use real FS            |
 
 ### 3. Design Test Isolation and State Management
 
@@ -234,27 +237,35 @@ async event assertion, idempotency]
 ## Edge Cases
 
 ### H2 Compatibility Mode False Confidence
+
 When a team switches from H2 in-memory to a real PostgreSQL container, they frequently discover that 5--20% of existing tests fail. Common culprits: PostgreSQL's stricter constraint checking (e.g., `UNIQUE` partial indexes, `CHECK` constraints, `ON DELETE` cascade behavior), use of PostgreSQL-specific functions (`JSONB` operators, `array_agg`, `generate_series`), and case-sensitive identifier handling. When migrating: run both H2 and PostgreSQL suites in parallel for one sprint, catalog every divergence, and fix the PostgreSQL failures first. Then remove H2 entirely. Do not maintain both permanently.
 
 ### Container Startup Latency in CI
+
 On cold CI agents, Testcontainers can take 30--60 seconds to start a PostgreSQL container and 60--90 seconds for Kafka. This is unacceptable for a suite running on every commit. Mitigation strategies in priority order: (1) Enable container reuse with `TESTCONTAINERS_REUSE_ENABLE=true` and `.reusable(true)` -- reduces repeat startup to < 1s. (2) Use a CI-specific Docker layer cache to pre-pull images. (3) Use a shared test environment for slow integration tests rather than spinning containers per-run. (4) Use Spring Boot's `@SpringBootTest` application context caching or equivalent framework-level caching to avoid re-initializing the application per test class. Never work around this by increasing test timeouts.
 
 ### Multi-Tenant Data Isolation
+
 When the system under test is multi-tenant and uses row-level security (RLS), tenant discriminator columns, or schema-per-tenant isolation, integration tests must explicitly verify tenant boundary enforcement. Create two test tenants in the seed. Assert that queries for tenant A do not return tenant B's data. Assert that writes for tenant A do not modify tenant B's rows. Failing to test this allows tenant data leakage bugs to pass all tests and reach production. This is a compliance and security risk, not just a correctness risk.
 
 ### Transactional Outbox Pattern Testing
+
 When testing the Transactional Outbox pattern (write to DB and outbox table atomically, relay publishes to broker), standard transaction-rollback isolation breaks the test because the relay process runs outside the test transaction. Instead: (1) Use schema-per-test isolation with real commits. (2) Start a lightweight relay component within the test process that polls the outbox table. (3) Assert that messages appear in the in-process test consumer within the Awaitility timeout. Never test the outbox by asserting the database write alone -- that misses the integration between the relay and the broker.
 
 ### Third-Party API Rate Limiting in Integration Tests
+
 If integration tests make real HTTP calls to third-party APIs (payment processors, geocoding services, OAuth providers), they will hit rate limits in CI, incur costs, and fail non-deterministically when the API is unavailable. Solution: always stub third-party APIs with WireMock or a recorded HTTP cassette (Betamax, VCR.py). Record the real interactions once in a controlled environment, commit the cassette to source control, and replay during tests. Re-record quarterly or when the API contract changes. Never run tests that make real external API calls in standard CI. Reserve those for a dedicated nightly smoke test suite that validates the recorded cassettes are still accurate.
 
 ### Database Migration Compatibility Testing
+
 Integration tests must run against the same schema version as production. When using Flyway or Liquibase, run migrations programmatically as part of the test suite setup before any test accesses the database. Do not use a pre-migrated container image -- it will drift from the current migration scripts. Also add a dedicated test class that verifies the migration sequence is idempotent: apply all migrations, roll back to a prior version (if the DB supports it), and re-apply. This catches migration scripts that are not re-runnable and deployment rollback failures before they reach production.
 
 ### Eventual Consistency with Multiple Consumers
+
 In event-driven architectures, a single event may trigger multiple downstream consumers (notification service, analytics, audit log). Integration tests that only assert one consumer's outcome silently miss failures in others. When testing such flows: register a test consumer for every relevant output topic before triggering the action. Assert that each expected topic received its message within the Awaitility window. If the assertion window is too tight, consumers may miss messages published before they subscribe -- always subscribe before acting, never after.
 
 ### Containerized Tests in Kubernetes CI Environments
+
 Docker-in-Docker (DinD) and Testcontainers in Kubernetes CI (Tekton, Argo Workflows) require specific configuration. The `DOCKER_HOST` environment variable must point to the DinD sidecar or a remote Docker socket. The Ryuk container (used by Testcontainers for resource cleanup) requires privileged mode or must be disabled (`TESTCONTAINERS_RYUK_DISABLED=true`) with manual cleanup. Shared network namespaces mean `localhost` in the test process may not resolve to the container -- use `container.getHost()` explicitly. Test this infrastructure configuration with a minimal "smoke" test that starts a single postgres container before onboarding the full suite.
 
 ---
@@ -268,12 +279,14 @@ Docker-in-Docker (DinD) and Testcontainers in Kubernetes CI (Tekton, Argo Workfl
 ## Integration Boundary Analysis
 
 ### Boundaries Identified
-| Boundary | Owner | Risk Level | Recommended Strategy |
-|----------|-------|------------|---------------------|
-| OrderService -> PostgreSQL | Our team | High | Testcontainers (postgres:16.2) |
-| OrderService -> Kafka | Our team | High | Testcontainers (confluentinc/cp-kafka:7.6.1) |
+
+| Boundary                   | Owner    | Risk Level | Recommended Strategy                         |
+| -------------------------- | -------- | ---------- | -------------------------------------------- |
+| OrderService -> PostgreSQL | Our team | High       | Testcontainers (postgres:16.2)               |
+| OrderService -> Kafka      | Our team | High       | Testcontainers (confluentinc/cp-kafka:7.6.1) |
 
 ### Test Infrastructure Requirements
+
 - Container dependencies: `postgres:16.2`, `confluentinc/cp-kafka:7.6.1`
 - Test framework: JUnit 5, Spring Boot Test
 - Key libraries: Testcontainers 1.19+, Awaitility 4.2+, spring-kafka-test, Flyway (schema migration)
@@ -283,14 +296,17 @@ Docker-in-Docker (DinD) and Testcontainers in Kubernetes CI (Tekton, Argo Workfl
 ## Test Structure
 
 ### Isolation Strategy
+
 Per-test transaction rollback for all tests that do not test commit semantics. Because `createOrder()` publishes to Kafka (which is not transaction-scoped with the DB), use schema-per-test-class isolation with real commits for this service.
 
 Rationale: The Kafka publish happens after the DB commit. A rollback-based approach would roll back the DB write after the Kafka message is already published, making the assertion impossible to write correctly.
 
 ### Data Seeding Approach
+
 Builder pattern for `Order` and `Customer` domain objects. Seed a valid customer row in `@BeforeEach`. Each test creates its own `Order` with test-specific values.
 
 ### Async Handling
+
 Kafka consumer timeout: 5000ms | Polling interval: 100ms | Library: Awaitility 4.2
 
 ---
@@ -536,11 +552,11 @@ class OrderServiceIntegrationTest {
 
 ## CI/CD Integration
 
-| Tier | Tag | Max Duration | Trigger |
-|------|-----|--------------|---------|
-| Fast | `@Tag("fast-integration")` | 2 min | Every commit |
-| Standard | `@Tag("integration")` | 10 min | Every PR |
-| Slow | `@Tag("slow-integration")` | 20 min | Nightly / pre-merge to main |
+| Tier     | Tag                        | Max Duration | Trigger                     |
+| -------- | -------------------------- | ------------ | --------------------------- |
+| Fast     | `@Tag("fast-integration")` | 2 min        | Every commit                |
+| Standard | `@Tag("integration")`      | 10 min       | Every PR                    |
+| Slow     | `@Tag("slow-integration")` | 20 min       | Nightly / pre-merge to main |
 
 These tests belong in the **Standard** tier -- run on every PR, not on every commit.
 
@@ -559,7 +575,7 @@ new PostgreSQLContainer<>("postgres:16.2")
 
 ```yaml
 # CI agent: set environment variable
-TESTCONTAINERS_REUSE_ENABLE: "true"
+TESTCONTAINERS_REUSE_ENABLE: 'true'
 ```
 
 With reuse enabled, container startup drops from ~20s cold to ~200ms warm. On a suite of 50 integration tests, this saves 15+ minutes of CI time per run.

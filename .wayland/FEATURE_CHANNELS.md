@@ -131,13 +131,13 @@ Outbound flow:
 
 ### 3.1 Plugin Responsibility Boundary
 
-| Plugin is responsible for              | Plugin is NOT responsible for        |
-| -------------------------------------- | ------------------------------------ |
-| Connecting to platform API             | Agent scheduling and execution       |
-| Receiving messages → converting to unified format | Session management and persistence |
-| Unified format → converting to platform messages | User authentication and permission control |
-| Handling platform-specific commands    | Message routing decisions            |
-| Streaming message updates (edit sent messages) |                               |
+| Plugin is responsible for                         | Plugin is NOT responsible for              |
+| ------------------------------------------------- | ------------------------------------------ |
+| Connecting to platform API                        | Agent scheduling and execution             |
+| Receiving messages → converting to unified format | Session management and persistence         |
+| Unified format → converting to platform messages  | User authentication and permission control |
+| Handling platform-specific commands               | Message routing decisions                  |
+| Streaming message updates (edit sent messages)    |                                            |
 
 ### 3.2 Plugin Lifecycle
 
@@ -147,32 +147,32 @@ created → initializing → ready → starting → running → stopping → sto
               error ←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 ```
 
-| State          | Description                              |
-| -------------- | ---------------------------------------- |
-| `created`      | Plugin instance created                  |
-| `initializing` | Validating config and initializing       |
+| State          | Description                               |
+| -------------- | ----------------------------------------- |
+| `created`      | Plugin instance created                   |
+| `initializing` | Validating config and initializing        |
 | `ready`        | Initialization complete, waiting to start |
-| `starting`     | Connecting to platform                   |
-| `running`      | Running normally                         |
-| `stopping`     | Disconnecting                            |
-| `stopped`      | Stopped                                  |
-| `error`        | An error occurred                        |
+| `starting`     | Connecting to platform                    |
+| `running`      | Running normally                          |
+| `stopping`     | Disconnecting                             |
+| `stopped`      | Stopped                                   |
+| `error`        | An error occurred                         |
 
 ### 3.3 Plugin Interface (BasePlugin abstract class)
 
-| Interface Method       | Direction               | Description                              |
-| ---------------------- | ----------------------- | ---------------------------------------- |
-| `initialize(config)`   | PluginManager → Plugin  | Initialize plugin config                 |
-| `start()`              | PluginManager → Plugin  | Start platform connection                |
-| `stop()`               | PluginManager → Plugin  | Stop platform connection                 |
-| `sendMessage(...)`     | ActionExecutor → Plugin | Send message to platform                 |
-| `editMessage(...)`     | ActionExecutor → Plugin | Edit sent message (streaming update)     |
-| `getStatus()`          | PluginManager → Plugin  | Get plugin status                        |
-| `getActiveUserCount()` | PluginManager → Plugin  | Get active user count                    |
-| `getBotInfo()`         | PluginManager → Plugin  | Get bot info                             |
-| `onInitialize()`       | Subclass implements     | Platform-specific initialization logic   |
-| `onStart()`            | Subclass implements     | Platform-specific start logic            |
-| `onStop()`             | Subclass implements     | Platform-specific stop logic             |
+| Interface Method       | Direction               | Description                            |
+| ---------------------- | ----------------------- | -------------------------------------- |
+| `initialize(config)`   | PluginManager → Plugin  | Initialize plugin config               |
+| `start()`              | PluginManager → Plugin  | Start platform connection              |
+| `stop()`               | PluginManager → Plugin  | Stop platform connection               |
+| `sendMessage(...)`     | ActionExecutor → Plugin | Send message to platform               |
+| `editMessage(...)`     | ActionExecutor → Plugin | Edit sent message (streaming update)   |
+| `getStatus()`          | PluginManager → Plugin  | Get plugin status                      |
+| `getActiveUserCount()` | PluginManager → Plugin  | Get active user count                  |
+| `getBotInfo()`         | PluginManager → Plugin  | Get bot info                           |
+| `onInitialize()`       | Subclass implements     | Platform-specific initialization logic |
+| `onStart()`            | Subclass implements     | Platform-specific start logic          |
+| `onStop()`             | Subclass implements     | Platform-specific stop logic           |
 
 ### 3.4 Unified Message Format
 
@@ -192,19 +192,19 @@ created → initializing → ready → starting → running → stopping → sto
 
 **Outbound message (system → platform)** - `IUnifiedOutgoingMessage`
 
-| Field              | Description                                       |
-| ------------------ | ------------------------------------------------- |
-| `type`             | Message type (text/image/file/buttons)            |
-| `text`             | Text content                                      |
-| `parseMode`        | Parse mode (HTML/Markdown/MarkdownV2)             |
-| `buttons`          | Inline button groups (optional)                   |
-| `keyboard`         | Reply Keyboard (optional)                         |
+| Field              | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `type`             | Message type (text/image/file/buttons)              |
+| `text`             | Text content                                        |
+| `parseMode`        | Parse mode (HTML/Markdown/MarkdownV2)               |
+| `buttons`          | Inline button groups (optional)                     |
+| `keyboard`         | Reply Keyboard (optional)                           |
 | `replyMarkup`      | Platform-specific markup (optional, e.g. Lark Card) |
-| `replyToMessageId` | ID of the message being replied to (optional)     |
-| `imageUrl`         | Image URL (image type)                            |
-| `fileUrl`          | File URL (file type)                              |
-| `fileName`         | File name (file type)                             |
-| `silent`           | Send silently (optional)                          |
+| `replyToMessageId` | ID of the message being replied to (optional)       |
+| `imageUrl`         | Image URL (image type)                              |
+| `fileUrl`          | File URL (file type)                                |
+| `fileName`         | File name (file type)                               |
+| `silent`           | Send silently (optional)                            |
 
 ### 3.5 Steps to Add a New Platform
 
@@ -225,17 +225,17 @@ created → initializing → ready → starting → running → stopping → sto
 
 #### Technology Choices
 
-| Item         | Choice            | Notes                        |
-| ------------ | ----------------- | ---------------------------- |
-| Bot library  | grammY            | Used by Clawdbot, elegant API |
-| Running mode | Polling (long poll) | Auto-reconnect mechanism   |
+| Item         | Choice              | Notes                         |
+| ------------ | ------------------- | ----------------------------- |
+| Bot library  | grammY              | Used by Clawdbot, elegant API |
+| Running mode | Polling (long poll) | Auto-reconnect mechanism      |
 
 ### 4.1 Technology Choices
 
-| Item         | Choice                             | Notes                        |
-| ------------ | ---------------------------------- | ---------------------------- |
-| Bot library  | grammY                             | Used by Clawdbot, elegant API |
-| Running mode | Polling (dev) / Webhook (prod)     | Configurable                 |
+| Item         | Choice                         | Notes                         |
+| ------------ | ------------------------------ | ----------------------------- |
+| Bot library  | grammY                         | Used by Clawdbot, elegant API |
+| Running mode | Polling (dev) / Webhook (prod) | Configurable                  |
 
 #### Bot Configuration Flow
 
@@ -256,15 +256,15 @@ created → initializing → ready → starting → running → stopping → sto
 
 #### Configuration Options
 
-| Option       | Type              | Description                            |
-| ------------ | ----------------- | -------------------------------------- |
-| Bot Token    | string            | Obtained from @BotFather               |
-| Running mode | polling / webhook | Polling is suitable for development    |
-| Webhook URL  | string            | Only needed in webhook mode            |
-| Pairing mode | boolean           | Whether pairing code auth is required  |
-| Rate limit   | number            | Max messages per minute                |
-| Group @mention | boolean         | Whether @bot mention is required in groups |
-| Default Agent | gemini           | Fixed to Gemini for MVP phase          |
+| Option         | Type              | Description                                |
+| -------------- | ----------------- | ------------------------------------------ |
+| Bot Token      | string            | Obtained from @BotFather                   |
+| Running mode   | polling / webhook | Polling is suitable for development        |
+| Webhook URL    | string            | Only needed in webhook mode                |
+| Pairing mode   | boolean           | Whether pairing code auth is required      |
+| Rate limit     | number            | Max messages per minute                    |
+| Group @mention | boolean           | Whether @bot mention is required in groups |
+| Default Agent  | gemini            | Fixed to Gemini for MVP phase              |
 
 #### Pairing Security Mechanism (Clawdbot pattern)
 
@@ -295,51 +295,51 @@ created → initializing → ready → starting → running → stopping → sto
 
 **Security Measures**
 
-| Mechanism          | Description                                       |
-| ------------------ | ------------------------------------------------- |
-| Pairing code auth  | 6-character random code, valid for 10 minutes     |
-| Local approval     | Must be approved in Wayland, not in Telegram      |
-| User whitelist     | Only authorized users can use the bot             |
-| Rate limiting      | Prevents abuse                                    |
-| Token encrypted storage | Encrypted with bcrypt                        |
+| Mechanism               | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| Pairing code auth       | 6-character random code, valid for 10 minutes |
+| Local approval          | Must be approved in Wayland, not in Telegram  |
+| User whitelist          | Only authorized users can use the bot         |
+| Rate limiting           | Prevents abuse                                |
+| Token encrypted storage | Encrypted with bcrypt                         |
 
 #### Message Conversion Rules
 
 **Inbound conversion (Telegram → unified format)**
 
-| Telegram message type | Unified message content.type             |
-| --------------------- | ---------------------------------------- |
-| `message:text`        | `text` or `command` (starts with /)     |
-| `message:photo`       | `image`                                  |
-| `message:document`    | `file`                                   |
-| `message:voice`       | `audio`                                  |
+| Telegram message type | Unified message content.type        |
+| --------------------- | ----------------------------------- |
+| `message:text`        | `text` or `command` (starts with /) |
+| `message:photo`       | `image`                             |
+| `message:document`    | `file`                              |
+| `message:voice`       | `audio`                             |
 
 **Outbound conversion (unified format → Telegram)**
 
-| Unified message type | Telegram API                       |
-| -------------------- | ---------------------------------- |
-| `text`               | `sendMessage`                      |
-| `image`              | `sendPhoto`                        |
-| `file`               | `sendDocument`                     |
-| `buttons`            | `sendMessage` + `inline_keyboard`  |
+| Unified message type | Telegram API                      |
+| -------------------- | --------------------------------- |
+| `text`               | `sendMessage`                     |
+| `image`              | `sendPhoto`                       |
+| `file`               | `sendDocument`                    |
+| `buttons`            | `sendMessage` + `inline_keyboard` |
 
 **Special handling**
 
-| Scenario          | Handling                                          |
-| ----------------- | ------------------------------------------------- |
+| Scenario           | Handling                                              |
+| ------------------ | ----------------------------------------------------- |
 | Streaming response | Use `editMessageText` to update message, add ▌ cursor |
-| Markdown          | Escape special characters, use `parse_mode: Markdown` |
-| Remove @mention   | Strip `@bot_username` from message                |
-| Group filter      | Check for @mention presence (configurable)        |
+| Markdown           | Escape special characters, use `parse_mode: Markdown` |
+| Remove @mention    | Strip `@bot_username` from message                    |
+| Group filter       | Check for @mention presence (configurable)            |
 
 ### 4.2 Lark/Feishu Integration
 
 #### Technology Choices
 
-| Item         | Choice                         | Notes                          |
-| ------------ | ------------------------------ | ------------------------------ |
-| SDK          | @larksuiteoapi/node-sdk        | Official SDK                   |
-| Running mode | WebSocket long connection      | No public URL required         |
+| Item         | Choice                                       | Notes                         |
+| ------------ | -------------------------------------------- | ----------------------------- |
+| SDK          | @larksuiteoapi/node-sdk                      | Official SDK                  |
+| Running mode | WebSocket long connection                    | No public URL required        |
 | Domain       | Feishu (configurable for Lark international) | Uses Feishu domain by default |
 
 #### Bot Configuration Flow
@@ -371,15 +371,15 @@ created → initializing → ready → starting → running → stopping → sto
 
 #### Configuration Options
 
-| Option             | Type    | Description                          |
-| ------------------ | ------- | ------------------------------------ |
-| App ID             | string  | Obtained from Feishu open platform   |
-| App Secret         | string  | Obtained from Feishu open platform   |
-| Encrypt Key        | string  | Event encryption key (optional)      |
-| Verification Token | string  | Event verification token (optional)  |
+| Option             | Type    | Description                           |
+| ------------------ | ------- | ------------------------------------- |
+| App ID             | string  | Obtained from Feishu open platform    |
+| App Secret         | string  | Obtained from Feishu open platform    |
+| Encrypt Key        | string  | Event encryption key (optional)       |
+| Verification Token | string  | Event verification token (optional)   |
 | Pairing mode       | boolean | Whether pairing code auth is required |
-| Rate limit         | number  | Max messages per minute              |
-| Default Agent      | gemini  | Fixed to Gemini for MVP phase        |
+| Rate limit         | number  | Max messages per minute               |
+| Default Agent      | gemini  | Fixed to Gemini for MVP phase         |
 
 #### Pairing Security Mechanism
 
@@ -389,13 +389,13 @@ Same as Telegram - uses local approval mode. The pairing code is sent to the use
 
 **Inbound conversion (Lark → unified format)**
 
-| Lark message type | Unified message content.type               |
-| ----------------- | ------------------------------------------ |
-| `message:text`    | `text` or `command` (starts with /)       |
-| `message:image`   | `photo`                                    |
-| `message:file`    | `document`                                 |
-| `message:audio`   | `audio`                                    |
-| Card Action       | `action` (via extractCardAction)           |
+| Lark message type | Unified message content.type        |
+| ----------------- | ----------------------------------- |
+| `message:text`    | `text` or `command` (starts with /) |
+| `message:image`   | `photo`                             |
+| `message:file`    | `document`                          |
+| `message:audio`   | `audio`                             |
+| Card Action       | `action` (via extractCardAction)    |
 
 **Outbound conversion (unified format → Lark)**
 
@@ -407,12 +407,12 @@ Same as Telegram - uses local approval mode. The pairing code is sent to the use
 
 **Special handling**
 
-| Scenario             | Handling                                                   |
-| -------------------- | ---------------------------------------------------------- |
-| Streaming response   | Use `im.message.update` to update message                  |
-| HTML to Markdown     | convertHtmlToLarkMarkdown() converts HTML to Lark Markdown |
-| Card interaction     | Uses Lark Card format, supports buttons, confirmations, etc. |
-| Event deduplication  | 5-minute event cache to prevent duplicate processing       |
+| Scenario            | Handling                                                     |
+| ------------------- | ------------------------------------------------------------ |
+| Streaming response  | Use `im.message.update` to update message                    |
+| HTML to Markdown    | convertHtmlToLarkMarkdown() converts HTML to Lark Markdown   |
+| Card interaction    | Uses Lark Card format, supports buttons, confirmations, etc. |
+| Event deduplication | 5-minute event cache to prevent duplicate processing         |
 
 ---
 
@@ -424,11 +424,11 @@ Same as Telegram - uses local approval mode. The pairing code is sent to the use
 
 ### 5.2 Telegram Interaction Components
 
-| Type                | Description                     | Use Case                          |
-| ------------------- | ------------------------------- | --------------------------------- |
+| Type                | Description                     | Use Case                              |
+| ------------------- | ------------------------------- | ------------------------------------- |
 | **Inline Keyboard** | Buttons below messages          | Action confirmation, option selection |
-| **Reply Keyboard**  | Replaces the keyboard input bar | Shortcut entry for common actions |
-| **Menu Button**     | Left of the chat input box      | Fixed feature entry point         |
+| **Reply Keyboard**  | Replaces the keyboard input bar | Shortcut entry for common actions     |
+| **Menu Button**     | Left of the chat input box      | Fixed feature entry point             |
 
 ### 5.3 Interaction Scenario Design
 
@@ -499,12 +499,12 @@ Bot message:
 
 ### 5.4 Buttons and Commands Reference
 
-| Command (hidden, retained) | Button (user-visible) |
-| -------------------------- | --------------------- |
+| Command (hidden, retained) | Button (user-visible)   |
+| -------------------------- | ----------------------- |
 | `/start`                   | Triggered automatically |
-| `/new`                     | 🆕 New Chat           |
-| `/status`                  | 📊 Status             |
-| `/help`                    | ❓ Help               |
+| `/new`                     | 🆕 New Chat             |
+| `/status`                  | 📊 Status               |
+| `/help`                    | ❓ Help                 |
 
 ---
 
@@ -516,11 +516,11 @@ Commands and button callbacks use unified handling to avoid duplicated logic and
 
 ### 6.2 Action Categories
 
-| Type                | Description                                 | Handler                 |
-| ------------------- | ------------------------------------------- | ----------------------- |
+| Type                | Description                                  | Handler                      |
+| ------------------- | -------------------------------------------- | ---------------------------- |
 | **Platform Action** | Platform-specific operations (auth, pairing) | Handled internally by Plugin |
-| **System Action**   | Platform-agnostic system-level operations   | Gateway ActionHandler   |
-| **Chat Action**     | Messages that require Agent processing      | AgentRouter → Agent     |
+| **System Action**   | Platform-agnostic system-level operations    | Gateway ActionHandler        |
+| **Chat Action**     | Messages that require Agent processing       | AgentRouter → Agent          |
 
 ```
 User input
@@ -536,40 +536,40 @@ User input
 
 ### 6.3 System Action List (platform-agnostic)
 
-| Category           | Action                  | Description                    |
-| ------------------ | ----------------------- | ------------------------------ |
-| **Session Mgmt**   | `session.new`           | Create new session             |
-|                    | `session.status`        | View current status            |
-|                    | `session.list`          | Session list (extended)        |
-|                    | `session.switch`        | Switch session (extended)      |
-| **Settings**       | `settings.show`         | Show settings menu             |
-|                    | `settings.model.list`   | Show model list                |
-|                    | `settings.model.select` | Select model                   |
-|                    | `settings.agent.select` | Switch Agent (extended)        |
-| **Help**           | `help.show`             | Show help                      |
-| **Navigation**     | `nav.back`              | Go back                        |
-|                    | `nav.cancel`            | Cancel current operation       |
+| Category         | Action                  | Description               |
+| ---------------- | ----------------------- | ------------------------- |
+| **Session Mgmt** | `session.new`           | Create new session        |
+|                  | `session.status`        | View current status       |
+|                  | `session.list`          | Session list (extended)   |
+|                  | `session.switch`        | Switch session (extended) |
+| **Settings**     | `settings.show`         | Show settings menu        |
+|                  | `settings.model.list`   | Show model list           |
+|                  | `settings.model.select` | Select model              |
+|                  | `settings.agent.select` | Switch Agent (extended)   |
+| **Help**         | `help.show`             | Show help                 |
+| **Navigation**   | `nav.back`              | Go back                   |
+|                  | `nav.cancel`            | Cancel current operation  |
 
 ### 6.4 Platform Action Examples (each Plugin implements its own)
 
-| Platform     | Action            | Description             |
-| ------------ | ----------------- | ----------------------- |
-| **Telegram** | `pairing.show`    | Show pairing code       |
-|              | `pairing.refresh` | Refresh pairing code    |
-| **Slack**    | `oauth.start`     | Start OAuth flow        |
-|              | `oauth.callback`  | Handle OAuth callback   |
-| **Discord**  | `invite.generate` | Generate invite link    |
+| Platform     | Action            | Description           |
+| ------------ | ----------------- | --------------------- |
+| **Telegram** | `pairing.show`    | Show pairing code     |
+|              | `pairing.refresh` | Refresh pairing code  |
+| **Slack**    | `oauth.start`     | Start OAuth flow      |
+|              | `oauth.callback`  | Handle OAuth callback |
+| **Discord**  | `invite.generate` | Generate invite link  |
 
 > **Note**: Platform Actions are handled internally by each Plugin and do not pass through the Gateway ActionHandler
 
 ### 6.5 Chat Action List
 
-| Category         | Action            | Description             | Routes to             |
-| ---------------- | ----------------- | ----------------------- | --------------------- |
-| **Send Message** | `chat.send`       | User sends new message  | Current session Agent |
-| **Message Ops**  | `chat.regenerate` | Regenerate response     | Current session Agent |
-|                  | `chat.continue`   | Continue generating     | Current session Agent |
-|                  | `chat.stop`       | Stop generation         | Current session Agent |
+| Category         | Action            | Description            | Routes to             |
+| ---------------- | ----------------- | ---------------------- | --------------------- |
+| **Send Message** | `chat.send`       | User sends new message | Current session Agent |
+| **Message Ops**  | `chat.regenerate` | Regenerate response    | Current session Agent |
+|                  | `chat.continue`   | Continue generating    | Current session Agent |
+|                  | `chat.stop`       | Stop generation        | Current session Agent |
 
 ### 6.6 Action Data Structure
 
@@ -642,22 +642,22 @@ Session {
 
 ### 7.2 MVP Phase Session Strategy
 
-| Item           | MVP Implementation              |
-| -------------- | ------------------------------- |
-| Session mode   | Single active session           |
-| New session    | Click 🆕 button to clear context |
+| Item            | MVP Implementation                 |
+| --------------- | ---------------------------------- |
+| Session mode    | Single active session              |
+| New session     | Click 🆕 button to clear context   |
 | Session storage | Independent of Wayland GUI session |
-| Agent          | Fixed to Gemini                 |
-| Model          | Uses Wayland default config     |
+| Agent           | Fixed to Gemini                    |
+| Model           | Uses Wayland default config        |
 
 ### 7.3 Future Extensions
 
-| Item             | Extension                                    |
-| ---------------- | -------------------------------------------- |
-| Multi-session    | Support `session.list` / `session.switch`    |
-| Agent switching  | Support `settings.agent.select`              |
-| Model switching  | Support dynamic model selection              |
-| Session sync     | Link Telegram session with Wayland session   |
+| Item            | Extension                                  |
+| --------------- | ------------------------------------------ |
+| Multi-session   | Support `session.list` / `session.switch`  |
+| Agent switching | Support `settings.agent.select`            |
+| Model switching | Support dynamic model selection            |
+| Session sync    | Link Telegram session with Wayland session |
 
 ---
 
@@ -759,12 +759,12 @@ Session {
 
 ### 8.3 Message Merge Strategy (composeMessage)
 
-| Message type | Merge rule                                               |
-| ------------ | -------------------------------------------------------- |
+| Message type | Merge rule                                                 |
+| ------------ | ---------------------------------------------------------- |
 | `text`       | Same msg_id: accumulate content; different msg_id: add new |
-| `tool_group` | Merge tool status updates by callId                      |
-| `tool_call`  | Merge by callId                                          |
-| `tips`       | Always add as new                                        |
+| `tool_group` | Merge tool status updates by callId                        |
+| `tool_call`  | Merge by callId                                            |
+| `tips`       | Always add as new                                          |
 
 ### 8.4 Stream Callback Parameters
 
@@ -777,11 +777,11 @@ type StreamCallback = (chunk: TMessage, isInsert: boolean) => void;
 
 ### 8.5 Throttle Control
 
-| Parameter          | Value  | Description                              |
-| ------------------ | ------ | ---------------------------------------- |
-| UPDATE_THROTTLE_MS | 500ms  | Minimum interval between message edits  |
-| Send new message   | No limit | Sent immediately when isInsert=true    |
-| Edit message       | Throttled | Throttle applied when isInsert=false  |
+| Parameter          | Value     | Description                            |
+| ------------------ | --------- | -------------------------------------- |
+| UPDATE_THROTTLE_MS | 500ms     | Minimum interval between message edits |
+| Send new message   | No limit  | Sent immediately when isInsert=true    |
+| Edit message       | Throttled | Throttle applied when isInsert=false   |
 
 - [ ] Use existing Context: **\*\*\*\***\_\_\_\_**\*\*\*\***
 - [ ] Need new Context: **\*\*\*\***\_\_\_\_**\*\*\*\***
@@ -808,15 +808,15 @@ type StreamCallback = (chunk: TMessage, isInsert: boolean) => void;
 
 ### 8.1 Capabilities Each Agent Must Implement
 
-| Capability      | Description                          |
-| --------------- | ------------------------------------ |
-| `sendMessage`   | Send message and receive response    |
-| `streamMessage` | Send message with streaming          |
-| `regenerate`    | Regenerate the last response         |
-| `continue`      | Continue generating                  |
-| `stop`          | Stop current generation              |
-| `getContext`    | Get conversation context             |
-| `clearContext`  | Clear conversation context           |
+| Capability      | Description                       |
+| --------------- | --------------------------------- |
+| `sendMessage`   | Send message and receive response |
+| `streamMessage` | Send message with streaming       |
+| `regenerate`    | Regenerate the last response      |
+| `continue`      | Continue generating               |
+| `stop`          | Stop current generation           |
+| `getContext`    | Get conversation context          |
+| `clearContext`  | Clear conversation context        |
 
 ### 8.2 Agent Response Format
 
@@ -894,12 +894,12 @@ src/channels/
 
 ## 11. External Dependencies
 
-| Package                   | Purpose               | Notes                        |
-| ------------------------- | --------------------- | ---------------------------- |
+| Package                   | Purpose               | Notes                         |
+| ------------------------- | --------------------- | ----------------------------- |
 | `grammy`                  | Telegram Bot          | Used by Clawdbot, elegant API |
-| `@larksuiteoapi/node-sdk` | Lark/Feishu Bot       | Official SDK                 |
-| `@slack/bolt`             | Slack Bot (not yet)   | Official SDK                 |
-| `discord.js`              | Discord Bot (not yet) | Official SDK                 |
+| `@larksuiteoapi/node-sdk` | Lark/Feishu Bot       | Official SDK                  |
+| `@slack/bolt`             | Slack Bot (not yet)   | Official SDK                  |
+| `discord.js`              | Discord Bot (not yet) | Official SDK                  |
 
 ---
 
@@ -964,17 +964,17 @@ src/channels/
 
 ## 13. Future Extension Roadmap
 
-| Phase       | Content                              | Status           |
-| ----------- | ------------------------------------ | ---------------- |
-| **Phase 1** | Telegram + Lark integration          | ✅ Complete      |
-| **Phase 2** | Multi-session management, switching  | 🔄 Pending       |
-| **Phase 3** | Agent switching (supported, needs UI) | 🔄 Partial      |
-| **Phase 4** | Dynamic model switching              | 🔄 Pending       |
-| **Phase 5** | Slack platform integration           | 🔄 Pending       |
-| **Phase 6** | Discord platform integration         | 🔄 Pending       |
-| **Phase 7** | Rate limiting                        | 🔄 Pending       |
-| **Phase 8** | Session sync with Wayland            | 🔄 Pending       |
-| **Phase 9** | Headless standalone service mode     | 🔄 Pending       |
+| Phase       | Content                               | Status      |
+| ----------- | ------------------------------------- | ----------- |
+| **Phase 1** | Telegram + Lark integration           | ✅ Complete |
+| **Phase 2** | Multi-session management, switching   | 🔄 Pending  |
+| **Phase 3** | Agent switching (supported, needs UI) | 🔄 Partial  |
+| **Phase 4** | Dynamic model switching               | 🔄 Pending  |
+| **Phase 5** | Slack platform integration            | 🔄 Pending  |
+| **Phase 6** | Discord platform integration          | 🔄 Pending  |
+| **Phase 7** | Rate limiting                         | 🔄 Pending  |
+| **Phase 8** | Session sync with Wayland             | 🔄 Pending  |
+| **Phase 9** | Headless standalone service mode      | 🔄 Pending  |
 
 ---
 

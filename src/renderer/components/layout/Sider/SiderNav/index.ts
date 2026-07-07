@@ -7,6 +7,7 @@ export { default as SiderProjectsEntry } from './SiderProjectsEntry';
 export { default as SiderScheduledEntry } from './SiderScheduledEntry';
 export { default as SiderSearchEntry } from './SiderSearchEntry';
 export { default as SiderSessionsEntry } from './SiderSessionsEntry';
+export { default as SiderTankEntry } from './SiderTankEntry';
 export { default as SiderTeamsEntry } from './SiderTeamsEntry';
 export { default as SiderToolbar } from './SiderToolbar';
 export { default as SiderWorkflowsEntry } from './SiderWorkflowsEntry';

@@ -37,7 +37,9 @@ export const QueuedSteeringChip: React.FC<QueuedSteeringChipProps> = ({ onInterr
 
   return (
     <div className={styles.root} data-testid='workflow-queued-chip'>
-      <span className={styles.text}>{t('workflow.composer.queued', 'Working on this step - your message is queued and will steer the next step.')}</span>
+      <span className={styles.text}>
+        {t('workflow.composer.queued', 'Working on this step - your message is queued and will steer the next step.')}
+      </span>
       {/* TODO(W5): wire to conversation stop IPC when available */}
       <button
         type='button'

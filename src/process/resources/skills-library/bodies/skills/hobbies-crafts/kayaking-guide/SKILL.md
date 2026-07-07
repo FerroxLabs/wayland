@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide hiking budgeting nutrition checklist template beginner-friendly advanced"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide hiking budgeting nutrition checklist template beginner-friendly advanced'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Kayaking Guide
@@ -22,15 +22,16 @@ You are an experienced kayaking instructor and guide who helps paddlers at all l
 
 **DISCLAIMER**: Kayaking involves inherent risks including drowning, hypothermia, and injury. Always wear a properly fitted personal flotation device (PFD/life jacket). Never paddle alone in unfamiliar or moving water. Cold water is especially dangerous - immersion in water below 60F/15C can rapidly incapacitate even strong swimmers. Take in-person instruction before paddling in moving water, surf, or open coastal waters. This guide supplements but does not replace hands-on instruction from a certified instructor.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about kayaking guide techniques or best practices
 - User needs guidance on kayaking guide concepts
 - User wants to implement or improve their approach to kayaking guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of kayaking guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,15 +53,15 @@ You are an experienced kayaking instructor and guide who helps paddlers at all l
 
 ### Choosing the Right Kayak
 
-| Type | Best For | Length | Width | Stability | Speed |
-|------|----------|--------|-------|-----------|-------|
-| Recreational sit-on-top | Beginners, warm water, casual | 9-12 ft | 30-34 in | Very high | Low |
-| Recreational sit-inside | Beginners, calm water | 10-12 ft | 28-32 in | High | Low-Med |
-| Touring/sea kayak | Distance, open water, expeditions | 14-18 ft | 22-25 in | Medium | High |
-| Whitewater | Rapids, rivers | 6-9 ft | 24-28 in | Varies | N/A |
-| Fishing kayak | Angling stability | 10-14 ft | 32-38 in | Very high | Low |
-| Inflatable | Portability, travel | Varies | Varies | Medium | Low-Med |
-| Tandem | Two paddlers | 12-18 ft | 28-34 in | High | Medium |
+| Type                    | Best For                          | Length   | Width    | Stability | Speed   |
+| ----------------------- | --------------------------------- | -------- | -------- | --------- | ------- |
+| Recreational sit-on-top | Beginners, warm water, casual     | 9-12 ft  | 30-34 in | Very high | Low     |
+| Recreational sit-inside | Beginners, calm water             | 10-12 ft | 28-32 in | High      | Low-Med |
+| Touring/sea kayak       | Distance, open water, expeditions | 14-18 ft | 22-25 in | Medium    | High    |
+| Whitewater              | Rapids, rivers                    | 6-9 ft   | 24-28 in | Varies    | N/A     |
+| Fishing kayak           | Angling stability                 | 10-14 ft | 32-38 in | Very high | Low     |
+| Inflatable              | Portability, travel               | Varies   | Varies   | Medium    | Low-Med |
+| Tandem                  | Two paddlers                      | 12-18 ft | 28-34 in | High      | Medium  |
 
 ### Kayak Fit Checklist
 
@@ -87,13 +88,13 @@ You are an experienced kayaking instructor and guide who helps paddlers at all l
 
 Water temperature dictates what you wear, not air temperature:
 
-| Water Temp | Required Protection | Risk Level |
-|-----------|-------------------|------------|
-| Below 45F / 7C | Drysuit required | Extreme - incapacitation in minutes |
-| 45-55F / 7-13C | Drysuit or thick wetsuit | Very high - cold shock, swim failure |
-| 55-65F / 13-18C | Wetsuit (3mm+) | High - hypothermia within 30 min |
-| 65-75F / 18-24C | Splash gear, light wetsuit | Moderate - extended immersion dangerous |
-| Above 75F / 24C | Comfortable clothing, sun protection | Lower - still wear PFD |
+| Water Temp      | Required Protection                  | Risk Level                              |
+| --------------- | ------------------------------------ | --------------------------------------- |
+| Below 45F / 7C  | Drysuit required                     | Extreme - incapacitation in minutes     |
+| 45-55F / 7-13C  | Drysuit or thick wetsuit             | Very high - cold shock, swim failure    |
+| 55-65F / 13-18C | Wetsuit (3mm+)                       | High - hypothermia within 30 min        |
+| 65-75F / 18-24C | Splash gear, light wetsuit           | Moderate - extended immersion dangerous |
+| Above 75F / 24C | Comfortable clothing, sun protection | Lower - still wear PFD                  |
 
 **The 120-degree rule**: If air temp + water temp is less than 120F (49C combined), wear thermal protection.
 
@@ -113,6 +114,7 @@ Water temperature dictates what you wear, not air temperature:
 ### The Forward Stroke (Most Important Skill)
 
 **Setup**:
+
 - Sit upright with good posture, slight forward lean
 - Feet on foot pegs, knees against thigh braces (sit-inside)
 - Hands shoulder-width apart on paddle shaft
@@ -126,6 +128,7 @@ Water temperature dictates what you wear, not air temperature:
 4. **Recovery**: Swing blade forward while the other side takes its catch
 
 **Common mistakes**:
+
 - Using only arms (torso rotation provides 80% of power)
 - Blade going past your hip (wastes energy, creates yaw)
 - Blade too far from hull (creates turning, not forward motion)
@@ -135,6 +138,7 @@ Water temperature dictates what you wear, not air temperature:
 ### Essential Strokes
 
 **Sweep stroke** (turning):
+
 - Wide arc from bow to stern (or reverse for other direction)
 - Blade stays at surface level, extended away from hull
 - Full torso rotation
@@ -142,24 +146,28 @@ Water temperature dictates what you wear, not air temperature:
 - Reverse sweep turns you toward the paddle side
 
 **Draw stroke** (moving sideways):
+
 - Reach out to the side, plant blade parallel to kayak
 - Pull the blade toward your hip
 - Slice blade out forward or backward (not lifting)
 - Essential for pulling alongside docks, other kayaks, or avoiding obstacles
 
 **Low brace** (stability recovery):
+
 - Flat blade slap on water surface (back of blade down)
 - Quick hip snap to recover balance
 - Practice in shallow water first
 - This is your primary "oh no" reflex stroke
 
 **High brace** (advanced stability):
+
 - Power face of blade on water, elbows low
 - Hip snap recovery
 - Keep hands below shoulder level to protect shoulder joints
 - Used in rougher conditions
 
 **Stern rudder** (course correction while moving):
+
 - Trailing blade behind you, angled to steer
 - Used while surfing waves or maintaining course in wind
 - Requires forward momentum to be effective
@@ -167,6 +175,7 @@ Water temperature dictates what you wear, not air temperature:
 ### Bracing and Balance
 
 Balance in a kayak comes from your hips, not your upper body:
+
 - **Loose hips**: Let the kayak rock underneath you while your upper body stays centered
 - **Edge the boat**: Tilt the kayak using your hips for turning and stability in waves
 - **Low center of gravity**: Sit upright, not leaning; gear stored low
@@ -177,12 +186,14 @@ Balance in a kayak comes from your hips, not your upper body:
 ### Understanding Water Movement
 
 **Current**:
+
 - Water moves faster in the center of a river, slower along edges
 - Outside of bends has faster, deeper water
 - Inside of bends has slower, shallower water
 - Eddies (calm pockets) form behind obstacles - use for resting and scouting
 
 **Wind**:
+
 - Wind affects kayaks significantly (especially touring kayaks with high bows)
 - Headwind: Keep low angle strokes, lean slightly forward, shorten stroke
 - Tailwind: Be cautious of surfing onto waves
@@ -190,12 +201,14 @@ Balance in a kayak comes from your hips, not your upper body:
 - Offshore wind: Extremely dangerous - can push you away from shore rapidly
 
 **Waves and swell**:
+
 - Boat length relative to wavelength determines comfort
 - Quartering waves (45 degrees to your path) require active bracing
 - Breaking waves near shore: Time your launch and landing between sets
 - Never paddle perpendicular to breaking waves (risk of capsizing)
 
 **Tides and currents (coastal)**:
+
 - Check tide tables before every coastal paddle
 - Understand how tidal flow affects your route
 - Spring tides (near full/new moon) have stronger currents
@@ -204,20 +217,21 @@ Balance in a kayak comes from your hips, not your upper body:
 
 ### River Features (for flatwater rivers and easy moving water)
 
-| Feature | Description | Action |
-|---------|-------------|--------|
-| Eddy | Calm water behind obstacle | Shelter, rest, scout ahead |
-| Eddy line | Boundary between current and eddy | Cross with momentum and angle |
-| Strainer | Water flows through but you can't (downed trees) | AVOID - extremely dangerous |
-| Riffle | Shallow, fast, bumpy water | Point downstream, stay centered |
-| Pillow | Water pushed up against rock | Indicates rock below surface |
-| Horizon line | Can't see past it | Get out and scout - could be a drop |
+| Feature      | Description                                      | Action                              |
+| ------------ | ------------------------------------------------ | ----------------------------------- |
+| Eddy         | Calm water behind obstacle                       | Shelter, rest, scout ahead          |
+| Eddy line    | Boundary between current and eddy                | Cross with momentum and angle       |
+| Strainer     | Water flows through but you can't (downed trees) | AVOID - extremely dangerous         |
+| Riffle       | Shallow, fast, bumpy water                       | Point downstream, stay centered     |
+| Pillow       | Water pushed up against rock                     | Indicates rock below surface        |
+| Horizon line | Can't see past it                                | Get out and scout - could be a drop |
 
 ## Safety and Rescue
 
 ### Self-Rescue Skills (Practice These)
 
 **Wet exit** (sit-inside kayak):
+
 1. Tuck forward, hands on spray skirt grab loop
 2. Pull spray skirt release
 3. Place hands on cockpit rim behind you
@@ -226,6 +240,7 @@ Balance in a kayak comes from your hips, not your upper body:
 6. Practice in controlled conditions until automatic
 
 **Paddle float rescue**:
+
 1. Inflate paddle float, attach to one blade
 2. Place float-end blade on water behind cockpit
 3. Use paddle as outrigger for stability
@@ -234,6 +249,7 @@ Balance in a kayak comes from your hips, not your upper body:
 6. Practice until you can do it in open water conditions
 
 **T-rescue** (assisted by another kayaker):
+
 1. Capsized paddler wet exits, holds onto their kayak
 2. Rescuer positions their bow perpendicular to capsized kayak
 3. Capsized kayak is lifted over rescuer's bow to drain
@@ -257,6 +273,7 @@ Balance in a kayak comes from your hips, not your upper body:
 ### Emergency Response
 
 **If you capsize in cold water**:
+
 1. Don't panic - your PFD keeps you afloat
 2. Control breathing (cold shock causes gasping)
 3. Stay with your kayak (it's visible and floatable)
@@ -265,6 +282,7 @@ Balance in a kayak comes from your hips, not your upper body:
 6. Once out, get warm immediately (dry clothes, shelter, warm liquids)
 
 **If someone else capsizes**:
+
 1. Shout reassurance ("I'm coming!")
 2. Approach from downwind/downstream
 3. Perform T-rescue or tow to shore
@@ -320,6 +338,7 @@ Special notes: _______________
 ### Packing for a Day Trip
 
 **On your person/PFD**:
+
 - Whistle
 - Knife (safety cutter for entanglement)
 - Waterproof phone
@@ -327,6 +346,7 @@ Special notes: _______________
 - Snacks accessible without stopping
 
 **In the kayak**:
+
 - Water (minimum 1L per 2 hours, more in heat)
 - Food and snacks
 - Dry bag with warm layer and rain jacket
@@ -344,6 +364,7 @@ Special notes: _______________
 ### Level 1: Flatwater Foundations
 
 **Skills to master**:
+
 - Comfortable entry and exit from kayak
 - Forward stroke with torso rotation
 - Sweep strokes for turning
@@ -358,6 +379,7 @@ Special notes: _______________
 ### Level 2: Intermediate Flatwater and Light Conditions
 
 **Skills to master**:
+
 - Paddle in light wind (up to 10 knots)
 - Handle small boat wake and chop
 - Edging and leaning turns
@@ -372,6 +394,7 @@ Special notes: _______________
 ### Level 3: Touring and Easy Moving Water
 
 **Skills to master**:
+
 - Full-day and multi-day trip planning and execution
 - Paddling in moderate wind and waves (10-15 knots)
 - Basic river reading (eddies, current, riffles)
@@ -406,7 +429,6 @@ Whitewater kayaking (Class III+), open ocean paddling, surf kayaking, and expedi
 - Use biodegradable sunscreen near waterways (oxybenzone harms aquatic ecosystems)
 - Dispose of human waste properly on multi-day trips (pack it out or use designated facilities)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -414,7 +436,6 @@ Whitewater kayaking (Class III+), open ocean paddling, surf kayaking, and expedi
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -435,14 +456,12 @@ Whitewater kayaking (Class III+), open ocean paddling, surf kayaking, and expedi
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

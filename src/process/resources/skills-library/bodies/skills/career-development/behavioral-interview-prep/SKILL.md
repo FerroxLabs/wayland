@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career template"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'interview-prep career template'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Behavioral Interview Prep
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when any of the following conditions are true:
 - The user is interviewing at a company with a documented behavioral framework (Amazon Leadership Principles, Google's Googleyness criteria, McKinsey's PEI -- Problem-Solving, Entrepreneurial Drive, Personal Impact) and needs answers mapped to those specific rubrics
 
 **Do NOT use when:**
+
 - The user needs help with technical interview preparation -- coding problems, system design, or whiteboard exercises (use `technical-interview-prep`)
 - The user is preparing for a case interview at a consulting firm -- these require problem structuring and business frameworks, not STAR stories (use `case-interview-prep`)
 - The user wants to predict which questions are likely to be asked based on the job description or company (use `interview-question-anticipator`)
@@ -316,24 +318,24 @@ We sunset the care plan tool on schedule. The freed engineering capacity allowed
 
 ### Competency Signals in This Answer
 
-| Competency Signal | Where It Appears |
-|-------------------|-----------------|
-| Dive Deep -- going beyond surface metrics to behavioral data | Action, sentences 1-2: usage data vs. satisfaction surveys |
-| Are Right A Lot -- conviction based on structured analysis | Action, sentence 3: data brief with cost-vs-adoption comparison |
+| Competency Signal                                                  | Where It Appears                                                                  |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Dive Deep -- going beyond surface metrics to behavioral data       | Action, sentences 1-2: usage data vs. satisfaction surveys                        |
+| Are Right A Lot -- conviction based on structured analysis         | Action, sentence 3: data brief with cost-vs-adoption comparison                   |
 | Have Backbone -- maintaining position against stakeholder pushback | Action, sentences 4-6: working through engineer and sales objections specifically |
-| Bias for Action -- moving forward and executing the decision | Result, sentences 1-2: sunset executed on schedule, capacity freed |
-| Deliver Results -- quantified downstream business impact | Result, sentence 3: 22% churn reduction with specific mechanism explained |
+| Bias for Action -- moving forward and executing the decision       | Result, sentences 1-2: sunset executed on schedule, capacity freed                |
+| Deliver Results -- quantified downstream business impact           | Result, sentence 3: 22% churn reduction with specific mechanism explained         |
 
 ---
 
 ### Anticipated Follow-Ups
 
-| Follow-Up Question | Prepared Response |
-|-------------------|------------------|
-| "What would you do differently?" | "I would have established a behavioral data review cadence earlier -- running usage analytics quarterly rather than waiting for a budget review cycle. I caught this because I happened to pull the data; I should have built the system so the data surfaced automatically." |
+| Follow-Up Question                                                | Prepared Response                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "What would you do differently?"                                  | "I would have established a behavioral data review cadence earlier -- running usage analytics quarterly rather than waiting for a budget review cycle. I caught this because I happened to pull the data; I should have built the system so the data surfaced automatically."                                                                                                                                                            |
 | "Can you tell me more about how you handled the sales objection?" | "The head of sales' concern was legitimate -- she was worried we'd damage relationships with customers who expected the feature. I addressed it in two parts: first, I reviewed every active contract and confirmed zero binding commitments to that specific feature. Second, I drafted the customer communication myself so she could review it before we sent it, which gave her confidence that we were handling it professionally." |
-| "How did the engineers respond once the decision was made?" | "The three who pushed back all committed fully once the decision was made -- two of them actually ended up owning major pieces of the onboarding rebuild and were proud of the churn result. One later told me the care plan tool had been technically painful to maintain and he was relieved to have the bandwidth freed up." |
-| "What did you learn from that?" | "I learned that satisfaction scores measure sentiment among users who engaged, not value to users who didn't -- and those two populations can have completely opposite profiles. Behavioral data and survey data answer different questions; you need both, but you have to know which question you're actually asking." |
+| "How did the engineers respond once the decision was made?"       | "The three who pushed back all committed fully once the decision was made -- two of them actually ended up owning major pieces of the onboarding rebuild and were proud of the churn result. One later told me the care plan tool had been technically painful to maintain and he was relieved to have the bandwidth freed up."                                                                                                          |
+| "What did you learn from that?"                                   | "I learned that satisfaction scores measure sentiment among users who engaged, not value to users who didn't -- and those two populations can have completely opposite profiles. Behavioral data and survey data answer different questions; you need both, but you have to know which question you're actually asking."                                                                                                                 |
 
 ---
 

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing social-media strategy"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing social-media strategy'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Influencer Marketing
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on influencer marketing
 - User asks about influencer marketing best practices or techniques
 - User wants a structured approach to influencer marketing
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of influencer marketing
 
@@ -60,17 +61,18 @@ Before developing an influencer strategy, understand the business context:
 
 ### The Tier Framework
 
-| Tier | Follower Range | Typical Cost Per Post | Engagement Rate | Best For |
-|------|---------------|----------------------|-----------------|----------|
-| Nano | 1K-10K | $50-$500 | 5-10% | Hyper-local, niche validation, authentic UGC |
-| Micro | 10K-100K | $500-$5,000 | 3-7% | Targeted reach, high engagement, cost-efficient |
-| Mid-tier | 100K-500K | $5,000-$25,000 | 2-5% | Balanced reach and engagement, brand building |
-| Macro | 500K-1M | $25,000-$75,000 | 1-3% | Broad awareness, trend-setting, credibility |
-| Mega/Celebrity | 1M+ | $75,000-$1M+ | 0.5-2% | Mass awareness, PR moments, brand positioning |
+| Tier           | Follower Range | Typical Cost Per Post | Engagement Rate | Best For                                        |
+| -------------- | -------------- | --------------------- | --------------- | ----------------------------------------------- |
+| Nano           | 1K-10K         | $50-$500              | 5-10%           | Hyper-local, niche validation, authentic UGC    |
+| Micro          | 10K-100K       | $500-$5,000           | 3-7%            | Targeted reach, high engagement, cost-efficient |
+| Mid-tier       | 100K-500K      | $5,000-$25,000        | 2-5%            | Balanced reach and engagement, brand building   |
+| Macro          | 500K-1M        | $25,000-$75,000       | 1-3%            | Broad awareness, trend-setting, credibility     |
+| Mega/Celebrity | 1M+            | $75,000-$1M+          | 0.5-2%          | Mass awareness, PR moments, brand positioning   |
 
 ### When to Use Each Tier
 
 **Use nano/micro influencers when:**
+
 - Budget is limited but you need volume of content
 - Your product needs authentic, trusted recommendations
 - You are targeting a specific niche audience
@@ -78,12 +80,14 @@ Before developing an influencer strategy, understand the business context:
 - You are testing messaging before scaling up
 
 **Use mid-tier influencers when:**
+
 - You need a balance of reach and authenticity
 - You want polished content with significant distribution
 - Your product appeals to a defined but sizable audience
 - You can afford a manageable number of quality partnerships
 
 **Use macro/mega influencers when:**
+
 - Brand awareness is the primary goal (not direct conversion)
 - You need to reach a mass audience quickly
 - Your product has broad appeal
@@ -107,6 +111,7 @@ Budget allocation example ($50,000 campaign):
 ### Discovery Methods
 
 **Manual discovery:**
+
 - Search relevant hashtags on target platforms
 - Explore "suggested" profiles from known good influencers
 - Check who your existing customers follow and engage with
@@ -114,6 +119,7 @@ Budget allocation example ($50,000 campaign):
 - Attend industry events and note who attendees follow
 
 **Platform and tool-based discovery:**
+
 - Influencer marketing platforms: CreatorIQ, Aspire, Grin, Upfluence, Heepsy
 - Social listening tools: Brandwatch, Mention, Talkwalker
 - Platform-native creator marketplaces: TikTok Creator Marketplace, Instagram branded content tools
@@ -122,21 +128,22 @@ Budget allocation example ($50,000 campaign):
 
 Before reaching out to any influencer, evaluate:
 
-| Criterion | What to Check | Red Flags |
-|-----------|--------------|-----------|
-| Audience alignment | Do their followers match your target customer? | Followers from wrong geography, age, or interest group |
-| Engagement quality | Are comments genuine conversations? | Generic comments ("nice!", emoji-only), bot-like patterns |
-| Engagement rate | Likes + comments / followers | Rate that is suspiciously high (>15%) or very low (<1%) |
-| Content quality | Is their content well-produced and on-brand? | Inconsistent quality, frequent off-topic posts |
-| Brand safety | Any controversial history, offensive content? | Recent scandals, polarizing political content, hate speech |
-| Posting consistency | Do they post regularly? | Long gaps, abandoned accounts, erratic schedule |
-| Previous partnerships | What brands have they worked with? | Promoting competitors, promoting everything (no selectivity) |
-| Authenticity | Do they genuinely use products they promote? | Every other post is sponsored, no organic product mentions |
-| Follower growth | Organic growth pattern? | Sudden spikes (purchased followers), follower/following ratio issues |
+| Criterion             | What to Check                                  | Red Flags                                                            |
+| --------------------- | ---------------------------------------------- | -------------------------------------------------------------------- |
+| Audience alignment    | Do their followers match your target customer? | Followers from wrong geography, age, or interest group               |
+| Engagement quality    | Are comments genuine conversations?            | Generic comments ("nice!", emoji-only), bot-like patterns            |
+| Engagement rate       | Likes + comments / followers                   | Rate that is suspiciously high (>15%) or very low (<1%)              |
+| Content quality       | Is their content well-produced and on-brand?   | Inconsistent quality, frequent off-topic posts                       |
+| Brand safety          | Any controversial history, offensive content?  | Recent scandals, polarizing political content, hate speech           |
+| Posting consistency   | Do they post regularly?                        | Long gaps, abandoned accounts, erratic schedule                      |
+| Previous partnerships | What brands have they worked with?             | Promoting competitors, promoting everything (no selectivity)         |
+| Authenticity          | Do they genuinely use products they promote?   | Every other post is sponsored, no organic product mentions           |
+| Follower growth       | Organic growth pattern?                        | Sudden spikes (purchased followers), follower/following ratio issues |
 
 ### Fake Follower Detection
 
 Signs of inflated followings:
+
 - Follower-to-engagement ratio way off (500K followers, 200 likes per post)
 - Follower growth in sudden spikes rather than steady curves
 - Comments that are generic, repetitive, or from accounts with no profile pictures
@@ -148,11 +155,13 @@ Signs of inflated followings:
 ### The Outreach Framework
 
 **Step 1: Warm the relationship first**
+
 - Follow them and genuinely engage with their content for 1-2 weeks
 - Leave thoughtful comments (not "great post!" - actual engagement)
 - Share their content if relevant to your audience
 
 **Step 2: Initial outreach**
+
 - Use their preferred contact method (often in their bio: email, DM, manager contact)
 - Keep it short, personal, and specific
 - Reference specific content of theirs that resonated
@@ -180,6 +189,7 @@ to share more details and hear your ideas.
 ```
 
 **What NOT to do:**
+
 - Send mass, generic outreach
 - Lead with follower requirements or deliverables
 - Offer only "exposure" in exchange for their work
@@ -188,6 +198,7 @@ to share more details and hear your ideas.
 ### Negotiation Principles
 
 **Know your numbers before negotiating:**
+
 - What is a new customer worth to you? (LTV)
 - What do you currently pay per acquisition through other channels? (CAC benchmark)
 - What is the influencer's estimated reach and engagement?
@@ -195,16 +206,17 @@ to share more details and hear your ideas.
 
 **Common compensation structures:**
 
-| Structure | How It Works | When to Use |
-|-----------|-------------|-------------|
-| Flat fee | Fixed payment per deliverable | Most common, predictable for both sides |
-| Performance-based | Pay per click, sale, or lead | When tracking is reliable and influencer agrees |
-| Gifting only | Free product in exchange for content | Nano influencers, genuine fans of the product |
-| Affiliate commission | Ongoing % of sales they generate | Long-term partnerships, product-led influencers |
-| Hybrid | Base fee + performance bonus | Best of both: guaranteed payment + upside |
-| Revenue share | Ongoing % of revenue from their audience | Deep partnerships, co-created products |
+| Structure            | How It Works                             | When to Use                                     |
+| -------------------- | ---------------------------------------- | ----------------------------------------------- |
+| Flat fee             | Fixed payment per deliverable            | Most common, predictable for both sides         |
+| Performance-based    | Pay per click, sale, or lead             | When tracking is reliable and influencer agrees |
+| Gifting only         | Free product in exchange for content     | Nano influencers, genuine fans of the product   |
+| Affiliate commission | Ongoing % of sales they generate         | Long-term partnerships, product-led influencers |
+| Hybrid               | Base fee + performance bonus             | Best of both: guaranteed payment + upside       |
+| Revenue share        | Ongoing % of revenue from their audience | Deep partnerships, co-created products          |
 
 **Rate negotiation tips:**
+
 - Ask for their rate card first - do not open with your budget
 - Negotiate on scope (number of deliverables, usage rights) rather than just price
 - Bundle multiple posts for a lower per-post rate
@@ -217,24 +229,25 @@ to share more details and hear your ideas.
 
 Every influencer partnership should have a written agreement covering:
 
-| Term | What to Specify |
-|------|----------------|
-| Deliverables | Exact number and type of content pieces (posts, stories, reels, videos, blog posts) |
-| Timeline | Content creation deadline, posting dates, campaign duration |
-| Content approval | Whether brand reviews content before posting; revision limits |
-| Usage rights | Can the brand repost, use in ads, use on website? For how long? |
-| Exclusivity | Can they work with competitors during or after the campaign? |
-| Compensation | Amount, payment schedule, payment method |
-| Disclosure | FTC/ASA compliance requirements (must be in contract) |
-| Performance metrics | What data will the influencer share post-campaign? |
-| Cancellation | Terms for either party to exit the agreement |
-| Content ownership | Who owns the content after the campaign? |
+| Term                | What to Specify                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| Deliverables        | Exact number and type of content pieces (posts, stories, reels, videos, blog posts) |
+| Timeline            | Content creation deadline, posting dates, campaign duration                         |
+| Content approval    | Whether brand reviews content before posting; revision limits                       |
+| Usage rights        | Can the brand repost, use in ads, use on website? For how long?                     |
+| Exclusivity         | Can they work with competitors during or after the campaign?                        |
+| Compensation        | Amount, payment schedule, payment method                                            |
+| Disclosure          | FTC/ASA compliance requirements (must be in contract)                               |
+| Performance metrics | What data will the influencer share post-campaign?                                  |
+| Cancellation        | Terms for either party to exit the agreement                                        |
+| Content ownership   | Who owns the content after the campaign?                                            |
 
 ### Disclosure and Compliance
 
 Legal requirements vary by jurisdiction, but the principles are consistent:
 
 **FTC Guidelines (United States):**
+
 - Sponsored content must be clearly disclosed
 - Disclosure must be prominent and unambiguous (not buried in hashtags)
 - "#ad" or "#sponsored" at the beginning of the caption (not the end)
@@ -242,6 +255,7 @@ Legal requirements vary by jurisdiction, but the principles are consistent:
 - Stories: disclosure visible on screen without requiring the viewer to tap
 
 **ASA Rules (United Kingdom):**
+
 - Similar to FTC but enforced by the Advertising Standards Authority
 - "#ad" is the clearest and safest disclosure
 - Applies even to gifted products
@@ -255,12 +269,14 @@ Legal requirements vary by jurisdiction, but the principles are consistent:
 Measure influencer marketing at three levels:
 
 **Level 1: Reach and Engagement (awareness metrics)**
+
 - Impressions and reach
 - Engagement rate (likes, comments, shares, saves)
 - Video views and watch time
 - Story views and tap-through rates
 
 **Level 2: Traffic and Action (consideration metrics)**
+
 - Click-through rate on links
 - Website traffic from influencer content (UTM parameters)
 - Landing page visits
@@ -268,6 +284,7 @@ Measure influencer marketing at three levels:
 - Email signups
 
 **Level 3: Conversion and Revenue (business metrics)**
+
 - Sales attributed to influencer campaigns (tracking links, promo codes, UTMs)
 - Cost per acquisition (CPA) compared to other channels
 - Revenue generated vs. campaign cost (ROAS)
@@ -276,15 +293,15 @@ Measure influencer marketing at three levels:
 
 ### Attribution Methods
 
-| Method | How It Works | Accuracy | Effort |
-|--------|-------------|----------|--------|
-| Unique promo codes | Each influencer gets a unique discount code | High for tracked sales | Low |
-| UTM parameters | Trackable links for each influencer | High for click-through | Low |
-| Affiliate links | Trackable links with commission | High for tracked sales | Medium |
-| Landing pages | Unique landing page per influencer | High | Medium |
-| Post-purchase survey | "How did you hear about us?" | Medium (recall bias) | Low |
-| Brand lift study | Survey audience before and after campaign | Medium (expensive) | High |
-| Correlation analysis | Sales increase during campaign window | Low (many variables) | Low |
+| Method               | How It Works                                | Accuracy               | Effort |
+| -------------------- | ------------------------------------------- | ---------------------- | ------ |
+| Unique promo codes   | Each influencer gets a unique discount code | High for tracked sales | Low    |
+| UTM parameters       | Trackable links for each influencer         | High for click-through | Low    |
+| Affiliate links      | Trackable links with commission             | High for tracked sales | Medium |
+| Landing pages        | Unique landing page per influencer          | High                   | Medium |
+| Post-purchase survey | "How did you hear about us?"                | Medium (recall bias)   | Low    |
+| Brand lift study     | Survey audience before and after campaign   | Medium (expensive)     | High   |
+| Correlation analysis | Sales increase during campaign window       | Low (many variables)   | Low    |
 
 **Best practice:** Use multiple attribution methods simultaneously. No single method captures the full picture.
 
@@ -309,36 +326,40 @@ Example:
 
 ### Benchmarks by Platform
 
-| Platform | Average CPM | Average Engagement Rate | Best Content Type |
-|----------|------------|------------------------|-------------------|
-| Instagram (feed) | $5-$15 | 1-3% | Lifestyle, fashion, food, travel |
-| Instagram (Reels) | $3-$10 | 2-5% | Short tutorials, trends, entertainment |
-| TikTok | $2-$8 | 3-8% | Entertainment, education, challenges |
-| YouTube | $15-$30 | 1-3% | Reviews, tutorials, storytelling |
-| LinkedIn | $10-$25 | 2-4% | B2B, professional development, thought leadership |
-| Podcasts | $15-$50 CPM | N/A | Host-read endorsements, interviews |
+| Platform          | Average CPM | Average Engagement Rate | Best Content Type                                 |
+| ----------------- | ----------- | ----------------------- | ------------------------------------------------- |
+| Instagram (feed)  | $5-$15      | 1-3%                    | Lifestyle, fashion, food, travel                  |
+| Instagram (Reels) | $3-$10      | 2-5%                    | Short tutorials, trends, entertainment            |
+| TikTok            | $2-$8       | 3-8%                    | Entertainment, education, challenges              |
+| YouTube           | $15-$30     | 1-3%                    | Reviews, tutorials, storytelling                  |
+| LinkedIn          | $10-$25     | 2-4%                    | B2B, professional development, thought leadership |
+| Podcasts          | $15-$50 CPM | N/A                     | Host-read endorsements, interviews                |
 
 ## Platform-Specific Strategies
 
 ### Instagram
+
 - Reels outperform static posts for reach; carousel posts drive saves and shares
 - Stories are best for link clicks and direct engagement
 - Branded content tools provide transparency and ad amplification options
 - The algorithm favors content that drives saves and shares over passive likes
 
 ### TikTok
+
 - Authenticity matters more than production value
 - Trends move fast - speed of execution is critical
 - Let creators adapt the brief to their style; over-scripting kills performance
 - Duets and stitches create organic conversation around branded content
 
 ### YouTube
+
 - Dedicated videos (full sponsorship) outperform mid-roll mentions for conversion
 - Longer-form reviews build trust and drive purchase decisions
 - Content has a long tail - YouTube videos generate views for months/years
 - CPMs are higher but so is conversion quality
 
 ### LinkedIn
+
 - Growing rapidly for B2B influencer marketing
 - Thought leaders and industry experts are the influencers here
 - Text posts and carousels outperform video currently
@@ -364,15 +385,15 @@ For brands with recurring influencer needs:
 
 ### Program Metrics to Track Monthly
 
-| Metric | Target |
-|--------|--------|
-| Active influencer partnerships | Growing quarter-over-quarter |
-| Content volume produced | Consistent with campaign calendar |
-| Average engagement rate across partners | Stable or improving |
-| Cost per engagement | Decreasing as relationships mature |
-| Revenue attributed to influencer channel | Growing as percentage of total revenue |
-| Influencer retention rate | >70% year-over-year |
-| Content repurpose rate | >50% of influencer content used in other channels |
+| Metric                                   | Target                                            |
+| ---------------------------------------- | ------------------------------------------------- |
+| Active influencer partnerships           | Growing quarter-over-quarter                      |
+| Content volume produced                  | Consistent with campaign calendar                 |
+| Average engagement rate across partners  | Stable or improving                               |
+| Cost per engagement                      | Decreasing as relationships mature                |
+| Revenue attributed to influencer channel | Growing as percentage of total revenue            |
+| Influencer retention rate                | >70% year-over-year                               |
+| Content repurpose rate                   | >50% of influencer content used in other channels |
 
 ## Response Guidelines
 
@@ -387,7 +408,6 @@ When advising on influencer marketing:
 - Recommend starting small and scaling based on data - one successful micro-influencer campaign teaches more than one failed macro campaign
 - Be realistic about timelines - influencer marketing compounds over time; expect 3-6 months to build meaningful momentum
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -400,13 +420,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with influencer marketing for a mid-size project."
 
 **Output:** A complete influencer marketing framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

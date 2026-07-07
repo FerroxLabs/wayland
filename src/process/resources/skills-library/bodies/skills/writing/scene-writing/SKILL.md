@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing guide"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing guide'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Scene Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a scene for a novel, novella, or any long-form prose fiction -- regardless of genre (literary, thriller, romance, fantasy, horror, science fiction)
 - The user needs a specific narrative sequence that integrates setting, physical action, dialogue, and a POV character's interiority into dramatized, real-time prose
 - The user wants to draft a chapter opening, inciting incident scene, midpoint turn, climactic confrontation, or any key emotional beat
@@ -29,6 +31,7 @@ metadata:
 - The user is workshopping a scene and needs craft-level feedback followed by a revision or demonstration draft
 
 **Do NOT use this skill when:**
+
 - The user wants dialogue only, with no setting, interiority, or narrative prose -- use `dialogue-writing`
 - The user wants a complete, self-contained short story with its own arc (under ~7,500 words) -- use `short-story-writing`
 - The user wants screenplay or stage play format with action lines, sluglines, and formatted dialogue -- use `screenplay-scene`
@@ -228,6 +231,7 @@ The first scene of a novel or story carries obligations that mid-story scenes do
 **Input:** "Write a scene for a literary thriller. POV: Marcus, a retired detective, is visiting his former partner Diane at her office. He is there to ask about a cold case but realizes mid-conversation that Diane may be involved. Third-person limited, past tense. Around 1,500--2,000 words."
 
 **Scene Parameters (extracted):**
+
 - Narrative function: Shift Marcus's understanding of Diane; plant specific evidence details for later payoff; establish the thriller's central moral conflict
 - Scene question: Does Diane know something about the cold case that she is not saying?
 - Emotional arc: Marcus enters with cautious, professional curiosity -- exits with dawning, unwanted certainty
@@ -238,8 +242,8 @@ The first scene of a novel or story carries obligations that mid-story scenes do
 
 ## The Visit
 
-*POV: Marcus Reeves | Setting: Deputy Chief Diane Cowell's corner office, downtown precinct, 4:40 p.m. | Tense/Person: Past tense, third-person limited*
-*Scene function: Shifts Marcus's suspicion of Diane from theoretical to evidenced; establishes the case's institutional cover*
+_POV: Marcus Reeves | Setting: Deputy Chief Diane Cowell's corner office, downtown precinct, 4:40 p.m. | Tense/Person: Past tense, third-person limited_
+_Scene function: Shifts Marcus's suspicion of Diane from theoretical to evidenced; establishes the case's institutional cover_
 
 ---
 
@@ -328,6 +332,7 @@ He walked back to the elevator. The coffee smell was still there. He pressed the
 **Scene question:** Does Diane know something about the Whitfield case that she is concealing -- and if so, how much?
 
 **Beat map:**
+
 - Beat 1 (arrival): Marcus reads Diane's changed office as evidence of ascent; the meeting begins at the edge of formality -- close relationship, professional framing
 - Beat 2 (surface probe): Marcus raises the Whitfield case; Diane deflects with plausible explanation; Marcus escalates with specifics (three pieces of evidence, six months, same signatures)
 - Beat 3 (Diane's counter-move): She reframes as concern for Marcus -- moves to the window, turns her back, delivers the "costs more than the solution" line; the power dynamic shifts temporarily in her favor
@@ -335,6 +340,7 @@ He walked back to the elevator. The coffee smell was still there. He pressed the
 - Exit: Marcus reveals he is aware of his own exposure ("shown a person with something to hide exactly how much he knew") -- turns the scene's tension into a forward-facing threat
 
 **Accomplishes:**
+
 - Plot: Establishes institutional cover for the Whitfield case; confirms Diane's involvement at the level of suppression, not yet at the level of cause; plants the custody-gap evidence thread for a later scene
 - Character: Reveals Marcus as a reader of people whose greatest vulnerability is how well he reads the people he trusts; reveals Diane as someone who has learned to perform loyalty while practicing its opposite
 - Relationship: The partnership between Marcus and Diane crosses from "complicated history" to "active, concealed opposition"

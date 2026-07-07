@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain budgeting checklist javascript analysis game-design performing-arts"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced blockchain budgeting checklist javascript analysis game-design performing-arts'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # NFT Strategist
@@ -22,15 +22,16 @@ You are an expert in non-fungible token strategy, covering the full lifecycle fr
 
 > **IMPORTANT DISCLAIMER:** This skill provides educational information about NFTs and digital assets only. It is NOT financial or investment advice. NFT markets are highly speculative and volatile. Most NFT projects lose significant value over time. Never invest more than you can afford to lose completely. This skill does not endorse any specific NFT project or marketplace.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about nft strategist techniques or best practices
 - User needs guidance on nft strategist concepts
 - User wants to implement or improve their approach to nft strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of nft strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -143,14 +144,14 @@ Supports both fungible and non-fungible tokens in a single contract. Best for ga
 
 ### Standard Comparison
 
-| Feature | ERC-721 | ERC-1155 |
-|---------|---------|----------|
-| Uniqueness | Each token unique | Tokens can have multiple copies |
-| Gas (single transfer) | Higher | Lower |
-| Gas (batch transfer) | N separate transactions | Single transaction |
-| Marketplace support | Universal | Universal |
-| Metadata | Per-token URI | Per-token-type URI |
-| Best for | PFP collections, 1-of-1 art | Gaming, editions, multi-tier |
+| Feature               | ERC-721                     | ERC-1155                        |
+| --------------------- | --------------------------- | ------------------------------- |
+| Uniqueness            | Each token unique           | Tokens can have multiple copies |
+| Gas (single transfer) | Higher                      | Lower                           |
+| Gas (batch transfer)  | N separate transactions     | Single transaction              |
+| Marketplace support   | Universal                   | Universal                       |
+| Metadata              | Per-token URI               | Per-token-type URI              |
+| Best for              | PFP collections, 1-of-1 art | Gaming, editions, multi-tier    |
 
 ---
 
@@ -185,25 +186,25 @@ NFT metadata follows a JSON schema that marketplaces use to display your NFTs.
       "display_type": "number",
       "value": 1,
       "max_value": 5
-    },
+    }
   ]
 }
 ```
 
 ### Metadata Storage Options
 
-| Storage Method | Permanence | Cost | Speed | Best For |
-|---------------|------------|------|-------|----------|
-| IPFS + Pinning (Pinata, nft.storage) | Semi-permanent (depends on pinning) | Low ($0-20/month) | Fast | Most projects |
-| Arweave | Permanent (200+ year guarantee) | One-time payment (~$0.01/KB) | Moderate | High-value, permanent collections |
-| On-chain (SVG/base64) | Permanent (lives on blockchain) | High gas cost | Fastest | Small files, generative art |
-| Centralized server | Impermanent (server dependent) | Varies | Fastest | NOT recommended for valuable NFTs |
+| Storage Method                       | Permanence                          | Cost                         | Speed    | Best For                          |
+| ------------------------------------ | ----------------------------------- | ---------------------------- | -------- | --------------------------------- |
+| IPFS + Pinning (Pinata, nft.storage) | Semi-permanent (depends on pinning) | Low ($0-20/month)            | Fast     | Most projects                     |
+| Arweave                              | Permanent (200+ year guarantee)     | One-time payment (~$0.01/KB) | Moderate | High-value, permanent collections |
+| On-chain (SVG/base64)                | Permanent (lives on blockchain)     | High gas cost                | Fastest  | Small files, generative art       |
+| Centralized server                   | Impermanent (server dependent)      | Varies                       | Fastest  | NOT recommended for valuable NFTs |
 
 ### IPFS Upload Workflow
 
 ```javascript
 // Using Pinata SDK for IPFS uploads
-import PinataSDK from "@pinata/sdk";
+import PinataSDK from '@pinata/sdk';
 
 const pinata = new PinataSDK({
   pinataApiKey: CONFIG.PINATA_API_KEY,
@@ -213,7 +214,7 @@ const pinata = new PinataSDK({
 // 1. Upload images first
 async function uploadImages(imageDir) {
   const result = await pinata.pinFromFS(imageDir, {
-    pinataMetadata: { name: "my-nft-images" },
+    pinataMetadata: { name: 'my-nft-images' },
   });
   return result.IpfsHash; // e.g., "QmXxx..."
 }
@@ -222,7 +223,7 @@ async function uploadImages(imageDir) {
 function generateMetadata(tokenId, imageCID, attributes) {
   return {
     name: `My NFT #${tokenId}`,
-    description: "Collection description here.",
+    description: 'Collection description here.',
     image: `ipfs://${imageCID}/${tokenId}.png`,
     attributes: attributes,
   };
@@ -231,7 +232,7 @@ function generateMetadata(tokenId, imageCID, attributes) {
 // 3. Upload metadata directory
 async function uploadMetadata(metadataDir) {
   const result = await pinata.pinFromFS(metadataDir, {
-    pinataMetadata: { name: "my-nft-metadata" },
+    pinataMetadata: { name: 'my-nft-metadata' },
   });
   // Use this CID as your baseURI in the contract
   // baseURI = "ipfs://QmYyy.../"
@@ -245,14 +246,14 @@ async function uploadMetadata(metadataDir) {
 
 ### Marketplace Comparison
 
-| Marketplace | Chains | Fee | Royalty Enforcement | Best For |
-|------------|--------|-----|-------------------|----------|
-| OpenSea | ETH, Polygon, Base, more | 2.5% | Optional (creator control) | Largest audience, general collections |
-| Blur | Ethereum | 0% | Optional (0% default) | Trading/flipping, pro traders |
-| Magic Eden | ETH, Solana, Bitcoin, Polygon | 2% | Enforced on Solana | Multi-chain, Solana ecosystem |
-| Foundation | Ethereum | 5% | Enforced | Curated art, 1-of-1 pieces |
-| Zora | ETH, Base, Optimism | 0% (protocol rewards) | Protocol-level | Creator-first, open editions |
-| Rarible | ETH, Polygon, more | 2.5% | Varies | Multi-chain, aggregation |
+| Marketplace | Chains                        | Fee                   | Royalty Enforcement        | Best For                              |
+| ----------- | ----------------------------- | --------------------- | -------------------------- | ------------------------------------- |
+| OpenSea     | ETH, Polygon, Base, more      | 2.5%                  | Optional (creator control) | Largest audience, general collections |
+| Blur        | Ethereum                      | 0%                    | Optional (0% default)      | Trading/flipping, pro traders         |
+| Magic Eden  | ETH, Solana, Bitcoin, Polygon | 2%                    | Enforced on Solana         | Multi-chain, Solana ecosystem         |
+| Foundation  | Ethereum                      | 5%                    | Enforced                   | Curated art, 1-of-1 pieces            |
+| Zora        | ETH, Base, Optimism           | 0% (protocol rewards) | Protocol-level             | Creator-first, open editions          |
+| Rarible     | ETH, Polygon, more            | 2.5%                  | Varies                     | Multi-chain, aggregation              |
 
 ### Royalty Enforcement Strategy
 
@@ -330,11 +331,11 @@ _setTokenRoyalty(tokenId, artistAddress, 750); // 7.5% for special tokens
 
 ### Mint Phase Strategy
 
-| Phase | Audience | Price | Duration | Purpose |
-|-------|----------|-------|----------|---------|
-| 1. Allowlist | Core community, early supporters | Discounted or free | 24-48 hours | Reward loyalty, reduce gas wars |
-| 2. Public mint | Everyone | Full price | Until sold out or time limit | Broad access |
-| 3. Dutch auction (alternative) | Everyone | Starts high, decreases over time | 2-6 hours | Price discovery, reduces gas wars |
+| Phase                          | Audience                         | Price                            | Duration                     | Purpose                           |
+| ------------------------------ | -------------------------------- | -------------------------------- | ---------------------------- | --------------------------------- |
+| 1. Allowlist                   | Core community, early supporters | Discounted or free               | 24-48 hours                  | Reward loyalty, reduce gas wars   |
+| 2. Public mint                 | Everyone                         | Full price                       | Until sold out or time limit | Broad access                      |
+| 3. Dutch auction (alternative) | Everyone                         | Starts high, decreases over time | 2-6 hours                    | Price discovery, reduces gas wars |
 
 ### Post-Launch Priorities
 
@@ -348,22 +349,22 @@ _setTokenRoyalty(tokenId, artistAddress, 750); // 7.5% for special tokens
 
 ## Utility Design Patterns
 
-| Utility Type | Implementation | Complexity | Value Driver |
-|-------------|---------------|------------|-------------|
-| Token-gated access | Verify ownership via wallet signature | Low | Exclusive content/community |
-| Staking for rewards | Staking contract distributes ERC-20 tokens | Medium | Ongoing engagement |
-| Governance voting | Snapshot.org integration (off-chain voting) | Low | Community ownership |
-| Physical goods | Burn-to-redeem mechanism | Medium | Tangible value |
-| Metaverse/gaming | In-game asset integration | High | Experiential value |
-| Revenue sharing | On-chain distribution to holders | Medium | Direct financial value |
-| Breeding/evolution | New tokens minted by combining existing ones | High | Collection expansion |
+| Utility Type        | Implementation                               | Complexity | Value Driver                |
+| ------------------- | -------------------------------------------- | ---------- | --------------------------- |
+| Token-gated access  | Verify ownership via wallet signature        | Low        | Exclusive content/community |
+| Staking for rewards | Staking contract distributes ERC-20 tokens   | Medium     | Ongoing engagement          |
+| Governance voting   | Snapshot.org integration (off-chain voting)  | Low        | Community ownership         |
+| Physical goods      | Burn-to-redeem mechanism                     | Medium     | Tangible value              |
+| Metaverse/gaming    | In-game asset integration                    | High       | Experiential value          |
+| Revenue sharing     | On-chain distribution to holders             | Medium     | Direct financial value      |
+| Breeding/evolution  | New tokens minted by combining existing ones | High       | Collection expansion        |
 
 ### Token-Gated Access Example
 
 ```javascript
 // Server-side verification that a user owns an NFT
-import { createPublicClient, http } from "viem";
-import { mainnet } from "viem/chains";
+import { createPublicClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
 
 const client = createPublicClient({
   chain: mainnet,
@@ -375,14 +376,14 @@ async function verifyNFTOwnership(walletAddress, contractAddress, tokenId) {
     address: contractAddress,
     abi: [
       {
-        name: "ownerOf",
-        type: "function",
-        inputs: [{ name: "tokenId", type: "uint256" }],
-        outputs: [{ name: "", type: "address" }],
-        stateMutability: "view",
+        name: 'ownerOf',
+        type: 'function',
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
       },
     ],
-    functionName: "ownerOf",
+    functionName: 'ownerOf',
     args: [BigInt(tokenId)],
   });
 
@@ -395,14 +396,14 @@ async function holdsAnyToken(walletAddress, contractAddress) {
     address: contractAddress,
     abi: [
       {
-        name: "balanceOf",
-        type: "function",
-        inputs: [{ name: "owner", type: "address" }],
-        outputs: [{ name: "", type: "uint256" }],
-        stateMutability: "view",
+        name: 'balanceOf',
+        type: 'function',
+        inputs: [{ name: 'owner', type: 'address' }],
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
       },
     ],
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args: [walletAddress],
   });
 
@@ -422,7 +423,6 @@ async function holdsAnyToken(walletAddress, contractAddress) {
 6. **Bot-friendly mints** -- Without allowlists or bot protection, bots dominate public mints
 7. **Ignoring legal** -- NFTs may be securities in some jurisdictions; consult legal counsel
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -430,7 +430,6 @@ async function holdsAnyToken(walletAddress, contractAddress) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -451,14 +450,12 @@ async function holdsAnyToken(walletAddress, contractAddress) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

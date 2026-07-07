@@ -18,7 +18,7 @@ steps:
   - id: authorize
     title: Sign in with Intercom
     estSeconds: 30
-    primaryAction: { label: "Sign in with Intercom", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Intercom', action: 'oauth-flow' }
     body: |
       Click **Sign in with Intercom** below. A browser tab opens to
       Intercom's OAuth consent screen.

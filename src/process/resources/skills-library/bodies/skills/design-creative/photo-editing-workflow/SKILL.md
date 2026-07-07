@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography checklist template"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'photography checklist template'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Photo Editing Workflow
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks how to edit, post-process, retouch, or develop a photograph from RAW or JPEG format
 - Wants a step-by-step editing sequence for a specific genre -- portrait, landscape, product, wedding, street, food, architecture, real estate, or fine art
 - Needs guidance on color correction, white balance calibration, tone mapping, or exposure balancing
@@ -36,6 +38,7 @@ metadata:
 - Asks about output sharpening strategies, noise reduction thresholds, or print-vs-screen color space decisions
 
 **Do NOT use this skill when:**
+
 - The user needs pre-shoot camera settings, metering, or ISO/aperture/shutter strategy -- use `exposure-triangle`
 - The user needs audio post-production, podcast mixing, or music mastering -- use `audio-editing-guide`
 - The user is writing a video script, assembling a film, or editing video footage -- use `video-script-writing`
@@ -157,19 +160,19 @@ Export settings are not one-size-fits-all. The wrong color space, resolution, or
 
 **Export Settings by Output Medium:**
 
-| Output Medium | Format | Color Space | PPI | Longest Edge / Dimensions | JPEG Quality | Output Sharpening |
-|---|---|---|---|---|---|---|
-| Instagram feed (1:1 square) | JPEG | sRGB | 72 | 1080 x 1080 px | 85-90% | Screen, Standard |
-| Instagram feed (4:5 portrait) | JPEG | sRGB | 72 | 1080 x 1350 px | 85-90% | Screen, Standard |
-| Instagram Stories / Reels cover | JPEG | sRGB | 72 | 1080 x 1920 px | 85-90% | Screen, Standard |
-| Web / portfolio website | JPEG | sRGB | 72 | 2400-3000 px long edge | 85% | Screen, Standard |
-| Email delivery to client | JPEG | sRGB | 72 | 2048-3000 px long edge | 90-95% | Screen, Standard |
-| Full-resolution client delivery | JPEG | sRGB | 300 | Full resolution (no resize) | 95-100% | Screen, Standard |
-| Professional print (photo lab) | JPEG or TIFF | sRGB (most labs) | 300 | Actual print dimensions at 300 ppi | 95-100% (JPEG) | Matte or Glossy (match substrate) |
-| Fine art inkjet print (cotton rag) | TIFF 16-bit | Adobe RGB | 300-360 | Actual dimensions at 300 ppi | Lossless | Matte, High |
-| Stock photography submission | JPEG | sRGB | 300 | Full resolution (minimum 4MP) | 95-100% | Screen, Standard |
-| E-commerce product listing | JPEG | sRGB | 72 | 2000 x 2000 px (square) | 85% | Screen, Standard |
-| Billboard / large format print | TIFF | Adobe RGB | 100-150 ppi at actual size | Actual dimensions | Lossless | Matte or Satin, High |
+| Output Medium                      | Format       | Color Space      | PPI                        | Longest Edge / Dimensions          | JPEG Quality   | Output Sharpening                 |
+| ---------------------------------- | ------------ | ---------------- | -------------------------- | ---------------------------------- | -------------- | --------------------------------- |
+| Instagram feed (1:1 square)        | JPEG         | sRGB             | 72                         | 1080 x 1080 px                     | 85-90%         | Screen, Standard                  |
+| Instagram feed (4:5 portrait)      | JPEG         | sRGB             | 72                         | 1080 x 1350 px                     | 85-90%         | Screen, Standard                  |
+| Instagram Stories / Reels cover    | JPEG         | sRGB             | 72                         | 1080 x 1920 px                     | 85-90%         | Screen, Standard                  |
+| Web / portfolio website            | JPEG         | sRGB             | 72                         | 2400-3000 px long edge             | 85%            | Screen, Standard                  |
+| Email delivery to client           | JPEG         | sRGB             | 72                         | 2048-3000 px long edge             | 90-95%         | Screen, Standard                  |
+| Full-resolution client delivery    | JPEG         | sRGB             | 300                        | Full resolution (no resize)        | 95-100%        | Screen, Standard                  |
+| Professional print (photo lab)     | JPEG or TIFF | sRGB (most labs) | 300                        | Actual print dimensions at 300 ppi | 95-100% (JPEG) | Matte or Glossy (match substrate) |
+| Fine art inkjet print (cotton rag) | TIFF 16-bit  | Adobe RGB        | 300-360                    | Actual dimensions at 300 ppi       | Lossless       | Matte, High                       |
+| Stock photography submission       | JPEG         | sRGB             | 300                        | Full resolution (minimum 4MP)      | 95-100%        | Screen, Standard                  |
+| E-commerce product listing         | JPEG         | sRGB             | 72                         | 2000 x 2000 px (square)            | 85%            | Screen, Standard                  |
+| Billboard / large format print     | TIFF         | Adobe RGB        | 100-150 ppi at actual size | Actual dimensions                  | Lossless       | Matte or Satin, High              |
 
 - **sRGB vs. Adobe RGB decision rule:** Use sRGB for all screen output. Use Adobe RGB for print output that will be soft-proofed and printed by a print service that explicitly supports Adobe RGB (fine art labs, professional photo labs). ProPhoto RGB is a working color space -- do not export delivery files in ProPhoto RGB; only use it as an internal working space. If unsure whether a print lab supports Adobe RGB, export sRGB -- it is always safe, and the gamut difference is usually invisible in standard viewing conditions.
 - **Output sharpening logic:** Screen output is viewed at 72 ppi on displays ranging from 96 to 458 ppi (retina). Standard output sharpening compensates for downsampling. Glossy print substrates (metallic, lustre, glossy) retain sharpness well -- apply standard sharpening. Matte and textured substrates (canvas, fine art cotton rag) absorb ink and diffuse sharpness -- apply high sharpening to compensate.
@@ -295,7 +298,9 @@ Export settings are not one-size-fits-all. The wrong color space, resolution, or
 ## Edge Cases
 
 ### JPEG Source File (No RAW Available)
+
 JPEG editing latitude is severely limited compared to RAW. The in-camera tone curve has already been applied, noise reduction has already been applied, and chroma data has been discarded through 4:2:0 chroma subsampling. Handle as follows:
+
 - Limit exposure adjustments to ±0.5 stops. Pushing beyond 1 stop introduces visible banding in gradients (sky, skin, smooth walls).
 - Avoid heavy shadow lifting. Shadows in JPEGs contain compressed chroma data -- lifting them reveals blocking artifacts and color banding, not clean shadow detail.
 - Do not apply aggressive noise reduction -- it was already applied in-camera and a second pass creates a waxy, over-processed look.
@@ -303,14 +308,18 @@ JPEG editing latitude is severely limited compared to RAW. The in-camera tone cu
 - Set expectations clearly with the user: the JPEG imposes a ceiling on quality that cannot be circumvented in post-processing. Document the limitations explicitly in the Before/After Notes section.
 
 ### Mixed Light Sources (e.g., Window Daylight + Tungsten Interior Lighting)
+
 A single global white balance cannot correct two light sources with different color temperatures simultaneously -- 5600K daylight and 3200K tungsten are 2400K apart.
+
 - Set the global white balance to match the primary light source illuminating the subject (usually the stronger or more directly visible source).
 - Use a brush local adjustment to correct the secondary light source area. For window light falling on a tungsten-lit room: set global WB to tungsten (~3200K), then paint a brush adjustment over the window and lit areas (+800K to +1200K to shift toward daylight). The alternative is to set global WB to daylight and use a brush on the tungsten-lit areas (shift -800K to -1200K toward tungsten).
 - Accept that a perfect neutral in both light zones simultaneously is not achievable without compositing.
 - Note to the user: in future shoots, use gels on the tungsten sources to match color temperature, or use all-tungsten or all-daylight sources.
 
 ### Very Underexposed RAW (2+ Stops Under Metered Exposure)
+
 Recovering 2-4 stops from a RAW file is technically possible but carries visible quality costs:
+
 - Push exposure 2-4 stops using the exposure slider. Expect significant luminance noise in shadow areas, color noise in the darkest regions, and possible banding in smooth tonal transitions.
 - Apply AI denoise before any other noise reduction -- it handles heavy noise better than luminance/color sliders.
 - After AI denoise, apply additional luminance noise reduction 30-50 and color noise reduction 50-70.
@@ -318,14 +327,18 @@ Recovering 2-4 stops from a RAW file is technically possible but carries visible
 - Shadow areas pushed this aggressively will show posterization (stair-stepping in gradients) -- apply a small amount of luminance smoothing (Detail slider in noise reduction set to 20-30) to soften gradient transitions.
 
 ### Photo Intended for Both Screen and Large-Format Print
+
 Do not export a single file for both uses. Instead:
+
 - Edit once to the highest quality standard. Save the full-quality edited state.
 - Export 1 for screen/web: sRGB, 72 ppi, 2400-3000 px long edge, JPEG quality 85%, screen output sharpening.
 - Export 2 for print: Adobe RGB (if the print lab supports it), 300 ppi at the actual print dimensions, TIFF 16-bit or JPEG quality 95-100%, output sharpening at matte high or glossy standard to match the print substrate.
 - For large-format prints (24 inches or wider), verify the effective PPI at the print size. A 24MP camera (6000 x 4000 pixels) at 300 ppi prints at maximum 20 x 13.3 inches. For a 24x16 inch print, the effective resolution is 250 ppi -- still acceptable. For a 40x27 inch print, the effective resolution drops to 150 ppi -- borderline. If the image will be viewed from a distance (gallery, billboard), 150 ppi is acceptable; if viewed up close, apply Preserve Details 2.0 or similar AI upscaling to reach 300 ppi.
 
 ### Extremely High ISO Capture (ISO 6400 and Above)
+
 High ISO images require a different balance of priorities -- noise reduction aggressiveness rises, and sharpening must compensate for the resulting softness:
+
 - Apply AI denoise first if available. The quality improvement over manual noise reduction at these ISO values is substantial enough to make manual sliders largely redundant on the luminance channel.
 - Set luminance noise reduction to 50-80 (high). The image will lose microdetail -- this is unavoidable. The alternative is unacceptable noise.
 - Set color noise reduction to 60-80. Color noise (the multicolored speckle) is more distracting than luminance noise and should be prioritized.
@@ -333,14 +346,18 @@ High ISO images require a different balance of priorities -- noise reduction agg
 - Consider the creative option: convert to black and white. Luminance noise at ISO 6400+ in black and white resembles 35mm film grain and carries aesthetic value. Use the B&W mixer to give the image dimension -- darken blues (sky) and lighten oranges/yellows (skin) to create the classic black-and-white portrait range.
 
 ### Skin Tone Correction in Stylized Color Grades
+
 When applying creative color grades (teal-and-orange, desaturated editorial, faded film), skin tones are the most likely casualty -- they shift to unnatural hues that clients notice and reject even when they cannot articulate why:
+
 - After applying the creative grade, zoom to 100% on the face and check skin tone hue in the Info panel. Skin tones at all ethnicities should read predominantly in the orange channel of the HSL panel, with secondary representation in the red and yellow channels. No skin tone should read primarily green, cyan, or purple.
 - Use the targeted adjustment tool (the small circular icon in the HSL panel) and click directly on a midtone skin area. This identifies which HSL channels the skin occupies in the specific image.
 - If the grade has shifted skin into unflattering territory, use HSL to pull back the specific channels: increase orange luminance, slightly reduce orange saturation, or shift orange hue toward yellow. These corrections are independent of the grade applied to the rest of the image if applied with care.
 - For severe cases, use a brush local adjustment on the face area and apply a counter-correction that restores skin hue independently of the global grade.
 
 ### Soft Focus or Camera Motion During Capture
+
 Sharpening in post-processing cannot recover focus that was not captured. Understanding the difference between correctable and uncorrectable softness is essential:
+
 - **Correctable:** Slight softness from RAW demosaicing (corrected with capture sharpening). Diffraction softness from shooting at f/22+ (partially corrected with clarity and sharpening). Atmospheric haze in distant landscape shots (partially corrected with Dehaze slider, 15-35 range, above 40 creates artificial crunchiness).
 - **Not correctable through standard sharpening:** Camera shake (motion blur introduces directional smearing -- sharpening amplifies the blur, not the detail). Front/back focus error at wide apertures (the focal plane missed the subject's eyes -- the eyelashes or ears will be sharp but eyes will not). Gaussian out-of-focus blur (the background can never be made sharp in post -- only compositing or AI-based refocus tools can attempt this, with mixed results).
 - Set honest expectations: "The eyes in this image are soft from focus error. I can apply sharpening to maximize the available detail, but the image does not have the focal plane on the eyes. Sharpening will not fix focus."
@@ -367,6 +384,7 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 ### Editing Sequence
 
 #### Step 1: White Balance
+
 - Method: Eyedropper on the white ceramic plate (the plate is a known neutral and is directly in frame -- this is ideal for food photography). Click on a midtone area of the plate, not the specular highlight.
 - Temperature: Target approximately 4800-5200K (LED continuous lights typically run 5000-5600K; the auto result will be close but may have a green or slightly cool cast from the LED spectrum)
 - Tint: Expect a correction of +3 to +8 toward magenta (most LED panels have a slight green spike in their spectrum -- the tint slider corrects this)
@@ -374,11 +392,13 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 - Rationale: Food photography clients (restaurants, food brands) judge white balance accuracy by looking at plates, cream sauces, and white garnishes. If those look warm or green, the whole image reads as incorrectly lit.
 
 #### Step 2: Exposure
+
 - Adjustment: +0.3 stops (overhead LED studio setups are often metered conservatively by the camera, resulting in a slightly underexposed image. The pasta and sauce should be bright and appetizing, not dim and flat.)
 - Histogram target: The bulk of the data should sit in the right-center to right portion of the histogram. The white plate should approach the right edge without clipping. A gap on the right means the image looks underlit and unappetizing.
 - Clipping status: Check that the plate is not pure white (255,255,255) -- a white plate with texture should retain subtle tonal variation. Clipping preview should show no blown highlights on the plate surface. Sauce highlights (reflective tomato sauce, olive oil sheen) are acceptable with minor clipping.
 
 #### Step 3: Highlights, Shadows, Whites, Blacks
+
 - Highlights: -25 (recovers the oil sheen on the pasta and any reflective highlights in the sauce without dulling the overall brightness of the image)
 - Shadows: +20 (lifts the deep shadow in the concave areas of the pasta and the darker sections under garnishes -- food images benefit from visible shadow detail rather than crushed blacks, as it reveals texture)
 - Whites: +15 (the plate should read bright and clean -- a slightly positive whites value ensures the plate reads as white, not gray)
@@ -386,6 +406,7 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 - Tone curve: Apply a gentle S-curve. Lift the three-quarter point (75% luminance) by 8 units to brighten the sauce and highlight the warm food tones. Pull the quarter point (25% luminance) down by 8 units to deepen the shadows underneath the pasta for texture and depth. Keep it subtle -- food photography benefits from brightness and richness, not dramatic contrast.
 
 #### Step 4: Color Grading
+
 - Contrast: +10 (slight punch to make colors richer without creating harsh contrast)
 - Vibrance: +20 (significantly boosts the muted reds of the tomato sauce and the greens of fresh basil -- vibrance's protection of already-saturated hues means the bright red garnishes do not blow into oversaturation)
 - Saturation: +5 (a small global boost assists the warmth of the pasta and cream sauce tones)
@@ -407,6 +428,7 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 - Camera profile: Adobe Color or Camera Standard -- apply before all adjustments to ensure accurate color rendering as the starting baseline
 
 #### Step 5: Local Adjustments
+
 - Graduated filter on the background / edges: Area -- outer 15% of the frame on all sides. Settings -- exposure -0.3, feathering 80. Rationale: draws the eye inward toward the plate and food, prevents the white background from competing with the subject.
 - Radial filter centered on the pasta: Area -- oval covering 60% of the frame, centered on the hero food element. Settings -- inside: exposure +0.2, clarity +15, vibrance +10. Rationale: brightens and adds microcontrast to the primary food subject, making it the most visually compelling element in the frame.
 - Brush on fresh herbs (basil): Clarity +20, vibrance +10. Rationale: fresh herbs need microcontrast (clarity) to show individual leaf veins and texture -- this is what communicates freshness and quality. Brush carefully to cover only the herb leaves.
@@ -414,6 +436,7 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 - Vignette: Amount -15, Feather 90, Midpoint 60, Roundness +20. Rationale: a subtle vignette on food photography keeps the eye on the plate without creating an obvious processed look. The high feathering and positive roundness keep it natural.
 
 #### Step 6: Sharpening and Noise Reduction
+
 - Capture sharpening: Amount 80, Radius 1.0, Detail 60, Masking 35
   - Rationale: Food photography benefits from high sharpening -- the viewer expects to see pasta texture, sauce gloss, herb leaf veins, and cheese granules. Masking at 35 keeps some sharpening on smooth surfaces (sauce) while ensuring fine details are well-rendered. Detail at 60 prioritizes fine structure (pasta texture, herb veins) over simple edge enhancement.
 - Luminance noise reduction: 15 (ISO 400 on a modern sensor is largely clean -- a light application removes micro-texture artifacts without visibly softening the food detail)
@@ -423,11 +446,12 @@ Sharpening in post-processing cannot recover focus that was not captured. Unders
 
 #### Step 7: Export
 
-| Parameter | Web (Restaurant Website) | Print (5x7 Menu, Glossy) |
-|---|---|---|
-| Format | JPEG | JPEG |
-| Color space | sRGB | sRGB |
-| PPI | 72 | 300 |
-| Dimensions | 2400 px long edge | 2100 x 1500 px (7x5 at 300 ppi) |
-| JPEG quality | 85% | 95% |
+| Parameter    | Web (Restaurant Website) | Print (5x7 Menu, Glossy)        |
+| ------------ | ------------------------ | ------------------------------- |
+| Format       | JPEG                     | JPEG                            |
+| Color space  | sRGB                     | sRGB                            |
+| PPI          | 72                       | 300                             |
+| Dimensions   | 2400 px long edge        | 2100 x 1500 px (7x5 at 300 ppi) |
+| JPEG quality | 85%                      | 95%                             |
+
 | Output sh

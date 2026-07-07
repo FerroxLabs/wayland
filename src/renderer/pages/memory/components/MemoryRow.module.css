@@ -126,7 +126,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--color-primary-light-1, rgba(255, 107, 53, 0.10));
+  background: var(--color-primary-light-1, rgba(255, 107, 53, 0.1));
   color: var(--color-primary-6, var(--color-primary));
   border-radius: 999px;
   padding: 2px 7px;

@@ -9,7 +9,12 @@ import { Divider, Form, Switch, Message, Button } from '@arco-design/web-react';
 import { Wand2, Plug, RefreshCw, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ConfigStorage, BUILTIN_IMAGE_GEN_ID, type IConfigStorageRefer, type IMcpServer } from '@/common/config/storage';
+import {
+  ConfigStorage,
+  BUILTIN_IMAGE_GEN_ID,
+  type IConfigStorageRefer,
+  type IMcpServer,
+} from '@/common/config/storage';
 import {
   isImageModelName,
   imageModelDisplayLabel,
@@ -17,17 +22,12 @@ import {
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
 import useConfigModelListWithImage from '@renderer/hooks/agent/useConfigModelListWithImage';
-import {
-  useMcpServers,
-  useMcpAgentStatus,
-  useMcpOperations,
-} from '@renderer/hooks/mcp';
+import { useMcpServers, useMcpAgentStatus, useMcpOperations } from '@renderer/hooks/mcp';
 import WaylandSelect from '@renderer/components/base/WaylandSelect';
 import McpAgentStatusDisplay from '@renderer/pages/settings/ToolsSettings/McpAgentStatusDisplay';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 
-const isBuiltinImageGenServer = (server: IMcpServer) =>
-  server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
+const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 
 const ImageGenSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -196,10 +196,7 @@ const ImageGenSettings: React.FC = () => {
     isUpdating || !builtinImageGenServer || !imageModelList.length || !imageGenerationModel?.useModel;
 
   return (
-    <SettingsPageShell
-      title={t('settings.imageGenPage.title')}
-      subtitle={t('settings.imageGenPage.subtitle')}
-    >
+    <SettingsPageShell title={t('settings.imageGenPage.title')} subtitle={t('settings.imageGenPage.subtitle')}>
       {messageContext}
 
       {/* MCP server enable/disable */}

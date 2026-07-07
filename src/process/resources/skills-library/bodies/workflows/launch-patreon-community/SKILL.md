@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "patreon-strategist content-calendar community-builder"
+skills: 'patreon-strategist content-calendar community-builder'
 trigger_phrases: >-
   I want to launch a Patreon start a membership community how to set up Patreon
   tiers Patreon growth strategy build a paid community membership platform
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: content-marketing networking email-marketing step-by-step planning
   category: creative-project
-  depends: "patreon-strategist content-calendar community-builder"
+  depends: 'patreon-strategist content-calendar community-builder'
 ---
+
 # Launch Patreon Community
 
 **Estimated time:** 4-8 weeks
@@ -157,6 +158,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -167,7 +169,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Treating Patreon as a tip jar:** "Support me because you like my work" does not convert. Offer specific, tangible value at every tier.
 - **Launching without a backlog:** If you launch empty and then scramble to create content, quality suffers and members churn in the first month.
 - **Ignoring community:** Members who feel like a community stay longer than members who feel like customers. Invest in connection, not just content delivery.
-
 
 ### Timeline Considerations
 

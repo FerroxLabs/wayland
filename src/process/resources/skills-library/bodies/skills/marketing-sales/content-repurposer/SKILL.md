@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Content Repurposer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on content repurposer
 - User asks about content repurposer best practices or techniques
 - User wants a structured approach to content repurposer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of content repurposer
 
@@ -81,6 +82,7 @@ Create ONE piece of cornerstone content, then systematically adapt it into 10-20
 ### The Multiplication Math
 
 One 30-minute YouTube video can become:
+
 ```
 1  Full YouTube video
 3  YouTube Shorts (highlight clips)
@@ -103,6 +105,7 @@ One 30-minute YouTube video can become:
 ### Blog Post to Everything
 
 **Blog to Video:**
+
 ```
 1. Identify the key points (reduce from 1,500 words to 5-7 main ideas)
 2. Create a script or talking points outline
@@ -113,6 +116,7 @@ One 30-minute YouTube video can become:
 ```
 
 **Blog to Podcast:**
+
 ```
 1. Use the blog structure as your episode outline
 2. Expand with verbal storytelling (add context, stories, tangents)
@@ -122,6 +126,7 @@ One 30-minute YouTube video can become:
 ```
 
 **Blog to Social Media:**
+
 ```
 Twitter/X Thread:
   - Opening hook (most compelling point from the blog)
@@ -148,6 +153,7 @@ Quote Graphics:
 ```
 
 **Blog to Newsletter:**
+
 ```
 1. Write a personal intro (what prompted this piece, why it matters now)
 2. Include the 3 key takeaways (don't reproduce the entire blog)
@@ -159,6 +165,7 @@ Quote Graphics:
 ### Video to Everything
 
 **Video to Blog:**
+
 ```
 1. Transcribe the video (Descript, Otter.ai, YouTube auto-captions)
 2. Clean up the transcript (remove filler words, false starts)
@@ -168,6 +175,7 @@ Quote Graphics:
 ```
 
 **Video to Short-Form Clips:**
+
 ```
 1. Watch through and timestamp the best moments
 2. Look for:
@@ -185,6 +193,7 @@ Quote Graphics:
 ```
 
 **Video to Podcast:**
+
 ```
 1. Extract audio from the video file
 2. Clean up audio (remove visual references: "as you can see...")
@@ -194,6 +203,7 @@ Quote Graphics:
 ```
 
 **Video to Social:**
+
 ```
 Twitter thread:  Key points from the video, each tweet standalone
 LinkedIn post:   Professional angle of the video topic
@@ -205,6 +215,7 @@ Quote cards:     Pull 3-5 best quotes from the video
 ### Podcast to Everything
 
 **Podcast to Blog:**
+
 ```
 1. Transcribe the episode
 2. Edit for readability (spoken word =/= written word)
@@ -215,6 +226,7 @@ Quote cards:     Pull 3-5 best quotes from the video
 ```
 
 **Podcast to Video:**
+
 ```
 Option A: Audiogram
   - Pull 60-90 second clip of the best moment
@@ -233,6 +245,7 @@ Option C: Talking Head Commentary
 ```
 
 **Podcast to Social:**
+
 ```
 Audiograms:        30-60 second clips with waveform
 Quote graphics:    Key statements from the episode
@@ -244,6 +257,7 @@ Guest spotlights:  Feature the guest with a compelling quote
 ### Newsletter to Everything
 
 **Newsletter to Social:**
+
 ```
 Twitter/X: Thread of the key insights from this week's issue
 LinkedIn:  Adapt the main point for a professional audience
@@ -252,6 +266,7 @@ TikTok:    Quick video covering the newsletter's main tip
 ```
 
 **Newsletter to Blog:**
+
 ```
 1. Expand the newsletter with additional detail and examples
 2. Add SEO optimization (keywords, meta description, headers)
@@ -265,19 +280,19 @@ TikTok:    Quick video covering the newsletter's main tip
 
 **The Golden Rule**: Never cross-post identical content. Each platform has its own culture, format preferences, and algorithm preferences.
 
-| Platform | Optimal Format | Tone | Length | Key Differentiator |
-|----------|---------------|------|--------|-------------------|
-| YouTube | Polished video | Educational, entertaining | 8-20 min | Depth, SEO, evergreen |
-| YouTube Shorts | Vertical clips | Punchy, immediate | 15-60 sec | Hook in 1 second |
-| Instagram Feed | Carousel, Reel | Visually appealing | 30 sec - 90 sec video, 5-10 slide carousel | Aesthetics + value |
-| Instagram Stories | Raw, casual | Conversational | 15 sec per frame | Behind-the-scenes, polls |
-| TikTok | Vertical video | Authentic, energetic | 15-60 sec | Trending sounds, hooks |
-| Twitter/X | Text, threads | Concise, witty | 280 char / 10+ tweet threads | Ideas, conversation |
-| LinkedIn | Text post, article | Professional, insightful | 200-300 words post | Career/business angle |
-| Pinterest | Vertical image/video | Inspirational, useful | Long pins (1000x1500px) | Searchable, evergreen |
-| Blog/Website | Long-form text | Detailed, structured | 1,000-3,000 words | SEO, owned platform |
-| Newsletter | Curated text | Personal, direct | 500-1,500 words | Relationship, exclusivity |
-| Podcast | Audio conversation | Deep, conversational | 20-60 min | Intimacy, depth |
+| Platform          | Optimal Format       | Tone                      | Length                                     | Key Differentiator        |
+| ----------------- | -------------------- | ------------------------- | ------------------------------------------ | ------------------------- |
+| YouTube           | Polished video       | Educational, entertaining | 8-20 min                                   | Depth, SEO, evergreen     |
+| YouTube Shorts    | Vertical clips       | Punchy, immediate         | 15-60 sec                                  | Hook in 1 second          |
+| Instagram Feed    | Carousel, Reel       | Visually appealing        | 30 sec - 90 sec video, 5-10 slide carousel | Aesthetics + value        |
+| Instagram Stories | Raw, casual          | Conversational            | 15 sec per frame                           | Behind-the-scenes, polls  |
+| TikTok            | Vertical video       | Authentic, energetic      | 15-60 sec                                  | Trending sounds, hooks    |
+| Twitter/X         | Text, threads        | Concise, witty            | 280 char / 10+ tweet threads               | Ideas, conversation       |
+| LinkedIn          | Text post, article   | Professional, insightful  | 200-300 words post                         | Career/business angle     |
+| Pinterest         | Vertical image/video | Inspirational, useful     | Long pins (1000x1500px)                    | Searchable, evergreen     |
+| Blog/Website      | Long-form text       | Detailed, structured      | 1,000-3,000 words                          | SEO, owned platform       |
+| Newsletter        | Curated text         | Personal, direct          | 500-1,500 words                            | Relationship, exclusivity |
+| Podcast           | Audio conversation   | Deep, conversational      | 20-60 min                                  | Intimacy, depth           |
 
 ### Platform-Specific Hooks
 
@@ -353,22 +368,23 @@ Cornerstone: [Title/Topic]
 
 ### Tool Stack for Repurposing
 
-| Tool | Function | Price | Best For |
-|------|----------|-------|----------|
-| Descript | Transcription + video editing | $24/mo | Turning video to text, clip creation |
-| Opus Clip | AI short-form clip extraction | $19/mo | Auto-finding best clips from long video |
-| Repurpose.io | Auto-distribute content | $20/mo | Cross-posting to multiple platforms |
-| Canva | Design graphics and carousels | $13/mo | Visual content creation |
-| Buffer / Later | Schedule social media | $6-15/mo | Publishing calendar management |
-| Otter.ai | Transcription | $16/mo | Meeting and podcast transcription |
-| Headliner | Audiograms | Free-$25/mo | Podcast to video clips |
-| Zapier / Make | Workflow automation | $20+/mo | Connecting tools together |
-| ChatGPT / Claude | Content adaptation | $20/mo | Rewriting content for different formats |
-| CapCut | Video editing | Free | Short-form video editing |
+| Tool             | Function                      | Price       | Best For                                |
+| ---------------- | ----------------------------- | ----------- | --------------------------------------- |
+| Descript         | Transcription + video editing | $24/mo      | Turning video to text, clip creation    |
+| Opus Clip        | AI short-form clip extraction | $19/mo      | Auto-finding best clips from long video |
+| Repurpose.io     | Auto-distribute content       | $20/mo      | Cross-posting to multiple platforms     |
+| Canva            | Design graphics and carousels | $13/mo      | Visual content creation                 |
+| Buffer / Later   | Schedule social media         | $6-15/mo    | Publishing calendar management          |
+| Otter.ai         | Transcription                 | $16/mo      | Meeting and podcast transcription       |
+| Headliner        | Audiograms                    | Free-$25/mo | Podcast to video clips                  |
+| Zapier / Make    | Workflow automation           | $20+/mo     | Connecting tools together               |
+| ChatGPT / Claude | Content adaptation            | $20/mo      | Rewriting content for different formats |
+| CapCut           | Video editing                 | Free        | Short-form video editing                |
 
 ### Automation Workflows
 
 **Workflow 1: YouTube to Everything**
+
 ```
 YouTube video published (trigger)
   --> Descript: Auto-transcribe
@@ -380,6 +396,7 @@ YouTube video published (trigger)
 ```
 
 **Workflow 2: Podcast to Everything**
+
 ```
 Podcast episode published (trigger)
   --> Otter.ai: Transcribe episode
@@ -390,6 +407,7 @@ Podcast episode published (trigger)
 ```
 
 **Workflow 3: Blog to Social**
+
 ```
 Blog post published (trigger)
   --> AI tool: Generate Twitter thread
@@ -491,7 +509,6 @@ TOTALS:
 9. **Manual processes at scale**: Automate what you can, save creative energy for creation
 10. **skipping the archive**: Your best-performing content from 6 months ago can be repurposed again today
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -504,13 +521,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with content repurposer for a mid-size project."
 
 **Output:** A complete content repurposer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

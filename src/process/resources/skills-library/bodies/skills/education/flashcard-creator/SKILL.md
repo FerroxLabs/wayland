@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills spaced-repetition guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills spaced-repetition guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Flashcard Creator
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to create effective flashcards for any subject
 - User needs help optimizing their Anki or spaced repetition setup
 - User wants to convert study material into flashcard format
 - User needs quiz questions (MCQ, short answer, matching) for a topic
 
 **Do NOT use this skill when:**
+
 - User wants a full study plan beyond flashcards -- use study-planner
 - User needs tutoring or concept explanation -- use personal-tutor
 - User wants test prep strategy -- use dedicated exam prep skills
@@ -512,6 +514,7 @@ When creating flashcards or quizzes, provide:
 **Output:**
 
 ## Card Inventory
+
 - 10 cards: 4 basic Q&A, 4 cloze deletion, 2 comparison
 - Tags: ap-bio, ch06, cellular-respiration, metabolism
 
@@ -538,6 +541,7 @@ Back: Substrate-level: direct transfer of phosphate to ADP, occurs in glycolysis
 [Cards 6-10 continue covering NAD+/NADH, FADH2, oxygen's role, fermentation comparison, total ATP yield]
 
 ## Anki Import
+
 Recommended settings: 5 new cards/day, learning steps 1m 10m, graduating interval 1 day.
 
 ## Edge Cases

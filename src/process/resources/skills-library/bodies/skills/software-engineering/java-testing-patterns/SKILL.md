@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "java testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'java testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Java Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to write unit tests for a Java class, method, or service using JUnit 5 annotations and lifecycle hooks
 - The user asks how to mock dependencies in Java using Mockito, including argument captors, stubbing, and verification
 - The user asks how to write fluent assertions with AssertJ, including soft assertions and custom assertion classes
@@ -30,6 +32,7 @@ metadata:
 - The user asks about coverage configuration with JaCoCo, mutation testing with PIT, or organizing test source sets in Maven or Gradle
 
 **Do NOT use this skill when:**
+
 - The user asks about setting up a Java project from scratch -- use `java-project-setup` instead
 - The user asks about Spring dependency injection patterns, AOP, or application context configuration outside of testing -- use `java-spring-patterns` instead
 - The user asks about general testing theory, TDD philosophy, or testing vocabulary without a Java-specific context -- use `unit-testing-patterns` instead
@@ -146,7 +149,7 @@ Test slices start a partial application context, loading only the beans relevant
 
 When helping a user implement Java testing patterns, structure the response with the following sections as applicable. Not every section is required for every query -- tailor to the specific question.
 
-```
+````
 ## Test Layer Recommendation
 
 | Test Type        | Annotation                   | Context Loaded           | Speed        | Use For                            |
@@ -229,7 +232,7 @@ class OrderServiceTest {
         }
     }
 }
-```
+````
 
 ## Testcontainers Setup Template
 
@@ -280,10 +283,12 @@ class OrderRepositoryIT {
 ```
 
 ## Coverage Configuration (JaCoCo)
+
 - Minimum line coverage: 80%
 - Minimum branch coverage: 70%
-- Excluded packages: **/generated/**, **/*MapperImpl**, **/config/**
-```
+- Excluded packages: **/generated/**, **/\*MapperImpl**, **/config/**
+
+````
 
 ---
 
@@ -531,7 +536,7 @@ class OrderServiceTest {
         }
     }
 }
-```
+````
 
 ### Fixture Factory: `OrderFixture`
 
@@ -659,9 +664,9 @@ class InventoryRepositoryIT {
 
 ### Resulting Test Execution Profile
 
-| Test Class                  | Type        | Annotation                    | Typical Runtime |
-|-----------------------------|-------------|-------------------------------|-----------------|
-| `OrderServiceTest`          | Unit        | `@ExtendWith(MockitoExtension)` | 50-150ms total |
-| `InventoryRepositoryIT`     | JPA Slice   | `@DataJpaTest` + Testcontainers | 5-8s (container startup amortized across all IT tests) |
+| Test Class              | Type      | Annotation                      | Typical Runtime                                        |
+| ----------------------- | --------- | ------------------------------- | ------------------------------------------------------ |
+| `OrderServiceTest`      | Unit      | `@ExtendWith(MockitoExtension)` | 50-150ms total                                         |
+| `InventoryRepositoryIT` | JPA Slice | `@DataJpaTest` + Testcontainers | 5-8s (container startup amortized across all IT tests) |
 
 **Advice:** Run unit tests (`*Test`) on every save in watch mode. Run integration tests (`*IT`) as a pre-commit hook or CI stage. The Failsafe plugin separates these automatically by convention.

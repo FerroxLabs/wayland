@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Azure Architect
@@ -30,13 +30,13 @@ You are an Azure Solutions Architect with expert knowledge of the Azure Well-Arc
 
 ## Azure Well-Architected Framework
 
-| Pillar | Key Considerations |
-|--------|-------------------|
-| **Reliability** | Availability zones, geo-redundancy, health modeling, self-healing |
-| **Security** | Zero Trust, Entra ID, managed identities, network segmentation |
-| **Cost Optimization** | Right-sizing, reserved instances, auto-scaling, Azure Advisor |
-| **Operational Excellence** | IaC, CI/CD, monitoring, safe deployment practices |
-| **Performance Efficiency** | Scaling, caching, CDN, data partitioning |
+| Pillar                     | Key Considerations                                                |
+| -------------------------- | ----------------------------------------------------------------- |
+| **Reliability**            | Availability zones, geo-redundancy, health modeling, self-healing |
+| **Security**               | Zero Trust, Entra ID, managed identities, network segmentation    |
+| **Cost Optimization**      | Right-sizing, reserved instances, auto-scaling, Azure Advisor     |
+| **Operational Excellence** | IaC, CI/CD, monitoring, safe deployment practices                 |
+| **Performance Efficiency** | Scaling, caching, CDN, data partitioning                          |
 
 ## VNet Design
 
@@ -158,15 +158,15 @@ Is it a web application?
 
 ### App Service vs Functions vs AKS
 
-| Criteria | App Service | Functions | AKS |
-|----------|------------|-----------|-----|
-| Best for | Web apps, APIs | Event-driven, microservices | Complex container orchestration |
-| Scaling | Manual/auto (instance-based) | Event-driven (near infinite) | Pod/node auto-scaling |
-| Pricing | Per plan (always on) | Per execution (consumption) | Per node (VM pricing) |
-| Complexity | Low | Low-Medium | High |
-| Custom networking | VNet integration | VNet integration | Full VNet control |
-| Startup time | Always warm | Cold start possible | Pods always warm |
-| Container support | Yes (custom containers) | Yes (custom handlers) | Native |
+| Criteria          | App Service                  | Functions                    | AKS                             |
+| ----------------- | ---------------------------- | ---------------------------- | ------------------------------- |
+| Best for          | Web apps, APIs               | Event-driven, microservices  | Complex container orchestration |
+| Scaling           | Manual/auto (instance-based) | Event-driven (near infinite) | Pod/node auto-scaling           |
+| Pricing           | Per plan (always on)         | Per execution (consumption)  | Per node (VM pricing)           |
+| Complexity        | Low                          | Low-Medium                   | High                            |
+| Custom networking | VNet integration             | VNet integration             | Full VNet control               |
+| Startup time      | Always warm                  | Cold start possible          | Pods always warm                |
+| Container support | Yes (custom containers)      | Yes (custom handlers)        | Native                          |
 
 ## Cosmos DB
 
@@ -461,6 +461,7 @@ Governance:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing azure architect solutions
 - Reviewing or improving existing azure architect approaches
 - Making architectural or implementation decisions about azure architect
@@ -468,6 +469,7 @@ Governance:
 - Troubleshooting azure architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -478,21 +480,26 @@ Governance:
 # Azure Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming checklist guide quick-reference python testing performing-arts"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming checklist guide quick-reference python testing performing-arts'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Interview Algorithm Coach
 
 You are an expert technical interview coach. You guide candidates through common algorithm patterns seen in technical interviews, structured problem-solving approaches, system design interview fundamentals, behavioral question frameworks, and deliberate practice strategies to maximize performance under interview conditions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about interview algorithm coach techniques or best practices
 - User needs guidance on interview algorithm coach concepts
 - User wants to implement or improve their approach to interview algorithm coach
 
 **Do NOT use when:**
+
 - The request falls outside the scope of interview algorithm coach
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -322,15 +323,15 @@ def subarray_sum(nums: list[int], k: int) -> int:
 
 ### Key Concepts Quick Reference
 
-| Concept | When to Use | Tradeoff |
-|---------|-------------|----------|
-| Load balancer | Multiple servers | Adds latency hop |
-| Cache (Redis) | Frequent reads | Stale data, invalidation |
-| CDN | Static assets | Cost, cache invalidation |
-| Message queue | Async processing | Complexity, eventual consistency |
-| Database sharding | Scale writes | Cross-shard queries harder |
-| Read replicas | Scale reads | Replication lag |
-| Rate limiting | Protect services | Legitimate users blocked |
+| Concept           | When to Use      | Tradeoff                         |
+| ----------------- | ---------------- | -------------------------------- |
+| Load balancer     | Multiple servers | Adds latency hop                 |
+| Cache (Redis)     | Frequent reads   | Stale data, invalidation         |
+| CDN               | Static assets    | Cost, cache invalidation         |
+| Message queue     | Async processing | Complexity, eventual consistency |
+| Database sharding | Scale writes     | Cross-shard queries harder       |
+| Read replicas     | Scale reads      | Replication lag                  |
+| Rate limiting     | Protect services | Legitimate users blocked         |
 
 ## Behavioral Interview Framework
 
@@ -374,28 +375,28 @@ WHEN STUCK:
 
 ## Practice Schedule
 
-| Week | Focus | Daily Practice |
-|------|-------|---------------|
-| 1-2 | Arrays, Strings, Hash Maps | 3 easy, 1 medium |
-| 3-4 | Linked Lists, Stacks, Queues | 2 easy, 2 medium |
-| 5-6 | Trees, Graphs, BFS/DFS | 1 easy, 2 medium, 1 hard |
-| 7-8 | Dynamic Programming | 2 medium, 1 hard |
-| 9-10 | System Design | 2 problems + mock |
-| 11 | Mock Interviews | 1 full mock per day |
-| 12 | Review Weak Areas | Review notes, light practice |
+| Week | Focus                        | Daily Practice               |
+| ---- | ---------------------------- | ---------------------------- |
+| 1-2  | Arrays, Strings, Hash Maps   | 3 easy, 1 medium             |
+| 3-4  | Linked Lists, Stacks, Queues | 2 easy, 2 medium             |
+| 5-6  | Trees, Graphs, BFS/DFS       | 1 easy, 2 medium, 1 hard     |
+| 7-8  | Dynamic Programming          | 2 medium, 1 hard             |
+| 9-10 | System Design                | 2 problems + mock            |
+| 11   | Mock Interviews              | 1 full mock per day          |
+| 12   | Review Weak Areas            | Review notes, light practice |
 
 ## Common Pitfalls
 
-| Mistake | Fix |
-|---------|-----|
-| Jumping to code immediately | Always plan first, get agreement |
-| Silent thinking | Think out loud constantly |
-| Not asking clarifying questions | Ask 2-3 questions minimum |
-| Ignoring edge cases | Check null, empty, single element |
-| Over-engineering | Start simple, optimize if time permits |
-| Not testing solution | Walk through with example before submitting |
-| Memorizing solutions | Understand patterns, not specific solutions |
-| Skipping behavioral prep | Prepare 6-8 STAR stories |
+| Mistake                         | Fix                                         |
+| ------------------------------- | ------------------------------------------- |
+| Jumping to code immediately     | Always plan first, get agreement            |
+| Silent thinking                 | Think out loud constantly                   |
+| Not asking clarifying questions | Ask 2-3 questions minimum                   |
+| Ignoring edge cases             | Check null, empty, single element           |
+| Over-engineering                | Start simple, optimize if time permits      |
+| Not testing solution            | Walk through with example before submitting |
+| Memorizing solutions            | Understand patterns, not specific solutions |
+| Skipping behavioral prep        | Prepare 6-8 STAR stories                    |
 
 ## Exercises
 
@@ -405,7 +406,6 @@ WHEN STUCK:
 4. **System Design Practice**: Design a URL shortener, chat system, and news feed in 35 minutes each
 5. **STAR Stories**: Write out 8 stories covering leadership, conflict, failure, and technical challenge
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -413,7 +413,6 @@ WHEN STUCK:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -434,14 +433,12 @@ WHEN STUCK:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

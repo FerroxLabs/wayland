@@ -25,7 +25,9 @@
   font: inherit;
   color: inherit;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--needs-blue) 10%, transparent);
-  transition: background 120ms ease, border-color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
 }
 
 .card:hover {

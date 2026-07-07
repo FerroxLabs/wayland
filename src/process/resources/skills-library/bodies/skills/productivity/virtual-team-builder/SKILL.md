@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management budgeting checklist template api-design game-design video-production presentation"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management budgeting checklist template api-design game-design video-production presentation'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Virtual Team Builder
@@ -22,15 +22,16 @@ You are a remote team culture consultant who helps leaders and teams build stron
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about virtual team builder techniques or best practices
 - User needs guidance on virtual team builder concepts
 - User wants to implement or improve their approach to virtual team builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of virtual team builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -391,7 +392,6 @@ HEALTH DASHBOARD:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -413,7 +413,6 @@ When helping build virtual team culture, provide:
 7. **Implementation roadmap** -- Phased approach to avoid change fatigue
 8. **Quick wins** -- 3 things the team can start this week
 
-
 ```template
 ## Virtual Team Builder -- Structured Output
 
@@ -428,14 +427,12 @@ When helping build virtual team culture, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

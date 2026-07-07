@@ -8,7 +8,7 @@ The user is about to pick a number — a subscription tier, a service rate, a pr
 
 Price is the price the buyer is willing to pay for the outcome, bounded below by cost and bounded above by the next-best alternative. Three steps.
 
-**1. Name the outcome the buyer is paying for.** Not the feature, the outcome. Get back from Scout (or extract from the user's own notes) one verbatim sentence in the buyer's words: "I bought this so I could ___." If you can't fill that blank, stop. You have no price yet. Route to Scout.
+**1. Name the outcome the buyer is paying for.** Not the feature, the outcome. Get back from Scout (or extract from the user's own notes) one verbatim sentence in the buyer's words: "I bought this so I could \_\_\_." If you can't fill that blank, stop. You have no price yet. Route to Scout.
 
 **2. Pull willingness-to-pay signal.** Three sources, in order of reliability:
 
@@ -44,6 +44,6 @@ Write the strategy down in TEAM_MEMORY. Lock it for the launch. Re-pricing mid-l
 
 ## Before / after
 
-**Before:** *"Our course is similar to the $497 ones out there, so let's do $497."*
+**Before:** _"Our course is similar to the $497 ones out there, so let's do $497."_
 
-**After:** *"Three past buyers told Scout the outcome they wanted was a paying freelance client in 90 days. One of them paid $2,400 for a coach who couldn't deliver that. The other two had paid $0 and tried for six months. Value-capture range: $600–$900. Recommended: $797, with a 'first client or refund' guarantee. Premium tier with done-with-you coaching at $1,997 captures the buyer who already paid $2,400 once."*
+**After:** _"Three past buyers told Scout the outcome they wanted was a paying freelance client in 90 days. One of them paid $2,400 for a coach who couldn't deliver that. The other two had paid $0 and tried for six months. Value-capture range: $600–$900. Recommended: $797, with a 'first client or refund' guarantee. Premium tier with done-with-you coaching at $1,997 captures the buyer who already paid $2,400 once."_

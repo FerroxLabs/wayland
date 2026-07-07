@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability planning analysis checklist"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability planning analysis checklist'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Green Transportation Planner
 
 ## When to Use
 
 **Use this skill when:**
+
 - User explicitly asks about reducing their personal transportation carbon footprint or commute emissions
 - User wants a side-by-side comparison of driving, transit, cycling, carpooling, or EV options with real CO2e and dollar figures
 - User is considering transitioning from solo car commuting to a lower-emission mode and needs a practical plan
@@ -29,6 +31,7 @@ metadata:
 - User is building a personal sustainability plan and transportation is one component to be addressed
 
 **Do NOT use when:**
+
 - User needs turn-by-turn or route-specific cycling guidance (use `cycling-route-planner`)
 - User is managing a fleet of company vehicles, delivery routes, or commercial logistics
 - User is asking about urban planning, public transit funding, or transportation policy advocacy
@@ -46,6 +49,7 @@ metadata:
 Ask the user for the following information before running any calculations. Do not guess at inputs that significantly affect the output. If the user provides partial information, ask targeted follow-up questions.
 
 **Primary commute (highest priority -- daily frequency multiplies impact enormously):**
+
 - One-way distance in miles (if unknown, ask for the city/neighborhood pair and estimate based on typical grid distances)
 - Days per week they commute in person (account for existing remote work days)
 - Current mode: solo car, carpool, bus, subway/rail, bike, walk, or hybrid of these
@@ -54,12 +58,14 @@ Ask the user for the following information before running any calculations. Do n
 - Parking situation: free employer parking vs. paid parking (note: free parking is a powerful behavioral subsidy for driving -- its presence matters)
 
 **Secondary transportation (captures 30-50% of personal vehicle miles for many users):**
+
 - Typical number of errand trips per week and average errand distance
 - School drop-off or childcare pickup logistics (a major constraint that often anchors car dependency)
 - Weekend recreational trips, shopping, and social travel patterns
 - Any regularly recurring trips beyond the commute (gym, medical appointments, etc.)
 
 **Location and infrastructure context:**
+
 - Urban core, inner suburb, outer suburb, or rural (this single variable determines which modes are even worth evaluating)
 - Public transit availability: bus routes within 0.5 miles, subway/light rail within 1 mile, commuter rail within 3 miles
 - Bike infrastructure quality: protected lanes, multi-use paths, sharrows only, or no infrastructure
@@ -67,6 +73,7 @@ Ask the user for the following information before running any calculations. Do n
 - Topography: flat terrain vs. significant hills (affects cycling viability and e-bike appeal)
 
 **Personal constraints (non-negotiable factors that remove options from consideration):**
+
 - Physical limitations affecting cycling, walking long distances, or standing on transit
 - Childcare logistics that require a car at specific times
 - Employer flexibility: remote work availability, flexible start/end times (affects transit window)
@@ -83,7 +90,7 @@ Establish the precise current annual emissions and cost before proposing any cha
 Use the EPA's gram CO2 per mile methodology converted to pounds CO2e. The core formula is:
 
 ```
-Annual commute emissions (lbs CO2e) = 
+Annual commute emissions (lbs CO2e) =
   (one-way miles × 2) × commute days/year × emission factor (lbs CO2e per mile)
 ```
 
@@ -91,30 +98,30 @@ Where commute days/year = days per week × 50 (accounting for ~2 weeks vacation/
 
 **Emission factors by vehicle and mode:**
 
-| Mode | CO2e lbs/passenger-mile | Key Variables |
-|------|------------------------|---------------|
-| Gas sedan, 20 MPG | 1.10 lbs | City driving, older vehicles |
-| Gas sedan, 25 MPG | 0.89 lbs | Average U.S. sedan (2015-2022) |
-| Gas sedan, 32 MPG | 0.70 lbs | Efficient compact (e.g., Corolla, Civic) |
-| Gas SUV/crossover, 18 MPG | 1.23 lbs | Midsize SUV (RAV4, CR-V) on gasoline |
-| Gas SUV/crossover, 22 MPG | 1.01 lbs | Efficient crossover |
-| Gas pickup, 16 MPG | 1.38 lbs | Half-ton truck average |
-| Diesel sedan/wagon | 0.82-0.95 lbs | Higher NOx but better CO2/mile |
-| Plug-in hybrid (electric mode) | 0.10-0.25 lbs | Depends on grid mix and trip length |
-| Plug-in hybrid (gas mode) | 0.60-0.75 lbs | After electric range depleted |
-| Hybrid (non-plugin), 45 MPG | 0.49 lbs | Prius-class vehicles |
-| Battery EV, U.S. avg. grid | 0.25-0.35 lbs | EPA eGRID national avg. ~0.386 lbs CO2/kWh |
-| Battery EV, coal-heavy grid | 0.45-0.55 lbs | Wyoming, West Virginia, Kentucky grids |
-| Battery EV, clean grid | 0.08-0.15 lbs | Pacific Northwest, California, New England hydro/wind/solar |
-| Municipal bus, avg. occupancy | 0.64 lbs | National Transit Database average |
-| Subway/light rail | 0.33 lbs | Varies significantly by city and power source |
-| Commuter rail (diesel) | 0.41 lbs | Amtrak/regional diesel rail |
-| Commuter rail (electric) | 0.22-0.28 lbs | NJ Transit, MARC, Caltrain type |
-| Carpool, 2 occupants (gas sedan, 25 MPG) | 0.45 lbs | Halved per-person vs. solo |
-| Carpool, 3 occupants | 0.30 lbs | Further reduction |
-| E-bike | 0.03-0.06 lbs | ~100 Wh/mile × grid emissions factor |
-| Conventional bicycle | 0.00 lbs direct | Food calories offset negligible at scale |
-| Walking | 0.00 lbs | |
+| Mode                                     | CO2e lbs/passenger-mile | Key Variables                                               |
+| ---------------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| Gas sedan, 20 MPG                        | 1.10 lbs                | City driving, older vehicles                                |
+| Gas sedan, 25 MPG                        | 0.89 lbs                | Average U.S. sedan (2015-2022)                              |
+| Gas sedan, 32 MPG                        | 0.70 lbs                | Efficient compact (e.g., Corolla, Civic)                    |
+| Gas SUV/crossover, 18 MPG                | 1.23 lbs                | Midsize SUV (RAV4, CR-V) on gasoline                        |
+| Gas SUV/crossover, 22 MPG                | 1.01 lbs                | Efficient crossover                                         |
+| Gas pickup, 16 MPG                       | 1.38 lbs                | Half-ton truck average                                      |
+| Diesel sedan/wagon                       | 0.82-0.95 lbs           | Higher NOx but better CO2/mile                              |
+| Plug-in hybrid (electric mode)           | 0.10-0.25 lbs           | Depends on grid mix and trip length                         |
+| Plug-in hybrid (gas mode)                | 0.60-0.75 lbs           | After electric range depleted                               |
+| Hybrid (non-plugin), 45 MPG              | 0.49 lbs                | Prius-class vehicles                                        |
+| Battery EV, U.S. avg. grid               | 0.25-0.35 lbs           | EPA eGRID national avg. ~0.386 lbs CO2/kWh                  |
+| Battery EV, coal-heavy grid              | 0.45-0.55 lbs           | Wyoming, West Virginia, Kentucky grids                      |
+| Battery EV, clean grid                   | 0.08-0.15 lbs           | Pacific Northwest, California, New England hydro/wind/solar |
+| Municipal bus, avg. occupancy            | 0.64 lbs                | National Transit Database average                           |
+| Subway/light rail                        | 0.33 lbs                | Varies significantly by city and power source               |
+| Commuter rail (diesel)                   | 0.41 lbs                | Amtrak/regional diesel rail                                 |
+| Commuter rail (electric)                 | 0.22-0.28 lbs           | NJ Transit, MARC, Caltrain type                             |
+| Carpool, 2 occupants (gas sedan, 25 MPG) | 0.45 lbs                | Halved per-person vs. solo                                  |
+| Carpool, 3 occupants                     | 0.30 lbs                | Further reduction                                           |
+| E-bike                                   | 0.03-0.06 lbs           | ~100 Wh/mile × grid emissions factor                        |
+| Conventional bicycle                     | 0.00 lbs direct         | Food calories offset negligible at scale                    |
+| Walking                                  | 0.00 lbs                |                                                             |
 
 **Regional EV grid adjustment is non-optional.** Always ask for or estimate the user's state/region when evaluating EV transitions. An EV in Wyoming running on a coal-heavy grid produces approximately 0.50 lbs CO2e per mile -- similar to a hybrid car. The same EV in Oregon or Vermont produces 0.08-0.12 lbs CO2e per mile -- among the cleanest transportation options available. This can shift the EV recommendation dramatically.
 
@@ -122,14 +129,14 @@ Where commute days/year = days per week × 50 (accounting for ~2 weeks vacation/
 
 Fuel-only calculations dramatically understate the real cost of car commuting and produce misleading comparisons. Always use TCO.
 
-| Cost Component | Gas Sedan (25 MPG) | Gas SUV (22 MPG) | Battery EV | Notes |
-|---|---|---|---|---|
-| Fuel/electricity | $0.10-0.14/mile | $0.12-0.16/mile | $0.03-0.06/mile | At $3.50/gal gas, $0.14/kWh electricity |
-| Insurance | $0.06-0.10/mile | $0.08-0.12/mile | $0.07-0.10/mile | Amortized over annual miles |
-| Maintenance | $0.04-0.07/mile | $0.05-0.08/mile | $0.02-0.04/mile | EVs save ~$800-1,200/yr on maintenance |
-| Depreciation | $0.12-0.20/mile | $0.15-0.25/mile | $0.10-0.18/mile | Largest and most-overlooked cost |
-| Parking | $0-0.20+/mile | $0-0.20+/mile | $0-0.20+/mile | Urban parking can exceed fuel cost |
-| Registration/taxes | $0.01-0.02/mile | $0.01-0.02/mile | $0.01-0.02/mile | |
+| Cost Component      | Gas Sedan (25 MPG)  | Gas SUV (22 MPG)    | Battery EV          | Notes                                     |
+| ------------------- | ------------------- | ------------------- | ------------------- | ----------------------------------------- |
+| Fuel/electricity    | $0.10-0.14/mile     | $0.12-0.16/mile     | $0.03-0.06/mile     | At $3.50/gal gas, $0.14/kWh electricity   |
+| Insurance           | $0.06-0.10/mile     | $0.08-0.12/mile     | $0.07-0.10/mile     | Amortized over annual miles               |
+| Maintenance         | $0.04-0.07/mile     | $0.05-0.08/mile     | $0.02-0.04/mile     | EVs save ~$800-1,200/yr on maintenance    |
+| Depreciation        | $0.12-0.20/mile     | $0.15-0.25/mile     | $0.10-0.18/mile     | Largest and most-overlooked cost          |
+| Parking             | $0-0.20+/mile       | $0-0.20+/mile       | $0-0.20+/mile       | Urban parking can exceed fuel cost        |
+| Registration/taxes  | $0.01-0.02/mile     | $0.01-0.02/mile     | $0.01-0.02/mile     |                                           |
 | **Total TCO range** | **$0.45-0.65/mile** | **$0.55-0.80/mile** | **$0.30-0.50/mile** | IRS standard mileage rate is $0.67 (2024) |
 
 Use the IRS standard mileage rate of $0.67/mile as a credible, defensible shorthand for total car cost when the user doesn't know their detailed costs. It is slightly conservative but accounts for all components.
@@ -142,17 +149,18 @@ Distance is the single most reliable predictor of which modes are feasible. Appl
 
 **Commute distance decision matrix:**
 
-| One-way distance | Best mode-shift candidates | Modes to exclude | Key consideration |
-|---|---|---|---|
-| 0-2 miles | Walk, conventional bike, e-bike | Transit (unless route is direct), car | This is the "car trip replacement" sweet spot -- most walkable errands also fall here |
-| 2-5 miles | Conventional bike (flat terrain), e-bike, walk (ambitious) | Car (if bike infrastructure exists) | 5 miles by bike takes ~20-25 min at 12-15 mph -- often faster than driving + parking |
-| 5-10 miles | E-bike (strong candidate), conventional bike (fit cyclists), transit if direct route | Walk | E-bike covers this in 25-40 min; transit depends on route directness |
-| 10-20 miles | E-bike to transit hub + transit, carpool, transit (if direct), hybrid/EV | Conventional bike for most users | Multimodal combos (bike to train) often outperform pure transit in speed |
-| 20-35 miles | Commuter rail/express bus, carpool, remote work, EV | Cycling (full distance), local bus | Rail is the key infrastructure question at this range |
-| 35-60 miles | Remote work (highest impact), carpool, EV transition | Transit (often not direct), cycling | Even 1-2 remote days/week cuts emissions 20-40% |
-| 60+ miles | Remote work, relocation consideration, carpool with ride-sharing app | Almost all active modes | At this range, the job location itself is the primary variable |
+| One-way distance | Best mode-shift candidates                                                           | Modes to exclude                      | Key consideration                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------- |
+| 0-2 miles        | Walk, conventional bike, e-bike                                                      | Transit (unless route is direct), car | This is the "car trip replacement" sweet spot -- most walkable errands also fall here |
+| 2-5 miles        | Conventional bike (flat terrain), e-bike, walk (ambitious)                           | Car (if bike infrastructure exists)   | 5 miles by bike takes ~20-25 min at 12-15 mph -- often faster than driving + parking  |
+| 5-10 miles       | E-bike (strong candidate), conventional bike (fit cyclists), transit if direct route | Walk                                  | E-bike covers this in 25-40 min; transit depends on route directness                  |
+| 10-20 miles      | E-bike to transit hub + transit, carpool, transit (if direct), hybrid/EV             | Conventional bike for most users      | Multimodal combos (bike to train) often outperform pure transit in speed              |
+| 20-35 miles      | Commuter rail/express bus, carpool, remote work, EV                                  | Cycling (full distance), local bus    | Rail is the key infrastructure question at this range                                 |
+| 35-60 miles      | Remote work (highest impact), carpool, EV transition                                 | Transit (often not direct), cycling   | Even 1-2 remote days/week cuts emissions 20-40%                                       |
+| 60+ miles        | Remote work, relocation consideration, carpool with ride-sharing app                 | Almost all active modes               | At this range, the job location itself is the primary variable                        |
 
 **Trip purpose affects mode-shift potential differently:**
+
 - Commute trips: highest leverage because of daily repetition (260 days/year)
 - School pickup: schedule-constrained, often anchors car use for the whole day
 - Grocery shopping: cargo capacity needed; e-bike cargo bikes or weekly grocery delivery can substitute
@@ -166,6 +174,7 @@ Distance is the single most reliable predictor of which modes are feasible. Appl
 Transit recommendations fail in practice if they ignore the "last mile" problem and schedule matching. Do not recommend transit without working through this checklist.
 
 **Transit feasibility checklist:**
+
 - Is there a stop within 0.5 miles of the user's home (for bus) or 2 miles (for rail with parking or bike access)?
 - Is there a stop within 0.5 miles of the user's workplace, or is there a practical last-mile connection?
 - Does the transit schedule match the user's work start and end times? (Transit gaps before 6am or after 7pm are common and exclude shift workers)
@@ -189,6 +198,7 @@ Transit recommendations fail in practice if they ignore the "last mile" problem 
 E-bikes are the most underutilized high-impact option for suburban commuters. Evaluate them carefully before dismissing them.
 
 **E-bike viability checklist:**
+
 - Distance under 15 miles one-way (most e-bikes have 20-60 mile range; 15 miles allows buffer and accounts for hills)
 - Terrain: flat to moderate hills. E-bikes with mid-drive motors handle 10-15% grades comfortably; hub-drive motors struggle above 8%
 - Bike infrastructure: protected lanes or low-traffic streets for at least 70% of the route. Sharrows-only or highway-adjacent roads are not safe for regular commuting
@@ -207,11 +217,13 @@ E-bikes are the most underutilized high-impact option for suburban commuters. Ev
 Remote work is systematically underused as a transportation emissions reduction strategy, yet it is the highest-impact, zero-cost option for eligible workers.
 
 **Remote work emission equivalency:**
+
 - 1 remote day per week = 20% reduction in commute emissions and cost with zero behavior change on the other 4 days
 - 2 remote days per week = 40% reduction
 - Full remote = 100% commute emission reduction (offset slightly by increased home energy use, typically 10-20 lbs CO2e/day net -- still a net gain)
 
 **Remote work eligibility screening questions:**
+
 - Does the employer formally offer remote work (full or partial)?
 - Has the user actually activated existing remote work benefits? (Many workers have untapped remote allowances)
 - Are there meeting-heavy days that should remain in-office? (If so, anchor remote days to low-meeting days for maximum practical success)
@@ -224,6 +236,7 @@ Remote work is systematically underused as a transportation emissions reduction 
 Synthesize all feasibility evaluations into a concrete, numbered plan. Structure it as a portfolio of shifts -- not a single replacement -- because real-world commuting is rarely all-or-nothing.
 
 **Plan construction principles:**
+
 - Prioritize shifts by the product of: (emission reduction per trip) × (trips per year). Remote work and commute mode shifts beat errand changes because of frequency
 - Show a realistic weekly schedule with each day accounted for
 - Calculate per-shift impact before rolling up totals, so the user can see which changes matter most
@@ -231,20 +244,22 @@ Synthesize all feasibility evaluations into a concrete, numbered plan. Structure
 - Flag one "long-term" action tied to the next vehicle purchase -- this is a high-stakes, multi-year decision that should be framed but not rushed
 
 **Net impact formula:**
+
 ```
 Current annual emissions = sum of all trip categories (commute + errands + other)
 Proposed annual emissions = recalculated using new mode mix
 Net reduction (lbs CO2e/yr) = Current - Proposed
 Reduction percentage = (Net reduction / Current) × 100
 
-For context: the average U.S. car produces approximately 4.6 metric tons (10,100 lbs) 
-CO2e per year. Eliminating one car trip pattern can approach or exceed 
+For context: the average U.S. car produces approximately 4.6 metric tons (10,100 lbs)
+CO2e per year. Eliminating one car trip pattern can approach or exceed
 the full-year emissions of a second car for many households.
 ```
 
 **Cost payback calculation for capital investments:**
+
 ```
-E-bike payback period (months) = 
+E-bike payback period (months) =
   E-bike purchase price / (Monthly car cost savings from replaced trips)
 
 Example: $1,500 e-bike replacing 3 driving days/week at $0.67/mile × 20 miles/day:
@@ -259,6 +274,7 @@ Payback = $1,500 / $173 = ~8.7 months
 Mode shifts fail when they require simultaneous behavior changes. Structure the timeline so each phase builds on the last.
 
 **Phase framework:**
+
 - **Immediate (this week):** Zero-cost, no-infrastructure changes only. Activate unused remote work days. Consolidate errand trips. Adjust departure time to reduce stop-and-go driving (improves MPG by 5-15%)
 - **Trial phase (weeks 2-4):** Test the highest-impact mode shift 1-2 times before committing. Buy a day pass before a monthly transit pass. Try the bike commute on a low-stakes day. Assess actual travel time vs. estimate
 - **Establish phase (month 1-3):** Commit to the new schedule. Purchase monthly transit pass or e-bike if trial validated the route. Build the new mode into a weekly habit
@@ -352,7 +368,7 @@ Produce this output structure for every green transportation plan. Fill in all f
 ---
 
 ### Context and Caveats
-[2-4 sentences explaining any significant assumptions, what would change the recommendations, 
+[2-4 sentences explaining any significant assumptions, what would change the recommendations,
 and what to monitor over time -- e.g., grid mix improvements, fare changes, employer policy changes]
 ```
 
@@ -389,7 +405,9 @@ and what to monitor over time -- e.g., grid mix improvements, fare changes, empl
 ## Edge Cases
 
 ### User Lives in a Rural Area with No Transit and Long Distances
+
 Do not recommend transit or cycling -- forcing these recommendations onto a rural user immediately signals that the plan is not credible. Focus instead on:
+
 - **Vehicle efficiency:** The vehicle itself is the primary emissions lever. Upgrading from a 16 MPG truck to a 25 MPG sedan at next purchase cuts per-mile emissions by 36%. An EV transition is viable in rural areas if home charging is possible -- rural EV adoption is often higher than expected because home charging eliminates range anxiety for in-town driving.
 - **Trip consolidation:** Rural households often make multiple short, inefficient trips to town. Consolidating weekly errands can reduce annual driving by 15-25%.
 - **Speed and driving behavior:** Rural highway driving at 65 mph vs. 75 mph reduces fuel consumption by approximately 14%. Cruise control on open roads reduces fuel use by 7-14% versus variable throttle.
@@ -397,42 +415,54 @@ Do not recommend transit or cycling -- forcing these recommendations onto a rura
 - **Remote work:** If available, even 1 remote day per week has a larger absolute emissions impact in rural areas because the commute distance is typically longer.
 
 ### User Already Drives a Battery Electric Vehicle
+
 The user's per-mile driving emissions are already 60-90% below a comparable gas vehicle. Reframe the conversation:
+
 - **Remaining impact levers are trip reduction, not mode substitution.** Focus on remote work, errand consolidation, and replacing short EV trips with walking or cycling (which have effectively zero emissions vs. the EV's small grid footprint).
 - **Charging optimization:** Encourage charging during off-peak hours (typically 10pm-6am) when many grids have a higher share of baseload or renewable power. In some regions, utilities offer time-of-use rates that make off-peak charging 30-50% cheaper.
 - **Embodied carbon acknowledgment:** The manufacturing of a large-battery EV generates 8-15 metric tons CO2e in production -- roughly 1.5-2 years of avoided tailpipe emissions for a typical commuter. This does not make EVs a bad choice, but it means lifetime miles matter. High-mileage EV users recoup the manufacturing carbon faster.
 - **Encourage the user to share actual grid mix data.** Platforms that show real-time grid carbon intensity allow EV owners to optimize charging timing for minimum emissions.
 
 ### User Has a Very Long Commute (50+ Miles Each Way)
+
 At 50+ miles, cycling and most transit are not practical. The analysis centers on three levers:
+
 - **Remote work is the dominant recommendation.** Even 2 remote days per week on a 55-mile commute saves approximately 22,000 miles and 15,000+ lbs CO2e per year -- equivalent to taking a medium-efficiency car off the road entirely for a year. Frame remote work as a relocation of the workplace, not a benefit.
 - **Carpool.** At this distance, apps like Waze Carpool, Scoop, or employer-matched rideshare programs have better coverage. A 2-person carpool halves per-person emissions and cost immediately.
 - **EV transition.** At high annual mileage, the fuel cost savings from an EV are largest. A 55-mile commute 3 days/week (after 2 remote days) = 16,500 commute miles/year. Gas savings at $3.50/gallon vs. $0.04/mile electricity can exceed $1,500-2,000/year -- making EV TCO strongly favorable.
 - **Raise the relocation question carefully.** If the user is open to it, note that the commute distance itself is the primary emissions driver and that housing relocation -- or changing jobs -- is the most impactful long-term option. Frame it as information, not a recommendation, and only raise it if the user seems open to structural changes.
 
 ### User Has School-Age Children with Pickup/Dropoff Constraints
+
 Childcare and school logistics often anchor one or more vehicles to the household for specific time windows. Handle this carefully:
+
 - **Identify the specific constraint windows.** A parent who must pick up a child at 3:15pm may still be able to take transit in the morning but needs a car for the return trip. A split-mode commute (transit in, drive back from school) can capture 30-40% of the emissions savings.
 - **Do not recommend a car-free lifestyle** for a household with school pickup responsibilities in a non-urban area without safe, nearby school transit.
 - **Consider e-cargo bikes** for school dropoff trips under 3 miles in bike-friendly areas -- these are increasingly popular and practical for children old enough not to require car seats.
 - **Errand batching around pickup time** is highly applicable. Parents often make separate grocery, errand, and pickup trips that can be consolidated into a single after-school route.
 
 ### User Is Considering an EV Purchase and Wants Environmental Validation
+
 This is a focused sub-case. The user wants environmental analysis, not a purchase guide.
+
 - **Calculate the break-even mileage** for manufacturing carbon recovery: a mid-size EV carries approximately 10,000-15,000 lbs CO2e in battery manufacturing emissions. At an average savings of 0.6 lbs CO2e/mile vs. a 25 MPG sedan, the EV breaks even at approximately 17,000-25,000 miles of driving -- roughly 1.5-2.5 years for an average driver.
 - **Identify the regional grid trajectory.** Even in coal-heavy grids today, most utility projections show grid carbon intensity declining 2-4% annually through 2035 under current policy. An EV purchased today will have lower emissions every year as the grid cleans up -- a gas car's emissions are locked in at purchase.
 - **Distinguish between replacing vs. adding.** An EV that replaces a high-mileage gas car produces large emissions savings. A second EV added to a household that already has an EV is a much smaller marginal gain.
 - **Remind the user that driving behavior matters as much as powertrain.** A 50-mile daily EV commute produces more emissions than a 10-mile hybrid commute. Mode shift and trip reduction remain the primary levers.
 
 ### User Has Already Made Some Shifts and Wants to Optimize Further
+
 When the user is not starting from zero (they already take transit twice a week, or already have an e-bike), recalibrate:
+
 - **Recalculate the baseline using their current mixed-mode reality,** not their pre-transition state.
 - **Identify the next highest-impact marginal shift.** The optimization question is: which remaining car trips have the highest feasibility for mode shift?
 - **Check for habit drift.** Users who "started taking transit" often have not fully committed -- ask how many weeks in a row they have stuck with the new mode. Habit formation for commute changes typically requires 60-90 days of consistent behavior.
 - **Consider a "car-lite" household analysis.** If mode shifts have dramatically reduced actual driving, evaluate whether the household can shed one vehicle. Eliminating a second car saves $6,000-9,000/year in TCO and prevents approximately 4-8 metric tons CO2e/year from being manufactured and maintained.
 
 ### User Asks About Offsetting Transportation Emissions Instead of Reducing Them
+
 Be direct but not dismissive: carbon offsets are a legitimate secondary tool, not a substitute for mode shift.
+
 - **Offsets should supplement, not replace, behavior change.** Explain that the most credible offsets (verified reforestation, avoided deforestation, direct air capture) cost $15-50 per metric ton. Offsetting 10,000 lbs CO2e (4.5 metric tons) would cost approximately $70-225/year -- affordable, but the emissions still occurred.
 - **If the user wants to offset as a bridge strategy,** recommend only offsets that are verified by Gold Standard, Verra VCS, or equivalent third-party standards.
 - **Always complete the mode-shift analysis first** and present offsetting as the final line item, not the primary recommendation.
@@ -450,21 +480,22 @@ Be direct but not dismissive: carbon offsets are a legitimate secondary tool, no
 ## Your Green Transportation Plan
 
 ### Current Transportation Profile
-| Parameter | Value |
-|---|---|
-| Primary commute | 18 miles each way, 5 days/week, solo (Ford F-150 gasoline) |
-| Vehicle | 2019 Ford F-150 (gasoline, approximately 18 MPG combined suburban/highway) |
-| Annual commute miles | 9,000 miles (36 miles/day × 250 working days) |
-| Annual errand miles | 1,500 miles (~5 trips/week × 5 miles avg × 60 weeks-equivalent) |
-| Annual total driving miles | ~10,500 miles |
-| Annual commute emissions | 12,420 lbs CO2e (1.38 lbs/mile × 9,000 miles) |
-| Annual errand emissions | 2,070 lbs CO2e (1.38 lbs/mile × 1,500 miles) |
-| **Annual total transportation emissions** | **14,490 lbs CO2e** |
-| Annual commute cost (TCO at $0.75/mile -- F-150 runs higher than average) | ~$6,750 |
-| Annual errand cost | ~$1,125 |
-| **Annual total transportation cost** | **~$7,875** |
 
-*Note: The Ford F-150 has a higher-than-average TCO due to fuel (18 MPG at $3.50/gal = $0.19/mile fuel alone), insurance (pickups average $1,600-2,000/year), and depreciation (~$3,500-5,000/year on a late-model F-150). The $0.75/mile TCO estimate is conservative.*
+| Parameter                                                                 | Value                                                                      |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Primary commute                                                           | 18 miles each way, 5 days/week, solo (Ford F-150 gasoline)                 |
+| Vehicle                                                                   | 2019 Ford F-150 (gasoline, approximately 18 MPG combined suburban/highway) |
+| Annual commute miles                                                      | 9,000 miles (36 miles/day × 250 working days)                              |
+| Annual errand miles                                                       | 1,500 miles (~5 trips/week × 5 miles avg × 60 weeks-equivalent)            |
+| Annual total driving miles                                                | ~10,500 miles                                                              |
+| Annual commute emissions                                                  | 12,420 lbs CO2e (1.38 lbs/mile × 9,000 miles)                              |
+| Annual errand emissions                                                   | 2,070 lbs CO2e (1.38 lbs/mile × 1,500 miles)                               |
+| **Annual total transportation emissions**                                 | **14,490 lbs CO2e**                                                        |
+| Annual commute cost (TCO at $0.75/mile -- F-150 runs higher than average) | ~$6,750                                                                    |
+| Annual errand cost                                                        | ~$1,125                                                                    |
+| **Annual total transportation cost**                                      | **~$7,875**                                                                |
+
+_Note: The Ford F-150 has a higher-than-average TCO due to fuel (18 MPG at $3.50/gal = $0.19/mile fuel alone), insurance (pickups average $1,600-2,000/year), and depreciation (~$3,500-5,000/year on a late-model F-150). The $0.75/mile TCO estimate is conservative._
 
 ---
 
@@ -473,6 +504,7 @@ Be direct but not dismissive: carbon offsets are a legitimate secondary tool, no
 The Chicago Metra commuter rail network has 11 lines serving the suburbs. Based on a Chicago suburban location with an 18-mile commute, a Metra station is very likely within 2-4 miles of your home and within 1-2 miles of your office district, given the density of Metra service in Cook, DuPage, and Lake counties.
 
 **Transit feasibility checklist for this scenario:**
+
 - Station within practical distance: **Likely yes** -- confirm the specific line (BNSF, UP-W, UP-N, etc.)
 - Schedule coverage: Metra peak service runs 5:30am-9:00am inbound and 3:30pm-7:30pm outbound -- covers most traditional office schedules
 - Trip time estimate: 18-mile Metra trip with suburban station access typically takes 35-55 minutes door-to-door including walking/biking to station
@@ -484,18 +516,18 @@ The Chicago Metra commuter rail network has 11 lines serving the suburbs. Based 
 
 ### Mode Comparison for Your 18-Mile Commute
 
-| Mode | CO2e per round trip | Cost per round trip | Door-to-door time | Feasible? | Key factor |
-|---|---|---|---|---|---|
-| Current (F-150, solo) | 49.7 lbs | $27.00 | ~40 min | Current baseline | High emissions, highest cost |
-| Metra commuter rail | 14.8 lbs | $11.00-14.00 | ~50-60 min | **Yes** | Station access key variable |
-| E-bike to Metra + train | 14.9 lbs | $12.00-15.00 | ~50-60 min | **Yes** | 3-5 miles to station is ideal e-bike range |
-| E-bike (full commute) | 0.5 lbs | $1.00 | ~70-85 min | Conditional | 18 miles is at the upper e-bike range; route safety is the key question |
-| Carpool (2 occupants, F-150) | 24.9 lbs | $13.50 | ~40 min | Possible | Need a commute partner |
-| Bus | 23.0 lbs | $5.00-8.00 | ~75-100 min | Unlikely | Suburban bus in Chicago suburbs is typically slow and infrequent |
-| Remote work | 0 lbs | $0 | 0 min | No | Employer policy prohibits it |
-| EV (long-term, at purchase) | 7.2 lbs | $8.00-11.00 | ~40 min | Long-term | Illinois grid: ~0.40 lbs CO2e/kWh; EV = 0.40 lbs CO2e/mile for a full-size truck equivalent |
+| Mode                         | CO2e per round trip | Cost per round trip | Door-to-door time | Feasible?        | Key factor                                                                                  |
+| ---------------------------- | ------------------- | ------------------- | ----------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+| Current (F-150, solo)        | 49.7 lbs            | $27.00              | ~40 min           | Current baseline | High emissions, highest cost                                                                |
+| Metra commuter rail          | 14.8 lbs            | $11.00-14.00        | ~50-60 min        | **Yes**          | Station access key variable                                                                 |
+| E-bike to Metra + train      | 14.9 lbs            | $12.00-15.00        | ~50-60 min        | **Yes**          | 3-5 miles to station is ideal e-bike range                                                  |
+| E-bike (full commute)        | 0.5 lbs             | $1.00               | ~70-85 min        | Conditional      | 18 miles is at the upper e-bike range; route safety is the key question                     |
+| Carpool (2 occupants, F-150) | 24.9 lbs            | $13.50              | ~40 min           | Possible         | Need a commute partner                                                                      |
+| Bus                          | 23.0 lbs            | $5.00-8.00          | ~75-100 min       | Unlikely         | Suburban bus in Chicago suburbs is typically slow and infrequent                            |
+| Remote work                  | 0 lbs               | $0                  | 0 min             | No               | Employer policy prohibits it                                                                |
+| EV (long-term, at purchase)  | 7.2 lbs             | $8.00-11.00         | ~40 min           | Long-term        | Illinois grid: ~0.40 lbs CO2e/kWh; EV = 0.40 lbs CO2e/mile for a full-size truck equivalent |
 
-*Illinois grid emissions factor: approximately 0.39 lbs CO2e/kWh (Illinois has significant nuclear power, moderating EV emissions well below the national coal-heavy average).*
+_Illinois grid emissions factor: approximately 0.39 lbs CO2e/kWh (Illinois has significant nuclear power, moderating EV emissions well below the national coal-heavy average)._
 
 ---
 
@@ -517,12 +549,12 @@ An e-bike for the 3-5 miles between your home and the Metra station eliminates s
 
 ---
 
-| Rank | Shift | From → To | Days/week | CO2e saved/year | Annual cost impact |
-|---|---|---|---|---|---|
-| 1 | Commute via Metra | F-150 solo → Metra (4 days) | 4 days | 8,900 lbs | **Saves $3,500-4,500** |
-| 2 | Errand consolidation | 5 separate trips → 2 consolidated | ongoing | 1,000-1,200 lbs | **Saves $550-750** |
-| 3 | E-bike for station access | Drive to station → E-bike | 4 days | ~75 lbs (minor) | **Saves $480-1,200/yr in station parking** |
-| **Total** | | | | **~10,000-10,200 lbs** | **Saves ~$4,500-6,500/yr** |
+| Rank      | Shift                     | From → To                         | Days/week | CO2e saved/year        | Annual cost impact                         |
+| --------- | ------------------------- | --------------------------------- | --------- | ---------------------- | ------------------------------------------ |
+| 1         | Commute via Metra         | F-150 solo → Metra (4 days)       | 4 days    | 8,900 lbs              | **Saves $3,500-4,500**                     |
+| 2         | Errand consolidation      | 5 separate trips → 2 consolidated | ongoing   | 1,000-1,200 lbs        | **Saves $550-750**                         |
+| 3         | E-bike for station access | Drive to station → E-bike         | 4 days    | ~75 lbs (minor)        | **Saves $480-1,200/yr in station parking** |
+| **Total** |                           |                                   |           | **~10,000-10,200 lbs** | **Saves ~$4,500-6,500/yr**                 |
 
 ---
 
@@ -540,36 +572,36 @@ An e-bike for the 3-5 miles between your home and the Metra station eliminates s
 
 ### Total Annual Impact Summary
 
-| Metric | Current | After Full Plan | Change |
-|---|---|---|---|
-| Annual commute emissions | 12,420 lbs CO2e | 3,700 lbs CO2e | **--8,720 lbs (--70%)** |
-| Annual errand emissions | 2,070 lbs CO2e | 870 lbs CO2e | **--1,200 lbs (--58%)** |
-| Annual total emissions | 14,490 lbs CO2e | 4,570 lbs CO2e | **--9,920 lbs (--68%)** |
-| Annual transportation cost | ~$7,875 | ~$2,700-3,500 | **Saves $4,375-5,175/yr** |
-| Annual miles driven | 10,500 miles | 3,300 miles | --7,200 miles |
-| Equivalent to | | | Removing a passenger car from the road for approximately 11 months, or the annual carbon sequestered by ~207 mature trees |
+| Metric                     | Current         | After Full Plan | Change                                                                                                                    |
+| -------------------------- | --------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Annual commute emissions   | 12,420 lbs CO2e | 3,700 lbs CO2e  | **--8,720 lbs (--70%)**                                                                                                   |
+| Annual errand emissions    | 2,070 lbs CO2e  | 870 lbs CO2e    | **--1,200 lbs (--58%)**                                                                                                   |
+| Annual total emissions     | 14,490 lbs CO2e | 4,570 lbs CO2e  | **--9,920 lbs (--68%)**                                                                                                   |
+| Annual transportation cost | ~$7,875         | ~$2,700-3,500   | **Saves $4,375-5,175/yr**                                                                                                 |
+| Annual miles driven        | 10,500 miles    | 3,300 miles     | --7,200 miles                                                                                                             |
+| Equivalent to              |                 |                 | Removing a passenger car from the road for approximately 11 months, or the annual carbon sequestered by ~207 mature trees |
 
 ---
 
 ### Capital Investment Summary
 
-| Investment | Estimated cost | Monthly savings vs. current | Payback period |
-|---|---|---|---|
-| Metra monthly pass (Zone D-E) | $150/month ongoing | ~$364/month vs. driving 4 days | Immediate positive cash flow -- no payback period needed |
-| E-bike (quality commuter) | $1,400-1,800 upfront | $40-100/month (station parking + occasional errand trips) | 14-37 months |
-| **Net first-year financial outcome** | ~$1,600 invested (e-bike) | | **Saves ~$3,300-4,700 in year 1 even after e-bike purchase** |
+| Investment                           | Estimated cost            | Monthly savings vs. current                               | Payback period                                               |
+| ------------------------------------ | ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
+| Metra monthly pass (Zone D-E)        | $150/month ongoing        | ~$364/month vs. driving 4 days                            | Immediate positive cash flow -- no payback period needed     |
+| E-bike (quality commuter)            | $1,400-1,800 upfront      | $40-100/month (station parking + occasional errand trips) | 14-37 months                                                 |
+| **Net first-year financial outcome** | ~$1,600 invested (e-bike) |                                                           | **Saves ~$3,300-4,700 in year 1 even after e-bike purchase** |
 
 ---
 
 ### Transition Timeline
 
-| Phase | Action | Target |
-|---|---|---|
-| **This week** | Look up your Metra line using the Metra Trip Planner (enter home ZIP and work address). Identify the nearest station and the correct zone fare. Buy a single-ride ticket and do a trial run on a Tuesday or Thursday -- low-stakes days. | Immediate |
-| **Week 2** | Ride Metra for the trial day. Note: actual door-to-door time, platform experience, and whether the schedule works for your typical hours. Also map one consolidated errand route that replaces 3-4 separate trips. | Week 2 |
-| **Month 1** | If trial confirmed (it almost certainly will), purchase a monthly Metra pass. Commit to 4-day Metra schedule. Stop making separate errand trips -- one weekly consolidated run. | Month 1 |
-| **Month 2** | Evaluate whether station parking is costing $2-6/day. If so, research e-bikes in the $1,200-1,800 range (Trek, Specialized, Cannondale, or equivalent commuter e-bikes). Test-ride before purchasing. | Month 2 |
-| **Month 3** | If e-bike acquired, establish the station-to-station e-bike routine. Assess: are there any remaining high-frequency trips the e-bike could absorb? | Month 3 |
+| Phase                                 | Action                                                                                                                                                                                                                                                                                                                                                      | Target                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| **This week**                         | Look up your Metra line using the Metra Trip Planner (enter home ZIP and work address). Identify the nearest station and the correct zone fare. Buy a single-ride ticket and do a trial run on a Tuesday or Thursday -- low-stakes days.                                                                                                                    | Immediate                                |
+| **Week 2**                            | Ride Metra for the trial day. Note: actual door-to-door time, platform experience, and whether the schedule works for your typical hours. Also map one consolidated errand route that replaces 3-4 separate trips.                                                                                                                                          | Week 2                                   |
+| **Month 1**                           | If trial confirmed (it almost certainly will), purchase a monthly Metra pass. Commit to 4-day Metra schedule. Stop making separate errand trips -- one weekly consolidated run.                                                                                                                                                                             | Month 1                                  |
+| **Month 2**                           | Evaluate whether station parking is costing $2-6/day. If so, research e-bikes in the $1,200-1,800 range (Trek, Specialized, Cannondale, or equivalent commuter e-bikes). Test-ride before purchasing.                                                                                                                                                       | Month 2                                  |
+| **Month 3**                           | If e-bike acquired, establish the station-to-station e-bike routine. Assess: are there any remaining high-frequency trips the e-bike could absorb?                                                                                                                                                                                                          | Month 3                                  |
 | **Long-term (next vehicle purchase)** | With only 3,000-3,500 miles/year of actual driving remaining, evaluate whether you need a full-size truck or whether a smaller, more efficient vehicle -- or an EV -- serves your reduced driving needs better. At under 4,000 miles/year of personal driving, leasing a smaller vehicle or joining a car-share program may cost less than owning an F-150. | At next purchase or registration renewal |
 
 ---

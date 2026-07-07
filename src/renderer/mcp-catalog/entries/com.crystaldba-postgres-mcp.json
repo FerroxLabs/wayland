@@ -14,7 +14,12 @@
       "runtimeHint": "uvx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "DATABASE_URI", "description": "Postgres connection string (postgres://user:pass@host:port/db).", "isRequired": true, "isSecret": true }
+        {
+          "name": "DATABASE_URI",
+          "description": "Postgres connection string (postgres://user:pass@host:port/db).",
+          "isRequired": true,
+          "isSecret": true
+        }
       ]
     }
   ],

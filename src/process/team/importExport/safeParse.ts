@@ -101,10 +101,7 @@ export async function safeParseWithTimeout(
   timeoutMs: number = DEFAULT_PARSE_TIMEOUT_MS
 ): Promise<unknown> {
   if (Buffer.byteLength(text, 'utf8') > MAX_TEAM_FILE_BYTES) {
-    throw new TeamImportError(
-      `File exceeds ${MAX_TEAM_FILE_BYTES / 1024}KB`,
-      'TEAM_IMPORT_TOO_LARGE'
-    );
+    throw new TeamImportError(`File exceeds ${MAX_TEAM_FILE_BYTES / 1024}KB`, 'TEAM_IMPORT_TOO_LARGE');
   }
 
   await acquireParseSlot();
@@ -181,10 +178,7 @@ export function rejectPrototypePollutionKeys(value: unknown, path = '$'): void {
   const ownKeys = Object.getOwnPropertyNames(value as object);
   for (const key of ownKeys) {
     if (POLLUTION_KEYS.has(key)) {
-      throw new TeamImportError(
-        `Prototype-pollution key detected: ${path}.${key}`,
-        'TEAM_IMPORT_PROTO_POLLUTION'
-      );
+      throw new TeamImportError(`Prototype-pollution key detected: ${path}.${key}`, 'TEAM_IMPORT_PROTO_POLLUTION');
     }
     rejectPrototypePollutionKeys((value as Record<string, unknown>)[key], `${path}.${key}`);
   }

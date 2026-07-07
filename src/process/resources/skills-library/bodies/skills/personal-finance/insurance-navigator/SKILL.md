@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance insurance guide"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance insurance guide'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Insurance Navigator
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about insurance navigator
 - User needs guidance on insurance navigator topics
 - User wants a structured approach to insurance navigator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -48,12 +50,12 @@ metadata:
 
 Insurance is one tool in a four-part risk management strategy:
 
-| Strategy | When to Use | Example |
-|----------|-------------|---------|
-| **Avoid** | Risk is unacceptable and avoidable | Do not store flammable materials in home |
-| **Reduce** | Mitigate probability or impact | Install security system (reduces theft risk) |
-| **Transfer** | Catastrophic but unlikely risks | Buy insurance |
-| **Accept** | Low-impact, high-probability risks | Self-insure minor car damage with high deductible |
+| Strategy     | When to Use                        | Example                                           |
+| ------------ | ---------------------------------- | ------------------------------------------------- |
+| **Avoid**    | Risk is unacceptable and avoidable | Do not store flammable materials in home          |
+| **Reduce**   | Mitigate probability or impact     | Install security system (reduces theft risk)      |
+| **Transfer** | Catastrophic but unlikely risks    | Buy insurance                                     |
+| **Accept**   | Low-impact, high-probability risks | Self-insure minor car damage with high deductible |
 
 **Key Principle**: Insure against catastrophic losses you cannot absorb. Self-insure against small, predictable losses.
 
@@ -63,14 +65,15 @@ Insurance is one tool in a four-part risk management strategy:
 
 **Plan Types**
 
-| Type | Network Flexibility | Cost | Best For |
-|------|-------------------|------|----------|
-| HMO | Must use in-network, need PCP referral | Lowest premiums | Budget-conscious, single healthcare system |
-| PPO | In and out-of-network, no referral needed | Higher premiums | Flexibility, specialist access |
-| EPO | In-network only, no referral needed | Moderate | Balance of cost and access |
-| HDHP + HSA | Any, but in-network cheaper | Lowest premiums + tax benefits | Healthy individuals wanting to invest HSA |
+| Type       | Network Flexibility                       | Cost                           | Best For                                   |
+| ---------- | ----------------------------------------- | ------------------------------ | ------------------------------------------ |
+| HMO        | Must use in-network, need PCP referral    | Lowest premiums                | Budget-conscious, single healthcare system |
+| PPO        | In and out-of-network, no referral needed | Higher premiums                | Flexibility, specialist access             |
+| EPO        | In-network only, no referral needed       | Moderate                       | Balance of cost and access                 |
+| HDHP + HSA | Any, but in-network cheaper               | Lowest premiums + tax benefits | Healthy individuals wanting to invest HSA  |
 
 **Key Decision Factors**
+
 - Do your current doctors accept the plan?
 - What are the prescription drug formulary tiers?
 - What is the total annual cost (premiums + expected out-of-pocket)?
@@ -80,18 +83,19 @@ Insurance is one tool in a four-part risk management strategy:
 
 **Coverage Layers**
 
-| Coverage | What It Covers | Required? |
-|----------|---------------|-----------|
-| Liability (bodily injury) | Other people's injuries you cause | Yes (state minimums) |
-| Liability (property damage) | Other people's property you damage | Yes (state minimums) |
-| Collision | Your vehicle damage from accidents | No (but lender may require) |
-| Comprehensive | Your vehicle damage from non-collision (theft, weather, animals) | No (but lender may require) |
-| Uninsured/underinsured motorist | Your costs when other driver has no/low insurance | Required in many states |
-| Medical payments/PIP | Your medical costs regardless of fault | Varies by state |
-| Rental reimbursement | Rental car while yours is repaired | No |
-| Roadside assistance | Towing, lockout, flat tire | No |
+| Coverage                        | What It Covers                                                   | Required?                   |
+| ------------------------------- | ---------------------------------------------------------------- | --------------------------- |
+| Liability (bodily injury)       | Other people's injuries you cause                                | Yes (state minimums)        |
+| Liability (property damage)     | Other people's property you damage                               | Yes (state minimums)        |
+| Collision                       | Your vehicle damage from accidents                               | No (but lender may require) |
+| Comprehensive                   | Your vehicle damage from non-collision (theft, weather, animals) | No (but lender may require) |
+| Uninsured/underinsured motorist | Your costs when other driver has no/low insurance                | Required in many states     |
+| Medical payments/PIP            | Your medical costs regardless of fault                           | Varies by state             |
+| Rental reimbursement            | Rental car while yours is repaired                               | No                          |
+| Roadside assistance             | Towing, lockout, flat tire                                       | No                          |
 
 **Recommended Minimums** (significantly above state minimums):
+
 - Liability: 100/300/100 ($100K per person / $300K per accident / $100K property)
 - Uninsured motorist: Match your liability limits
 - Consider umbrella policy for liability beyond these amounts
@@ -99,12 +103,14 @@ Insurance is one tool in a four-part risk management strategy:
 ### Homeowners/Renters Insurance
 
 **Homeowners (HO-3 Standard)**
+
 - Dwelling coverage: Replacement cost (not market value)
 - Personal property: Typically 50-70% of dwelling coverage
 - Liability: Typically $100,000 (increase to $300,000-$500,000)
 - Additional living expenses: Covers temporary housing if home is uninhabitable
 
 **Common Exclusions to Know**
+
 - Flood (requires separate NFIP or private flood policy)
 - Earthquake (requires separate policy or endorsement)
 - Sewer backup (available as endorsement)
@@ -113,6 +119,7 @@ Insurance is one tool in a four-part risk management strategy:
 - Mold (often limited or excluded)
 
 **Renters Insurance**
+
 - Covers personal property and liability (landlord's policy covers the building only)
 - Typically $15-30/month - one of the best value insurance products
 - Covers theft, fire, certain water damage to your belongings
@@ -121,6 +128,7 @@ Insurance is one tool in a four-part risk management strategy:
 ### Life Insurance
 
 **Do You Need It?**
+
 - Yes if: Others depend on your income (spouse, children, aging parents)
 - Yes if: You have significant debts a co-signer would inherit
 - Maybe: If you have a business partner (key person / buy-sell agreement)
@@ -128,13 +136,13 @@ Insurance is one tool in a four-part risk management strategy:
 
 **Term vs. Permanent**
 
-| Feature | Term Life | Whole/Universal Life |
-|---------|-----------|---------------------|
-| Duration | Fixed period (10-30 years) | Lifetime |
-| Cost | Low | 5-15x more expensive |
-| Cash value | None | Builds over time (slowly) |
-| Complexity | Simple | Complex |
-| Best for | Income replacement during earning years | Estate planning, very specific needs |
+| Feature    | Term Life                               | Whole/Universal Life                 |
+| ---------- | --------------------------------------- | ------------------------------------ |
+| Duration   | Fixed period (10-30 years)              | Lifetime                             |
+| Cost       | Low                                     | 5-15x more expensive                 |
+| Cash value | None                                    | Builds over time (slowly)            |
+| Complexity | Simple                                  | Complex                              |
+| Best for   | Income replacement during earning years | Estate planning, very specific needs |
 
 **Coverage Amount Rule of Thumb**: 10-15x annual income, adjusted for outstanding mortgage, education costs, spouse earning capacity, existing savings, and Social Security survivor benefits.
 
@@ -146,6 +154,7 @@ Often called the most underinsured risk. You are statistically more likely to be
 **Long-Term Disability (LTD)**: Covers 50-70% of income until retirement age
 
 **Key Policy Terms**
+
 - **Own occupation** (better): Pays if you cannot perform YOUR specific job
 - **Any occupation** (worse): Only pays if you cannot perform ANY job
 - **Elimination period**: Waiting period before benefits begin (longer = cheaper)
@@ -179,6 +188,7 @@ Compare at three scenarios:
 ### Comparison Checklist
 
 When evaluating two or more policies:
+
 - [ ] Same coverage limits (apples-to-apples)?
 - [ ] Same deductible level?
 - [ ] Network adequacy (health: doctors; auto: repair shops)?
@@ -200,29 +210,34 @@ When evaluating two or more policies:
 ### Claim Filing Process
 
 **Step 1: Document Everything**
+
 - Photograph/video all damage before any cleanup or repair
 - Get police report if applicable (theft, auto accident)
 - Collect witness contact information
 - Save all receipts for emergency expenses
 
 **Step 2: Notify Insurer Promptly**
+
 - Most policies require "prompt" or "timely" notification
 - Call claims line for fastest processing
 - Get a claim number and adjuster name
 - Ask about advance payment for emergency needs
 
 **Step 3: Mitigate Further Damage**
+
 - You have a duty to prevent additional damage (e.g., tarp a damaged roof)
 - Keep receipts for mitigation expenses (typically reimbursable)
 - Do NOT make permanent repairs before adjuster inspection
 
 **Step 4: Work with the Adjuster**
+
 - Be present during inspection
 - Provide your documentation
 - Get the estimate in writing
 - You can request a second opinion or independent appraisal if you disagree
 
 **Step 5: Review Settlement Offer**
+
 - Compare to your documentation and estimates
 - Negotiate if the offer seems low (cite specific items/costs)
 - Consider hiring a public adjuster for large claims (they take 5-15% but often recover more)
@@ -237,18 +252,19 @@ When evaluating two or more policies:
 
 ### Common Gaps
 
-| Gap | Who Is Exposed | Solution |
-|-----|---------------|----------|
-| Flood coverage | All homeowners/renters | NFIP or private flood policy |
-| Umbrella liability | High net worth, rental owners, families | Umbrella policy |
-| Disability income | Most workers (especially self-employed) | Individual LTD policy |
-| Valuable items (jewelry, art) | Owners of high-value items | Scheduled personal property endorsement |
-| Home business | Work-from-home, side businesses | Business endorsement or BOP |
-| Identity theft | Everyone | Identity theft endorsement or service |
+| Gap                           | Who Is Exposed                          | Solution                                |
+| ----------------------------- | --------------------------------------- | --------------------------------------- |
+| Flood coverage                | All homeowners/renters                  | NFIP or private flood policy            |
+| Umbrella liability            | High net worth, rental owners, families | Umbrella policy                         |
+| Disability income             | Most workers (especially self-employed) | Individual LTD policy                   |
+| Valuable items (jewelry, art) | Owners of high-value items              | Scheduled personal property endorsement |
+| Home business                 | Work-from-home, side businesses         | Business endorsement or BOP             |
+| Identity theft                | Everyone                                | Identity theft endorsement or service   |
 
 ### Annual Insurance Review Checklist
 
 Review all policies annually and after major life events:
+
 - [ ] Life changes: marriage, divorce, baby, home purchase, retirement
 - [ ] Asset changes: new vehicle, renovation, major purchase, inheritance
 - [ ] Income changes: raise, job change, new business
@@ -260,6 +276,7 @@ Review all policies annually and after major life events:
 ## Cost Optimization Strategies
 
 ### Immediate Savings
+
 1. **Bundle policies** with one insurer (10-25% discount typical)
 2. **Raise deductibles** to the highest level you can self-insure
 3. **Ask about every discount**: Multi-policy, claims-free, alarm system, good credit, professional association, military, autopay
@@ -267,16 +284,17 @@ Review all policies annually and after major life events:
 5. **Improve credit score**: In most states, credit-based insurance scores significantly affect premiums
 
 ### Strategic Savings
+
 - **Self-insure small risks**: Higher deductibles, skip collision on old cars
 - **Health**: Use HDHPs + HSA if healthy; contributed savings offset higher deductible
 - **Life**: Buy term, invest the difference (permanent life insurance is rarely optimal for most people)
 
 ### What NOT to Cut
+
 - Liability coverage (catastrophic lawsuits can be financially devastating)
 - Uninsured motorist coverage
 - Umbrella policy (remarkably cheap for the coverage provided)
 - Disability insurance during working years
-
 
 ## Output Format
 

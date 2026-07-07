@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design guide"
-  category: "backend-systems"
-  subcategory: "api-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design guide'
+  category: 'backend-systems'
+  subcategory: 'api-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # API Designer
@@ -453,6 +453,7 @@ security:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api designer solutions
 - Reviewing or improving existing api designer approaches
 - Making architectural or implementation decisions about api designer
@@ -460,6 +461,7 @@ security:
 - Troubleshooting api designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -470,21 +472,26 @@ security:
 # Api Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

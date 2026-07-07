@@ -22,12 +22,7 @@ export type StepStatus = 'todo' | 'now' | 'done' | 'skipped' | 'errored';
  */
 export type WorkflowRunMode = 'running' | 'paused' | 'awaiting_input' | 'done';
 
-export const WORKFLOW_RUN_MODES: readonly WorkflowRunMode[] = [
-  'running',
-  'paused',
-  'awaiting_input',
-  'done',
-];
+export const WORKFLOW_RUN_MODES: readonly WorkflowRunMode[] = ['running', 'paused', 'awaiting_input', 'done'];
 
 export const isWorkflowRunMode = (v: unknown): v is WorkflowRunMode =>
   typeof v === 'string' && (WORKFLOW_RUN_MODES as readonly string[]).includes(v);

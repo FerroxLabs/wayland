@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "php testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'php testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PHP Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure PHPUnit test classes, test suites, or test configuration for a PHP project
 - User wants to implement TDD, BDD, or mutation testing workflows in a PHP codebase
 - User needs guidance on mocking, stubbing, or faking dependencies in PHP using PHPUnit, Mockery, or Prophecy
@@ -30,6 +32,7 @@ metadata:
 - User asks about Pest PHP, Behat, Codeception, or how to choose between PHP testing frameworks
 
 **Do NOT use this skill when:**
+
 - User needs frontend JavaScript testing for a PHP application -- use a JavaScript testing skill
 - User is asking about API contract testing with OpenAPI or Pact -- check the contract testing skill
 - User needs load or performance testing tools like k6 or Gatling -- those are separate concerns
@@ -66,6 +69,7 @@ PHP has a settled ecosystem. Make concrete choices, not generic ones:
 - **php-code-coverage with Xdebug or PCOV:** PCOV is 3--5x faster than Xdebug for coverage collection and does not require the full debugger extension. Use PCOV in CI; use Xdebug locally only when debugging.
 
 Install the recommended baseline:
+
 ```bash
 composer require --dev phpunit/phpunit:^11 mockery/mockery:^1.6 fakerphp/faker:^1.23 infection/infection:^0.29
 ```
@@ -102,12 +106,14 @@ tests/
 ```
 
 Key rules for this structure:
+
 - `Unit/` tests have zero I/O. No database, no HTTP, no filesystem. They must run in under 5ms each.
 - `Integration/` tests touch real infrastructure -- a test database, a real HTTP client pointed at a wiremock server, or a real filesystem in `/tmp`.
 - `Fixture/` holds stateless factory objects and static stub files. Never embed fixture data inside test methods.
 - `Support/` holds abstract base test cases with setup helpers, not generic traits that leak state.
 
 Configure `phpunit.xml` to map test suites explicitly:
+
 ```xml
 <testsuites>
   <testsuite name="Unit">
@@ -126,6 +132,7 @@ This allows `./vendor/bin/phpunit --testsuite Unit` to run only fast tests in pr
 Unit tests in PHP follow these concrete patterns:
 
 **Arrange-Act-Assert (AAA) with strict naming:**
+
 ```php
 #[Test]
 public function it_applies_percentage_discount_to_subtotal(): void
@@ -143,6 +150,7 @@ public function it_applies_percentage_discount_to_subtotal(): void
 ```
 
 **Data providers for boundary testing:**
+
 ```php
 #[DataProvider('discountBoundaryProvider')]
 #[Test]
@@ -166,6 +174,7 @@ public static function discountBoundaryProvider(): array
 ```
 
 **Test doubles -- choosing the right one:**
+
 - **Stub:** Returns a fixed value. Use when the return value drives the unit under test's behavior but you do not care how many times it is called.
 - **Mock:** Asserts interaction. Use when the purpose of the unit is to call a collaborator correctly -- for example, ensuring an event is dispatched.
 - **Spy:** Records calls for later assertion. Use with Mockery's `shouldHaveReceived()` for post-act verification, which reads more naturally.
@@ -190,6 +199,7 @@ $this->assertCount(1, $repository->all());
 Integration tests require special infrastructure management:
 
 **Database integration tests -- transaction rollback strategy:**
+
 ```php
 abstract class DatabaseTestCase extends TestCase
 {
@@ -209,6 +219,7 @@ abstract class DatabaseTestCase extends TestCase
     }
 }
 ```
+
 This pattern runs each test in an uncommitted transaction. It is 10--20x faster than truncating tables between tests and does not require a test-specific database schema reset.
 
 **HTTP integration tests -- use an in-process client:**
@@ -216,6 +227,7 @@ In Laravel, use `$this->getJson('/api/orders')` which invokes the kernel without
 
 **Doctrine/ORM integration tests:**
 Use an in-memory SQLite database for Doctrine integration tests when the schema does not use MySQL-specific features. Configure a separate `test` entity manager that uses `doctrine/dbal` SQLite:
+
 ```yaml
 # config/test/doctrine.yaml
 doctrine:
@@ -235,6 +247,7 @@ When testing code that calls external APIs, do not use Mockery to mock the HTTP 
 Hardcoded test data scattered across test methods is the most common cause of brittle test suites. Use these two patterns:
 
 **Object Mother** -- a factory class that returns pre-configured domain objects:
+
 ```php
 final class OrderMother
 {
@@ -263,6 +276,7 @@ final class OrderMother
 ```
 
 **Test Builder** -- a fluent builder for tests that need precise control:
+
 ```php
 final class OrderBuilder
 {
@@ -307,6 +321,7 @@ Use the builder when a test cares about specific field values. Use the mother wh
 ### 7. Configure Coverage and Mutation Testing
 
 **Coverage thresholds in phpunit.xml:**
+
 ```xml
 <coverage>
   <report>
@@ -328,17 +343,21 @@ Use the builder when a test cares about specific field values. Use the mother wh
 ```
 
 Set minimum coverage in CI, not in phpunit.xml, using `--coverage-text` output parsed by a shell assertion:
+
 ```bash
 COVERAGE=$(./vendor/bin/phpunit --coverage-text | grep "Lines:" | head -1 | grep -o '[0-9]*\.[0-9]*%' | head -1)
 ```
+
 Target 80% line coverage for application code. Do not target 100% -- the last 10--15% typically covers trivial getters, generated code, and defensive branches that are not worth the maintenance cost.
 
 **Infection PHP mutation testing:**
+
 ```bash
 ./vendor/bin/infection --threads=4 --min-msi=70 --min-covered-msi=80 --filter=src/Domain
 ```
 
 Key thresholds:
+
 - MSI (Mutation Score Indicator) below 60%: test suite is not providing meaningful coverage -- add tests.
 - MSI 60--75%: acceptable for application services and infrastructure.
 - MSI 75--90%: target for domain model and business logic.
@@ -468,6 +487,7 @@ When presenting a PHP testing recommendation to a user, use this structure:
 Many PHP codebases use `new` inside methods, static calls (`Model::find()`), or global function calls (`curl_exec()`). You cannot mock these directly.
 
 **Handling approach:**
+
 - Introduce a thin adapter class that wraps the static or global call. For example, wrap `curl_exec()` behind a `HttpClientInterface`. Then mock the interface.
 - For Eloquent static calls in Laravel, use `Model::shouldReceive()` (via `mockery/mockery` integration with the service container) rather than mocking the model class directly.
 - Apply the Mikado method: draw a dependency graph of what needs to change to make a class testable, then make changes from the leaves inward. Do not start by changing the class under test -- start with its dependencies.
@@ -478,6 +498,7 @@ Many PHP codebases use `new` inside methods, static calls (`Model::find()`), or 
 Tests that call `new DateTime('now')`, `time()`, or `Carbon::now()` directly will produce different results depending on when they run. This causes intermittent CI failures, especially for tests that check expiry logic, scheduling, or age calculations.
 
 **Handling approach:**
+
 - Extract a `ClockInterface` with a `now(): DateTimeImmutable` method.
 - Inject it into all classes that need the current time.
 - In tests, use a `FrozenClock('2024-03-15 12:00:00')` that always returns the same timestamp.
@@ -489,6 +510,7 @@ Tests that call `new DateTime('now')`, `time()`, or `Carbon::now()` directly wil
 PHP is primarily synchronous, but applications that use queues (Laravel Queues, Symfony Messenger, RabbitMQ consumers) need to test handler logic without a running broker.
 
 **Handling approach:**
+
 - Test the message handler class as a pure unit test, injecting fake dependencies. The handler receives a message DTO and produces side effects -- test those side effects.
 - For dispatch-side testing in Laravel, use `Queue::fake()` and assert `Queue::assertPushed(ProcessOrderJob::class)`. This asserts the dispatch without processing.
 - For Symfony Messenger, use `InMemoryTransport` in the test environment and call `$messageBus->dispatch()` -- the transport stores the message synchronously for inspection.
@@ -499,6 +521,7 @@ PHP is primarily synchronous, but applications that use queues (Laravel Queues, 
 Tests that assert on auto-increment IDs (e.g., `$this->assertEquals(1, $order->id)`) will fail when tests run in different orders, when other tests insert rows first, or when sequences are not reset.
 
 **Handling approach:**
+
 - Never assert on auto-increment integer IDs. Use UUIDs or ULIDs as entity identifiers in domain objects.
 - If the existing schema uses integer IDs, assert on business keys (order reference numbers, customer emails) rather than database-generated IDs.
 - For SQLite integration tests, use `PRAGMA auto_increment_reset` or drop and recreate the schema before each test class (not each test method -- schema recreation is slow at the method level).
@@ -508,6 +531,7 @@ Tests that assert on auto-increment IDs (e.g., `$this->assertEquals(1, $order->i
 Tests that read from or write to the actual filesystem create dependencies on the host environment, pollute the repository, and fail in parallel test execution when multiple workers write to the same path.
 
 **Handling approach:**
+
 - Use the `league/flysystem` filesystem abstraction in production code and inject the adapter. In tests, use `League\Flysystem\InMemory\InMemoryFilesystemAdapter`.
 - If the code uses `file_get_contents` or `file_put_contents` directly, wrap it behind a `FileStorageInterface` and inject that.
 - When a real filesystem must be used (testing file permissions, testing binary writes), use `sys_get_temp_dir() . '/' . uniqid('test_', true)` to create an isolated directory per test, and delete it in `tearDown()`.
@@ -518,6 +542,7 @@ Tests that read from or write to the actual filesystem create dependencies on th
 If the full test suite takes more than 3 minutes in CI, developers stop running it locally and PRs accumulate undetected failures.
 
 **Handling approach:**
+
 - Profile with `./vendor/bin/phpunit --log-junit results.xml` and parse for tests exceeding 500ms. Each test above 500ms is a candidate for optimization.
 - Separate the `Integration` and `Unit` suites. Run unit tests in pre-push hooks (target: under 15 seconds). Run integration tests only in CI.
 - Use PHPUnit's `--processes` flag (via `paratest/paratest`) to run tests in parallel: `./vendor/bin/paratest --processes=4`. Paratest requires database isolation -- each process needs its own test database or must use SQLite in-memory.
@@ -529,7 +554,9 @@ If the full test suite takes more than 3 minutes in CI, developers stop running 
 Application service classes often depend on multiple repositories, event buses, and other services. Building the full dependency tree in a test becomes a 30-line `setUp()` method.
 
 **Handling approach:**
+
 - Create a `TestContainer` helper in `tests/Support/` that builds a pre-configured service with all fake dependencies wired in:
+
 ```php
 final class TestContainer
 {
@@ -543,6 +570,7 @@ final class TestContainer
     }
 }
 ```
+
 - Return the service AND its fakes as a tuple so tests can inspect side effects on the fakes.
 - Never rebuild this wiring in individual test classes -- if the constructor signature changes, you want one place to update.
 
@@ -557,6 +585,7 @@ final class TestContainer
 ## PHP Testing Assessment
 
 ### Project Context
+
 - PHP Version: 8.3
 - Framework: Laravel 11
 - Testing Framework: PHPUnit 11 (Laravel default) -- consider Pest 3 if team prefers fluent syntax
@@ -864,12 +893,12 @@ final class OrderControllerTest extends TestCase
 
 ### Coverage and Mutation Targets for This Project
 
-| Layer                   | Tool       | Target     | Rationale                                                    |
-|-------------------------|------------|------------|--------------------------------------------------------------|
-| Domain (DiscountCalc)   | Infection  | MSI ≥ 80%  | Pure logic -- high mutation ROI                              |
-| Application (Handler)   | PHPUnit    | Lines ≥ 85%| Business orchestration -- behavior tests cover all branches  |
-| Infrastructure (Gateway)| PHPUnit    | Lines ≥ 60%| Adapter wraps external library -- focus on mapping logic     |
-| HTTP Controllers        | PHPUnit    | Lines ≥ 70%| Integration tests cover the happy path and main error cases  |
+| Layer                    | Tool      | Target      | Rationale                                                   |
+| ------------------------ | --------- | ----------- | ----------------------------------------------------------- |
+| Domain (DiscountCalc)    | Infection | MSI ≥ 80%   | Pure logic -- high mutation ROI                             |
+| Application (Handler)    | PHPUnit   | Lines ≥ 85% | Business orchestration -- behavior tests cover all branches |
+| Infrastructure (Gateway) | PHPUnit   | Lines ≥ 60% | Adapter wraps external library -- focus on mapping logic    |
+| HTTP Controllers         | PHPUnit   | Lines ≥ 70% | Integration tests cover the happy path and main error cases |
 
 ### Next Steps (Prioritized)
 

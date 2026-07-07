@@ -43,7 +43,11 @@ const EmailImapSetup: React.FC = () => {
       displayName='Email (IMAP / SMTP)'
       pluginId={pluginStatus?.id ?? 'email-imap_default'}
     >
-      <EmailImapConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <EmailImapConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

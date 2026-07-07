@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml data-science guide"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml data-science guide'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Embedding Engineer
@@ -51,16 +51,16 @@ emb3 = get_embedding("Stock prices rose sharply today")
 
 ### Text Embedding Models
 
-| Model | Provider | Dimensions | Max Tokens | MTEB Score | Cost/1M tokens | Best For |
-|-------|----------|-----------|------------|------------|----------------|----------|
-| text-embedding-3-large | OpenAI | 3072 | 8191 | 64.6 | $0.13 | High quality |
-| text-embedding-3-small | OpenAI | 1536 | 8191 | 62.3 | $0.02 | Cost-effective |
-| voyage-3 | Voyage AI | 1024 | 32000 | 67.4 | $0.06 | Long documents |
-| all-MiniLM-L6-v2 | HuggingFace | 384 | 256 | 56.3 | Free (OSS) | Local/fast |
-| bge-large-en-v1.5 | BAAI | 1024 | 512 | 64.2 | Free (OSS) | Self-hosted |
-| e5-mistral-7b-instruct | Microsoft | 4096 | 32768 | 66.6 | Free (OSS) | Max quality (OSS) |
-| Cohere embed-v3 | Cohere | 1024 | 512 | 64.5 | $0.10 | Multilingual |
-| jina-embeddings-v3 | Jina AI | 1024 | 8192 | 65.5 | $0.02 | Long docs (OSS) |
+| Model                  | Provider    | Dimensions | Max Tokens | MTEB Score | Cost/1M tokens | Best For          |
+| ---------------------- | ----------- | ---------- | ---------- | ---------- | -------------- | ----------------- |
+| text-embedding-3-large | OpenAI      | 3072       | 8191       | 64.6       | $0.13          | High quality      |
+| text-embedding-3-small | OpenAI      | 1536       | 8191       | 62.3       | $0.02          | Cost-effective    |
+| voyage-3               | Voyage AI   | 1024       | 32000      | 67.4       | $0.06          | Long documents    |
+| all-MiniLM-L6-v2       | HuggingFace | 384        | 256        | 56.3       | Free (OSS)     | Local/fast        |
+| bge-large-en-v1.5      | BAAI        | 1024       | 512        | 64.2       | Free (OSS)     | Self-hosted       |
+| e5-mistral-7b-instruct | Microsoft   | 4096       | 32768      | 66.6       | Free (OSS)     | Max quality (OSS) |
+| Cohere embed-v3        | Cohere      | 1024       | 512        | 64.5       | $0.10          | Multilingual      |
+| jina-embeddings-v3     | Jina AI     | 1024       | 8192       | 65.5       | $0.02          | Long docs (OSS)   |
 
 ### Selection Decision Tree
 
@@ -139,11 +139,11 @@ def dot_product(a: np.ndarray, b: np.ndarray) -> float:
 
 ### When to Use Which Metric
 
-| Metric | When to Use | Properties |
-|--------|-------------|------------|
-| Cosine | Default for text/semantic search | Normalized, magnitude-invariant |
-| Euclidean | Spatial data, clustering | Sensitive to magnitude |
-| Dot Product | Pre-normalized vectors, speed-critical | Fastest, assumes normalization |
+| Metric      | When to Use                            | Properties                      |
+| ----------- | -------------------------------------- | ------------------------------- |
+| Cosine      | Default for text/semantic search       | Normalized, magnitude-invariant |
+| Euclidean   | Spatial data, clustering               | Sensitive to magnitude          |
+| Dot Product | Pre-normalized vectors, speed-critical | Fastest, assumes normalization  |
 
 **Key insight**: If vectors are L2-normalized, cosine similarity and dot product produce the same ranking. Most embedding models output normalized vectors, so dot product is preferred for speed.
 
@@ -484,6 +484,7 @@ def benchmark_embedding_quality(
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing embedding engineer solutions
 - Reviewing or improving existing embedding engineer approaches
 - Making architectural or implementation decisions about embedding engineer
@@ -491,6 +492,7 @@ def benchmark_embedding_quality(
 - Troubleshooting embedding engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -501,21 +503,26 @@ def benchmark_embedding_quality(
 # Embedding Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

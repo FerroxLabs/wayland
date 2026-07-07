@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml deep-learning guide"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml deep-learning guide'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # NLP Engineer
@@ -68,14 +68,14 @@ class LinguisticPreprocessor:
 
 ### When to Preprocess
 
-| Task | Lowercase | Remove Stop Words | Stemming | Remove Punctuation |
-|------|-----------|------------------|----------|-------------------|
-| Transformer models | NO | NO | NO | NO |
-| TF-IDF classification | YES | YES | Optional | YES |
-| Topic modeling | YES | YES | YES | YES |
-| Sentiment analysis (classical) | YES | Sometimes | NO | NO |
-| Named entity recognition | NO | NO | NO | NO |
-| Search indexing | YES | Sometimes | Optional | Optional |
+| Task                           | Lowercase | Remove Stop Words | Stemming | Remove Punctuation |
+| ------------------------------ | --------- | ----------------- | -------- | ------------------ |
+| Transformer models             | NO        | NO                | NO       | NO                 |
+| TF-IDF classification          | YES       | YES               | Optional | YES                |
+| Topic modeling                 | YES       | YES               | YES      | YES                |
+| Sentiment analysis (classical) | YES       | Sometimes         | NO       | NO                 |
+| Named entity recognition       | NO        | NO                | NO       | NO                 |
+| Search indexing                | YES       | Sometimes         | Optional | Optional           |
 
 **Key insight**: Modern transformer models handle raw text best. Only preprocess for classical ML or information retrieval tasks.
 
@@ -104,12 +104,12 @@ sp_tokens = tokenizer.tokenize("unhappiness")
 
 ### Tokenizer Comparison
 
-| Tokenizer | Algorithm | Models | Vocabulary | Handles Unknown |
-|-----------|-----------|--------|-----------|-----------------|
-| BPE | Byte-Pair Encoding | GPT, RoBERTa | 30K-50K | Subword fallback |
-| WordPiece | Greedy longest match | BERT | 30K | [UNK] token |
-| SentencePiece | Unigram or BPE | T5, LLaMA | 32K | Subword fallback |
-| Tiktoken | BPE (optimized) | GPT-4, GPT-4o | 100K+ | Byte fallback |
+| Tokenizer     | Algorithm            | Models        | Vocabulary | Handles Unknown  |
+| ------------- | -------------------- | ------------- | ---------- | ---------------- |
+| BPE           | Byte-Pair Encoding   | GPT, RoBERTa  | 30K-50K    | Subword fallback |
+| WordPiece     | Greedy longest match | BERT          | 30K        | [UNK] token      |
+| SentencePiece | Unigram or BPE       | T5, LLaMA     | 32K        | Subword fallback |
+| Tiktoken      | BPE (optimized)      | GPT-4, GPT-4o | 100K+      | Byte fallback    |
 
 ### Practical Token Counting
 
@@ -274,10 +274,10 @@ def train_classifier(
 
 ### Extractive vs Abstractive
 
-| Approach | Method | Pros | Cons |
-|----------|--------|------|------|
-| Extractive | Select key sentences | Faithful to source | May be disjointed |
-| Abstractive | Generate new text | Fluent, concise | Risk of hallucination |
+| Approach    | Method               | Pros               | Cons                  |
+| ----------- | -------------------- | ------------------ | --------------------- |
+| Extractive  | Select key sentences | Faithful to source | May be disjointed     |
+| Abstractive | Generate new text    | Fluent, concise    | Risk of hallucination |
 
 ### Abstractive Summarization
 
@@ -409,11 +409,11 @@ Output
 
 ### Architecture Families
 
-| Architecture | Type | Examples | Best For |
-|-------------|------|----------|----------|
-| Encoder-only | BERT-style | BERT, RoBERTa, DeBERTa | Classification, NER, extraction |
-| Decoder-only | GPT-style | GPT-4, LLaMA, Mistral | Text generation, chat |
-| Encoder-Decoder | Seq2Seq | T5, BART, mBART | Translation, summarization |
+| Architecture    | Type       | Examples               | Best For                        |
+| --------------- | ---------- | ---------------------- | ------------------------------- |
+| Encoder-only    | BERT-style | BERT, RoBERTa, DeBERTa | Classification, NER, extraction |
+| Decoder-only    | GPT-style  | GPT-4, LLaMA, Mistral  | Text generation, chat           |
+| Encoder-Decoder | Seq2Seq    | T5, BART, mBART        | Translation, summarization      |
 
 ## Hugging Face Pipeline Quick Reference
 
@@ -453,6 +453,7 @@ embeddings = extractor("Hello world")
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing nlp engineer solutions
 - Reviewing or improving existing nlp engineer approaches
 - Making architectural or implementation decisions about nlp engineer
@@ -460,6 +461,7 @@ embeddings = extractor("Hello world")
 - Troubleshooting nlp engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -470,21 +472,26 @@ embeddings = extractor("Hello world")
 # Nlp Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

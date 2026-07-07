@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tutoring teaching step-by-step study-skills"
-  category: "education"
-  subcategory: "tutoring"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tutoring teaching step-by-step study-skills'
+  category: 'education'
+  subcategory: 'tutoring'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Math Tutoring
 
 ## When to Use
@@ -210,22 +211,22 @@ Each tutoring exchange follows this structure. Do not present this template to t
 
 Use this table to quickly locate likely error patterns by topic area. Cross-reference against what the student says to identify the gap type.
 
-| Topic Area | Common Misconception | Error Example | Leading Question to Reveal It |
-|---|---|---|---|
-| Fraction addition | Add numerators AND denominators separately | 1/3 + 1/4 = 2/7 | "If you ate 1/3 of a pizza on Monday and 1/4 of the same pizza on Tuesday, did you eat more or less than half? Is 2/7 more or less than 1/2?" |
-| Fraction division | Flip the wrong fraction or forget to flip | 2/3 ÷ 4/5 = 2/3 × 4/5 | "Division means 'how many groups of [divisor] fit in [dividend].' How many groups of 4/5 fit in 2/3? Does multiplying directly give you that?" |
-| Negative multiplication | Negative times negative = negative | -4 × -3 = -12 | "If -4 represents losing $4 per day, what does -3 days mean -- going back 3 days in time. Were you $12 poorer or richer 3 days ago?" |
-| Distributive property | Distribute only to first term | 3(x + 5) = 3x + 5 | "If 3 friends each pay for a burger ($x) AND fries ($5), how much total? Did each friend skip paying for the fries?" |
-| Exponent rules | Multiply base by exponent | 2³ = 6 | "Write out what 2³ actually means -- not the shortcut. 2 × 2 × 2 = ?" |
-| Exponent distribution | Distribute exponent into sum | (x + 3)² = x² + 9 | "Is (2 + 3)² = 2² + 3²? Calculate both sides and compare." |
-| Order of operations | Evaluate strictly left to right | 2 + 3 × 4 = 20 | "If a store sells apples for $2 each and you also have a coupon for $2 off 3 packs of gum at $4 each -- what's the total? Did you add first?" |
-| Solving equations | Apply operation to only one side | 2x + 3 = 7 → 2x = 7 - 3 (correct) vs. 2x = 7 - 0 | "If both sides of a scale balance at 7, and I remove 3 from the left side only -- do they still balance?" |
-| Slope | Confuse rise/run with run/rise | Slope = Δx/Δy | "Which direction do we measure 'rise' in real life -- horizontal or vertical? Which direction is 'run'?" |
-| Quadratic solutions | Only find one solution | x² = 9 → x = 3 only | "Is (-3)² also equal to 9? So what does that tell you about how many values of x satisfy this?" |
-| Absolute value | Absolute value = remove the minus sign | \|x - 5\| = 3 → x - 5 = 3 only | "Absolute value means distance from zero. If your distance from 5 is 3, are there two locations on the number line that are exactly 3 away from 5?" |
-| Logarithm definition | log(a + b) = log(a) + log(b) | log(6) = log(2) + log(3) [this one is actually correct -- use carefully] | "What IS log base 10 of 100? What operation are we actually undoing?" |
-| Probability | P(A and B) = P(A) + P(B) | P(heads and tails) = 1/2 + 1/2 = 1 | "If I flip two coins, can I get heads AND tails at the same time on the same flip? Or are we talking about two separate events?" |
-| Derivative rules | Derivative of product = product of derivatives | d/dx[f·g] = f'·g' | "Check with f = x² and g = x³. What does the product rule give? What does f'·g' give? Are they equal?" |
+| Topic Area              | Common Misconception                           | Error Example                                                            | Leading Question to Reveal It                                                                                                                       |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fraction addition       | Add numerators AND denominators separately     | 1/3 + 1/4 = 2/7                                                          | "If you ate 1/3 of a pizza on Monday and 1/4 of the same pizza on Tuesday, did you eat more or less than half? Is 2/7 more or less than 1/2?"       |
+| Fraction division       | Flip the wrong fraction or forget to flip      | 2/3 ÷ 4/5 = 2/3 × 4/5                                                    | "Division means 'how many groups of [divisor] fit in [dividend].' How many groups of 4/5 fit in 2/3? Does multiplying directly give you that?"      |
+| Negative multiplication | Negative times negative = negative             | -4 × -3 = -12                                                            | "If -4 represents losing $4 per day, what does -3 days mean -- going back 3 days in time. Were you $12 poorer or richer 3 days ago?"                |
+| Distributive property   | Distribute only to first term                  | 3(x + 5) = 3x + 5                                                        | "If 3 friends each pay for a burger ($x) AND fries ($5), how much total? Did each friend skip paying for the fries?"                                |
+| Exponent rules          | Multiply base by exponent                      | 2³ = 6                                                                   | "Write out what 2³ actually means -- not the shortcut. 2 × 2 × 2 = ?"                                                                               |
+| Exponent distribution   | Distribute exponent into sum                   | (x + 3)² = x² + 9                                                        | "Is (2 + 3)² = 2² + 3²? Calculate both sides and compare."                                                                                          |
+| Order of operations     | Evaluate strictly left to right                | 2 + 3 × 4 = 20                                                           | "If a store sells apples for $2 each and you also have a coupon for $2 off 3 packs of gum at $4 each -- what's the total? Did you add first?"       |
+| Solving equations       | Apply operation to only one side               | 2x + 3 = 7 → 2x = 7 - 3 (correct) vs. 2x = 7 - 0                         | "If both sides of a scale balance at 7, and I remove 3 from the left side only -- do they still balance?"                                           |
+| Slope                   | Confuse rise/run with run/rise                 | Slope = Δx/Δy                                                            | "Which direction do we measure 'rise' in real life -- horizontal or vertical? Which direction is 'run'?"                                            |
+| Quadratic solutions     | Only find one solution                         | x² = 9 → x = 3 only                                                      | "Is (-3)² also equal to 9? So what does that tell you about how many values of x satisfy this?"                                                     |
+| Absolute value          | Absolute value = remove the minus sign         | \|x - 5\| = 3 → x - 5 = 3 only                                           | "Absolute value means distance from zero. If your distance from 5 is 3, are there two locations on the number line that are exactly 3 away from 5?" |
+| Logarithm definition    | log(a + b) = log(a) + log(b)                   | log(6) = log(2) + log(3) [this one is actually correct -- use carefully] | "What IS log base 10 of 100? What operation are we actually undoing?"                                                                               |
+| Probability             | P(A and B) = P(A) + P(B)                       | P(heads and tails) = 1/2 + 1/2 = 1                                       | "If I flip two coins, can I get heads AND tails at the same time on the same flip? Or are we talking about two separate events?"                    |
+| Derivative rules        | Derivative of product = product of derivatives | d/dx[f·g] = f'·g'                                                        | "Check with f = x² and g = x³. What does the product rule give? What does f'·g' give? Are they equal?"                                              |
 
 ---
 
@@ -260,21 +261,27 @@ Use this table to quickly locate likely error patterns by topic area. Cross-refe
 ## Edge Cases
 
 ### The Student Who Wants the Answer, Not Understanding
+
 Some students are under time pressure (exam in 20 minutes, homework due now) and explicitly say so. Do not ignore this reality.
+
 - Acknowledge the time constraint directly: "I hear you -- you need this done now."
 - Offer a compressed version: ask ONE diagnostic question, then give one strong hint (not the answer) that points directly at the method
 - At the end, flag: "We got through this quickly -- but it's worth coming back to [concept] when you have more time, because it will come up again"
 - Do not pretend the time pressure doesn't exist by launching a full Socratic sequence the student did not ask for
 
 ### The Student With a Deep Prerequisite Gap
+
 A student working on quadratic equations who does not understand what a variable represents cannot benefit from questions about factoring.
+
 - When you identify a prerequisite gap, name it explicitly: "Before we can work on [current topic], we need to make sure [prerequisite] is solid -- otherwise everything we do here will be shaky"
 - Back up fully to the prerequisite and run a complete mini-session on it
 - After confirming the prerequisite, explicitly return to the original problem: "Now, with that in mind -- let's go back to the original problem. It should look different now."
 - If the prerequisite gap is very large (e.g., a calculus student who doesn't understand functions), be honest: "There are a few foundational ideas we'd need to build before this makes sense. This may be a longer project than one session."
 
 ### The Frustrated or Emotionally Shut-Down Student
+
 A student who says "I'm just stupid at math" or "I'll never get this" is not in a cognitive state to process leading questions.
+
 - Address the emotional content first, briefly and directly: "This is genuinely hard -- the fact that you're working at it matters."
 - Do not launch immediately into the next question -- give the student a moment
 - Drastically simplify the problem: use the smallest possible numbers (1, 2, 0), the most concrete real-world scenario, or a visual representation
@@ -282,26 +289,34 @@ A student who says "I'm just stupid at math" or "I'll never get this" is not in 
 - Never use competitive framing ("most students get this easily") or false praise ("wow, you're so close!") -- students detect inauthenticity and it deepens frustration
 
 ### The Student Who Gets the Right Answer for the Wrong Reason
+
 A student may arrive at the correct numerical answer through a method that will not generalize, or through guessing.
+
 - Always ask: "Can you walk me through how you got that?" before confirming the answer as correct
 - If the method is wrong but the answer happens to be right: "Interesting -- the answer is right, but let's look at the method, because the same approach on a slightly different problem would give the wrong answer. Walk me through what you did."
 - This is NOT punishing the student for being right -- frame it as protecting them from a future trap
 
 ### The Student Testing Multiple Concepts in a Single Problem
+
 A complex word problem may involve unit conversion, algebraic setup, fraction operations, and proportional reasoning all at once. The student says "I don't know where to start."
+
 - Do not try to teach all four concepts simultaneously
 - Ask the student to identify what the problem is asking for (the output) and what information they have (the inputs) -- this is always the correct first step for any multi-step problem
 - Identify which single concept is the bottleneck and address only that one
 - For the other steps, it is acceptable to briefly confirm: "Do you know how to [step X]?" and if yes, move on -- Socratic questioning is reserved for actual gaps, not every step
 
 ### The Student Who Is Actually Correct and Doesn't Know It
+
 Sometimes a student doubts a correct answer or correct reasoning because they lack confidence.
+
 - Do not simply validate ("that's right!") -- ask them to justify it: "How do you know? Can you convince me?"
 - If they justify it correctly, name what they did: "You just used the definition of [concept] to verify your own answer -- that's exactly what mathematicians do."
 - This builds self-verification skills that last beyond the tutoring session
 
 ### The Student Working on Non-Standard or Applied Math
+
 Statistics, financial math, physics-based problems, and contest math do not always follow textbook procedures. A student solving a probability problem from a card game or a geometry problem from architecture may need domain-adjacent context.
+
 - Do not pretend the applied context is irrelevant -- it is often the key to intuition
 - Ask: "What does this quantity actually represent in the real situation?" -- grounding abstract symbols in concrete meaning is a powerful gap-closer
 - If the problem requires domain knowledge you cannot verify (e.g., specific physics formulas), be transparent: "I can help with the mathematical structure here, but you'll want to verify [domain-specific constant/formula] against your course materials."
@@ -399,7 +414,7 @@ When distributing a negative coefficient, the student distributed -2 across (x -
 
 "Try this one: 5(2x - 3) - 4(x + 2). Without calculating anything yet -- how many distribution steps will there be, and what coefficient will you use for each one?"
 
-*(Expected answer: two distribution steps -- multiply +5 by both terms in the first group, and -4 by both terms in the second group)*
+_(Expected answer: two distribution steps -- multiply +5 by both terms in the first group, and -4 by both terms in the second group)_
 
 ---
 
@@ -415,13 +430,14 @@ When distributing a negative coefficient, the student distributed -2 across (x -
 
 "Looking back at where you started -- what was the single thing that made this click for you?"
 
-*(This prompt is given to the student. A likely response: "Seeing that the -2 multiplies everything, not just the x." Naming this insight consolidates the memory of the correction.)*
+_(This prompt is given to the student. A likely response: "Seeing that the -2 multiplies everything, not just the x." Naming this insight consolidates the memory of the correction.)_
 
 ---
 
 ### Tutor's Internal Note (Not Shown to Student)
 
 The original error -- losing the sign of the second term when distributing a negative -- is one of the five most common algebraic errors in Algebra 1. It recurs in:
+
 - Solving two-step equations with subtracted parenthetical groups
 - Combining functions: (f - g)(x) where g(x) has multiple terms
 - Factoring by grouping where a negative is factored out

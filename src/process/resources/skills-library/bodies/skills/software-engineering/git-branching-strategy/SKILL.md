@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "version-control best-practices automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'version-control best-practices automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Git Branching Strategy
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks which branching model to adopt for a new or existing project (trunk-based, GitFlow, GitHub Flow, GitLab Flow, release branch strategy)
 - A user wants to migrate from one branching strategy to another and needs a transition plan
 - A user needs to configure branch protection rules, merge policies, or automated CI gates to enforce a chosen strategy
@@ -30,6 +32,7 @@ metadata:
 - A user is working in a regulated environment (SOX, HIPAA, FedRAMP) and needs audit-friendly branch controls
 
 **Do NOT use this skill when:**
+
 - The user needs help with a specific Git command syntax issue -- that is a git-commands or git-troubleshooting skill
 - The user is asking about CI/CD pipeline configuration beyond branch trigger rules -- use a CI/CD pipeline design skill
 - The user wants to set up a monorepo from scratch -- use a monorepo-tooling skill (branching strategy is one component of that larger problem)
@@ -90,6 +93,7 @@ Once the strategy is chosen, define every branch type the team will use. Ambigui
 - **Chore/infra branches** (`chore/update-node-18`, `infra/migrate-to-terraform-1.6`): Non-feature work. Follow same review and merge rules as feature branches.
 
 Naming convention rules to enforce:
+
 - Lowercase only, hyphen-separated words in the slug.
 - Include ticket/issue ID when one exists for traceability.
 - No spaces, no special characters, no uppercase.
@@ -200,14 +204,15 @@ When delivering a git branching strategy recommendation, use the following struc
 ## Git Branching Strategy Recommendation
 
 ### Project Context Summary
-| Dimension          | Value                          |
-|--------------------|--------------------------------|
-| Team size          | [number] engineers             |
-| Release cadence    | [continuous / weekly / monthly / quarterly] |
-| Supported versions | [single / multiple: list them] |
-| Deployment trigger | [merge to main / tag / release branch] |
+
+| Dimension          | Value                                           |
+| ------------------ | ----------------------------------------------- |
+| Team size          | [number] engineers                              |
+| Release cadence    | [continuous / weekly / monthly / quarterly]     |
+| Supported versions | [single / multiple: list them]                  |
+| Deployment trigger | [merge to main / tag / release branch]          |
 | Compliance needs   | [none / SOX / HIPAA / FedRAMP / internal audit] |
-| Current pain       | [brief description]            |
+| Current pain       | [brief description]                             |
 
 ---
 
@@ -220,26 +225,26 @@ Reference the specific constraints that drove the decision.]
 
 ### Branch Taxonomy
 
-| Branch Type   | Pattern                          | Lifetime        | Source Branch | Merges Into           |
-|---------------|----------------------------------|-----------------|---------------|-----------------------|
-| main          | `main`                           | permanent       | --            | --                    |
-| develop       | `develop`                        | permanent       | main          | --                    |
-| feature       | `feature/<ticket-id>-<slug>`     | 1-5 days        | develop       | develop               |
-| bugfix        | `bugfix/<ticket-id>-<slug>`      | 1-3 days        | develop       | develop               |
-| release       | `release/<major.minor.patch>`    | days to 2 weeks | develop       | main + develop        |
-| hotfix        | `hotfix/<major.minor.patch>-<slug>` | hours to 1 day | main       | main + develop        |
+| Branch Type | Pattern                             | Lifetime        | Source Branch | Merges Into    |
+| ----------- | ----------------------------------- | --------------- | ------------- | -------------- |
+| main        | `main`                              | permanent       | --            | --             |
+| develop     | `develop`                           | permanent       | main          | --             |
+| feature     | `feature/<ticket-id>-<slug>`        | 1-5 days        | develop       | develop        |
+| bugfix      | `bugfix/<ticket-id>-<slug>`         | 1-3 days        | develop       | develop        |
+| release     | `release/<major.minor.patch>`       | days to 2 weeks | develop       | main + develop |
+| hotfix      | `hotfix/<major.minor.patch>-<slug>` | hours to 1 day  | main          | main + develop |
 
-*(Remove rows that do not apply to the chosen strategy)*
+_(Remove rows that do not apply to the chosen strategy)_
 
 ---
 
 ### Merge Policy
 
-| Branch         | Merge Strategy     | Required Reviews | Required Checks         | Force Push |
-|----------------|--------------------|------------------|-------------------------|------------|
-| main           | merge commit / squash | 2             | CI, lint, coverage ≥80% | NEVER      |
-| develop        | merge commit       | 1                | CI, lint                | NEVER      |
-| release/*      | merge commit       | 2                | CI, full regression     | NEVER      |
+| Branch     | Merge Strategy        | Required Reviews | Required Checks         | Force Push |
+| ---------- | --------------------- | ---------------- | ----------------------- | ---------- |
+| main       | merge commit / squash | 2                | CI, lint, coverage ≥80% | NEVER      |
+| develop    | merge commit          | 1                | CI, lint                | NEVER      |
+| release/\* | merge commit          | 2                | CI, full regression     | NEVER      |
 
 ---
 
@@ -250,6 +255,7 @@ Format: `<type>(<scope>): <short description>`
 Types: `feat` | `fix` | `docs` | `refactor` | `perf` | `test` | `chore` | `ci` | `revert`
 
 **Examples:**
+
 - `feat(auth): implement refresh token rotation`
 - `fix(api): return 429 on rate limit instead of 500`
 - `chore(deps): upgrade express from 4.18 to 4.19`
@@ -270,21 +276,25 @@ Types: `feat` | `fix` | `docs` | `refactor` | `perf` | `test` | `chore` | `ci` |
 
 #### main
 ```
+
 - Require pull request: YES (minimum 2 reviewers)
 - Dismiss stale reviews on new commits: YES
 - Require status checks: [list CI job names]
 - Require branch up to date: YES
 - Allow force push: NO
 - Allow deletion: NO
+
 ```
 
 #### develop (if applicable)
 ```
+
 - Require pull request: YES (minimum 1 reviewer)
 - Require status checks: [list CI job names]
 - Allow force push: NO
 - Allow deletion: NO
-```
+
+````
 
 ---
 
@@ -295,9 +305,10 @@ Types: `feat` | `fix` | `docs` | `refactor` | `perf` | `test` | `chore` | `ci` |
 git checkout develop             # or main for GitHub Flow / trunk-based
 git pull --ff-only
 git checkout -b feature/PROJ-123-add-user-search
-```
+````
 
 **Prepare a release (GitFlow):**
+
 ```bash
 git checkout develop
 git pull --ff-only
@@ -315,6 +326,7 @@ git push origin main develop --tags
 ```
 
 **Create and deploy a hotfix:**
+
 ```bash
 git checkout main
 git pull --ff-only
@@ -333,13 +345,13 @@ git push origin main develop --tags
 
 ### Tooling Recommendations
 
-| Purpose                  | Tool                              | Configuration file            |
-|--------------------------|-----------------------------------|-------------------------------|
-| Commit linting           | commitlint                        | `commitlint.config.js`        |
-| Git hooks                | husky                             | `.husky/commit-msg`           |
-| Changelog generation     | semantic-release or standard-version | `.releaserc.json` or `.versionrc.json` |
-| Branch naming lint       | branch-name-lint or custom CI check | CI step or `.github/branch-naming.yml` |
-| PR size guard            | danger.js or pr-size-labeler      | `Dangerfile.js`               |
+| Purpose              | Tool                                 | Configuration file                     |
+| -------------------- | ------------------------------------ | -------------------------------------- |
+| Commit linting       | commitlint                           | `commitlint.config.js`                 |
+| Git hooks            | husky                                | `.husky/commit-msg`                    |
+| Changelog generation | semantic-release or standard-version | `.releaserc.json` or `.versionrc.json` |
+| Branch naming lint   | branch-name-lint or custom CI check  | CI step or `.github/branch-naming.yml` |
+| PR size guard        | danger.js or pr-size-labeler         | `Dangerfile.js`                        |
 
 ---
 
@@ -348,6 +360,7 @@ git push origin main develop --tags
 Location: `docs/adr/0001-git-branching-strategy.md`
 Status: [Proposed / Accepted / Deprecated / Superseded]
 Date: [YYYY-MM-DD]
+
 ```
 
 ---
@@ -491,16 +504,18 @@ When an organization has 15 teams each doing something different:
 ### Weekly Release Rhythm
 
 ```
-Monday:       Engineers merge feature PRs to `main`
-Tuesday:      Cut release/1.x.0 from main at EOD. Dev continues on main unblocked.
-Wed-Thu AM:   QA tests release/1.x.0. Bug fixes go directly to release/1.x.0 AND are
-              cherry-picked back to main.
-Thursday PM:  QA signs off. Merge release/1.x.0 → main with --no-ff.
-              Tag: git tag -a v1.x.0 -m "Release 1.x.0"
-              Deploy from tag.
-              Delete release/1.x.0.
-Friday:       Monitor production. Any critical issues trigger a hotfix branch.
-```
+
+Monday: Engineers merge feature PRs to `main`
+Tuesday: Cut release/1.x.0 from main at EOD. Dev continues on main unblocked.
+Wed-Thu AM: QA tests release/1.x.0. Bug fixes go directly to release/1.x.0 AND are
+cherry-picked back to main.
+Thursday PM: QA signs off. Merge release/1.x.0 → main with --no-ff.
+Tag: git tag -a v1.x.0 -m "Release 1.x.0"
+Deploy from tag.
+Delete release/1.x.0.
+Friday: Monitor production. Any critical issues trigger a hotfix branch.
+
+````
 
 ---
 
@@ -550,13 +565,14 @@ npx standard-version --release-as minor   # or patch, or major
 # This bumps package.json version, generates CHANGELOG.md, commits both, and creates the tag
 # Then merge the release branch to main and push the tag
 git push origin main --follow-tags
-```
+````
 
 ---
 
 ### Branch Protection Configuration
 
 **main (in GitHub repository settings → Branches → Add rule for `main`):**
+
 ```
 Pattern: main
 ☑ Require a pull request before merging
@@ -571,7 +587,8 @@ Pattern: main
 ✗ Allow deletions
 ```
 
-**release/* (add a second rule for pattern `release/*`):**
+**release/_ (add a second rule for pattern `release/_`):**
+
 ```
 Pattern: release/*
 ☑ Require a pull request before merging
@@ -587,6 +604,7 @@ Pattern: release/*
 ### Common Operations Cheat Sheet
 
 **Start a feature:**
+
 ```bash
 git checkout main
 git pull --ff-only origin main
@@ -597,6 +615,7 @@ git push -u origin feature/PROJ-42-add-csv-export
 ```
 
 **Cut Tuesday's release branch:**
+
 ```bash
 git checkout main
 git pull --ff-only origin main
@@ -606,6 +625,7 @@ git push -u origin release/1.4.0
 ```
 
 **Fix a QA-found bug during freeze (on the release branch and back to main):**
+
 ```bash
 git checkout release/1.4.0
 git pull --ff-only origin release/1.4.0
@@ -620,6 +640,7 @@ git push origin main
 ```
 
 **Deploy Thursday's release:**
+
 ```bash
 # After QA sign-off, standard-version run, and release branch → main merge:
 git push origin main --follow-tags
@@ -627,6 +648,7 @@ git push origin main --follow-tags
 ```
 
 **Emergency hotfix (e.g., Friday night incident):**
+
 ```bash
 git checkout main
 git pull --ff-only origin main
@@ -672,24 +694,29 @@ git push origin main --follow-tags
 **Status:** Accepted
 
 ## Context
+
 Team of 7 engineers + 1 QA. Weekly Thursday releases. 2-day QA freeze required.
 Prior approach was ad hoc, causing frequent merge conflicts and broken releases.
 
 ## Options Considered
+
 1. Trunk-based development -- rejected: no accommodation for QA freeze period
 2. Full GitFlow -- rejected: overhead of develop branch unnecessary for single-version SaaS
 3. GitHub Flow with release branches -- selected: matches weekly release rhythm with minimal ceremony
 
 ## Decision
+
 GitHub Flow with a short-lived release branch (cut Tuesday, merged/tagged Thursday).
 Squash merge to main. Conventional Commits enforced via commitlint + husky.
 Automated changelog via standard-version.
 
 ## Consequences
+
 Positive: Clean main history, unblocked development during QA freeze, clear hotfix path.
 Negative: QA bug fixes require cherry-pick back to main (mitigated by making this part of the PR checklist).
 
 ## Review Date
+
 2024-04-15 (quarterly review)
 ```
 
@@ -697,9 +724,9 @@ Negative: QA bug fixes require cherry-pick back to main (mitigated by making thi
 
 ### First 30-Day Adoption Plan
 
-| Week | Action |
-|------|--------|
-| Week 1 | Configure branch protection on `main`. Install commitlint + husky. Run a 1-hour team workshop on the new workflow using the cheat sheet. |
-| Week 2 | First full cycle: cut release branch Tuesday, QA on release branch, deploy Thursday from tag. Debrief Friday. |
+| Week   | Action                                                                                                                                                 |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Week 1 | Configure branch protection on `main`. Install commitlint + husky. Run a 1-hour team workshop on the new workflow using the cheat sheet.               |
+| Week 2 | First full cycle: cut release branch Tuesday, QA on release branch, deploy Thursday from tag. Debrief Friday.                                          |
 | Week 3 | Review PR cycle times and branch ages. Identify any engineers still creating long-lived branches. Pair with them on decomposing work into smaller PRs. |
-| Week 4 | Retrospective. Measure: Did we have merge conflicts? Were releases smoother? Adjust conventions if needed. Commit to a quarterly review cadence. |
+| Week 4 | Retrospective. Measure: Did we have merge conflicts? Were releases smoother? Adjust conventions if needed. Commit to a quarterly review cadence.       |

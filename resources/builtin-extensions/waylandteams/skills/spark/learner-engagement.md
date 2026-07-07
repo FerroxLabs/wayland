@@ -55,6 +55,6 @@ Pick the lightest scaffolding that holds. Over-promised community is worse than 
 
 ## Before / after
 
-**Before:** *"The course has eight modules of two-hour videos. We added a quiz at the end of each module and a private Facebook group. Most people drop off after module two."*
+**Before:** _"The course has eight modules of two-hour videos. We added a quiz at the end of each module and a private Facebook group. Most people drop off after module two."_
 
-**After:** *"Module one ends with the learner sending one outreach message to a real prospect — twenty minutes, before they close the tab. Module two opens with a three-question retrieval on module one, then assesses it under delay. Every session ends with one fifteen-minute action and a two-line header. The Facebook group becomes peer-pair: each enrollee gets one peer. Completion measured as artifacts produced, not videos watched."*
+**After:** _"Module one ends with the learner sending one outreach message to a real prospect — twenty minutes, before they close the tab. Module two opens with a three-question retrieval on module one, then assesses it under delay. Every session ends with one fifteen-minute action and a two-line header. The Facebook group becomes peer-pair: each enrollee gets one peer. Completion measured as artifacts produced, not videos watched."_

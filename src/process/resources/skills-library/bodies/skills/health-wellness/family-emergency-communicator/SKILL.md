@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness template guide testing automation planning networking safety"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness template guide testing automation planning networking safety'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Family Emergency Communicator
@@ -22,15 +22,16 @@ You are an emergency communication specialist who helps families create reliable
 
 > **DISCLAIMER**: This skill provides general guidance about emergency communication planning. It is not a substitute for official emergency communication guidance from local authorities. During actual emergencies, always follow instructions from emergency management agencies and first responders. Communication infrastructure availability depends on the nature and severity of the event.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about family emergency communicator techniques or best practices
 - User needs guidance on family emergency communicator concepts
 - User wants to implement or improve their approach to family emergency communicator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of family emergency communicator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,22 +52,26 @@ You are an emergency communication specialist who helps families create reliable
 ### Step 1: Create Your Contact Network
 
 **Immediate household contacts:**
+
 - Every family member's cell phone number
 - Work and school phone numbers
 - Email addresses
 
 **Extended family and close friends:**
+
 - Parents, siblings, adult children
 - Close friends who would want to know you are safe
 - Neighbors who can check on your home
 
 **Out-of-area contact (critical):**
+
 - Designate one person OUTSIDE your region as the central check-in point
 - After a disaster, long-distance calls often get through when local calls cannot
 - Everyone in the family calls or texts this one person to report status
 - This person relays information to the rest of the network
 
 **Essential service contacts:**
+
 - Local emergency management
 - Children's school/daycare
 - Family doctor and pharmacy
@@ -127,6 +132,7 @@ School/Work: _________ Ph: _________
 ### Establishing a Family Protocol
 
 **The 3-3-3 Check-In Rule:**
+
 - After any emergency or disaster, check in within **3 minutes** if you are in immediate danger (call 911)
 - Check in with family within **3 hours** once you are safe
 - If primary methods fail, check in at designated meeting point within **3 days**
@@ -149,12 +155,14 @@ Use this order when trying to reach family:
 Pre-write and save draft messages for quick sending:
 
 **"I am safe"** message:
+
 ```
 [Name] is SAFE at [location]. Not injured.
 Will check in again at [time]. Battery at [X]%.
 ```
 
 **"Need help"** message:
+
 ```
 [Name] at [exact location]. Need [specific help].
 Not in immediate danger / In immediate danger.
@@ -162,6 +170,7 @@ Contact [person] if you cannot reach me.
 ```
 
 **"Status update"** message:
+
 ```
 [Name] update [time]: At [location].
 Plan: [what you are doing next].
@@ -171,12 +180,12 @@ Power: Y/N  Water: Y/N  Shelter: Y/N
 
 ### Check-In Schedule During Extended Events
 
-| Timeframe | Check-In Frequency | Method |
-|-----------|-------------------|--------|
-| First 24 hours | Every 3-6 hours when safe | Text, then call |
-| Days 2-3 | Every 12 hours | Text or messaging app |
-| Days 4-7 | Once daily at agreed time | Any available method |
-| Week 2+ | As conditions allow | Any available method |
+| Timeframe      | Check-In Frequency        | Method                |
+| -------------- | ------------------------- | --------------------- |
+| First 24 hours | Every 3-6 hours when safe | Text, then call       |
+| Days 2-3       | Every 12 hours            | Text or messaging app |
+| Days 4-7       | Once daily at agreed time | Any available method  |
+| Week 2+        | As conditions allow       | Any available method  |
 
 ### Family Communication Tree
 
@@ -208,6 +217,7 @@ For larger families or groups, use a tree structure to reduce individual burden:
 ### Alternative Communication Methods
 
 **Two-way radios (FRS/GMRS):**
+
 - No infrastructure needed
 - Range: 0.5-5 miles (terrain dependent)
 - FRS radios: No license required
@@ -216,6 +226,7 @@ For larger families or groups, use a tree structure to reduce individual burden:
 - Keep charged and in go-bags
 
 **Ham radio (Amateur Radio):**
+
 - Long-range communication capability
 - Active emergency communication networks (ARES, RACES)
 - Requires license and training (but very accessible)
@@ -223,6 +234,7 @@ For larger families or groups, use a tree structure to reduce individual burden:
 - Can relay messages across long distances
 
 **Satellite communicators:**
+
 - Work anywhere with sky view (no cell tower needed)
 - Send GPS location and short messages
 - Subscription service required
@@ -230,12 +242,14 @@ For larger families or groups, use a tree structure to reduce individual burden:
 - Good for remote travel and backup communication
 
 **Wi-Fi based communication:**
+
 - Messaging apps work on Wi-Fi even without cell service
 - Public Wi-Fi hotspots may be set up at shelters
 - Mesh networking apps can connect nearby phones directly
 - Some routers continue working during cell outages if internet stays up
 
 **Physical methods:**
+
 - Leave a note at your home (use bright-colored paper, visible location)
 - Write a message on your door or window with dry-erase marker
 - Go to a designated meeting point at agreed times
@@ -259,26 +273,28 @@ When power is uncertain, extend your phone battery:
 
 ### Power Backup Options
 
-| Option | Capacity | Cost | Notes |
-|--------|----------|------|-------|
-| Power bank (10,000 mAh) | 2-3 phone charges | $15-30 | Keep charged, replace every 2-3 years |
-| Power bank (20,000 mAh) | 4-6 phone charges | $25-50 | Heavier, more capacity |
-| Solar charger panel | Unlimited (with sun) | $30-80 | Slow charging, weather dependent |
-| Hand-crank charger | Unlimited (with effort) | $20-50 | Slow, requires physical effort |
-| Car charger + cable | Large (car battery) | $10-20 | Keep in vehicle, do not drain car battery |
-| Generator | Large (many devices) | $300-2,000+ | Requires fuel, ventilation for exhaust |
+| Option                  | Capacity                | Cost        | Notes                                     |
+| ----------------------- | ----------------------- | ----------- | ----------------------------------------- |
+| Power bank (10,000 mAh) | 2-3 phone charges       | $15-30      | Keep charged, replace every 2-3 years     |
+| Power bank (20,000 mAh) | 4-6 phone charges       | $25-50      | Heavier, more capacity                    |
+| Solar charger panel     | Unlimited (with sun)    | $30-80      | Slow charging, weather dependent          |
+| Hand-crank charger      | Unlimited (with effort) | $20-50      | Slow, requires physical effort            |
+| Car charger + cable     | Large (car battery)     | $10-20      | Keep in vehicle, do not drain car battery |
+| Generator               | Large (many devices)    | $300-2,000+ | Requires fuel, ventilation for exhaust    |
 
 ## Children and Communication
 
 ### Age-Appropriate Preparedness
 
 **Ages 3-5:**
+
 - Teach full name, parents' names, and home address
 - Practice dialing a family member on a phone
 - Know what 911 is for
 - Practice going to Meeting Point 1
 
 **Ages 6-9:**
+
 - Memorize parents' phone numbers
 - Carry an emergency contact card
 - Know how to call 911 and what to say
@@ -286,6 +302,7 @@ When power is uncertain, extend your phone battery:
 - Know trusted adults to ask for help
 
 **Ages 10-13:**
+
 - All of the above, plus:
 - Know the full family communication plan
 - Can send text messages and use messaging apps
@@ -294,6 +311,7 @@ When power is uncertain, extend your phone battery:
 - Can navigate to meeting points independently
 
 **Ages 14+:**
+
 - Full participation in family communication plan
 - Can help younger siblings follow the plan
 - Understand alternative communication methods
@@ -338,6 +356,7 @@ When power is uncertain, extend your phone battery:
 ### Registering as Safe
 
 After a disaster, register your status:
+
 - American Red Cross Safe and Well website
 - Social media safety check features
 - Contact your out-of-area person
@@ -432,7 +451,6 @@ ___________________________________________
 - [ ] Review and update digital document backups
 - [ ] Discuss plan changes with all household members
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -440,7 +458,6 @@ ___________________________________________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -461,14 +478,12 @@ ___________________________________________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

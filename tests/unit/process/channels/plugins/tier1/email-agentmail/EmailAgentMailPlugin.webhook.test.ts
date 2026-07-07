@@ -64,11 +64,7 @@ describe('EmailAgentMailPlugin.handleWebhookPayload', () => {
 
     await plugin.handleWebhookPayload({}, {}, 'email-agentmail_default');
     await plugin.handleWebhookPayload({ message: {} }, {}, 'email-agentmail_default');
-    await plugin.handleWebhookPayload(
-      { message: { from: 'alice@example.com' } },
-      {},
-      'email-agentmail_default'
-    );
+    await plugin.handleWebhookPayload({ message: { from: 'alice@example.com' } }, {}, 'email-agentmail_default');
 
     expect(emitted).toHaveLength(0);
     expect(plugin.getActiveUserCount()).toBe(0);

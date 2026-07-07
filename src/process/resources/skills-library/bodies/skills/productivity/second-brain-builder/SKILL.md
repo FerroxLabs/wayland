@@ -7,30 +7,31 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management nutrition journaling checklist template guide step-by-step testing"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management nutrition journaling checklist template guide step-by-step testing'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Second Brain Builder
 
 You are an expert in building second brain systems - external, digital systems that augment human memory, thinking, and creativity. You guide people through practical knowledge management workflows integrating tool selection, workflow design, and the habits that make the system sustainable. Your focus is on turning saved information into creative output, not just information storage.
 
-> **Attribution:** Based on concepts from *Building a Second Brain* by Tiago Forte. CODE and PARA are frameworks developed by Tiago Forte. For the complete methodology, see fortelabs.com.
-
+> **Attribution:** Based on concepts from _Building a Second Brain_ by Tiago Forte. CODE and PARA are frameworks developed by Tiago Forte. For the complete methodology, see fortelabs.com.
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about second brain builder techniques or best practices
 - User needs guidance on second brain builder concepts
 - User wants to implement or improve their approach to second brain builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of second brain builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,7 +48,7 @@ You are an expert in building second brain systems - external, digital systems t
 
 ## The CODE Framework
 
-CODE is Tiago Forte's four-step process for turning information into results: **Capture** what resonates, **Organize** by actionability, **Distill** to the essence, and **Express** by creating tangible output. The key insight is that the purpose of saving information is not to have it, but to use it. For the full methodology, see *Building a Second Brain* by Tiago Forte.
+CODE is Tiago Forte's four-step process for turning information into results: **Capture** what resonates, **Organize** by actionability, **Distill** to the essence, and **Express** by creating tangible output. The key insight is that the purpose of saving information is not to have it, but to use it. For the full methodology, see _Building a Second Brain_ by Tiago Forte.
 
 ### Stage 1: Capture
 
@@ -57,24 +58,25 @@ Capture only what resonates -- ideas, frameworks, quotes, data points, how-to in
 
 Build a capture system that works across all your information sources:
 
-| Source | Capture Tool | Into Second Brain |
-|--------|-------------|-------------------|
-| Web articles | Readwise Reader, Omnivore, or browser clipper | Auto-sync highlights to notes app |
-| Books (Kindle) | Kindle highlights | Readwise syncs to notes app |
-| Books (physical) | Phone photo or voice memo | Manual transfer during processing |
-| Podcasts | Timestamp + quick note | Manual transfer |
-| Videos | YouTube transcript or timestamp note | Manual transfer |
-| Conversations | Quick capture app during/after | Manual transfer |
-| Own thoughts | Quick capture hotkey or voice note | Already in system |
-| Emails | Forward to notes app or use email clipper | Semi-automatic |
-| Social media | Save/bookmark feature | Periodic export or manual |
-| Code snippets | Comments or dedicated snippets file | Manual or sync |
+| Source           | Capture Tool                                  | Into Second Brain                 |
+| ---------------- | --------------------------------------------- | --------------------------------- |
+| Web articles     | Readwise Reader, Omnivore, or browser clipper | Auto-sync highlights to notes app |
+| Books (Kindle)   | Kindle highlights                             | Readwise syncs to notes app       |
+| Books (physical) | Phone photo or voice memo                     | Manual transfer during processing |
+| Podcasts         | Timestamp + quick note                        | Manual transfer                   |
+| Videos           | YouTube transcript or timestamp note          | Manual transfer                   |
+| Conversations    | Quick capture app during/after                | Manual transfer                   |
+| Own thoughts     | Quick capture hotkey or voice note            | Already in system                 |
+| Emails           | Forward to notes app or use email clipper     | Semi-automatic                    |
+| Social media     | Save/bookmark feature                         | Periodic export or manual         |
+| Code snippets    | Comments or dedicated snippets file           | Manual or sync                    |
 
 **The 12 Favorite Problems Technique** (attributed to Richard Feynman):
 
 Keep a list of 12 questions you are always thinking about. When you encounter information, ask: "Does this relate to any of my 12 problems?" This filters the noise.
 
 Example problems:
+
 1. How can I make complex ideas easy to understand?
 2. What makes teams perform at their best?
 3. How do I balance depth of knowledge with breadth?
@@ -120,6 +122,7 @@ Second Brain/
 ```
 
 **Key organizing rules:**
+
 1. Every note belongs in exactly one folder
 2. Move notes between PARA categories as their relevance changes
 3. Projects are promoted to the top because they represent current priorities
@@ -135,6 +138,7 @@ Forte's **Progressive Summarization** technique distills notes incrementally acr
 This is where the system creates value. Expression means turning your stored knowledge into tangible output.
 
 **Types of expression:**
+
 - Writing (articles, reports, emails, documentation)
 - Presenting (talks, workshops, meetings)
 - Deciding (memos, analyses, recommendations)
@@ -146,15 +150,15 @@ This is where the system creates value. Expression means turning your stored kno
 
 Break creative work into reusable building blocks ("intermediate packets"):
 
-| Packet Type | Example | Reuse Potential |
-|-------------|---------|-----------------|
-| Distilled note | A one-page summary of a key concept | High - use in multiple projects |
-| Outline | Structured skeleton for a document | Medium - adapt for similar documents |
-| Draft section | A polished paragraph or section | High - reuse across articles |
-| Data analysis | A chart or data insight | High - reference in presentations |
-| Checklist | Step-by-step process | Very high - reuse indefinitely |
-| Template | Reusable document structure | Very high |
-| Curated collection | Links and notes on a specific topic | High - share or reference |
+| Packet Type        | Example                             | Reuse Potential                      |
+| ------------------ | ----------------------------------- | ------------------------------------ |
+| Distilled note     | A one-page summary of a key concept | High - use in multiple projects      |
+| Outline            | Structured skeleton for a document  | Medium - adapt for similar documents |
+| Draft section      | A polished paragraph or section     | High - reuse across articles         |
+| Data analysis      | A chart or data insight             | High - reference in presentations    |
+| Checklist          | Step-by-step process                | Very high - reuse indefinitely       |
+| Template           | Reusable document structure         | Very high                            |
+| Curated collection | Links and notes on a specific topic | High - share or reference            |
 
 **The creation workflow:**
 
@@ -188,13 +192,13 @@ This workflow means you are never starting from scratch. Every new project build
 
 A complete second brain typically uses 3-5 tools:
 
-| Role | Tool Examples | Purpose |
-|------|-------------|---------|
-| **Capture** | Readwise, browser clipper, quick-note app | Get information into the system |
-| **Notes** | Obsidian, Notion, Logseq, Apple Notes | Store, organize, and connect knowledge |
-| **Tasks** | Todoist, Things, Notion, Linear | Track actions and projects |
-| **Files** | Google Drive, Dropbox, OneDrive | Store documents, images, and media |
-| **Calendar** | Google Calendar, Fantastical | Time-based commitments |
+| Role         | Tool Examples                             | Purpose                                |
+| ------------ | ----------------------------------------- | -------------------------------------- |
+| **Capture**  | Readwise, browser clipper, quick-note app | Get information into the system        |
+| **Notes**    | Obsidian, Notion, Logseq, Apple Notes     | Store, organize, and connect knowledge |
+| **Tasks**    | Todoist, Things, Notion, Linear           | Track actions and projects             |
+| **Files**    | Google Drive, Dropbox, OneDrive           | Store documents, images, and media     |
+| **Calendar** | Google Calendar, Fantastical              | Time-based commitments                 |
 
 ### Integration Patterns
 
@@ -221,12 +225,14 @@ Capture (Readwise) --> Process (Obsidian) --> Act (Todoist) --> Create (Google D
 ### Recommended Stacks by Profile
 
 **The Minimalist:**
+
 - Apple Notes (capture and organize)
 - Apple Reminders (tasks)
 - Apple Calendar
 - Total tools: 3 (all free, all synced)
 
 **The Knowledge Worker:**
+
 - Readwise Reader (capture)
 - Obsidian (notes and knowledge)
 - Todoist (tasks)
@@ -235,6 +241,7 @@ Capture (Readwise) --> Process (Obsidian) --> Act (Todoist) --> Create (Google D
 - Total tools: 5
 
 **The Power User:**
+
 - Readwise (capture from all sources)
 - Obsidian with Dataview, Templater, Tasks plugins (knowledge hub)
 - Linear or Notion (project/task management)
@@ -243,6 +250,7 @@ Capture (Readwise) --> Process (Obsidian) --> Act (Todoist) --> Create (Google D
 - Total tools: 5-6
 
 **The Team Builder:**
+
 - Notion (notes, tasks, wiki, databases - all in one)
 - Readwise (individual capture)
 - Slack (communication)
@@ -303,14 +311,14 @@ Capture (Readwise) --> Process (Obsidian) --> Act (Todoist) --> Create (Google D
 
 ### Second Brain Health Metrics
 
-| Metric | Healthy | Unhealthy |
-|--------|---------|-----------|
-| Inbox processed within 48 hours | Yes | Growing backlog |
-| Weekly review completed | 3-4 out of 4 weeks | Regularly skipped |
-| Notes retrieved and used monthly | 10+ | Near zero |
-| Creative output using saved material | Weekly | Rarely |
-| Time to find a relevant note | Under 2 minutes | 5+ minutes or cannot find |
-| System trust level | High (you check it first) | Low (you Google instead) |
+| Metric                               | Healthy                   | Unhealthy                 |
+| ------------------------------------ | ------------------------- | ------------------------- |
+| Inbox processed within 48 hours      | Yes                       | Growing backlog           |
+| Weekly review completed              | 3-4 out of 4 weeks        | Regularly skipped         |
+| Notes retrieved and used monthly     | 10+                       | Near zero                 |
+| Creative output using saved material | Weekly                    | Rarely                    |
+| Time to find a relevant note         | Under 2 minutes           | 5+ minutes or cannot find |
+| System trust level                   | High (you check it first) | Low (you Google instead)  |
 
 ### The Ultimate Test
 
@@ -322,24 +330,28 @@ If no: the system needs to change to be more useful at the point of creation.
 ## Getting Started: The 30-Day Plan
 
 ### Week 1: Capture
+
 - Set up your capture tools (Readwise, browser clipper, quick-note app)
 - Identify your 12 Favorite Problems
 - Start capturing material that resonates with those problems
 - Goal: 20-30 captured items by end of week
 
 ### Week 2: Organize
+
 - Set up PARA folders in your notes app
 - Process Week 1 captures into the right folders
 - Identify 2-3 active projects to organize around
 - Goal: All captured items filed in PARA
 
 ### Week 3: Distill
+
 - Revisit your most relevant notes
 - Apply Layer 2 (bold) and Layer 3 (highlight) to 10 notes
 - Write Layer 4 summaries for your top 5 notes
 - Goal: 5 fully distilled notes
 
 ### Week 4: Express
+
 - Choose one output to create (article, presentation, decision memo)
 - Search your second brain for relevant material
 - Assemble intermediate packets into an outline
@@ -347,11 +359,11 @@ If no: the system needs to change to be more useful at the point of creation.
 - Goal: One completed creative output powered by your second brain
 
 ### After 30 Days
+
 - Establish your daily and weekly routines
 - Continue the capture-organize-distill-express cycle
 - Expand to new projects and areas
 - Review the system monthly and adjust
-
 
 ## Process
 
@@ -360,7 +372,6 @@ If no: the system needs to change to be more useful at the point of creation.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -381,14 +392,12 @@ If no: the system needs to change to be more useful at the point of creation.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

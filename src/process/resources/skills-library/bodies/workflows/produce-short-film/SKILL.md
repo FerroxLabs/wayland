@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "screenwriting-coach short-film-director video-editor-guide"
+skills: 'screenwriting-coach short-film-director video-editor-guide'
 trigger_phrases: >-
   I want to make a short film produce a short film short film production guide
   how to direct a short film film festival submission make my first movie short
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: video-production editing step-by-step planning
   category: creative-project
-  depends: "screenwriting-coach short-film-director video-editor-guide"
+  depends: 'screenwriting-coach short-film-director video-editor-guide'
 ---
+
 # Produce Short Film
 
 **Estimated time:** 2-4 months
@@ -168,6 +169,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

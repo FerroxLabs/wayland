@@ -30,6 +30,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Modernize Legacy System
 
 **Estimated time:** 4-12 weeks
@@ -174,6 +175,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

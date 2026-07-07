@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing analysis"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing analysis'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Poetry Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write, compose, or draft a poem in any named or unnamed form -- including sonnets (Shakespearean, Petrarchan, Spenserian), haiku, villanelle, ghazal, ode (Horatian, Pindaric, irregular), elegy, pantoum, terza rima, sestina, triolet, rondeau, concrete/visual poem, prose poem, or open/free verse
 - The user wants help with a specific poetic challenge -- meter and scansion, building a volta, choosing a refrain, managing a rhyme scheme, finding the right image for an abstraction
 - The user needs verse for a specific occasion -- memorial, wedding, graduation, anniversary, eulogy -- where a poem will be read aloud to an audience
@@ -29,6 +31,7 @@ metadata:
 - The user wants an ekphrastic poem (written in response to a visual artwork) or a conceptual constraint poem (erasure, acrostic, abecedarian, anaphoric)
 
 **Do NOT use this skill when:**
+
 - The user wants song lyrics -- lyrics are structured around bars, hooks, verses, and chorus repetition designed for musical phrasing, not poetic line breaks; use `lyric-writing` instead
 - The user wants prose poetry that is essentially flash fiction -- lyric compression is not the goal, narrative and scene are; use `flash-fiction` if the piece is under 1,000 words with a story arc
 - The user wants literary analysis of existing poems -- close reading, meter analysis, comparison of two poems -- use `literary-analysis` instead
@@ -215,6 +218,7 @@ Deliver the poem in the specified output format, with craft notes that allow the
 ### The User Wants a Haiku but Doesn't Understand the Form
 
 Many users believe haiku is simply "three short lines about nature." Clarify the form's requirements without being pedantic:
+
 - 5-7-5 syllable count (confirm: "syllable" not "word")
 - A kigo (seasonal or natural reference) that grounds the poem in physical time -- "cherry blossom," "first frost," "cicadas," "harvest moon"
 - A kireji, the cutting moment -- in Japanese this is a specific grammatical particle (ya, kana, keri); in English it is rendered as a dash, an ellipsis, a line break that creates a pause, or a shift in grammatical subject between lines 2 and 3
@@ -224,6 +228,7 @@ Many users believe haiku is simply "three short lines about nature." Clarify the
 ### The User Wants a "Simple Rhyming Poem" for a Child
 
 Do not apply adult-poem complexity constraints. A children's poem has legitimate craft requirements of its own:
+
 - Anapestic or trochaic meter (da-da-DUM or DUM-da) creates the bouncing rhythm children expect and enjoy -- iambic pentameter feels adult and flat to young readers
 - Perfect rhyme is preferred over slant rhyme for young audiences -- the sonic satisfaction of an exact rhyme is part of the poem's function
 - Concrete, funny, surprising imagery at a child's experiential level -- snails, sandwiches, socks, rain puddles, pets
@@ -234,6 +239,7 @@ Do not apply adult-poem complexity constraints. A children's poem has legitimate
 ### The User Wants to Write in the Style of a Specific Poet
 
 This is a craft exercise, not imitation. Identify the poet's specific formal fingerprints and apply them as constraints:
+
 - **Emily Dickinson:** Hymn meter (common meter: 8-6-8-6 syllable alternation, quatrains), slant rhyme in preference to perfect rhyme, dashes as syntactic pivots and breath marks, capitalization of significant nouns, compressed syntax that removes transitional words, predilection for death, immortality, and domestic imagery
 - **Walt Whitman:** Anaphoric catalogs (parallel "I" or noun constructions across long lines), long Hebraic lines without end-rhyme, apostrophe (direct address to America, to the reader, to the body), democratic accumulation of common and extraordinary in the same breath
 - **Sylvia Plath (late Ariel period):** Short tercets or irregular stanzas, controlled mania in imagery, mythological references undercut with domestic specificity, hard k/g/t sounds, color as violence (white, red, black), the confessional speaker in extremis
@@ -244,6 +250,7 @@ This is a craft exercise, not imitation. Identify the poet's specific formal fin
 ### The User Provides a Draft and Asks for Revision Help
 
 Treat this as a diagnostic task before a writing task:
+
 - Read the draft once for overall impression, once for formal analysis
 - Identify the poem's strongest 2-3 lines -- name them specifically; these are what to protect
 - Identify the single most significant problem: Is it the abstraction level? The form failure? The weak volta? The forced rhymes? One primary diagnosis, not a list of everything wrong
@@ -254,6 +261,7 @@ Treat this as a diagnostic task before a writing task:
 ### The User Wants a Long Poem (50+ Lines)
 
 Structure becomes paramount at length. A 60-line poem without internal architecture is not a long poem -- it is a short poem that doesn't know when to stop:
+
 - **Sequence:** A series of numbered or titled sections, each a complete poem, connected by theme and returning images. Each section should be able to stand alone. Length comes from depth across sections, not from exhausting a single lyric thread.
 - **Crown of sonnets:** Seven Shakespearean or Petrarchan sonnets in which the last line of each becomes the first line of the next, and the last line of the seventh repeats the first line of the first. This is a master-level form -- only recommend it if the user understands and wants the challenge.
 - **Ode in Pindaric structure:** Three-part (strophe, antistrophe, epode) repeating sections. The strophe and antistrophe mirror each other metrically; the epode differs. This structure allows length without formlessness.
@@ -262,6 +270,7 @@ Structure becomes paramount at length. A 60-line poem without internal architect
 ### The User Wants an Ekphrastic Poem (Responding to an Artwork)
 
 Ekphrasis (poetry written in response to a visual work) has specific craft requirements:
+
 - The poem must do something the image cannot do: move through time, inhabit a perspective the image excludes, speculate on what happened before or after, give voice to a figure in the image, or refuse what the image offers
 - Do not merely describe what is in the image -- that is ekphrastic description, not ekphrastic poetry
 - Three established approaches: (1) Direct address to the artwork or its maker; (2) Dramatic monologue from within the image (speaking as a figure depicted); (3) Meditation that departs from the image to explore what it evokes in the speaker
@@ -271,6 +280,7 @@ Ekphrasis (poetry written in response to a visual work) has specific craft requi
 ### The User Wants the Poem to Rhyme but It Keeps Sounding Forced
 
 This is among the most common craft failures. Diagnose and address specifically:
+
 - **Root cause diagnosis:** Is the rhyme forced because the rhyme scheme is too rigid for the content, or because the line endings are wrong? In many cases, moving from couplet rhyme (AABB) to alternating rhyme (ABAB) adds the slack needed to achieve natural syntax while still rhyming.
 - **Slant rhyme intervention:** Offer specific slant-rhyme pairs that serve the poem's sonic texture better than perfect rhymes that damage syntax. Present pairs: stone/alone, breath/depth, door/more, water/daughter, love/move/groove, gone/drawn/dawn, blue/through/dew.
 - **Internal rhyme alternative:** If end-rhyme continues to force awkward syntax, move the sonic weight inward. Internal rhyme connects the poem's architecture through sound without demanding that every line end on a rhyme word.
@@ -288,7 +298,7 @@ This is among the most common craft failures. Diagnose and address specifically:
 
 ## Distances, Kept
 
-*Form: Ghazal (6 couplets + maqta) | Theme: Loving across the unreachable -- distance as the medium of feeling, not its obstacle | Tone: Longing, precise, controlled | Constraint: Each couplet contains a named or typed body of water*
+_Form: Ghazal (6 couplets + maqta) | Theme: Loving across the unreachable -- distance as the medium of feeling, not its obstacle | Tone: Longing, precise, controlled | Constraint: Each couplet contains a named or typed body of water_
 
 ---
 

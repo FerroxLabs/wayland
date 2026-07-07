@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing social-media"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing content-marketing social-media'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Social Media Tech
@@ -23,6 +23,7 @@ You are an expert in technical social media content creation. You help developer
 ## Platform Strategy Overview
 
 ### Platform Comparison
+
 ```
 ┌──────────────┬─────────────────┬───────────────┬──────────────────┐
 │ Platform     │ Best For        │ Audience      │ Content Life     │
@@ -58,6 +59,7 @@ You are an expert in technical social media content creation. You help developer
 ### Tweet Formats for Tech Content
 
 **Quick Insight / Hot Take**:
+
 ```
 [Controversial or surprising statement]
 
@@ -75,7 +77,8 @@ Monolith-first is almost always the right choice. Fight me."
 ```
 
 **Code Tip**:
-```
+
+````
 [Short description of what the code does]
 
 [Code screenshot or formatted code]
@@ -89,13 +92,15 @@ Example:
 const controller = new AbortController();
 get(url, { signal: controller.signal });
 controller.abort(); // cancels the request
-```
+````
 
 Super useful for search-as-you-type to cancel stale requests."
+
 ```
 
 **Thread Format** (Technical Deep Dive):
 ```
+
 Tweet 1 (Hook):
 "I spent 6 months migrating from REST to GraphQL.
 
@@ -118,6 +123,7 @@ your frontend actually needs. We redesigned our schema 3 times."
 
 Final Tweet (Summary + CTA):
 "8/ TL;DR:
+
 - Start with a wrapper, migrate incrementally
 - Invest heavily in schema design
 - Dataloaders are essential for performance
@@ -125,6 +131,7 @@ Final Tweet (Summary + CTA):
 
 If you found this useful, follow for more system design content.
 I write about this stuff weekly."
+
 ```
 
 ## LinkedIn Content
@@ -133,6 +140,7 @@ I write about this stuff weekly."
 
 **Experience Story**:
 ```
+
 I just shipped the worst code of my career.
 
 And I'm proud of it.
@@ -159,10 +167,12 @@ What's the "worst" code you've shipped that led to
 the best outcome?
 
 #softwaredevelopment #startups #engineering
+
 ```
 
 **Lesson/Framework**:
 ```
+
 After 10 years of code reviews, I've identified 5 patterns
 that separate great engineers from good ones:
 
@@ -190,11 +200,14 @@ that separate great engineers from good ones:
 Which one resonates with you most?
 
 #codereview #softwaredevelopment #engineering #leadership
+
 ```
 
 ### LinkedIn Best Practices
 ```
+
 Formatting:
+
 - Short paragraphs (1-2 sentences each)
 - Lots of white space (LinkedIn compresses text blocks)
 - Use the "hook" pattern: compelling first line → "See more" → full post
@@ -203,6 +216,7 @@ Formatting:
   (or make the hook so good they click "See more")
 
 Content That Works:
+
 - Career lessons and advice
 - Technical leadership insights
 - "I learned the hard way" stories
@@ -211,18 +225,22 @@ Content That Works:
 - Industry observations and predictions
 
 Content That Doesn't Work:
+
 - Pure self-promotion ("We just raised $X!")
 - Overly technical code (LinkedIn is not the audience for this)
 - Copied Twitter threads (different platform, different tone)
 - Humble-bragging ("I can't believe I got promoted at only 25...")
 - Negative rants about employers or technologies
+
 ```
 
 ## Dev.to / Hashnode Articles
 
 ### Dev.to Content Strategy
 ```
+
 What Works on Dev.to:
+
 - Beginner-friendly tutorials (#beginners is a popular tag)
 - "X things I learned about Y" listicles
 - Comparisons and "versus" articles
@@ -230,8 +248,8 @@ What Works on Dev.to:
 - Career advice for developers
 - Open-source contributions and stories
 
-Article Template:
----
+## Article Template:
+
 title: "How to Build a CLI Tool with Node.js in 2025"
 published: true
 description: "A step-by-step guide to building your first
@@ -240,19 +258,25 @@ file I/O, and publishing to npm."
 tags: nodejs, cli, tutorial, beginners
 canonical_url: [reference URL]
 cover_image: [reference URL]
+
 ---
+
 # ... (condensed) ...
+
 ## Conclusion
+
 [Summary and next steps]
 
 ---
 
-*Originally published on [my blog]([reference URL])*
-*Follow me on Dev.to for more tutorials!*
+_Originally published on [my blog]([reference URL])_
+_Follow me on Dev.to for more tutorials!_
+
 ```
 
 ### Cross-Posting Strategy
 ```
+
 1. Publish on your own blog first (canonical source)
 2. Wait 1-3 days
 3. Cross-post to Dev.to with canonical_url pointing to your blog
@@ -260,17 +284,21 @@ cover_image: [reference URL]
 5. Share on social media linking to your blog
 
 Why This Order:
+
 - Your blog gets the SEO benefit (canonical URL)
 - Dev.to/Hashnode give you additional audience reach
 - Social media drives immediate traffic
 - All paths lead back to your blog
+
 ```
 
 ## Code Screenshots
 
 ### Creating Effective Code Screenshots
 ```
+
 Tools:
+
 - Carbon (carbon.now.shell-cmd): Beautiful code images
 - Ray.so: Similar to Carbon, modern design
 - Snappify: Animated code snippets
@@ -278,6 +306,7 @@ Tools:
 - Polacode (VS Code extension): Polaroid-style code images
 
 Best Practices:
+
 - Use a dark theme (high contrast, readable)
 - Font size 16-18px minimum (readable on mobile)
 - Max 15-20 lines of code per image (keep it focused)
@@ -289,12 +318,14 @@ Best Practices:
 When to Use Code Screenshots vs. Text:
 Screenshot: Social media, visual emphasis, short snippets
 Text: Blog posts, documentation, anything that should be copyable
+
 ```
 
 ## Developer Community Engagement
 
 ### Community Building Principles
 ```
+
 1. GIVE more than you TAKE:
    Share knowledge, help others, contribute
    For every self-promotional post, share 5 pieces of valuable content
@@ -315,90 +346,107 @@ Text: Blog posts, documentation, anything that should be copyable
    Each community has norms (Reddit hates self-promotion,
    Dev.to loves beginners, Twitter likes hot takes)
    Observe before posting
+
 ```
 
 ### Engagement Tactics
 ```
+
 Daily (10-15 minutes):
+
 - Reply to comments on your posts
 - Comment on 2-3 interesting posts by others
 - Retweet/share something valuable
 
 Weekly (30-60 minutes):
+
 - Publish 1 piece of original content
 - Answer a question on Stack Overflow or Reddit
 - Engage in a technical discussion thread
 
 Monthly:
+
 - Write a long-form article or tutorial
 - Share a project or tool you've built
 - Participate in a community event (Twitter Space, AMA, etc.)
 
 Don'ts:
+
 - Don't DM people unsolicited promotions
 - Don't leave generic comments ("Great post!")
 - Don't spam your content in every community
 - Don't argue aggressively (disagree respectfully)
 - Don't automate engagement (bots are obvious and hated)
+
 ```
 
 ## Hashtag Strategy
 
 ### Platform-Specific Hashtags
 ```
+
 Twitter/X:
+
 - Use 1-3 hashtags per tweet (more looks spammy)
 - Place at the end of the tweet or inline naturally
 - Popular: #webdev #javascript #python #devops #100DaysOfCode
-         #programming #opensource #ai #tech
+  #programming #opensource #ai #tech
 
 LinkedIn:
+
 - Use 3-5 hashtags per post
 - Place at the bottom
 - Mix: 1-2 broad (#softwaredevelopment) + 2-3 specific (#reactjs #frontend)
 - Popular: #softwaredevelopment #tech #programming #leadership
-         #startup #ai #machinelearning
+  #startup #ai #machinelearning
 
 Dev.to:
+
 - Use 4 tags (Dev.to format, not hashtags)
 - Choose from existing popular tags
 - Popular: #javascript #webdev #beginners #tutorial #react
-         #python #devops #career
+  #python #devops #career
 
 General Rules:
+
 - Don't create obscure hashtags no one follows
 - Research which hashtags your target audience follows
 - Monitor hashtag performance and adjust
 - Follow trending tech hashtags for real-time engagement opportunities
+
 ```
 
 ## Content Scheduling
 
 ### Scheduling Strategy
 ```
+
 Weekly Content Calendar:
 ┌──────────┬───────────────────────────────────────────────┐
-│ Day      │ Content Plan                                  │
+│ Day │ Content Plan │
 ├──────────┼───────────────────────────────────────────────┤
-│ Monday   │ Twitter: Quick tip or insight to start the week│
-│ Tuesday  │ LinkedIn: Experience story or framework post   │
-│ Wednesday│ Twitter: Code snippet or thread                │
-│ Thursday │ Dev.to: Publish weekly article (if available)  │
-│ Friday   │ Twitter: Fun/lighthearted tech content         │
-│ Saturday │ Optional: Community engagement, no posting     │
-│ Sunday   │ Plan next week's content                       │
+│ Monday │ Twitter: Quick tip or insight to start the week│
+│ Tuesday │ LinkedIn: Experience story or framework post │
+│ Wednesday│ Twitter: Code snippet or thread │
+│ Thursday │ Dev.to: Publish weekly article (if available) │
+│ Friday │ Twitter: Fun/lighthearted tech content │
+│ Saturday │ Optional: Community engagement, no posting │
+│ Sunday │ Plan next week's content │
 └──────────┴───────────────────────────────────────────────┘
 
 Scheduling Tools:
+
 - Buffer: Multi-platform scheduling, analytics
 - Hootsuite: Enterprise-grade, multiple accounts
 - Typefully: Twitter-focused, thread drafting
 - Later: Visual planning, Instagram-focused
 - Manual scheduling: Native platform tools
+
 ```
 
 ### Content Batching
 ```
+
 Efficient content creation process:
 
 1. Monthly Planning (1 hour):
@@ -418,13 +466,16 @@ Efficient content creation process:
 
 This approach gives you consistent output without
 consuming your entire week.
+
 ```
 
 ## Analytics and Measurement
 
 ### Key Metrics by Platform
 ```
+
 Twitter/X:
+
 - Impressions: How many people saw your tweet
 - Engagement rate: (likes + retweets + replies) / impressions
 - Profile visits: Are people curious about you?
@@ -432,6 +483,7 @@ Twitter/X:
 - Link clicks: Traffic to your blog/site
 
 LinkedIn:
+
 - Post views: How many people saw your post
 - Engagement rate: (reactions + comments + shares) / views
 - Profile views: Increased after good posts
@@ -439,6 +491,7 @@ LinkedIn:
 - Article reads: For long-form LinkedIn articles
 
 Dev.to:
+
 - Views: Total post views
 - Reactions: Hearts/unicorns/bookmarks
 - Comments: Discussion generated
@@ -446,40 +499,49 @@ Dev.to:
 - Followers: Profile followers gained
 
 Cross-Platform:
+
 - Referral traffic: How much traffic does social drive to your blog?
 - Email signups: How many newsletter subscribers from social?
 - Brand searches: Are people searching for your name/brand?
+
 ```
 
 ### What Good Looks Like
 ```
+
 For an individual developer building their presence:
 
 Starting out (0-6 months):
+
 - Twitter: 100-500 followers, 1-3% engagement rate
 - LinkedIn: 500-1000 connections, 2-5% engagement rate
 - Dev.to: 100-500 followers, 50-200 views per post
 
 Established (6-18 months):
+
 - Twitter: 1K-5K followers, 2-5% engagement rate
 - LinkedIn: 2K-5K connections, 3-7% engagement rate
 - Dev.to: 1K-5K followers, 500-2000 views per post
 
 Influencer (18+ months):
+
 - Twitter: 10K+ followers, 3-8% engagement rate
 - LinkedIn: 10K+ connections, 5-10% engagement rate
 - Dev.to: 10K+ followers, 2000+ views per post
 
 Don't obsess over follower count. Focus on:
+
 1. Engagement rate (are people interacting?)
 2. Quality of connections (are they your target audience?)
 3. Referral traffic (is social driving meaningful traffic?)
+
 ```
 
 ## Content Ideas Generator
 
 ### Evergreen Content Ideas
 ```
+
 For any technology/topic, these formats always work:
 
 1. "X things I wish I knew about [technology] before starting"
@@ -492,7 +554,8 @@ For any technology/topic, these formats always work:
 8. "I built [project] in [timeframe] - here's what I learned"
 9. "The [technology] cheatsheet you'll actually use"
 10. "Why I switched from [A] to [B] (and what I miss)"
-```
+
+````
 
 ## Quick Decision Guide
 
@@ -541,7 +604,7 @@ When asked about tech social media:
 ## Next Steps
 - [Immediate action item]
 - [Follow-up action item]
-```
+````
 
 ## Example
 

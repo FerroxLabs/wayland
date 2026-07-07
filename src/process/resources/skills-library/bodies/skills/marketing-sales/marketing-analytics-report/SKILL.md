@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing analysis report planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing analysis report planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Marketing Analytics Report
 
 ## When to Use
@@ -287,7 +288,7 @@ from $X to approximately $X.
   is likely understated"]
 - **Incomplete data:** [e.g., "LinkedIn conversion data is missing for the last 5 days of the period
   due to API sync issue -- estimated values used"]
-- **Methodology changes:** [e.g., "MQL definition changed from 'any form fill' to 'form fill + 
+- **Methodology changes:** [e.g., "MQL definition changed from 'any form fill' to 'form fill +
   engagement score >50' this period -- MQL volume is not directly comparable to prior periods"]
 ```
 
@@ -402,17 +403,17 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 
 ### Performance Dashboard
 
-| Metric | Q3 Target | Q3 Actual | vs. Target | vs. Q2 | Status |
-|--------|-----------|-----------|------------|--------|--------|
-| Total Marketing Spend | $85,000 | $85,000 | 0% | +$10K (+13%) | 🟢 |
-| New Customers | 110 | 95 | -14% | +23 (+32%) | 🟡 |
-| MQLs Generated | -- | 1,200 | -- | +250 (+26%) | 🟢 |
-| SQLs Generated | -- | 380 | -- | +90 (+31%) | 🟢 |
-| Blended CAC | $1,000 target | $894 | +10.6% better | -$148 (-14%) | 🟢 |
-| MQL-to-SQL Conversion | 30% | 31.7% | +1.7 pts | +1.2 pts | 🟢 |
-| SQL-to-Customer Conversion | 25% | 25.0% | On target | +0.2 pts | 🟢 |
-| LTV:CAC Ratio | 30:1 min | 71:1 | +137% above min | Improving | 🟢 |
-| CAC Payback Period | <12 months | <1 month | Exceptional | Stable | 🟢 |
+| Metric                     | Q3 Target     | Q3 Actual | vs. Target      | vs. Q2       | Status |
+| -------------------------- | ------------- | --------- | --------------- | ------------ | ------ |
+| Total Marketing Spend      | $85,000       | $85,000   | 0%              | +$10K (+13%) | 🟢     |
+| New Customers              | 110           | 95        | -14%            | +23 (+32%)   | 🟡     |
+| MQLs Generated             | --            | 1,200     | --              | +250 (+26%)  | 🟢     |
+| SQLs Generated             | --            | 380       | --              | +90 (+31%)   | 🟢     |
+| Blended CAC                | $1,000 target | $894      | +10.6% better   | -$148 (-14%) | 🟢     |
+| MQL-to-SQL Conversion      | 30%           | 31.7%     | +1.7 pts        | +1.2 pts     | 🟢     |
+| SQL-to-Customer Conversion | 25%           | 25.0%     | On target       | +0.2 pts     | 🟢     |
+| LTV:CAC Ratio              | 30:1 min      | 71:1      | +137% above min | Improving    | 🟢     |
+| CAC Payback Period         | <12 months    | <1 month  | Exceptional     | Stable       | 🟢     |
 
 **Status Key:** 🟢 Within 5% of target or better | 🟡 5-15% below target | 🔴 More than 15% below target
 
@@ -422,15 +423,15 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 
 ### Channel Performance
 
-*(Channel-level customer attribution is estimated; see Data Quality Notes)*
+_(Channel-level customer attribution is estimated; see Data Quality Notes)_
 
-| Channel | Spend | Spend % | Est. MQLs | Est. Customers | Est. CAC | Trend | Action |
-|---------|-------|---------|-----------|----------------|---------|-------|--------|
-| Google Ads | $30,000 | 35% | 378 | 36 | ~$833 | ↑ Improving | Scale |
-| LinkedIn | $35,000 | 41% | 441 | 34 | ~$1,029 | → Stable | Optimize |
-| Content/SEO | $12,000 | 14% | 185 | 17 | ~$706 | ↑ Improving | Scale |
-| Email/Lifecycle | $8,000 | 9% | 196 | 8 | ~$1,000 | → Stable | Optimize |
-| **Total / Blended** | **$85,000** | **100%** | **1,200** | **95** | **$894** | **↑ Improving** | |
+| Channel             | Spend       | Spend %  | Est. MQLs | Est. Customers | Est. CAC | Trend           | Action   |
+| ------------------- | ----------- | -------- | --------- | -------------- | -------- | --------------- | -------- |
+| Google Ads          | $30,000     | 35%      | 378       | 36             | ~$833    | ↑ Improving     | Scale    |
+| LinkedIn            | $35,000     | 41%      | 441       | 34             | ~$1,029  | → Stable        | Optimize |
+| Content/SEO         | $12,000     | 14%      | 185       | 17             | ~$706    | ↑ Improving     | Scale    |
+| Email/Lifecycle     | $8,000      | 9%       | 196       | 8              | ~$1,000  | → Stable        | Optimize |
+| **Total / Blended** | **$85,000** | **100%** | **1,200** | **95**         | **$894** | **↑ Improving** |          |
 
 **Channel Narratives:**
 
@@ -446,13 +447,13 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 
 ### Funnel Analysis
 
-| Stage | Volume | Stage Conversion | vs. Q2 | Bottleneck? |
-|-------|--------|-----------------|--------|-------------|
-| Impressions / Ad Reach | ~4.2M | -- | +18% | No |
-| Website Sessions (paid + organic) | ~28,000 | 0.67% of impressions | +22% | No |
-| MQLs (form fills + engagement) | 1,200 | 4.3% of sessions | +26% | No |
-| SQLs (sales-accepted leads) | 380 | 31.7% of MQLs | +31% | No |
-| Customers (closed/won) | 95 | 25.0% of SQLs | +32% | No |
+| Stage                             | Volume  | Stage Conversion     | vs. Q2 | Bottleneck? |
+| --------------------------------- | ------- | -------------------- | ------ | ----------- |
+| Impressions / Ad Reach            | ~4.2M   | --                   | +18%   | No          |
+| Website Sessions (paid + organic) | ~28,000 | 0.67% of impressions | +22%   | No          |
+| MQLs (form fills + engagement)    | 1,200   | 4.3% of sessions     | +26%   | No          |
+| SQLs (sales-accepted leads)       | 380     | 31.7% of MQLs        | +31%   | No          |
+| Customers (closed/won)            | 95      | 25.0% of SQLs        | +32%   | No          |
 
 **Overall Funnel Conversion (Session-to-Customer):** 0.34% -- up from 0.28% in Q2 (+21%)
 
@@ -461,6 +462,7 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 **Bottleneck Calculation to Hit 110-Customer Target:** To achieve 110 customers at current conversion rates (31.7% MQL-to-SQL, 25% SQL-to-customer), we need: 110 ÷ 0.25 = 440 SQLs; 440 ÷ 0.317 = 1,388 MQLs. We generated 1,200 MQLs in Q3 -- we needed 188 more. At current cost-per-MQL of $70.83, that requires approximately $13,300 in additional marketing investment to hit the customer target at flat conversion rates.
 
 **Funnel Health Watch Items:**
+
 - MQL-to-SQL conversion at 31.7% is healthy (industry benchmark: 25-35% for B2B SaaS). No immediate concern.
 - SQL-to-customer at 25% is on target. Monitor for sales team capacity constraints as volume scales -- this rate often degrades when sales reps are working more SQLs than their capacity allows.
 
@@ -468,14 +470,14 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 
 ### Unit Economics
 
-| Metric | Q3 2024 | Q2 2024 | Trend | Benchmark |
-|--------|---------|---------|-------|-----------|
-| Blended CAC | $894 | $1,042 | ↑ Improving (-14%) | SMB B2B SaaS: $200-500; Mid-market: $1,000-3,000 |
-| Monthly ARPA | $1,592 | $1,592 | → Stable | -- |
-| LTV (ARPA × margin ÷ churn) | $63,680 | ~$61,200 | ↑ Improving | -- |
-| LTV:CAC Ratio | 71:1 | 59:1 | ↑ Improving (+20%) | Strong: 5:1+; Exceptional: 20:1+ |
-| CAC Payback Period | 0.78 months | 0.91 months | ↑ Improving | Healthy: <12 months; Exceptional: <3 months |
-| Gross Margin | 72% | 72% | → Stable | 70%+ target for SaaS |
+| Metric                      | Q3 2024     | Q2 2024     | Trend              | Benchmark                                        |
+| --------------------------- | ----------- | ----------- | ------------------ | ------------------------------------------------ |
+| Blended CAC                 | $894        | $1,042      | ↑ Improving (-14%) | SMB B2B SaaS: $200-500; Mid-market: $1,000-3,000 |
+| Monthly ARPA                | $1,592      | $1,592      | → Stable           | --                                               |
+| LTV (ARPA × margin ÷ churn) | $63,680     | ~$61,200    | ↑ Improving        | --                                               |
+| LTV:CAC Ratio               | 71:1        | 59:1        | ↑ Improving (+20%) | Strong: 5:1+; Exceptional: 20:1+                 |
+| CAC Payback Period          | 0.78 months | 0.91 months | ↑ Improving        | Healthy: <12 months; Exceptional: <3 months      |
+| Gross Margin                | 72%         | 72%         | → Stable           | 70%+ target for SaaS                             |
 
 **Unit Economics Commentary:** The LTV:CAC ratio of 71:1 is extraordinary and points to a clear strategic implication: the company should be spending significantly more on marketing. A 71:1 ratio means the business earns $71 in gross profit over a customer's lifetime for every $1 spent acquiring them. Even if increased marketing spend caused CAC to triple to $2,700, the LTV:CAC ratio would still be 23:1 -- far above the 3:1 minimum healthy threshold. The most important question for the CMO and CFO is not "how do we reduce CAC further" but "how fast can we scale acquisition without degrading CAC past $2,000?" The 14% CAC improvement this quarter suggests the team has room to scale before hitting diminishing returns.
 
@@ -483,19 +485,19 @@ Brand advertising (awareness campaigns with no direct conversion objective) infl
 
 ### Recommendations
 
-| Priority | Recommendation | Supporting Data | Expected Impact | Effort | Owner |
-|----------|---------------|-----------------|-----------------|--------|-------|
-| 1 | Increase Google Ads budget by $15K/month; allocate to non-branded, high-intent search terms in 'project management software' and competitor segments | Est. CAC $833 (7% below blended); strong intent signal; channel is estimated under-budgeted at 35% of spend | +18 customers/month at $833 CAC; budget increase pays back in <1 month | Medium | Paid Media |
-| 2 | Reduce LinkedIn budget by $5K/month; redirect to Content/SEO investment | LinkedIn CAC est. 15% above blended; Content CAC est. 21% below blended; reallocation is budget-neutral with better expected returns | -3 LinkedIn customers/month offset by +7 Content/SEO customers/month; net +4 customers at flat spend over 6-month horizon | Low | Paid Media + Content |
-| 3 | Test LinkedIn Lead Gen Forms on 3 top-performing campaigns; replace landing page clicks with LGF for one month | B2B SaaS LGF vs. landing page benchmarks show 2-3x higher conversion rates; LinkedIn spend is $35K/month -- even 20% CPL improvement saves $7K/month | Potential 20-30% LinkedIn CPL reduction; estimated +5-8 MQLs/month at same spend | Low | Paid Media |
-| 4 | Separate branded and non-branded Google Ads reporting immediately; do not blend in channel CAC calculation | Currently unable to assess true non-branded paid search efficiency; branded conversions inflate performance by an unknown amount; this is a reporting hygiene issue that distorts budget decisions | Accurate channel performance data enabling better budget allocation decisions | Low | Marketing Ops |
-| 5 | Verify in CRM whether LinkedIn-sourced customers have higher ARPA, lower churn, or higher expansion revenue than Google Ads customers | LinkedIn CAC is above average, but may be justified if LinkedIn customers are higher quality (larger teams, lower churn); without this data, the LinkedIn budget reduction in Rec #2 may be wrong | If LinkedIn customers have 30%+ better LTV, LinkedIn CAC threshold should be raised and Rec #2 should be reversed | Low | Marketing Ops + Sales |
+| Priority | Recommendation                                                                                                                                       | Supporting Data                                                                                                                                                                                    | Expected Impact                                                                                                           | Effort | Owner                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------- |
+| 1        | Increase Google Ads budget by $15K/month; allocate to non-branded, high-intent search terms in 'project management software' and competitor segments | Est. CAC $833 (7% below blended); strong intent signal; channel is estimated under-budgeted at 35% of spend                                                                                        | +18 customers/month at $833 CAC; budget increase pays back in <1 month                                                    | Medium | Paid Media            |
+| 2        | Reduce LinkedIn budget by $5K/month; redirect to Content/SEO investment                                                                              | LinkedIn CAC est. 15% above blended; Content CAC est. 21% below blended; reallocation is budget-neutral with better expected returns                                                               | -3 LinkedIn customers/month offset by +7 Content/SEO customers/month; net +4 customers at flat spend over 6-month horizon | Low    | Paid Media + Content  |
+| 3        | Test LinkedIn Lead Gen Forms on 3 top-performing campaigns; replace landing page clicks with LGF for one month                                       | B2B SaaS LGF vs. landing page benchmarks show 2-3x higher conversion rates; LinkedIn spend is $35K/month -- even 20% CPL improvement saves $7K/month                                               | Potential 20-30% LinkedIn CPL reduction; estimated +5-8 MQLs/month at same spend                                          | Low    | Paid Media            |
+| 4        | Separate branded and non-branded Google Ads reporting immediately; do not blend in channel CAC calculation                                           | Currently unable to assess true non-branded paid search efficiency; branded conversions inflate performance by an unknown amount; this is a reporting hygiene issue that distorts budget decisions | Accurate channel performance data enabling better budget allocation decisions                                             | Low    | Marketing Ops         |
+| 5        | Verify in CRM whether LinkedIn-sourced customers have higher ARPA, lower churn, or higher expansion revenue than Google Ads customers                | LinkedIn CAC is above average, but may be justified if LinkedIn customers are higher quality (larger teams, lower churn); without this data, the LinkedIn budget reduction in Rec #2 may be wrong  | If LinkedIn customers have 30%+ better LTV, LinkedIn CAC threshold should be raised and Rec #2 should be reversed         | Low    | Marketing Ops + Sales |
 
 ---
 
 ### Budget Reallocation Proposal
 
-| Channel | Current Monthly Spend | Proposed Monthly Spend | Change | Rationale |
-|---------|----------------------|----------------------|--------|-----------|
-| Google Ads | $10,000 | $25,000 | +$15,000 | Lowest estimated CAC, strongest intent signal, most headroom to scale |
-| LinkedIn | $11,667 | $6,667 | -$5,000 | CAC above blended
+| Channel    | Current Monthly Spend | Proposed Monthly Spend | Change   | Rationale                                                             |
+| ---------- | --------------------- | ---------------------- | -------- | --------------------------------------------------------------------- |
+| Google Ads | $10,000               | $25,000                | +$15,000 | Lowest estimated CAC, strongest intent signal, most headroom to scale |
+| LinkedIn   | $11,667               | $6,667                 | -$5,000  | CAC above blended                                                     |

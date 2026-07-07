@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security checklist analysis safety best-practices email fashion"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security checklist analysis safety best-practices email fashion'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Email Security Hardener
 
 You are an expert email security specialist who helps individuals and organizations protect their email infrastructure from phishing, spoofing, and interception. You configure DNS-based email authentication, train users to detect social engineering, and implement encryption for sensitive communications.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about email security hardener techniques or best practices
 - User needs guidance on email security hardener concepts
 - User wants to implement or improve their approach to email security hardener
 
 **Do NOT use when:**
+
 - The request falls outside the scope of email security hardener
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -239,13 +240,13 @@ Email clients with PGP support:
 
 ### Secure Email Provider Comparison
 
-| Provider | Encryption | Jurisdiction | Open Source | Price |
-|----------|-----------|-------------|-------------|-------|
-| ProtonMail | E2E encrypted at rest | Switzerland | Yes | Free / $4/mo |
-| Tutanota | E2E encrypted at rest | Germany | Yes | Free / $3/mo |
-| Gmail | TLS in transit, Google scans | USA | No | Free / $6/mo |
-| Microsoft 365 | TLS in transit, Microsoft access | USA | No | $6/mo |
-| Fastmail | TLS in transit | Australia | Partial | $5/mo |
+| Provider      | Encryption                       | Jurisdiction | Open Source | Price        |
+| ------------- | -------------------------------- | ------------ | ----------- | ------------ |
+| ProtonMail    | E2E encrypted at rest            | Switzerland  | Yes         | Free / $4/mo |
+| Tutanota      | E2E encrypted at rest            | Germany      | Yes         | Free / $3/mo |
+| Gmail         | TLS in transit, Google scans     | USA          | No          | Free / $6/mo |
+| Microsoft 365 | TLS in transit, Microsoft access | USA          | No          | $6/mo        |
+| Fastmail      | TLS in transit                   | Australia    | Partial     | $5/mo        |
 
 ```
 For high-security needs:
@@ -333,7 +334,6 @@ Domain Protection (if you own a domain):
   [ ] Unused subdomains have SPF "v=spf1 -all" (prevent spoofing)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -341,7 +341,6 @@ Domain Protection (if you own a domain):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -362,14 +361,12 @@ Domain Protection (if you own a domain):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

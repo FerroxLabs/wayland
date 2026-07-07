@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication template"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication template'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Thank You Writer
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to write any kind of personal or professional social note and is unsure how to start, structure, or phrase it -- including thank you notes for gifts, hospitality, acts of kindness, or professional favors
 - A user has a deadline pressure (interview follow-up due within 24 hours, wedding gift acknowledgment overdue, RSVP date approaching) and needs an immediate, ready-to-send draft
 - A user is navigating a socially sensitive situation -- a loss, an estrangement, a difficult apology, or a relationship they want to repair through written communication
@@ -29,6 +31,7 @@ metadata:
 - A user wants templates for recurring social correspondence -- holiday cards to a client list, annual thank you notes to donors, or party invitations
 
 **Do NOT use when:**
+
 - The user needs a formal business letter, a professional recommendation letter, or a cover letter -- use a professional correspondence or career writing skill instead
 - The user is writing a eulogy or funeral speech -- that requires a structured public speaking and eulogy skill with different arc and delivery considerations
 - The user needs legal correspondence such as demand letters, dispute letters, or formal complaints to institutions -- those require precision and framing beyond social note conventions
@@ -73,11 +76,13 @@ Every effective social note, regardless of type, follows a five-part structure. 
 ### Step 4: Apply Category-Specific Techniques
 
 **Gift Thank You:**
+
 - Name the gift specifically in sentence one -- never refer to it only as "your gift" or "the present"
 - For a cash or check gift, specify what it will be used for ("I'm putting it toward my textbooks this semester" or "We're adding it to our kitchen renovation fund") -- this is the only form of accountability the giver can receive
 - For a gift you don't love: never lie by calling it "perfect" or "exactly what I wanted." Instead, pivot to the giver's thoughtfulness and the relationship: "It was so kind of you to think of me" and "It was wonderful to hear from you" are genuine without being dishonest
 
 **Interview Follow-Up:**
+
 - Send within 24 hours; same-day is ideal for afternoon interviews
 - Write a unique note to every person who interviewed you -- even if there were five people in a panel
 - Reference one specific moment, question, or topic from the conversation with that specific person
@@ -86,12 +91,14 @@ Every effective social note, regardless of type, follows a five-part structure. 
 - Subject line format: "Thank you -- [Job Title] Interview, [Your Full Name]" -- the full name in the subject prevents it from being lost
 
 **Sympathy and Condolence:**
+
 - Acknowledge the loss by the deceased person's name in the first two sentences -- this is the most important rule in condolence writing
 - Share a specific memory, quality, or impact that person had. Even one sentence like "I will always remember how she laughed at her own jokes before the punchline" is more comforting than five sentences of platitudes
 - Offer specific, actionable help rather than the open-ended "let me know if you need anything" -- that phrase, despite good intentions, puts the burden on the grieving person to ask. Instead: "I'll drop off dinner on Thursday unless I hear otherwise" or "I'd love to take the kids for an afternoon this week"
 - Avoid all platitudes: "Everything happens for a reason," "They're in a better place," "I know how you feel," "At least they lived a long life," "God needed another angel." These minimize the loss rather than honoring it
 
 **Apology Letters:**
+
 - A genuine apology has five components and must have all five: (1) specific acknowledgment of what was done -- not vague ("I'm sorry for what happened") but precise; (2) ownership without conditions -- "I was wrong" not "I was wrong, but you also..."; (3) acknowledgment of the impact on the other person -- this is where you show you understand how they were hurt, not how you feel about having hurt them; (4) statement of amends or a genuine question about what repair looks like; (5) a commitment to specific changed behavior
 - Never write "I'm sorry you felt that way" -- this is not an apology and recipients recognize it immediately as deflection
 - Never over-apologize with excessive "I'm so so sorry, I can't believe I did this, I'm terrible" -- this shifts the emotional labor to the recipient, who must now comfort you
@@ -195,27 +202,35 @@ For templates (e.g., holiday card messages for a client list), present as a numb
 ## Edge Cases
 
 ### The Gift You Don't Like or Can't Use
+
 The user must not lie in the note -- calling something "perfect" or "exactly what I needed" when it isn't will feel hollow and sets up a false premise. Instead, focus entirely on the giver's relationship, thoughtfulness, and effort. Pivot immediately to a memory or feeling: "It was so like you to think of me" or "I was touched that you remembered my birthday from so far away." If the gift is something genuinely unusable (the wrong size, a duplicate), the user does not need to mention this at all. The note honors the intention, not the object.
 
 ### The Deeply Overdue Thank You
+
 When a user is writing a thank you note six months after a wedding gift, or a year after a funeral, the impulse to apologize profusely can hijack the entire note. The correct approach is a single, brief acknowledgment of lateness -- one sentence -- followed by a genuine, full-length note. "I'm embarrassed that it's taken me this long to write, but I didn't want another day to pass without telling you..." The lateness sentence should never exceed one sentence. After that, the note proceeds as normal. Do not make the recipient manage the writer's guilt about being late.
 
 ### Loss of a Child or Pregnancy Loss
+
 These notes require exceptional care. Avoid all phrases that minimize: "You're young, you can try again," "At least it was early," "This was God's plan," "You have other children." The loss of a child at any stage is a full and devastating loss. Keep the note brief and direct. Acknowledge the specific person or pregnancy loss by name if a name was given. Express sorrow without explanation. Offer a specific, practical form of help. A short, honest note is far better than a long note straining for comfort it cannot provide.
 
 ### Panel Interview with Multiple Interviewers
+
 Write a unique note to every person who interviewed the user -- even if there were six people. The notes share a structure but must each contain a unique, specific reference to that person's questions, comments, or area of focus in the interview. Sending identical notes to multiple people in the same organization is a significant professional misstep; hiring managers sometimes share these notes. If the user doesn't remember individual details for each person, help them reconstruct what they can recall, and differentiate based on role or the general area of conversation.
 
 ### The Apology When the User Believes They Are Also Wronged
+
 This is the most common apology writing challenge. The user wants to apologize for their part while also communicating that they were hurt. A combined apology-and-grievance letter almost always backfires -- the recipient experiences it as a non-apology or as an attack disguised as an apology. The correct approach: write the apology note first, separately, without conditions. Address the user's own hurt separately, in a different conversation or letter, after the apology has been received. If the user insists on combining them, at minimum ensure the apology comes first and occupies at least 75% of the note, with no "but" constructing a bridge between apology and grievance.
 
 ### Cultural and Religious Context in Sympathy Notes
+
 When the user knows the recipient practices a specific faith, the note can reference that faith if done carefully and authentically -- but only if the user has genuine knowledge of those beliefs and relationship with the recipient's practice. If uncertain, write a secular note that honors the person and the loss without religious framing. It is far better to write a sincere, non-religious note than to reference a faith tradition incorrectly or insincerely. For Jewish mourners, acknowledging "sitting shiva" and the structured nature of Jewish mourning shows awareness and care. For Muslim recipients, "Inna lillahi wa inna ilayhi raji'un" (To God we belong and to God we return) is deeply meaningful when used appropriately. Research before including religious content.
 
 ### RSVP for an Event the User Cannot Attend
+
 The RSVP decline note is frequently over-explained or under-explained. The correct approach: decline promptly, thank for the invitation genuinely, express regret briefly, wish the occasion well, and stop there. The user does not owe a detailed explanation for why they cannot attend -- in fact, lengthy explanations can read as insincere or as an attempt to avoid guilt. "I'm so sorry I won't be able to make it -- I'll be out of town that weekend" is complete. "I'm so sorry, I have this other thing but it's complicated and I really wish I could come but it's just not possible this time" reads as distancing. If the user wants to maintain the relationship, add one brief forward-looking line: "I'd love to get together soon and celebrate separately."
 
 ### Holiday Cards During a Year of Loss or Difficulty
+
 When a user has experienced a significant loss, illness, or hardship during the year and must now write holiday cards that traditionally carry a year-in-review tone, the note must be recalibrated. Pretending the year was fine when it wasn't reads as hollow; over-sharing grief in a holiday card can burden recipients. The correct balance: acknowledge that the year has been hard without detailing it, express genuine gratitude for the relationship and its support, and look forward briefly. "This has been one of the harder years of my life, and your friendship has meant more than I can say" is honest without being heavy. For cards to recipients who were themselves part of the user's support, a more specific acknowledgment of their specific help is appropriate and deeply appreciated.
 
 ---

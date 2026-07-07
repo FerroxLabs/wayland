@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting checklist planning"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting checklist planning'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # New Baby Preparation
 
 Preparing for a new baby is one of the most logistically complex transitions a household will undergo -- and most of the stress comes not from lack of love or intention but from missing information about sequencing, prioritization, and the gap between what the baby industry tells you to buy and what actually matters. This skill provides timeline-anchored, expert-level practical guidance for welcoming a newborn. Medical questions about pregnancy, labor, and newborn health belong with the OB-GYN, midwife, or pediatrician. Everything else -- what to set up, when to set it up, what to buy, how to organize support, and how to survive the first week -- is covered here.
@@ -24,6 +25,7 @@ Preparing for a new baby is one of the most logistically complex transitions a h
 ## When to Use
 
 **Use this skill when:**
+
 - The user is currently pregnant (any trimester) and wants a phased preparation timeline anchored to their due date
 - The user asks what to buy, set up, or arrange before a baby arrives and needs help separating essential from unnecessary
 - The user wants to prepare their home for infant safety, logistics, or a sibling transition
@@ -33,6 +35,7 @@ Preparing for a new baby is one of the most logistically complex transitions a h
 - The user has a specific complicating factor: tight budget, planned cesarean, premature delivery risk, single-parent household, multiples, or a second-plus baby
 
 **Do NOT use when:**
+
 - The user asks medical questions about pregnancy symptoms, complications, or high-risk conditions -- direct to their OB-GYN or midwife
 - The user asks about infant feeding from a clinical or medical perspective (breast anatomy, milk supply issues, tongue tie, formula composition) -- direct to a lactation consultant or pediatrician
 - The user is experiencing a mental health crisis postpartum -- direct to their healthcare provider or a crisis line; this skill covers logistics, not mental health treatment
@@ -74,23 +77,27 @@ Use the weeks-until-due-date to determine which phases apply and how urgent each
 Organize tasks into four phases. Each phase has a rationale -- explain why tasks belong in that window, not just what to do. This prevents the common pattern of doing everything at once in week 39.
 
 **Phase 1 (12 weeks before, or earlier) -- Big Infrastructure Decisions:**
+
 - These are tasks with long lead times: daycare waitlists, insurance paperwork, car seat installation, pediatrician selection
 - Mistakes here are hard to fix last-minute
 - The goal is: no major decision is left unresolved when labor begins
 
 **Phase 2 (4 weeks before, weeks 36-37) -- Setup and Packing:**
+
 - Hospital bag is packed and by the door
 - Nursery or baby sleep area is functional (not decorated -- functional)
 - Feeding station is set up wherever the parent will spend the most time
 - Visitor expectations are communicated
 
 **Phase 3 (1 week before, weeks 38-39) -- Final Check and Stocking:**
+
 - Freezer has 10-15 ready-to-heat meals
 - House is stocked with consumables (paper products, cleaning supplies, pantry staples) for 3 weeks
 - All contingency plans are confirmed (pet care, sibling care, hospital route)
 - Postpartum recovery supplies are ready and accessible
 
 **Phase 4 (First week home) -- Survival Logistics:**
+
 - Feed the baby, keep the baby safe, rest whenever possible
 - Everything else is secondary
 - The partner or support person is the logistics manager; the recovering parent is the patient and primary caregiver
@@ -102,6 +109,7 @@ Organize tasks into four phases. Each phase has a rationale -- explain why tasks
 Separate all supplies into three tiers. Never present a flat list -- the baby product industry creates enormous anxiety by implying everything is essential.
 
 **Tier 1 -- Absolute Must-Haves (cannot leave the hospital without these):**
+
 - Rear-facing infant car seat installed in the car
 - A safe sleep space: firm, flat mattress, fitted sheet, nothing else inside (no bumpers, pillows, positioners, weighted blankets, or stuffed animals)
 - 8-10 onesies in newborn AND 0-3 month sizes (newborns are often already too large for newborn sizing)
@@ -110,6 +118,7 @@ Separate all supplies into three tiers. Never present a flat list -- the baby pr
 - Feeding supplies appropriate to the intended feeding method (bottles + formula if formula feeding; a manual hand pump as backup even if breastfeeding)
 
 **Tier 2 -- Strongly Recommended (get before week 38):**
+
 - Changing pad with 2-3 waterproof covers
 - 4-5 swaddle blankets or sleep sacks (the velcro/zipper wearable sleepers are easier for night changes)
 - 6-8 burp cloths (more is better; a newborn can soil 3 in an hour during a cluster feeding session)
@@ -119,12 +128,14 @@ Separate all supplies into three tiers. Never present a flat list -- the baby pr
 - Nasal aspirator (the Frida-style hospital bulb-sucker replacements outperform the standard bulb syringe; newborns cannot blow their nose)
 
 **Tier 3 -- Nice to Have, Not Urgent:**
+
 - Swing or bouncy seat (some babies love them, some do not -- borrow before buying if possible)
 - Baby monitor (necessary only if baby sleeps in a different room from parents)
 - Nursing pillow (useful for breastfeeding positioning; also useful for bottle-feeding support)
 - White noise machine (a fan works equally well; apps work; a dedicated device is not necessary)
 
 **Skip or defer entirely:**
+
 - Wipe warmer (creates bacteria-friendly environment; not recommended by most pediatricians)
 - Bottle sterilizer (dishwasher with heated dry cycle is sufficient; or boiling water)
 - Baby shoes (newborns cannot walk; shoes are decorative only; socks with grips suffice)
@@ -138,23 +149,27 @@ Separate all supplies into three tiers. Never present a flat list -- the baby pr
 The first week home is the most logistically intense period and the most commonly under-planned. Treat it as a distinct planning domain.
 
 **Meals:**
+
 - Target 10-15 freezer meals prepared before birth -- casseroles, soups, burritos, pasta dishes in single-meal portions
 - Accept every offered meal from friends and family; route them through a meal signup sheet so you do not receive 5 lasagnas on day 3 and nothing on day 8
 - Stock the pantry with zero-prep or minimal-prep foods: crackers, peanut butter, cheese, hummus, granola bars, pre-cut fruit -- the recovering parent will be eating one-handed at 3 AM
 
 **Visitor Management:**
+
 - Establish a visiting policy before the birth and communicate it in the birth announcement
 - A reasonable default policy: no visitors in the first 48-72 hours home; after that, scheduled 1-2 hour visits during a specific afternoon window
 - Visitor rules that are non-negotiable for infant health: wash hands upon arrival, do not visit if sick (any cold, flu, or gastrointestinal symptoms), do not kiss the baby on the face or hands (respiratory syncytial virus and herpes simplex are serious risks in infants under 3 months)
 - Helpful visitors bring a meal, do a specific task (fold laundry, wash dishes, walk the dog), and leave when cued. A visitor who requires hosting, entertaining, or emotional labor is the wrong kind of visitor for week 1.
 
 **Sleep division:**
+
 - The most effective evidence-supported approach for two-parent households: divide the night into two shifts
 - Example: Parent A handles 8 PM - 2 AM (all feeds, all diaper changes); Parent B handles 2 AM - 8 AM
 - Each person gets one continuous 5-6 hour sleep block -- far more restorative than both parents waking at every feed
 - The recovering/breastfeeding parent may need to wake once during their off-shift for milk production, but their partner handles the logistics of that feed where possible
 
 **Pediatrician appointment:**
+
 - The first well-baby visit typically occurs 3-5 days after birth (some practices prefer 2-3 days for breastfed babies to verify weight and latching)
 - Confirm this appointment before leaving the hospital
 - Track: every feed (time, duration if breastfeeding or ounces if bottle), every wet diaper, every bowel movement in the first week -- the pediatrician uses this data to assess feeding adequacy
@@ -166,6 +181,7 @@ The first week home is the most logistically intense period and the most commonl
 The non-birthing partner or primary support person needs their own task list. Do not merge it with the main checklist -- they have distinct responsibilities.
 
 **Before birth:**
+
 - Install the car seat (this is often the partner's primary installation task)
 - Pack your own hospital bag items (separate from the birthing parent's bag): phone charger, snacks for a 24+ hour hospital stay, change of clothes, toothbrush, your own comfort items
 - Memorize the hospital route and identify the nighttime entrance and parking
@@ -173,6 +189,7 @@ The non-birthing partner or primary support person needs their own task list. Do
 - Learn what a postpartum hemorrhage, infection fever (temperature above 100.4°F in the first few weeks), and severe mood change look like -- not to diagnose, but to know when to call the provider
 
 **First week home:**
+
 - Handle 100% of non-baby household logistics: cooking, dishes, laundry, groceries, pet care, taking out trash
 - Manage the visitor schedule and all visitor communication -- the recovering parent should not have to be the one to say "please leave"
 - Take the overnight shift (or a portion of it) as described above
@@ -453,6 +470,7 @@ This checklist requires significant expansion that is beyond the standard output
 ---
 
 ## New Baby Preparation Checklist
+
 ### 12 Weeks Until Due Date | First Baby | Standard Delivery
 
 You are right on time. Most families do their preparation between weeks 28 and 38, and you have the full window ahead of you. Here is a phase-by-phase plan -- organized so that everything is done at the right time, not all at once.
@@ -460,7 +478,8 @@ You are right on time. Most families do their preparation between weeks 28 and 3
 ---
 
 ### Phase 1: Do Now Through Week 32
-*Purpose: Decisions with long lead times. These are the tasks that cannot be done at the last minute.*
+
+_Purpose: Decisions with long lead times. These are the tasks that cannot be done at the last minute._
 
 **Medical and Safety Infrastructure**
 
@@ -487,13 +506,15 @@ You are right on time. Most families do their preparation between weeks 28 and 3
 ---
 
 ### Phase 2: Weeks 36–37 (4 Weeks Before Due Date)
-*Purpose: Everything should now be physically ready. Pack bags, set up stations, communicate the visitor plan.*
+
+_Purpose: Everything should now be physically ready. Pack bags, set up stations, communicate the visitor plan._
 
 **Hospital Bag -- Pack This Now**
 
 Pack two bags: one for the hospital stay, one for the car seat + going-home outfit.
 
-*Birthing parent's bag:*
+_Birthing parent's bag:_
+
 - [ ] ID, insurance card, and pre-registration confirmation number
 - [ ] Phone charger (long cable -- hospital outlets are rarely convenient)
 - [ ] Lip balm (you will use it more than almost anything else during labor)
@@ -504,13 +525,15 @@ Pack two bags: one for the hospital stay, one for the car seat + going-home outf
 - [ ] Snacks for early labor (clear liquids may be restricted later; early labor can be long)
 - [ ] Postpartum items: your own heavy pads if preferred (hospitals provide them but theirs are bulky), high-waisted postpartum underwear
 
-*Partner's bag:*
+_Partner's bag:_
+
 - [ ] Phone charger
 - [ ] 36 hours of snacks (the hospital cafeteria closes; vending machines get expensive)
 - [ ] A full change of clothes and toiletries
 - [ ] Entertainment for potentially long early labor (hospital WiFi exists but is unreliable)
 
-*Baby's going-home supplies (keep in the car):*
+_Baby's going-home supplies (keep in the car):_
+
 - [ ] One outfit in newborn OR 0-3 month size (bring both sizes, because you will not know which fits until birth)
 - [ ] A swaddle blanket
 - [ ] The car seat, already installed
@@ -531,7 +554,8 @@ Pack two bags: one for the hospital stay, one for the car seat + going-home outf
 ---
 
 ### Phase 3: Weeks 38–39 (1 Week Before Due Date)
-*Purpose: Final check. Stock the house. Confirm all contingency plans.*
+
+_Purpose: Final check. Stock the house. Confirm all contingency plans._
 
 **Final Checklist**
 
@@ -551,7 +575,8 @@ Pack two bags: one for the hospital stay, one for the car seat + going-home outf
 ---
 
 ### Phase 4: First Week Home
-*Purpose: Survival. The goal is: feed the baby, keep the baby safe, and rest whenever possible. Every other standard is suspended.*
+
+_Purpose: Survival. The goal is: feed the baby, keep the baby safe, and rest whenever possible. Every other standard is suspended._
 
 **Safe Sleep -- Non-Negotiable**
 
@@ -586,6 +611,7 @@ The most effective approach for maintaining minimum viable function in both adul
 ### Partner / Support Person Task Track
 
 **Weeks 28-36 (Do These Now)**
+
 - [ ] Install the car seat and schedule a fire station inspection
 - [ ] Pack your own hospital bag (separate from the birthing parent's bag)
 - [ ] Drive the hospital route; memorize the nighttime entrance and parking
@@ -593,11 +619,13 @@ The most effective approach for maintaining minimum viable function in both adul
 - [ ] Learn the postpartum warning signs to watch for: fever above 100.4°F in the recovering parent, unusual pain or incision changes, mood changes that intensify rather than fluctuate after day 5. Know that these require a call to the provider, not your own assessment.
 
 **During the Hospital Stay**
+
 - [ ] You are the logistics manager; the recovering parent should not have to manage anything
 - [ ] Manage communications -- update family, manage the "when will you know?" texts so the birthing parent does not have to
 - [ ] Advocate for rest: limit early visitors at the hospital; the first 24 hours after birth are for recovery and bonding, not hosting
 
 **First Week Home**
+
 - [ ] Own 100% of non-baby household tasks: cooking, dishes, laundry, groceries, trash, pet care
 - [ ] Manage the visitor schedule; you say "now is not a good time" when needed
 - [ ] Take your assigned overnight shift with full ownership -- the recovering parent does not manage you during this time
@@ -608,22 +636,23 @@ The most effective approach for maintaining minimum viable function in both adul
 
 ### Essential Supplies by Priority Tier
 
-| Tier | Category | Specific Items | Notes |
-|------|----------|---------------|-------|
-| Must-Have | Sleep | Crib or bassinet, firm flat mattress, 3 fitted sheets | Mattress: buy new. Frame/bassinet: used OK. Nothing else in the sleep space. |
-| Must-Have | Transport | Rear-facing infant car seat | Buy new or verify expiration date (stamped on the seat; most expire 6-10 years from manufacture). Never buy used if you cannot verify it has never been in a collision. |
-| Must-Have | Diapering | 1 pack newborn diapers, 2 packs size 1, fragrance-free wipes, zinc oxide diaper cream, changing pad + 3 covers | Newborns: 10-12 diapers/day. Do not overbuy newborn size -- babies often skip it. |
-| Must-Have | Clothing | 8-10 onesies (NB + 0-3 mo), 4-5 sleep sacks or zip swaddles, socks | Velcro or zip sleep sacks are easier for night changes than blanket swaddles. Wash in fragrance-free detergent before use. |
-| Must-Have | Feeding | Bottles (4-6), formula if formula-feeding OR manual pump as backup if breastfeeding | Check insurance for breast pump coverage before buying. |
-| Must-Have | Health | Rectal thermometer (most accurate under 3 months), nasal aspirator, infant nail file | A rectal temperature above 100.4°F in an infant under 3 months is an ER visit. Have the thermometer before you need it. |
-| Strongly Recommended | Feeding support | 6-8 burp cloths, nursing pillow, bottle brush and drying rack | You will use burp cloths constantly. 6 is the minimum. |
-| Nice-to-Have | Comfort | Swing or bouncy seat | Borrow one first if possible -- some babies love them, some do not respond. |
-| Nice-to-Have | Monitoring | Baby monitor | Only necessary if baby sleeps in a separate room. A simple audio monitor is sufficient. |
-| Defer | Decor | Nursery art, mobile, themed items | Babies cannot focus beyond 8-12 inches for the first weeks. This is entirely for you. Do it after the baby arrives and you know how much time you have. |
+| Tier                 | Category        | Specific Items                                                                                                 | Notes                                                                                                                                                                   |
+| -------------------- | --------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Must-Have            | Sleep           | Crib or bassinet, firm flat mattress, 3 fitted sheets                                                          | Mattress: buy new. Frame/bassinet: used OK. Nothing else in the sleep space.                                                                                            |
+| Must-Have            | Transport       | Rear-facing infant car seat                                                                                    | Buy new or verify expiration date (stamped on the seat; most expire 6-10 years from manufacture). Never buy used if you cannot verify it has never been in a collision. |
+| Must-Have            | Diapering       | 1 pack newborn diapers, 2 packs size 1, fragrance-free wipes, zinc oxide diaper cream, changing pad + 3 covers | Newborns: 10-12 diapers/day. Do not overbuy newborn size -- babies often skip it.                                                                                       |
+| Must-Have            | Clothing        | 8-10 onesies (NB + 0-3 mo), 4-5 sleep sacks or zip swaddles, socks                                             | Velcro or zip sleep sacks are easier for night changes than blanket swaddles. Wash in fragrance-free detergent before use.                                              |
+| Must-Have            | Feeding         | Bottles (4-6), formula if formula-feeding OR manual pump as backup if breastfeeding                            | Check insurance for breast pump coverage before buying.                                                                                                                 |
+| Must-Have            | Health          | Rectal thermometer (most accurate under 3 months), nasal aspirator, infant nail file                           | A rectal temperature above 100.4°F in an infant under 3 months is an ER visit. Have the thermometer before you need it.                                                 |
+| Strongly Recommended | Feeding support | 6-8 burp cloths, nursing pillow, bottle brush and drying rack                                                  | You will use burp cloths constantly. 6 is the minimum.                                                                                                                  |
+| Nice-to-Have         | Comfort         | Swing or bouncy seat                                                                                           | Borrow one first if possible -- some babies love them, some do not respond.                                                                                             |
+| Nice-to-Have         | Monitoring      | Baby monitor                                                                                                   | Only necessary if baby sleeps in a separate room. A simple audio monitor is sufficient.                                                                                 |
+| Defer                | Decor           | Nursery art, mobile, themed items                                                                              | Babies cannot focus beyond 8-12 inches for the first weeks. This is entirely for you. Do it after the baby arrives and you know how much time you have.                 |
 
 ---
 
 ### Budget-Conscious Notes
+
 - **Must buy new:** Car seat (or verify expiration and collision history), crib mattress (firmness degrades; firm surface is a safe sleep requirement), rectal thermometer
 - **Fine to buy secondhand:** Stroller, clothing, baby bathtub, swing, carrier, books
 - **Accept every hand-me-down:** Clothing (outgrown in 4-8 weeks), burp cloths, swaddles, crib frames (verify slat spacing under 2.375 inches)
@@ -634,6 +663,6 @@ The most effective approach for maintaining minimum viable function in both adul
 
 ### Know These Numbers
 
-| Situation | Threshold | Action |
-|-----------|-----------|--------|
+| Situation                     | Threshold | Action |
+| ----------------------------- | --------- | ------ |
 | Infant fever (under 3 months) |

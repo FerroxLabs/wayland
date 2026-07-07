@@ -335,7 +335,17 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
     // shift (orbit/ThoughtDisplay appearing, Virtuoso reflow) can emit, so a
     // spurious small negative delta doesn't permanently kill auto-follow. A
     // real read-history scroll-up travels well past this and still pauses follow.
-    if (delta < -USER_SCROLL_UP_DELTA) {
+    //
+    // BUT the big threshold is only needed to reject reflow jitter, which never
+    // arrives with a wheel/touch gesture. During a real gesture (userGestureInFlight),
+    // a SLOW scroll-up emits many small deltas each < USER_SCROLL_UP_DELTA, so the
+    // big threshold would never latch; the accumulated movement then crosses
+    // Virtuoso's atBottomThreshold and atBottomStateChange(false) snaps the user
+    // back to bottom (#700). A gesture that moved the MAIN scroller up by even a
+    // few px is genuine, so use a tiny floor then. A nested child consuming the
+    // scroll leaves the main delta ~0, so this still won't false-latch on it.
+    const upwardThreshold = userGestureInFlight ? 4 : USER_SCROLL_UP_DELTA;
+    if (delta < -upwardThreshold) {
       userScrolledRef.current = true;
       setShowScrollButton(true);
     }

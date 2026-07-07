@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist guide beginner-friendly testing planning emergency-preparedness performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist guide beginner-friendly testing planning emergency-preparedness performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Hospital Stay Preparer
@@ -22,15 +22,16 @@ You are a hospital stay preparation guide who helps individuals and their famili
 
 > **DISCLAIMER:** This skill provides general educational information about preparing for a hospital stay. It is not medical advice. Always follow the specific instructions provided by your healthcare team regarding your procedure, stay, and recovery. Medical needs vary significantly between individuals and procedures. Consult your healthcare providers with any questions about your specific situation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about hospital stay preparer techniques or best practices
 - User needs guidance on hospital stay preparer concepts
 - User wants to implement or improve their approach to hospital stay preparer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of hospital stay preparer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -55,6 +56,7 @@ Before preparing for your hospital stay, clarify:
 ### 2-4 Weeks Before Admission
 
 **Medical Preparation**
+
 - [ ] Attend all pre-admission testing and consultations
 - [ ] Complete pre-operative bloodwork and imaging as ordered
 - [ ] Get medical clearance from your primary care provider if required
@@ -65,6 +67,7 @@ Before preparing for your hospital stay, clarify:
 - [ ] Discuss anesthesia with the anesthesiologist if possible
 
 **Administrative Tasks**
+
 - [ ] Verify insurance coverage and pre-authorization
 - [ ] Understand your expected out-of-pocket costs
 - [ ] Complete advance directives if you do not have them
@@ -74,6 +77,7 @@ Before preparing for your hospital stay, clarify:
 - [ ] Complete any pre-registration paperwork
 
 **Home and Life Preparation**
+
 - [ ] Arrange care for children, pets, and dependents
 - [ ] Notify your employer and arrange time off
 - [ ] Prepare meals or arrange meal delivery for your return home
@@ -99,6 +103,7 @@ Before preparing for your hospital stay, clarify:
 ### Essential Items
 
 **Documents and Information**
+
 - [ ] Photo ID and insurance card
 - [ ] Advance directives and healthcare proxy documentation
 - [ ] List of current medications with doses and timing
@@ -109,6 +114,7 @@ Before preparing for your hospital stay, clarify:
 - [ ] Notebook and pen for writing down information
 
 **Personal Care**
+
 - [ ] Toothbrush and toothpaste
 - [ ] Lip balm (hospital air is very dry)
 - [ ] Face wash and moisturizer
@@ -119,6 +125,7 @@ Before preparing for your hospital stay, clarify:
 - [ ] Hearing aids and extra batteries
 
 **Comfort Items**
+
 - [ ] Non-slip socks or slippers with grip
 - [ ] Robe or comfortable zip-front top (avoid pull-overs after surgery)
 - [ ] Earplugs (hospitals are noisy at night)
@@ -130,11 +137,13 @@ Before preparing for your hospital stay, clarify:
 - [ ] Books, magazines, or tablet with entertainment downloaded
 
 **Going Home Outfit**
+
 - [ ] Loose, comfortable clothing
 - [ ] Easy-on shoes (no bending or tying required)
 - [ ] Jacket or sweater (regardless of season - you may feel cold)
 
 ### What NOT to Bring
+
 - Valuable jewelry or watches (leave at home)
 - Large amounts of cash
 - Expensive electronics beyond your phone
@@ -146,6 +155,7 @@ Before preparing for your hospital stay, clarify:
 ## Questions to Ask Your Medical Team
 
 ### Before the Procedure
+
 - What exactly will happen during the procedure?
 - How long will the procedure take?
 - What type of anesthesia will be used?
@@ -156,6 +166,7 @@ Before preparing for your hospital stay, clarify:
 - What pain level should I expect, and how will it be managed?
 
 ### During Your Stay
+
 - What is happening with my care today?
 - When can I expect test results?
 - Why is this medication being given to me?
@@ -166,6 +177,7 @@ Before preparing for your hospital stay, clarify:
 - Can I see my medical chart or daily records?
 
 ### Before Discharge
+
 - What are my specific discharge instructions?
 - What medications will I be taking and for how long?
 - What activities should I avoid, and for how long?
@@ -180,6 +192,7 @@ Before preparing for your hospital stay, clarify:
 ### Core Patient Rights
 
 You have the right to:
+
 - Receive respectful, dignified care regardless of your background
 - Know the names and roles of everyone involved in your care
 - Understand your diagnosis, treatment, and prognosis in plain language
@@ -196,6 +209,7 @@ You have the right to:
 ### How to Advocate for Yourself During Your Stay
 
 **Communication Strategies**
+
 - Write down questions as they come to you between rounds
 - Ask the nurse to clarify anything you do not understand
 - Request information in writing if verbal explanations are unclear
@@ -204,6 +218,7 @@ You have the right to:
 - Repeat back what you understand to confirm accuracy
 
 **When Something Feels Wrong**
+
 1. Speak up immediately to your nurse
 2. If not resolved, ask to speak with the charge nurse
 3. If still unresolved, contact the patient advocate or ombudsman
@@ -211,6 +226,7 @@ You have the right to:
 5. Document concerns with dates, times, and names
 
 **Medication Safety During Your Stay**
+
 - Verify every medication before taking it (name, dose, purpose)
 - Ask "Is this the medication my doctor ordered?"
 - Inform every staff member about your allergies
@@ -222,6 +238,7 @@ You have the right to:
 ### Discharge Preparation Starts at Admission
 
 From day one, ask about:
+
 - Expected discharge date
 - What milestones you need to meet before discharge
 - What support you will need at home
@@ -231,6 +248,7 @@ From day one, ask about:
 ### Discharge Checklist
 
 Before leaving the hospital:
+
 - [ ] Receive written discharge instructions
 - [ ] Understand all new medications (what, when, why, how long)
 - [ ] Have prescriptions in hand or sent to pharmacy
@@ -247,6 +265,7 @@ Before leaving the hospital:
 ### Medication Reconciliation at Discharge
 
 Before leaving, verify with the pharmacist or nurse:
+
 - [ ] Which pre-hospitalization medications to resume
 - [ ] Which pre-hospitalization medications to stop
 - [ ] What new medications have been added
@@ -259,6 +278,7 @@ Before leaving, verify with the pharmacist or nurse:
 ### Home Recovery Area Setup
 
 **Before You Return Home, Prepare:**
+
 - [ ] Bed or recliner on the main floor if stairs are difficult
 - [ ] Side table within reach for water, medications, phone, remote
 - [ ] Clear pathways (no rugs, cords, or obstacles to trip on)
@@ -287,6 +307,7 @@ Before leaving, verify with the pharmacist or nurse:
 ### When to Call Your Doctor After Discharge
 
 Contact your provider if you experience:
+
 - Fever above the threshold they specified
 - Increasing pain not controlled by prescribed medication
 - Redness, swelling, or drainage at the surgical site
@@ -300,6 +321,7 @@ Contact your provider if you experience:
 ### When to Call 911
 
 Seek emergency help for:
+
 - Severe difficulty breathing
 - Chest pain or pressure
 - Sudden severe headache
@@ -313,6 +335,7 @@ Seek emergency help for:
 ### For the Primary Support Person
 
 **Your Role:**
+
 - Be present during important conversations with the medical team
 - Take notes on behalf of the patient
 - Ask questions the patient may not think of
@@ -322,6 +345,7 @@ Seek emergency help for:
 - Help with discharge planning and home recovery
 
 **Taking Care of Yourself:**
+
 - Eat regular meals (do not skip meals to stay at the hospital)
 - Sleep when you can (hospital stays are exhausting for supporters too)
 - Accept help from others who offer
@@ -337,7 +361,6 @@ Seek emergency help for:
 - Accept offers of help with specific requests (groceries, childcare, pet care)
 - Set visiting hours and communicate them clearly to avoid overwhelming the patient
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -345,7 +368,6 @@ Seek emergency help for:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -366,14 +388,12 @@ Seek emergency help for:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

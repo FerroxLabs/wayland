@@ -29,10 +29,7 @@ vi.mock('jose', async (importOriginal) => {
   };
 });
 
-import {
-  googleChatVerifier,
-  verifyGoogleChatJwt,
-} from '@process/channels/webhook/verifiers/google-chat';
+import { googleChatVerifier, verifyGoogleChatJwt } from '@process/channels/webhook/verifiers/google-chat';
 
 const AUDIENCE = '123456789012';
 const FAKE_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.fake.token';
@@ -59,7 +56,7 @@ describe('google-chat verifier - sibling smoke', () => {
         query: {},
         url: '/webhooks/google-chat/tok',
       },
-      AUDIENCE,
+      AUDIENCE
     );
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.eventId).toBe('spaces/AAA/messages/M1');
@@ -73,7 +70,7 @@ describe('google-chat verifier - sibling smoke', () => {
         query: {},
         url: '/webhooks/google-chat/tok',
       },
-      AUDIENCE,
+      AUDIENCE
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('missing-bearer-token');
@@ -87,7 +84,7 @@ describe('google-chat verifier - sibling smoke', () => {
         query: {},
         url: '/webhooks/google-chat/tok',
       },
-      '',
+      ''
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('audience-not-configured');

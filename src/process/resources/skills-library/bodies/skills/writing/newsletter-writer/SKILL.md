@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing newsletter"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing newsletter'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Newsletter Writer
@@ -23,6 +23,7 @@ You are an expert Technical Newsletter Writer who creates engaging, valuable new
 ## Newsletter Philosophy
 
 ### Why Newsletters Work for Tech Content
+
 ```
 1. OWNED AUDIENCE: Unlike social media, you own your subscriber list.
    Platform algorithm changes don't affect your reach.
@@ -41,6 +42,7 @@ You are an expert Technical Newsletter Writer who creates engaging, valuable new
 ```
 
 ### The Newsletter Mindset
+
 ```
 Think of your newsletter as:
 - A weekly gift to your subscribers (not a promotional channel)
@@ -58,6 +60,7 @@ NOT:
 ## Newsletter Structure
 
 ### Standard Issue Structure
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ HEADER                                                  │
@@ -80,6 +83,7 @@ NOT:
 ### Newsletter Format Variations
 
 **Curation-Heavy Format**:
+
 ```
 Issue #42: This Week in [Technology]
 
@@ -100,6 +104,7 @@ interesting I should include next time.
 ```
 
 **Original Content Format**:
+
 ```
 Issue #42: [Topic Title]
 
@@ -124,6 +129,7 @@ RELATED LINKS
 ## Curated Link Formats
 
 ### The Art of Curation
+
 ```
 Bad Curation (Link Dump):
 "• React 19 Released [link]
@@ -144,6 +150,7 @@ people subscribe - they can't get this from an RSS feed.)
 ```
 
 ### Commentary Techniques
+
 ```
 For each curated link, add value through one of these lenses:
 
@@ -166,6 +173,7 @@ For each curated link, add value through one of these lenses:
 ## Subscriber Growth
 
 ### Growth Strategies
+
 ```
 Organic Growth (Sustainable, High Quality):
 
@@ -186,6 +194,7 @@ Organic Growth (Sustainable, High Quality):
 ```
 
 ### Signup Page Best Practices
+
 ```
 Essential Elements:
 - Clear value proposition: "What will I get?"
@@ -206,6 +215,7 @@ Example:
 ```
 
 ### Growth Metrics
+
 ```
 Track These Monthly:
 - New subscribers: How many joined this month?
@@ -229,6 +239,7 @@ Warning Signs:
 ## Email Deliverability
 
 ### Deliverability Fundamentals
+
 ```
 Your newsletter is worthless if it lands in spam.
 
@@ -249,6 +260,7 @@ Content Best Practices:
 ```
 
 ### Deliverability Monitoring
+
 ```
 Key Metrics:
 - Delivery rate: % of emails that reach the inbox (target: >98%)
@@ -269,6 +281,7 @@ If open rates suddenly drop:
 ## A/B Testing Subject Lines
 
 ### What to Test
+
 ```
 Test ONE variable at a time:
 
@@ -289,6 +302,7 @@ Test ONE variable at a time:
 ```
 
 ### A/B Testing Process
+
 ```
 1. Split your list: 20% get Version A, 20% get Version B
 2. Send both at the same time
@@ -306,6 +320,7 @@ Tools: Most email platforms support this natively
 ## Content Sourcing
 
 ### Where to Find Content
+
 ```
 Regular Sources:
 - RSS feeds of blogs you follow (Feedly, Inoreader)
@@ -328,6 +343,7 @@ Deeper Sources:
 ## Publication Cadence
 
 ### Choosing Your Cadence
+
 ```
 Weekly (Recommended for Most):
 - Most sustainable long-term
@@ -348,6 +364,7 @@ is substantial (2000+ words of original content).
 ```
 
 ### Consistency is More Important Than Frequency
+
 ```
 A newsletter that comes every Thursday at 9 AM is better than one
 that comes "whenever I have time."
@@ -367,6 +384,7 @@ Tips for Consistency:
 ## Monetization
 
 ### Monetization Models
+
 ```
 1. Sponsorships:
    - Most common for tech newsletters
@@ -387,6 +405,7 @@ Tips for Consistency:
 ```
 
 ### Sponsorship Integration Best Practices
+
 ```
 DO:
 - Choose sponsors relevant to your audience
@@ -409,6 +428,7 @@ DON'T:
 ## Newsletter Tools
 
 ### Platform Comparison
+
 ```
 Substack: Best for writers who want built-in audience discovery.
   Free to start, Substack takes 10% of paid subscriptions.
@@ -452,6 +472,7 @@ Final:
 ## Quick Decision Guide
 
 When asked about newsletters:
+
 - **"How to start a newsletter?"** → Pick a niche, choose a platform, commit to weekly cadence
 - **"How to grow subscribers?"** → Quality content first, then social promotion, cross-promotion, SEO on archives
 - **"How to write good curated links?"** → Add 2-3 sentences of your own commentary to every link
@@ -462,6 +483,7 @@ When asked about newsletters:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing newsletter writer solutions
 - Reviewing or improving existing newsletter writer approaches
 - Making architectural or implementation decisions about newsletter writer
@@ -469,6 +491,7 @@ When asked about newsletters:
 - Troubleshooting newsletter writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -479,21 +502,26 @@ When asked about newsletters:
 # Newsletter Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

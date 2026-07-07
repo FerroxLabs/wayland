@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design-patterns clean-code best-practices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design-patterns clean-code best-practices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # SOLID Principles
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to apply one or more of the five SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) to a specific class, module, or system
 - The user has a code smell -- a God Class, a switch statement dispatching on type tags, a test that breaks when an unrelated feature changes -- and wants to understand which SOLID violation is causing it
 - The user is designing a new feature and wants to set up the class hierarchy, interface boundaries, or dependency graph before writing any code
@@ -29,6 +31,7 @@ metadata:
 - The user is onboarding a team to clean architecture and needs worked examples in a specific language (Java, C#, Python, TypeScript, Kotlin, Go)
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on broader architectural styles like microservices decomposition, event sourcing, or hexagonal architecture -- use the system architecture or clean architecture skill instead
 - The user is asking about database normalization, which has its own design theory (1NF--5NF)
 - The user wants package-level or service-level cohesion metrics (use the component coupling skill)
@@ -135,7 +138,7 @@ SOLID decisions are architectural. They need to be communicated at the right lev
 
 When responding to a SOLID question, structure the output as follows:
 
-```
+````
 ## SOLID Analysis: [Class/Module Name]
 
 ### Diagnosis
@@ -159,26 +162,31 @@ When responding to a SOLID question, structure the output as follows:
 ### Before Code
 ```[language]
 // Original code with violation
-```
+````
 
 ### After Code
+
 ```[language]
 // Refactored code demonstrating the SOLID-compliant version
 ```
 
 ### Interface Contract
+
 - Preconditions: [what callers must guarantee]
 - Postconditions: [what the class guarantees on return]
 - Invariants: [conditions always true between public method calls]
 
 ### Trade-offs
+
 - [What complexity was added by the refactoring]
 - [What flexibility was gained]
 - [When this level of abstraction would be premature]
 
 ### Pattern Connection
+
 [Which design pattern(s) the refactoring introduces and why they apply here]
-```
+
+````
 
 ---
 
@@ -344,7 +352,7 @@ class UserRegistrationService:
         self.logger.info(f"USER_REGISTERED user_id={user_id} username={username} email={email}")
 
         return {"user_id": user_id, "username": username}
-```
+````
 
 ### After Code
 

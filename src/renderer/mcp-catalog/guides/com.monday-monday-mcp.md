@@ -14,7 +14,7 @@ steps:
   - id: authorize
     title: Sign in with monday.com (OAuth)
     estSeconds: 60
-    primaryAction: { label: "Sign in with monday.com", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with monday.com', action: 'oauth-flow' }
     body: |
       Click **Sign in with monday.com** below. A browser tab opens.
 

@@ -111,11 +111,17 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
           onClick={() => void connectFlux()}
           disabled={busy !== null}
         >
-          <span className={styles.doorIcon}>{busy === 'flux' ? <Loader2 size={20} className='animate-spin' /> : <Zap size={20} />}</span>
+          <span className={styles.doorIcon}>
+            {busy === 'flux' ? <Loader2 size={20} className='animate-spin' /> : <Zap size={20} />}
+          </span>
           <span className={styles.doorMain}>
             <span className={styles.doorTitleRow}>
-              <span className={styles.doorTitle}>{t('onboarding.doors.flux.title', { defaultValue: 'Connect Flux' })}</span>
-              <span className={styles.recommendedTag}>{t('onboarding.doors.recommended', { defaultValue: 'Recommended' })}</span>
+              <span className={styles.doorTitle}>
+                {t('onboarding.doors.flux.title', { defaultValue: 'Connect Flux' })}
+              </span>
+              <span className={styles.recommendedTag}>
+                {t('onboarding.doors.recommended', { defaultValue: 'Recommended' })}
+              </span>
             </span>
             <span className={styles.doorBody}>
               {t('onboarding.doors.flux.body', {
@@ -140,13 +146,21 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
           onClick={() => getGeminiKey()}
           disabled={busy !== null}
         >
-          <span className={styles.doorIcon}><GoogleMark /></span>
+          <span className={styles.doorIcon}>
+            <GoogleMark />
+          </span>
           <span className={styles.doorMain}>
-            <span className={styles.doorTitle}>{t('onboarding.doors.google.title', { defaultValue: 'Get a free Gemini key' })}</span>
-            <span className={styles.doorBody}>
-              {t('onboarding.doors.google.body', { defaultValue: 'Grab a free API key from Google AI Studio, then paste it in.' })}
+            <span className={styles.doorTitle}>
+              {t('onboarding.doors.google.title', { defaultValue: 'Get a free Gemini key' })}
             </span>
-            <span className={styles.doorFoot}>{t('onboarding.doors.google.foot', { defaultValue: 'Free key · opens Google AI Studio' })}</span>
+            <span className={styles.doorBody}>
+              {t('onboarding.doors.google.body', {
+                defaultValue: 'Grab a free API key from Google AI Studio, then paste it in.',
+              })}
+            </span>
+            <span className={styles.doorFoot}>
+              {t('onboarding.doors.google.foot', { defaultValue: 'Free key · opens Google AI Studio' })}
+            </span>
           </span>
           <ArrowRight size={18} className={styles.doorArrow} />
         </button>
@@ -160,7 +174,9 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
             onClick={() => void connectDetected()}
             disabled={busy !== null}
           >
-            <span className={styles.doorIcon}>{busy === 'detected' ? <Loader2 size={20} className='animate-spin' /> : <KeyRound size={20} />}</span>
+            <span className={styles.doorIcon}>
+              {busy === 'detected' ? <Loader2 size={20} className='animate-spin' /> : <KeyRound size={20} />}
+            </span>
             <span className={styles.doorMain}>
               <span className={styles.doorTitle}>
                 {t('onboarding.doors.detected.title', {
@@ -169,18 +185,29 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
                 })}
               </span>
               <span className={styles.doorBody}>
-                {t('onboarding.doors.detected.body', { defaultValue: 'We found it in your environment. Tested before it is saved.' })}
+                {t('onboarding.doors.detected.body', {
+                  defaultValue: 'We found it in your environment. Tested before it is saved.',
+                })}
               </span>
-              <span className={styles.doorFoot}>{t('onboarding.doors.detected.foot', { defaultValue: 'Your key, your billing' })}</span>
+              <span className={styles.doorFoot}>
+                {t('onboarding.doors.detected.foot', { defaultValue: 'Your key, your billing' })}
+              </span>
             </span>
             <ArrowRight size={18} className={styles.doorArrow} />
           </button>
         )}
       </div>
 
-      {errorKey && <p className={styles.doorError}>{t(errorKey, { defaultValue: 'That did not go through. Try again.' })}</p>}
+      {errorKey && (
+        <p className={styles.doorError}>{t(errorKey, { defaultValue: 'That did not go through. Try again.' })}</p>
+      )}
 
-      <button type='button' className='text-13px text-t-tertiary hover:text-t-secondary self-start bg-transparent border-none cursor-pointer p-0' onClick={onPasteKey} disabled={busy !== null}>
+      <button
+        type='button'
+        className='text-13px text-t-tertiary hover:text-t-secondary self-start bg-transparent border-none cursor-pointer p-0'
+        onClick={onPasteKey}
+        disabled={busy !== null}
+      >
         {t('onboarding.doors.pasteInstead', { defaultValue: 'Paste a Flux key instead' })}
       </button>
     </div>

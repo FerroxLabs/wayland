@@ -70,7 +70,8 @@ export class OpenClawAgent {
   private gatewayManager: OpenClawGatewayManager | null = null;
   private connection: OpenClawGatewayConnection | null = null;
   private adapter: AcpAdapter;
-  private approvalStore = new AcpApprovalStore();
+  // Persisted per workspace (#672) - same store/semantics as AcpAgent.
+  private approvalStore: AcpApprovalStore;
   private pendingPermissions = new Map<
     string,
     { resolve: (response: { optionId: string }) => void; reject: (error: Error) => void }
@@ -101,6 +102,7 @@ export class OpenClawAgent {
     this.onSignalEvent = config.onSignalEvent;
     this.onSessionKeyUpdate = config.onSessionKeyUpdate;
     this.onUsage = config.onUsage;
+    this.approvalStore = new AcpApprovalStore(config.extra?.workspace ?? config.workingDir);
 
     // Initialize adapter with 'openclaw-gateway' backend
     this.adapter = new AcpAdapter(this.id, 'openclaw-gateway');
@@ -114,6 +116,10 @@ export class OpenClawAgent {
    */
   async start(): Promise<void> {
     try {
+      // Rehydrate persisted "allow_always" decisions for this workspace before
+      // any permission checks can run (#672 - these survive an app restart).
+      await this.approvalStore.load();
+
       this.emitStatusMessage('connecting');
 
       const gatewayConfig: OpenClawGatewayConfig = this.config.gateway || { port: 18789 };

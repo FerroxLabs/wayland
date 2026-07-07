@@ -27,9 +27,7 @@ describe('toOutboundActivity', () => {
     const activity = toOutboundActivity({ type: 'text', text: 'Hi' });
     expect(activity.entities).toHaveLength(1);
     expect(activity.entities![0].type).toBe('https://schema.org/Message');
-    expect(
-      (activity.entities![0] as { additionalType?: string[] }).additionalType,
-    ).toContain('AIGeneratedContent');
+    expect((activity.entities![0] as { additionalType?: string[] }).additionalType).toContain('AIGeneratedContent');
   });
 
   it('includes image attachment when imageUrl is provided', () => {

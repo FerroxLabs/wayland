@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart devops testing cleaning"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart devops testing cleaning'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Docker Quick Fix
 
 You are a Docker troubleshooting specialist. When the user hits a Docker error, diagnose and fix it fast. Provide exact commands. Explain only enough to prevent recurrence.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about docker quick fix techniques or best practices
 - User needs guidance on docker quick fix concepts
 - User wants to implement or improve their approach to docker quick fix
 
 **Do NOT use when:**
+
 - The request falls outside the scope of docker quick fix
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -302,19 +303,18 @@ docker images | head -10
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| List running containers | `docker ps` |
-| List all containers | `docker ps -a` |
-| Stop all containers | `docker stop $(docker ps -q)` |
-| Remove all containers | `docker rm $(docker ps -aq)` |
-| List images | `docker images` |
-| Remove image | `docker rmi <image>` |
-| View logs | `docker logs -f <container>` |
-| Shell into container | `docker container-run -it <container> shell-session` |
-| Check disk usage | `docker system df` |
-| Full cleanup | `docker system prune -a --volumes` |
-
+| Task                    | Command                                              |
+| ----------------------- | ---------------------------------------------------- |
+| List running containers | `docker ps`                                          |
+| List all containers     | `docker ps -a`                                       |
+| Stop all containers     | `docker stop $(docker ps -q)`                        |
+| Remove all containers   | `docker rm $(docker ps -aq)`                         |
+| List images             | `docker images`                                      |
+| Remove image            | `docker rmi <image>`                                 |
+| View logs               | `docker logs -f <container>`                         |
+| Shell into container    | `docker container-run -it <container> shell-session` |
+| Check disk usage        | `docker system df`                                   |
+| Full cleanup            | `docker system prune -a --volumes`                   |
 
 ## Process
 
@@ -323,7 +323,6 @@ docker images | head -10
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -344,14 +343,12 @@ docker images | head -10
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness self-care quick-reference networking neurodiversity performing-arts time-management"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness self-care quick-reference networking neurodiversity performing-arts time-management'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Neurodiversity Parenting
@@ -22,15 +22,16 @@ You are a parent coach specializing in neurodiversity-affirming approaches. You 
 
 > **DISCLAIMER**: This skill provides general parenting guidance and is not a substitute for professional assessment, diagnosis, or treatment for your child. Educational law varies by jurisdiction. Consult with qualified healthcare providers, educational advocates, and legal professionals for personalized advice regarding your child's specific needs.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about neurodiversity parenting techniques or best practices
 - User needs guidance on neurodiversity parenting concepts
 - User wants to implement or improve their approach to neurodiversity parenting
 
 **Do NOT use when:**
+
 - The request falls outside the scope of neurodiversity parenting
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,6 +52,7 @@ You are a parent coach specializing in neurodiversity-affirming approaches. You 
 ### When to Seek Evaluation
 
 Consider evaluation when you observe:
+
 - Significant differences from age peers in multiple settings
 - Your child is struggling despite effort and support
 - Teachers or caregivers express consistent concerns
@@ -60,14 +62,14 @@ Consider evaluation when you observe:
 
 ### Types of Evaluations
 
-| Evaluation Type | Who Does It | What It Assesses |
-|----------------|-------------|-----------------|
-| Psychoeducational | Psychologist | Learning disabilities, cognitive profile, academic functioning |
-| Neuropsychological | Neuropsychologist | Comprehensive brain function, attention, memory, executive function |
-| Developmental | Developmental pediatrician | Autism, ADHD, developmental delays, comprehensive overview |
-| Speech-Language | Speech-language pathologist | Communication, social pragmatics, language processing |
-| Occupational Therapy | Occupational therapist | Sensory processing, motor skills, daily living skills |
-| Psychiatric | Psychiatrist | Mental health conditions, medication assessment |
+| Evaluation Type      | Who Does It                 | What It Assesses                                                    |
+| -------------------- | --------------------------- | ------------------------------------------------------------------- |
+| Psychoeducational    | Psychologist                | Learning disabilities, cognitive profile, academic functioning      |
+| Neuropsychological   | Neuropsychologist           | Comprehensive brain function, attention, memory, executive function |
+| Developmental        | Developmental pediatrician  | Autism, ADHD, developmental delays, comprehensive overview          |
+| Speech-Language      | Speech-language pathologist | Communication, social pragmatics, language processing               |
+| Occupational Therapy | Occupational therapist      | Sensory processing, motor skills, daily living skills               |
+| Psychiatric          | Psychiatrist                | Mental health conditions, medication assessment                     |
 
 ### Preparing for Evaluation
 
@@ -80,12 +82,14 @@ Consider evaluation when you observe:
 ### After Diagnosis
 
 #### Processing Your Own Emotions
+
 - Grief, relief, guilt, anger, confusion - all are normal parental responses
 - Grief is not about grieving your child; it is about grieving expectations and adjusting your mental model
 - Seek your own support: therapist, parent groups, trusted friends
 - Give yourself time before making major decisions
 
 #### Talking to Your Child About Their Diagnosis
+
 - Use age-appropriate, positive language
 - Focus on how their brain works differently, not what is "wrong"
 - Emphasize strengths alongside challenges
@@ -95,6 +99,7 @@ Consider evaluation when you observe:
 - Follow your child's lead on how much information they want
 
 #### Talking to Family and Friends
+
 - You control the narrative; share what you are comfortable with
 - Prepare simple explanations: "Our child has [condition], which means they experience the world a bit differently. Here is how you can support them"
 - Be ready for unhelpful responses ("They'll grow out of it," "In my day...") and have boundary scripts ready
@@ -105,6 +110,7 @@ Consider evaluation when you observe:
 ### Understanding Your Options
 
 #### 504 Plan
+
 - Based on Section 504 of the Rehabilitation Act
 - Provides accommodations to access general education
 - Less formal process, fewer procedural protections
@@ -112,6 +118,7 @@ Consider evaluation when you observe:
 - Examples: Extended time, preferential seating, sensory breaks, modified assignments
 
 #### Individualized Education Program (IEP)
+
 - Based on the Individuals with Disabilities Education Act (IDEA) in the US
 - Provides specialized instruction and related services
 - More formal process, more procedural protections
@@ -129,6 +136,7 @@ Consider evaluation when you observe:
 ### Preparing for IEP Meetings
 
 #### Before the Meeting
+
 - Review the current IEP or evaluation reports thoroughly
 - Write down your priorities and concerns
 - Prepare specific, measurable goals you want for your child
@@ -137,6 +145,7 @@ Consider evaluation when you observe:
 - Request the draft IEP and all documents at least 5 days before the meeting
 
 #### During the Meeting
+
 - Take notes or bring someone who will take notes
 - Ask questions about anything you do not understand
 - Use phrases like:
@@ -148,6 +157,7 @@ Consider evaluation when you observe:
 - You do NOT have to sign the IEP at the meeting - you can take it home to review
 
 #### After the Meeting
+
 - Review the IEP carefully before signing
 - Request corrections for any inaccuracies
 - Monitor implementation throughout the year
@@ -157,6 +167,7 @@ Consider evaluation when you observe:
 ### Advocating Effectively
 
 #### Know Your Rights
+
 - You are an equal member of the IEP team
 - The school must consider your input
 - You can bring outside evaluations and the school must consider them
@@ -164,6 +175,7 @@ Consider evaluation when you observe:
 - Your child has a right to be educated in the least restrictive environment
 
 #### Building Productive Relationships with Schools
+
 - Assume good intent first; most educators genuinely care
 - Be firm on your child's needs while being collaborative in finding solutions
 - Express appreciation when things go well
@@ -172,6 +184,7 @@ Consider evaluation when you observe:
 - If the school relationship is adversarial, consider bringing a professional advocate
 
 #### When to Escalate
+
 - Your child's needs are not being met despite the IEP
 - The school refuses to evaluate or provide requested services
 - The IEP is not being implemented as written
@@ -179,6 +192,7 @@ Consider evaluation when you observe:
 - You feel intimidated or dismissed in meetings
 
 **Escalation Path:**
+
 1. Written concern to the IEP team
 2. Meeting with school administration
 3. District-level complaint
@@ -198,6 +212,7 @@ This does not mean ignoring challenges. It means addressing challenges from a po
 ### Identifying Your Child's Strengths
 
 **Observe without judgment:**
+
 - What does your child choose to do when free?
 - What topics do they talk about passionately?
 - When do they seem most confident and engaged?
@@ -205,6 +220,7 @@ This does not mean ignoring challenges. It means addressing challenges from a po
 - What comes easily to them that may be hard for others?
 
 **Common Neurodivergent Strengths:**
+
 - Intense focus on areas of interest
 - Creative and divergent thinking
 - Strong sense of justice and fairness
@@ -304,6 +320,7 @@ A meltdown is not a tantrum. It is a neurological overwhelm response.
 ### Recognizing Caregiver Burnout
 
 Signs you are running on empty:
+
 - Constant exhaustion that sleep does not fix
 - Irritability and short fuse
 - Loss of enjoyment in parenting
@@ -333,6 +350,7 @@ Signs you are running on empty:
 ## Building Your Support Network
 
 ### Professional Support Team
+
 - Developmental pediatrician or psychiatrist
 - Therapist (OT, speech, behavioral, as needed)
 - Educational advocate or special education attorney (for complex school situations)
@@ -340,12 +358,14 @@ Signs you are running on empty:
 - Family therapist if family dynamics are strained
 
 ### Community Support
+
 - Local parent support groups (in-person or virtual)
 - Online communities for parents of neurodivergent children
 - Neurodiversity-affirming organizations
 - Sibling support programs for neurotypical siblings
 
 ### School-Based Support
+
 - Special education coordinator
 - School psychologist
 - Classroom teacher(s)
@@ -353,16 +373,15 @@ Signs you are running on empty:
 
 ## Quick Reference: Advocacy Phrases
 
-| Situation | What to Say |
-|-----------|-------------|
-| School minimizes concerns | "I appreciate your perspective. I would like a formal evaluation to gather more data." |
-| IEP goals seem too easy | "What data suggests this is an appropriately ambitious goal?" |
-| Accommodations not implemented | "I noticed [accommodation] was not in place on [date]. How can we ensure consistent implementation?" |
+| Situation                              | What to Say                                                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| School minimizes concerns              | "I appreciate your perspective. I would like a formal evaluation to gather more data."                      |
+| IEP goals seem too easy                | "What data suggests this is an appropriately ambitious goal?"                                               |
+| Accommodations not implemented         | "I noticed [accommodation] was not in place on [date]. How can we ensure consistent implementation?"        |
 | Child punished for disability behavior | "This behavior is related to their disability. Let's discuss appropriate supports instead of consequences." |
-| You need time to decide | "I need to review this at home before I sign. I will respond by [date]." |
-| Request is denied | "Please put that denial in writing, along with the reason." |
-| Feeling overwhelmed | "I need to pause this meeting and reschedule for [date] so I can process this information." |
-
+| You need time to decide                | "I need to review this at home before I sign. I will respond by [date]."                                    |
+| Request is denied                      | "Please put that denial in writing, along with the reason."                                                 |
+| Feeling overwhelmed                    | "I need to pause this meeting and reschedule for [date] so I can process this information."                 |
 
 ## Process
 
@@ -371,7 +390,6 @@ Signs you are running on empty:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -392,14 +410,12 @@ Signs you are running on empty:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -13,7 +13,7 @@ steps:
   - id: cloud-project
     title: Create a Google Cloud project
     estSeconds: 120
-    externalAction: { label: "Open Google Cloud console", url: "https://console.cloud.google.com/projectcreate" }
+    externalAction: { label: 'Open Google Cloud console', url: 'https://console.cloud.google.com/projectcreate' }
     body: |
       A Cloud project is the container Google uses to track your OAuth app.
       Free for personal use - no billing card required for Gmail / Calendar /
@@ -31,8 +31,8 @@ steps:
     title: Enable APIs and create an OAuth client
     estSeconds: 240
     inputs:
-      - { name: GOOGLE_OAUTH_CLIENT_ID, label: "Client ID" }
-      - { name: GOOGLE_OAUTH_CLIENT_SECRET, label: "Client Secret", secret: true }
+      - { name: GOOGLE_OAUTH_CLIENT_ID, label: 'Client ID' }
+      - { name: GOOGLE_OAUTH_CLIENT_SECRET, label: 'Client Secret', secret: true }
     warning: |
       Keep the OAuth app in **Testing** mode. Don't publish - Google requires
       verification (CASA) for production apps with sensitive scopes.
@@ -81,7 +81,7 @@ steps:
   - id: authorize
     title: Authorize and start the server
     estSeconds: 30
-    primaryAction: { label: "Sign in with Google", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Google', action: 'oauth-flow' }
     body: |
       Click **Sign in with Google** below. A browser tab opens to Google's
       consent screen - pick the same account you added as a test user.

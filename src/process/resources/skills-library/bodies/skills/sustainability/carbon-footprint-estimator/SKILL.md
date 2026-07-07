@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability planning checklist analysis"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'sustainability planning checklist analysis'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Carbon Footprint Estimator
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks what their personal carbon footprint is, wants a rough estimate, or mentions wanting to understand their environmental impact as an individual
 - The user wants to know which of their daily habits, lifestyle choices, or spending patterns contribute most to greenhouse gas emissions
 - The user asks how to reduce their personal carbon output, lower their emissions, or "go greener" in their daily life
@@ -29,6 +31,7 @@ metadata:
 - The user recently made a lifestyle change (moved, switched jobs, changed diet, bought a car) and wants to recalculate their footprint
 
 **Do NOT use when:**
+
 - The user represents a company, organization, or government entity needing Scope 1, 2, or 3 emissions accounting -- this requires corporate carbon accounting methodology under GHG Protocol standards
 - The user wants to buy, evaluate, or compare carbon offsets or carbon credits -- offset quality, permanence, additionality, and verification are a separate specialty domain
 - The user wants to analyze climate policy, legislation, or international agreements -- use the `environmental-policy-researcher` skill
@@ -46,6 +49,7 @@ metadata:
 Before calculating anything, collect the user's actual data. Do not assume averages where specifics are available. Ask in a friendly, non-judgmental tone and explain why each data point matters. If the user cannot provide specifics, offer reasonable defaults based on the U.S. national average for that sub-category. Organize intake around these four domains:
 
 **Transportation:**
+
 - Primary commute method (gasoline car, diesel car, hybrid, plug-in hybrid, electric vehicle, bus, rail, bike, walk, fully remote)
 - Annual miles driven -- if unknown, use commute distance x working days (commute round-trip x 250 days is a useful default) plus an estimate for non-commute driving (U.S. average non-commute driving is approximately 4,000-5,000 miles/year)
 - Vehicle type and approximate year -- older vehicles burn more fuel per mile; pre-2005 sedans average 24 MPG versus 35+ MPG for 2020+ models
@@ -54,6 +58,7 @@ Before calculating anything, collect the user's actual data. Do not assume avera
 - Other travel: cruises (one 7-day cruise = approximately 1,000-2,000 lbs CO2e per passenger depending on ship efficiency), long-distance train, intercity bus
 
 **Home Energy:**
+
 - Housing type: apartment/condo, townhouse/row house, detached single-family home -- size matters significantly
 - Approximate square footage and number of occupants -- the per-person footprint is the household total divided by occupants
 - Primary heating fuel: natural gas, electric resistance, electric heat pump, heating oil (fuel oil #2), propane, wood pellets, wood cord
@@ -63,6 +68,7 @@ Before calculating anything, collect the user's actual data. Do not assume avera
 - Whether the user has solar panels and the approximate system size (kW)
 
 **Food:**
+
 - Diet category: vegan, vegetarian, pescatarian, flexitarian/light meat eater (meat 1-3 times/week), average (meat 4-5 times/week), heavy meat eater (meat at most meals or daily red meat)
 - Beef and lamb frequency specifically -- ruminant livestock produces 20x more CO2e per gram of protein than poultry; beef is the single highest-impact food category
 - Food waste level: minimal (very little thrown away), average (15-25% of food purchased is wasted, consistent with U.S. household average), significant (frequent spoilage, large portions discarded)
@@ -70,6 +76,7 @@ Before calculating anything, collect the user's actual data. Do not assume avera
 - Proportion of food that is organic -- organic farming typically has modestly lower per-acre emissions but similar per-calorie emissions; this is a minor factor compared to diet type
 
 **Consumption and Waste:**
+
 - Approximate annual spending on clothing (fast fashion versus secondhand versus quality/infrequent purchases) -- new clothing production accounts for roughly 1,300-2,200 lbs CO2e/year for average U.S. consumers
 - Electronics purchasing frequency: new phone every 1-2 years versus every 3-5 years; new laptop frequency -- manufacturing a smartphone produces approximately 150-180 lbs CO2e; a laptop, 400-700 lbs CO2e
 - General consumer spending level (low, moderate, high) -- consumption emissions scale with discretionary spending; every $1,000 of non-food consumer spending produces approximately 880-1,100 lbs CO2e under environmentally extended input-output (EEIO) models
@@ -84,54 +91,55 @@ Use the following emission factors grounded in EPA, IPCC AR6, and GREET model da
 
 **Transportation Emission Factors:**
 
-| Mode | Emission Factor | Source Basis |
-|------|----------------|--------------|
-| Gasoline sedan (2010-2020) | 0.87-0.92 lbs CO2e/mile | EPA average 27 MPG x 8.89 kg CO2/gallon |
-| Gasoline sedan (pre-2005) | 1.1-1.3 lbs CO2e/mile | Older fleet ~23 MPG |
-| SUV/truck (gasoline) | 1.1-1.4 lbs CO2e/mile | EPA average 18-22 MPG |
-| Hybrid (Toyota Prius-class) | 0.48-0.55 lbs CO2e/mile | ~50 MPG equivalent |
-| Plug-in hybrid (gas mode) | 0.55-0.70 lbs CO2e/mile | Varies by electric fraction used |
-| Electric vehicle (U.S. average grid) | 0.31-0.40 lbs CO2e/mile | EPA eGRID national avg ~0.386 kg CO2e/kWh |
-| Electric vehicle (coal-heavy grid, e.g., West Virginia) | 0.55-0.70 lbs CO2e/mile | eGRID RFCW ~0.70 kg CO2e/kWh |
-| Electric vehicle (clean grid, e.g., Pacific NW) | 0.05-0.12 lbs CO2e/mile | eGRID NWPP ~0.10 kg CO2e/kWh |
-| Urban bus (diesel) | 0.45-0.65 lbs CO2e/passenger-mile | Depends on ridership occupancy |
-| Commuter rail | 0.15-0.35 lbs CO2e/passenger-mile | Varies by electrification and occupancy |
-| Short-haul flight (under 500 mi one-way) | 0.60-0.75 lbs CO2e/passenger-mile | High fuel burn at takeoff/climb |
-| Medium-haul flight (500-2,500 mi one-way) | 0.45-0.55 lbs CO2e/passenger-mile | More efficient cruise phase |
-| Long-haul flight (2,500+ mi one-way) | 0.35-0.45 lbs CO2e/passenger-mile | Highest cruise efficiency, but longest duration |
-| Business class multiplier | 2.0-3.0x economy factor | Seat footprint allocation |
-| Radiative forcing index (RFI) for flights | Apply 1.9x multiplier to flight CO2 | IPCC consensus for NOx, contrail, cirrus effects |
+| Mode                                                    | Emission Factor                     | Source Basis                                     |
+| ------------------------------------------------------- | ----------------------------------- | ------------------------------------------------ |
+| Gasoline sedan (2010-2020)                              | 0.87-0.92 lbs CO2e/mile             | EPA average 27 MPG x 8.89 kg CO2/gallon          |
+| Gasoline sedan (pre-2005)                               | 1.1-1.3 lbs CO2e/mile               | Older fleet ~23 MPG                              |
+| SUV/truck (gasoline)                                    | 1.1-1.4 lbs CO2e/mile               | EPA average 18-22 MPG                            |
+| Hybrid (Toyota Prius-class)                             | 0.48-0.55 lbs CO2e/mile             | ~50 MPG equivalent                               |
+| Plug-in hybrid (gas mode)                               | 0.55-0.70 lbs CO2e/mile             | Varies by electric fraction used                 |
+| Electric vehicle (U.S. average grid)                    | 0.31-0.40 lbs CO2e/mile             | EPA eGRID national avg ~0.386 kg CO2e/kWh        |
+| Electric vehicle (coal-heavy grid, e.g., West Virginia) | 0.55-0.70 lbs CO2e/mile             | eGRID RFCW ~0.70 kg CO2e/kWh                     |
+| Electric vehicle (clean grid, e.g., Pacific NW)         | 0.05-0.12 lbs CO2e/mile             | eGRID NWPP ~0.10 kg CO2e/kWh                     |
+| Urban bus (diesel)                                      | 0.45-0.65 lbs CO2e/passenger-mile   | Depends on ridership occupancy                   |
+| Commuter rail                                           | 0.15-0.35 lbs CO2e/passenger-mile   | Varies by electrification and occupancy          |
+| Short-haul flight (under 500 mi one-way)                | 0.60-0.75 lbs CO2e/passenger-mile   | High fuel burn at takeoff/climb                  |
+| Medium-haul flight (500-2,500 mi one-way)               | 0.45-0.55 lbs CO2e/passenger-mile   | More efficient cruise phase                      |
+| Long-haul flight (2,500+ mi one-way)                    | 0.35-0.45 lbs CO2e/passenger-mile   | Highest cruise efficiency, but longest duration  |
+| Business class multiplier                               | 2.0-3.0x economy factor             | Seat footprint allocation                        |
+| Radiative forcing index (RFI) for flights               | Apply 1.9x multiplier to flight CO2 | IPCC consensus for NOx, contrail, cirrus effects |
 
 **Home Energy Emission Factors:**
 
-| Fuel | Emission Factor |
-|------|----------------|
-| Natural gas (combustion) | 11.7 lbs CO2e/therm |
-| Heating oil (fuel oil #2) | 22.4 lbs CO2e/gallon |
-| Propane | 12.7 lbs CO2e/gallon |
+| Fuel                                                          | Emission Factor                                                              |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Natural gas (combustion)                                      | 11.7 lbs CO2e/therm                                                          |
+| Heating oil (fuel oil #2)                                     | 22.4 lbs CO2e/gallon                                                         |
+| Propane                                                       | 12.7 lbs CO2e/gallon                                                         |
 | Wood cord (considered renewable but has combustion emissions) | ~3,812 lbs CO2e/cord (biogenic, typically not counted in personal footprint) |
-| Electricity -- national average (2023 eGRID) | 0.85 lbs CO2e/kWh |
-| Electricity -- New England (NEPOOL) | 0.48 lbs CO2e/kWh |
-| Electricity -- Texas (ERCOT) | 0.88-0.98 lbs CO2e/kWh |
-| Electricity -- Midwest (MROW) | 1.10-1.20 lbs CO2e/kWh |
-| Electricity -- Pacific Northwest (NWPP) | 0.22 lbs CO2e/kWh |
-| Electricity -- California (WECC CA) | 0.50-0.60 lbs CO2e/kWh |
-| Electricity -- Southeast (SRSO, SRMV) | 0.95-1.10 lbs CO2e/kWh |
+| Electricity -- national average (2023 eGRID)                  | 0.85 lbs CO2e/kWh                                                            |
+| Electricity -- New England (NEPOOL)                           | 0.48 lbs CO2e/kWh                                                            |
+| Electricity -- Texas (ERCOT)                                  | 0.88-0.98 lbs CO2e/kWh                                                       |
+| Electricity -- Midwest (MROW)                                 | 1.10-1.20 lbs CO2e/kWh                                                       |
+| Electricity -- Pacific Northwest (NWPP)                       | 0.22 lbs CO2e/kWh                                                            |
+| Electricity -- California (WECC CA)                           | 0.50-0.60 lbs CO2e/kWh                                                       |
+| Electricity -- Southeast (SRSO, SRMV)                         | 0.95-1.10 lbs CO2e/kWh                                                       |
 
 For solar panel users: estimate annual kWh generation (system size in kW x 1,200-1,800 peak hours depending on location x 0.80 derate factor) and subtract that from grid electricity consumption before applying the grid emission factor.
 
 **Food Emission Factors (annual per-person estimates, lbs CO2e):**
 
-| Diet Category | Annual CO2e Range | Key Driver |
-|--------------|-------------------|------------|
-| Vegan | 2,000-3,000 lbs | Minimal animal product impact |
-| Vegetarian | 3,000-4,200 lbs | Dairy and eggs add modest impact |
-| Pescatarian | 3,500-4,800 lbs | Fish is 3-7x lower emissions than beef |
-| Flexitarian (meat 1-3x/week) | 4,200-5,500 lbs | Red meat frequency is decisive |
-| Average U.S. diet (meat 4-5x/week) | 5,500-6,600 lbs | Standard baseline |
-| Heavy meat eater (daily red meat) | 6,600-8,400 lbs | Beef and lamb dominate |
+| Diet Category                      | Annual CO2e Range | Key Driver                             |
+| ---------------------------------- | ----------------- | -------------------------------------- |
+| Vegan                              | 2,000-3,000 lbs   | Minimal animal product impact          |
+| Vegetarian                         | 3,000-4,200 lbs   | Dairy and eggs add modest impact       |
+| Pescatarian                        | 3,500-4,800 lbs   | Fish is 3-7x lower emissions than beef |
+| Flexitarian (meat 1-3x/week)       | 4,200-5,500 lbs   | Red meat frequency is decisive         |
+| Average U.S. diet (meat 4-5x/week) | 5,500-6,600 lbs   | Standard baseline                      |
+| Heavy meat eater (daily red meat)  | 6,600-8,400 lbs   | Beef and lamb dominate                 |
 
 Specific food emission intensity for context when advising reductions:
+
 - Beef: 26-35 kg CO2e/kg of food (highest of any common food)
 - Lamb: 20-25 kg CO2e/kg
 - Cheese: 10-13 kg CO2e/kg
@@ -159,6 +167,7 @@ Food waste adds approximately 8-15% to food footprint for average U.S. household
 Perform the arithmetic transparently so the user can follow your reasoning. Show the key multiplications in a "calculation basis" sub-section beneath the main table. Use lbs CO2e as the primary unit throughout, then convert the total to metric tons at the summary level for international comparability.
 
 Division rules for shared households:
+
 - Divide home energy emissions equally among all occupants unless there is a strong reason to weight differently
 - Food emissions are personal, not divided -- each person's diet is their own
 - Consumption emissions are personal
@@ -173,6 +182,7 @@ Apply the RFI multiplier to flight emissions. Use 1.9x as the standard (e.g., if
 Identify the top 3-5 individual activities that drive the most emissions. This matters because users often underestimate the impact of some activities (especially flights and beef consumption) while overestimating others (e.g., leaving lights on). Frame this with specific numbers so the user can see the contrast.
 
 Decision framework for ranking:
+
 1. Calculate annual CO2e for each specific activity
 2. Sort descending by annual contribution
 3. Flag any single activity that represents more than 15% of the total footprint -- these are "high-leverage targets"
@@ -185,6 +195,7 @@ Decision framework for ranking:
 For each recommended action, apply a scoring rubric to rank by impact-to-effort ratio:
 
 **Impact score (1-5):** Based on annual CO2e saved
+
 - 1 = under 500 lbs/year
 - 2 = 500-1,500 lbs/year
 - 3 = 1,500-3,500 lbs/year
@@ -192,6 +203,7 @@ For each recommended action, apply a scoring rubric to rank by impact-to-effort 
 - 5 = over 7,000 lbs/year (rare for single actions)
 
 **Effort score (1-5):** Based on behavioral, financial, and logistical difficulty
+
 - 1 = behavioral change, no cost
 - 2 = minor cost or habit change
 - 3 = moderate investment ($500-2,500) or significant lifestyle adjustment
@@ -201,6 +213,7 @@ For each recommended action, apply a scoring rubric to rank by impact-to-effort 
 **Priority score = Impact score / Effort score.** Higher priority score = recommend first.
 
 Example benchmarks for common actions:
+
 - Eliminating one transatlantic round-trip flight: saves 3,000-6,000 lbs CO2e (with RFI); Impact 3-4, Effort 2 -- Priority high
 - Switching from beef to chicken 3 times/week: saves 1,200-2,000 lbs CO2e/year; Impact 2-3, Effort 2 -- Priority high
 - Raising thermostat 4°F in summer: saves 600-1,200 lbs CO2e/year; Impact 2, Effort 1 -- Priority high (highest ratio)
@@ -209,6 +222,7 @@ Example benchmarks for common actions:
 - Unplugging idle electronics: saves 100-300 lbs CO2e/year; Impact 1, Effort 1 -- Priority low (often overhyped)
 
 Always include:
+
 - Whether the action is accessible to renters or requires homeownership
 - Estimated dollar savings or cost per year (makes the case compellingly)
 - Timeframe: immediate (behavioral), medium-term (months), or long-term (major investment, plan for next purchase cycle)
@@ -218,6 +232,7 @@ Always include:
 ### Step 6: Compute Total Reduction Potential
 
 Sum the estimated CO2e savings from the top 5-8 realistic actions. Present:
+
 - Current estimated footprint (lbs CO2e/year and metric tons CO2e/year)
 - Estimated savings if all top-ranked feasible actions are implemented (provide range, not a single number)
 - Projected reduced footprint
@@ -229,6 +244,7 @@ Sum the estimated CO2e savings from the top 5-8 realistic actions. Present:
 ### Step 7: Add Framing, Context, and Next Steps
 
 Provide two comparison benchmarks:
+
 1. U.S. per-capita average: approximately 36,000 lbs (16.3 metric tons) CO2e/year
 2. Global average: approximately 10,000 lbs (4.5 metric tons) CO2e/year
 3. IPCC 1.5°C compatible per-capita budget by 2030: approximately 4,400-6,600 lbs (2-3 metric tons) CO2e/year
@@ -377,6 +393,7 @@ Their footprint may already be low by necessity rather than intention -- low con
 ### User's Data Is Very Incomplete (They Cannot Provide Miles, kWh, or Therms)
 
 When users cannot provide specific numbers, use the following defaults and be explicit that you are doing so:
+
 - Miles driven: assume 15,000/year if they own a car and commute (U.S. average)
 - Monthly electricity: assume 900 kWh for a 1-2 person apartment, 1,200 kWh for a 2-4 person home (U.S. EIA residential average)
 - Monthly gas for heating: assume 50-70 therms/month in heating season in the Northeast/Midwest; 10-20 therms/month in the South/West
@@ -407,25 +424,26 @@ Great -- you've given me enough detail to build a solid estimate. Here's your fo
 
 ### Your Footprint Summary
 
-| Category         | Annual CO2e (lbs) | Annual CO2e (metric tons) | % of Total | vs. U.S. Average |
-|------------------|-------------------|---------------------------|------------|------------------|
-| Transportation   | 15,200            | 6.9 t                     | 48%        | Above average    |
-| Home energy      | 6,800             | 3.1 t                     | 21%        | Slightly above average |
-| Food             | 5,800             | 2.6 t                     | 18%        | Near average     |
-| Consumption      | 4,200             | 1.9 t                     | 13%        | Near average     |
-| **TOTAL**        | **~32,000**       | **~14.5 t**               | **100%**   | **~11% below U.S. avg** |
+| Category       | Annual CO2e (lbs) | Annual CO2e (metric tons) | % of Total | vs. U.S. Average        |
+| -------------- | ----------------- | ------------------------- | ---------- | ----------------------- |
+| Transportation | 15,200            | 6.9 t                     | 48%        | Above average           |
+| Home energy    | 6,800             | 3.1 t                     | 21%        | Slightly above average  |
+| Food           | 5,800             | 2.6 t                     | 18%        | Near average            |
+| Consumption    | 4,200             | 1.9 t                     | 13%        | Near average            |
+| **TOTAL**      | **~32,000**       | **~14.5 t**               | **100%**   | **~11% below U.S. avg** |
 
 ---
 
 ### Calculation Basis
 
 **Transportation:**
+
 - Driving: 12,000 miles/year x 0.89 lbs CO2e/mile (gasoline sedan, ~2019 Civic averages ~32 MPG, 8.89 kg CO2/gallon ÷ 32 MPG x 2.2 = 0.61 lbs/mile -- using 0.89 which accounts for upstream fuel production and extraction in addition to tailpipe) = **10,700 lbs CO2e**
 - Flights: Assuming 3 medium-haul domestic round trips (averaging ~1,400 miles each way = 2,800 miles round trip)
   - Raw CO2: 4 round trips x 2,800 miles x 0.50 lbs CO2e/passenger-mile = 5,600 lbs
   - With RFI multiplier (1.9x): 5,600 x 1.9 = **10,640 lbs CO2e** -- however, at 3-4 short-to-medium domestic trips, let's use 3.5 trips average x 2,000 miles round trip x 0.50 x 1.9 = **6,650 lbs CO2e**
 
-  *(Note: The 1.9x RFI multiplier accounts for the warming effect of water vapor, contrails, and NOx that aircraft emit at altitude -- these effects roughly double aviation's climate impact compared to CO2 alone.)*
+  _(Note: The 1.9x RFI multiplier accounts for the warming effect of water vapor, contrails, and NOx that aircraft emit at altitude -- these effects roughly double aviation's climate impact compared to CO2 alone.)_
 
   Wait -- let me recalibrate for clarity. "3-4 times a year" at domestic distances means short-to-medium haul. Using 1,500 miles one-way average (e.g., Austin to Seattle or Austin to New York):
   - 3.5 round trips x 3,000 miles x 0.50 lbs CO2e/passenger-mile = 5,250 lbs raw CO2
@@ -441,11 +459,12 @@ Great -- you've given me enough detail to build a solid estimate. Here's your fo
 
   Final transportation total: 10,700 (driving) + 7,300 (flights) = **~18,000 lbs**
 
-  *(I'm flagging flight distance as a key variable here -- if these are mostly short hops like Austin-Dallas, air travel drops considerably; if they're longer, it rises. You can adjust this estimate based on your actual destinations.)*
+  _(I'm flagging flight distance as a key variable here -- if these are mostly short hops like Austin-Dallas, air travel drops considerably; if they're longer, it rises. You can adjust this estimate based on your actual destinations.)_
 
   To keep the summary table internally consistent, I'll use Transportation = 15,200 lbs (a conservative midpoint reflecting 3 average domestic round trips).
 
 **Home Energy (Austin, Texas -- ERCOT grid):**
+
 - Texas grid emission factor: ~0.95 lbs CO2e/kWh (ERCOT, 2023 average)
 - A 2-bedroom apartment in Austin with heavy summer AC and mild winters: estimated 1,100-1,400 kWh/month average annual (AEP Texas / Austin Energy residential averages for 2BR suggest ~1,300 kWh/month in summer-heavy usage)
 - Using 1,300 kWh/month: 1,300 x 12 x 0.95 = 14,820 lbs CO2e for the apartment
@@ -453,15 +472,17 @@ Great -- you've given me enough detail to build a solid estimate. Here's your fo
 - Texas homes are predominantly all-electric (no gas for heating in most Austin apartments); minimal gas use assumed
 - Round to **~6,800 lbs** (your AC habits are energy-intensive, but the split with your roommate keeps your personal number manageable)
 
-*(Note: Running the AC at 70-72°F in Austin's summers is on the cooler/more energy-intensive end. The average Austin household runs AC at 74-76°F. That 4°F difference accounts for roughly 800-1,200 lbs CO2e/year of your personal share.)*
+_(Note: Running the AC at 70-72°F in Austin's summers is on the cooler/more energy-intensive end. The average Austin household runs AC at 74-76°F. That 4°F difference accounts for roughly 800-1,200 lbs CO2e/year of your personal share.)_
 
 **Food:**
+
 - Diet category: average-to-flexitarian (meat 4-5 times/week, mostly chicken and pork, red meat ~1x/week)
 - This places you between "average" and "light meat eater" categories. Using midpoint: **~5,800 lbs CO2e/year**
 - Your relatively low red meat frequency keeps this category at or below the U.S. average -- beef weekly rather than daily is meaningfully better
 - Food waste: estimated at average U.S. level (+~10% on food emissions) already incorporated into the range above
 
 **Consumption:**
+
 - "Pretty average shopper" with no extraordinary purchases described: using U.S. average midpoint
 - **~4,200 lbs CO2e/year** (conservative, assuming no major electronics or clothing expenditures flagged)
 
@@ -469,13 +490,13 @@ Great -- you've given me enough detail to build a solid estimate. Here's your fo
 
 ### Your Highest-Impact Activities
 
-| Rank | Activity                                        | Annual CO2e (lbs) | % of Your Total |
-|------|-------------------------------------------------|-------------------|-----------------|
-| 1    | Daily gasoline commute (7,000 miles/year)       | 6,200             | 19%             |
-| 2    | Domestic air travel (3-4 flights, with RFI)     | 5,500-7,300       | 17-23%          |
-| 3    | Home electricity -- AC-heavy Texas apartment (your share) | 6,800     | 21%             |
-| 4    | Food -- average meat-inclusive diet             | 5,800             | 18%             |
-| 5    | Personal consumption -- average spending        | 4,200             | 13%             |
+| Rank | Activity                                                  | Annual CO2e (lbs) | % of Your Total |
+| ---- | --------------------------------------------------------- | ----------------- | --------------- |
+| 1    | Daily gasoline commute (7,000 miles/year)                 | 6,200             | 19%             |
+| 2    | Domestic air travel (3-4 flights, with RFI)               | 5,500-7,300       | 17-23%          |
+| 3    | Home electricity -- AC-heavy Texas apartment (your share) | 6,800             | 21%             |
+| 4    | Food -- average meat-inclusive diet                       | 5,800             | 18%             |
+| 5    | Personal consumption -- average spending                  | 4,200             | 13%             |
 
 **Key observation:** Your transportation category (driving + flights) accounts for nearly half your entire footprint. The flights alone -- even at modest domestic distances -- likely rival or exceed your commuting emissions once the RFI multiplier is applied. This is the highest-leverage area for you.
 
@@ -483,30 +504,30 @@ Great -- you've given me enough detail to build a solid estimate. Here's your fo
 
 ### Reduction Action Plan (Ranked by Impact-to-Effort Score)
 
-| Priority | Action | CO2e Saved/Year (lbs) | Annual $ Impact | Difficulty | Renter-Friendly? | Timeframe |
-|----------|--------|-----------------------|-----------------|------------|------------------|-----------|
-| 1 | Raise AC thermostat to 76°F (from 72°F) | 800-1,200 | Saves ~$120-200/yr | Easy -- behavioral | Yes | Immediate |
-| 2 | Replace 1-2 annual flights with overland travel or video calls | 1,500-3,000 | Saves $150-400 in tickets | Easy-Moderate | Yes | Next trip planned |
-| 3 | Eliminate or reduce weekly red meat to once per 2 weeks (substitute chicken or legumes) | 700-1,200 | Saves $100-250/yr on groceries | Easy-Moderate | Yes | Immediate |
-| 4 | Use programmable/smart thermostat schedule (AC off or raised when away from home) | 500-900 | Saves $80-150/yr | Easy -- requires landlord permission for thermostat hardware | Ask landlord | 1-3 months |
-| 5 | Carpool your commute 2 days/week (or work remote if option exists) | 1,000-1,500 | Saves $400-700/yr in gas/parking | Moderate -- requires coordination | Yes | 1-3 months |
-| 6 | Switch to cold-water laundry (90% of washing machine energy is water heating) | 200-400 | Saves $30-70/yr | Easy | Yes | Immediate |
-| 7 | Reduce food waste -- meal plan weekly to cut spoilage | 400-700 | Saves $150-400/yr | Moderate habit change | Yes | 1-3 months |
-| 8 | Use ceiling fans to support a higher thermostat setting (fans allow 4°F higher perception without discomfort) | 300-600 | Costs $0-150 for fans; saves $60-100/yr ongoing | Easy | Ask landlord or own portable fans | 1-6 months |
-| 9 | When your Civic reaches end-of-life, replace with a hybrid or EV | 3,000-5,500 | Saves $700-1,400/yr in fuel (gas at $3.50/gal) | Significant -- major purchase | Yes -- renter can own a car | Long-term planning now |
+| Priority | Action                                                                                                        | CO2e Saved/Year (lbs) | Annual $ Impact                                 | Difficulty                                                   | Renter-Friendly?                  | Timeframe              |
+| -------- | ------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------------- | ------------------------------------------------------------ | --------------------------------- | ---------------------- |
+| 1        | Raise AC thermostat to 76°F (from 72°F)                                                                       | 800-1,200             | Saves ~$120-200/yr                              | Easy -- behavioral                                           | Yes                               | Immediate              |
+| 2        | Replace 1-2 annual flights with overland travel or video calls                                                | 1,500-3,000           | Saves $150-400 in tickets                       | Easy-Moderate                                                | Yes                               | Next trip planned      |
+| 3        | Eliminate or reduce weekly red meat to once per 2 weeks (substitute chicken or legumes)                       | 700-1,200             | Saves $100-250/yr on groceries                  | Easy-Moderate                                                | Yes                               | Immediate              |
+| 4        | Use programmable/smart thermostat schedule (AC off or raised when away from home)                             | 500-900               | Saves $80-150/yr                                | Easy -- requires landlord permission for thermostat hardware | Ask landlord                      | 1-3 months             |
+| 5        | Carpool your commute 2 days/week (or work remote if option exists)                                            | 1,000-1,500           | Saves $400-700/yr in gas/parking                | Moderate -- requires coordination                            | Yes                               | 1-3 months             |
+| 6        | Switch to cold-water laundry (90% of washing machine energy is water heating)                                 | 200-400               | Saves $30-70/yr                                 | Easy                                                         | Yes                               | Immediate              |
+| 7        | Reduce food waste -- meal plan weekly to cut spoilage                                                         | 400-700               | Saves $150-400/yr                               | Moderate habit change                                        | Yes                               | 1-3 months             |
+| 8        | Use ceiling fans to support a higher thermostat setting (fans allow 4°F higher perception without discomfort) | 300-600               | Costs $0-150 for fans; saves $60-100/yr ongoing | Easy                                                         | Ask landlord or own portable fans | 1-6 months             |
+| 9        | When your Civic reaches end-of-life, replace with a hybrid or EV                                              | 3,000-5,500           | Saves $700-1,400/yr in fuel (gas at $3.50/gal)  | Significant -- major purchase                                | Yes -- renter can own a car       | Long-term planning now |
 
 ---
 
 ### Total Reduction Potential
 
-| Metric                                   | Value |
-|------------------------------------------|-------|
-| Current estimated footprint              | ~32,000 lbs / ~14.5 metric tons CO2e/year |
-| Achievable reduction (top 5 actions, near-term) | 4,500-7,800 lbs / ~2.0-3.5 metric tons CO2e/year |
-| Reduced footprint estimate               | ~24,200-27,500 lbs / ~11.0-12.5 metric tons CO2e/year |
-| Percentage reduction (near-term actions) | ~14-24% |
-| Estimated annual dollar savings          | $1,030-2,170/year |
-| Long-term reduction potential (including EV at next car purchase) | Additional 3,000-5,500 lbs/year |
+| Metric                                                            | Value                                                 |
+| ----------------------------------------------------------------- | ----------------------------------------------------- |
+| Current estimated footprint                                       | ~32,000 lbs / ~14.5 metric tons CO2e/year             |
+| Achievable reduction (top 5 actions, near-term)                   | 4,500-7,800 lbs / ~2.0-3.5 metric tons CO2e/year      |
+| Reduced footprint estimate                                        | ~24,200-27,500 lbs / ~11.0-12.5 metric tons CO2e/year |
+| Percentage reduction (near-term actions)                          | ~14-24%                                               |
+| Estimated annual dollar savings                                   | $1,030-2,170/year                                     |
+| Long-term reduction potential (including EV at next car purchase) | Additional 3,000-5,500 lbs/year                       |
 
 The first five actions on this list are all renter-accessible, most of them cost nothing, and they collectively generate over $1,000/year in savings while cutting your footprint by roughly 15-20%. The biggest single lever you have right now is the combination of flight reduction + AC thermostat adjustment + reducing your commute frequency -- none of which require homeownership or large purchases.
 
@@ -514,12 +535,12 @@ The first five actions on this list are all renter-accessible, most of them cost
 
 ### Context and Benchmarks
 
-| Benchmark | lbs CO2e/year | Metric Tons |
-|-----------|---------------|-------------|
-| Your current estimated footprint | ~32,000 | ~14.5 |
-| U.S. per-capita average (2023) | ~36,000 | ~16.3 |
-| Global per-capita average (2023) | ~10,000 | ~4.5 |
-| IPCC 1.5°C-compatible per-capita budget (2030 target) | ~4,400-6,600 | ~2-3 |
-| Your footprint after top 5 near-term actions | ~24,000-27,000 | ~11-12 |
+| Benchmark                                             | lbs CO2e/year  | Metric Tons |
+| ----------------------------------------------------- | -------------- | ----------- |
+| Your current estimated footprint                      | ~32,000        | ~14.5       |
+| U.S. per-capita average (2023)                        | ~36,000        | ~16.3       |
+| Global per-capita average (2023)                      | ~10,000        | ~4.5        |
+| IPCC 1.5°C-compatible per-capita budget (2030 target) | ~4,400-6,600   | ~2-3        |
+| Your footprint after top 5 near-term actions          | ~24,000-27,000 | ~11-12      |
 
 You

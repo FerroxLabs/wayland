@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel packing checklist template"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel packing checklist template'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Packing List Builder
@@ -26,6 +26,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to create a packing list for a trip
 - User wants to know what to pack for a specific destination or activity
 - User needs a categorized, printable packing checklist
@@ -34,6 +35,7 @@ metadata:
 - User wants a packing list for a specific trip type (backpacking, business, beach, adventure)
 
 **Do NOT use when:**
+
 - User wants a trip itinerary (use `trip-itinerary-builder`)
 - User wants a travel budget (use `budget-travel-planner`)
 - User is packing for a move or relocation (use home-household skills)
@@ -212,92 +214,92 @@ metadata:
 
 ### Clothing
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Lightweight t-shirts or tanks  | 4   |                    | Quick-dry fabric preferred             |
-| [ ]    | Shorts (casual)                | 2   |                    | Knee-length for temple flexibility     |
-| [ ]    | Light pants or long skirt      | 1   | Temple visits      | Required for temple entry              |
-| [ ]    | Swimsuit                       | 2   | Beach              | One to wear, one drying                |
-| [ ]    | Cover-up or sarong             | 1   | Beach + temples    | Doubles as temple cover and beach wrap |
-| [ ]    | Lightweight dress or romper    | 1   |                    | Evening dining option                  |
-| [ ]    | Underwear                      | 5   |                    | Quick-dry recommended                  |
-| [ ]    | Socks (lightweight)            | 2   |                    | For temple visits requiring sock entry |
-| [ ]    | Sleepwear                      | 1   |                    | Lightweight shorts and top             |
-| [ ]    | Rain jacket (packable)         | 1   | Monsoon season     | Folds into its own pocket              |
-| [ ]    | Sandals (walking)              | 1   |                    | Primary footwear, secure strap         |
-| [ ]    | Water shoes or flip-flops      | 1   | Beach              | For beach and hostel showers           |
-| [ ]    | Lightweight sneakers           | 1   |                    | Wear on plane, use for temple walking  |
+| Packed | Item                          | Qty | Conditional     | Notes                                  |
+| ------ | ----------------------------- | --- | --------------- | -------------------------------------- |
+| [ ]    | Lightweight t-shirts or tanks | 4   |                 | Quick-dry fabric preferred             |
+| [ ]    | Shorts (casual)               | 2   |                 | Knee-length for temple flexibility     |
+| [ ]    | Light pants or long skirt     | 1   | Temple visits   | Required for temple entry              |
+| [ ]    | Swimsuit                      | 2   | Beach           | One to wear, one drying                |
+| [ ]    | Cover-up or sarong            | 1   | Beach + temples | Doubles as temple cover and beach wrap |
+| [ ]    | Lightweight dress or romper   | 1   |                 | Evening dining option                  |
+| [ ]    | Underwear                     | 5   |                 | Quick-dry recommended                  |
+| [ ]    | Socks (lightweight)           | 2   |                 | For temple visits requiring sock entry |
+| [ ]    | Sleepwear                     | 1   |                 | Lightweight shorts and top             |
+| [ ]    | Rain jacket (packable)        | 1   | Monsoon season  | Folds into its own pocket              |
+| [ ]    | Sandals (walking)             | 1   |                 | Primary footwear, secure strap         |
+| [ ]    | Water shoes or flip-flops     | 1   | Beach           | For beach and hostel showers           |
+| [ ]    | Lightweight sneakers          | 1   |                 | Wear on plane, use for temple walking  |
 
 ### Toiletries
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Toothbrush and toothpaste      | 1   |                    | Travel size (100ml max)                |
-| [ ]    | Deodorant                      | 1   |                    | Travel size                            |
-| [ ]    | Shampoo and conditioner        | 1 ea|                    | Solid bars or travel bottles (100ml)   |
-| [ ]    | Body wash or soap bar          | 1   |                    | Bar saves space and weight             |
-| [ ]    | Razor                          | 1   |                    |                                        |
-| [ ]    | Sunscreen (face and body)      | 1   | Tropical           | SPF 50+, reef-safe if swimming         |
-| [ ]    | After-sun or aloe gel          | 1   | Tropical           | Small tube, 50ml                       |
-| [ ]    | Insect repellent               | 1   | Tropical           | DEET or picaridin based                |
-| [ ]    | Lip balm with SPF              | 1   |                    |                                        |
-| [ ]    | Contact lens supplies          | 1   |                    | If applicable                          |
+| Packed | Item                      | Qty  | Conditional | Notes                                |
+| ------ | ------------------------- | ---- | ----------- | ------------------------------------ |
+| [ ]    | Toothbrush and toothpaste | 1    |             | Travel size (100ml max)              |
+| [ ]    | Deodorant                 | 1    |             | Travel size                          |
+| [ ]    | Shampoo and conditioner   | 1 ea |             | Solid bars or travel bottles (100ml) |
+| [ ]    | Body wash or soap bar     | 1    |             | Bar saves space and weight           |
+| [ ]    | Razor                     | 1    |             |                                      |
+| [ ]    | Sunscreen (face and body) | 1    | Tropical    | SPF 50+, reef-safe if swimming       |
+| [ ]    | After-sun or aloe gel     | 1    | Tropical    | Small tube, 50ml                     |
+| [ ]    | Insect repellent          | 1    | Tropical    | DEET or picaridin based              |
+| [ ]    | Lip balm with SPF         | 1    |             |                                      |
+| [ ]    | Contact lens supplies     | 1    |             | If applicable                        |
 
 ### Electronics
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Phone and charger cable        | 1   |                    |                                        |
-| [ ]    | Portable power bank            | 1   |                    | 10,000 mAh minimum for full-day outings|
-| [ ]    | Universal power adapter        | 1   |                    | Thailand uses Type A, B, C, O outlets  |
-| [ ]    | Earbuds or headphones          | 1   |                    | For transit and beach                  |
-| [ ]    | Waterproof phone pouch         | 1   | Beach              | For beach and boat trips               |
+| Packed | Item                    | Qty | Conditional | Notes                                   |
+| ------ | ----------------------- | --- | ----------- | --------------------------------------- |
+| [ ]    | Phone and charger cable | 1   |             |                                         |
+| [ ]    | Portable power bank     | 1   |             | 10,000 mAh minimum for full-day outings |
+| [ ]    | Universal power adapter | 1   |             | Thailand uses Type A, B, C, O outlets   |
+| [ ]    | Earbuds or headphones   | 1   |             | For transit and beach                   |
+| [ ]    | Waterproof phone pouch  | 1   | Beach       | For beach and boat trips                |
 
 ### Documents
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Passport                       | 1   |                    | Valid for 6+ months beyond trip dates  |
-| [ ]    | Passport photocopy             | 1   |                    | Store separately from original         |
-| [ ]    | Travel insurance card or policy| 1   |                    | Photo on phone + paper copy            |
-| [ ]    | Flight confirmation printout   | 1   |                    | Backup in case phone is dead           |
-| [ ]    | Accommodation confirmation     | 1   |                    | Address in local script if possible    |
-| [ ]    | Emergency contact card         | 1   |                    | Written card in wallet                 |
-| [ ]    | Cash (local currency)          | --  |                    | Withdraw at arrival, carry small bills |
-| [ ]    | Credit or debit card           | 2   |                    | Two different cards as backup          |
+| Packed | Item                            | Qty | Conditional | Notes                                  |
+| ------ | ------------------------------- | --- | ----------- | -------------------------------------- |
+| [ ]    | Passport                        | 1   |             | Valid for 6+ months beyond trip dates  |
+| [ ]    | Passport photocopy              | 1   |             | Store separately from original         |
+| [ ]    | Travel insurance card or policy | 1   |             | Photo on phone + paper copy            |
+| [ ]    | Flight confirmation printout    | 1   |             | Backup in case phone is dead           |
+| [ ]    | Accommodation confirmation      | 1   |             | Address in local script if possible    |
+| [ ]    | Emergency contact card          | 1   |             | Written card in wallet                 |
+| [ ]    | Cash (local currency)           | --  |             | Withdraw at arrival, carry small bills |
+| [ ]    | Credit or debit card            | 2   |             | Two different cards as backup          |
 
 ### Health and Safety
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Personal medications           | --  |                    | Trip duration + 3 extra days           |
-| [ ]    | Basic first aid (band-aids, antiseptic) | 1 kit |            | Small zip pouch                    |
-| [ ]    | Anti-diarrhea medication       | 1   |                    | Common traveler issue in tropical regions |
-| [ ]    | Rehydration sachets            | 4   | Tropical           | For heat and stomach issues            |
-| [ ]    | Antihistamine                  | 1   |                    | For insect bites or food reactions     |
-| [ ]    | Pain reliever                  | 1   |                    | Ibuprofen or acetaminophen             |
+| Packed | Item                                    | Qty   | Conditional | Notes                                     |
+| ------ | --------------------------------------- | ----- | ----------- | ----------------------------------------- |
+| [ ]    | Personal medications                    | --    |             | Trip duration + 3 extra days              |
+| [ ]    | Basic first aid (band-aids, antiseptic) | 1 kit |             | Small zip pouch                           |
+| [ ]    | Anti-diarrhea medication                | 1     |             | Common traveler issue in tropical regions |
+| [ ]    | Rehydration sachets                     | 4     | Tropical    | For heat and stomach issues               |
+| [ ]    | Antihistamine                           | 1     |             | For insect bites or food reactions        |
+| [ ]    | Pain reliever                           | 1     |             | Ibuprofen or acetaminophen                |
 
 ### Comfort and Convenience
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Day bag or small backpack      | 1   |                    | Foldable, for daily outings            |
-| [ ]    | Reusable water bottle          | 1   |                    | Collapsible to save space              |
-| [ ]    | Packing cubes                  | 2-3 |                    | Organize clothing by type              |
-| [ ]    | Dry bag or waterproof pouch    | 1   | Monsoon season     | For electronics during rain            |
-| [ ]    | Travel towel (quick-dry)       | 1   |                    | Microfiber, compact for beach          |
-| [ ]    | Laundry bag                    | 1   |                    | Separate dirty clothes                 |
-| [ ]    | Sink laundry soap              | 1   |                    | Small packet for hand-washing between laundry days |
-| [ ]    | Zip-lock bags (assorted)       | 4-6 |                    | Wet items, snacks, organization        |
-| [ ]    | Padlock                        | 1   |                    | For hostel lockers if applicable       |
+| Packed | Item                        | Qty | Conditional    | Notes                                              |
+| ------ | --------------------------- | --- | -------------- | -------------------------------------------------- |
+| [ ]    | Day bag or small backpack   | 1   |                | Foldable, for daily outings                        |
+| [ ]    | Reusable water bottle       | 1   |                | Collapsible to save space                          |
+| [ ]    | Packing cubes               | 2-3 |                | Organize clothing by type                          |
+| [ ]    | Dry bag or waterproof pouch | 1   | Monsoon season | For electronics during rain                        |
+| [ ]    | Travel towel (quick-dry)    | 1   |                | Microfiber, compact for beach                      |
+| [ ]    | Laundry bag                 | 1   |                | Separate dirty clothes                             |
+| [ ]    | Sink laundry soap           | 1   |                | Small packet for hand-washing between laundry days |
+| [ ]    | Zip-lock bags (assorted)    | 4-6 |                | Wet items, snacks, organization                    |
+| [ ]    | Padlock                     | 1   |                | For hostel lockers if applicable                   |
 
 ### Activity-Specific: Temple Visits
 
-| Packed | Item                           | Qty | Conditional        | Notes                                  |
-|--------|--------------------------------|-----|--------------------|----------------------------------------|
-| [ ]    | Long pants or skirt (knee-covering) | 1 | Temple visits   | Required at most temples               |
-| [ ]    | Shirt covering shoulders       | 1   | Temple visits      | No sleeveless tops at temples          |
-| [ ]    | Socks                          | 1   | Temple visits      | Some temples require socks not bare feet|
+| Packed | Item                                | Qty | Conditional   | Notes                                    |
+| ------ | ----------------------------------- | --- | ------------- | ---------------------------------------- |
+| [ ]    | Long pants or skirt (knee-covering) | 1   | Temple visits | Required at most temples                 |
+| [ ]    | Shirt covering shoulders            | 1   | Temple visits | No sleeveless tops at temples            |
+| [ ]    | Socks                               | 1   | Temple visits | Some temples require socks not bare feet |
 
 ---
 

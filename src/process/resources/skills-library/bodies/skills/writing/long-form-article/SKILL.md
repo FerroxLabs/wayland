@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing content-marketing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'blog-post writing content-marketing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Long Form Article
 
 ## When to Use
@@ -329,10 +330,12 @@ Culture is not what you say it is. It is what your systems make it.
 **Approximate word count:** 1,750 words (expandable to 2,400 by deepening the system audit section with a case study of a specific company that redesigned its promotion criteria and measured the cultural output change)
 
 **Sourcing gaps:**
+
 - [EXPERT SOURCE] in "Stated Values Predict Nothing" section: organizational psychologist with research on values-behavior alignment. A quote from published research (Adam Grant, Edgar Schein, or similar) would anchor the claim about enforcement mechanisms scientifically.
 - [DATA NEEDED] in "What New Hires Learn" section: retention comparison data for organizations with structured 30-day debriefs vs. those without. SHRM or Gallup workforce studies may contain relevant proxies.
 
 **Suggested pull quotes:**
+
 - "Culture is not what you say it is. It is what your systems make it."
 - "Employees watch who gets promoted with more attention than they give to any all-hands presentation."
 - "The speed at which new employees learn the gap between the official version and the real one is a diagnostic metric that most People teams never measure."

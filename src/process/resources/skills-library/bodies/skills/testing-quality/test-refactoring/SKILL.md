@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing refactoring clean-code"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing refactoring clean-code'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Test Refactoring
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a test suite where tests are hard to read, consistently require 3+ minutes to understand before modifying, or are frequently skipped because they are too brittle to fix
 - The user has duplicate test setup code spread across 5+ test files that must be updated every time the production interface changes
 - The user is onboarding to a codebase and the tests provide no useful documentation about intended system behavior
@@ -29,6 +31,7 @@ metadata:
 - The user is seeing test run times above 10 minutes for a unit test suite and wants to restructure tests to enable parallel execution and faster feedback
 
 **Do NOT use this skill when:**
+
 - The user needs to write new tests from scratch -- this skill is about improving existing tests, not initial test authoring
 - The user is debugging a specific failing test -- that is a test debugging problem, not a refactoring problem
 - The user wants to change the testing framework (e.g., migrate from Mocha to Vitest) -- that is a migration skill, not a refactoring skill
@@ -133,51 +136,59 @@ Refactoring has no permanent value if patterns drift back over the following mon
 
 Provide all of the following sections when responding to a test refactoring request:
 
-```markdown
+````markdown
 ## Test Refactoring Analysis: [Module/Suite Name]
 
 ### Baseline Metrics
-| Metric                        | Current Value     | Target Value     |
-|-------------------------------|-------------------|------------------|
-| Total test count              | [N]               | [N ± delta]      |
-| Suite run time (wall clock)   | [Xs]              | [Xs / parallel]  |
-| Flakiness rate (last 20 runs) | [X%]              | < 1%             |
-| Tests > 100ms (unit)          | [N]               | 0                |
-| Duplicated setup LOC          | [N lines]         | [N lines]        |
-| Tests with conditional logic  | [N]               | 0                |
+
+| Metric                        | Current Value | Target Value    |
+| ----------------------------- | ------------- | --------------- |
+| Total test count              | [N]           | [N ± delta]     |
+| Suite run time (wall clock)   | [Xs]          | [Xs / parallel] |
+| Flakiness rate (last 20 runs) | [X%]          | < 1%            |
+| Tests > 100ms (unit)          | [N]           | 0               |
+| Duplicated setup LOC          | [N lines]     | [N lines]       |
+| Tests with conditional logic  | [N]           | 0               |
 
 ### Identified Test Smells
-| Smell                  | Count | Affected Files                  | Priority |
-|------------------------|-------|---------------------------------|----------|
-| Eager Test             | [N]   | [file1.test.ts, file2.test.ts]  | High     |
-| Mystery Guest          | [N]   | [...]                           | High     |
-| Over-mocked tests      | [N]   | [...]                           | Medium   |
-| Conditional test logic | [N]   | [...]                           | High     |
-| Obscure setup (>30 LOC)| [N]   | [...]                           | Medium   |
-| Dead/skipped tests     | [N]   | [...]                           | Low      |
+
+| Smell                   | Count | Affected Files                 | Priority |
+| ----------------------- | ----- | ------------------------------ | -------- |
+| Eager Test              | [N]   | [file1.test.ts, file2.test.ts] | High     |
+| Mystery Guest           | [N]   | [...]                          | High     |
+| Over-mocked tests       | [N]   | [...]                          | Medium   |
+| Conditional test logic  | [N]   | [...]                          | High     |
+| Obscure setup (>30 LOC) | [N]   | [...]                          | Medium   |
+| Dead/skipped tests      | [N]   | [...]                          | Low      |
 
 ### Refactoring Plan
+
 **Phase 1 -- Safety and Isolation (Day 1)**
+
 - [ ] Tag baseline commit
 - [ ] Quarantine [N] flaky tests with ticket references
 - [ ] Verify suite passes 3 consecutive runs
 
 **Phase 2 -- Structure (Days 2-3)**
+
 - [ ] Extract [EntityName]Mother / Builder for [entities]
 - [ ] Centralize [infrastructure type] setup into [filename]
 - [ ] Apply AAA structure to [N] non-conforming tests
 
 **Phase 3 -- Decoupling (Days 3-5)**
+
 - [ ] Replace mock chains in [list of tests] with in-memory fakes
 - [ ] Remove direct access to private/internal classes in [list]
 - [ ] Re-anchor [N] tests to public API surface
 
 **Phase 4 -- Performance (Day 5)**
+
 - [ ] Enable parallel execution ([framework flag])
 - [ ] Isolate database tests with per-test transaction rollback
 - [ ] Replace hardcoded port [X] with dynamic port allocation
 
 **Phase 5 -- Readability and Standards (Day 6)**
+
 - [ ] Rename [N] tests to behavior-describing names
 - [ ] Delete [N] tests with >90 day skip marker
 - [ ] Add testing.md with conventions
@@ -185,12 +196,16 @@ Provide all of the following sections when responding to a test refactoring requ
 ### Before / After Examples
 
 #### Smell: [Smell Name] in [filename]
+
 **Before:**
+
 ```[language]
 [original test code]
 ```
+````
 
 **After:**
+
 ```[language]
 [refactored test code]
 ```
@@ -200,11 +215,13 @@ Provide all of the following sections when responding to a test refactoring requ
 ### Extracted Helpers
 
 #### [HelperName] (Object Mother / Builder / Fixture)
+
 ```[language]
 [complete implementation of the extracted helper]
 ```
 
 ### Verification Checklist
+
 - [ ] Suite passes with identical results before and after each phase
 - [ ] No new `skip` markers introduced
 - [ ] Slowest unit test is under 100ms
@@ -213,7 +230,8 @@ Provide all of the following sections when responding to a test refactoring requ
 - [ ] AAA structure present in all tests (blank line separated)
 - [ ] Parallel execution enabled and verified
 - [ ] testing.md committed to repository
-```
+
+````
 
 ---
 
@@ -325,7 +343,7 @@ describe('UserDashboard', () => {
     expect(container.querySelector('.upgrade-prompt')).toBeTruthy();
   });
 });
-```
+````
 
 ---
 
@@ -334,24 +352,26 @@ describe('UserDashboard', () => {
 ## Test Refactoring Analysis: UserDashboard.test.tsx (Representative Suite Sample)
 
 ### Baseline Metrics
-| Metric                        | Current Value  | Target Value        |
-|-------------------------------|----------------|---------------------|
-| Total test count              | 847            | ~820 (prune dead)   |
-| Suite run time (wall clock)   | 14 min         | < 3 min (parallel)  |
-| Flakiness rate (last 20 runs) | 12%            | < 1%                |
-| Tests > 100ms (unit)          | ~340 estimated | 0                   |
-| Duplicated setup LOC          | High (visible) | Centralized         |
-| Tests with no behavior name   | 3 (test1-3)    | 0                   |
+
+| Metric                        | Current Value  | Target Value       |
+| ----------------------------- | -------------- | ------------------ |
+| Total test count              | 847            | ~820 (prune dead)  |
+| Suite run time (wall clock)   | 14 min         | < 3 min (parallel) |
+| Flakiness rate (last 20 runs) | 12%            | < 1%               |
+| Tests > 100ms (unit)          | ~340 estimated | 0                  |
+| Duplicated setup LOC          | High (visible) | Centralized        |
+| Tests with no behavior name   | 3 (test1-3)    | 0                  |
 
 ### Identified Test Smells in This Sample
-| Smell                  | Count | Location                     | Priority |
-|------------------------|-------|------------------------------|----------|
-| Eager Test             | 1     | `test1` (5 assertions)       | High     |
-| Mystery Guest / Mock   | 3     | All tests, `global.fetch`    | High     |
-| Assertion Roulette     | 1     | `test1` (no messages)        | High     |
-| Non-behavioral name    | 3     | `test1`, `test2`, `test3`    | High     |
-| Duplicated setup       | 3     | `mockFetch` block in each    | Medium   |
-| CSS selector coupling  | 3     | `.user-name`, `.role-badge`  | Medium   |
+
+| Smell                 | Count | Location                    | Priority |
+| --------------------- | ----- | --------------------------- | -------- |
+| Eager Test            | 1     | `test1` (5 assertions)      | High     |
+| Mystery Guest / Mock  | 3     | All tests, `global.fetch`   | High     |
+| Assertion Roulette    | 1     | `test1` (no messages)       | High     |
+| Non-behavioral name   | 3     | `test1`, `test2`, `test3`   | High     |
+| Duplicated setup      | 3     | `mockFetch` block in each   | Medium   |
+| CSS selector coupling | 3     | `.user-name`, `.role-badge` | Medium   |
 
 ### Root Cause of the 12% Flakiness Rate
 
@@ -364,28 +384,33 @@ The CSS selector coupling (`container.querySelector('.user-name')`) is why tests
 ### Refactoring Plan
 
 **Phase 1 -- Safety (Day 1)**
+
 - [ ] Tag baseline: `git tag pre-refactor-2024-01-15`
 - [ ] Run suite 3 consecutive times, record exact flakiness pattern
 - [ ] Identify and quarantine all tests relying on `global.fetch` mutation without cleanup (search for `global.fetch =` without `afterEach(() => delete global.fetch)`)
 - [ ] Enable `--runInBand` temporarily to confirm which failures are genuine vs. parallelism-caused
 
 **Phase 2 -- Infrastructure Setup (Day 1-2)**
+
 - [ ] Install and configure `msw` (Mock Service Worker) as the single HTTP interception layer -- replaces all `global.fetch = jest.fn()` patterns
 - [ ] Create `src/tests/handlers.ts` with MSW handlers for all API routes
 - [ ] Create `src/tests/server.ts` with MSW server setup and `beforeAll`/`afterAll`/`afterEach` lifecycle
 - [ ] Create `src/tests/builders/userBuilder.ts` (see implementation below)
 
 **Phase 3 -- Decouple from CSS Selectors (Days 2-3)**
+
 - [ ] Migrate all assertions from `querySelector('.class-name')` to `getByRole`, `getByText`, `getByTestId` using Testing Library queries
 - [ ] Add `data-testid` attributes only for elements that have no accessible role or label (last resort -- prefer semantic queries)
 - [ ] Replace `container.querySelector` with `screen.*` queries throughout the suite
 
 **Phase 4 -- Restructure Tests (Days 3-4)**
+
 - [ ] Apply AAA structure and rename all tests to behavior-describing names
 - [ ] Split `test1` (Eager Test) into 3 separate focused tests
 - [ ] Verify: no test has conditional logic, no test has > 3 assertions on different logical concerns
 
 **Phase 5 -- Parallelism (Day 5)**
+
 - [ ] Confirm MSW is in place (no global mutation, no port conflicts)
 - [ ] Remove `--runInBand` flag
 - [ ] Measure new wall clock time with `--maxWorkers=50%`
@@ -397,6 +422,7 @@ The CSS selector coupling (`container.querySelector('.user-name')`) is why tests
 #### Smell: Eager Test + Mystery Guest + Non-behavioral Name (`test1`)
 
 **Before:**
+
 ```typescript
 it('test1', async () => {
   const mockFetch = jest.fn();
@@ -423,6 +449,7 @@ it('test1', async () => {
 ```
 
 **After:**
+
 ```typescript
 // src/tests/builders/userBuilder.ts
 interface UserOverrides {
@@ -577,12 +604,12 @@ describe('UserDashboard', () => {
 
 ### Projected Impact After Full Suite Migration
 
-| Metric                      | Before    | After (projected) |
-|-----------------------------|-----------|-------------------|
-| Suite run time              | 14 min    | 2.5-3 min         |
-| Flakiness rate              | 12%       | < 0.5%            |
-| Test files requiring update after CSS rename | ~210 | 0 |
-| Test files requiring update after API response shape change | ~847 | 1 (handlers.ts) |
-| New developer onboarding time to understand a test | 3-5 min | < 30 sec |
+| Metric                                                      | Before  | After (projected) |
+| ----------------------------------------------------------- | ------- | ----------------- |
+| Suite run time                                              | 14 min  | 2.5-3 min         |
+| Flakiness rate                                              | 12%     | < 0.5%            |
+| Test files requiring update after CSS rename                | ~210    | 0                 |
+| Test files requiring update after API response shape change | ~847    | 1 (handlers.ts)   |
+| New developer onboarding time to understand a test          | 3-5 min | < 30 sec          |
 
 The most significant gain is that all API shape knowledge is now centralized in `handlers.ts` and `userBuilder.ts`. When the `/api/users/:userId` response adds a new field, exactly one file changes -- not 200 test files. This is the structural reason implementation-coupled tests are expensive at scale.

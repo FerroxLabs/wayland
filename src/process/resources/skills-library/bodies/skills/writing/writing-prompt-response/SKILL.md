@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing fitness"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'creative-writing writing fitness'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Writing Prompt Response
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user provides a writing prompt -- a sentence, scenario, image description, or "what if" -- and wants a completed creative piece in response
 - A user gives a story starter ("The morning she found the letter...") and wants you to continue it into a complete scene or piece
 - A user is doing a timed writing exercise and wants to see a model response or wants you to respond alongside them
@@ -30,10 +32,11 @@ metadata:
 - A user wants a demonstration of a specific narrative technique applied to a given prompt
 
 **Do NOT use this skill when:**
+
 - The user wants a complete short story with full arc, developed characters, and multi-scene structure -- use `short-story-writing`
 - The user wants flash fiction under 1,000 words with specific formal constraints (three-act compression, sudden fiction structure) -- use `flash-fiction`
 - The user provides a poetry prompt or wants a poem in response -- use `poetry-writing`
-- The user wants to *generate* new writing prompts, not respond to one -- use a prompt-generation approach
+- The user wants to _generate_ new writing prompts, not respond to one -- use a prompt-generation approach
 - The user wants a multi-chapter outline or novel planning document -- use `plot-outline` or `novel-planning`
 - The user is asking for a writing craft lesson without needing a creative piece produced -- use a craft-explanation skill
 - The prompt is actually a research question or informational request dressed in creative language ("Write a story that explains quantum entanglement") where the primary goal is accuracy, not narrative craft
@@ -194,7 +197,7 @@ Honor every constraint precisely and without complaint. Constraints are generati
 
 ### The Single Word or Image Prompt
 
-A single word ("Rust," "Threshold," "The afternoon before") is an invitation to find the story hiding inside the word's connotations, associations, and emotional valence. The method: (1) map the word's literal meaning; (2) map its metaphorical or emotional register; (3) find a concrete situation that embodies the emotional register without naming it; (4) find a character experiencing that situation at a moment of change. Do not write *about* the word -- write a piece in which the word's essence is structurally present without being stated. A piece responding to the prompt "Rust" should never use the word "rust" except perhaps in a final image where it has been fully earned.
+A single word ("Rust," "Threshold," "The afternoon before") is an invitation to find the story hiding inside the word's connotations, associations, and emotional valence. The method: (1) map the word's literal meaning; (2) map its metaphorical or emotional register; (3) find a concrete situation that embodies the emotional register without naming it; (4) find a character experiencing that situation at a moment of change. Do not write _about_ the word -- write a piece in which the word's essence is structurally present without being stated. A piece responding to the prompt "Rust" should never use the word "rust" except perhaps in a final image where it has been fully earned.
 
 ### The Continuation Prompt (User Provides a First Line or Opening Paragraph)
 
@@ -226,7 +229,7 @@ When a user provides both a prompt and their own response and asks you to demons
 
 ## The Weight of a Stranger's Hands
 
-*Prompt: "She opened the box her mother had left her. Inside was something she had never seen before -- but somehow she recognized it."*
+_Prompt: "She opened the box her mother had left her. Inside was something she had never seen before -- but somehow she recognized it."_
 
 The box had been in the storage unit for eleven months, behind the winter coats and the portable crib that had never been used. Delia had driven past the storage facility a hundred times, had noted the exit, had not taken it.
 
@@ -264,7 +267,7 @@ The storage unit key was still in the ignition. She pulled out of the parking lo
 
 **Interpretation:** This prompt's most expected response is a fantasy or horror interpretation -- the unrecognizable object has supernatural properties, the recognition is psychic or cursed. That interpretation was set aside in favor of a realist inheritance narrative, where the "recognition" is embodied and genealogical rather than supernatural. The uncanny effect the prompt implies is preserved, but through the materiality of muscle memory and inherited gesture rather than magic. This choice keeps the piece grounded in emotional truth, which produces a different -- and in this case more resonant -- kind of strangeness.
 
-**Governing craft decision:** The entry point is the parking lot, not the opening of the box. Beginning *before* the box is opened creates anticipatory tension and establishes Delia's eleven-month avoidance as the real subject of the piece -- she is not just opening a box, she is ending an avoidance. This means the box's contents arrive for the reader at the same moment of release that the character experiences, rather than being disclosed at the beginning and explained.
+**Governing craft decision:** The entry point is the parking lot, not the opening of the box. Beginning _before_ the box is opened creates anticipatory tension and establishes Delia's eleven-month avoidance as the real subject of the piece -- she is not just opening a box, she is ending an avoidance. This means the box's contents arrive for the reader at the same moment of release that the character experiences, rather than being disclosed at the beginning and explained.
 
 **Craft variables:** If the piece were told in present tense rather than past, the psychological texture would shift from memory-and-reflection to immediate-sensation -- more claustrophobic, less retrospective. Alternatively, if the grandmother were named and the pharmacist backstory were expanded rather than withheld, the piece would move toward multigenerational family drama; in the current version, the withholding keeps the focus on Delia's embodied response rather than the family history.
 

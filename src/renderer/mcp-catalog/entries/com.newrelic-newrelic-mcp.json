@@ -18,15 +18,8 @@
   ],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "observability",
-      "devops"
-    ],
-    "tags": [
-      "newrelic",
-      "monitoring",
-      "nrql"
-    ],
+    "categories": ["observability", "devops"],
+    "tags": ["newrelic", "monitoring", "nrql"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -49,11 +42,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

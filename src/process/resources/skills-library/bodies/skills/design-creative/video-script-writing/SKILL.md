@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production template planning"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production template planning'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Video Script Writing
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks to write a video script for YouTube, a course platform, a brand channel, or an explainer video with both on-camera and supporting visual elements
 - Wants to structure a talking-head, narrated, or mixed-format video that runs between 60 seconds and 60 minutes
 - Needs a complete script with spoken dialogue, B-roll cues, speaker direction annotations, and CTA placement
@@ -33,6 +35,7 @@ metadata:
 - Wants to adapt existing written content (a blog post, a slide deck, a white paper) into a spoken video format
 
 **Do NOT use this skill when:**
+
 - The user needs a shot-by-shot visual storyboard with frame composition and camera angles -- use `video-storyboard`
 - The output is voiceover-only with no on-camera presenter or talking-head element -- use `voiceover-script`
 - The video is under 60 seconds (Reels, Shorts, TikTok) -- use `short-form-video-planning`
@@ -79,6 +82,7 @@ The first 15 seconds of a video determine whether 60-70% of viewers continue wat
 - **Story hook:** Drop the viewer into a scene mid-action. "It was 11 PM on a Tuesday when I realized the campaign I'd just launched had a critical error -- and I had no way to stop it."
 
 **Hook mistakes to avoid:**
+
 - Thanking the viewer, complimenting them, or mentioning their likes/comments before the hook is complete
 - Spending more than 3 seconds on a logo animation, intro bumper, or channel identification before the hook begins
 - Asking questions that are so easy the viewer does not feel compelled to find the answer
@@ -103,6 +107,7 @@ Match the structure to the video type. Mismatching a structure to a type is the 
 **Layered list (McKinsey structure):** For complex multi-point content. Group points into categories (never more than three categories, never more than four points per category). Announce the structure at the start ("There are three reasons for this. Two are obvious. One will surprise you.").
 
 **After selecting the structure:**
+
 - Create a section outline with a title for each section
 - Assign a word count target to each section based on its importance and the total target word count
 - Identify which sections need B-roll coverage and which can sustain on-camera talking head
@@ -112,6 +117,7 @@ Match the structure to the video type. Mismatching a structure to a type is the 
 ### Step 4 -- Write the Script Body with Full Annotations
 
 **Spoken dialogue rules:**
+
 - Sentence length: 25 words maximum per sentence. Average target: 15-18 words. Short declarative sentences create punch. Long sentences require re-reading -- something viewers cannot do.
 - Paragraph length: 3-5 sentences maximum before a B-roll break, direction change, or visual element disrupts the pattern
 - Vocabulary: Match the audience's expertise level exactly. For beginners, define every piece of jargon the first time it appears. For experts, use the jargon without apology -- over-explaining insults them.
@@ -128,6 +134,7 @@ Match the structure to the video type. Mismatching a structure to a type is the 
 - `[SCREEN: show X]` -- For tutorials where the speaker is demonstrating software or a physical process. Different from B-ROLL in that the screen recording or product shot is the primary visual, not a cutaway.
 
 **Engagement engineering -- embed these devices into the body:**
+
 - **Pattern interrupts:** Every 2-3 minutes, shift something -- tone, visual style, delivery speed, or framing. Viewers' attention has a physiological refresh cycle of roughly 3 minutes; a pattern interrupt resets it.
 - **Open loops:** Plant a question or a "coming up" tease that is not immediately answered. "I'll come back to this in a moment because it connects to the third point in a way that surprised even me." This drives retention because unresolved curiosity keeps viewers watching.
 - **Social proof integration:** Where a claim is made, follow it with a concrete example, a case study reference, or a data point. Claims without evidence reduce trust; evidence without claims reduces clarity.
@@ -140,11 +147,13 @@ Match the structure to the video type. Mismatching a structure to a type is the 
 CTAs are systematically misplaced in most video scripts. The end of the video is the worst time for a primary CTA because 40-60% of viewers have already left before a video finishes (this varies by platform and content type, but the pattern is consistent).
 
 **CTA placement by video duration:**
+
 - Videos under 3 minutes: Single CTA at the 75-80% mark. No outro CTA -- the video is too short.
 - Videos 3-10 minutes: Primary CTA at the 70% mark. Secondary CTA in the outro. A mid-roll CTA mention at the 30-40% mark is optional for subscription drives.
 - Videos over 10 minutes: Three CTA touchpoints -- a soft mention at 25-30% ("by the way, if you want more of this, subscribe"), a primary CTA at 60-70%, and a secondary CTA in the outro.
 
 **CTA copy principles:**
+
 - Always give the viewer a reason to act, not just an instruction to act. "Subscribe" is an instruction. "Subscribe so you get the follow-up video where I show you the exact email template that generated 400 replies -- dropping next week" is a reason.
 - Make the next action feel effortless and logical. The CTA should feel like the natural next step in the viewer's journey, not an interruption.
 - Prompt specific comments, not generic ones. "Leave a comment" gets nothing. "Comment and tell me: what's the single biggest attention killer in your workday?" gets hundreds of responses because the viewer has a specific, answerable question.
@@ -355,27 +364,35 @@ Use this exact format for every script output. Customize section titles, section
 ## Edge Cases
 
 ### Multiple Hosts or Interview Format
+
 When two or more people appear on camera, label every line of dialogue with the speaker's name in capital letters followed by a colon: `HOST:`, `GUEST:`, `INTERVIEWER:`, `ALEX:`. Include `[CUT TO: speaker name]` markers before each speaker's label whenever the camera angle switches. Script the interviewer's questions in full even if the interview will be conducted more loosely -- the scripted version is the briefing document that ensures the conversation covers the required territory. If the interview will use a run-and-gun style with no scripted dialogue, write a question framework document instead, not a full script, and note this distinction for the user.
 
 ### Tutorial or Screen Recording Format with No On-Camera Presenter
+
 Replace all `[DIRECTION:]` annotations with `[PRESENTER ACTION:]` or `[SCREEN:]` annotations. Maintain a strict separation between what the narrator says (spoken dialogue in quotation marks) and what happens on screen (`[SCREEN: cursor moves to the Settings menu]`, `[CLICK: Export button]`, `[TYPE: yourfilename.csv]`). Write the narration so that it leads the action slightly -- the spoken cue should come 1-2 seconds before the on-screen action, not simultaneously with it, because viewer comprehension requires hearing the instruction before seeing it executed.
 
 ### Repurposing a Blog Post or Existing Written Content
+
 Do not paste written content into a script and add annotations. Written content must be fully rewritten for spoken delivery. The conversion process: (1) identify the key claim of each paragraph, (2) discard the rest of the paragraph and rewrite the claim in spoken language, (3) identify which points need visual support and write those as B-roll cues. A 1,500-word blog post typically contains enough substance for a 6-8 minute video after the rewrite, but the spoken word count will be lower than the original because written language is denser than spoken language.
 
 ### Highly Technical or Jargon-Heavy Topics
+
 For expert-level audiences, jargon is not the problem -- mismatched jargon is. Define terms only when introducing concepts the audience may not have encountered, not when using established terminology in the field. For mixed-expertise audiences, use a layered approach: introduce the technical term, follow it immediately with a plain-language anchor ("That's the process of batch rendering -- essentially instructing the software to process multiple outputs simultaneously without manual intervention"), then use the technical term freely for the rest of the script. Insert a single `[TEXT ON SCREEN:]` for each new technical term defined this way.
 
 ### Video Over 15 Minutes (Deep Dive, Documentary, or Course Module)
+
 Add mid-video re-engagement markers at the 5-minute and 10-minute marks (and every 5 minutes thereafter for very long content). Each re-engagement marker is a brief 2-3 sentence device that: reminds the viewer what they have already gained, teases what is coming, and validates their investment in continuing to watch. Example: "You've now got the foundational piece -- and it's going to make the next section click much faster. What we're about to cover is the part most people skip, which is exactly why most people get stuck." Also add a chapter structure in the production notes with proposed timestamps for YouTube chapter markers.
 
 ### Promotional or Sales-Driven Videos with a Skeptical Audience
+
 Cold or skeptical audiences require a credibility architecture before any claim is made. In the body of the script, sequence every major claim in this order: claim, specific evidence, concrete example, implication for the viewer. Never lead with a promotional statement -- the promotional intent should emerge from the problem-solution structure, not be stated directly. The CTA in a sales-context video should offer a low-commitment next step (a free resource, a trial, a demonstration) rather than an immediate purchase, unless the video is explicitly a bottom-of-funnel asset for a warm audience.
 
 ### No Clear Platform or Audience Specified
+
 If the user cannot specify either the platform or the target audience, do not guess. Ask for the platform first because it constrains the format -- YouTube educational content has different structural requirements from a course platform module, which differs from a brand website explainer. Once the platform is established, ask for audience specifics. Building a script on assumed audience knowledge levels produces dialogue that either condescends to experienced viewers or loses beginners in the first two minutes.
 
 ### Emotional or Sensitive Topics
+
 For scripts covering mental health, grief, financial hardship, trauma, or similar sensitive subject areas, the narrative structure and the language within it require additional care. Avoid the Problem-Agitate-Solve structure's agitation phase -- deepening emotional pain as a rhetorical technique is inappropriate and potentially harmful for viewers in distress. Use the Concept-Evidence-Application structure instead, which leads with understanding rather than agitation. Replace urgency-based CTA language with supportive, low-pressure alternatives. Add a `[DIRECTION: speak slowly, maintain steady eye contact, pause generously]` annotation that runs across the full script rather than only at selected moments.
 
 ---
@@ -571,13 +588,13 @@ For scripts covering mental health, grief, financial hardship, trauma, or simila
 
 ### Production Notes
 
-| Element | Count | Notes |
-|---|---|---|
-| B-roll shots required | 6 | 4 to film (laptop hands, whiteboard, two-person scene, callback shot); 2 can be sourced from stock |
-| On-screen text graphics | 4 | "Clients pay for outcomes not hours"; "Your fee as % of value"; "Unscoped projects always expand"; "1 Anchor 2 Scope 3 Protection" -- all need motion design |
-| Direction annotations | 9 | Flag the "conviction" direction at 5:30 -- presenter should rehearse this section |
-| Pause markers | 6 | Approximately 10-12 seconds of intentional silence total |
-| Open loops planted | 2 | (1) "a question most freelancers never ask" planted at 1:40, resolved at 1:55; (2) next-week video tease planted at 2:10, reinforced at 7:05 |
+| Element                 | Count | Notes                                                                                                                                                        |
+| ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| B-roll shots required   | 6     | 4 to film (laptop hands, whiteboard, two-person scene, callback shot); 2 can be sourced from stock                                                           |
+| On-screen text graphics | 4     | "Clients pay for outcomes not hours"; "Your fee as % of value"; "Unscoped projects always expand"; "1 Anchor 2 Scope 3 Protection" -- all need motion design |
+| Direction annotations   | 9     | Flag the "conviction" direction at 5:30 -- presenter should rehearse this section                                                                            |
+| Pause markers           | 6     | Approximately 10-12 seconds of intentional silence total                                                                                                     |
+| Open loops planted      | 2     | (1) "a question most freelancers never ask" planted at 1:40, resolved at 1:55; (2) next-week video tease planted at 2:10, reinforced at 7:05                 |
 
 **Total spoken word count:** 1,020
 **Base spoken duration:** 7:03 at 145 wpm

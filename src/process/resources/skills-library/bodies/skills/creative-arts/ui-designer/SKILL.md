@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Ui Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on ui designer
 - User asks about ui designer best practices or techniques
 - User wants a structured approach to ui designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of ui designer
 
@@ -60,6 +61,7 @@ Before providing UI design guidance:
 ## Core Design Principles
 
 ### Visual Hierarchy
+
 Users do not read interfaces; they scan. Visual hierarchy controls the scanning order:
 
 - **Size**: Larger elements are seen first. Headlines > subheadings > body text > captions.
@@ -72,7 +74,9 @@ Users do not read interfaces; they scan. Visual hierarchy controls the scanning 
 Test your hierarchy: squint at the screen. The elements that remain visible are your top hierarchy. If the wrong things stand out, adjust.
 
 ### Whitespace
+
 Whitespace (negative space) is not wasted space. It is a design tool:
+
 - **Macro whitespace**: Large spaces between major sections. Creates breathing room and separates content groups.
 - **Micro whitespace**: Small spaces between related elements (padding inside cards, line height in text, gap between icon and label).
 - **Grouping**: Elements with less space between them are perceived as related (Gestalt proximity principle). Use whitespace to create logical groups.
@@ -80,19 +84,24 @@ Whitespace (negative space) is not wasted space. It is a design tool:
 - **Readability**: Generous line height (1.4-1.6x for body text) and paragraph spacing dramatically improve readability.
 
 ### Consistency
+
 Users learn patterns. Inconsistency forces them to relearn:
+
 - **Visual consistency**: Same colors, typography, spacing, and component styles throughout the product.
 - **Interaction consistency**: Same component types behave the same way everywhere (a dropdown always opens the same way, a swipe always does the same thing).
 - **Language consistency**: Same terminology for the same concepts. Do not call it "Settings" in one place and "Preferences" in another.
 - **Pattern consistency**: Follow established platform conventions (iOS patterns on iOS, Material Design patterns on Android) unless there is a strong reason to deviate.
 
 ### Alignment
+
 Align elements to a grid and to each other:
+
 - Use an 8px grid system. All spacing, sizing, and positioning should be multiples of 8 (8, 16, 24, 32, 40, 48, etc.).
 - Left-align text and form elements. Center alignment is harder to scan and should be used sparingly (headings, empty states, hero sections).
 - Create invisible lines of alignment that run through the layout. Elements anchored to these lines create visual order.
 
 ### Contrast and Accessibility
+
 - **Text contrast**: WCAG AA requires 4.5:1 contrast ratio for normal text, 3:1 for large text (18px+ or 14px+ bold).
 - **Interactive elements**: Buttons, links, and form fields must be clearly distinguishable from non-interactive content.
 - **Color independence**: Do not use color as the only way to convey information (e.g., red for error). Add icons, text, or other visual cues.
@@ -102,12 +111,14 @@ Align elements to a grid and to each other:
 ## Figma Workflow
 
 ### Project Organization
+
 1. **File structure**: One file per project or feature. Use pages within the file for different stages (wireframes, visual design, components, specs).
 2. **Naming conventions**: Use consistent, descriptive names for pages, frames, layers, and components. `Screen/LoginPage/Default` is better than `Frame 47`.
 3. **Cover page**: Create a cover page with project name, status, last updated date, and key links.
 4. **Thumbnail previews**: Set a frame as the file thumbnail so the project is identifiable in the team dashboard.
 
 ### Design Workflow in Figma
+
 1. **Wireframes**: Low-fidelity layouts using simple shapes and placeholder text. Focus on information architecture and user flow, not visual details.
 2. **Layout exploration**: Try 2-3 different layout approaches for key screens. Share with the team for feedback before committing.
 3. **Visual design**: Apply typography, color, and component styles to the chosen layout.
@@ -116,6 +127,7 @@ Align elements to a grid and to each other:
 6. **Design specs**: Annotate designs with spacing, behavior notes, and edge cases for developer reference.
 
 ### Essential Figma Features
+
 - **Auto Layout**: The most important Figma feature. Creates responsive, flexible layouts that resize intelligently. Learn it thoroughly.
 - **Components and variants**: Build a single component with multiple states (default, hover, active, disabled) and properties (size, color, content).
 - **Styles**: Define reusable colors, typography, and effects. Changing a style updates every instance.
@@ -124,7 +136,9 @@ Align elements to a grid and to each other:
 - **Dev Mode**: Provides developers with CSS, iOS, and Android code snippets, measurements, and asset exports directly from the design.
 
 ### Component Architecture
+
 Build components from smallest to largest (atomic design):
+
 1. **Atoms**: Smallest elements (icon, label, badge, input field)
 2. **Molecules**: Combinations of atoms (search bar = input field + icon + button)
 3. **Organisms**: Complex groups (navigation bar = logo + menu items + search bar + profile icon)
@@ -136,9 +150,11 @@ Each level uses the components below it. Changes to atoms cascade up through the
 ## Design Systems
 
 ### What a Design System Contains
+
 A design system is the single source of truth for how a product looks and behaves:
 
 **Foundations**:
+
 - Color palette (primary, secondary, neutral, semantic colors like error/success/warning)
 - Typography scale (headings, body, captions, with size, weight, line height)
 - Spacing scale (based on 8px grid: 4, 8, 12, 16, 24, 32, 48, 64, etc.)
@@ -149,6 +165,7 @@ A design system is the single source of truth for how a product looks and behave
 - Motion/animation principles
 
 **Components**:
+
 - Buttons (primary, secondary, tertiary, ghost, sizes, states)
 - Form elements (text input, textarea, select, checkbox, radio, toggle, date picker)
 - Navigation (top nav, side nav, tabs, breadcrumbs, pagination)
@@ -161,6 +178,7 @@ A design system is the single source of truth for how a product looks and behave
 - Avatars and badges
 
 **Patterns**:
+
 - Form layouts and validation
 - Error handling
 - Onboarding flows
@@ -170,6 +188,7 @@ A design system is the single source of truth for how a product looks and behave
 - Navigation patterns
 
 ### Building a Design System
+
 1. **Audit**: Document every unique design element in the current product. Identify inconsistencies.
 2. **Foundation**: Define color, typography, spacing, and grid systems.
 3. **Core components**: Build the most-used components first (buttons, inputs, cards, navigation).
@@ -180,13 +199,16 @@ A design system is the single source of truth for how a product looks and behave
 ## Responsive Design
 
 ### Breakpoint Strategy
+
 Define breakpoints based on content needs, not specific device sizes:
+
 - **Mobile**: 320px-767px (design for 375px width as your base mobile size)
 - **Tablet**: 768px-1023px
 - **Desktop**: 1024px-1439px
 - **Large desktop**: 1440px+
 
 ### Responsive Techniques
+
 - **Fluid grids**: Columns resize proportionally. Use percentage-based widths, not fixed pixel widths.
 - **Flexible images**: Images scale within their containers. Never wider than the container.
 - **Reflow**: Content reorganizes at breakpoints. A 3-column layout becomes 2 columns on tablet and 1 column on mobile.
@@ -194,12 +216,15 @@ Define breakpoints based on content needs, not specific device sizes:
 - **Touch adaptation**: On touch devices, increase spacing between interactive elements and use larger touch targets.
 
 ### Mobile-First Design
+
 Design the mobile experience first, then expand for larger screens:
+
 - Mobile forces you to prioritize. Only the most important content and actions fit.
 - It is easier to add elements as the screen grows than to remove them as it shrinks.
 - Mobile is often the primary usage context. Designing for it first ensures the core experience is strong.
 
 ### Designing for Multiple Breakpoints in Figma
+
 - Create a separate frame for each breakpoint in Figma
 - Use Auto Layout and constraints to show how components adapt
 - Design the full flow for mobile first, then show how key screens adapt at tablet and desktop
@@ -208,6 +233,7 @@ Design the mobile experience first, then expand for larger screens:
 ## Developer Handoff
 
 ### What Developers Need from Designers
+
 - **Specifications**: Exact measurements, colors, typography, spacing. Figma Dev Mode provides most of this automatically.
 - **Assets**: Exported icons, images, and illustrations in the appropriate formats (SVG for icons, WebP/PNG for images, 1x/2x/3x for mobile).
 - **Interaction details**: What happens on hover, focus, active, and disabled states. How do transitions work? What is the duration and easing?
@@ -216,6 +242,7 @@ Design the mobile experience first, then expand for larger screens:
 - **Accessibility notes**: ARIA labels, focus order, screen reader behavior for custom components.
 
 ### Annotation Best Practices
+
 - Use a dedicated specs page or annotations layer in your Figma file
 - Call out non-obvious behavior that a developer might miss
 - Document animation timing and easing curves
@@ -223,7 +250,9 @@ Design the mobile experience first, then expand for larger screens:
 - Be available for questions. The best handoff includes ongoing conversation, not just a file dropped over the wall.
 
 ### Design Tokens
+
 Design tokens are the atomic values of the design system, expressed in a format developers can consume:
+
 - Color tokens: `color-primary-500: #3B82F6`
 - Spacing tokens: `space-4: 16px`, `space-6: 24px`
 - Typography tokens: `font-body: { family: 'Inter', size: 16px, lineHeight: 24px, weight: 400 }`
@@ -232,9 +261,11 @@ Design tokens are the atomic values of the design system, expressed in a format 
 ## Portfolio and Case Studies
 
 ### UI Design Portfolio Structure
+
 Your portfolio should demonstrate your process, not just your output:
 
 **Case Study Format**:
+
 1. **Overview** (2-3 sentences): What is the product? What was the challenge?
 2. **My role**: Your specific contribution and responsibilities
 3. **The problem**: User problems, business problems, or both. Backed by data if available.
@@ -245,6 +276,7 @@ Your portfolio should demonstrate your process, not just your output:
 8. **Learnings**: What would you do differently? What did you learn?
 
 ### Presenting Visual Design Work
+
 - Show designs in realistic context (browser frames, device mockups)
 - Include both the big picture (full page/screen) and details (component close-ups)
 - Annotate key design decisions to show your thinking
@@ -252,6 +284,7 @@ Your portfolio should demonstrate your process, not just your output:
 - If possible, include before/after comparisons for redesign projects
 
 ### Building a Portfolio Without Client Work
+
 - **Redesign challenges**: Pick a real product you use and redesign specific flows. Document your process.
 - **Design challenges**: Daily UI, design prompts, hackathon projects
 - **Side projects**: Design a product that solves a problem you care about. Full case study treatment.
@@ -259,6 +292,7 @@ Your portfolio should demonstrate your process, not just your output:
 - **Volunteer**: Offer design services to nonprofits or community organizations
 
 ### Portfolio Presentation Platforms
+
 - **Personal website**: Best for control and professionalism. Clean, simple design that does not compete with the work.
 - **Figma portfolio**: Present case studies as Figma prototypes. Interactive and shows Figma proficiency.
 - **Notion**: Quick to set up, easy to update. Adequate for job applications.
@@ -267,12 +301,14 @@ Your portfolio should demonstrate your process, not just your output:
 ## Continuous Growth
 
 ### Staying Current
+
 - Follow design-focused publications: Smashing Magazine, Nielsen Norman Group, Design Better (InVision)
 - Study products you use daily. Notice design patterns, interactions, and decisions.
 - Participate in design communities: Figma Community, Designer Hangout Slack, ADPList for mentorship
 - Learn adjacent skills: basic front-end development (HTML, CSS), motion design, user research
 
 ### Common Career Paths
+
 - **Product Designer**: UI + UX + strategy. Design within a product team.
 - **Design Systems Designer**: Specialize in building and maintaining design systems.
 - **Design Manager/Lead**: Lead a design team. Strategy, hiring, mentorship.
@@ -282,6 +318,7 @@ Your portfolio should demonstrate your process, not just your output:
 ## Common UI Design Mistakes
 
 ### Visual Design Mistakes
+
 - Insufficient contrast between text and background, making content hard to read
 - Inconsistent spacing that creates visual noise and makes the interface feel disorganized
 - Using too many colors or fonts, which undermines visual cohesion
@@ -289,6 +326,7 @@ Your portfolio should demonstrate your process, not just your output:
 - Ignoring the design on smaller screens or assuming responsive behavior will "just work"
 
 ### Interaction Design Mistakes
+
 - Clickable elements that do not look clickable (no visual affordance)
 - Disabled states that are indistinguishable from enabled states
 - Missing loading states, leaving the user uncertain whether an action was registered
@@ -296,12 +334,12 @@ Your portfolio should demonstrate your process, not just your output:
 - Modals and overlays that are difficult to dismiss, especially on mobile
 
 ### Process Mistakes
+
 - Jumping to high-fidelity design before validating the information architecture and user flow
 - Designing without real content (Lorem ipsum hides content problems)
 - Not testing designs with actual users before development begins
 - Building a design system before understanding the product's needs (premature systematization)
 - Handing off designs without documenting edge cases, states, and responsive behavior
-
 
 ## Output Format
 
@@ -315,13 +353,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with ui designer for a mid-size project."
 
 **Output:** A complete ui designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

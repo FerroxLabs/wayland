@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care mental-wellness strategy"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care mental-wellness strategy'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bereavement Support Framework
@@ -30,6 +30,7 @@ Losing someone is one of life's most difficult experiences, and the practical de
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about what needs to happen after someone dies (practical steps)
 - User wants a checklist for managing affairs after a death in the family
 - User asks about notification lists, funeral arrangements, or estate administration tasks
@@ -37,6 +38,7 @@ Losing someone is one of life's most difficult experiences, and the practical de
 - User needs help tracking the administrative tasks that follow a death
 
 **Do NOT use this skill when:**
+
 - User needs grief counseling or emotional support processing (therapist needed)
 - User asks about estate law, probate process, or will interpretation (attorney needed)
 - User needs help with life insurance claims disputes (insurance advocate or attorney)
@@ -75,14 +77,14 @@ Losing someone is one of life's most difficult experiences, and the practical de
 
    **Funeral/Memorial Service Decisions:**
 
-   | Decision | Options | Notes |
-   |----------|---------|-------|
-   | Burial vs. cremation | Burial, cremation, green burial, donation to medical research | Check for pre-arranged plans, will, or expressed wishes first |
-   | Service type | Religious service, secular memorial, celebration of life, graveside only, no service | Honor the deceased's wishes if known |
-   | Service timing | Within 3-7 days (traditional), within 2-4 weeks (if travel needed), delayed memorial | Coordinate with key family members' availability |
-   | Viewing/visitation | Open casket, closed casket, no viewing | Cultural and personal preference |
-   | Location | Funeral home, place of worship, private home, outdoor venue, virtual | Consider accessibility for attendees |
-   | Officiant | Religious leader, celebrant, family member, friend | Confirm availability |
+   | Decision             | Options                                                                              | Notes                                                         |
+   | -------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+   | Burial vs. cremation | Burial, cremation, green burial, donation to medical research                        | Check for pre-arranged plans, will, or expressed wishes first |
+   | Service type         | Religious service, secular memorial, celebration of life, graveside only, no service | Honor the deceased's wishes if known                          |
+   | Service timing       | Within 3-7 days (traditional), within 2-4 weeks (if travel needed), delayed memorial | Coordinate with key family members' availability              |
+   | Viewing/visitation   | Open casket, closed casket, no viewing                                               | Cultural and personal preference                              |
+   | Location             | Funeral home, place of worship, private home, outdoor venue, virtual                 | Consider accessibility for attendees                          |
+   | Officiant            | Religious leader, celebrant, family member, friend                                   | Confirm availability                                          |
 
    **Working with the Funeral Home:**
    - [ ] Ask for an itemized price list before agreeing to anything (required by law to provide)
@@ -93,19 +95,19 @@ Losing someone is one of life's most difficult experiences, and the practical de
 
 3. **Collect essential documents (days 1-7):**
 
-   | Document | Purpose | Where to Find |
-   |----------|---------|---------------|
-   | Death certificate (certified copies) | Required for almost all financial and legal transactions | Funeral home orders them; available from vital records office |
-   | Will or trust documents | Directs asset distribution and names executor | Attorney's office, safe deposit box, home safe, filed with probate court |
-   | Life insurance policies | File claims for death benefit | Home files, employer benefits, financial advisor |
-   | Social Security number | Needed for benefits claims, account closures, tax filing | Social Security card, tax returns |
-   | Birth certificate | May be needed for benefits claims | Home files, vital records office |
-   | Marriage certificate | May be needed for spousal benefits | Home files, county clerk |
-   | Military discharge papers (DD-214) | Veterans' burial benefits | Home files, National Personnel Records Center |
-   | Property deeds and vehicle titles | Asset transfer | Home files, county recorder, DMV |
-   | Bank and investment account information | Account closure or transfer | Statements, online accounts, financial institutions |
-   | Insurance policies (health, home, auto) | Cancel or transfer | Home files, agents, employers |
-   | Tax returns (past 3 years) | Final tax filing, estate tax | Home files, accountant, tax authority |
+   | Document                                | Purpose                                                  | Where to Find                                                            |
+   | --------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
+   | Death certificate (certified copies)    | Required for almost all financial and legal transactions | Funeral home orders them; available from vital records office            |
+   | Will or trust documents                 | Directs asset distribution and names executor            | Attorney's office, safe deposit box, home safe, filed with probate court |
+   | Life insurance policies                 | File claims for death benefit                            | Home files, employer benefits, financial advisor                         |
+   | Social Security number                  | Needed for benefits claims, account closures, tax filing | Social Security card, tax returns                                        |
+   | Birth certificate                       | May be needed for benefits claims                        | Home files, vital records office                                         |
+   | Marriage certificate                    | May be needed for spousal benefits                       | Home files, county clerk                                                 |
+   | Military discharge papers (DD-214)      | Veterans' burial benefits                                | Home files, National Personnel Records Center                            |
+   | Property deeds and vehicle titles       | Asset transfer                                           | Home files, county recorder, DMV                                         |
+   | Bank and investment account information | Account closure or transfer                              | Statements, online accounts, financial institutions                      |
+   | Insurance policies (health, home, auto) | Cancel or transfer                                       | Home files, agents, employers                                            |
+   | Tax returns (past 3 years)              | Final tax filing, estate tax                             | Home files, accountant, tax authority                                    |
 
 4. **Manage notifications and account closures (weeks 1-4).** Work through these systematically once death certificates arrive:
 
@@ -144,14 +146,14 @@ Losing someone is one of life's most difficult experiences, and the practical de
 
    **Practical Support Framework (First 2 Weeks):**
 
-   | Support Type | Specific Actions | Timing |
-   |-------------|-----------------|--------|
-   | Food | Bring specific meals (not "let me know if you need anything"), coordinate with others to avoid duplication | Days 1-14 |
-   | Childcare | Offer specific times: "I will pick up the kids from school on Tuesday and Thursday this week" | Days 1-14 |
-   | Household | Handle specific tasks: laundry, cleaning, grocery shopping, pet care | Days 1-14 |
-   | Errands | Pharmacy runs, dry cleaning, returns, mailings | Days 1-14 |
-   | Communication | Serve as the point person for calls and messages so the bereaved does not have to repeat the story | Days 1-7 |
-   | Logistics | Help with funeral arrangements, travel coordination for out-of-town family, accommodation | Days 1-7 |
+   | Support Type  | Specific Actions                                                                                           | Timing    |
+   | ------------- | ---------------------------------------------------------------------------------------------------------- | --------- |
+   | Food          | Bring specific meals (not "let me know if you need anything"), coordinate with others to avoid duplication | Days 1-14 |
+   | Childcare     | Offer specific times: "I will pick up the kids from school on Tuesday and Thursday this week"              | Days 1-14 |
+   | Household     | Handle specific tasks: laundry, cleaning, grocery shopping, pet care                                       | Days 1-14 |
+   | Errands       | Pharmacy runs, dry cleaning, returns, mailings                                                             | Days 1-14 |
+   | Communication | Serve as the point person for calls and messages so the bereaved does not have to repeat the story         | Days 1-7  |
+   | Logistics     | Help with funeral arrangements, travel coordination for out-of-town family, accommodation                  | Days 1-7  |
 
    **What helps most:**
    - Offer specific help, not open-ended offers ("I am bringing dinner Tuesday" beats "Let me know if you need anything")
@@ -267,10 +269,12 @@ First, you do not have to handle everything alone, and you do not have to handle
 ### Today and Tomorrow (24-48 Hours)
 
 **Completed or In Progress:**
+
 - [ ] Death has been officially pronounced (hospital, hospice, or coroner)
 - [ ] Funeral home has been contacted for transport
 
 **Notifications (Today -- Phone Calls, Not Texts):**
+
 - [ ] Immediate family: siblings, surviving parent (if applicable), spouse/partner
 - [ ] Dad's closest friends (ask a sibling or family friend to help with calls)
 - [ ] Dad's employer (if he was still working)
@@ -280,6 +284,7 @@ First, you do not have to handle everything alone, and you do not have to handle
 
 **Delegate Now:**
 Identify one person for each of these roles:
+
 - **Communications coordinator:** Handles incoming calls and messages so you do not have to repeat the news. Sends group updates.
 - **Logistics helper:** Manages food deliveries, coordinates family travel, handles pet care
 - **Research helper:** Looks up funeral home pricing, veterans' benefits (if applicable), and death certificate ordering
@@ -287,12 +292,14 @@ Identify one person for each of these roles:
 ### Days 2-3: Arrangement Decisions
 
 **Before Meeting with Funeral Home:**
+
 - [ ] Check if Dad had pre-arranged funeral plans (check his files, ask his attorney, ask if he mentioned wishes)
 - [ ] Check for a will (may specify burial/cremation preferences)
 - [ ] Gather input from siblings and family on service preferences
 - [ ] Determine budget for services
 
 **At the Funeral Home:**
+
 - [ ] Request the itemized price list (they are legally required to provide this)
 - [ ] Order 12-15 certified copies of the death certificate (you will need one for every bank, insurance company, and government agency)
 - [ ] Make decisions on: burial or cremation, service type and date, viewing, flowers, obituary publication
@@ -300,6 +307,7 @@ Identify one person for each of these roles:
 ### Days 3-7: Document Gathering
 
 Start locating these documents (check Dad's home, safe deposit box, attorney's office):
+
 - [ ] Will or trust documents
 - [ ] Life insurance policies (check employer benefits too)
 - [ ] Bank and investment account information
@@ -311,24 +319,25 @@ Start locating these documents (check Dad's home, safe deposit box, attorney's o
 
 ### Weeks 2-4: Notifications and Claims (After Death Certificates Arrive)
 
-| Task | Death Cert Needed | Status |
-|------|-------------------|--------|
-| Social Security Administration (survivor benefits inquiry) | Yes | [ ] |
-| Life insurance claim(s) | Yes | [ ] |
-| Bank accounts (notify, do not close yet) | Yes | [ ] |
-| Credit card companies | Yes | [ ] |
-| Mortgage company | Yes | [ ] |
-| DMV (cancel license, transfer vehicles) | Yes | [ ] |
-| Health insurance | Yes | [ ] |
-| Pension/retirement accounts | Yes | [ ] |
-| Utility companies | No | [ ] |
-| Postal service (mail forwarding) | No | [ ] |
-| Cancel subscriptions and memberships | No | [ ] |
-| Credit bureaus (deceased alert) | Yes | [ ] |
+| Task                                                       | Death Cert Needed | Status |
+| ---------------------------------------------------------- | ----------------- | ------ |
+| Social Security Administration (survivor benefits inquiry) | Yes               | [ ]    |
+| Life insurance claim(s)                                    | Yes               | [ ]    |
+| Bank accounts (notify, do not close yet)                   | Yes               | [ ]    |
+| Credit card companies                                      | Yes               | [ ]    |
+| Mortgage company                                           | Yes               | [ ]    |
+| DMV (cancel license, transfer vehicles)                    | Yes               | [ ]    |
+| Health insurance                                           | Yes               | [ ]    |
+| Pension/retirement accounts                                | Yes               | [ ]    |
+| Utility companies                                          | No                | [ ]    |
+| Postal service (mail forwarding)                           | No                | [ ]    |
+| Cancel subscriptions and memberships                       | No                | [ ]    |
+| Credit bureaus (deceased alert)                            | Yes               | [ ]    |
 
 ### What Can Wait (Months 2-6)
 
 Do not worry about these now:
+
 - Clearing out Dad's home or belongings (no rush -- take the time you need)
 - Filing his final tax return (due April 15 of next year)
 - Estate distribution (your attorney will guide the timeline)
@@ -341,6 +350,7 @@ Do not worry about these now:
 - **Financial advisor:** If Dad's estate includes investments, property, or complex assets, a financial advisor can help with the transition alongside the attorney.
 
 ### Identity Theft Prevention
+
 - [ ] Notify all three credit bureaus to place a deceased alert (within 30 days)
 - [ ] Monitor Dad's credit for 12 months
 - [ ] Cancel email accounts that are not being monitored

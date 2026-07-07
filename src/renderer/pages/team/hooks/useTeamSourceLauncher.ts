@@ -15,10 +15,13 @@ export type UseTeamSourceLauncherResult = {
   launcher: AssistantListItem | null;
 };
 
-export type UseTeamSourceLauncherInput = {
-  name: string;
-  sourceLauncherId?: string;
-} | null | undefined;
+export type UseTeamSourceLauncherInput =
+  | {
+      name: string;
+      sourceLauncherId?: string;
+    }
+  | null
+  | undefined;
 
 const resolveLauncherName = (launcher: AssistantListItem, localeKey: string): string => {
   const localized = launcher.nameI18n?.[localeKey];

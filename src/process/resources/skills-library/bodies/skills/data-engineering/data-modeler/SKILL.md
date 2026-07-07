@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql architecture"
-  category: "data-engineering"
-  subcategory: "data-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql architecture'
+  category: 'data-engineering'
+  subcategory: 'data-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Modeler
@@ -173,12 +173,14 @@ fact_sales
 ```
 
 **When to use snowflake over star**:
+
 - Dimension tables are very large (>10M rows) and share sub-dimensions
 - Storage cost is a primary concern
 - Query patterns always filter on sub-dimension attributes
 - ETL team prefers normalized source-of-truth dimensions
 
 **When to prefer star**:
+
 - Query performance is the priority (fewer joins)
 - BI tools work better with flat dimensions
 - Dimension tables are small-to-medium (<1M rows)
@@ -291,12 +293,14 @@ def load_hub(source_df, hub_table, business_key_col, record_source, engine):
 ## Fact Table Types
 
 ### Transaction Fact Table
+
 - One row per event/transaction
 - Most common type
 - Additive measures
 - Example: `fact_sales`, `fact_clicks`
 
 ### Periodic Snapshot Fact Table
+
 - One row per entity per time period
 - Semi-additive measures (cannot sum across time)
 - Example: `fact_account_daily_balance`, `fact_inventory_weekly`
@@ -320,6 +324,7 @@ CREATE TABLE fact_account_daily_snapshot (
 ```
 
 ### Accumulating Snapshot Fact Table
+
 - One row per entity lifecycle (updated as milestones are reached)
 - Multiple date keys tracking progress through a process
 - Example: `fact_order_fulfillment`, `fact_claim_processing`
@@ -348,6 +353,7 @@ CREATE TABLE fact_order_fulfillment (
 ```
 
 ### Factless Fact Table
+
 - Records events or conditions with no measures
 - Example: student enrollment, event attendance, coverage eligibility
 
@@ -419,14 +425,14 @@ fact_hr_attendance   |    X     |              |             |     X     |      
 
 ## Slowly Changing Dimensions Decision Guide
 
-| SCD Type | Behavior | History | Storage | Complexity | Use When |
-|----------|----------|---------|---------|------------|----------|
-| Type 0 | Never changes | N/A | Minimal | Lowest | Fixed attributes (birthdate, SSN) |
-| Type 1 | Overwrite | Lost | Minimal | Low | Corrections, non-historical attributes |
-| Type 2 | New row | Full | High | Medium | Track all changes (address, status) |
-| Type 3 | New column | Previous only | Moderate | Low | Only care about previous value |
-| Type 4 | Mini-dimension | In separate table | Moderate | Medium | Rapidly changing attributes |
-| Type 6 | Hybrid 1+2+3 | Full + current | Highest | Highest | Need both current and historical views |
+| SCD Type | Behavior       | History           | Storage  | Complexity | Use When                               |
+| -------- | -------------- | ----------------- | -------- | ---------- | -------------------------------------- |
+| Type 0   | Never changes  | N/A               | Minimal  | Lowest     | Fixed attributes (birthdate, SSN)      |
+| Type 1   | Overwrite      | Lost              | Minimal  | Low        | Corrections, non-historical attributes |
+| Type 2   | New row        | Full              | High     | Medium     | Track all changes (address, status)    |
+| Type 3   | New column     | Previous only     | Moderate | Low        | Only care about previous value         |
+| Type 4   | Mini-dimension | In separate table | Moderate | Medium     | Rapidly changing attributes            |
+| Type 6   | Hybrid 1+2+3   | Full + current    | Highest  | Highest    | Need both current and historical views |
 
 ## ERD Creation Best Practices
 
@@ -455,6 +461,7 @@ Columns:
 ### Model Documentation
 
 Every model should include:
+
 1. **Grain statement**: "One row per [X] per [Y] per [Z]"
 2. **Source mapping**: Which source systems feed each column
 3. **Business rules**: How derived columns are calculated
@@ -476,6 +483,7 @@ Every model should include:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data modeler solutions
 - Reviewing or improving existing data modeler approaches
 - Making architectural or implementation decisions about data modeler
@@ -483,6 +491,7 @@ Every model should include:
 - Troubleshooting data modeler-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -493,21 +502,26 @@ Every model should include:
 # Data Modeler Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

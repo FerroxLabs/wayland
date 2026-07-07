@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing business-writing template"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing business-writing template'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Meeting Notes
 
 ## When to Use
@@ -320,13 +321,15 @@ Board minutes must record: the date, time, and location; confirmation of quorum;
 **Notes by:** Sarah Chen
 
 **Attendees:**
+
 - Sarah Chen, Product Manager
 - Mike Torres, Engineering
 - Lisa Park, Marketing
 - James Wright, Design
-- David Kim, Legal *(partial attendance -- joined for legal review portion)*
+- David Kim, Legal _(partial attendance -- joined for legal review portion)_
 
 **Absent (invited):**
+
 - Rachel Nguyen, CTO -- scheduling conflict
 
 ---
@@ -346,15 +349,15 @@ Board minutes must record: the date, time, and location; confirmation of quorum;
 
 ### Action Items
 
-| # | Action | Owner | Due Date | Dependencies | Status |
-|---|--------|-------|----------|--------------|--------|
-| 1 | Fix checkout payment flow bug affecting 12% of mobile sessions | Mike Torres | March 5 | None | Open |
-| 2 | QA testing of checkout fix -- full mobile regression pass | QA Lead (owner needed) | March 8 | Item #1 complete | Open |
-| 3 | Update marketing calendar for March 15 launch date and notify PR agency | Lisa Park | Feb 28 | None | Open |
-| 4 | Finalize landing page designs and deliver all assets to Engineering | James Wright | March 8 | None | Open |
-| 5 | Prepare pricing analysis: 3 tiers ($19 / $29 / $39/month) with revenue projections and competitive comparison | Sarah Chen | March 3 | None | Open |
-| 6 | Send redlined ToS with corrected auto-renewal language | David Kim | March 7 | None | Open |
-| 7 | Review ToS redline and confirm launch approval from Legal | Sarah Chen | March 10 | Item #6 complete | Open |
+| #   | Action                                                                                                        | Owner                  | Due Date | Dependencies     | Status |
+| --- | ------------------------------------------------------------------------------------------------------------- | ---------------------- | -------- | ---------------- | ------ |
+| 1   | Fix checkout payment flow bug affecting 12% of mobile sessions                                                | Mike Torres            | March 5  | None             | Open   |
+| 2   | QA testing of checkout fix -- full mobile regression pass                                                     | QA Lead (owner needed) | March 8  | Item #1 complete | Open   |
+| 3   | Update marketing calendar for March 15 launch date and notify PR agency                                       | Lisa Park              | Feb 28   | None             | Open   |
+| 4   | Finalize landing page designs and deliver all assets to Engineering                                           | James Wright           | March 8  | None             | Open   |
+| 5   | Prepare pricing analysis: 3 tiers ($19 / $29 / $39/month) with revenue projections and competitive comparison | Sarah Chen             | March 3  | None             | Open   |
+| 6   | Send redlined ToS with corrected auto-renewal language                                                        | David Kim              | March 7  | None             | Open   |
+| 7   | Review ToS redline and confirm launch approval from Legal                                                     | Sarah Chen             | March 10 | Item #6 complete | Open   |
 
 **Note -- Item #2:** QA owner was not named in the meeting. Sarah Chen to confirm QA lead and update this item by February 24.
 
@@ -375,10 +378,10 @@ David Kim flagged that the current ToS auto-renewal clause does not comply with 
 
 ### Deferred Items
 
-| Topic | Reason Deferred | Return Date / Condition |
-|-------|----------------|------------------------|
-| International rollout plan | Meeting ran over time; discussion not started | March 3 meeting -- allocate 15 minutes on agenda |
-| Pricing tier decision | Revenue analysis not yet complete | March 3 meeting -- decision required at that session |
+| Topic                      | Reason Deferred                               | Return Date / Condition                              |
+| -------------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| International rollout plan | Meeting ran over time; discussion not started | March 3 meeting -- allocate 15 minutes on agenda     |
+| Pricing tier decision      | Revenue analysis not yet complete             | March 3 meeting -- decision required at that session |
 
 ---
 
@@ -390,4 +393,4 @@ David Kim flagged that the current ToS auto-renewal clause does not comply with 
 
 ---
 
-*Notes distributed by Sarah Chen | February 21, 2026 | Reply with corrections by February 23*
+_Notes distributed by Sarah Chen | February 21, 2026 | Reply with corrections by February 23_

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance gardening guide"
-  category: "home-household"
-  subcategory: "gardening"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance gardening guide'
+  category: 'home-household'
+  subcategory: 'gardening'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Garden Advisor
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about garden advisor
 - User needs guidance on garden advisor topics
 - User wants a structured approach to garden advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -44,6 +47,7 @@ metadata:
 12. **Any challenges?** (Deer, pests, poor soil, drought, short season)
 
 ## USDA Hardiness Zone Quick Reference
+
 ```
 ZONE MAP (approximate, US):
 
@@ -65,6 +69,7 @@ GROWING SEASON LENGTH: ___ days
 ## Vegetable Garden Planning
 
 ### Garden Layout Planning
+
 ```
 VEGETABLE GARDEN PLAN TEMPLATE:
 
@@ -100,6 +105,7 @@ SPACE PLANNING (per plant):
 ```
 
 ### Planting Calendar Template
+
 ```
 PLANTING CALENDAR (customize to your zone):
 
@@ -127,6 +133,7 @@ SUCCESSION PLANTING:
 ```
 
 ### Companion Planting Guide
+
 ```
 COMPANION PLANTING CHART:
 
@@ -164,6 +171,7 @@ MARIGOLDS:
 ## Soil Preparation
 
 ### Soil Assessment
+
 ```
 SOIL TEST GUIDE:
 
@@ -198,6 +206,7 @@ STEP 4: ORGANIC MATTER ASSESSMENT
 ```
 
 ### Soil Improvement
+
 ```
 SOIL AMENDMENT PLAN:
 
@@ -229,6 +238,7 @@ CONTAINER MIX (do not use garden soil in containers):
 ## Organic Pest Management
 
 ### Integrated Pest Management (IPM) Approach
+
 ```
 IPM HIERARCHY (try in this order):
 
@@ -268,19 +278,20 @@ Always start with Level 1 and work up.
 
 ### Common Garden Pest Identification
 
-| Pest | Signs | Plants Affected | Organic Solution |
-|------|-------|----------------|-----------------|
-| Aphids | Sticky residue, curled leaves, clusters on stems | Nearly all | Water spray, ladybugs, insecticidal soap |
-| Tomato hornworm | Large caterpillar, stripped leaves | Tomatoes, peppers | Hand-pick, Bt spray, attract parasitic wasps |
-| Squash bug | Wilting leaves, brown eggs on leaf undersides | Squash, cucumbers | Hand-pick, trap boards, neem oil |
-| Cabbage worm | Holes in leaves, green caterpillars | Brassicas | Row covers, Bt spray, hand-pick |
-| Slugs/snails | Holes in leaves, slime trails | Lettuce, seedlings | Beer traps, copper barriers, hand-pick at night |
-| Japanese beetles | Skeletonized leaves, metallic beetles | Many plants | Hand-pick, milky spore (lawn), neem oil |
-| Deer | Browsed plants, hoof prints | Everything | Fencing (8+ ft), repellent spray, deer-resistant plants |
+| Pest             | Signs                                            | Plants Affected    | Organic Solution                                        |
+| ---------------- | ------------------------------------------------ | ------------------ | ------------------------------------------------------- |
+| Aphids           | Sticky residue, curled leaves, clusters on stems | Nearly all         | Water spray, ladybugs, insecticidal soap                |
+| Tomato hornworm  | Large caterpillar, stripped leaves               | Tomatoes, peppers  | Hand-pick, Bt spray, attract parasitic wasps            |
+| Squash bug       | Wilting leaves, brown eggs on leaf undersides    | Squash, cucumbers  | Hand-pick, trap boards, neem oil                        |
+| Cabbage worm     | Holes in leaves, green caterpillars              | Brassicas          | Row covers, Bt spray, hand-pick                         |
+| Slugs/snails     | Holes in leaves, slime trails                    | Lettuce, seedlings | Beer traps, copper barriers, hand-pick at night         |
+| Japanese beetles | Skeletonized leaves, metallic beetles            | Many plants        | Hand-pick, milky spore (lawn), neem oil                 |
+| Deer             | Browsed plants, hoof prints                      | Everything         | Fencing (8+ ft), repellent spray, deer-resistant plants |
 
 ## Container Gardening
 
 ### Container Growing Guide
+
 ```
 CONTAINER GARDENING ESSENTIALS:
 
@@ -331,6 +342,7 @@ BEST CONTAINER VEGETABLES:
 ```
 
 ## Herb Garden Guide
+
 ```
 ESSENTIAL HERB GARDEN:
 
@@ -363,6 +375,7 @@ PRESERVATION:
 ## Indoor Plant Care
 
 ### Houseplant Quick Reference
+
 ```
 BEGINNER-FRIENDLY HOUSEPLANTS:
 
@@ -415,6 +428,7 @@ INDOOR PLANT TROUBLESHOOTING:
 ```
 
 ### Watering Schedules
+
 ```
 INDOOR PLANT WATERING GUIDE:
 
@@ -451,6 +465,7 @@ FACTORS THAT DECREASE WATERING NEEDS:
 ```
 
 ## Lawn Care Schedule
+
 ```
 LAWN CARE ANNUAL PLAN:
 
@@ -490,6 +505,7 @@ WINTER:
 ## Output Format
 
 When providing gardening advice:
+
 ```
 GARDEN PLAN
 

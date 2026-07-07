@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production template writing"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production template writing'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Voiceover Script
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when any of these conditions are present:
 - The user needs narration for a museum exhibit, kiosk, interactive installation, or telephone IVR [eye-vee-arr] system
 
 **Do NOT use when:**
+
 - The user needs a full production script with shot descriptions, B-roll cues, and on-camera speaker direction -- use `video-script-writing` instead
 - The user wants podcast episode structure, interview questions, or conversational dialogue between co-hosts -- use `podcast-episode-planning` instead
 - The user needs slide deck speaker notes meant to be read silently by a presenter -- use `speaker-notes-writing` instead
@@ -67,17 +69,18 @@ Word budget is not approximate -- it is the single most important constraint in 
 
 **Standard pace benchmarks (words per minute, delivered narration only):**
 
-| Style | WPM | Notes |
-|-------|-----|-------|
-| Audiobook / narrative | 130--145 | Deliberate, character-voiced, measured |
-| Instructional / e-learning | 130--150 | Slower for retention, pauses after key points |
-| Conversational explainer | 150--160 | Natural speech with organic rhythm |
-| Corporate presentation | 150--160 | Confident, steady, not rushed |
-| Documentary | 140--155 | Measured, authoritative, minimal decoration |
-| Commercial / energetic | 160--180 | Faster delivery, tighter pauses |
-| Legal disclaimers (fast read) | 200--220 | Intentionally fast, "small print" style |
+| Style                         | WPM      | Notes                                         |
+| ----------------------------- | -------- | --------------------------------------------- |
+| Audiobook / narrative         | 130--145 | Deliberate, character-voiced, measured        |
+| Instructional / e-learning    | 130--150 | Slower for retention, pauses after key points |
+| Conversational explainer      | 150--160 | Natural speech with organic rhythm            |
+| Corporate presentation        | 150--160 | Confident, steady, not rushed                 |
+| Documentary                   | 140--155 | Measured, authoritative, minimal decoration   |
+| Commercial / energetic        | 160--180 | Faster delivery, tighter pauses               |
+| Legal disclaimers (fast read) | 200--220 | Intentionally fast, "small print" style       |
 
 **Calculating target word count:**
+
 - Formula: `(Target seconds / 60) × WPM × 0.90 = Word budget`
 - The 0.90 factor accounts for a 10% pause buffer -- pauses exist in every professional narration
 - Example: 60-second conversational script: `(60/60) × 150 × 0.90 = 135 words`
@@ -85,6 +88,7 @@ Word budget is not approximate -- it is the single most important constraint in 
 - Example: 2-minute e-learning segment: `(120/60) × 140 × 0.90 = 252 words`
 
 **Pause time budgeting (separate from word count):**
+
 - Micro-pause `[PAUSE 0.5s]`: breath, list item separator, light beat -- plan 3--5 per minute of content
 - Standard pause `[PAUSE 1s]`: between ideas, after a question, before a new concept -- plan 2--3 per minute
 - Dramatic pause `[PAUSE 2s]`: after a key reveal, before a significant statement -- use sparingly, 1--2 per piece
@@ -332,12 +336,12 @@ When the script is primarily in one language but includes loanwords, brand names
 
 ### Pronunciation Guide
 
-| Word / Acronym | Phonetic | Notes |
-|----------------|----------|-------|
-| Automatically | aw-toh-MAT-ik-lee | Do not clip to "auto-matically" |
-| Incremental | in-kreh-MEN-tull | Stress on second syllable |
-| Versioning | VER-zhun-ing | Not "ver-SION-ing" |
-| Ransomware | RAN-sum-wair | Single compound word, two equal beats |
+| Word / Acronym | Phonetic          | Notes                                 |
+| -------------- | ----------------- | ------------------------------------- |
+| Automatically  | aw-toh-MAT-ik-lee | Do not clip to "auto-matically"       |
+| Incremental    | in-kreh-MEN-tull  | Stress on second syllable             |
+| Versioning     | VER-zhun-ing      | Not "ver-SION-ing"                    |
+| Ransomware     | RAN-sum-wair      | Single compound word, two equal beats |
 
 ---
 
@@ -391,18 +395,18 @@ CloudSafe. [PAUSE 1s] Because the files you lose in five seconds [PAUSE 0.5s] to
 
 ### Timing Breakdown
 
-| Section | Words | @ 150 WPM | Pauses | Section Total |
-|---------|-------|-----------|--------|---------------|
-| Opening -- the story of your files | 30 | 12s | 2s | 14s |
-| The risk -- losing everything | 22 | 9s | 2s | 11s |
-| What CloudSafe does -- intro | 47 | 19s | 3s | 22s |
-| Restore points explained | 37 | 15s | 2.5s | 17.5s |
-| Ransomware scenario | 21 | 8s | 2.5s | 10.5s |
-| Simple setup | 20 | 8s | 1.5s | 9.5s |
-| Closing tagline | 21 | 8s | 3s | 11s (with 2s dramatic pause) |
-| **Total** | **198** | **79s** | **16.5s** | **95.5s** *(trimmed to 91s in final)* |
+| Section                            | Words   | @ 150 WPM | Pauses    | Section Total                         |
+| ---------------------------------- | ------- | --------- | --------- | ------------------------------------- |
+| Opening -- the story of your files | 30      | 12s       | 2s        | 14s                                   |
+| The risk -- losing everything      | 22      | 9s        | 2s        | 11s                                   |
+| What CloudSafe does -- intro       | 47      | 19s       | 3s        | 22s                                   |
+| Restore points explained           | 37      | 15s       | 2.5s      | 17.5s                                 |
+| Ransomware scenario                | 21      | 8s        | 2.5s      | 10.5s                                 |
+| Simple setup                       | 20      | 8s        | 1.5s      | 9.5s                                  |
+| Closing tagline                    | 21      | 8s        | 3s        | 11s (with 2s dramatic pause)          |
+| **Total**                          | **198** | **79s**   | **16.5s** | **95.5s** _(trimmed to 91s in final)_ |
 
-*Note: The "files you lose in five seconds" closing line can be delivered slightly under pace to land at exactly 90s. Alternatively, the ransomware section's opening pause can be reduced from 1s to 0.5s to recover 1 second.*
+_Note: The "files you lose in five seconds" closing line can be delivered slightly under pace to land at exactly 90s. Alternatively, the ransomware section's opening pause can be reduced from 1s to 0.5s to recover 1 second._
 
 ---
 

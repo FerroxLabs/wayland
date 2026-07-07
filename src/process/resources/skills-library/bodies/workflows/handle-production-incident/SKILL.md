@@ -15,13 +15,13 @@ skills: incident-response logging-patterns monitoring-alerting technical-documen
 trigger_phrases: handle production incident manage outage respond to production issue production incident management
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: devops troubleshooting security planning step-by-step
   category: software-project
   depends: incident-response logging-patterns monitoring-alerting technical-documentation retrospective-facilitator
   disclaimer: none
   difficulty: advanced
-  interactivity: "auto"
+  interactivity: 'auto'
 ---
 
 # Handle Production Incident
@@ -165,6 +165,7 @@ Overall Status: [ACTIVE / RESOLVED / POSTMORTEM COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - For P3 incidents, abbreviate Steps 4-5 (brief postmortem, skip formal retrospective)
 - For recurring incidents, emphasize systemic action items in Steps 4-5
 - For incidents involving multiple teams, assign a dedicated incident commander in Step 1

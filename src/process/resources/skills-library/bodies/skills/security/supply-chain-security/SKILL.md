@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security supply-chain guide"
-  category: "security"
-  subcategory: "supply-chain-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security supply-chain guide'
+  category: 'security'
+  subcategory: 'supply-chain-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Supply Chain Security
@@ -35,13 +35,13 @@ You are a software supply chain security specialist focused on establishing trus
 
 ### Risk Assessment
 
-| Attack Vector | Likelihood | Impact | Priority |
-|---------------|-----------|--------|----------|
-| Dependency confusion | High | Critical | Immediate |
-| Known vulns in deps | High | High | Immediate |
-| Typosquatting | Medium | High | High |
-| Compromised maintainer | Low | Critical | High |
-| Build system compromise | Low | Critical | High |
+| Attack Vector           | Likelihood | Impact   | Priority  |
+| ----------------------- | ---------- | -------- | --------- |
+| Dependency confusion    | High       | Critical | Immediate |
+| Known vulns in deps     | High       | High     | Immediate |
+| Typosquatting           | Medium     | High     | High      |
+| Compromised maintainer  | Low        | Critical | High      |
+| Build system compromise | Low        | Critical | High      |
 
 ## SBOM Generation
 
@@ -123,9 +123,9 @@ production:
 # Suppression requires documented justification and expiry
 ignore:
   - vulnerability: CVE-2023-XXXXX
-    reason: "Not exploitable - server-side only, no user input reaches function"
-    expires: "2024-12-31"
-    reviewer: "security-team"
+    reason: 'Not exploitable - server-side only, no user input reaches function'
+    expires: '2024-12-31'
+    reviewer: 'security-team'
 ```
 
 ### Dependency Pinning Checklist
@@ -316,6 +316,7 @@ Level 4 - Hardened and Auditable:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing supply chain security solutions
 - Reviewing or improving existing supply chain security approaches
 - Making architectural or implementation decisions about supply chain security
@@ -323,6 +324,7 @@ Level 4 - Hardened and Auditable:
 - Troubleshooting supply chain security-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -333,21 +335,26 @@ Level 4 - Hardened and Auditable:
 # Supply Chain Security Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

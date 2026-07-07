@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis strategy frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making analysis strategy frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Bayesian Reasoner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on bayesian reasoner
 - User asks about bayesian reasoner best practices or techniques
 - User wants a structured approach to bayesian reasoner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of bayesian reasoner
 
@@ -509,23 +510,28 @@ PERSONAL RELATIONSHIPS:
 ## Practice Exercises
 
 ### Exercise 1: Base Rate Practice
+
 For the next week, before making any prediction or judgment, first estimate the base rate. Write down: "In general, how often does this type of thing happen?"
 
 ### Exercise 2: Calibration Game
+
 Write 50 true/false questions about things you're uncertain about. For each, estimate your confidence (50%-99%). Check the answers. Plot your accuracy against your confidence. Where are you miscalibrated?
 
 ### Exercise 3: Prediction Tracking
+
 Start a prediction journal. Each week, make 3-5 predictions with probability estimates. Review monthly. Track your accuracy over time.
 
 ### Exercise 4: Likelihood Ratio Estimation
+
 Take a recent decision. Identify the key piece of evidence. Estimate: How much more likely was this evidence under the "yes" hypothesis vs. the "no" hypothesis? Did you weight this evidence appropriately?
 
 ### Exercise 5: Decomposition Practice
+
 Take a complex question ("Will my startup succeed?"). Break it into 5+ sub-questions. Estimate each independently. Combine them. Compare to your gut feeling about the overall question. Where do they differ?
 
 ### Exercise 6: Updating Exercise
-Pick a current belief (60-80% confidence). Actively seek one piece of evidence FOR and one AGAINST. After finding each, update your probability. Write down each update and why.
 
+Pick a current belief (60-80% confidence). Actively seek one piece of evidence FOR and one AGAINST. After finding each, update your probability. Write down each update and why.
 
 ## Output Format
 
@@ -539,13 +545,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with bayesian reasoner for a mid-size project."
 
 **Output:** A complete bayesian reasoner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

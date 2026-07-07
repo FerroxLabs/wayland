@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation api-design"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation api-design'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # API Documentation Writer
@@ -124,32 +124,32 @@ paths:
                 summary: Simple single-item order
                 value:
                   items:
-                    - product_id: "prod_abc123"
+                    - product_id: 'prod_abc123'
                       quantity: 2
                   shipping_address:
-                    line1: "123 Main St"
-                    city: "San Francisco"
-                    state: "CA"
-                    postal_code: "94102"
-                    country: "US"
+                    line1: '123 Main St'
+                    city: 'San Francisco'
+                    state: 'CA'
+                    postal_code: '94102'
+                    country: 'US'
               multi_item:
                 summary: Multi-item order with discount
                 value:
                   items:
-                    - product_id: "prod_abc123"
+                    - product_id: 'prod_abc123'
                       quantity: 2
-                    - product_id: "prod_def456"
+                    - product_id: 'prod_def456'
                       quantity: 1
-                  discount_code: "SAVE10"
+                  discount_code: 'SAVE10'
                   shipping_address:
-                    line1: "456 Oak Ave"
-                    city: "Austin"
-                    state: "TX"
-                    postal_code: "73301"
-                    country: "US"
+                    line1: '456 Oak Ave'
+                    city: 'Austin'
+                    state: 'TX'
+                    postal_code: '73301'
+                    country: 'US'
                   metadata:
-                    source: "mobile_app"
-                    campaign: "summer_sale"
+                    source: 'mobile_app'
+                    campaign: 'summer_sale'
       responses:
         '201':
           description: Order created successfully
@@ -166,18 +166,18 @@ paths:
                 created:
                   summary: Newly created order
                   value:
-                    id: "ord_xyz789"
-                    status: "pending"
+                    id: 'ord_xyz789'
+                    status: 'pending'
                     items:
-                      - product_id: "prod_abc123"
+                      - product_id: 'prod_abc123'
                         quantity: 2
                         unit_price: 29.99
                         total: 59.98
                     subtotal: 59.98
                     tax: 5.40
                     total: 65.38
-                    created_at: "2024-06-15T10:30:00Z"
-                    expires_at: "2024-06-15T11:00:00Z"
+                    created_at: '2024-06-15T10:30:00Z'
+                    expires_at: '2024-06-15T11:00:00Z'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -193,16 +193,16 @@ paths:
                   summary: Product not found
                   value:
                     error:
-                      code: "INVALID_PRODUCT"
+                      code: 'INVALID_PRODUCT'
                       message: "Product 'prod_invalid' does not exist"
-                      field: "items[0].product_id"
+                      field: 'items[0].product_id'
                 out_of_stock:
                   summary: Product out of stock
                   value:
                     error:
-                      code: "OUT_OF_STOCK"
+                      code: 'OUT_OF_STOCK'
                       message: "Product 'prod_abc123' has only 1 unit available"
-                      field: "items[0].quantity"
+                      field: 'items[0].quantity'
                       metadata:
                         available_quantity: 1
 
@@ -215,7 +215,7 @@ components:
         id:
           type: string
           description: Unique order identifier
-          example: "ord_xyz789"
+          example: 'ord_xyz789'
           readOnly: true
         status:
           type: string
@@ -282,16 +282,14 @@ const Company = require('company-sdk');
 const client = new Company('sk_test_EXAMPLE_KEY_REPLACE_ME');
 
 const order = await client.orders.create({
-  items: [
-    { product_id: 'prod_abc123', quantity: 2 }
-  ],
+  items: [{ product_id: 'prod_abc123', quantity: 2 }],
   shipping_address: {
     line1: '123 Main St',
     city: 'San Francisco',
     state: 'CA',
     postal_code: '94102',
     country: 'US',
-  }
+  },
 });
 
 console.log(`Order created: ${order.id}`);
@@ -327,6 +325,7 @@ DON'T:
 Get up and running with the Orders API in 5 minutes.
 
 ## Prerequisites
+
 - A Company account ([sign up free]([reference URL]))
 - An API key from [Dashboard > API Keys]([reference URL])
 
@@ -335,9 +334,11 @@ Get up and running with the Orders API in 5 minutes.
 Choose your language:
 
 **Python** (requires Python 3.8+)
+
 > install via pip: company-sdk
 
 **Node.js** (requires Node 18+)
+
 > install via npm: company-sdk
 
 ## Step 2: Make your first API call
@@ -359,6 +360,7 @@ Choose your language:
 [Code example: get order by ID]
 
 ## Next Steps
+
 - [Authentication Guide](/docs/auth) - Learn about API keys and OAuth
 - [Webhooks](/docs/webhooks) - Get real-time order status updates
 - [Full API Reference](/docs/api) - Explore all endpoints
@@ -375,45 +377,45 @@ error_categories:
   authentication:
     - code: INVALID_API_KEY
       http_status: 401
-      message: "The API key provided is invalid or expired"
+      message: 'The API key provided is invalid or expired'
       causes:
-        - "API key was deleted or rotated"
-        - "Using test key against production endpoint"
-        - "Key has been compromised and revoked"
-      resolution: "Generate a new API key in Dashboard > API Keys"
+        - 'API key was deleted or rotated'
+        - 'Using test key against production endpoint'
+        - 'Key has been compromised and revoked'
+      resolution: 'Generate a new API key in Dashboard > API Keys'
 
     - code: INSUFFICIENT_SCOPE
       http_status: 403
-      message: "Your token lacks the required scope for this endpoint"
+      message: 'Your token lacks the required scope for this endpoint'
       causes:
-        - "OAuth token was not granted the needed scope"
-      resolution: "Request additional scopes during OAuth authorization"
+        - 'OAuth token was not granted the needed scope'
+      resolution: 'Request additional scopes during OAuth authorization'
 
   validation:
     - code: INVALID_PARAMETER
       http_status: 400
-      message: "A required parameter is missing or invalid"
+      message: 'A required parameter is missing or invalid'
       fields:
-        field: "The parameter that failed validation"
-        expected: "What was expected"
-        received: "What was received"
+        field: 'The parameter that failed validation'
+        expected: 'What was expected'
+        received: 'What was received'
       example:
         error:
-          code: "INVALID_PARAMETER"
-          message: "quantity must be a positive integer"
-          field: "items[0].quantity"
-          expected: "integer > 0"
-          received: "-1"
+          code: 'INVALID_PARAMETER'
+          message: 'quantity must be a positive integer'
+          field: 'items[0].quantity'
+          expected: 'integer > 0'
+          received: '-1'
 
   rate_limiting:
     - code: RATE_LIMIT_EXCEEDED
       http_status: 429
-      message: "Too many requests"
+      message: 'Too many requests'
       headers:
-        X-RateLimit-Limit: "Maximum requests per window"
-        X-RateLimit-Remaining: "Requests remaining in window"
-        X-RateLimit-Reset: "Unix timestamp when window resets"
-        Retry-After: "Seconds to wait before retrying"
+        X-RateLimit-Limit: 'Maximum requests per window'
+        X-RateLimit-Remaining: 'Requests remaining in window'
+        X-RateLimit-Reset: 'Unix timestamp when window resets'
+        Retry-After: 'Seconds to wait before retrying'
       resolution: |
         Implement exponential backoff. Check Retry-After header
         for the recommended wait time.
@@ -468,6 +470,7 @@ Maintenance:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api documentation writer solutions
 - Reviewing or improving existing api documentation writer approaches
 - Making architectural or implementation decisions about api documentation writer
@@ -475,6 +478,7 @@ Maintenance:
 - Troubleshooting api documentation writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -485,21 +489,26 @@ Maintenance:
 # Api Documentation Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -53,18 +53,12 @@ describe('toUnifiedIncomingFromActivity', () => {
   });
 
   it('returns null when sender is the bot (echo guard)', () => {
-    const result = toUnifiedIncomingFromActivity(
-      makeActivity({ from: { id: BOT_ID, name: 'Wayland Bot' } }),
-      BOT_ID,
-    );
+    const result = toUnifiedIncomingFromActivity(makeActivity({ from: { id: BOT_ID, name: 'Wayland Bot' } }), BOT_ID);
     expect(result).toBeNull();
   });
 
   it('returns null when conversation id is missing', () => {
-    const result = toUnifiedIncomingFromActivity(
-      makeActivity({ conversation: { id: '' } }),
-      BOT_ID,
-    );
+    const result = toUnifiedIncomingFromActivity(makeActivity({ conversation: { id: '' } }), BOT_ID);
     expect(result).toBeNull();
   });
 
@@ -141,9 +135,7 @@ describe('HTML helpers', () => {
 
 describe('normalizeMsTeamsConversationId', () => {
   it('strips messageid suffix', () => {
-    expect(normalizeMsTeamsConversationId('19:abc123@thread.v2;messageid=99')).toBe(
-      '19:abc123@thread.v2',
-    );
+    expect(normalizeMsTeamsConversationId('19:abc123@thread.v2;messageid=99')).toBe('19:abc123@thread.v2');
   });
 
   it('passes through ids without suffix', () => {

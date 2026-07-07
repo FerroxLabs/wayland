@@ -140,14 +140,12 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
 
 /** raw category string -> group id. Built once from CATEGORY_GROUPS.rawCategories. */
 const RAW_TO_GROUP: ReadonlyMap<string, CategoryGroupId> = new Map(
-  CATEGORY_GROUPS.flatMap((group) =>
-    group.rawCategories.map((raw): [string, CategoryGroupId] => [raw, group.id]),
-  ),
+  CATEGORY_GROUPS.flatMap((group) => group.rawCategories.map((raw): [string, CategoryGroupId] => [raw, group.id]))
 );
 
 /** id -> group, for O(1) lookups. */
 const GROUP_BY_ID: ReadonlyMap<CategoryGroupId, CategoryGroup> = new Map(
-  CATEGORY_GROUPS.map((group): [CategoryGroupId, CategoryGroup] => [group.id, group]),
+  CATEGORY_GROUPS.map((group): [CategoryGroupId, CategoryGroup] => [group.id, group])
 );
 
 /**

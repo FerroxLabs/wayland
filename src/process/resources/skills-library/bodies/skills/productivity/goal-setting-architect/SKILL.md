@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits guide"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'goal-setting habits guide'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Goal Setting Architect
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about goal setting architect
 - User needs guidance on goal setting architect topics
 - User wants a structured approach to goal setting architect
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -33,15 +35,15 @@ metadata:
 
 Research consistently shows that while 80%+ of people set goals, fewer than 10% achieve them. The failure points are predictable:
 
-| Failure Point | Example | Fix |
-|--------------|---------|-----|
-| Too vague | "Get in shape" | Make it specific and measurable |
-| Too many | 15 goals simultaneously | Focus on 3-5 maximum |
-| No system | Goal without a plan | Build a weekly action system |
-| No review | Set and skip | Regular review cadence |
-| No accountability | Private goals with no check-in | External accountability structure |
-| Motivation-dependent | Wait to "feel like it" | System and environment design |
-| All-or-nothing thinking | One bad week = total failure | Build in recovery and flexibility |
+| Failure Point           | Example                        | Fix                               |
+| ----------------------- | ------------------------------ | --------------------------------- |
+| Too vague               | "Get in shape"                 | Make it specific and measurable   |
+| Too many                | 15 goals simultaneously        | Focus on 3-5 maximum              |
+| No system               | Goal without a plan            | Build a weekly action system      |
+| No review               | Set and skip                   | Regular review cadence            |
+| No accountability       | Private goals with no check-in | External accountability structure |
+| Motivation-dependent    | Wait to "feel like it"         | System and environment design     |
+| All-or-nothing thinking | One bad week = total failure   | Build in recovery and flexibility |
 
 ## Goal Setting Frameworks
 
@@ -73,6 +75,7 @@ Borrowed from Google's goal-setting methodology, adapted for personal use.
 **Objective**: Become a confident public speaker
 
 **Key Results**:
+
 1. Complete a public speaking course by March 31
 2. Deliver 6 presentations (1 per month) to groups of 10+ people
 3. Receive average audience feedback score of 4+/5 on final 3 presentations
@@ -85,12 +88,14 @@ Borrowed from Google's goal-setting methodology, adapted for personal use.
 Instead of annual goals (which feel distant and encourage procrastination), set goals in 12-week cycles.
 
 **Why 12 Weeks**:
+
 - Urgency: 12 weeks is short enough to maintain focus
 - Clarity: Each week represents ~8% of the period (vs. ~2% in a year)
 - Adaptability: Course-correct 4 times per year instead of once
 - Accountability: Weekly progress is visible and meaningful
 
 **Structure**:
+
 1. Choose 1-3 goals for the 12-week period
 2. Break each goal into weekly milestones
 3. Create a weekly action plan
@@ -131,6 +136,7 @@ Highest 3 areas (maintain):
 ### Step 2: Annual Vision (1 hour)
 
 Answer these questions:
+
 - What would make this year feel like a great success?
 - What do I want to be different 12 months from now?
 - What is the one change that would have the biggest ripple effect?
@@ -186,22 +192,15 @@ Q4 Milestone: _________________________
 ### The Weekly Planning Ritual (30 minutes, same day each week)
 
 **Review (10 minutes)**:
+
 1. How did last week go? (Score: 1-10)
 2. What did I accomplish?
 3. What did I not accomplish? Why?
 4. What did I learn?
 
-**Plan (15 minutes)**:
-5. What are my top 3 priorities this week?
-6. What specific actions will I take for each goal?
-7. What obstacles might arise? How will I handle them?
-8. What commitments and appointments do I have?
-9. What do I need to prepare or schedule?
+**Plan (15 minutes)**: 5. What are my top 3 priorities this week? 6. What specific actions will I take for each goal? 7. What obstacles might arise? How will I handle them? 8. What commitments and appointments do I have? 9. What do I need to prepare or schedule?
 
-**Reflect (5 minutes)**:
-10. Am I on track for my quarterly milestone?
-11. Does anything need to change?
-12. What am I grateful for from last week?
+**Reflect (5 minutes)**: 10. Am I on track for my quarterly milestone? 11. Does anything need to change? 12. What am I grateful for from last week?
 
 ### Weekly Planning Template
 
@@ -246,6 +245,7 @@ PREVIOUS WEEK SCORE: ___/10
 ### Partner Accountability
 
 **The Accountability Partner System**:
+
 - Find someone with similar ambition (not necessarily the same goal)
 - Schedule weekly check-ins (15-30 minutes)
 - Share your weekly plan and results
@@ -253,6 +253,7 @@ PREVIOUS WEEK SCORE: ___/10
 - Be honest: a partner who lets you off the hook is not helping
 
 **Check-in Structure**:
+
 1. "Here's what I committed to last week"
 2. "Here's what I actually did"
 3. "Here's why I did or did not follow through"
@@ -262,6 +263,7 @@ PREVIOUS WEEK SCORE: ___/10
 ### Group Accountability
 
 **Mastermind Groups** (3-6 people):
+
 - Meet monthly or bi-weekly
 - Each person shares: wins, challenges, commitments
 - Group provides perspective, connections, and accountability
@@ -270,6 +272,7 @@ PREVIOUS WEEK SCORE: ___/10
 ### Coach or Mentor
 
 When to consider:
+
 - Self-accountability consistently fails
 - Goals require expertise you lack
 - Significant life or career transition
@@ -278,21 +281,25 @@ When to consider:
 ## Review Cadence
 
 ### Daily (2 minutes)
+
 - Review today's top 3 priorities
 - End of day: Did I complete them? What will I carry to tomorrow?
 
 ### Weekly (30 minutes)
+
 - Full weekly planning ritual (see above)
 - Score the week
 - Adjust next week's plan
 
 ### Monthly (1 hour)
+
 - Review monthly progress toward quarterly milestones
 - Identify what is working and what is not
 - Adjust strategies (not goals) if needed
 - Celebrate monthly wins
 
 ### Quarterly (2-3 hours)
+
 - Comprehensive review of quarterly goals
 - Score each key result / milestone
 - Set next quarter's milestones
@@ -300,6 +307,7 @@ When to consider:
 - Update annual goals if circumstances changed
 
 ### Annual (Half day)
+
 - Full life audit
 - Review year's accomplishments and learning
 - Celebrate wins (this matters)
@@ -308,15 +316,15 @@ When to consider:
 
 ## Common Goal-Setting Mistakes
 
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Setting goals based on "should" | Low motivation, guilt-driven effort | Set goals based on genuine desire and values |
-| No lead measures | Only tracking outcomes you cannot control daily | Identify and track daily/weekly actions (lead measures) |
-| Perfectionism | One slip = abandonment | Progress over perfection; 80% consistency beats 100% for 2 weeks |
-| Comparing to others | Demotivation, moving goalposts | Compare to your past self only |
-| Ignoring rest and recovery | Burnout, diminishing returns | Schedule recovery, maintain buffer in your plan |
-| Never revising goals | Pursuing outdated objectives | Quarterly reviews allow course correction |
-| All planning, no execution | Feels productive but is procrastination | Plan once per week, execute the rest |
+| Mistake                         | Impact                                          | Fix                                                              |
+| ------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| Setting goals based on "should" | Low motivation, guilt-driven effort             | Set goals based on genuine desire and values                     |
+| No lead measures                | Only tracking outcomes you cannot control daily | Identify and track daily/weekly actions (lead measures)          |
+| Perfectionism                   | One slip = abandonment                          | Progress over perfection; 80% consistency beats 100% for 2 weeks |
+| Comparing to others             | Demotivation, moving goalposts                  | Compare to your past self only                                   |
+| Ignoring rest and recovery      | Burnout, diminishing returns                    | Schedule recovery, maintain buffer in your plan                  |
+| Never revising goals            | Pursuing outdated objectives                    | Quarterly reviews allow course correction                        |
+| All planning, no execution      | Feels productive but is procrastination         | Plan once per week, execute the rest                             |
 
 ## The Goal Achievement Formula
 
@@ -335,6 +343,7 @@ Each component is necessary. Remove any one, and the probability of success drop
 ## Getting Started
 
 **Right now, in 10 minutes**:
+
 1. Choose ONE goal that matters most to you right now
 2. Make it SMART (specific, measurable, achievable, relevant, time-bound)
 3. Identify the first 3 actions you can take this week
@@ -343,7 +352,6 @@ Each component is necessary. Remove any one, and the probability of success drop
 6. Set a weekly review reminder for Sunday evening
 
 One goal, consistently pursued, changes more than five goals scattered across sporadic effort.
-
 
 ## Output Format
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "report template planning"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'report template planning'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Business Reporting Cadence
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to set up recurring business reports (weekly, monthly, quarterly)
 - User wants to standardize report formats across teams or business units
 - User asks who should receive which reports and how often
@@ -28,6 +29,7 @@ metadata:
 - User is building a reporting program from scratch or overhauling an inconsistent one
 
 **Do NOT use when:**
+
 - User wants a live dashboard specification (use `bi-dashboard-spec`)
 - User wants to define KPIs with formulas (use `kpi-definition`)
 - User wants to write a one-time data narrative or presentation (use `data-storytelling`)
@@ -175,11 +177,11 @@ metadata:
 
 ### Reporting Calendar
 
-| Frequency | Report Name | Owner | Audience | Delivery | Day/Time |
-|-----------|------------|-------|----------|----------|----------|
-| Weekly | Marketing Pulse | Marketing Ops Lead | Marketing team (15), VP Marketing | Slack #marketing-metrics | Monday 9am |
-| Monthly | Marketing Performance Review | Marketing Ops Lead | VP Marketing, CMO, Sales VP | Email + presentation | 3rd business day of month |
-| Quarterly | Marketing QBR | VP Marketing | Executive team, Sales leadership | Live presentation + document | 2nd week after quarter end |
+| Frequency | Report Name                  | Owner              | Audience                          | Delivery                     | Day/Time                   |
+| --------- | ---------------------------- | ------------------ | --------------------------------- | ---------------------------- | -------------------------- |
+| Weekly    | Marketing Pulse              | Marketing Ops Lead | Marketing team (15), VP Marketing | Slack #marketing-metrics     | Monday 9am                 |
+| Monthly   | Marketing Performance Review | Marketing Ops Lead | VP Marketing, CMO, Sales VP       | Email + presentation         | 3rd business day of month  |
+| Quarterly | Marketing QBR                | VP Marketing       | Executive team, Sales leadership  | Live presentation + document | 2nd week after quarter end |
 
 ---
 
@@ -194,6 +196,7 @@ metadata:
 #### Template
 
 **Section 1: This Week in 30 Seconds (3-5 bullets)**
+
 - MQLs generated this week: [N] vs. target [N] -- [% to weekly target]
 - Campaign spend this week: $[N] vs. budget $[N] -- [% utilized]
 - Top-performing channel: [Channel] at $[N] cost per MQL
@@ -202,13 +205,13 @@ metadata:
 
 **Section 2: Channel Performance Scorecards**
 
-| Channel | MQLs | Cost | CPL | Conv. Rate | vs. Last Week | Status |
-|---------|------|------|-----|------------|---------------|--------|
-| Paid Search | [N] | $[N] | $[N] | [%] | [+/-] | [G/Y/R] |
-| Paid Social | [N] | $[N] | $[N] | [%] | [+/-] | [G/Y/R] |
-| Organic | [N] | -- | -- | [%] | [+/-] | [G/Y/R] |
-| Email | [N] | $[N] | $[N] | [%] | [+/-] | [G/Y/R] |
-| Events/Webinars | [N] | $[N] | $[N] | [%] | [+/-] | [G/Y/R] |
+| Channel         | MQLs | Cost | CPL  | Conv. Rate | vs. Last Week | Status  |
+| --------------- | ---- | ---- | ---- | ---------- | ------------- | ------- |
+| Paid Search     | [N]  | $[N] | $[N] | [%]        | [+/-]         | [G/Y/R] |
+| Paid Social     | [N]  | $[N] | $[N] | [%]        | [+/-]         | [G/Y/R] |
+| Organic         | [N]  | --   | --   | [%]        | [+/-]         | [G/Y/R] |
+| Email           | [N]  | $[N] | $[N] | [%]        | [+/-]         | [G/Y/R] |
+| Events/Webinars | [N]  | $[N] | $[N] | [%]        | [+/-]         | [G/Y/R] |
 
 **Section 3: Campaign Spotlight**
 [1-paragraph narrative on the most notable campaign result this week -- what worked, what did not, what changed]
@@ -232,6 +235,7 @@ metadata:
 #### Template
 
 **Section 1: Monthly Summary**
+
 - Total MQLs: [N] vs. target [N] ([% attainment])
 - Total SQLs from marketing: [N] vs. target [N]
 - Marketing-sourced pipeline: $[N] vs. target $[N]
@@ -246,6 +250,7 @@ metadata:
 [Narrative: Top 2 channels by ROI and what is driving performance. Bottom channel and recommended action.]
 
 **Section 4: Content and Brand Metrics**
+
 - Blog traffic: [N] sessions, [top 3 posts by traffic]
 - Social engagement rate: [%] across platforms
 - Brand mention volume: [N] vs. last month
@@ -266,6 +271,7 @@ metadata:
 #### Template
 
 **Section 1: Quarter in Review (1 slide / 1 page)**
+
 - Revenue target: $[N], Marketing-sourced: $[N] ([%] of total)
 - Pipeline generated: $[N] vs. plan $[N]
 - Total spend: $[N], ROI: [X]:1
@@ -290,13 +296,14 @@ metadata:
 
 ### Escalation Protocol
 
-| Trigger | Threshold | Escalation To | Format | Response Time |
-|---------|-----------|---------------|--------|---------------|
-| MQLs below weekly target | <70% of weekly target for 2 consecutive weeks | VP Marketing | Slack DM + 15-min call | Same day |
-| Spend pacing ahead of budget | >110% of monthly budget by mid-month | VP Marketing + Finance | Email with spend analysis | 24 hours |
-| Campaign failure | Any campaign with CPL > 2x target after 500+ impressions | Campaign owner + Marketing Ops | Campaign pause recommendation | 4 hours |
+| Trigger                      | Threshold                                                | Escalation To                  | Format                        | Response Time |
+| ---------------------------- | -------------------------------------------------------- | ------------------------------ | ----------------------------- | ------------- |
+| MQLs below weekly target     | <70% of weekly target for 2 consecutive weeks            | VP Marketing                   | Slack DM + 15-min call        | Same day      |
+| Spend pacing ahead of budget | >110% of monthly budget by mid-month                     | VP Marketing + Finance         | Email with spend analysis     | 24 hours      |
+| Campaign failure             | Any campaign with CPL > 2x target after 500+ impressions | Campaign owner + Marketing Ops | Campaign pause recommendation | 4 hours       |
 
 ### Maintenance Schedule
+
 - **Quarterly audit:** First week of each quarter -- review which reports were read, which action items were completed
 - **Annual restructure:** January -- align reporting to new annual strategy and updated KPIs
 - **Feedback survey:** End of each quarter -- 3-question survey to all report recipients on utility and clarity

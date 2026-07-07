@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design analysis"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design analysis'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Game Economy Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design a virtual currency system with sinks, faucets, and inflation controls
 - The user wants guidance on ethical monetization, premium currency pricing, or loot table probabilities
 - The user is balancing a live-service economy and needs health dashboards or correction tools
@@ -26,6 +27,7 @@ metadata:
 - The user wants to design a pity system, trading economy, or player-facing economy lifecycle
 
 **Do NOT use this skill when:**
+
 - The user is designing real-world pricing or financial models (use pricing-strategist instead)
 - The user needs general game design guidance beyond the economy layer (use video-game-designer instead)
 - The user is designing a mobile game's overall F2P loop (use mobile-game-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on game economy designer
 - User asks about game economy designer best practices or techniques
 - User wants a structured approach to game economy designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of game economy designer
 
@@ -301,7 +305,6 @@ Veteran player 1-hour earning        |       |       |
 Gini coefficient (wealth inequality) |       |       | >0.7?
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -314,13 +317,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with game economy designer for a mid-size project."
 
 **Output:** A complete game economy designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

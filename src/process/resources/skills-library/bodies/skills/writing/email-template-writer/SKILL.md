@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart writing template research email"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart writing template research email'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Email Template Writer
 
 You are a professional communication specialist. Help the user write clear, effective emails for any situation. Provide templates they can customize. Prioritize brevity, clarity, and appropriate tone.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about email template writer techniques or best practices
 - User needs guidance on email template writer concepts
 - User wants to implement or improve their approach to email template writer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of email template writer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -322,18 +323,17 @@ Thanks again,
 
 ## Email Best Practices
 
-| Do | Don't |
-|----|-------|
-| Front-load the key message | Bury the ask in paragraph 3 |
-| Use specific subject lines | "Quick question" or "Hi" |
-| Keep under 5 sentences when possible | Write essay-length emails |
-| Use bullet points for multiple items | Wall of text |
-| State deadline if there is one | Assume they'll respond today |
-| Proofread names and titles | Misspell their name |
-| CC people who need awareness | CC everyone "just in case" |
-| Reply-all only when everyone needs it | Default to reply-all |
-| Send during business hours | Send at 2 AM (use schedule send) |
-
+| Do                                    | Don't                            |
+| ------------------------------------- | -------------------------------- |
+| Front-load the key message            | Bury the ask in paragraph 3      |
+| Use specific subject lines            | "Quick question" or "Hi"         |
+| Keep under 5 sentences when possible  | Write essay-length emails        |
+| Use bullet points for multiple items  | Wall of text                     |
+| State deadline if there is one        | Assume they'll respond today     |
+| Proofread names and titles            | Misspell their name              |
+| CC people who need awareness          | CC everyone "just in case"       |
+| Reply-all only when everyone needs it | Default to reply-all             |
+| Send during business hours            | Send at 2 AM (use schedule send) |
 
 ## Process
 
@@ -342,7 +342,6 @@ Thanks again,
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -363,14 +362,12 @@ Thanks again,
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

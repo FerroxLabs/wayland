@@ -23,15 +23,8 @@
   "remotes": [],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "knowledge",
-      "research"
-    ],
-    "tags": [
-      "arxiv",
-      "papers",
-      "science"
-    ],
+    "categories": ["knowledge", "research"],
+    "tags": ["arxiv", "papers", "science"],
     "maintainerType": "community",
     "license": "MIT",
     "verifiedAt": "2026-06-13",
@@ -51,11 +44,7 @@
       "estimatedMinutes": 1,
       "stepCount": 1
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

@@ -81,7 +81,7 @@ export type OcsEnvelope<T> = {
 export function toUnifiedIncomingFromNextcloudTalk(
   msg: NextcloudTalkChatMessage,
   roomToken: string,
-  selfUserId: string,
+  selfUserId: string
 ): IUnifiedIncomingMessage | null {
   // System messages (join/leave, call started, etc.) are not user messages.
   if (msg.systemMessage !== '') return null;
@@ -124,10 +124,7 @@ export type NextcloudTalkOutboundPayload = {
  * Split text into NC_MESSAGE_CHUNK_CHARS chunks at word boundaries.
  * Returns [] for blank input.
  */
-export function splitNextcloudTalkText(
-  text: string,
-  maxChars = NC_MESSAGE_CHUNK_CHARS,
-): string[] {
+export function splitNextcloudTalkText(text: string, maxChars = NC_MESSAGE_CHUNK_CHARS): string[] {
   const trimmed = text.trim();
   if (!trimmed) return [];
   if (trimmed.length <= maxChars) return [trimmed];
@@ -147,9 +144,7 @@ export function splitNextcloudTalkText(
 /**
  * Convert a unified outgoing message to the Nextcloud Talk POST body shape.
  */
-export function fromUnifiedOutgoingToNextcloudTalk(
-  message: IUnifiedOutgoingMessage,
-): NextcloudTalkOutboundPayload {
+export function fromUnifiedOutgoingToNextcloudTalk(message: IUnifiedOutgoingMessage): NextcloudTalkOutboundPayload {
   const text = message.text ?? '';
   const chunks = splitNextcloudTalkText(text);
   return {

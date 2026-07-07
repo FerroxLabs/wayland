@@ -65,8 +65,7 @@ export const useCustomAgentsLoader = ({
           avatar: typeof ext.avatar === 'string' ? ext.avatar : undefined,
           isPreset: true,
           enabled: ext.enabled !== false,
-          presetAgentType:
-            overrides[id] ?? (typeof ext.presetAgentType === 'string' ? ext.presetAgentType : undefined),
+          presetAgentType: overrides[id] ?? (typeof ext.presetAgentType === 'string' ? ext.presetAgentType : undefined),
           context: typeof ext.context === 'string' ? ext.context : undefined,
           contextI18n: ext.contextI18n as Record<string, string> | undefined,
           enabledSkills: Array.isArray(ext.enabledSkills) ? (ext.enabledSkills as string[]) : undefined,

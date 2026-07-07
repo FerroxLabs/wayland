@@ -43,7 +43,7 @@ When stuck is named, three paths exist. Founders see two — push or quit — an
 
 ## Decision rules
 
-- **Sixty days of no forward step is the walk-away signal.** Not "no progress" — *no concrete step they can point to.*
+- **Sixty days of no forward step is the walk-away signal.** Not "no progress" — _no concrete step they can point to._
 - **"Ask for help" is a specific person and a specific question.** "I'll reach out to my network" is avoidance. "Call Maria Thursday about how she handled her CTO quitting" is help.
 - **Burnout is data, not weakness.** Two consecutive sessions of unclear thinking → rest, not strategy. Strategy on exhaustion produces regrets in six weeks.
 - **Don't let them ask permission.** "Should I quit?" is not your call. Your call is showing the three options and naming each cost. They pick.

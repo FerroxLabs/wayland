@@ -32,15 +32,11 @@ describe('toSynologyChatSendBody - text messages', () => {
   });
 
   it('throws when text is empty and no fileUrl is provided', () => {
-    expect(() => toSynologyChatSendBody({ type: 'text', text: '' })).toThrow(
-      /requires text or fileUrl/i,
-    );
+    expect(() => toSynologyChatSendBody({ type: 'text', text: '' })).toThrow(/requires text or fileUrl/i);
   });
 
   it('throws when text is absent and no fileUrl is provided', () => {
-    expect(() => toSynologyChatSendBody({ type: 'text' })).toThrow(
-      /requires text or fileUrl/i,
-    );
+    expect(() => toSynologyChatSendBody({ type: 'text' })).toThrow(/requires text or fileUrl/i);
   });
 });
 

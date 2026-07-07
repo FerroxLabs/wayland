@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management analysis planning"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management analysis planning'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Risk Assessment
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is planning a project and wants to identify what could go wrong
 - User asks about building a risk register or risk management plan
 - User wants to assess and prioritize project risks
@@ -28,6 +29,7 @@ metadata:
 - User wants to set up early warning triggers for project risks
 
 **Do NOT use when:**
+
 - User needs business or organizational strategic risk analysis (use business strategy skills)
 - User wants financial or investment risk assessment (use personal-finance skills)
 - User is making a decision and wants to imagine failure scenarios (use `premortem-analysis`)
@@ -159,53 +161,62 @@ metadata:
 ## Risk Register: Home Office Renovation
 
 ### Project Context
+
 - **Project:** Home office renovation -- wall removal, built-in shelving, new flooring, lighting upgrade
 - **Timeline:** 4 weeks
 - **Key dependencies:** Contractor availability, material delivery, permits (if needed for wall removal)
 - **Risk assessment date:** [today]
 
 ### Risk Register
-| # | Risk | Category | Likelihood | Impact | Score | Mitigation Strategy | Trigger | Checkpoint |
-|---|------|----------|-----------|--------|-------|-------------------|---------|-----------|
-| R1 | Wall removal reveals wiring or plumbing requiring rerouting | Technical | Medium | High | High | Get contractor to inspect wall before demolition day; budget $500 contingency for rerouting | Contractor finds utilities during pre-inspection | Week 0 (before work starts) |
-| R2 | Material delivery delayed (shelving, flooring) | External | Medium | Medium | Medium | Order all materials in week 0, 2 weeks before installation; have backup supplier identified | Materials not confirmed shipped by day 3 | Week 1 |
-| R3 | Budget overrun from unexpected issues | Resource | High | Medium | High | Set $1,000 contingency (12.5% of budget); get fixed-price quotes not estimates; approve change orders over $200 only | Actual spend exceeds 60% of budget before 50% of work is done | Week 2 |
-| R4 | Contractor schedule slips (other jobs, delays) | Schedule | Medium | High | High | Get written commitment with start/end dates and daily schedule; agree on penalty for delays beyond 1 week | Contractor misses first scheduled day | Week 1, Day 1 |
-| R5 | DIY portions take longer than expected | Schedule | High | Low | Medium | Budget 1.5x time for DIY tasks; identify which DIY tasks can be handed to contractor if behind | DIY work falls more than 2 days behind plan | Week 2 |
-| R6 | Permit required for wall removal (not anticipated) | External | Low | High | Medium | Call building department before starting; determine if permit is needed for load-bearing vs. non-load-bearing wall | Building department confirms permit needed | Week 0 |
-| R7 | Scope creep from discovering other issues (old wiring, subfloor damage) | Scope | Medium | Medium | Medium | Define scope boundary: only renovation items in original plan; defer discoveries to future projects unless they block current work | New issue found during demolition that was not in original scope | Week 1 |
+
+| #   | Risk                                                                    | Category  | Likelihood | Impact | Score  | Mitigation Strategy                                                                                                                | Trigger                                                          | Checkpoint                  |
+| --- | ----------------------------------------------------------------------- | --------- | ---------- | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------- |
+| R1  | Wall removal reveals wiring or plumbing requiring rerouting             | Technical | Medium     | High   | High   | Get contractor to inspect wall before demolition day; budget $500 contingency for rerouting                                        | Contractor finds utilities during pre-inspection                 | Week 0 (before work starts) |
+| R2  | Material delivery delayed (shelving, flooring)                          | External  | Medium     | Medium | Medium | Order all materials in week 0, 2 weeks before installation; have backup supplier identified                                        | Materials not confirmed shipped by day 3                         | Week 1                      |
+| R3  | Budget overrun from unexpected issues                                   | Resource  | High       | Medium | High   | Set $1,000 contingency (12.5% of budget); get fixed-price quotes not estimates; approve change orders over $200 only               | Actual spend exceeds 60% of budget before 50% of work is done    | Week 2                      |
+| R4  | Contractor schedule slips (other jobs, delays)                          | Schedule  | Medium     | High   | High   | Get written commitment with start/end dates and daily schedule; agree on penalty for delays beyond 1 week                          | Contractor misses first scheduled day                            | Week 1, Day 1               |
+| R5  | DIY portions take longer than expected                                  | Schedule  | High       | Low    | Medium | Budget 1.5x time for DIY tasks; identify which DIY tasks can be handed to contractor if behind                                     | DIY work falls more than 2 days behind plan                      | Week 2                      |
+| R6  | Permit required for wall removal (not anticipated)                      | External  | Low        | High   | Medium | Call building department before starting; determine if permit is needed for load-bearing vs. non-load-bearing wall                 | Building department confirms permit needed                       | Week 0                      |
+| R7  | Scope creep from discovering other issues (old wiring, subfloor damage) | Scope     | Medium     | Medium | Medium | Define scope boundary: only renovation items in original plan; defer discoveries to future projects unless they block current work | New issue found during demolition that was not in original scope | Week 1                      |
 
 ### Risk Heat Map
+
 - **Critical (act now):** None
 - **High (plan mitigation):** R1 (hidden utilities), R3 (budget overrun), R4 (contractor schedule)
 - **Medium (monitor):** R2 (material delivery), R5 (DIY timing), R6 (permits), R7 (scope creep)
 - **Low (accept):** None
 
 ### Contingency Plans
+
 **R1: Hidden utilities in wall**
+
 - **If trigger fires:** Contractor handles rerouting; add up to $500 from contingency budget; delay shelving install by 2-3 days
 - **Decision point:** If rerouting cost exceeds $1,000, re-evaluate whether wall removal is worth it
 - **Fallback plan:** Keep wall, add a large pass-through opening instead of full removal
 
 **R3: Budget overrun**
+
 - **If trigger fires:** Pause non-critical work, review remaining scope, identify items to defer
 - **Decision point:** At $7,000 spent, stop all work except committed contracts and assess
 - **Fallback plan:** Defer lighting upgrade to a future project (saves ~$1,500)
 
 **R4: Contractor schedule slips**
+
 - **If trigger fires:** Contact contractor immediately for revised schedule; if more than 3 days late, begin sourcing backup contractor
 - **Decision point:** If contractor is 1 week late with no clear end date, terminate and find replacement
 - **Fallback plan:** Hire a different contractor; accept 2-week project extension
 
 ### Risk Review Schedule
-| Review Date | Focus | Action |
-|------------|-------|--------|
-| Week 0 (before start) | R1, R6 -- pre-inspection and permits | Confirm wall is safe, confirm no permit needed |
-| Week 1 end | R2, R4, R7 -- materials and contractor | Verify materials arrived, contractor on schedule |
-| Week 2 end | R3, R5 -- budget and DIY progress | Check spend against budget, assess DIY timeline |
-| Week 4 (project end) | Full register close-out | Document actual vs. estimated for future projects |
+
+| Review Date           | Focus                                  | Action                                            |
+| --------------------- | -------------------------------------- | ------------------------------------------------- |
+| Week 0 (before start) | R1, R6 -- pre-inspection and permits   | Confirm wall is safe, confirm no permit needed    |
+| Week 1 end            | R2, R4, R7 -- materials and contractor | Verify materials arrived, contractor on schedule  |
+| Week 2 end            | R3, R5 -- budget and DIY progress      | Check spend against budget, assess DIY timeline   |
+| Week 4 (project end)  | Full register close-out                | Document actual vs. estimated for future projects |
 
 ### Risk Summary
+
 - **Total risks identified:** 7
 - **Critical:** 0 | **High:** 3 | **Medium:** 4 | **Low:** 0
 - **Top risk:** R4 (contractor schedule) -- contractor delays are the most common cause of home renovation overruns and the hardest to recover from

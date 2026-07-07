@@ -12,12 +12,12 @@
 
 Real user interaction scenarios:
 
-| What the user wants to do       | What the user actually does                                        |
-| ------------------------------- | ------------------------------------------------------------------ |
-| Recruit a codex engineer        | Type in the leader chat box: "Add a codex type member named Dev1" |
-| Fire a member                   | Type in the leader chat box: "Fire the member named Dev1"         |
-| Assign a task to a member       | Type in the leader chat box: "Ask Dev1 to write unit tests"       |
-| Internal team communication     | The leader decides autonomously to forward, broadcast, or reply   |
+| What the user wants to do   | What the user actually does                                       |
+| --------------------------- | ----------------------------------------------------------------- |
+| Recruit a codex engineer    | Type in the leader chat box: "Add a codex type member named Dev1" |
+| Fire a member               | Type in the leader chat box: "Fire the member named Dev1"         |
+| Assign a task to a member   | Type in the leader chat box: "Ask Dev1 to write unit tests"       |
+| Internal team communication | The leader decides autonomously to forward, broadcast, or reply   |
 
 **There is no "Add Member" button in the UI, no "Fire" button. The only thing a user can interact with is the leader's chat input box.**
 
@@ -45,10 +45,10 @@ invokeBridge is a test utility, not a user-facing code path. Real users have no 
 
 **Allowed uses:**
 
-| Scenario                                             | Example                                     |
-| ---------------------------------------------------- | ------------------------------------------- |
-| **setup**: get teamId, read initial member count     | `invokeBridge(page, 'team.list', ...)`      |
-| **assertion**: verify backend state matches the UI   | `invokeBridge(page, 'team.get', { id })`    |
+| Scenario                                           | Example                                  |
+| -------------------------------------------------- | ---------------------------------------- |
+| **setup**: get teamId, read initial member count   | `invokeBridge(page, 'team.list', ...)`   |
+| **assertion**: verify backend state matches the UI | `invokeBridge(page, 'team.get', { id })` |
 
 **Forbidden: using invokeBridge to trigger any action** - adding members, firing members, sending messages, etc. must go through the leader chat input box and only through it. If you trigger an action via invokeBridge, you are testing a plain RPC interface, not Aion Team.
 
@@ -104,12 +104,12 @@ When a new type is added to the allowlist, only update the `LEADER_CONFIGS` arra
 
 ## 6. Current File Status
 
-| File                          | Responsibility                                                          | Status      |
-| ----------------------------- | ----------------------------------------------------------------------- | ----------- |
-| `team-create.e2e.ts`          | UI creation flow + create three teams by leader type                    | ✅ Complete |
-| `team-agent-lifecycle.e2e.ts` | Parameterized full flow (add + fire), iterating over leader types       | ✅ Complete |
-| `team-whitelist.e2e.ts`       | UI dropdown only shows allowlisted agents                               | ✅ Complete |
-| `team-communication.e2e.ts`   | User message send flow validation                                       | ✅ Complete |
+| File                          | Responsibility                                                    | Status      |
+| ----------------------------- | ----------------------------------------------------------------- | ----------- |
+| `team-create.e2e.ts`          | UI creation flow + create three teams by leader type              | ✅ Complete |
+| `team-agent-lifecycle.e2e.ts` | Parameterized full flow (add + fire), iterating over leader types | ✅ Complete |
+| `team-whitelist.e2e.ts`       | UI dropdown only shows allowlisted agents                         | ✅ Complete |
+| `team-communication.e2e.ts`   | User message send flow validation                                 | ✅ Complete |
 
 Deleted incorrect files (used invokeBridge to trigger actions / had one file per type):
 `team-add-agent.e2e.ts`, `team-remove-agent.e2e.ts`, `team-multi-agent.e2e.ts`, `team-codebuddy.e2e.ts`
@@ -195,13 +195,13 @@ for (const { leaderType, teamName } of LEADER_CONFIGS) {
 
 ## 8. Key UI Selectors
 
-| Element                  | Selector                                                  |
-| ------------------------ | --------------------------------------------------------- |
-| Sidebar team entry       | `page.locator('text=E2E Team (claude)').first()`, etc.    |
-| Leader chat input box    | `page.locator('textarea').first()`                        |
-| Send                     | `.press('Enter')`                                         |
-| Agent tab                | `page.locator('text=memberName').first()`                 |
-| Team page URL            | `/team/{id}`                                              |
+| Element               | Selector                                               |
+| --------------------- | ------------------------------------------------------ |
+| Sidebar team entry    | `page.locator('text=E2E Team (claude)').first()`, etc. |
+| Leader chat input box | `page.locator('textarea').first()`                     |
+| Send                  | `.press('Enter')`                                      |
+| Agent tab             | `page.locator('text=memberName').first()`              |
+| Team page URL         | `/team/{id}`                                           |
 
 ---
 
@@ -235,23 +235,23 @@ TEAM_AGENT=gemini E2E_PACKAGED=1 bun run test:e2e:team:create
 
 **Environment variables:**
 
-| Variable         | Default                  | Description                                                                                                                                                                                           |
-| ---------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `E2E_PACKAGED=1` | unset (local dev mode)   | Start the app from the packaged build under `out/`                                                                                                                                                    |
-| `E2E_DEV=1`      | unset                    | Force dev mode (`electron .`)                                                                                                                                                                         |
-| `TEAM_AGENT`     | unset (all three run)    | Filter by leader type; comma-separated (`gemini` or `claude,codex`). Filtering is handled centrally in `helpers/teamConfig.ts` and takes effect automatically across all test files via `TEAM_SUPPORTED_BACKENDS` |
+| Variable         | Default                | Description                                                                                                                                                                                                       |
+| ---------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `E2E_PACKAGED=1` | unset (local dev mode) | Start the app from the packaged build under `out/`                                                                                                                                                                |
+| `E2E_DEV=1`      | unset                  | Force dev mode (`electron .`)                                                                                                                                                                                     |
+| `TEAM_AGENT`     | unset (all three run)  | Filter by leader type; comma-separated (`gemini` or `claude,codex`). Filtering is handled centrally in `helpers/teamConfig.ts` and takes effect automatically across all test files via `TEAM_SUPPORTED_BACKENDS` |
 
 In packaged mode the app uses the API keys already configured locally - **no additional setup required**.
 
 **npm scripts overview:**
 
-| Command                   | Description                        |
-| ------------------------- | ---------------------------------- |
-| `test:e2e:team`           | All `team-*.e2e.ts` files          |
-| `test:e2e:team:create`    | Team creation only                 |
-| `test:e2e:team:lifecycle` | Lifecycle only (add + fire)        |
-| `test:e2e:team:whitelist` | Allowlist dropdown only            |
-| `test:e2e:team:comm`      | Message send only                  |
+| Command                   | Description                 |
+| ------------------------- | --------------------------- |
+| `test:e2e:team`           | All `team-*.e2e.ts` files   |
+| `test:e2e:team:create`    | Team creation only          |
+| `test:e2e:team:lifecycle` | Lifecycle only (add + fire) |
+| `test:e2e:team:whitelist` | Allowlist dropdown only     |
+| `test:e2e:team:comm`      | Message send only           |
 
 ---
 

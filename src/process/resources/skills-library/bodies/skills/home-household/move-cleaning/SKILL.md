@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cleaning checklist analysis"
-  category: "home-household"
-  subcategory: "cleaning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cleaning checklist analysis'
+  category: 'home-household'
+  subcategory: 'cleaning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Move Cleaning
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user's cleaning need is directly tied to the act of moving -- either departing a space or arriving at one. The defining characteristic is that the stakes are higher than routine cleaning: security deposit recovery, landlord inspection readiness, or the need to establish a clean baseline before possessions are brought in.
 
 **Use this skill when:**
+
 - The user is moving out of a rental unit (apartment, house, condo, townhome) and wants to maximize security deposit recovery or avoid deduction charges
 - The user is moving into a new rental or purchased home and wants to clean the space before furniture and boxes are brought in
 - The user is a landlord or property manager preparing a unit for turnover between tenants
@@ -38,6 +40,7 @@ Use this skill when the user's cleaning need is directly tied to the act of movi
 - The user received an itemized deposit deduction notice and wants to understand what was legitimate vs. what to dispute
 
 **Do NOT use this skill when:**
+
 - The user needs a recurring weekly or biweekly cleaning routine -- use `weekly-cleaning-schedule` instead
 - The user wants a thorough cleaning of their current home that is not connected to moving -- use `deep-cleaning-checklist` instead
 - The unit has active pest infestation (cockroaches, rodents, bedbugs) -- cleaning cannot proceed safely or effectively until pest control has been completed; refer user to professional pest control first

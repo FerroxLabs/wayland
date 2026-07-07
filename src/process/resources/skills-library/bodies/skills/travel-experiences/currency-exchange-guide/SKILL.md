@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel checklist planning guide"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel checklist planning guide'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Currency Exchange Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A traveler asks how to exchange money for an upcoming international trip and needs to understand their options (ATM, card, exchange counter, pre-trip bank order)
 - A user wants to compare the true cost of two or more payment methods for a specific destination (e.g., "Is it better to use my credit card or withdraw cash in Japan?")
 - A user asks specifically about foreign transaction fees, ATM fees, or how to calculate what an exchange will actually cost them in their home currency
@@ -34,6 +36,7 @@ metadata:
 - A user asks about tipping conventions at a foreign destination and how to handle gratuities in local currency
 
 **Do NOT use this skill when:**
+
 - The user needs a travel budget or wants to estimate total trip spending -- use `budget-travel-planner` instead, which handles spending allocation across categories
 - The user wants to invest in foreign currencies, hold foreign currency accounts, or speculate on exchange rate movements -- this is outside the scope of travel logistics entirely
 - The user needs comprehensive personal finance management advice -- use personal-finance skills for anything involving savings, debt, or household budget optimization
@@ -77,24 +80,28 @@ Perform a rigorous cost calculation for each applicable method. Use the user's e
 **The interbank rate** (also called the mid-market rate) is the baseline "real" exchange rate that banks use to trade currencies with each other. Travelers never receive this rate directly. All exchange methods charge a markup above this rate. The goal is to minimize that markup. Users can look up the interbank rate at any real-time currency data source before travel to use as a reference benchmark.
 
 **Method 1 -- No-fee travel credit card**
+
 - Rate markup: 0% (card networks use the interbank rate or within 0.1% of it)
 - Fees: $0 foreign transaction fee (these cards waive the standard 1-3% foreign transaction fee)
 - Total cost: $0-2 per $100 spent (essentially free)
 - Practical notes: Best for any purchase above the equivalent of $5-10 at card-accepting merchants. Requires the traveler to always choose "pay in local currency" to avoid DCC. Some cards carry annual fees ($0-$95/year range for no-fee travel cards) -- factor this into the break-even calculation if the user is considering applying for one.
 
 **Method 2 -- No-fee travel debit card or online bank ATM card**
+
 - Rate markup: 0-0.5% (interbank rate via card network)
 - Fees: $0 card fee (no-fee card) + local ATM operator fee ($0-6 per withdrawal, destination-dependent)
 - Total cost: Local ATM fee only, typically $2-6 per withdrawal
 - Strategy: Withdraw the maximum practical amount per withdrawal to amortize the fixed per-transaction fee. For a $5 local ATM fee, withdrawing $200 instead of $100 cuts the fee impact from 5% to 2.5%.
 
 **Method 3 -- Standard bank debit card at foreign ATM**
+
 - Rate markup: 1-3% (bank applies its own exchange rate spread above interbank)
 - Fees: Home bank foreign transaction fee (1-3%) + home bank ATM fee ($2-5) + local ATM operator fee ($2-6)
 - Total cost: 4-12% per withdrawal -- the most expensive routine method
 - Strategy: Use only as a last resort. If the user has no other option, withdraw large amounts infrequently to minimize the number of times the fixed fee applies. A single $300 withdrawal at 8% total cost is $24 -- still painful but far better than three $100 withdrawals at $72.
 
 **Method 4 -- Airport currency exchange counter (departure or arrival)**
+
 - Rate markup: 7-15% worse than interbank (varies by operator and airport)
 - Fees: Commission of 0-5% additional, or "no commission" with a worse rate baked in (the "no commission" marketing is almost always a worse deal than a modest commission with a fair rate)
 - Total cost: 8-20% above interbank
@@ -102,12 +109,14 @@ Perform a rigorous cost calculation for each applicable method. Use the user's e
 - Quantify the cost for the user: On $1,000 of total spending, an airport counter at a 12% markup costs $120 in lost value compared to using a no-fee card for the same spending.
 
 **Method 5 -- Pre-trip bank branch order**
+
 - Rate markup: 2.5-5% above interbank (varies significantly by bank and currency pair)
 - Fees: Service fee of $5-15 for small orders; sometimes waived for premium account holders
 - Total cost: 3-6.5% above interbank
 - Practical notes: Requires ordering 3-7 business days in advance for common currencies (EUR, GBP, JPY, CAD, AUD, MXN). Exotic currencies (VND, KES, CLP) may require 7-14 days or may not be orderable at all branches. The value of pre-trip bank exchange is not cost efficiency -- it is having local currency on arrival without relying on an ATM or exchange counter. Limit to $100-200 equivalent for arrival needs.
 
 **Method 6 -- Local money changer at destination**
+
 - Rate markup: 1-5% (highly variable -- tourist areas are worse, local business districts are better)
 - Fees: Commission 0-3% or built into rate
 - Total cost: 1-8% above interbank
@@ -115,6 +124,7 @@ Perform a rigorous cost calculation for each applicable method. Use the user's e
 - Scam risk: Verify the rate is displayed clearly before any money changes hands. Count all bills before leaving the counter. Refuse "counting errors" that require recounting after you have put the money away.
 
 **Method 7 -- Peer-to-peer currency exchange apps**
+
 - Rate markup: 0.35-1% (approaches interbank rate)
 - Fees: Small transaction fee or subscription
 - Total cost: 0.5-1.5% for supported currency pairs
@@ -412,44 +422,46 @@ Rare but real: some travelers (older travelers unfamiliar with cards abroad, tho
 
 ### Payment Landscape: Japan
 
-| Factor | Status | Notes |
-|--------|--------|-------|
-| Card acceptance -- urban restaurants, hotels | Moderate | Improving rapidly -- major chains, department stores, and hotels accept cards. Many traditional restaurants, izakayas, and local shops are cash-only. |
-| Card acceptance -- markets, street food, small vendors | Cash only in most cases | Convenience stores (7-Eleven, FamilyMart, Lawson) accept cards and are ubiquitous. Street food stalls, small ramen shops, most shrines and temples: cash only. |
-| Card acceptance -- rural / off-path areas | Mostly cash | Rural Japan is predominantly cash. Bullet train tickets can be bought with a card; local trains and buses often require cash or an IC card. |
-| Dominant card networks | Visa and Mastercard widely accepted where cards are taken; Amex accepted at large hotels and upscale restaurants only | Confirm your card is Visa or Mastercard |
-| ATM availability | Widespread at 7-Eleven, Japan Post, and bank branches -- reliable | 7-Eleven ATMs and Japan Post ATMs are the best options for foreign cards -- consistent availability 24 hours, English interface, no local ATM fee at many networks |
-| Typical local ATM fee for foreign cards | JPY 110-220 per withdrawal (~$0.75-$1.50) at 7-Eleven/Japan Post; up to JPY 300-500 at bank branch ATMs | 7-Eleven ATMs are effectively fee-free or minimal for most international cards -- use these preferentially |
-| Dynamic Currency Conversion (DCC) | Moderate -- offered at some tourist-area terminals and at certain ATMs | ALWAYS decline -- choose JPY at every terminal and ATM prompt |
-| Cash dependency level | High -- Japan remains one of the most cash-reliant developed economies | Budget the majority of daily incidental spending, meals under 2,000 JPY, transport passes, and temples in cash |
-| Tipping culture | Not customary -- do not tip | Tipping can be considered rude or confusing in Japan. Exceptional service is shown by politely declining change or thanking staff. No tipping at any venue. |
-| Large bill acceptance | Problematic -- avoid JPY 10,000 notes for purchases under JPY 1,000 | Many small vendors cannot break large notes easily. Request JPY 1,000 notes at ATMs when possible or make change at convenience stores. |
-| Currency controls / dual rates | None | Japan has a free-floating currency with no exchange controls |
+| Factor                                                 | Status                                                                                                                | Notes                                                                                                                                                              |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Card acceptance -- urban restaurants, hotels           | Moderate                                                                                                              | Improving rapidly -- major chains, department stores, and hotels accept cards. Many traditional restaurants, izakayas, and local shops are cash-only.              |
+| Card acceptance -- markets, street food, small vendors | Cash only in most cases                                                                                               | Convenience stores (7-Eleven, FamilyMart, Lawson) accept cards and are ubiquitous. Street food stalls, small ramen shops, most shrines and temples: cash only.     |
+| Card acceptance -- rural / off-path areas              | Mostly cash                                                                                                           | Rural Japan is predominantly cash. Bullet train tickets can be bought with a card; local trains and buses often require cash or an IC card.                        |
+| Dominant card networks                                 | Visa and Mastercard widely accepted where cards are taken; Amex accepted at large hotels and upscale restaurants only | Confirm your card is Visa or Mastercard                                                                                                                            |
+| ATM availability                                       | Widespread at 7-Eleven, Japan Post, and bank branches -- reliable                                                     | 7-Eleven ATMs and Japan Post ATMs are the best options for foreign cards -- consistent availability 24 hours, English interface, no local ATM fee at many networks |
+| Typical local ATM fee for foreign cards                | JPY 110-220 per withdrawal (~$0.75-$1.50) at 7-Eleven/Japan Post; up to JPY 300-500 at bank branch ATMs               | 7-Eleven ATMs are effectively fee-free or minimal for most international cards -- use these preferentially                                                         |
+| Dynamic Currency Conversion (DCC)                      | Moderate -- offered at some tourist-area terminals and at certain ATMs                                                | ALWAYS decline -- choose JPY at every terminal and ATM prompt                                                                                                      |
+| Cash dependency level                                  | High -- Japan remains one of the most cash-reliant developed economies                                                | Budget the majority of daily incidental spending, meals under 2,000 JPY, transport passes, and temples in cash                                                     |
+| Tipping culture                                        | Not customary -- do not tip                                                                                           | Tipping can be considered rude or confusing in Japan. Exceptional service is shown by politely declining change or thanking staff. No tipping at any venue.        |
+| Large bill acceptance                                  | Problematic -- avoid JPY 10,000 notes for purchases under JPY 1,000                                                   | Many small vendors cannot break large notes easily. Request JPY 1,000 notes at ATMs when possible or make change at convenience stores.                            |
+| Currency controls / dual rates                         | None                                                                                                                  | Japan has a free-floating currency with no exchange controls                                                                                                       |
 
 ---
 
 ### Exchange Method Comparison
 
-| Method | Rate Markup vs. Interbank | Fees | Total Cost on $1,800 | Verdict |
-|--------|--------------------------|------|----------------------|---------|
-| No-fee travel credit card | 0-0.1% | $0 | **$0-2** | **Best for card purchases** |
-| 7-Eleven / Japan Post ATM with standard Chase debit | 1-2% markup (Chase applies its own rate) | $5 Chase international ATM fee + ~$0.75-1.50 local fee per withdrawal | **$45-65** (est. 4-5 withdrawals) | Use only as needed -- moderately expensive |
-| 7-Eleven ATM with a no-fee debit card (if you had one) | 0-0.5% | ~$0.75-1.50 local fee per withdrawal | **$4-8** | Optimal for cash -- not applicable here |
-| Airport currency counter (Narita / Haneda) | 6-10% | "No commission" -- markup built in | **$108-180** | Emergency JPY only -- never for main supply |
-| Pre-trip bank order (USD to JPY) | 3-4.5% | $10 service fee | **$64-91 on full amount** / **$13-19 on arrival $150 only** | Arrival cash only -- order $150 max |
-| Local licensed money changer (e.g., Shinjuku, Akihabara) | 1-4% markup | Built into rate | **$18-72** | Viable if rate is under 2% markup -- verify vs. interbank |
-| DCC at terminal or ATM | Adds 3-8% to card rate | None explicit | **$54-144 extra on $1,800 of card spending** | **Always decline -- every time** |
+| Method                                                   | Rate Markup vs. Interbank                | Fees                                                                  | Total Cost on $1,800                                        | Verdict                                                   |
+| -------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------- |
+| No-fee travel credit card                                | 0-0.1%                                   | $0                                                                    | **$0-2**                                                    | **Best for card purchases**                               |
+| 7-Eleven / Japan Post ATM with standard Chase debit      | 1-2% markup (Chase applies its own rate) | $5 Chase international ATM fee + ~$0.75-1.50 local fee per withdrawal | **$45-65** (est. 4-5 withdrawals)                           | Use only as needed -- moderately expensive                |
+| 7-Eleven ATM with a no-fee debit card (if you had one)   | 0-0.5%                                   | ~$0.75-1.50 local fee per withdrawal                                  | **$4-8**                                                    | Optimal for cash -- not applicable here                   |
+| Airport currency counter (Narita / Haneda)               | 6-10%                                    | "No commission" -- markup built in                                    | **$108-180**                                                | Emergency JPY only -- never for main supply               |
+| Pre-trip bank order (USD to JPY)                         | 3-4.5%                                   | $10 service fee                                                       | **$64-91 on full amount** / **$13-19 on arrival $150 only** | Arrival cash only -- order $150 max                       |
+| Local licensed money changer (e.g., Shinjuku, Akihabara) | 1-4% markup                              | Built into rate                                                       | **$18-72**                                                  | Viable if rate is under 2% markup -- verify vs. interbank |
+| DCC at terminal or ATM                                   | Adds 3-8% to card rate                   | None explicit                                                         | **$54-144 extra on $1,800 of card spending**                | **Always decline -- every time**                          |
 
 ---
 
 ### Recommended Exchange Strategy
 
 **Primary Method (45% of spending -- approximately $810 USD equivalent): No-fee travel credit card**
+
 - Use for: Larger restaurants, department store purchases, hotel bills, bullet train tickets (Shinkansen reservations), electronics and shopping at major retailers, convenience store purchases where cards are accepted
 - Expected cost: $0-2 total over the entire trip
 - Key rule: Every time a terminal shows a currency choice, select JPY -- never "USD" or "your home currency." This is DCC. Declining it is worth approximately $25-80 on this trip.
 
 **Cash Method (50% of spending -- approximately $900 USD equivalent in JPY): Chase debit card at 7-Eleven ATMs**
+
 - Use for: Most restaurants under JPY 2,000 (roughly $13), izakayas, ramen shops, soba and udon restaurants, temple and shrine entrance fees, local buses and trains where IC card is not loaded, vending machines, convenience store ready-made meals, small shops and markets, any vendor displaying a cash-only sign
 - Withdrawal plan: Withdraw JPY 25,000-30,000 (~$170-200) at a time, 4-5 times over 12 days
   - Day 1 (Arrival): JPY 30,000 (~$200) -- covers first 2-3 days including transit from airport
@@ -461,12 +473,14 @@ Rare but real: some travelers (older travelers unfamiliar with cards abroad, tho
 - Total cash strategy cost: approximately $24-28 in fees + approximately $30-36 in Chase markup (1-2% on JPY purchases via ATM) = **~$54-64 total**
 
 **Arrival Cash (pre-trip bank order): ~$150 USD exchanged to JPY at home bank**
+
 - Use for: Airport transit (Narita Express or Limousine Bus: ~JPY 3,000), first meal, first-night incidentals before finding a 7-Eleven ATM
 - Order from your bank: $150 USD into JPY (~JPY 21,300 at a 3.5% markup after the service fee)
 - Cost: approximately $15-17 on the $150 exchanged
 - Logistics: Order 5-7 business days before departure. Most US banks can supply JPY. Request JPY 1,000 notes specifically -- not JPY 10,000 notes. Keep this cash in a separate envelope from your main wallet so you do not mix it with ATM withdrawals.
 
 **Emergency Fallback (5%): Chase debit card used directly for purchases (not ATM)**
+
 - Use for: If your no-fee credit card is blocked, declined, or damaged
 - Expected cost if used: 3% foreign transaction fee on purchases
 - Location: Keep the Chase debit card in a different location from your credit card -- ideally in a travel document pouch or zippered pocket, not your main wallet
@@ -476,6 +490,7 @@ Rare but real: some travelers (older travelers unfamiliar with cards abroad, tho
 ### Pre-Departure Checklist
 
 **Card and account preparation:**
+
 - [ ] Notify your credit card issuer of travel dates (Japan, [departure date] through [return date]) -- call or use the app to set a travel notice
 - [ ] Notify Chase of travel dates for your debit card
 - [ ] Verify your no-fee credit card is Visa or Mastercard (not Amex -- Amex has limited acceptance in Japan)
@@ -486,9 +501,11 @@ Rare but real: some travelers (older travelers unfamiliar with cards abroad, tho
 - [ ] Store the pre-ordered yen in a small envelope in your carry-on luggage -- accessible on the plane, not in checked bags.
 
 **IC Card for Japanese transit:**
+
 - [ ] Obtain a Suica or Pasmo IC transit card at the airport on arrival. These rechargeable cards are accepted on virtually all Tokyo-area trains, buses, many taxis, and at most convenience stores. Load JPY 3,000-5,000 initially from your no-fee credit card or cash. This card eliminates the need for exact change on local transit throughout your trip.
 
 **Destination research:**
+
 - [ ] Look up the interbank USD/JPY rate the morning of your departure -- use this as your benchmark at any exchange opportunity
 - [ ] Confirm a 7-Eleven (Seven Bank ATM) is accessible near your first accommodation in Japan -- search in advance using Google Maps. Seven Bank ATMs are in every 7-Eleven convenience store and are the most reliable foreign-card ATMs in Japan.
 - [ ] Research whether your accommodation requires cash payment or deposit on arrival -- traditional ryokan (Japanese inn) typically require cash payment. Western-style hotels accept cards.
@@ -499,9 +516,10 @@ Rare but real: some travelers (older travelers unfamiliar with cards abroad, tho
 
 **Japan does not have a tipping culture. Do not tip.**
 
-| Service Type | Tipping Convention | Notes |
-|---|---|---|
+| Service Type          | Tipping Convention          | Notes                                                                        |
+| --------------------- | --------------------------- | ---------------------------------------------------------------------------- |
 | Restaurant (any type) | Not customary -- do not tip | Leaving change on the table may cause confusion; staff will return it to you |
-| Cafe / coffee shop | Not customary | |
-| Taxi | Not customary | Drivers may be confused or offended if offered extra money |
+| Cafe / coffee shop    | Not customary               |                                                                              |
+| Taxi                  | Not customary               | Drivers may be confused or offended if offered extra money                   |
+
 | Hotel housekeeping

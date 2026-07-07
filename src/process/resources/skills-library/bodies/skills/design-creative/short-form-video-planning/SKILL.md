@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production planning template"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production planning template'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Short Form Video Planning
 
 ## When to Use
@@ -373,14 +374,14 @@ When the user needs to move fast because a trend is active now and will be irrel
 
 ### Beat Structure
 
-| Timestamp | Beat Name | Duration | Spoken Audio | Visual | On-Screen Text | Retention Mechanic |
-|-----------|-----------|----------|--------------|--------|----------------|-------------------|
-| 0:00-0:02 | Hook | 2s | "The first thing you do every morning is ruining your focus." | ECU of phone screen lighting up with notifications, morning glow | "Your morning routine is backwards." | Direct accusation + curiosity gap |
-| 0:02-0:08 | The Problem Mechanism | 6s | "When you check your phone first, your brain enters reactive mode -- you start responding to other people's priorities before you have set your own." | Creator on camera, eye level, plain background -- slight lean forward to signal importance | "Reactive mode = scattered all day" | Counterintuitive mechanism that explains a felt experience |
-| 0:08-0:16 | The Evidence | 8s | "Research on cognitive priming shows that the first task you do in the morning sets your attentional state for the next 2 to 3 hours. Phone checking is the highest-distraction task possible. You are priming your brain for distraction." | B-roll: overhead shot of a hand reaching for a phone, then the same hand stopping and pulling back -- a deliberate visual contrast | "First task = 2-3 hrs of cognitive tone" | Specific number + scientific framing creates authority |
-| 0:16-0:23 | The Fix | 7s | "The fix takes 10 minutes. Before you touch your phone: drink water, write the one thing you need to accomplish today, and do 5 minutes of any physical movement. Now you have set the attentional tone, not your inbox." | Creator demonstrating in real-time: picking up a glass of water, writing in a small notebook, doing 5 quick jumping jacks -- all in the same shot, fast cuts | "1. Water 2. One priority 3. 5 min movement" | Actionable simplicity -- 3 steps, concrete and achievable |
-| 0:23-0:28 | Result Statement | 5s | "Your focus does not get destroyed before you have even started. You go into your first task already in the mode you want to be in." | Creator at desk, calm and focused, typing with purpose -- contrast to the distracted phone-checking at the start | "Focus before inbox." | Vivid contrast between the before state (implied) and the after state (shown) |
-| 0:28-0:30 | Loop Frame | 2s | [Sound of a single phone notification -- one clear chime, then silence] | ECU of phone screen lighting up again -- the same shot as the opening frame, same notification glow | -- | Visual and audio loop trigger -- the viewer is back at the beginning and the hook now lands with full context |
+| Timestamp | Beat Name             | Duration | Spoken Audio                                                                                                                                                                                                                                | Visual                                                                                                                                                       | On-Screen Text                               | Retention Mechanic                                                                                            |
+| --------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 0:00-0:02 | Hook                  | 2s       | "The first thing you do every morning is ruining your focus."                                                                                                                                                                               | ECU of phone screen lighting up with notifications, morning glow                                                                                             | "Your morning routine is backwards."         | Direct accusation + curiosity gap                                                                             |
+| 0:02-0:08 | The Problem Mechanism | 6s       | "When you check your phone first, your brain enters reactive mode -- you start responding to other people's priorities before you have set your own."                                                                                       | Creator on camera, eye level, plain background -- slight lean forward to signal importance                                                                   | "Reactive mode = scattered all day"          | Counterintuitive mechanism that explains a felt experience                                                    |
+| 0:08-0:16 | The Evidence          | 8s       | "Research on cognitive priming shows that the first task you do in the morning sets your attentional state for the next 2 to 3 hours. Phone checking is the highest-distraction task possible. You are priming your brain for distraction." | B-roll: overhead shot of a hand reaching for a phone, then the same hand stopping and pulling back -- a deliberate visual contrast                           | "First task = 2-3 hrs of cognitive tone"     | Specific number + scientific framing creates authority                                                        |
+| 0:16-0:23 | The Fix               | 7s       | "The fix takes 10 minutes. Before you touch your phone: drink water, write the one thing you need to accomplish today, and do 5 minutes of any physical movement. Now you have set the attentional tone, not your inbox."                   | Creator demonstrating in real-time: picking up a glass of water, writing in a small notebook, doing 5 quick jumping jacks -- all in the same shot, fast cuts | "1. Water 2. One priority 3. 5 min movement" | Actionable simplicity -- 3 steps, concrete and achievable                                                     |
+| 0:23-0:28 | Result Statement      | 5s       | "Your focus does not get destroyed before you have even started. You go into your first task already in the mode you want to be in."                                                                                                        | Creator at desk, calm and focused, typing with purpose -- contrast to the distracted phone-checking at the start                                             | "Focus before inbox."                        | Vivid contrast between the before state (implied) and the after state (shown)                                 |
+| 0:28-0:30 | Loop Frame            | 2s       | [Sound of a single phone notification -- one clear chime, then silence]                                                                                                                                                                     | ECU of phone screen lighting up again -- the same shot as the opening frame, same notification glow                                                          | --                                           | Visual and audio loop trigger -- the viewer is back at the beginning and the hook now lands with full context |
 
 ---
 
@@ -409,7 +410,7 @@ Save this and try the three swaps tomorrow morning -- then tell me what happened
 **Hashtags (5):**
 #productivity #morningroutine #deepwork #remotework #focushacks
 
-*Hashtag logic: #productivity (broad, 2B+ posts), #morningroutine (niche, 180M posts), #deepwork (niche, 12M posts), #remotework (audience-specific community, 450M posts), #focushacks (content-specific, 8M posts)*
+_Hashtag logic: #productivity (broad, 2B+ posts), #morningroutine (niche, 180M posts), #deepwork (niche, 12M posts), #remotework (audience-specific community, 450M posts), #focushacks (content-specific, 8M posts)_
 
 ---
 
@@ -438,12 +439,14 @@ Save this and try the three swaps tomorrow morning -- then tell me what happened
 **Cut Rhythm:** Educational pacing -- cut at each narration pause point. Beats 1, 4, and 6 are the fastest-cut beats (visual interest without narration or with demonstration). Beats 2, 3, and 5 are single-shot or two-shot beats that hold longer for comprehension.
 
 **B-Roll Needed:**
+
 - Overhead hand reaching for phone, then stopping (Beat 3) -- 4 seconds
 - Glass of water being picked up and drunk (Beat 4) -- 1.5 seconds
 - Hand writing in a small notebook, single word visible (Beat 4) -- 1.5 seconds
 - 5 jumping jacks in frame, fast and energetic (Beat 4) -- 2 seconds
 
 **Text Graphics Needed (5 overlays):**
+
 1. "Your morning routine is backwards." -- Hook, large, center frame
 2. "Reactive mode = scattered all day" -- Beat 2, medium, center frame
 3. "First task = 2-3 hrs of cognitive tone" -- Beat 3, medium, center frame

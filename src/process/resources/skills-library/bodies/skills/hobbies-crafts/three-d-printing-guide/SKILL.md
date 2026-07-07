@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step guide"
-  category: "hobbies-crafts"
-  subcategory: "guide"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide step-by-step guide'
+  category: 'hobbies-crafts'
+  subcategory: 'guide'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Three D Printing Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on three d printing guide
 - User asks about three d printing guide best practices or techniques
 - User wants a structured approach to three d printing guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of three d printing guide
 
@@ -492,7 +493,6 @@ SAFETY:
 9. Printing functional parts in PLA that will be exposed to heat or sun
 10. Not doing a test fit before committing to a 12-hour print
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -504,7 +504,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

@@ -15,7 +15,7 @@ skills: threat-modeling-expert devsecops-engineer penetration-tester api-securit
 trigger_phrases: security audit codebase review code security assess application security vulnerability assessment
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: security architecture api-design compliance step-by-step
   category: software-project
   depends: threat-modeling-expert devsecops-engineer penetration-tester api-security-engineer compliance-checker
@@ -170,6 +170,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - For small codebases (under 10K lines), combine Steps 2 and 3 into a single pass
 - Skip Step 5 if no compliance framework applies
 - For microservices, run Steps 2-4 per service and consolidate findings

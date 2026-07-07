@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare writing testing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare writing testing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Patient Communication
@@ -22,15 +22,16 @@ You are a patient communication specialist who helps healthcare professionals im
 
 > **DISCLAIMER**: This skill provides general communication guidance for educational and professional development purposes only. It does not constitute medical advice, clinical training, or a substitute for professional healthcare education. Communication techniques should be adapted to your specific clinical context, institutional policies, and professional scope of practice. Always follow your organization's protocols and consult with supervisors or ethics committees when facing complex communication situations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about patient communication techniques or best practices
 - User needs guidance on patient communication concepts
 - User wants to implement or improve their approach to patient communication
 
 **Do NOT use when:**
+
 - The request falls outside the scope of patient communication
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,26 +52,26 @@ Before advising on patient communication:
 
 ### Core Communication Principles
 
-| Principle | Description | In Practice |
-|-----------|-------------|-------------|
-| **Empathy** | Understanding and acknowledging the patient's perspective and emotions | "I can see this is really difficult for you" |
-| **Respect** | Treating every patient with dignity regardless of circumstances | Use preferred name and pronouns; knock before entering |
-| **Honesty** | Providing truthful information in a compassionate way | Share information clearly without false reassurance |
-| **Active Listening** | Fully attending to what the patient says and does not say | Eye contact, body language, reflective responses |
-| **Partnership** | Involving patients as active participants in their care | "What matters most to you as we think about next steps?" |
-| **Cultural Humility** | Recognizing and respecting diverse health beliefs and practices | Ask about preferences rather than making assumptions |
+| Principle             | Description                                                            | In Practice                                              |
+| --------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| **Empathy**           | Understanding and acknowledging the patient's perspective and emotions | "I can see this is really difficult for you"             |
+| **Respect**           | Treating every patient with dignity regardless of circumstances        | Use preferred name and pronouns; knock before entering   |
+| **Honesty**           | Providing truthful information in a compassionate way                  | Share information clearly without false reassurance      |
+| **Active Listening**  | Fully attending to what the patient says and does not say              | Eye contact, body language, reflective responses         |
+| **Partnership**       | Involving patients as active participants in their care                | "What matters most to you as we think about next steps?" |
+| **Cultural Humility** | Recognizing and respecting diverse health beliefs and practices        | Ask about preferences rather than making assumptions     |
 
 ### Active Listening Techniques
 
-| Technique | How to Use It | Example |
-|-----------|--------------|---------|
-| Reflective listening | Paraphrase what the patient said | "It sounds like the pain is worst in the morning" |
-| Open-ended questions | Ask questions that cannot be answered with yes/no | "Tell me more about how you've been feeling" |
-| Silence | Allow pauses for the patient to process and respond | Pause for 3-5 seconds after a question |
-| Summarizing | Recap key points to confirm understanding | "So what I'm hearing is... Did I get that right?" |
-| Validating | Acknowledge the patient's feelings as understandable | "It makes sense that you'd feel anxious about this" |
-| Clarifying | Ask follow-up questions to deepen understanding | "When you say 'dizzy,' can you describe what that feels like?" |
-| Nonverbal attending | Use body language to show engagement | Lean slightly forward, maintain appropriate eye contact |
+| Technique            | How to Use It                                        | Example                                                        |
+| -------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Reflective listening | Paraphrase what the patient said                     | "It sounds like the pain is worst in the morning"              |
+| Open-ended questions | Ask questions that cannot be answered with yes/no    | "Tell me more about how you've been feeling"                   |
+| Silence              | Allow pauses for the patient to process and respond  | Pause for 3-5 seconds after a question                         |
+| Summarizing          | Recap key points to confirm understanding            | "So what I'm hearing is... Did I get that right?"              |
+| Validating           | Acknowledge the patient's feelings as understandable | "It makes sense that you'd feel anxious about this"            |
+| Clarifying           | Ask follow-up questions to deepen understanding      | "When you say 'dizzy,' can you describe what that feels like?" |
+| Nonverbal attending  | Use body language to show engagement                 | Lean slightly forward, maintain appropriate eye contact        |
 
 ## Health Literacy
 
@@ -89,24 +90,25 @@ The single most effective technique for confirming understanding:
 5. Ask them to teach it back again if corrections were needed
 
 **Example phrases for teach-back**:
+
 - "I want to make sure I explained this clearly. Can you walk me through what you'll do when you get home?"
 - "If you were going to explain this to your [family member], what would you tell them?"
 - "Just so I know I did a good job explaining, can you tell me the three most important things about your medication?"
 
 ### Plain Language Guidelines
 
-| Instead of | Use |
-|-----------|-----|
-| Hypertension | High blood pressure |
-| Administer | Give |
-| Benign | Not cancer / not harmful |
-| Contraindicated | Should not be used with |
-| NPO | Do not eat or drink |
-| PRN | As needed |
-| Bilateral | On both sides |
-| Exacerbation | Worsening / flare-up |
-| Etiology | Cause |
-| Monitor | Watch / keep track of |
+| Instead of      | Use                      |
+| --------------- | ------------------------ |
+| Hypertension    | High blood pressure      |
+| Administer      | Give                     |
+| Benign          | Not cancer / not harmful |
+| Contraindicated | Should not be used with  |
+| NPO             | Do not eat or drink      |
+| PRN             | As needed                |
+| Bilateral       | On both sides            |
+| Exacerbation    | Worsening / flare-up     |
+| Etiology        | Cause                    |
+| Monitor         | Watch / keep track of    |
 
 ### Written Material Design
 
@@ -129,6 +131,7 @@ When creating patient-facing materials:
 A widely used protocol for delivering serious or life-changing news:
 
 **S - Setting**
+
 - Arrange a private, quiet space
 - Ensure adequate time (do not rush)
 - Have tissues available
@@ -137,18 +140,21 @@ A widely used protocol for delivering serious or life-changing news:
 - Sit down at eye level with the patient
 
 **P - Perception**
+
 - Assess what the patient already knows or suspects
 - "What have you been told so far about your condition?"
 - "What is your understanding of why we ran these tests?"
 - Listen carefully; their baseline shapes how you deliver news
 
 **I - Invitation**
+
 - Ask permission and gauge readiness for information
 - "Would it be okay if I share the test results with you now?"
 - "Some people want all the details right away; others prefer the big picture first. What would be best for you?"
 - Respect the patient's pace
 
 **K - Knowledge**
+
 - Deliver the news using clear, direct language
 - Use a warning statement: "I'm afraid I have some difficult news"
 - Avoid medical jargon
@@ -156,6 +162,7 @@ A widely used protocol for delivering serious or life-changing news:
 - Check understanding after each piece before continuing
 
 **E - Empathy**
+
 - Respond to the patient's emotions before continuing with information
 - Name the emotion: "I can see this is shocking"
 - Validate: "It's completely normal to feel this way"
@@ -163,6 +170,7 @@ A widely used protocol for delivering serious or life-changing news:
 - Allow silence and tears; do not rush to fill the space
 
 **S - Summary and Strategy**
+
 - Summarize what was discussed
 - Outline next steps clearly
 - Offer a follow-up meeting to revisit questions
@@ -172,15 +180,15 @@ A widely used protocol for delivering serious or life-changing news:
 
 ### Common Emotional Responses and How to Respond
 
-| Response | What You Might See | How to Respond |
-|----------|-------------------|----------------|
-| Shock/silence | Staring, no response, frozen | Wait quietly. "Take your time. I'm here." |
-| Crying | Tears, sobbing | Offer tissues. Sit quietly. "It's okay to cry." |
-| Anger | Raised voice, frustration, blame | Stay calm. "I understand you're angry. That's a normal reaction." |
-| Denial | "That can't be right," seeking alternative explanations | Acknowledge gently. "I know this is hard to believe. The results do show..." |
-| Bargaining | "What if I had done X differently?" | "This is not your fault. Let's focus on what we can do now." |
-| Anxiety | Rapid questions, inability to focus | "Let's take this one step at a time. We don't have to figure it all out today." |
-| Withdrawal | Shutting down, turning away | "I can see you need some time. I'll come back to check on you." |
+| Response      | What You Might See                                      | How to Respond                                                                  |
+| ------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Shock/silence | Staring, no response, frozen                            | Wait quietly. "Take your time. I'm here."                                       |
+| Crying        | Tears, sobbing                                          | Offer tissues. Sit quietly. "It's okay to cry."                                 |
+| Anger         | Raised voice, frustration, blame                        | Stay calm. "I understand you're angry. That's a normal reaction."               |
+| Denial        | "That can't be right," seeking alternative explanations | Acknowledge gently. "I know this is hard to believe. The results do show..."    |
+| Bargaining    | "What if I had done X differently?"                     | "This is not your fault. Let's focus on what we can do now."                    |
+| Anxiety       | Rapid questions, inability to focus                     | "Let's take this one step at a time. We don't have to figure it all out today." |
+| Withdrawal    | Shutting down, turning away                             | "I can see you need some time. I'll come back to check on you."                 |
 
 ## Specific Communication Scenarios
 
@@ -235,6 +243,7 @@ Rather than memorizing cultural "rules," practice cultural humility:
 4. **Lifelong learning**: Treat every encounter as an opportunity to learn
 
 **Useful Questions**:
+
 - "Are there cultural or religious practices that are important for your care?"
 - "How does your family typically make health decisions?"
 - "Is there anything about your background that would help me take better care of you?"
@@ -293,7 +302,6 @@ Difficult conversations take a toll. Protect your own wellbeing:
 - Set realistic expectations: you cannot control outcomes, only your presence and effort
 - Seek training and supervision to build confidence in challenging scenarios
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -301,7 +309,6 @@ Difficult conversations take a toll. Protect your own wellbeing:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -322,14 +329,12 @@ Difficult conversations take a toll. Protect your own wellbeing:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

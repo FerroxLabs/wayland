@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy marketing planning entrepreneurship"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy marketing planning entrepreneurship'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go-to-Market Strategy
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when the user's request maps to one of these specific launch scen
 - The user has a launch date, budget, or timeline constraint and needs a time-bounded plan rather than an evergreen marketing program
 
 **Do NOT use this skill when:**
+
 - The user needs ongoing campaign optimization or monthly marketing planning -- use `marketing-strategy` instead
 - The user wants only a brand positioning statement or brand identity work -- use `brand-positioning` instead
 - The user needs a full competitive landscape with market share analysis -- use `competitive-analysis` instead
@@ -416,22 +418,22 @@ When entering a market with many established competitors offering functionally s
 
 ### Market Sizing
 
-| Market Level | Definition | Size Estimate | Method |
-|--------------|-----------|---------------|--------|
-| TAM | All US companies that need or will need SOC 2 compliance | ~180,000 companies / ~$4.2B addressable | Top-down: Gartner GRC market size, filtered to SOC 2 |
-| SAM | US seed-to-Series B SaaS startups with 10-200 employees, AWS/GitHub infrastructure | ~22,000 companies | Bottom-up: Crunchbase/LinkedIn filter × avg $7,200 ACV |
-| SOM | Reachable in 12 months given $35K launch budget and $500 CAC target | ~70 customers / $504K ARR | Budget ($35K) / target CAC ($500) = 70 customers; SOM = 70 × $499/mo × 12 |
+| Market Level | Definition                                                                         | Size Estimate                           | Method                                                                    |
+| ------------ | ---------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------- |
+| TAM          | All US companies that need or will need SOC 2 compliance                           | ~180,000 companies / ~$4.2B addressable | Top-down: Gartner GRC market size, filtered to SOC 2                      |
+| SAM          | US seed-to-Series B SaaS startups with 10-200 employees, AWS/GitHub infrastructure | ~22,000 companies                       | Bottom-up: Crunchbase/LinkedIn filter × avg $7,200 ACV                    |
+| SOM          | Reachable in 12 months given $35K launch budget and $500 CAC target                | ~70 customers / $504K ARR               | Budget ($35K) / target CAC ($500) = 70 customers; SOM = 70 × $499/mo × 12 |
 
 ---
 
 ### Market Segmentation (STP)
 
-| Segment | Description | Size (SAM) | WTP | Accessibility | Competitive Intensity | Priority | Rationale |
-|---------|------------|-----------|-----|--------------|----------------------|----------|-----------|
-| Series A startups (20-100 employees) doing first SOC 2 | Engineering-led, first-time compliance, being pushed by enterprise prospects; currently choosing between consultants or building manually | ~8,000 companies | High -- a $25K consultant engagement makes $499/mo an easy comparison | High -- reachable via LinkedIn, DevOps communities, and VC portfolios | Medium -- consultant alternative is slow and expensive; larger platforms require long implementation | **Primary** | Clearest pain (enterprise deal blocked by audit), highest urgency, and most favorable competitive comparison |
-| Series B companies (100-300 employees) with lapsed or expiring SOC 2 certification | Have done one audit already, understand the pain, need to renew; more complex environments | ~4,500 companies | High | Medium -- harder to reach cold; better via partnerships | Medium | **Secondary** | Larger deal potential and renewal motion; revisit at $25K MRR when customer success team exists |
-| Enterprise (300+ employees) with dedicated compliance function | Have GRC teams, existing compliance platforms, procurement process | ~12,000 companies | High but procurement-gated | Low -- requires enterprise sales motion | High -- dedicated GRC platforms like Drata and Vanta well established | **Deferred** | Revisit when annual contract value exceeds $25K and SOC 2 is extended to ISO 27001 and HIPAA modules; trigger: $200K ARR |
-| Seed-stage startups (<20 employees) | Not yet being asked for SOC 2 by customers; pain is abstract | ~9,000 companies | Low -- urgency is not present | High | Low | **Deferred** | Revisit with a "SOC 2 ready" lower tier ($99/mo) when bandwidth allows; trigger: end of year 1 |
+| Segment                                                                            | Description                                                                                                                               | Size (SAM)        | WTP                                                                   | Accessibility                                                         | Competitive Intensity                                                                                | Priority      | Rationale                                                                                                                |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Series A startups (20-100 employees) doing first SOC 2                             | Engineering-led, first-time compliance, being pushed by enterprise prospects; currently choosing between consultants or building manually | ~8,000 companies  | High -- a $25K consultant engagement makes $499/mo an easy comparison | High -- reachable via LinkedIn, DevOps communities, and VC portfolios | Medium -- consultant alternative is slow and expensive; larger platforms require long implementation | **Primary**   | Clearest pain (enterprise deal blocked by audit), highest urgency, and most favorable competitive comparison             |
+| Series B companies (100-300 employees) with lapsed or expiring SOC 2 certification | Have done one audit already, understand the pain, need to renew; more complex environments                                                | ~4,500 companies  | High                                                                  | Medium -- harder to reach cold; better via partnerships               | Medium                                                                                               | **Secondary** | Larger deal potential and renewal motion; revisit at $25K MRR when customer success team exists                          |
+| Enterprise (300+ employees) with dedicated compliance function                     | Have GRC teams, existing compliance platforms, procurement process                                                                        | ~12,000 companies | High but procurement-gated                                            | Low -- requires enterprise sales motion                               | High -- dedicated GRC platforms like Drata and Vanta well established                                | **Deferred**  | Revisit when annual contract value exceeds $25K and SOC 2 is extended to ISO 27001 and HIPAA modules; trigger: $200K ARR |
+| Seed-stage startups (<20 employees)                                                | Not yet being asked for SOC 2 by customers; pain is abstract                                                                              | ~9,000 companies  | Low -- urgency is not present                                         | High                                                                  | Low                                                                                                  | **Deferred**  | Revisit with a "SOC 2 ready" lower tier ($99/mo) when bandwidth allows; trigger: end of year 1                           |
 
 ---
 
@@ -443,11 +445,13 @@ When entering a market with many established competitors offering functionally s
 For Series A startup CTOs and engineering leads who are blocking enterprise deals because they lack SOC 2 documentation, [Product] is the automated compliance documentation platform that generates audit-ready SOC 2 controls from your existing AWS, GitHub, Okta, and Jira configurations in days -- not months -- unlike $50K consultant engagements that take 4-6 months and require significant internal engineering time.
 
 **Points of Difference (POD):**
+
 1. Integration-driven automation -- pulls live configuration data rather than asking for manual input, meaning documentation stays current as infrastructure changes rather than going stale
 2. Time-to-audit-ready -- customers reach an auditor-ready documentation package in 5-10 business days vs. 3-5 months for traditional methods
 3. Price point accessible to startups -- at $499/month, the product pays for itself if it saves one week of an engineer's time (worth ~$4,000-$6,000 at startup salary rates)
 
 **Points of Parity (POP -- table stakes, do not lead with these):**
+
 - Supports all five SOC 2 Trust Service Criteria (Security, Availability, Processing Integrity, Confidentiality, Privacy)
 - Audit firm-agnostic (works with any Big 4 or regional CPA firm conducting the audit)
 - Role-based access controls so auditors can be given read-only access
@@ -459,13 +463,14 @@ For Series A startup CTOs and engineering leads who are blocking enterprise deal
 **Primary Segment: Series A CTOs and Engineering Leads**
 
 **Message Pyramid:**
+
 - **Headline:** "Close enterprise deals faster -- get SOC 2 documentation done in days, not months"
 - **Pillar 1:** Speed to audit-ready -- SOC 2 documentation generated from your existing integrations in 5-10 business days
 - **Pillar 2:** No consultant required -- save $25K-$80K on outside consulting fees while retaining full control of the process
 - **Pillar 3:** Built for engineering-first startups -- connects to the tools your team already uses (AWS, GitHub, Okta, Jira) and stays current automatically
 
-| AIDA Stage | Message | Channel Context | Variant A | Variant B |
-|------------|---------|----------------|-----------|-----------|
-| Attention | "How many enterprise deals have you lost to a SOC 2 checkbox?" | LinkedIn feed ads targeting CTO/VP Engineering at Series A companies; cold email subject line | "Your competitor passed their SOC 2 audit last quarter" | "Enterprise prospects are asking for your SOC 2 -- here's the fastest path to it" |
-| Interest | "The average Series A startup spends 4.5 months and $40K+ to complete their first SOC 2 Type II audit. Most of that time is manual documentation of controls that already exist in your AWS console and GitHub settings." | LinkedIn article, landing page above the fold, cold email body | Data-led: open with the $40K/4.5-month benchmark statistic | Story-led: "We talked to 50 startup CTOs -- every one of them said the same thing: the audit wasn't the hard part, the documentation was" |
-| Desire | "Connect your AWS, GitHub, Okta, and Jira accounts. We read your existing configurations and generate the complete control documentation package your auditor needs. Customers reach audit readiness in an average of 7 business days." + customer quote from beta | Landing page below the fold, demo video, proposal deck | ROI-focused: "If this saves 3 weeks of an engineer's time, it pays for itself in the first month" | Risk-focused: "Your first-year SOC 2 documentation is the foundation for every renewal --
+| AIDA Stage | Message                                                                                                                                                                                                                                                            | Channel Context                                                                               | Variant A                                                                                         | Variant B                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Attention  | "How many enterprise deals have you lost to a SOC 2 checkbox?"                                                                                                                                                                                                     | LinkedIn feed ads targeting CTO/VP Engineering at Series A companies; cold email subject line | "Your competitor passed their SOC 2 audit last quarter"                                           | "Enterprise prospects are asking for your SOC 2 -- here's the fastest path to it"                                                         |
+| Interest   | "The average Series A startup spends 4.5 months and $40K+ to complete their first SOC 2 Type II audit. Most of that time is manual documentation of controls that already exist in your AWS console and GitHub settings."                                          | LinkedIn article, landing page above the fold, cold email body                                | Data-led: open with the $40K/4.5-month benchmark statistic                                        | Story-led: "We talked to 50 startup CTOs -- every one of them said the same thing: the audit wasn't the hard part, the documentation was" |
+| Desire     | "Connect your AWS, GitHub, Okta, and Jira accounts. We read your existing configurations and generate the complete control documentation package your auditor needs. Customers reach audit readiness in an average of 7 business days." + customer quote from beta | Landing page below the fold, demo video, proposal deck                                        | ROI-focused: "If this saves 3 weeks of an engineer's time, it pays for itself in the first month" | Risk-focused: "Your first-year SOC 2 documentation is the foundation for every renewal --                                                 |

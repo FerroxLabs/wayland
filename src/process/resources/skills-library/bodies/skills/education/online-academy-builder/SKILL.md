@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry teaching testing marketing video-production podcast email investing"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'education-industry teaching testing marketing video-production podcast email investing'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Online Academy Builder
 
 ## When to Use
 
 **Use this skill when:**
+
 - A creator, educator, entrepreneur, or organization wants to launch an online course, membership academy, or certification program from scratch or significantly restructure an existing one
 - A subject-matter expert (coach, consultant, trainer, professional) wants to productize their knowledge into a scalable digital learning business
 - An existing course creator is struggling with low completion rates, poor conversion, flat revenue, or student churn and needs a systematic diagnosis and fix
@@ -29,6 +31,7 @@ metadata:
 - A creator wants to grow from $0 to first revenue or from $50K to $500K+ in online education revenue with a clear operational playbook
 
 **Do NOT use when:**
+
 - The user needs K-12 or university curriculum design -- use an academic instructional design skill instead, as regulatory and pedagogical frameworks differ substantially
 - The request is about corporate Learning Management System (LMS) selection for enterprise HR at scale (5,000+ seats) -- that requires an enterprise procurement and compliance skill
 - The user wants to build in-person workshops, bootcamps, or live seminars with no online component -- use an event and workshop production skill
@@ -89,15 +92,15 @@ Before providing recommendations, gather the following. Ask no more than five qu
 
 **Platform Decision Framework:**
 
-| Scenario | Platform Recommendation | Why |
-|---|---|---|
-| Solo creator, self-paced course, first product | Teachable or Thinkific | Low friction, solid checkout, good enough for $0-$200K/year |
-| All-in-one (course + email + funnels + community) | Kajabi | Eliminates integration headaches at $149-$399/month |
-| Community-first academy with courses as add-ons | Circle + Teachable or Thinkific | Best community UX plus solid course delivery |
-| High-touch cohort course | Mighty Networks or Disco | Built for cohort scheduling, community, and live sessions |
-| Interactive and quiz-heavy (compliance, professional certs) | LearnWorlds or Articulate 360 | SCORM compliance, branching scenarios, advanced assessment |
-| Developer with full control | WordPress + LearnDash or LifterLMS | Unlimited customization, self-hosted, requires technical skill |
-| B2B / enterprise training | TalentLMS or Docebo | SSO, team reporting, bulk licensing, compliance tracking |
+| Scenario                                                    | Platform Recommendation            | Why                                                            |
+| ----------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------- |
+| Solo creator, self-paced course, first product              | Teachable or Thinkific             | Low friction, solid checkout, good enough for $0-$200K/year    |
+| All-in-one (course + email + funnels + community)           | Kajabi                             | Eliminates integration headaches at $149-$399/month            |
+| Community-first academy with courses as add-ons             | Circle + Teachable or Thinkific    | Best community UX plus solid course delivery                   |
+| High-touch cohort course                                    | Mighty Networks or Disco           | Built for cohort scheduling, community, and live sessions      |
+| Interactive and quiz-heavy (compliance, professional certs) | LearnWorlds or Articulate 360      | SCORM compliance, branching scenarios, advanced assessment     |
+| Developer with full control                                 | WordPress + LearnDash or LifterLMS | Unlimited customization, self-hosted, requires technical skill |
+| B2B / enterprise training                                   | TalentLMS or Docebo                | SSO, team reporting, bulk licensing, compliance tracking       |
 
 - Do not over-invest in platform before validating. A $39/month Thinkific plan is sufficient for the first $100K in revenue. Platform switching is painful but survivable -- not launching because of platform paralysis is fatal.
 - Evaluate five platform criteria in order: (1) Does it handle your delivery format natively? (2) Does checkout integrate with your payment processor? (3) Does it have drip scheduling if your format requires it? (4) Can students access it easily on mobile? (5) Does support documentation match your technical comfort level?
@@ -313,6 +316,7 @@ All content must include a clear disclaimer stating the material is for educatio
 ## Online Academy Build Plan
 
 ### Situation Assessment
+
 - **Creator Stage:** Early Traction -- you have real expertise, a small but relevant audience, and proof of concept through your own freelance success
 - **Primary Constraint:** Audience size (400 email subscribers is workable but small -- conversion math requires either a live cohort or audience growth before evergreen launch)
 - **Recommended Business Model:** Cohort-based launch (3 cohorts over 12 months), then evergreen
@@ -338,16 +342,16 @@ All content must include a clear disclaimer stating the material is for educatio
 
 **Capstone Assessment:** Students submit a complete freelance business setup: a repositioned portfolio with three case studies, a rate card, a client proposal template, and proof of outreach to five potential clients.
 
-| Module | Title | Learning Objective | Assessed Deliverable | Length |
-|--------|-------|--------------------|---------------------|--------|
-| 1 | The Freelance UX Business Model | Students will be able to articulate the three freelance income models and select the right one for their situation | Written "freelance business model" decision document | 60 min |
-| 2 | Positioning and Niche Selection | Students will be able to define a specific UX niche with identifiable clients and documented demand | 1-page niche statement with three target client types | 75 min |
-| 3 | Portfolio for Freelance (Not Employment) | Students will be able to restructure existing case studies to speak directly to freelance client outcomes | Two revised portfolio case studies published live | 90 min |
-| 4 | Pricing, Rates, and Scope | Students will be able to calculate a minimum viable day rate and build a scope-of-work template | Completed rate card and one scope-of-work document | 80 min |
-| 5 | Finding and Approaching Clients | Students will be able to identify five qualified leads and write a personalized outreach message for each | Five documented outreach messages with responses tracked | 75 min |
-| 6 | Discovery Calls and Sales Conversations | Students will be able to conduct a structured 30-minute discovery call and move a prospect to a proposal | Discovery call script + one conducted call (role-played with cohort peer) | 60 min |
-| 7 | Proposals, Contracts, and Onboarding | Students will be able to send a professional proposal and execute a legally sound freelance contract | One completed proposal + signed contract template | 70 min |
-| 8 | Managing Projects and Clients (Sustainably) | Students will be able to manage concurrent freelance projects without scope creep or burnout | Project management dashboard setup + client communication template library | 60 min |
+| Module | Title                                       | Learning Objective                                                                                                 | Assessed Deliverable                                                       | Length |
+| ------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ------ |
+| 1      | The Freelance UX Business Model             | Students will be able to articulate the three freelance income models and select the right one for their situation | Written "freelance business model" decision document                       | 60 min |
+| 2      | Positioning and Niche Selection             | Students will be able to define a specific UX niche with identifiable clients and documented demand                | 1-page niche statement with three target client types                      | 75 min |
+| 3      | Portfolio for Freelance (Not Employment)    | Students will be able to restructure existing case studies to speak directly to freelance client outcomes          | Two revised portfolio case studies published live                          | 90 min |
+| 4      | Pricing, Rates, and Scope                   | Students will be able to calculate a minimum viable day rate and build a scope-of-work template                    | Completed rate card and one scope-of-work document                         | 80 min |
+| 5      | Finding and Approaching Clients             | Students will be able to identify five qualified leads and write a personalized outreach message for each          | Five documented outreach messages with responses tracked                   | 75 min |
+| 6      | Discovery Calls and Sales Conversations     | Students will be able to conduct a structured 30-minute discovery call and move a prospect to a proposal           | Discovery call script + one conducted call (role-played with cohort peer)  | 60 min |
+| 7      | Proposals, Contracts, and Onboarding        | Students will be able to send a professional proposal and execute a legally sound freelance contract               | One completed proposal + signed contract template                          | 70 min |
+| 8      | Managing Projects and Clients (Sustainably) | Students will be able to manage concurrent freelance projects without scope creep or burnout                       | Project management dashboard setup + client communication template library | 60 min |
 
 ---
 
@@ -355,12 +359,14 @@ All content must include a clear disclaimer stating the material is for educatio
 
 **Primary Platform:** Teachable (Growth plan at $99/month)
 **Reason:**
+
 - Handles drip scheduling natively -- you can release one module per week to simulate the cohort cadence
 - Clean checkout and payment plan options (critical for $497-$797 price points -- offer 2-payment plans)
 - Enough for $0-$300K/year without needing to migrate
 - Simple enough to set up in one weekend without developer help
 
 **Required Integrations:**
+
 - **Email:** ConvertKit (free up to 1,000 subscribers, built for creators, has automations needed for drip sequences and re-engagement)
 - **Payment:** Stripe via Teachable's native integration
 - **Community:** Slack (free, familiar to designers, separate from Teachable -- link from welcome email)
@@ -374,6 +380,7 @@ All content must include a clear disclaimer stating the material is for educatio
 ### Student Experience Design
 
 **Onboarding Sequence (triggered immediately on enrollment):**
+
 - **Hour 0:** Automated welcome email with one action item -- complete the "Freelance Readiness Survey" (a 5-question Typeform) and watch Module 1 Lesson 1. Nothing else.
 - **Hour 2:** Automated Slack invite with a prompt: "Introduce yourself -- your current role, your freelance goal, and your biggest fear about going independent."
 - **Day 2:** Personal email from you (can be a mail-merge template): "I saw you joined -- what brought you here this week specifically?" This one question generates replies that give you both a student connection and sales copy insights.
@@ -381,12 +388,14 @@ All content must include a clear disclaimer stating the material is for educatio
 - **End of Week 2 (Module 2 complete):** Automated milestone badge + congratulations email with a prompt to share their niche statement in Slack.
 
 **Completion Drivers:**
+
 - Weekly live Q&A calls every Thursday at 12:00 PM ET -- recorded and uploaded by Friday morning. The call schedule creates a weekly commitment anchor.
 - Peer accountability pairing at Module 1 -- match students in pairs to check in via Slack DM weekly. Pairs report back in the main channel each Sunday.
 - Module completion certificates at Modules 4 and 8 -- mid-course and graduation. Mid-course certificate is titled "Freelance UX Business Fundamentals." Graduation is "Freelance UX Launch Certified."
 - A shared cohort "progress wall" in Slack -- a pinned post updated weekly showing which students have completed which modules (gamification through social visibility).
 
 **Community Structure (Slack):**
+
 - **#introductions** -- first post for all new students
 - **#module-discussions** -- questions about current week's content
 - **#portfolio-feedback** -- share Module 3 work for peer review
@@ -417,21 +426,21 @@ All content must include a clear disclaimer stating the material is for educatio
 
 **Pricing Structure:**
 
-| Tier | What's Included | Price |
-|------|----------------|-------|
-| Self-Paced Access | All 8 modules, all templates, Slack community (6 months) | $597 |
-| Cohort (Accelerator) | All above + 8 weekly live Q&A calls + peer accountability pairing + priority feedback on deliverables | $797 |
-| VIP Cohort + Coaching | All above + three 45-minute 1-on-1 calls with you + personal portfolio review | $1,497 |
+| Tier                  | What's Included                                                                                       | Price  |
+| --------------------- | ----------------------------------------------------------------------------------------------------- | ------ |
+| Self-Paced Access     | All 8 modules, all templates, Slack community (6 months)                                              | $597   |
+| Cohort (Accelerator)  | All above + 8 weekly live Q&A calls + peer accountability pairing + priority feedback on deliverables | $797   |
+| VIP Cohort + Coaching | All above + three 45-minute 1-on-1 calls with you + personal portfolio review                         | $1,497 |
 
 ---
 
 ### 90-Day Revenue Projection
 
-| Month | Action | Revenue Estimate |
-|-------|--------|-----------------|
-| Month 1 | Beta Cohort 1 -- 12 students at $497 | $5,964 |
-| Month 2 | Cohort 1 in progress -- lead magnet funnel building list | $0 new (list building) |
-| Month 3 | Cohort 2 open enrollment -- 20 students at $697 + 2 VIP at $1,497 | $16,934 |
+| Month   | Action                                                            | Revenue Estimate       |
+| ------- | ----------------------------------------------------------------- | ---------------------- |
+| Month 1 | Beta Cohort 1 -- 12 students at $497                              | $5,964                 |
+| Month 2 | Cohort 1 in progress -- lead magnet funnel building list          | $0 new (list building) |
+| Month 3 | Cohort 2 open enrollment -- 20 students at $697 + 2 VIP at $1,497 | $16,934                |
 
 **3-Month Total:** ~$22,898
 **Break-Even Point:** 4 students at $497 (covers 6 months of platform and tools at ~$500/month)

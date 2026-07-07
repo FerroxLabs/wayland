@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "clean-code refactoring debugging"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'clean-code refactoring debugging'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Code Smell Detection
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to audit an existing codebase for structural problems -- long methods, deep inheritance hierarchies, data clumping, shotgun surgery candidates, or feature envy symptoms
 - A user is setting up automated lint and static analysis pipelines and wants to know which rules to enable, what thresholds to configure, and how to triage violations
 - A user is preparing for a refactoring sprint and needs a prioritized list of what to fix first based on impact and risk
@@ -29,6 +31,7 @@ metadata:
 - A user wants to build a custom static analysis rule for a smell their team keeps introducing that existing tools do not catch
 
 **Do NOT use this skill when:**
+
 - The user needs help with runtime performance profiling or bottleneck analysis -- use a performance profiling skill instead; smells address structural quality, not execution speed
 - The user is asking about security vulnerability scanning (SAST for injection, XSS, CVE matching) -- those scanners have different rule taxonomies and threat models
 - The user needs dependency management or version conflict resolution -- that is a separate concern from code structure quality
@@ -153,7 +156,7 @@ Automated tools cannot catch every smell. Human pattern recognition in code revi
 
 When delivering smell analysis results, use the following structure:
 
-```markdown
+````markdown
 ## Code Smell Audit Report
 
 **Project / Scope:** [module name, file range, or "full repository"]
@@ -167,7 +170,7 @@ When delivering smell analysis results, use the following structure:
 ### Executive Summary
 
 | Metric                          | Value          | Status     |
-|---------------------------------|----------------|------------|
+| ------------------------------- | -------------- | ---------- |
 | Total Violations Found          | [N]            | [🔴/🟡/🟢] |
 | Smell Density (violations/KLOC) | [N]            | [🔴/🟡/🟢] |
 | Files Above Complexity Ceiling  | [N] of [total] | [🔴/🟡/🟢] |
@@ -180,22 +183,22 @@ Status thresholds: 🟢 = within target, 🟡 = approaching limit, 🔴 = exceed
 
 ### Smell Distribution by Category
 
-| Category            | Count | % of Total | Trend vs. Last Audit |
-|---------------------|-------|------------|----------------------|
-| Bloaters            | [N]   | [%]        | [↑ / ↓ / →]         |
-| OO Abusers          | [N]   | [%]        | [↑ / ↓ / →]         |
-| Change Preventers   | [N]   | [%]        | [↑ / ↓ / →]         |
-| Dispensables        | [N]   | [%]        | [↑ / ↓ / →]         |
-| Couplers            | [N]   | [%]        | [↑ / ↓ / →]         |
+| Category          | Count | % of Total | Trend vs. Last Audit |
+| ----------------- | ----- | ---------- | -------------------- |
+| Bloaters          | [N]   | [%]        | [↑ / ↓ / →]          |
+| OO Abusers        | [N]   | [%]        | [↑ / ↓ / →]          |
+| Change Preventers | [N]   | [%]        | [↑ / ↓ / →]          |
+| Dispensables      | [N]   | [%]        | [↑ / ↓ / →]          |
+| Couplers          | [N]   | [%]        | [↑ / ↓ / →]          |
 
 ---
 
 ### Hotspot Files (Churn × Complexity Matrix)
 
-| File Path               | Complexity Score | Commits (90d) | Primary Smells              | Priority |
-|-------------------------|------------------|---------------|-----------------------------|----------|
-| [path/to/file.ext]      | [CC score]       | [N]           | [smell names]               | P1       |
-| [path/to/file.ext]      | [CC score]       | [N]           | [smell names]               | P2       |
+| File Path          | Complexity Score | Commits (90d) | Primary Smells | Priority |
+| ------------------ | ---------------- | ------------- | -------------- | -------- |
+| [path/to/file.ext] | [CC score]       | [N]           | [smell names]  | P1       |
+| [path/to/file.ext] | [CC score]       | [N]           | [smell names]  | P2       |
 
 ---
 
@@ -204,6 +207,7 @@ Status thresholds: 🟢 = within target, 🟡 = approaching limit, 🔴 = exceed
 #### P1 -- Fix Immediately
 
 **[Smell Name] in [File:LineRange]**
+
 - **Pattern Detected:** [Brief description of the specific instance]
 - **Why It Matters:** [Specific risk -- regression likelihood, onboarding friction, etc.]
 - **Recommended Refactoring:** [Specific move -- Extract Method, Extract Class, etc.]
@@ -212,6 +216,8 @@ Status thresholds: 🟢 = within target, 🟡 = approaching limit, 🔴 = exceed
   ```[language]
   [illustrative before code snippet]
   ```
+````
+
 - **After Sketch:**
   ```[language]
   [illustrative after code snippet]
@@ -238,20 +244,21 @@ Status thresholds: 🟢 = within target, 🟡 = approaching limit, 🔴 = exceed
 
 ### Refactoring Roadmap
 
-| Sprint | Target Files        | Smells Addressed              | Expected Debt Reduction |
-|--------|---------------------|-------------------------------|------------------------|
-| 1      | [file list]         | [smell names]                 | [hours]                |
-| 2      | [file list]         | [smell names]                 | [hours]                |
-| 3      | [file list]         | [smell names]                 | [hours]                |
+| Sprint | Target Files | Smells Addressed | Expected Debt Reduction |
+| ------ | ------------ | ---------------- | ----------------------- |
+| 1      | [file list]  | [smell names]    | [hours]                 |
+| 2      | [file list]  | [smell names]    | [hours]                 |
+| 3      | [file list]  | [smell names]    | [hours]                 |
 
 ---
 
 ### Suppression Register
 
-| File | Line | Smell | Justification | Approved By | Expires |
-|------|------|-------|---------------|-------------|---------|
-| [path] | [N] | [name] | [reason] | [name] | [date or "never"] |
-```
+| File   | Line | Smell  | Justification | Approved By | Expires           |
+| ------ | ---- | ------ | ------------- | ----------- | ----------------- |
+| [path] | [N]  | [name] | [reason]      | [name]      | [date or "never"] |
+
+````
 
 ---
 
@@ -374,7 +381,7 @@ These smells often co-occur in Django codebases that started as simple CRUD apps
 ```bash
 pip install pylint radon vulture flake8 flake8-cognitive-complexity
 pip install pylint-django  # critical for Django-aware Pylint
-```
+````
 
 **Step 2 -- Create `.pylintrc` with Django-appropriate thresholds:**
 
@@ -430,13 +437,13 @@ flake8 myproject --max-cognitive-complexity=15 --select=CCR001
 
 In a 45,000-line Django monolith of this age without automated detection, expect the following on first run:
 
-| Metric                          | Likely Finding     | Target State       |
-|---------------------------------|--------------------|--------------------|
-| Total Pylint Design Violations  | 300--800           | <200               |
-| Smell Density (violations/KLOC) | 7--18/KLOC         | <8/KLOC            |
-| Methods with Cyclomatic CC > 10 | 40--100 methods    | <15 methods        |
-| Dead Code Instances             | 50--150            | 0 in active modules |
-| Radon MI below 20 (unreadable)  | 5--20 files        | 0 files            |
+| Metric                          | Likely Finding  | Target State        |
+| ------------------------------- | --------------- | ------------------- |
+| Total Pylint Design Violations  | 300--800        | <200                |
+| Smell Density (violations/KLOC) | 7--18/KLOC      | <8/KLOC             |
+| Methods with Cyclomatic CC > 10 | 40--100 methods | <15 methods         |
+| Dead Code Instances             | 50--150         | 0 in active modules |
+| Radon MI below 20 (unreadable)  | 5--20 files     | 0 files             |
 
 ---
 
@@ -451,6 +458,7 @@ git log --since="90 days ago" --format=format: --name-only \
 ```
 
 Cross-reference with Radon output. Files appearing in both lists are your P1 targets. In a Django monolith, these will almost certainly be:
+
 - `models.py` in your largest app (God Object -- models that have grown to absorb all domain logic)
 - `views.py` or `serializers.py` in your most active feature area (Long Method, Feature Envy)
 - `utils.py` anywhere it exists (Lazy Class or its inverse -- a junk drawer Large Class)
@@ -549,7 +557,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # needed for git log churn analysis
+          fetch-depth: 0 # needed for git log churn analysis
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -584,23 +592,23 @@ jobs:
 
 ### 90-Day Refactoring Roadmap
 
-| Sprint (2 weeks) | Focus                                           | Primary Smells Addressed              | Expected Improvement                              |
-|------------------|-------------------------------------------------|---------------------------------------|---------------------------------------------------|
-| Sprint 1         | Top 3 hotspot files from churn/complexity matrix | God Object, Long Method               | Reduces most common breakage source               |
-| Sprint 2         | Extract service layer for top 2 domain areas    | Shotgun Surgery, Feature Envy         | Changes to billing stop touching auth code        |
-| Sprint 3         | Dead code removal + duplicate code elimination  | Dispensables, Duplicate Code          | Reduces cognitive load and test surface area      |
-| Sprint 4         | CI gate implementation + team catalog creation  | Process (prevention)                  | Prevents new debt accumulation                    |
-| Sprint 5--6      | Remaining P2 violations from initial audit      | Bloaters, remaining Couplers          | Smell density drops below 8/KLOC target           |
+| Sprint (2 weeks) | Focus                                            | Primary Smells Addressed      | Expected Improvement                         |
+| ---------------- | ------------------------------------------------ | ----------------------------- | -------------------------------------------- |
+| Sprint 1         | Top 3 hotspot files from churn/complexity matrix | God Object, Long Method       | Reduces most common breakage source          |
+| Sprint 2         | Extract service layer for top 2 domain areas     | Shotgun Surgery, Feature Envy | Changes to billing stop touching auth code   |
+| Sprint 3         | Dead code removal + duplicate code elimination   | Dispensables, Duplicate Code  | Reduces cognitive load and test surface area |
+| Sprint 4         | CI gate implementation + team catalog creation   | Process (prevention)          | Prevents new debt accumulation               |
+| Sprint 5--6      | Remaining P2 violations from initial audit       | Bloaters, remaining Couplers  | Smell density drops below 8/KLOC target      |
 
 ---
 
 ### Suppression Register (initial entries for known Django framework smells)
 
-| File                 | Line  | Smell                 | Justification                                              | Approved By | Expires     |
-|----------------------|-------|-----------------------|------------------------------------------------------------|-------------|-------------|
-| `*/views.py`         | n/a   | too-many-public-methods (>20) | Django class-based views use method-per-HTTP-verb convention | Team lead   | Review Q3   |
-| `*/admin.py`         | n/a   | Long Method           | Django admin `get_queryset` and `save_model` are framework entry points | Team lead | Review Q3 |
-| `*/migrations/*.py`  | n/a   | All smells            | Auto-generated -- not maintained by hand                   | Team lead   | Never       |
+| File                | Line | Smell                         | Justification                                                           | Approved By | Expires   |
+| ------------------- | ---- | ----------------------------- | ----------------------------------------------------------------------- | ----------- | --------- |
+| `*/views.py`        | n/a  | too-many-public-methods (>20) | Django class-based views use method-per-HTTP-verb convention            | Team lead   | Review Q3 |
+| `*/admin.py`        | n/a  | Long Method                   | Django admin `get_queryset` and `save_model` are framework entry points | Team lead   | Review Q3 |
+| `*/migrations/*.py` | n/a  | All smells                    | Auto-generated -- not maintained by hand                                | Team lead   | Never     |
 
 ---
 

@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "youtube social-media marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'youtube social-media marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Youtube Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on youtube creator
 - User asks about youtube creator best practices or techniques
 - User wants a structured approach to youtube creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of youtube creator
 
@@ -61,14 +62,14 @@ Before building any YouTube strategy, clarify these fundamentals:
 
 Score each potential niche 1-5 on these dimensions:
 
-| Dimension | Question | Weight |
-|-----------|----------|--------|
-| Passion | Can you make 500 videos on this? | 3x |
-| Expertise | Do you know more than 80% of viewers? | 2x |
-| Search Demand | Are people searching for this? | 3x |
-| Competition Gap | Can you offer something others don't? | 2x |
-| Monetization | Will this audience spend money? | 2x |
-| Evergreen Potential | Will videos get views in 2 years? | 1x |
+| Dimension           | Question                              | Weight |
+| ------------------- | ------------------------------------- | ------ |
+| Passion             | Can you make 500 videos on this?      | 3x     |
+| Expertise           | Do you know more than 80% of viewers? | 2x     |
+| Search Demand       | Are people searching for this?        | 3x     |
+| Competition Gap     | Can you offer something others don't? | 2x     |
+| Monetization        | Will this audience spend money?       | 2x     |
+| Evergreen Potential | Will videos get views in 2 years?     | 1x     |
 
 A score above 50 (out of 65) indicates a strong niche. Below 35, reconsider.
 
@@ -95,6 +96,7 @@ The hook determines whether viewers stay or click away. Average retention drop i
 5. **Story Open**: "Last Tuesday, I got an email from YouTube that changed everything."
 
 **Hook Structure Template:**
+
 ```
 [Pattern Interrupt - unexpected statement or visual]
 [Problem/Promise - what the viewer will get]
@@ -113,6 +115,7 @@ The hook determines whether viewers stay or click away. Average retention drop i
 - **Case Study**: Deep analysis of one example - builds authority
 
 **Retention Techniques Within the Body:**
+
 - Open loops: "I'll show you the exact tool in step 4"
 - Pattern interrupts every 60-90 seconds (B-roll, graphic, angle change)
 - Micro-hooks at each section transition
@@ -139,6 +142,7 @@ Your thumbnail must communicate the video's promise in under 3 seconds at mobile
 ### Thumbnail Formula
 
 **Elements that work:**
+
 1. **Face with emotion** - exaggerated expression, 60%+ of frame
 2. **Contrast** - bright colors against dark, or vice versa
 3. **Text** - 3-5 words maximum, large font, contrasting color
@@ -146,6 +150,7 @@ Your thumbnail must communicate the video's promise in under 3 seconds at mobile
 5. **Before/After** - split frame showing transformation
 
 **Elements to avoid:**
+
 - More than 7 words of text
 - Small, detailed images
 - Cluttered compositions
@@ -166,6 +171,7 @@ Your thumbnail must communicate the video's promise in under 3 seconds at mobile
 ### Title Optimization
 
 **Title Formulas That Drive Clicks:**
+
 ```
 [Number] [Adjective] [Topic] That [Benefit]
   "7 Simple Editing Tricks That Make Videos Look Professional"
@@ -184,6 +190,7 @@ Why [Common Belief] Is Wrong (And What to Do Instead)
 ```
 
 **Title Rules:**
+
 - Front-load the keyword (first 5 words)
 - Keep under 60 characters for full display
 - Include a power word (secret, proven, ultimate, exact)
@@ -203,6 +210,7 @@ Final lines: Hashtags (3-5 maximum), boilerplate about channel
 ### Tags Strategy
 
 Tags have diminished in importance but still matter:
+
 1. First tag: exact target keyword
 2. Tags 2-3: keyword variations
 3. Tags 4-6: broader topic tags
@@ -212,14 +220,14 @@ Tags have diminished in importance but still matter:
 
 ### Key Metrics and What They Mean
 
-| Metric | Healthy Range | What It Tells You |
-|--------|--------------|-------------------|
-| CTR (Click-Through Rate) | 4-10% | Thumbnail + title effectiveness |
-| AVD (Average View Duration) | 40-60% of length | Content quality and pacing |
-| Impressions | Trending up | Algorithm reach |
-| Subscriber conversion | 1-3% per video | Channel value proposition |
-| Returning viewers | 20-30% | Community strength |
-| Traffic sources | Balanced mix | Discovery health |
+| Metric                      | Healthy Range    | What It Tells You               |
+| --------------------------- | ---------------- | ------------------------------- |
+| CTR (Click-Through Rate)    | 4-10%            | Thumbnail + title effectiveness |
+| AVD (Average View Duration) | 40-60% of length | Content quality and pacing      |
+| Impressions                 | Trending up      | Algorithm reach                 |
+| Subscriber conversion       | 1-3% per video   | Channel value proposition       |
+| Returning viewers           | 20-30%           | Community strength              |
+| Traffic sources             | Balanced mix     | Discovery health                |
 
 ### The Analytics Review Workflow (Weekly)
 
@@ -271,6 +279,7 @@ Tags have diminished in importance but still matter:
 ## Equipment Tiers
 
 ### Tier 1: Starter ($0-200)
+
 - Camera: Smartphone (iPhone or recent Android)
 - Audio: Lapel mic ($20-40)
 - Lighting: Window light + $20 ring light
@@ -278,6 +287,7 @@ Tags have diminished in importance but still matter:
 - Result: Perfectly adequate for starting. Content matters more than gear.
 
 ### Tier 2: Intermediate ($500-1,500)
+
 - Camera: Sony ZV-1 or Canon M50 Mark II
 - Audio: Rode PodMic or Blue Yeti
 - Lighting: 2-point LED panel setup
@@ -285,6 +295,7 @@ Tags have diminished in importance but still matter:
 - Teleprompter app: BigVu or PromptSmart
 
 ### Tier 3: Professional ($3,000-8,000)
+
 - Camera: Sony A7IV or Canon R6 II
 - Lens: 24-70mm f/2.8 or 35mm f/1.4
 - Audio: Shure SM7B + Focusrite Scarlett interface
@@ -337,12 +348,14 @@ Post 2-4 times per week between uploads. This keeps your channel active in subsc
 ## Growth Accelerators
 
 ### Collaboration Strategy
+
 1. Find creators at similar subscriber count (0.5x to 2x your size)
 2. Propose mutual value (not "let's do a collab" but "here's a video idea that serves both our audiences")
 3. Structure: appear on their channel, they appear on yours
 4. Cross-pollinate audiences with genuine recommendations
 
 ### YouTube Shorts Strategy
+
 - Repurpose long-form highlights into 30-60 second Shorts
 - Use Shorts as a funnel to long-form content
 - Different algorithm - Shorts can explode independently
@@ -350,6 +363,7 @@ Post 2-4 times per week between uploads. This keeps your channel active in subsc
 - Post 3-5 Shorts per week alongside 1-2 long-form videos
 
 ### Search vs Browse Content Mix
+
 - **Search content** (40%): Tutorial, how-to, review - steady baseline views
 - **Browse content** (40%): Trending topics, opinion, story - viral potential
 - **Community content** (20%): Q&A, behind-scenes - loyalty building
@@ -365,7 +379,6 @@ Post 2-4 times per week between uploads. This keeps your channel active in subsc
 7. **Trying to appeal to everyone**: Narrow audience = stronger community.
 8. **Burning out on daily uploads**: Sustainable pace beats sprint-and-crash.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -377,7 +390,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

@@ -114,9 +114,7 @@ describe('BluebubblesPlugin.sendMessage', () => {
     expect(body.message).toBe('Hello iMessage');
     // tempGuid must be present + valid UUID v4 format for BB idempotency.
     expect(typeof body.tempGuid).toBe('string');
-    expect(body.tempGuid).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-    );
+    expect(body.tempGuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 
     await plugin.stop();
   });
@@ -129,9 +127,10 @@ describe('BluebubblesPlugin.sendMessage', () => {
 
     await plugin.sendMessage(groupGuid, outgoing('Group hi'));
 
-    const body = JSON.parse(
-      (mockFetch.mock.calls[1] as [string, RequestInit])[1].body as string,
-    ) as Record<string, unknown>;
+    const body = JSON.parse((mockFetch.mock.calls[1] as [string, RequestInit])[1].body as string) as Record<
+      string,
+      unknown
+    >;
     expect(body.chatGuid).toBe(groupGuid);
     expect(typeof body.tempGuid).toBe('string');
 
@@ -144,8 +143,7 @@ describe('BluebubblesPlugin.sendMessage', () => {
     // First send: chat/query returns an existing chat.
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () =>
-        Promise.resolve({ status: 200, data: [{ guid: 'iMessage;-;+14155550100' }] }),
+      json: () => Promise.resolve({ status: 200, data: [{ guid: 'iMessage;-;+14155550100' }] }),
     });
     mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(SEND_RESPONSE) });
 
@@ -153,9 +151,10 @@ describe('BluebubblesPlugin.sendMessage', () => {
 
     const queryUrl = (mockFetch.mock.calls[1] as [string, RequestInit])[0];
     expect(queryUrl).toContain('/api/v1/chat/query');
-    const sendBody = JSON.parse(
-      (mockFetch.mock.calls[2] as [string, RequestInit])[1].body as string,
-    ) as Record<string, unknown>;
+    const sendBody = JSON.parse((mockFetch.mock.calls[2] as [string, RequestInit])[1].body as string) as Record<
+      string,
+      unknown
+    >;
     expect(sendBody.chatGuid).toBe('iMessage;-;+14155550100');
 
     // Second send to same target: must reuse cached guid, NOT re-query.
@@ -178,8 +177,7 @@ describe('BluebubblesPlugin.sendMessage', () => {
     });
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () =>
-        Promise.resolve({ status: 200, data: { guid: 'iMessage;-;newuser@example.com' } }),
+      json: () => Promise.resolve({ status: 200, data: { guid: 'iMessage;-;newuser@example.com' } }),
     });
     mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(SEND_RESPONSE) });
 
@@ -188,16 +186,18 @@ describe('BluebubblesPlugin.sendMessage', () => {
     expect((mockFetch.mock.calls[1] as [string, RequestInit])[0]).toContain('/api/v1/chat/query');
     expect((mockFetch.mock.calls[2] as [string, RequestInit])[0]).toContain('/api/v1/chat/new');
 
-    const newBody = JSON.parse(
-      (mockFetch.mock.calls[2] as [string, RequestInit])[1].body as string,
-    ) as Record<string, unknown>;
+    const newBody = JSON.parse((mockFetch.mock.calls[2] as [string, RequestInit])[1].body as string) as Record<
+      string,
+      unknown
+    >;
     expect(newBody.addresses).toEqual(['newuser@example.com']);
     expect(newBody.message).toBe('Hi by email');
     expect(typeof newBody.tempGuid).toBe('string');
 
-    const sendBody = JSON.parse(
-      (mockFetch.mock.calls[3] as [string, RequestInit])[1].body as string,
-    ) as Record<string, unknown>;
+    const sendBody = JSON.parse((mockFetch.mock.calls[3] as [string, RequestInit])[1].body as string) as Record<
+      string,
+      unknown
+    >;
     expect(sendBody.chatGuid).toBe('iMessage;-;newuser@example.com');
 
     await plugin.stop();
@@ -206,9 +206,7 @@ describe('BluebubblesPlugin.sendMessage', () => {
   it('throws a clear error for unparseable targets (not a guid, not a handle)', async () => {
     const plugin = await startPlugin();
 
-    await expect(plugin.sendMessage('not-a-valid-target', outgoing('Hi'))).rejects.toThrow(
-      /cannot resolve chatGuid/i,
-    );
+    await expect(plugin.sendMessage('not-a-valid-target', outgoing('Hi'))).rejects.toThrow(/cannot resolve chatGuid/i);
 
     await plugin.stop();
   });
@@ -349,10 +347,7 @@ describe('BluebubblesPlugin reconnect backoff', () => {
     try {
       // Every reconnect attempt fails with connect_error.
       mockIo.mockImplementation(function () {
-        setTimeout(
-          () => mockSocketInstance.emit('connect_error', new Error('ECONNREFUSED')),
-          0,
-        );
+        setTimeout(() => mockSocketInstance.emit('connect_error', new Error('ECONNREFUSED')), 0);
         return mockSocketInstance;
       });
 

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template planning project-management checklist strategy"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'template planning project-management checklist strategy'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # RACI Chart
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to create, build, or review a RACI chart, RACI matrix, or responsibility assignment matrix for any process, workflow, or project
 - A user reports organizational friction symptoms: "no one knows who decides X," "everyone thinks someone else is handling it," "we get bottlenecked waiting for approval," or "too many people are involved in every decision"
 - A user is standing up a new cross-functional process -- a product launch, a compliance workflow, a procurement cycle, a hiring process -- and needs to define who does what before the process begins
@@ -28,6 +30,7 @@ metadata:
 - A user asks about decision rights, process ownership, escalation paths, or sign-off authority in the context of a repeatable process or workflow
 
 **Do NOT use this skill when:**
+
 - The user needs a full project plan with tasks, dependencies, owners, and timelines -- that is a project management plan or work breakdown structure, not a RACI
 - The user wants to design their org chart, reporting structure, or team hierarchy -- that is an organizational design exercise
 - The user needs to define a single role's responsibilities in detail -- use a `job-description` skill instead, as RACI assigns roles to activities rather than defining what a role does in full
@@ -79,12 +82,14 @@ The columns of the RACI are organizational roles, not individuals.
 For every intersection of activity (row) and role (column), assign exactly the right designation or leave it blank. This is where deep expertise matters.
 
 **R -- Responsible:**
+
 - The person or persons who **perform the task** -- the ones who do the actual work, produce the artifact, or execute the action.
 - Multiple Rs are allowed on a single row, but keep them minimal. When two people are both R, specify whether the work is **parallel** (both working simultaneously on separate components) or **sequential** (one handoff to the other). Ambiguous shared R is the #1 cause of dropped balls.
 - R and A can be held by the same person -- this is the norm for the majority of activities, especially in smaller teams. Use "R/A" notation for combined assignments to keep the chart readable.
 - If every activity has the same R, that role is a bottleneck. Redistribute Rs or split the process scope.
 
 **A -- Accountable:**
+
 - The person who **owns the outcome** -- the one who, when asked "is this done and is it correct?" says yes or no with authority.
 - **Exactly one A per row. This is non-negotiable.** No exceptions. A row with two As has no accountability. A row with no A has no accountability. Both are equally dangerous.
 - A is typically one level above R in the hierarchy. The Engineering Lead (R) writes code; the VP of Engineering (A) approves the release. But A does not always mean senior -- if the QA Engineer is personally accountable for test coverage sign-off, they are A, even if they are junior to the Engineering Lead.
@@ -92,6 +97,7 @@ For every intersection of activity (row) and role (column), assign exactly the r
 - **Do not default all As to the most senior person on the chart.** This is the most common RACI mistake. Senior leaders become A for every activity "because they are accountable for everything." That is org chart accountability, not process accountability. In a well-designed RACI, most As belong to the domain leads, with senior leaders holding A only for final approvals and strategic gates.
 
 **C -- Consulted:**
+
 - The person whose **input is actively sought before the work is done**. Two-way communication -- they provide expertise, feedback, or a perspective that improves the output.
 - C is not a courtesy copy. If someone is marked C, there must be a defined mechanism for soliciting their input (review meeting, feedback form, design review session) and a real expectation that their input will be considered.
 - **Limit Cs aggressively.** Every C is a communication step that adds time and coordination overhead. As a rule of thumb, if more than 40% of a row's assignments are C, question whether the process is over-consulting. A row with 5 Cs out of 6 roles will be slow to move because everyone must be consulted.
@@ -99,11 +105,13 @@ For every intersection of activity (row) and role (column), assign exactly the r
 - C is not appropriate for: keeping someone in the loop (that is I), involving someone politically to avoid conflict, or placating a senior leader who wants influence without accountability.
 
 **I -- Informed:**
+
 - The person who is **notified of outcomes after the fact**. One-way communication -- they receive information but do not provide input.
 - I is appropriate for roles that need to know the result to do their downstream work (e.g., Customer Success is informed when a feature releases so they can update client communications) but who have no input into the activity itself.
 - Over-using I is less harmful than over-using C, but a role that is I for every activity in a chart is likely better handled through a standing communication cadence than through individual RACI notifications.
 
 **Blank:**
+
 - A blank cell is not a mistake -- it is a valid and often correct assignment. Not every role is involved in every activity. Blank means "this role has no involvement in this activity." Resist the temptation to assign I to every blank cell just to acknowledge every role on every row.
 
 ### Step 5: Validate the Matrix for Structural Errors
@@ -146,6 +154,7 @@ A RACI that is not reviewed becomes a liability rather than an asset.
 ## RACI Chart: [Process Name]
 
 ### Overview
+
 - **Process:** [One-sentence description of what this RACI covers, from trigger to outcome]
 - **Version:** [1.0, 1.1, 2.0, etc.]
 - **Effective date:** [Date]
@@ -157,16 +166,16 @@ A RACI that is not reviewed becomes a liability rather than an asset.
 
 ### RACI Matrix
 
-| Activity | [Role 1] | [Role 2] | [Role 3] | [Role 4] | [Role 5] |
-|----------|----------|----------|----------|----------|----------|
-| [Activity 1 -- verb phrase] | R/A | C | C | I | |
-| [Activity 2 -- verb phrase] | C | R/A | I | | |
-| [Activity 3 -- verb phrase] | A | R | C | I | |
-| [Activity 4 -- verb phrase] | C | C | R/A | | I |
-| [Activity 5 -- verb phrase] | | I | R | A | C |
-| [Activity 6 -- verb phrase] | A | C | R | | I |
-| [Activity 7 -- verb phrase] | I | | C | R | A |
-| [Activity 8 -- verb phrase] | R/A | | | C | I |
+| Activity                    | [Role 1] | [Role 2] | [Role 3] | [Role 4] | [Role 5] |
+| --------------------------- | -------- | -------- | -------- | -------- | -------- |
+| [Activity 1 -- verb phrase] | R/A      | C        | C        | I        |          |
+| [Activity 2 -- verb phrase] | C        | R/A      | I        |          |          |
+| [Activity 3 -- verb phrase] | A        | R        | C        | I        |          |
+| [Activity 4 -- verb phrase] | C        | C        | R/A      |          | I        |
+| [Activity 5 -- verb phrase] |          | I        | R        | A        | C        |
+| [Activity 6 -- verb phrase] | A        | C        | R        |          | I        |
+| [Activity 7 -- verb phrase] | I        |          | C        | R        | A        |
+| [Activity 8 -- verb phrase] | R/A      |          |          | C        | I        |
 
 **Legend:**
 | Code | Meaning | Rules |
@@ -182,33 +191,33 @@ A RACI that is not reviewed becomes a liability rather than an asset.
 
 ### Role Summary
 
-| Role | Person / Team | R Count | A Count | C Count | I Count | Notes |
-|------|--------------|---------|---------|---------|---------|-------|
-| [Role 1] | [Name or team] | [n] | [n] | [n] | [n] | [e.g., primary process driver] |
-| [Role 2] | [Name or team] | [n] | [n] | [n] | [n] | [e.g., domain expert, QA gatekeeper] |
-| [Role 3] | [Name or team] | [n] | [n] | [n] | [n] | [e.g., executive sponsor] |
+| Role     | Person / Team  | R Count | A Count | C Count | I Count | Notes                                |
+| -------- | -------------- | ------- | ------- | ------- | ------- | ------------------------------------ |
+| [Role 1] | [Name or team] | [n]     | [n]     | [n]     | [n]     | [e.g., primary process driver]       |
+| [Role 2] | [Name or team] | [n]     | [n]     | [n]     | [n]     | [e.g., domain expert, QA gatekeeper] |
+| [Role 3] | [Name or team] | [n]     | [n]     | [n]     | [n]     | [e.g., executive sponsor]            |
 
 ---
 
 ### Decision Rules and Escalation Paths
 
-| Scenario | Rule | Timeframe | Escalation if Unresolved |
-|----------|------|-----------|--------------------------|
-| R and A disagree on completion | A has final say | Resolve within [X] hours/days | [Escalation role] |
-| Consulted input overridden | A documents rationale in [system/document] | At time of decision | [Compliance/audit record] |
-| Activity deadline missed | [Defined action: hold, escalate, or skip] | After [X] hours/days past due | [Escalation role] |
-| A is unavailable | [Alternate role] assumes A authority | After [X] hours of unavailability | [Backup role] |
-| Disagreement between two As | Not applicable -- only one A per row | n/a | n/a |
+| Scenario                       | Rule                                       | Timeframe                         | Escalation if Unresolved  |
+| ------------------------------ | ------------------------------------------ | --------------------------------- | ------------------------- |
+| R and A disagree on completion | A has final say                            | Resolve within [X] hours/days     | [Escalation role]         |
+| Consulted input overridden     | A documents rationale in [system/document] | At time of decision               | [Compliance/audit record] |
+| Activity deadline missed       | [Defined action: hold, escalate, or skip]  | After [X] hours/days past due     | [Escalation role]         |
+| A is unavailable               | [Alternate role] assumes A authority       | After [X] hours of unavailability | [Backup role]             |
+| Disagreement between two As    | Not applicable -- only one A per row       | n/a                               | n/a                       |
 
 ---
 
 ### Exceptions and Threshold-Based Authority
 
-| Condition | Modified Assignment | Notes |
-|-----------|-------------------|-------|
-| [e.g., Contract value under $25K] | [Modified A assignment] | [Reason] |
-| [e.g., Contract value $25K-$100K] | [Modified A assignment] | [Reason] |
-| [e.g., Temporary: until [Role] hired] | [Modified R/A assignment] | Expires [date or condition] |
+| Condition                                 | Modified Assignment                    | Notes                               |
+| ----------------------------------------- | -------------------------------------- | ----------------------------------- |
+| [e.g., Contract value under $25K]         | [Modified A assignment]                | [Reason]                            |
+| [e.g., Contract value $25K-$100K]         | [Modified A assignment]                | [Reason]                            |
+| [e.g., Temporary: until [Role] hired]     | [Modified R/A assignment]              | Expires [date or condition]         |
 | [e.g., Regulatory/audit-required process] | [Additional C or sign-off requirement] | [Reason and citation if applicable] |
 
 ---
@@ -338,6 +347,7 @@ Sometimes the user does not have a list of activities -- they just know the proc
 ## RACI Chart: Software Security Patch Management Process
 
 ### Overview
+
 - **Process:** End-to-end security patch management, from vulnerability identification through patch deployment and post-deployment verification
 - **Version:** 1.0
 - **Effective date:** January 2026
@@ -349,20 +359,20 @@ Sometimes the user does not have a list of activities -- they just know the proc
 
 ### RACI Matrix
 
-| Activity | IT Operations | Security Engineer | Engineering Lead | CISO | Product Manager |
-|----------|--------------|-------------------|-----------------|------|-----------------|
-| Identify and triage vulnerability (CVE scan, threat intel, vendor advisory) | C | R/A | C | I | I |
-| Assess risk severity and assign criticality rating (Critical/High/Medium/Low) | C | R | C | A | I |
-| Notify affected system owners and stakeholders | R | A | I | I | I |
-| Develop patch deployment plan (scope, rollback procedure, maintenance window) | R | C | R | I | C |
-| Approve patch deployment plan | C | C | A | I | I |
-| Test patch in non-production environment | R | C | R/A | I | I |
-| Approve promotion to production | C | C | A | I | I |
-| Deploy patch to production environment | R/A | C | C | I | I |
-| Verify successful deployment and system stability | R | R | A | I | I |
-| Document patch record and update asset inventory | R/A | C | I | I | I |
-| Report patch status to CISO and leadership (monthly) | C | R/A | I | I | I |
-| Post-incident review (if patch caused degradation) | R | R | A | I | C |
+| Activity                                                                      | IT Operations | Security Engineer | Engineering Lead | CISO | Product Manager |
+| ----------------------------------------------------------------------------- | ------------- | ----------------- | ---------------- | ---- | --------------- |
+| Identify and triage vulnerability (CVE scan, threat intel, vendor advisory)   | C             | R/A               | C                | I    | I               |
+| Assess risk severity and assign criticality rating (Critical/High/Medium/Low) | C             | R                 | C                | A    | I               |
+| Notify affected system owners and stakeholders                                | R             | A                 | I                | I    | I               |
+| Develop patch deployment plan (scope, rollback procedure, maintenance window) | R             | C                 | R                | I    | C               |
+| Approve patch deployment plan                                                 | C             | C                 | A                | I    | I               |
+| Test patch in non-production environment                                      | R             | C                 | R/A              | I    | I               |
+| Approve promotion to production                                               | C             | C                 | A                | I    | I               |
+| Deploy patch to production environment                                        | R/A           | C                 | C                | I    | I               |
+| Verify successful deployment and system stability                             | R             | R                 | A                | I    | I               |
+| Document patch record and update asset inventory                              | R/A           | C                 | I                | I    | I               |
+| Report patch status to CISO and leadership (monthly)                          | C             | R/A               | I                | I    | I               |
+| Post-incident review (if patch caused degradation)                            | R             | R                 | A                | I    | C               |
 
 **Legend:**
 | Code | Meaning | Rules |
@@ -378,13 +388,13 @@ Sometimes the user does not have a list of activities -- they just know the proc
 
 ### Role Summary
 
-| Role | Person / Team | R Count | A Count | C Count | I Count | Notes |
-|------|--------------|---------|---------|---------|---------|-------|
-| Security Engineer | InfoSec Team | 5 | 5 | 5 | 0 | Primary process driver; owns risk assessment and reporting |
-| IT Operations | IT Ops Team | 5 | 2 | 2 | 0 | Primary executor for deployment activities |
-| Engineering Lead | Platform Eng | 3 | 4 | 4 | 2 | Technical approval authority; owns deployment quality gate |
-| CISO | [Name] | 0 | 1 | 0 | 9 | Executive accountability for risk severity rating; otherwise informed |
-| Product Manager | Product Team | 0 | 0 | 2 | 8 | Informed of schedule impacts; consulted on deployment window |
+| Role              | Person / Team | R Count | A Count | C Count | I Count | Notes                                                                 |
+| ----------------- | ------------- | ------- | ------- | ------- | ------- | --------------------------------------------------------------------- |
+| Security Engineer | InfoSec Team  | 5       | 5       | 5       | 0       | Primary process driver; owns risk assessment and reporting            |
+| IT Operations     | IT Ops Team   | 5       | 2       | 2       | 0       | Primary executor for deployment activities                            |
+| Engineering Lead  | Platform Eng  | 3       | 4       | 4       | 2       | Technical approval authority; owns deployment quality gate            |
+| CISO              | [Name]        | 0       | 1       | 0       | 9       | Executive accountability for risk severity rating; otherwise informed |
+| Product Manager   | Product Team  | 0       | 0       | 2       | 8       | Informed of schedule impacts; consulted on deployment window          |
 
 **Concentration check:** No single role holds A for more than 42% of rows. No role is I-only (CISO has 1 A for the risk severity rating, which is the critical accountability assignment for this role). Passes validation.
 
@@ -394,12 +404,12 @@ Sometimes the user does not have a list of activities -- they just know the proc
 
 The following R/A combinations have been reviewed for internal control requirements:
 
-| Row | Combined R/A Role | Risk Level | Segregation Required? | Disposition |
-|-----|------------------|-----------|----------------------|-------------|
-| Identify and triage vulnerability | Security Engineer | Low | No -- discovery is a single-role function | Accepted |
-| Deploy patch to production | IT Operations | Medium | Recommended separation in SOC 2 Type II environments | **See exceptions: Engineering Lead approves; IT Ops executes** |
-| Document patch record | IT Operations | Low | No | Accepted |
-| Report patch status | Security Engineer | Low | No | Accepted |
+| Row                               | Combined R/A Role | Risk Level | Segregation Required?                                | Disposition                                                    |
+| --------------------------------- | ----------------- | ---------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Identify and triage vulnerability | Security Engineer | Low        | No -- discovery is a single-role function            | Accepted                                                       |
+| Deploy patch to production        | IT Operations     | Medium     | Recommended separation in SOC 2 Type II environments | **See exceptions: Engineering Lead approves; IT Ops executes** |
+| Document patch record             | IT Operations     | Low        | No                                                   | Accepted                                                       |
+| Report patch status               | Security Engineer | Low        | No                                                   | Accepted                                                       |
 
 **Note:** Organizations pursuing SOC 2 Type II certification should ensure the "Deploy patch to production" activity explicitly has a separate R (IT Operations) and A (Engineering Lead), which this chart already reflects. Combined R/A is NOT used for that row.
 
@@ -407,26 +417,26 @@ The following R/A combinations have been reviewed for internal control requireme
 
 ### Decision Rules and Escalation Paths
 
-| Scenario | Rule | Timeframe | Escalation if Unresolved |
-|----------|------|-----------|--------------------------|
-| Engineering Lead and Security Engineer disagree on risk severity rating | CISO makes final determination | Within 4 business hours | CISO | 
-| Engineering Lead rejects patch deployment plan (step 5) | Security Engineer revises plan; if 3rd rejection, CISO arbitrates | 1 business day per revision cycle | CISO |
-| IT Operations identifies unexpected system behavior during deployment | Halt deployment, initiate rollback procedure, notify Engineering Lead and Security Engineer immediately | Real-time; Engineering Lead has 30 minutes to assess | CISO informed within 2 hours |
-| CISO is unavailable for emergency patch authorization | Deputy CISO or CTO assumes A for risk severity rating | After 2 hours of CISO unavailability | Board-level notification if no Deputy CTO available |
-| Patch deployment deadline missed (e.g., Critical CVE requires 72-hour remediation) | Security Engineer escalates to CISO; CISO notifies executive leadership | At deadline breach | Incident response plan activated |
-| Security Engineer overrides C input from Engineering Lead on deployment plan | Security Engineer documents rationale in ticket; Engineering Lead may escalate to CISO | At time of override | CISO reviews within 1 business day |
+| Scenario                                                                           | Rule                                                                                                    | Timeframe                                            | Escalation if Unresolved                            |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------- |
+| Engineering Lead and Security Engineer disagree on risk severity rating            | CISO makes final determination                                                                          | Within 4 business hours                              | CISO                                                |
+| Engineering Lead rejects patch deployment plan (step 5)                            | Security Engineer revises plan; if 3rd rejection, CISO arbitrates                                       | 1 business day per revision cycle                    | CISO                                                |
+| IT Operations identifies unexpected system behavior during deployment              | Halt deployment, initiate rollback procedure, notify Engineering Lead and Security Engineer immediately | Real-time; Engineering Lead has 30 minutes to assess | CISO informed within 2 hours                        |
+| CISO is unavailable for emergency patch authorization                              | Deputy CISO or CTO assumes A for risk severity rating                                                   | After 2 hours of CISO unavailability                 | Board-level notification if no Deputy CTO available |
+| Patch deployment deadline missed (e.g., Critical CVE requires 72-hour remediation) | Security Engineer escalates to CISO; CISO notifies executive leadership                                 | At deadline breach                                   | Incident response plan activated                    |
+| Security Engineer overrides C input from Engineering Lead on deployment plan       | Security Engineer documents rationale in ticket; Engineering Lead may escalate to CISO                  | At time of override                                  | CISO reviews within 1 business day                  |
 
 ---
 
 ### Exceptions and Threshold-Based Authority
 
-| Condition | Modified Assignment | Notes |
-|-----------|-------------------|-------|
-| **Emergency / Zero-Day patch (Critical CVE with active exploitation)** | CISO moves from I to A for patch deployment plan approval; standard 72-hour SLA compressed to 4 hours | Overrides standard approval chain; CISO directly notifies executive team |
-| **Patch affects customer-facing production systems** | Product Manager moves from I to C for deployment window approval (row 4 and row 7) | Customer impact notification may be required; PM owns customer comms |
-| **Third-party vendor patch (OS, database, cloud provider)** | IT Operations adds Vendor as R for delivery; internal R/A assignments unchanged | Vendor SLA governs delivery; internal RACI governs acceptance and deployment |
-| **Patch causes production incident** | Post-incident review (row 12) is mandatory and Engineering Lead moves to A | CISO receives written incident report within 24 hours |
-| **Security Engineer role vacant** | CISO assumes all A assignments; IT Operations assumes R assignments temporarily | Temporary assignment expires when role is filled; RACI must be reviewed within 30 days of hire |
+| Condition                                                              | Modified Assignment                                                                                   | Notes                                                                                          |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Emergency / Zero-Day patch (Critical CVE with active exploitation)** | CISO moves from I to A for patch deployment plan approval; standard 72-hour SLA compressed to 4 hours | Overrides standard approval chain; CISO directly notifies executive team                       |
+| **Patch affects customer-facing production systems**                   | Product Manager moves from I to C for deployment window approval (row 4 and row 7)                    | Customer impact notification may be required; PM owns customer comms                           |
+| **Third-party vendor patch (OS, database, cloud provider)**            | IT Operations adds Vendor as R for delivery; internal R/A assignments unchanged                       | Vendor SLA governs delivery; internal RACI governs acceptance and deployment                   |
+| **Patch causes production incident**                                   | Post-incident review (row 12) is mandatory and Engineering Lead moves to A                            | CISO receives written incident report within 24 hours                                          |
+| **Security Engineer role vacant**                                      | CISO assumes all A assignments; IT Operations assumes R assignments temporarily                       | Temporary assignment expires when role is filled; RACI must be reviewed within 30 days of hire |
 
 ---
 

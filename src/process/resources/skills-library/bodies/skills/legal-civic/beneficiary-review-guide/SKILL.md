@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist guide"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist guide'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Beneficiary Review Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks about reviewing or updating their beneficiary designations on any account type
 - The user wants to know which of their accounts carry beneficiary designations that override their will
 - The user has experienced a major life event -- marriage, divorce, remarriage, birth of a child, adoption, death of a named beneficiary, disability of a named beneficiary -- and wants to audit whether their designations still reflect their intent
@@ -39,6 +41,7 @@ metadata:
 - The user is setting up a new account and wants to understand what beneficiary designation options are available to them
 
 **Do NOT use when:**
+
 - The user asks who they should name as a beneficiary -- this requires individualized legal and financial judgment; refer to an estate planning attorney and/or financial planner (see `will-preparation-checklist` for broader estate planning)
 - The user is asking about tax optimization strategies for beneficiary designations, such as stretch IRA rules, the 10-year rule under the SECURE Act, or charitable remainder trust structures -- refer to `estate-tax-basics` or a tax advisor
 - The user asks about creating or revising a will -- use `will-preparation-checklist`
@@ -66,6 +69,7 @@ Before collecting any account information, establish the foundational concept th
 Walk the user through every category of asset that carries beneficiary designations. Use a systematic category-by-category approach rather than asking generally, because users routinely forget account types.
 
 **Employer-Sponsored Retirement Accounts:**
+
 - 401(k) plans -- the most common employer plan; beneficiary forms are held by the plan administrator (often an HR department or a third-party recordkeeper such as Fidelity, Vanguard, Empower, or T. Rowe Price)
 - 403(b) plans -- used by nonprofits, hospitals, universities, and school districts; same beneficiary mechanics as 401(k)
 - 457(b) plans -- used by state and local government employees; unlike 401(k) and 403(b), governmental 457(b) plans are not subject to ERISA, which affects the spousal consent requirement
@@ -73,6 +77,7 @@ Walk the user through every category of asset that carries beneficiary designati
 - Thrift Savings Plan (TSP) -- the federal government retirement plan for civilian and military employees; has its own beneficiary designation form (Form TSP-3) that must be on file directly with the TSP, not the employing agency
 
 **Individual Retirement Accounts:**
+
 - Traditional IRA -- beneficiary designated through the financial institution (brokerage, bank, mutual fund company); no spousal consent required to name a non-spouse, but community property states may require spousal acknowledgment
 - Roth IRA -- same mechanics as Traditional IRA; Roth accounts have no required minimum distributions during the owner's lifetime, making beneficiary designation particularly important for wealth transfer
 - SEP IRA -- typically held at a financial institution; treated identically to a Traditional IRA for beneficiary purposes
@@ -80,6 +85,7 @@ Walk the user through every category of asset that carries beneficiary designati
 - Inherited IRA -- if the user has already inherited an IRA, they can name their own beneficiaries; the SECURE Act of 2019 and SECURE 2.0 Act of 2022 significantly changed inherited IRA distribution rules
 
 **Life Insurance:**
+
 - Term life insurance -- primary and contingent beneficiaries named on the policy; can be updated by submitting a change-of-beneficiary form to the insurance company; the policy controls, not the will
 - Whole life insurance -- same designation mechanics; note that some older whole life policies have irrevocable beneficiary designations that cannot be changed without the beneficiary's consent
 - Universal and variable universal life -- same mechanics; if the policy has accumulated cash value, the death benefit beneficiary and any loan provisions interact
@@ -87,25 +93,30 @@ Walk the user through every category of asset that carries beneficiary designati
 - Accidental death and dismemberment (AD&D) policies -- have separate beneficiary designations from life insurance; often bundled with group life but may have a separate form
 
 **Annuities:**
+
 - Fixed, variable, and indexed annuities -- beneficiary designated on the annuity contract; upon death during the accumulation phase, the death benefit (often the account value or a guaranteed minimum) passes to the named beneficiary
 - Immediate annuities (single-premium immediate annuities, or SPIAs) -- if structured with a period-certain or joint-and-survivor feature, the remaining payments or continued payments pass to the named beneficiary; if structured as a life-only annuity, there is no death benefit
 
 **Bank Account Transfer Mechanisms:**
+
 - Payable-on-death (POD) designations on checking accounts, savings accounts, money market accounts, and certificates of deposit -- upon death, the account balance transfers directly to the named POD beneficiary; the bank requires a certified death certificate and beneficiary identification
 - Joint accounts with right of survivorship (JTWROS) -- not technically a beneficiary designation, but achieves similar result; the surviving joint owner receives the account balance automatically; important to distinguish from tenants-in-common ownership, which does not have survivorship
 - Totten trust accounts -- an older form of POD designation still used in some jurisdictions; functionally equivalent to a modern POD designation
 
 **Securities and Investment Accounts:**
+
 - Transfer-on-death (TOD) brokerage accounts -- the TOD registration on the account directs securities to transfer directly to the named beneficiary upon death; the beneficiary receives the securities at their stepped-up cost basis (for income tax purposes) as of the date of death
 - TOD registration is available for individual stocks, bonds, and mutual funds held in street name at most major brokerages; it is not available on all account types (e.g., corporate or trust accounts cannot use TOD)
 - I Bonds and EE Bonds (U.S. savings bonds) -- have beneficiary or co-owner designations registered directly with TreasuryDirect; older paper bonds may have handwritten beneficiary information that needs to be verified
 
 **Real Property Mechanisms:**
+
 - Transfer-on-death deeds (also called beneficiary deeds) -- available in approximately 30 states; allow real property to pass directly to a named beneficiary upon death without probate; must be recorded with the county recorder during the owner's lifetime to be valid
 - Lady Bird deeds (enhanced life estate deeds) -- available in Florida, Michigan, Texas, West Virginia, and a few other states; allow the owner to retain full control during their lifetime, including the right to sell or mortgage without beneficiary consent, while still designating a death beneficiary
 - Joint tenancy with right of survivorship in real property -- same survivorship mechanic as JTWROS bank accounts; not a beneficiary designation per se but achieves direct transfer
 
 **Tax-Advantaged Health and Education Accounts:**
+
 - Health Savings Account (HSA) -- has a beneficiary designation; if the named beneficiary is a spouse, the HSA transfers as the surviving spouse's own HSA with no tax consequence; if the beneficiary is anyone other than a spouse, the entire HSA balance becomes taxable income to that beneficiary in the year of the account holder's death
 - Flexible Spending Accounts (FSA) -- generally do not have beneficiary designations; unspent balances typically revert to the employer
 - 529 college savings accounts -- have a successor account owner designation (not a direct beneficiary in the traditional sense); the successor owner takes over the account and its obligations; some 529 plans also allow a named beneficiary of the account value upon death
@@ -122,6 +133,7 @@ For each account identified in Step 2, collect the following specific data point
 - **Location of the designation form:** Physical or electronic copies should be maintained with estate documents
 
 Guide users on how to retrieve current beneficiary information from each institution type:
+
 - Employer retirement plans: Contact HR or the plan's recordkeeper directly; many major recordkeepers (Fidelity NetBenefits, Vanguard retirement, Empower) allow online beneficiary review
 - IRAs and brokerage accounts: Log into the account online and navigate to account services or beneficiary settings; alternatively, call the institution's customer service line
 - Life insurance: Contact the insurance company directly or work through the agent of record; request a written confirmation of current beneficiary designation
@@ -132,11 +144,13 @@ Guide users on how to retrieve current beneficiary information from each institu
 Map the user's life history against a structured set of trigger events that commonly produce stale or incorrect designations. For each event identified, flag the accounts most likely to be affected.
 
 **Marriage (initial or remarriage):**
+
 - Under ERISA, a spouse automatically has rights to employer retirement plan death benefits unless the spouse signs a notarized waiver -- but this automatic right does not apply to IRAs, life insurance, or bank accounts
 - In community property states, the spouse may have a community property interest in assets accumulated during marriage regardless of beneficiary designation
 - After marriage, many people want to add their new spouse as primary beneficiary -- but may forget to update one or more accounts, particularly older accounts from previous employers (former employer 401(k) plans rolled to IRAs)
 
 **Divorce:**
+
 - This is the highest-urgency trigger event in beneficiary review
 - Under federal ERISA law, divorce does NOT automatically revoke an ex-spouse's beneficiary designation on employer retirement plans; the Egelhoff v. Egelhoff case (U.S. Supreme Court, 2001) confirmed this -- only a qualified domestic relations order (QDRO) can divide retirement account interests under ERISA
 - State divorce-revocation statutes: approximately 26 states have enacted laws that automatically revoke an ex-spouse's beneficiary designation upon divorce on IRAs, life insurance, and bank accounts -- but these laws vary significantly and were not uniformly applied before certain state adoptions; confirm the applicable state law
@@ -144,23 +158,27 @@ Map the user's life history against a structured set of trigger events that comm
 - Recommend: check designations on every account within 30 days of divorce finalization
 
 **Birth or Adoption of a Child:**
+
 - Parents typically want to add children as contingent beneficiaries (if the spouse is primary)
 - Critical issue: naming a minor child directly as beneficiary creates significant complications -- minors lack legal capacity to receive large sums, a court-supervised guardianship of the estate may be required, assets may be managed by a court-appointed guardian until the child turns 18 (or 21 in some states), at which point the full amount is distributed to the young adult with no restrictions
 - Better approach: consult an attorney about naming a custodian under the Uniform Transfers to Minors Act (UTMA) or establishing a trust as beneficiary -- but this determination is for the attorney, not this skill
 - Flag the issue and recommend attorney consultation
 
 **Death of a Named Beneficiary:**
+
 - If a primary beneficiary predeceases the account holder and there is a contingent beneficiary, the contingent receives the account
 - If there is no contingent beneficiary, the account typically defaults to the estate (probate)
 - Per stirpes designation: if a named beneficiary has died and the designation says "per stirpes," the deceased beneficiary's share passes to their descendants (the account holder's grandchildren, for example) -- no change to the designation form is needed, but the account holder should confirm this is the desired outcome
 - The account holder should update the designation to name a new beneficiary to avoid relying on per stirpes fallback
 
 **Disability of a Named Beneficiary:**
+
 - If a beneficiary has a disability and receives means-tested government benefits (Supplemental Security Income, Medicaid), inheriting an account outright could disqualify them from those benefits
 - A Special Needs Trust (SNT) as beneficiary can preserve benefit eligibility -- flag this for attorney review
 - This is a complex planning issue beyond this skill's scope; identify it and refer
 
 **Significant Asset Changes:**
+
 - A new employer means a new 401(k) plan -- requires a new beneficiary designation from day one
 - Rollover of an old 401(k) to an IRA -- the old plan's beneficiary designation does NOT transfer to the new IRA; a new designation must be filed at the IRA custodian
 - Purchase of life insurance -- requires completing beneficiary designation at policy inception
@@ -173,23 +191,28 @@ This step addresses the direct overlap between what a will says and what a benef
 Common conflict patterns to identify:
 
 **Pattern 1 -- The "Everything to My Spouse" Will:**
+
 - User's will leaves everything to their spouse, but their 401(k) from a prior employer names their parents as beneficiaries from before the marriage
 - Result: parents receive the 401(k); will is irrelevant to that asset
 
 **Pattern 2 -- The Equal Division Will:**
+
 - User's will divides the estate equally among three children, but their life insurance names only one child as beneficiary
 - Result: that one child receives the entire life insurance benefit; the will's equal division applies only to probate assets
 
 **Pattern 3 -- The Trust-Based Estate Plan:**
+
 - User's attorney has set up a revocable living trust to hold their estate; their will is a "pour-over will" intended to fund the trust
 - If beneficiary designations name individuals rather than the trust, those assets pass outside the trust entirely, defeating the estate plan
 - This is a particularly common and serious conflict; flag it prominently and recommend attorney review
 
 **Pattern 4 -- The Outdated Charity:**
+
 - User's will makes a specific bequest to a charity, but they also intended to name the charity as beneficiary on their IRA (which has tax advantages for charitable giving) -- they never updated the IRA designation
 - The charity receives nothing from the IRA under the current designation
 
 **Pattern 5 -- The Divorce Decree Conflict:**
+
 - User's divorce decree requires maintaining their ex-spouse as life insurance beneficiary for 5 years post-divorce; user changed the designation to their new spouse; the ex-spouse could sue the estate for breach of contract
 - Flag divorce decrees as required documents in the attorney review package
 
@@ -207,6 +230,7 @@ Compile all findings into a structured, attorney-ready document using the Output
 Based on the specific issues identified in the audit, generate a prioritized list of questions for the estate planning attorney. Generic questions waste consultation time; targeted questions based on the user's actual situation maximize the value of the attorney meeting.
 
 Question categories to address:
+
 - Jurisdiction-specific questions: which state law governs each account type? Has the user's state adopted divorce-revocation statutes?
 - Divorce decree compliance: does the decree contain any beneficiary-related obligations?
 - Minor beneficiary strategy: custodial account, UTMA, or trust-as-beneficiary?
@@ -476,6 +500,7 @@ The user has a brokerage account in the U.S., a pension from a former employer i
 
 **Handling:**
 Multi-jurisdictional situations substantially complicate beneficiary review. Key issues:
+
 - Real property in two states: each state's law governs the real property in that state; a TOD deed that is valid in one state may not be recognized in another; the user may face ancillary probate in the second state if the property is not addressed
 - Canadian pension: Canadian pension plans are governed by Canadian federal and provincial law; beneficiary designation mechanics, tax treatment, and survivor benefit rules may differ significantly from U.S. rules; a Canadian attorney familiar with cross-border estates should be consulted
 - Foreign accounts generally: some countries do not recognize U.S. beneficiary designation concepts at all; estate distribution of foreign assets may be governed entirely by the foreign country's succession law, including forced heirship provisions common in civil law countries
@@ -493,6 +518,7 @@ Flag all multi-jurisdictional elements as requiring attorney review with specifi
 ---
 
 ## Beneficiary Designation Audit
+
 **Audit Date:** [Today's Date]
 **Prepared For:** [User]
 **Prepared By:** AI assistant -- for estate attorney review and verification
@@ -518,46 +544,46 @@ your 403(b). Your estate attorney must evaluate this immediately.
 
 ### SECTION 2: Account Inventory
 
-| # | Account Type         | Institution               | ERISA? | Primary Beneficiary           | Contingent Beneficiary | Per Stirpes? | Last Updated     | Audit Status |
-|---|----------------------|---------------------------|--------|-------------------------------|------------------------|--------------|------------------|--------------|
-| 1 | 403(b)               | [Employer/Recordkeeper]   | YES    | [VERIFY -- may name ex-husband] | [VERIFY]             | Unknown      | [Check with HR]  | **URGENT**   |
-| 2 | Roth IRA             | [Institution]             | NO     | [VERIFY -- may name ex-husband] | [VERIFY]             | Unknown      | [Check with institution] | **URGENT** |
-| 3 | Life Insurance       | [Company]                 | NO     | [VERIFY -- may name ex-husband] | [VERIFY]             | N/A          | [Check with insurer] | **URGENT** |
-| 4 | HSA                  | [Administrator]           | NO     | [VERIFY]                      | [VERIFY]               | N/A          | [Check with HSA admin] | REVIEW |
-| 5 | Joint Checking (JTWROS) | [Bank]                 | NO     | New husband (survivorship)    | N/A                    | N/A          | [Date of account opening] | OK -- confirm JTWROS registration |
+| #   | Account Type            | Institution             | ERISA? | Primary Beneficiary             | Contingent Beneficiary | Per Stirpes? | Last Updated              | Audit Status                      |
+| --- | ----------------------- | ----------------------- | ------ | ------------------------------- | ---------------------- | ------------ | ------------------------- | --------------------------------- |
+| 1   | 403(b)                  | [Employer/Recordkeeper] | YES    | [VERIFY -- may name ex-husband] | [VERIFY]               | Unknown      | [Check with HR]           | **URGENT**                        |
+| 2   | Roth IRA                | [Institution]           | NO     | [VERIFY -- may name ex-husband] | [VERIFY]               | Unknown      | [Check with institution]  | **URGENT**                        |
+| 3   | Life Insurance          | [Company]               | NO     | [VERIFY -- may name ex-husband] | [VERIFY]               | N/A          | [Check with insurer]      | **URGENT**                        |
+| 4   | HSA                     | [Administrator]         | NO     | [VERIFY]                        | [VERIFY]               | N/A          | [Check with HSA admin]    | REVIEW                            |
+| 5   | Joint Checking (JTWROS) | [Bank]                  | NO     | New husband (survivorship)      | N/A                    | N/A          | [Date of account opening] | OK -- confirm JTWROS registration |
 
 ---
 
 ### SECTION 3: Life Event Flags
 
-| Life Event           | Date              | Accounts Potentially Affected | Urgency          |
-|----------------------|-------------------|-------------------------------|------------------|
-| Divorce (22-year marriage) | ~3 years ago | 403(b), Roth IRA, Life Insurance, HSA | **URGENT** |
-| Remarriage           | ~1 year ago       | 403(b) (ERISA spousal rights), Roth IRA, Life Insurance, HSA | **HIGH** |
-| Daughter turned 18   | Recent            | All accounts -- contingent beneficiary planning | HIGH |
-| Daughter age 16 -- still a minor | Ongoing | Any account naming her directly | HIGH |
+| Life Event                       | Date         | Accounts Potentially Affected                                | Urgency    |
+| -------------------------------- | ------------ | ------------------------------------------------------------ | ---------- |
+| Divorce (22-year marriage)       | ~3 years ago | 403(b), Roth IRA, Life Insurance, HSA                        | **URGENT** |
+| Remarriage                       | ~1 year ago  | 403(b) (ERISA spousal rights), Roth IRA, Life Insurance, HSA | **HIGH**   |
+| Daughter turned 18               | Recent       | All accounts -- contingent beneficiary planning              | HIGH       |
+| Daughter age 16 -- still a minor | Ongoing      | Any account naming her directly                              | HIGH       |
 
 ---
 
 ### SECTION 4: Flagged Issues (Priority Ordered)
 
-| Priority | Account         | Issue Description                                                                                        | Governing Law       | Recommended Action                                                                                  |
-|----------|----------------|----------------------------------------------------------------------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------|
-| **URGENT**   | 403(b)      | Divorce decree "waiver" does not substitute for a QDRO or a new beneficiary designation under ERISA. Ex-husband may still be the valid beneficiary. New husband has automatic ERISA spousal rights as current legal spouse. | Federal ERISA       | Contact HR or plan recordkeeper immediately to obtain current designation form. Consult attorney before changing -- confirm whether a QDRO is needed. |
-| **URGENT**   | Roth IRA    | State divorce-revocation law may or may not have automatically revoked ex-husband's designation upon divorce. This depends on your state. | State law + contract | Retrieve current designation from custodian. Attorney must confirm whether state revocation law applied. |
-| **URGENT**   | Life Insurance | Same issue as Roth IRA -- state law may or may not have revoked ex-husband's designation. Also check whether divorce decree required maintaining ex-husband as beneficiary for any period (e.g., for child support security). | State law + contract | Review divorce decree. Retrieve current designation from insurer. Do not change until attorney confirms there is no decree-based obligation to maintain ex-husband as beneficiary. |
-| HIGH     | HSA             | If ex-husband is still named, he would receive the full HSA value tax-free (spouse beneficiary treatment). If current husband is not named, tax-free spousal rollover of HSA is lost. | State law + contract | Verify and update after attorney consultation. |
-| HIGH     | Daughter age 16 | If named as direct beneficiary, minor cannot receive large account distributions without court-supervised guardianship of the estate. | State law           | Discuss with attorney: UTMA custodian vs. trust as beneficiary. |
-| HIGH     | Daughter age 18 | Now an adult -- can receive distributions directly, but full distribution at 18 with no restrictions may not reflect your intent. | N/A                 | Discuss with attorney whether a trust is appropriate to manage distribution timing. |
-| MEDIUM   | All accounts    | No confirmed contingent beneficiaries on any account. If primary beneficiary predeceases you, accounts may fall to estate. | Varies              | Add contingent beneficiaries to all accounts after attorney consultation. |
-| MEDIUM   | 403(b)          | ERISA requires your current husband's written, notarized consent if you want to name anyone other than him as primary beneficiary. | Federal ERISA       | Discuss with attorney and plan administrator. |
+| Priority   | Account         | Issue Description                                                                                                                                                                                                             | Governing Law        | Recommended Action                                                                                                                                                                 |
+| ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **URGENT** | 403(b)          | Divorce decree "waiver" does not substitute for a QDRO or a new beneficiary designation under ERISA. Ex-husband may still be the valid beneficiary. New husband has automatic ERISA spousal rights as current legal spouse.   | Federal ERISA        | Contact HR or plan recordkeeper immediately to obtain current designation form. Consult attorney before changing -- confirm whether a QDRO is needed.                              |
+| **URGENT** | Roth IRA        | State divorce-revocation law may or may not have automatically revoked ex-husband's designation upon divorce. This depends on your state.                                                                                     | State law + contract | Retrieve current designation from custodian. Attorney must confirm whether state revocation law applied.                                                                           |
+| **URGENT** | Life Insurance  | Same issue as Roth IRA -- state law may or may not have revoked ex-husband's designation. Also check whether divorce decree required maintaining ex-husband as beneficiary for any period (e.g., for child support security). | State law + contract | Review divorce decree. Retrieve current designation from insurer. Do not change until attorney confirms there is no decree-based obligation to maintain ex-husband as beneficiary. |
+| HIGH       | HSA             | If ex-husband is still named, he would receive the full HSA value tax-free (spouse beneficiary treatment). If current husband is not named, tax-free spousal rollover of HSA is lost.                                         | State law + contract | Verify and update after attorney consultation.                                                                                                                                     |
+| HIGH       | Daughter age 16 | If named as direct beneficiary, minor cannot receive large account distributions without court-supervised guardianship of the estate.                                                                                         | State law            | Discuss with attorney: UTMA custodian vs. trust as beneficiary.                                                                                                                    |
+| HIGH       | Daughter age 18 | Now an adult -- can receive distributions directly, but full distribution at 18 with no restrictions may not reflect your intent.                                                                                             | N/A                  | Discuss with attorney whether a trust is appropriate to manage distribution timing.                                                                                                |
+| MEDIUM     | All accounts    | No confirmed contingent beneficiaries on any account. If primary beneficiary predeceases you, accounts may fall to estate.                                                                                                    | Varies               | Add contingent beneficiaries to all accounts after attorney consultation.                                                                                                          |
+| MEDIUM     | 403(b)          | ERISA requires your current husband's written, notarized consent if you want to name anyone other than him as primary beneficiary.                                                                                            | Federal ERISA        | Discuss with attorney and plan administrator.                                                                                                                                      |
 
 ---
 
 ### SECTION 5: Will vs. Designation Conflict Check
 
-| Account/Asset       | What the Will Provides (if known)   | What the Designation Currently Says (estimated) | Conflict?   | Notes                                                  |
-|---------------------|-------------------------------------|-------------------------------------------------|-------------|-------------------------------------------------------|
-| 403(b)              | [Unknown without seeing will]       | Likely ex-husband (pre-divorce designation)     | PROBABLE    | Designation controls under ERISA regardless of will   |
-| Roth IRA            | [Unknown]                           | Likely ex-husband (pre-divorce designation)     | PROBABLE    | State law may or may not have revoked it upon divorce  |
-| Life Insurance      | [Unknown]                           | Likely ex-husband (pre-
+| Account/Asset  | What the Will Provides (if known) | What the Designation Currently Says (estimated) | Conflict? | Notes                                                 |
+| -------------- | --------------------------------- | ----------------------------------------------- | --------- | ----------------------------------------------------- |
+| 403(b)         | [Unknown without seeing will]     | Likely ex-husband (pre-divorce designation)     | PROBABLE  | Designation controls under ERISA regardless of will   |
+| Roth IRA       | [Unknown]                         | Likely ex-husband (pre-divorce designation)     | PROBABLE  | State law may or may not have revoked it upon divorce |
+| Life Insurance | [Unknown]                         | Likely ex-husband (pre-                         |

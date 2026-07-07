@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "energy-efficiency sustainability checklist planning"
-  category: "sustainability"
-  subcategory: "home-sustainability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'energy-efficiency sustainability checklist planning'
+  category: 'sustainability'
+  subcategory: 'home-sustainability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Home Energy Audit
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks about reducing home energy bills, electricity costs, or monthly utility spending and wants to understand where the money is going
 - The user describes specific comfort problems -- rooms that are always cold or hot, drafts near windows or doors, humidity issues, ice dams on the roof -- that suggest energy loss
 - The user explicitly asks about conducting a DIY energy audit, a home energy assessment, or wants to "find energy leaks"
@@ -29,6 +31,7 @@ metadata:
 - The user is preparing to buy or sell a home and wants to assess its energy performance before committing or listing
 
 **Do NOT use when:**
+
 - The user is asking about a commercial, retail, industrial, or multi-unit apartment building energy audit -- those require ASHRAE Level I/II/III methodology and are a separate domain
 - The user wants detailed HVAC system design, sizing calculations (Manual J), or duct design (Manual D) -- refer those to a mechanical engineer or certified HVAC contractor
 - The user is evaluating rooftop solar as a financial investment -- that requires a separate solar-specific ROI analysis skill covering panel sizing, net metering, and incentive stacking
@@ -63,6 +66,7 @@ Before conducting any diagnostic work, collect the minimum viable dataset. Missi
 Work systematically from the top of the home down (attic to basement), because thermal bypasses and air leaks follow the stack effect -- warm air rises and escapes at the top, drawing cold air in at the bottom.
 
 **Attic (always inspect first -- it is the highest-leverage zone):**
+
 - Measure existing insulation depth with a ruler or tape measure. Multiply depth by R-value per inch to get approximate total R-value:
   - Fiberglass batts: R-2.9 to R-3.8 per inch
   - Blown fiberglass: R-2.2 to R-2.7 per inch
@@ -76,12 +80,14 @@ Work systematically from the top of the home down (attic to basement), because t
 - Attic ductwork: if supply or return ducts run through the attic, check for disconnected joints, holes at boot connections, and uninsulated duct surfaces. Ducts in unconditioned attic space lose 20-30% of conditioned air to the attic in leaky systems.
 
 **Exterior Walls (inspect from inside):**
+
 - On a cold day, use an infrared thermometer (a $20-30 tool) pointed at the center of exterior wall surfaces. Wall surface temperatures more than 5-7F below room air temperature indicate inadequate insulation. Corners and around window frames will always be cooler -- check wall centers specifically.
 - Electrical outlets and switches on exterior walls: remove the cover plate (with power off) and check for insulation behind. The cavity should be packed with insulation flush to the back of the box. An empty cavity means the wall is uninsulated or the insulation has settled. Foam gaskets behind cover plates cost $0.50 each and take 10 minutes to install -- a universally good first action.
 - For 2x4 framing (pre-1990 construction), maximum cavity depth is 3.5 inches, limiting cavity insulation to R-13 to R-15. For 2x6 framing (most post-1990), maximum cavity depth is 5.5 inches, allowing R-19 to R-21.
 - Cathedral ceilings and vaulted ceilings are frequent insulation failures -- they are difficult to retrofit and may be underinsulated from original construction. Symptoms include warm ceiling surfaces in summer and significant snow melt on roof sections above vaulted ceilings.
 
 **Windows and Doors:**
+
 - Identify window type: single-pane (U-factor approximately 1.0), double-pane clear (U-factor 0.45-0.55), double-pane low-e (U-factor 0.25-0.35), triple-pane (U-factor 0.15-0.20). Lower U-factor = better performance.
 - Inspect double-pane seals: a fogged or hazy appearance between panes means the inert gas fill has failed and the unit has lost 30-50% of its insulating value. Failed seals can be reglazed (replace just the glass unit) for $75-150 per window versus $300-800 for full window replacement.
 - Check weatherstripping on all exterior doors: close the door and look for daylight around the perimeter. On a cold day, hold a candle or lighter near the door frame -- flame deflection indicates infiltration. Worn weatherstripping is one of the most cost-effective fixes in any home.
@@ -89,12 +95,14 @@ Work systematically from the top of the home down (attic to basement), because t
 - Window caulk on exterior frames: cracked or missing caulk allows both air and water infiltration. Interior rope caulk (temporary, removable for renters) can be applied to window frames for winter to reduce infiltration without permanent modification.
 
 **Living Areas (Living Room, Bedrooms, Home Office):**
+
 - Check baseboards and the floor-wall junction along exterior walls for gaps. On a cold day, air infiltrating at these points is detectable as a cool sensation at floor level.
 - Fireplace damper: an open damper is equivalent to a 48-square-inch hole in the wall. Confirm it seals properly when closed. Older dampers with warped metal may not seal -- a top-sealing damper ($50-150) is a significant upgrade. An unused fireplace can be sealed with an inflatable chimney balloon ($35-55) for the season.
 - Lighting inventory: Count bulbs by type. A 60W incandescent running 4 hours per day uses 87.6 kWh/year. A 9W LED replacement uses 13.1 kWh/year. Net savings per bulb: 74.5 kWh/year. At $0.16/kWh, that is $11.90/year per bulb. At 25 bulbs, that is $297/year for a $40-75 investment.
 - Plug loads: phantom/standby power from electronics, chargers, and appliances with clocks and displays consumes 5-10% of total home electricity. Smart power strips ($25-40) eliminate standby draw from entertainment centers and home offices.
 
 **Kitchen:**
+
 - Refrigerator door seal test: close the door on a piece of paper. Pull the paper out with the door closed. If it slides out with no resistance, the gasket is worn and allowing warm moist air to enter the refrigerator, forcing the compressor to run more. A replacement gasket costs $20-60 depending on model.
 - Refrigerator age and efficiency: units manufactured before 2000 use 700-1,200 kWh/year. ENERGY STAR units manufactured after 2015 use 350-500 kWh/year. A 1990-vintage refrigerator costs roughly $80-130/year more to operate than a current efficient model.
 - Refrigerator coils: dusty condenser coils (typically on the back or bottom) increase compressor run time by 10-15%. Vacuum the coils annually.
@@ -102,12 +110,14 @@ Work systematically from the top of the home down (attic to basement), because t
 - Range hood: confirm it exhausts to the outside, not just recirculates. If it vents to the outside, make sure the exterior damper closes properly to prevent cold air infiltration when not in use.
 
 **Bathrooms:**
+
 - Exhaust fan: confirm it vents to exterior, not to the attic. Attic venting causes moisture damage, mold growth, and creates a permanent air leak. Check by turning the fan on and going to the roof or exterior to confirm airflow from the exterior vent. An exhaust fan on a timer or humidity sensor avoids over-ventilation in winter.
 - Showerhead flow rate: hold a bucket under the showerhead and time how long it takes to fill a gallon. If less than 24 seconds, the showerhead exceeds 2.5 GPM. Low-flow showerheads (1.5-2.0 GPM) save 10-20 gallons per shower. For a household of four with one shower per person per day, that is 14,600-29,200 gallons of hot water per year.
 - Water heater temperature: if accessible, check the thermostat dial on the tank. Factory default is often 140F. The Department of Energy recommends 120F for most households (140F if an immunocompromised person lives in the home due to Legionella risk). Each 10F reduction saves 3-5% on water heating costs. A water heater running at 140F costs approximately $15-25/year more than one at 120F.
 - Water heater insulation jacket: if the tank is warm to the touch, it is losing heat to the surrounding air (standby loss). Tank insulation blankets (R-8) cost $20-30 and reduce standby losses by 25-45%.
 
 **Basement and Crawl Space:**
+
 - Rim joist: this is the horizontal framing member on top of the foundation wall. In most pre-1990 homes, it is uninsulated and directly exposed to exterior temperatures through the sill plate assembly. On a cold day, the rim joist area is noticeably cold to the touch. Rigid foam insulation (R-10 to R-20) cut to fit between joist bays and sealed with can foam is the standard fix -- one of the highest ROI improvements in cold climates.
 - Exposed ductwork: if supply or return ducts run through an unconditioned basement or crawl space, check for:
   - Disconnected joints or boots (visible gaps)
@@ -118,6 +128,7 @@ Work systematically from the top of the home down (attic to basement), because t
 - Sump pump: if present, confirm the lid seals tightly. An open sump crock vents soil gases and cold air directly into the living space.
 
 **HVAC System:**
+
 - Air filter: check the filter and note its condition. A standard 1-inch filter should be replaced every 60-90 days. A dirty filter restricts airflow, increasing fan energy use by 5-15% and in extreme cases can cause heat exchanger overheating or evaporator coil freezing. Thicker media filters (4-5 inch) have longer service intervals (6-12 months) and better filtration without significant pressure drop penalties.
 - Thermostat capability: identify whether the current thermostat is manual, programmable, or smart/connected. A setback of 7-10F for 8 hours per day while sleeping, and another 8-hour setback while the home is empty, saves 10-15% on annual heating and cooling costs by DOE estimates. For a $3,000/year heating and cooling spend, that is $300-450/year in savings from a $25-200 thermostat upgrade.
 - System age and AFUE/SEER rating: gas furnaces have an AFUE (Annual Fuel Utilization Efficiency) rating. Pre-1992 furnaces are 56-70% AFUE. Mid-efficiency units (1993-2006) are 80% AFUE. High-efficiency condensing furnaces are 90-98% AFUE. If the user's furnace is 15+ years old and below 80% AFUE, upgrading to a 95% AFUE unit saves approximately 15-25% on gas heating costs. Air conditioners use SEER ratings -- units installed before 2006 may be SEER 8-10; current minimum is SEER2 13.4 in northern states and 15.2 in southern states; high-efficiency units are SEER 18-25.
@@ -166,6 +177,7 @@ Organize fixes into four tiers, ranked by payback period within each tier:
 Every fix in the fix list must carry an explicit "Renter: Yes/No" tag with a brief rationale.
 
 **Renter-accessible without landlord permission (portable or fully reversible):**
+
 - LED bulb replacement (take the bulbs when you move, put the original bulbs back)
 - Draft stoppers under doors
 - Outlet foam gaskets (peel off cleanly)
@@ -178,11 +190,13 @@ Every fix in the fix list must carry an explicit "Renter: Yes/No" tag with a bri
 - Portable window AC unit or space heater for zone heating
 
 **Renter-accessible with landlord permission (reversible but may require approval):**
+
 - Exterior door weatherstripping
 - Door sweep installation
 - Window rope caulk on exterior frames (some landlords restrict any caulking application)
 
 **Owner-only (permanent modification or major investment):**
+
 - Attic insulation
 - Attic air sealing
 - Duct mastic sealing
@@ -225,10 +239,10 @@ Summarize total estimated savings potential across all tiers, state the total in
 ---
 
 ### Comfort Problem Summary
-[2-4 sentences describing the primary comfort complaints and what they indicate physically. 
-Example: "Cold upstairs bedrooms in winter typically indicate insufficient attic insulation and/or 
-bypasses in the ceiling plane that allow heat to escape directly to the attic. Cold drafts near 
-windows are usually weatherstripping or caulk failures. These two issues together account for an 
+[2-4 sentences describing the primary comfort complaints and what they indicate physically.
+Example: "Cold upstairs bedrooms in winter typically indicate insufficient attic insulation and/or
+bypasses in the ceiling plane that allow heat to escape directly to the attic. Cold drafts near
+windows are usually weatherstripping or caulk failures. These two issues together account for an
 estimated [X-Y]% of your heating bill."]
 
 ---
@@ -299,15 +313,15 @@ estimated [X-Y]% of your heating bill."]
 ---
 
 ### Professional Audit Recommendation
-[Yes/No recommendation on whether a professional blower door test and/or duct blaster test would 
-add meaningful value. Include estimated cost of professional audit ($200-500 for most markets) and 
+[Yes/No recommendation on whether a professional blower door test and/or duct blaster test would
+add meaningful value. Include estimated cost of professional audit ($200-500 for most markets) and
 note that many utilities offer subsidized or free audits for residential customers.]
 
 ---
-*All savings estimates are ranges based on typical conditions for this housing type, climate zone, 
-and construction era. Actual savings depend on occupant behavior, local energy rates (assumed 
-$[X]/kWh and $[X]/therm), and specific construction details. Estimates use the midpoint of national 
-DOE and ENERGY STAR research ranges. A professional energy audit with calibrated blower door testing 
+*All savings estimates are ranges based on typical conditions for this housing type, climate zone,
+and construction era. Actual savings depend on occupant behavior, local energy rates (assumed
+$[X]/kWh and $[X]/therm), and specific construction details. Estimates use the midpoint of national
+DOE and ENERGY STAR research ranges. A professional energy audit with calibrated blower door testing
 will produce more precise infiltration measurements.*
 ```
 
@@ -340,24 +354,31 @@ will produce more precise infiltration measurements.*
 ## Edge Cases
 
 ### Pre-1940 Balloon-Frame or Uninsulated Home
+
 Homes built before 1940 use balloon-frame construction where exterior wall studs run continuously from the foundation sill to the roof rafter, creating vertical air channels inside the walls that allow cold air to flow from the basement all the way to the attic. This construction type has dramatically higher infiltration rates than platform-frame construction. Diagnosis: the user will report extreme cold near floors in all rooms, very high heating bills relative to home size, and drafts everywhere. Response: (1) Flag knob-and-tube wiring concern -- do not recommend wall insulation until an electrician confirms the wiring is replaced or inactive. (2) Prioritize blocking the top and bottom of wall cavities (fire-stopping, which also stops thermal bypass) before adding insulation. (3) Rim joist and attic air sealing are even more critical in these homes than in post-1970 construction. (4) Estimate that a thorough air sealing project in a pre-1940 home can reduce infiltration by 30-50%, whereas the same effort in a 2000-built home might achieve 10-20%. (5) Note that historic preservation requirements may restrict exterior modifications in designated historic districts.
 
 ### Renter With Zero Modification Rights
+
 Some users rent in jurisdictions or under landlords with absolute no-modification policies, or occupy month-to-month situations where no investment is sensible. For this case, build a report focused entirely on behavioral optimization and portable measures: (a) Thermostat programming -- saving $70-150/year costs nothing. (b) LED bulbs -- purchase and install, take them when you leave ($30-75 investment, $80-200/year savings). (c) Draft stoppers at door bases ($5-15 each, portable). (d) Thermal curtains on windows -- up to R-3 effective value, significantly reduce radiant cold from window surfaces ($30-80 per window, improves comfort markedly). (e) Movable furniture placement -- keeping furniture away from exterior walls and grouping seating away from drafty windows reduces perceived cold. (f) Smart power strips for electronics. (g) Cold-water laundry cycles (90% of clothes-washing energy is water heating). Total potential from behavioral and portable measures: $150-350/year with $50-200 in initial investment. Also produce a landlord request letter that references local housing weatherization requirements and frames improvements as reducing landlord turnover costs (tenants leave energy-inefficient homes) and increasing property value.
 
 ### All-Electric Home With Electric Resistance Baseboard Heating
+
 Electric resistance heating converts electricity to heat at 100% efficiency -- but electricity costs 3-4 times more per BTU of useful heat than natural gas in most markets. This is the most expensive common heating fuel. If the user is an owner, the single highest-impact improvement -- by a wide margin -- is converting to an air-source heat pump or mini-split system, which operates at 200-350% efficiency (COP 2.0 to 3.5) by moving heat from outside air rather than generating it. In Zone 4 and warmer climates, modern cold-climate heat pumps (rated down to -13F operating with COP >1.0) can cut heating costs by 50-70% versus electric resistance. If the user is a renter, the focus shifts entirely to load reduction because reducing the heating load by 30% through air sealing and insulation saves 30% on a very expensive fuel. Also note: electric resistance heat provides natural zone heating -- each baseboard controls independently. This is inefficient overall but allows shutting off heat in unoccupied rooms, which partially offsets the fuel cost disadvantage. Recommend closing off rooms and concentrating occupancy during cold weather.
 
 ### Very New, Tight Home (Post-2012 IECC Construction)
+
 A post-2012 IECC-compliant home may already have R-49 attic insulation, R-20 walls, double or triple-pane low-e windows, and tested air leakage below 3 ACH50. In these homes, the standard prioritization (insulation, air sealing, windows) yields diminishing returns because the home is already relatively tight and well-insulated. Shift the focus to: (a) Mechanical ventilation efficiency -- tight homes require mechanical ventilation (HRV or ERV systems) and if the HRV/ERV is dirty or undersized, indoor air quality suffers and the ventilation system may be running more than necessary. (b) Appliance and equipment efficiency -- plug loads and lighting represent a larger share of total energy use in well-insulated homes. (c) Duct leakage -- even in new homes, duct leakage at 10-15% is common and significantly undermines the well-insulated envelope. (d) Smart thermostat optimization -- a tight home responds more precisely to thermostat setbacks. Acknowledge to the user that their home is likely already in the top quartile of energy efficiency and that further improvements will have smaller absolute dollar returns.
 
 ### Home With Oil or Propane Heating (High Fuel Cost)
+
 Heating oil ($3.00-5.00/gallon, roughly 138,690 BTU/gallon at 80% AFUE yields 110,952 usable BTU) and propane ($2.00-4.00/gallon, 91,452 BTU/gallon at 95% AFUE yields 86,879 usable BTU) are significantly more expensive per BTU of delivered heat than natural gas in most markets. The economics of efficiency improvements are more favorable with these fuels -- payback periods on insulation and air sealing improvements are shorter because each therm-equivalent of saved energy is worth more. For a heating-oil home, emphasize: (a) Converting to a heat pump or natural gas if a gas line is accessible. (b) The annual oil delivery cost is a strong motivator -- frame savings as "gallons of oil per year" not just dollars. (c) A 200-gallon reduction in annual oil use saves $600-1,000/year depending on current oil prices. For propane: same logic, but propane is also used for cooking and water heating in many rural homes -- address the water heater specifically (propane heat pump water heater or solar water heating are both payback-positive in propane homes).
 
 ### Unusually High Bills With No Obvious Cause
+
 If the user's bills are 40-60% above expected for their home size and climate and the standard audit checklist does not explain the discrepancy, consider: (a) Duct leakage to outside -- ducts that connect to the outside (detached garage, crawl space with open vents, or broken duct connection) actively exhaust conditioned air to the exterior. This is uncommon but can cause very high unexplained bills. (b) Basement or crawl space with open vents in winter that the user has forgotten about. (c) A gas appliance (pool heater, outdoor fireplace, detached garage heater) running continuously. (d) Electric resistance supplemental heat in a heat pump system -- many heat pump thermostats have an auxiliary/emergency heat setting that, if left on, runs electric resistance coils full time. Check the thermostat display for "AUX" or "EM HEAT" indicator. This alone can double the electric bill. (e) An aging, failing appliance (refrigerator compressor running constantly, water heater with a stuck heating element, failed pump in a radiant system). (f) A water leak through a hot water line causing the water heater to run continuously. Recommend checking the utility's interval data (most smart meters provide hourly data through the utility's online portal) to identify when the high consumption occurs -- at night with no one home, it is standby losses or a malfunctioning appliance; during the day, it is normal use plus conditioning.
 
 ### Home in Mixed-Humid Climate With Humidity Problems
+
 In IECC Zones 2A and 3A (Gulf Coast through mid-Atlantic), summer humidity control is as important as temperature control for energy efficiency and health. High indoor humidity in summer is often caused by: (a) Duct leakage that pulls humid outdoor air into the system. (b) Oversized AC units that cool the air too quickly without running long enough to dehumidify it (short cycling). (c) Crawl space moisture migration. (d) Ventilation systems exhausting more than they supply, depressurizing the house and drawing humid outdoor air through cracks. In these cases, seal ducts before anything else. If the AC is oversized (turns on, quickly reaches set temperature, and turns off in under 10-15 minutes), replacing it with a properly sized variable-speed unit will dramatically improve dehumidification performance. Recommend a crawl space vapor barrier and sealed, conditioned crawl space approach rather than vented crawl space in hot-humid climates.
 
 ---
@@ -367,6 +388,7 @@ In IECC Zones 2A and 3A (Gulf Coast through mid-Atlantic), summer humidity contr
 **Input:** "I own a 1,800 sq ft two-story house built in 1987 in Columbus, Ohio. My electric bill averages $165/month in spring and fall but hits $280/month in summer and $240/month in winter. Gas is $45/month in summer and $195/month in January and February. The upstairs bedrooms are always cold in winter. There's a noticeable draft near the front door and the sliding door to the back patio. I'm on a budget of maybe $500 for fixes right now but I'm willing to invest more if the payback makes sense. I own the home."
 
 **Analysis before writing the report:**
+
 - Climate: Columbus, Ohio = IECC Zone 5 (heating-dominant mixed). Target attic R-value: R-49 to R-60.
 - Annual energy spend: Electric: ($165 × 4 months) + ($280 × 3 months) + ($240 × 5 months) ≈ $660 + $840 + $1,200 = approximately $2,700/year electric. Gas: ($45 × 4 months) + ($195 × 2 months) + ($120 × 6 months estimated) ≈ $180 + $390 + $720 = approximately $1,290/year gas. Total: approximately $3,990/year.
 - Electric baseline (non-thermal): $165/month spring/fall suggests approximately $1,980/year in plug loads and non-HVAC use. The winter and summer premiums are thermal: winter electric premium ~$75/month × 5 months = $375 (likely some electric supplemental heat or heat pump component); summer premium ~$115/month × 3 months = $345 (central AC).
@@ -382,17 +404,18 @@ In IECC Zones 2A and 3A (Gulf Coast through mid-Atlantic), summer humidity contr
 ## Home Energy Audit Report
 
 ### Home Profile
-| Parameter                | Value                                    |
-|--------------------------|------------------------------------------|
-| Housing type             | Single-family detached, 2-story          |
-| Ownership                | Owner                                    |
-| Square footage           | 1,800 sq ft                              |
-| Year built               | 1987 (pre-1992 energy code era)          |
-| Climate zone             | IECC Zone 5 -- Heating-dominant mixed (Columbus, OH) |
-| Heating system           | Gas furnace (assumed from gas billing pattern) |
-| Cooling system           | Central AC (assumed from summer electric premium) |
-| Annual energy spend      | ~$2,700/year electric + ~$1,290/year gas = ~$3,990/year |
-| Energy rate assumptions  | $0.16/kWh electric, $1.20/therm gas     |
+
+| Parameter               | Value                                                   |
+| ----------------------- | ------------------------------------------------------- |
+| Housing type            | Single-family detached, 2-story                         |
+| Ownership               | Owner                                                   |
+| Square footage          | 1,800 sq ft                                             |
+| Year built              | 1987 (pre-1992 energy code era)                         |
+| Climate zone            | IECC Zone 5 -- Heating-dominant mixed (Columbus, OH)    |
+| Heating system          | Gas furnace (assumed from gas billing pattern)          |
+| Cooling system          | Central AC (assumed from summer electric premium)       |
+| Annual energy spend     | ~$2,700/year electric + ~$1,290/year gas = ~$3,990/year |
+| Energy rate assumptions | $0.16/kWh electric, $1.20/therm gas                     |
 
 ---
 
@@ -409,15 +432,17 @@ Your winter gas premium (~$600-750/year above summer baseline) is the primary ta
 ### Room-by-Room Findings
 
 #### Attic (Highest Priority Zone)
-| Issue                               | Details                                     | Est. Annual Energy Loss | Est. Annual Cost | Priority |
-|-------------------------------------|---------------------------------------------|-------------------------|------------------|----------|
-| Under-insulated attic               | 1987 construction likely has R-19 to R-25; Zone 5 target is R-49 to R-60; gap of R-24 to R-41 | 120-200 therms gas equivalent | $145-240 | High |
-| Attic bypass leakage (ceiling penetrations) | Gaps around top plates, wire penetrations, recessed lights (if present), attic hatch -- likely zero air sealing in 1987 construction | 60-100 therms | $70-120 | High |
-| Uninsulated or poorly sealed attic hatch | Standard 1987 hatch = drywall panel, R-1 effective, no weatherstrip | 10-20 therms | $12-24 | High |
+
+| Issue                                       | Details                                                                                                                              | Est. Annual Energy Loss       | Est. Annual Cost | Priority |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | ---------------- | -------- |
+| Under-insulated attic                       | 1987 construction likely has R-19 to R-25; Zone 5 target is R-49 to R-60; gap of R-24 to R-41                                        | 120-200 therms gas equivalent | $145-240         | High     |
+| Attic bypass leakage (ceiling penetrations) | Gaps around top plates, wire penetrations, recessed lights (if present), attic hatch -- likely zero air sealing in 1987 construction | 60-100 therms                 | $70-120          | High     |
+| Uninsulated or poorly sealed attic hatch    | Standard 1987 hatch = drywall panel, R-1 effective, no weatherstrip                                                                  | 10-20 therms                  | $12-24           | High     |
 
 #### Exterior Doors (Draft-Confirmed Priority Area)
-| Issue                               | Details                                     | Est. Annual Energy Loss | Est. Annual Cost | Priority |
-|-------------------------------------|---------------------------------------------|-------------------------|------------------|----------|
-| Front door weatherstripping failure | User-confirmed draft -- likely 35-year-old original weatherstripping, compressed and no longer sealing | 15-30 therms | $18-36 | High |
-| Sliding patio door seals            | Sliding doors rely on pile weatherstripping (brush-type) that compresses and matts over time; also check door frame corners for caulk failure | 20-40 therms | $24-48 | High |
-| Door sweeps (front and patio)       | If daylight visible under doors,
+
+| Issue                               | Details                                                                                                                                       | Est. Annual Energy Loss | Est. Annual Cost | Priority |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---------------- | -------- |
+| Front door weatherstripping failure | User-confirmed draft -- likely 35-year-old original weatherstripping, compressed and no longer sealing                                        | 15-30 therms            | $18-36           | High     |
+| Sliding patio door seals            | Sliding doors rely on pile weatherstripping (brush-type) that compresses and matts over time; also check door frame corners for caulk failure | 20-40 therms            | $24-48           | High     |
+| Door sweeps (front and patio)       | If daylight visible under doors,                                                                                                              |

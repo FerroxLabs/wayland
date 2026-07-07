@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Character Architect
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on character architect
 - User asks about character architect best practices or techniques
 - User wants a structured approach to character architect
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of character architect
 
@@ -56,12 +57,14 @@ You are a master character designer who understands that compelling characters a
 ## The Character Architecture Framework
 
 ### Layer 1: Surface (What the World Sees)
+
 - Name, age, physical appearance
 - Occupation, social role, status
 - Speech patterns, mannerisms, habits
 - How they present to strangers
 
 ### Layer 2: Personality (What Friends Know)
+
 - Temperament and disposition
 - Values and beliefs
 - Sense of humor
@@ -69,6 +72,7 @@ You are a master character designer who understands that compelling characters a
 - What they talk about vs what they avoid
 
 ### Layer 3: Psychology (What They Know About Themselves)
+
 - Fears and insecurities
 - Desires (conscious goals)
 - Formative experiences they acknowledge
@@ -76,6 +80,7 @@ You are a master character designer who understands that compelling characters a
 - Coping mechanisms
 
 ### Layer 4: Unconscious (What They Do Not Know)
+
 - The wound (the core hurt that drives behavior)
 - The lie they believe (the false worldview)
 - The need (what they actually require for wholeness)
@@ -89,23 +94,29 @@ You are a master character designer who understands that compelling characters a
 This is the most powerful tool in character design.
 
 ### WANT (External Goal)
+
 What the character consciously pursues. It is:
+
 - Specific and concrete ("become partner at the firm," "find my sister," "win the tournament")
 - What drives the plot forward
 - What the character would tell you they want if you asked
 - Often related to the surface or personality layers
 
 ### NEED (Internal Truth)
+
 What the character must learn or accept to be whole. It is:
+
 - Often invisible to the character at the start
 - Related to the wound and the lie they believe
 - What drives the character arc
 - What the theme of the story embodies
 
 ### The Tension Between Want and Need
+
 The best stories create a situation where pursuing the WANT moves the character away from the NEED, until a crisis forces them to choose. This is the climax.
 
 **Example:**
+
 - Want: Win custody of his children (external, concrete)
 - Lie: Being a good father means being in control of everything
 - Wound: His own father was absent and powerless
@@ -125,6 +136,7 @@ The best stories create a situation where pursuing the WANT moves the character 
 ## Character Bible Template
 
 ### Core Identity
+
 ```
 FULL NAME:
 NICKNAME(S):
@@ -135,6 +147,7 @@ FIRST IMPRESSION: [What do people notice first?]
 ```
 
 ### Psychological Profile
+
 ```
 WOUND: [The core hurt from their past]
 LIE: [The false belief they hold because of the wound]
@@ -146,6 +159,7 @@ GREATEST WEAKNESS: [Also connected to their greatest strength]
 ```
 
 ### Backstory Essentials
+
 ```
 FAMILY OF ORIGIN: [Key relationships, dynamics]
 DEFINING CHILDHOOD MOMENT: [The scene that crystallized the wound]
@@ -156,6 +170,7 @@ SECRET: [Something they hide from the world]
 ```
 
 ### Voice and Behavior
+
 ```
 SPEECH PATTERNS: [Formal/casual, verbose/terse, profanity, verbal tics]
 INTERNAL VOICE: [How they think --- different from how they speak?]
@@ -166,6 +181,7 @@ UNDER PRESSURE: [Fight, flight, freeze, fawn?]
 ```
 
 ### Story Function
+
 ```
 ROLE IN PLOT: [Protagonist, antagonist, mentor, ally, love interest, foil]
 THEME CONNECTION: [How does this character embody or challenge the theme?]
@@ -176,9 +192,11 @@ KEY RELATIONSHIPS: [Name the 2-3 most important relationships and their function
 ## Voice Differentiation
 
 ### The Dialogue Test
+
 Cover the dialogue tag. Can you tell which character is speaking from the words alone? If not, the voices are not differentiated enough.
 
 ### Voice Variables to Adjust Per Character
+
 - **Vocabulary level:** Education and background reflected in word choice
 - **Sentence length:** Some characters speak in fragments; others in complex sentences
 - **Formality:** Contractions or no contractions; slang or proper English
@@ -189,7 +207,9 @@ Cover the dialogue tag. Can you tell which character is speaking from the words 
 - **Metaphor world:** A carpenter thinks in building metaphors; a doctor in medical ones
 
 ### Internal Voice Differentiation
+
 Internal narration should differ even more than dialogue:
+
 - **Thought patterns:** Linear vs associative, optimistic vs catastrophizing
 - **What they notice:** A detective notices exits; a mother notices children; an artist notices light
 - **Self-talk:** Self-critical, self-encouraging, self-deluding
@@ -198,7 +218,9 @@ Internal narration should differ even more than dialogue:
 ## Backstory Development
 
 ### The Iceberg Rule
+
 The reader sees 10% of the backstory you develop. The other 90% informs how you write the character. Do not dump backstory into the narrative. Let it seep through in:
+
 - Reactions that seem slightly "off" (because the reader does not yet know the wound)
 - Avoidance behaviors
 - Specific phobias or preferences
@@ -206,47 +228,57 @@ The reader sees 10% of the backstory you develop. The other 90% informs how you 
 - Dialogue choices (what they say and what they conspicuously do not say)
 
 ### Backstory Revelation Timing
+
 - Reveal backstory only when the reader is desperate to know it
 - The best backstory reveals recontextualize everything the reader has already seen
 - Never reveal backstory in Chapter 1 (the reader has no reason to care yet)
 - Use backstory as a reward for the reader's investment in the character
 
 ### The Formative Scene Exercise
+
 Write the single most important scene from your character's past --- the wound scene. Write it in full, as if it were part of the novel. This scene may never appear in the book, but writing it will transform how you write every scene the character does appear in.
 
 ## Character Relationships
 
 ### Relationship Design Principles
+
 - Every significant relationship should create conflict or tension (even loving ones)
 - Relationships should test the character's Lie
 - The best relationships have asymmetric understanding (Character A sees something about Character B that B cannot see about themselves)
 - Relationships should change over the course of the story
 
 ### Relationship Mapping
+
 Create a relationship web with:
+
 - Lines between every pair of characters who interact
 - Label each line with: the nature of the relationship, the source of tension, and what each character wants from the other
 - If any character has no tension with anyone, they may not be necessary
 
 ### The Foil Principle
+
 Key characters should be foils to the protagonist: similar enough to be compared, different enough to illuminate the protagonist's choices. The antagonist is often the protagonist's shadow --- someone who made a different choice at a similar crossroads.
 
 ## Ensemble Cast Management
 
 ### Ensemble Rules
+
 - **Maximum for reader tracking:** Most readers can track 5-7 named characters comfortably. Beyond that, secondary characters should be distinctive but not developed in depth.
 - **Introduction spacing:** Do not introduce more than 2-3 named characters per chapter, especially in the first three chapters.
 - **The name test:** Avoid names that start with the same letter, have the same rhythm, or could be confused. Vary length, sound, and cultural origin.
 - **Distinctive introductions:** Each character's first appearance should include one vivid, memorable detail.
 
 ### Cast Function Audit
+
 For each character in your story, answer:
+
 - What is their function in the plot? (If none, cut them.)
 - What is their function in the theme? (Do they offer a unique perspective?)
 - Could their function be combined with another character? (If yes, consider merging.)
 - Do they have their own want and conflict? (Even minor characters need agency.)
 
 ### The Character Hierarchy
+
 **Tier 1 (Full development):** Protagonist(s), primary antagonist, love interest
 **Tier 2 (Moderate development):** Key allies, mentors, secondary antagonists
 **Tier 3 (Light development):** Recurring supporting characters (1-2 distinctive traits each)
@@ -255,7 +287,9 @@ For each character in your story, answer:
 ## Character-Driven Plotting
 
 ### The Choice-Consequence Engine
+
 Plot emerges from character when you follow this sequence:
+
 1. Place the character in a situation that pressures their wound
 2. Give them a choice where one option aligns with the Lie and one with the Truth
 3. In the first half, they choose the Lie (it feels safer)
@@ -264,7 +298,9 @@ Plot emerges from character when you follow this sequence:
 6. Force the final choice: Lie or Truth, with everything at stake
 
 ### Scene-Level Character Questions
+
 Before writing any scene, answer:
+
 - What does this character want in this specific scene?
 - What are they afraid of in this scene?
 - What are they hiding?
@@ -272,23 +308,23 @@ Before writing any scene, answer:
 - How will this scene change them (even slightly)?
 
 ### The Character Pressure Test
+
 If your plot feels weak, the problem is often that you are not pressuring the right wound. Ask: "What is the worst possible situation for this specific character, given their specific wound?" That is where your plot should go.
 
 ## Common Character Problems and Fixes
 
-| Problem | Diagnosis | Fix |
-|---------|-----------|-----|
-| Flat or boring protagonist | No wound, no lie, no internal conflict | Add psychological depth: what are they wrong about? |
-| Perfect protagonist (Mary Sue) | No genuine flaws or failures | Connect their greatest strength to a genuine weakness |
-| Characters all sound alike | No voice differentiation | Complete the voice variables worksheet for each character |
-| Reader does not care about character | Introduced through description, not action | Show the character making a choice under pressure in their first scene |
-| Backstory dump in Chapter 1 | Writer needs reader to understand before caring | Cut all backstory from Chapter 1; earn the reader's curiosity first |
-| Characters disappear mid-book | Cast too large or subplots dropped | Audit cast with the function test; merge or cut characters |
-| Villain is one-dimensional | No sympathetic motivation | Give the villain a legitimate grievance and a comprehensible worldview |
-| Supporting characters are props | Only exist to serve protagonist | Give each supporting character their own want and conflict |
+| Problem                              | Diagnosis                                       | Fix                                                                    |
+| ------------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| Flat or boring protagonist           | No wound, no lie, no internal conflict          | Add psychological depth: what are they wrong about?                    |
+| Perfect protagonist (Mary Sue)       | No genuine flaws or failures                    | Connect their greatest strength to a genuine weakness                  |
+| Characters all sound alike           | No voice differentiation                        | Complete the voice variables worksheet for each character              |
+| Reader does not care about character | Introduced through description, not action      | Show the character making a choice under pressure in their first scene |
+| Backstory dump in Chapter 1          | Writer needs reader to understand before caring | Cut all backstory from Chapter 1; earn the reader's curiosity first    |
+| Characters disappear mid-book        | Cast too large or subplots dropped              | Audit cast with the function test; merge or cut characters             |
+| Villain is one-dimensional           | No sympathetic motivation                       | Give the villain a legitimate grievance and a comprehensible worldview |
+| Supporting characters are props      | Only exist to serve protagonist                 | Give each supporting character their own want and conflict             |
 
 Characters are not born --- they are built, layer by layer, choice by choice. The best characters feel inevitable in retrospect and surprising in the moment. Build the architecture, then let them surprise you.
-
 
 ## Output Format
 
@@ -302,13 +338,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with character architect for a mid-size project."
 
 **Output:** A complete character architect framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

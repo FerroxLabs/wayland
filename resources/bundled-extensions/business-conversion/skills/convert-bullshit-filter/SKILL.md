@@ -30,14 +30,15 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert, convert-voice, convert-fingerprint, convert-chute, convert-audit, convert-sales-page, convert-vsl]
+    related_skills:
+      [convert, convert-voice, convert-fingerprint, convert-chute, convert-audit, convert-sales-page, convert-vsl]
 attribution:
   lineage: "The Donahoe Method (Wayland-owned operating system); references *Halbert plain-spoken canon (Boron Letters, 1984)*, *Ogilvy 'never write what you wouldn't say' (Confessions of an Advertising Man, 1963)*, and *Orwell's six rules of plain English ('Politics and the English Language', 1946)*"
 ---
 
 # Convert Bullshit Filter - The Adversarial Coaching Pass
 
-> *"Would I actually say this to someone I'm trying to help?"* - The Donahoe Method, Voice Rules
+> _"Would I actually say this to someone I'm trying to help?"_ - The Donahoe Method, Voice Rules
 
 The Bullshit Filter is one question. It's also the single most important question in the Method.
 
@@ -54,6 +55,7 @@ The output is a **coaching artifact**. The user decides whether to ship after se
 Trigger phrases: "bullshit filter", "run the filter", "donahoe filter", "would I say this to a friend", "read aloud test", "kill anything that sounds fake", "final voice gate", "last pass before shipping", "find the weakest lines", "rewrite the worst sentences", `/convert bullshit-filter <draft>`.
 
 Use this skill as the **last coaching pass** before shipping. Run it AFTER:
+
 - `convert-open` has produced the open
 - `convert-three-locks` has architected the persuasion
 - `convert-bullets`, `convert-proof`, `convert-close` have produced the body and close
@@ -61,7 +63,8 @@ Use this skill as the **last coaching pass** before shipping. Run it AFTER:
 - `convert-voice` has applied the Voice Rules
 
 Do NOT use for:
-- The full Voice Rules pass with sentence mechanics, banned words, structural moves (use `convert-voice` - Bullshit Filter is one rule among several in Voice; this is the *deeper standalone coaching* applied as a final pass)
+
+- The full Voice Rules pass with sentence mechanics, banned words, structural moves (use `convert-voice` - Bullshit Filter is one rule among several in Voice; this is the _deeper standalone coaching_ applied as a final pass)
 - Method audit on existing live copy (use `convert-audit`)
 - Writing from scratch (use the page-builders)
 - Architecture or persuasion design (use `convert-three-locks`, `convert-four-questions`)
@@ -69,17 +72,19 @@ Do NOT use for:
 ## Inputs
 
 Required:
+
 1. **The draft** - full asset or specific section. Run this on what the writer intends to ship.
 2. **Read-target** - sales page / VSL spoken / email / ad / headline. Calibrates the coaching (a VSL script that reads stiff aloud needs harder rewrites than a sales page that reads stiff in print).
 
 Optional:
+
 - **Seller voice samples** - so the rewrites can match the seller's actual conversational voice
 - **Scope** - full asset / specific section / specific paragraphs to audit
 - `out_path` - caller-controlled output. Defaults via `build_report_path`.
 
 ## The Adversarial Mechanism
 
-The standard Bullshit Filter asks: *"Would I actually say this to someone I'm trying to help?"*
+The standard Bullshit Filter asks: _"Would I actually say this to someone I'm trying to help?"_
 
 This skill never lets the AI answer that question on the writer's behalf. Instead, it forces the AI to:
 
@@ -102,7 +107,7 @@ A line is a candidate for "weakest" if any of the following is true:
 - Uses LLM connectors ("Moreover...", "Furthermore...", "Additionally...", "In essence...")
 - Uses showroom adjectives ("carefully crafted", "meticulously designed", "comprehensive", "robust")
 
-If 0 lines feel weak, pick the 3 *least strong*. There is always a worst sentence in any draft. The skill finds it.
+If 0 lines feel weak, pick the 3 _least strong_. There is always a worst sentence in any draft. The skill finds it.
 
 ## Workflow
 
@@ -113,6 +118,7 @@ At speaking pace. Don't fix anything yet. Mark candidate weak lines as you go.
 ### Step 2 - Force-rank the candidates
 
 From all marked candidates, pick the **3 weakest lines**. Even if the draft seems clean, force-rank to 3. Ties broken by:
+
 - Line that appears earliest in the draft (a weak line up top hurts more)
 - Line in a load-bearing section (Open, close, P.S.)
 - Line with the most layers of failure (e.g., a hedged + abstract + LLM-connector line beats a single-failure line)
@@ -120,27 +126,29 @@ From all marked candidates, pick the **3 weakest lines**. Even if the draft seem
 ### Step 3 - For each weakest line, produce 3 alternative rewrites
 
 The 3 rewrites must demonstrate **range**, not refinement. Aim for:
+
 - **Rewrite A** - closest to the original intent, but plain-spoken (the conservative rewrite)
 - **Rewrite B** - punchier, more specific, more named-and-dated (the aggressive rewrite)
 - **Rewrite C** - different angle entirely, possibly killing the line and routing the meaning elsewhere (the structural rewrite)
 
-Each rewrite must answer YES to *"Would I actually say this to someone I'm trying to help?"* - but the three rewrites pick different things to say.
+Each rewrite must answer YES to _"Would I actually say this to someone I'm trying to help?"_ - but the three rewrites pick different things to say.
 
 ### Step 4 - Diagnose the dominant voice failure pattern
 
 Read all 3 weakest lines together. Name the single most common voice failure pattern in one paragraph (3-5 sentences). Examples:
 
-- *"Softeners - every weak line opens with 'Note that' or 'Importantly' or 'Specifically.' The writer is hedging at the start of every paragraph, which signals lack of conviction. Strip the openers; the lines underneath are mostly fine."*
-- *"Marketing-speak - every weak line uses showroom adjectives ('carefully crafted', 'comprehensive') instead of specifics. The fix is replacing every adjective with a number, name, date, or place."*
-- *"Abstract language - every weak line names a category instead of a person. 'Many entrepreneurs' / 'today's busy professionals' / 'modern business owners.' The reader doesn't see themselves in any of these. Rewrite as one specific person doing one specific thing."*
-- *"Hedged claims - every weak line wraps a real claim in four hedges. 'Some studies have suggested that...' becomes 'Mike, Akron, plumber: 4 calls a week to 23 in 31 days.' Either defend the claim with proof or delete it."*
-- *"Performative urgency - every weak line manufactures pressure that doesn't exist. The fix is either find the real reason or remove the urgency entirely."*
+- _"Softeners - every weak line opens with 'Note that' or 'Importantly' or 'Specifically.' The writer is hedging at the start of every paragraph, which signals lack of conviction. Strip the openers; the lines underneath are mostly fine."_
+- _"Marketing-speak - every weak line uses showroom adjectives ('carefully crafted', 'comprehensive') instead of specifics. The fix is replacing every adjective with a number, name, date, or place."_
+- _"Abstract language - every weak line names a category instead of a person. 'Many entrepreneurs' / 'today's busy professionals' / 'modern business owners.' The reader doesn't see themselves in any of these. Rewrite as one specific person doing one specific thing."_
+- _"Hedged claims - every weak line wraps a real claim in four hedges. 'Some studies have suggested that...' becomes 'Mike, Akron, plumber: 4 calls a week to 23 in 31 days.' Either defend the claim with proof or delete it."_
+- _"Performative urgency - every weak line manufactures pressure that doesn't exist. The fix is either find the real reason or remove the urgency entirely."_
 
 The diagnosis is the **transferable lesson** the writer carries into the next draft. The 3 rewrites fix this draft; the diagnosis fixes the writer.
 
 ### Step 5 - Output the coaching artifact
 
 The output is a structured markdown file (template below). It contains:
+
 - The 3 weakest lines (quoted verbatim from the draft)
 - 3 rewrites per weakest line (9 rewrites total)
 - One paragraph of diagnosis
@@ -153,15 +161,19 @@ There is no PASSED. There is no FAILED. The writer reads the artifact and decide
 ### Example 1 - softener pattern
 
 **Weakest line (verbatim from draft):**
-> *"It's worth noting that lead generation in today's competitive marketplace requires a multifaceted approach to consistently outperform competitors."*
+
+> _"It's worth noting that lead generation in today's competitive marketplace requires a multifaceted approach to consistently outperform competitors."_
 
 **Rewrite A (conservative):**
-> *"Lead generation right now needs three plays running at once, not one. The operators who grow run all three. The ones who don't run one and hope."*
+
+> _"Lead generation right now needs three plays running at once, not one. The operators who grow run all three. The ones who don't run one and hope."_
 
 **Rewrite B (punchier, specific):**
-> *"Mike was running one play - Facebook ads. Same campaign for 14 months. Last quarter he added LSA + a referral bump. 4 calls a week became 23 in 31 days. One play loses to three plays. Every time."*
+
+> _"Mike was running one play - Facebook ads. Same campaign for 14 months. Last quarter he added LSA + a referral bump. 4 calls a week became 23 in 31 days. One play loses to three plays. Every time."_
 
 **Rewrite C (structural - kill the abstraction, route to story):**
+
 > Delete the line entirely. The next paragraph already does this work with the Mike anecdote. The "competitive marketplace" framing was a wind-up the body didn't need.
 
 ---
@@ -169,31 +181,39 @@ There is no PASSED. There is no FAILED. The writer reads the artifact and decide
 ### Example 2 - marketing-speak
 
 **Weakest line:**
-> *"Our revolutionary system empowers entrepreneurs to unlock their true potential and take their business to the next level."*
+
+> _"Our revolutionary system empowers entrepreneurs to unlock their true potential and take their business to the next level."_
 
 **Rewrite A:**
-> *"This is the same play I ran on my own crew last quarter. Same template you're getting today. Worked then, works now."*
+
+> _"This is the same play I ran on my own crew last quarter. Same template you're getting today. Worked then, works now."_
 
 **Rewrite B:**
-> *"$11k-a-month service business to $38k-a-month service business in 91 days. Same operator, same crew, one new play. That play is in Module 3."*
+
+> _"$11k-a-month service business to $38k-a-month service business in 91 days. Same operator, same crew, one new play. That play is in Module 3."_
 
 **Rewrite C (route through proof):**
-> *"You don't need a 'system.' You need the one thing that's been working for the people who are 6-12 months ahead of you. That's what's in here."*
+
+> _"You don't need a 'system.' You need the one thing that's been working for the people who are 6-12 months ahead of you. That's what's in here."_
 
 ---
 
 ### Example 3 - performative urgency
 
 **Weakest line:**
-> *"DON'T MISS OUT! THIS LIMITED-TIME OFFER ENDS SOON! ACT NOW BEFORE IT'S TOO LATE!"*
+
+> _"DON'T MISS OUT! THIS LIMITED-TIME OFFER ENDS SOON! ACT NOW BEFORE IT'S TOO LATE!"_
 
 **Rewrite A (real reason if one exists):**
-> *"Price goes to $2,497 on the 17th because we're adding the live cohort element. Before the 17th, you're getting current price + the calls."*
+
+> _"Price goes to $2,497 on the 17th because we're adding the live cohort element. Before the 17th, you're getting current price + the calls."_
 
 **Rewrite B (honest framing if no real reason):**
-> *"There's no fake deadline. The cost of waiting is whatever you're losing each week without this. Run that math; that's your deadline."*
+
+> _"There's no fake deadline. The cost of waiting is whatever you're losing each week without this. Run that math; that's your deadline."_
 
 **Rewrite C (structural - let the close carry weight):**
+
 > Delete the urgency block. The Cascade Close already does the work. False urgency at the end of a real close drags the whole close down.
 
 ---
@@ -216,17 +236,21 @@ This is a coaching artifact, not a verdict. The skill identifies the 3 weakest l
 ### Weakness 1 - <Location, e.g., "Section 3, paragraph 2">
 
 **Quoted verbatim:**
+
 > "<exact line from the draft>"
 
 **Why it's weak:** <one sentence: which failure pattern, what specifically falls apart>
 
 **Rewrite A (conservative - same intent, plain-spoken):**
+
 > "<rewrite>"
 
 **Rewrite B (aggressive - punchier, named-and-dated):**
+
 > "<rewrite>"
 
 **Rewrite C (structural - kill the line or route the meaning elsewhere):**
+
 > "<rewrite or instruction>"
 
 ---
@@ -234,17 +258,21 @@ This is a coaching artifact, not a verdict. The skill identifies the 3 weakest l
 ### Weakness 2 - <Location>
 
 **Quoted verbatim:**
+
 > "<exact line from the draft>"
 
 **Why it's weak:** <one sentence>
 
 **Rewrite A:**
+
 > "<rewrite>"
 
 **Rewrite B:**
+
 > "<rewrite>"
 
 **Rewrite C:**
+
 > "<rewrite or instruction>"
 
 ---
@@ -252,17 +280,21 @@ This is a coaching artifact, not a verdict. The skill identifies the 3 weakest l
 ### Weakness 3 - <Location>
 
 **Quoted verbatim:**
+
 > "<exact line from the draft>"
 
 **Why it's weak:** <one sentence>
 
 **Rewrite A:**
+
 > "<rewrite>"
 
 **Rewrite B:**
+
 > "<rewrite>"
 
 **Rewrite C:**
+
 > "<rewrite or instruction>"
 
 ---
@@ -298,8 +330,9 @@ The Filter does not ship copy. The writer ships copy. This skill makes the write
 The Bullshit Filter is part of **The Donahoe Method** (Wayland-owned operating system).
 
 Lineage references:
-- "Write what you'd say" doctrine - *Gary Halbert, the Boron Letters (1984)*: "imagine one person reading this letter at the kitchen table"
-- "Never write what you wouldn't say" - *David Ogilvy, Confessions of an Advertising Man (1963)*
-- Plain-English mandate (kill jargon, kill fluff, prefer concrete over abstract) - *George Orwell's six rules, "Politics and the English Language" (1946)*
+
+- "Write what you'd say" doctrine - _Gary Halbert, the Boron Letters (1984)_: "imagine one person reading this letter at the kitchen table"
+- "Never write what you wouldn't say" - _David Ogilvy, Confessions of an Advertising Man (1963)_
+- Plain-English mandate (kill jargon, kill fluff, prefer concrete over abstract) - _George Orwell's six rules, "Politics and the English Language" (1946)_
 - The forced-rewrite-of-3-worst-lines mechanism - adversarial debate methodology applied to copy review
-- The read-aloud test as a coaching mechanism - common across *Halbert / Ogilvy / Bly / Sugarman* canon
+- The read-aloud test as a coaching mechanism - common across _Halbert / Ogilvy / Bly / Sugarman_ canon

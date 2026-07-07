@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan step-by-step guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan step-by-step guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Student Feedback
 
 ## When to Use
 
 **Use this skill when:**
+
 - An educator asks to write feedback comments for student assignments, essays, lab reports, projects, presentations, or portfolios -- whether for one student or a full class set
 - A teacher wants to implement a structured feedback framework (SBI, Praise-Question-Suggestion, TAG, Glow-and-Grow, Standards-Referenced) and needs help translating student work into that framework
 - An instructor needs feedback that is explicitly revision-oriented -- the student will receive feedback before the final grade and has an opportunity to act on it
@@ -29,6 +31,7 @@ metadata:
 - An educator asks to convert a score or rubric rating into explanatory narrative feedback ("she scored 2/4 on evidence -- turn that into usable feedback")
 
 **Do NOT use this skill when:**
+
 - The user wants to build a scoring rubric with criteria and performance levels -- use `rubric-creation` instead
 - The user wants to design the assessment itself (essay prompt, project brief, test questions) -- use `assessment-design` instead
 - The user wants students to give each other feedback through a structured discussion or Socratic protocol -- use `discussion-questions` instead
@@ -71,16 +74,19 @@ Before writing, perform a structured analysis. Do this internally before produci
 The SBI (Situation-Behavior-Impact) model is the default framework for this skill. Every feedback point -- positive or constructive -- must have all three components.
 
 **Situation:** The specific, locatable moment in the work being referenced.
+
 - Name the exact location: "In the third body paragraph," "In your conclusion, the final two sentences," "On slide 7 of your presentation," "In Question 4, step 3 of your solution."
 - Never write "throughout" or "in general" as a Situation -- these are not locatable. If the pattern is pervasive, name two specific instances: "In paragraphs 2 and 4, and in several other places throughout..."
 - For oral/performance work, reference the timestamp or the specific moment: "During your introduction, approximately the first 45 seconds," "When you transitioned from your first claim to your second."
 
 **Behavior:** The exact, observable action the student performed in the work.
+
 - Use verifiable language: "You wrote," "You cited," "You used," "You solved," "You defined," "You omitted," "You restated."
 - Quote directly from student work when possible -- this is the most powerful specificity tool available. A student reading their own words back with an explanation of impact has undeniable evidence.
 - Avoid inferring intent or motivation: "You forgot to include" implies negligence. "The paragraph does not include" describes the work. "You wanted to argue" is speculation. Describe what is on the page, not what you think the student was trying to do.
 
 **Impact:** The specific effect of that behavior on the quality, clarity, accuracy, or achievement of the learning objective.
+
 - Impact must be tied to the reader, the argument, the solution, or the standard -- not to the teacher's preferences. "This weakens your argument because a reader who disagrees with you now has no evidence to counter" is impact. "I prefer more specific examples" is teacher preference.
 - Use reader-effect framing: "A reader encountering this would..." "Without this explanation, the logic breaks down because..." "This calculation error propagates into the final answer, making the solution incorrect."
 - Impact on the learning objective: "This demonstrates mastery of the standard requiring students to use textual evidence to support analysis" directly connects behavior to objective.
@@ -130,14 +136,14 @@ The opening and closing of a feedback document carry disproportionate weight bec
 
 The SBI model is the default, but different contexts call for different frameworks. Apply the correct framework based on context.
 
-| Framework | When to Use | Structure |
-|-----------|-------------|-----------|
-| SBI (Situation-Behavior-Impact) | Individual detailed feedback, secondary and post-secondary, revision-oriented | Location + Observable Action + Effect |
-| Glow and Grow | K-5, quick formative feedback, first draft work | One specific strength + One specific growth area |
-| TAG (Tell-Ask-Give) | Peer feedback structures, writing workshop, middle school | Tell a strength + Ask a thinking question + Give a suggestion |
-| Praise-Question-Suggestion | Writing conferences, Socratic feedback conversations, all levels | Name a strength + Ask a question about a gap + Offer a specific suggestion |
-| Standards-Referenced | Standards-based grading systems, formal progress reporting | Rate each standard with evidence + Narrative explanation per standard |
-| Portfolio feedback | Capstone work, growth over time, self-reflection contexts | Trend analysis across pieces + Evidence of growth + Target for next portfolio cycle |
+| Framework                       | When to Use                                                                   | Structure                                                                           |
+| ------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| SBI (Situation-Behavior-Impact) | Individual detailed feedback, secondary and post-secondary, revision-oriented | Location + Observable Action + Effect                                               |
+| Glow and Grow                   | K-5, quick formative feedback, first draft work                               | One specific strength + One specific growth area                                    |
+| TAG (Tell-Ask-Give)             | Peer feedback structures, writing workshop, middle school                     | Tell a strength + Ask a thinking question + Give a suggestion                       |
+| Praise-Question-Suggestion      | Writing conferences, Socratic feedback conversations, all levels              | Name a strength + Ask a question about a gap + Offer a specific suggestion          |
+| Standards-Referenced            | Standards-based grading systems, formal progress reporting                    | Rate each standard with evidence + Narrative explanation per standard               |
+| Portfolio feedback              | Capstone work, growth over time, self-reflection contexts                     | Trend analysis across pieces + Evidence of growth + Target for next portfolio cycle |
 
 When the educator requests a specific framework, use that framework's structure exactly. When no framework is specified, use the judgment criteria above.
 
@@ -375,6 +381,7 @@ For report card comments, parent conference summaries, or any feedback that will
 **Grade Level / Subject:** 9th Grade Biology
 **Assignment:** Formal lab report documenting an osmosis experiment with potato cores in solutions of varying salt concentration. Includes: purpose, hypothesis, materials/methods, data table, analysis, and conclusion (approx. 600-800 words total).
 **Learning Objectives Assessed:**
+
 - Record experimental data accurately and present it in an organized data table
 - Analyze experimental results by explaining the mechanism causing the observed outcomes
 - Connect experimental observations to relevant biological theory (cell membrane structure, osmosis, tonicity)
@@ -393,31 +400,35 @@ Your lab report demonstrates real care in the experimental process -- your data 
 ### Strengths
 
 **Strength 1: Precise, well-organized data collection**
-- *Situation:* In your data table (Table 1, "Mass Change in Potato Cores by Solution Concentration")
-- *Behavior:* You recorded the before and after mass of each potato core to two decimal places, calculated the percentage change for each trial, and organized the data by ascending salt concentration.
-- *Impact:* This level of precision gives the analysis section everything it needs to work with. A reader can clearly see the trend -- that higher salt concentration correlates with greater mass loss -- without any ambiguity in the data. This meets and exceeds the data recording objective for this assignment.
+
+- _Situation:_ In your data table (Table 1, "Mass Change in Potato Cores by Solution Concentration")
+- _Behavior:_ You recorded the before and after mass of each potato core to two decimal places, calculated the percentage change for each trial, and organized the data by ascending salt concentration.
+- _Impact:_ This level of precision gives the analysis section everything it needs to work with. A reader can clearly see the trend -- that higher salt concentration correlates with greater mass loss -- without any ambiguity in the data. This meets and exceeds the data recording objective for this assignment.
 
 **Strength 2: Clear, testable hypothesis**
-- *Situation:* In your Purpose and Hypothesis section, paragraph 2
-- *Behavior:* You wrote, "If the concentration of the salt solution surrounding the potato core is higher than the concentration inside the potato cells, then the potato will lose mass because water will move out of the cells."
-- *Impact:* This hypothesis is specific, directional, and includes a mechanistic explanation ("water will move out of the cells"). It identifies both the independent variable (salt concentration) and the predicted direction of change (mass loss), which gives your analysis a clear claim to evaluate.
+
+- _Situation:_ In your Purpose and Hypothesis section, paragraph 2
+- _Behavior:_ You wrote, "If the concentration of the salt solution surrounding the potato core is higher than the concentration inside the potato cells, then the potato will lose mass because water will move out of the cells."
+- _Impact:_ This hypothesis is specific, directional, and includes a mechanistic explanation ("water will move out of the cells"). It identifies both the independent variable (salt concentration) and the predicted direction of change (mass loss), which gives your analysis a clear claim to evaluate.
 
 ---
 
 ### Areas for Growth
 
-**Growth Area 1: Analysis must explain the mechanism, not just describe the pattern** *(Priority)*
-- *Situation:* In your Analysis section, paragraphs 1-3
-- *Behavior:* You wrote, "The potato cores in higher salt solutions lost the most mass. The potato cores in distilled water gained the most mass. The potato cores in the 1% solution showed almost no change." All three sentences describe what happened, but the analysis stops there.
-- *Impact:* Describing the pattern is the first step in analysis, but not the final step. A reader looking at your data table can see the same pattern you described -- they already know what happened. What the analysis must explain is why it happened at the cellular level. Without the mechanistic explanation, the analysis does not meet the objective of connecting observations to explanatory theory.
-- *Next step:* For each observation you describe, add 2-3 sentences that explain the osmosis mechanism responsible for that observation. Use the vocabulary from the cell membrane unit: semipermeable membrane, concentration gradient, osmosis, hypotonic/hypertonic/isotonic, and net movement of water.
-- *Model:* Here is what the revised first paragraph could look like -- "The potato cores in higher salt solutions lost the most mass because the surrounding solution was hypertonic relative to the cells -- meaning the concentration of solutes was higher outside the cell than inside. Water molecules move by osmosis from areas of lower solute concentration to areas of higher solute concentration across the semipermeable cell membrane. As a result, water moved out of the potato cells and into the solution, reducing the mass of the core. This is consistent with the cell membrane's selective permeability: it allows water to pass freely while blocking larger solute molecules."
+**Growth Area 1: Analysis must explain the mechanism, not just describe the pattern** _(Priority)_
+
+- _Situation:_ In your Analysis section, paragraphs 1-3
+- _Behavior:_ You wrote, "The potato cores in higher salt solutions lost the most mass. The potato cores in distilled water gained the most mass. The potato cores in the 1% solution showed almost no change." All three sentences describe what happened, but the analysis stops there.
+- _Impact:_ Describing the pattern is the first step in analysis, but not the final step. A reader looking at your data table can see the same pattern you described -- they already know what happened. What the analysis must explain is why it happened at the cellular level. Without the mechanistic explanation, the analysis does not meet the objective of connecting observations to explanatory theory.
+- _Next step:_ For each observation you describe, add 2-3 sentences that explain the osmosis mechanism responsible for that observation. Use the vocabulary from the cell membrane unit: semipermeable membrane, concentration gradient, osmosis, hypotonic/hypertonic/isotonic, and net movement of water.
+- _Model:_ Here is what the revised first paragraph could look like -- "The potato cores in higher salt solutions lost the most mass because the surrounding solution was hypertonic relative to the cells -- meaning the concentration of solutes was higher outside the cell than inside. Water molecules move by osmosis from areas of lower solute concentration to areas of higher solute concentration across the semipermeable cell membrane. As a result, water moved out of the potato cells and into the solution, reducing the mass of the core. This is consistent with the cell membrane's selective permeability: it allows water to pass freely while blocking larger solute molecules."
 
 **Growth Area 2: Conclusion must evaluate the hypothesis and extend beyond the results**
-- *Situation:* In your Conclusion section, the full paragraph
-- *Behavior:* You wrote, "In conclusion, the experiment showed that potato cores in saltier solutions lost more mass. This means that osmosis was occurring. My hypothesis was correct."
-- *Impact:* This conclusion restates the results and states the hypothesis was supported, but does not go further. A strong conclusion evaluates the hypothesis with evidence ("My hypothesis was supported because the data showed X, which is consistent with the prediction that Y"), connects the finding to the broader biological principle, identifies at least one limitation of the experiment, and considers what a follow-up experiment might investigate. Currently, the conclusion does not demonstrate the level of scientific reasoning expected by the objective.
-- *Next step:* Revise the conclusion using this four-part structure: (1) State whether the hypothesis was supported or refuted and cite specific data as evidence. (2) Connect the finding to the broader concept -- what does this tell us about how osmosis works in living cells generally? (3) Identify one limitation of this specific experiment design (for example: were all potato cores cut from the same potato? Did temperature variation affect results?). (4) Pose one follow-up question -- something the data makes you curious about that this experiment could not answer.
+
+- _Situation:_ In your Conclusion section, the full paragraph
+- _Behavior:_ You wrote, "In conclusion, the experiment showed that potato cores in saltier solutions lost more mass. This means that osmosis was occurring. My hypothesis was correct."
+- _Impact:_ This conclusion restates the results and states the hypothesis was supported, but does not go further. A strong conclusion evaluates the hypothesis with evidence ("My hypothesis was supported because the data showed X, which is consistent with the prediction that Y"), connects the finding to the broader biological principle, identifies at least one limitation of the experiment, and considers what a follow-up experiment might investigate. Currently, the conclusion does not demonstrate the level of scientific reasoning expected by the objective.
+- _Next step:_ Revise the conclusion using this four-part structure: (1) State whether the hypothesis was supported or refuted and cite specific data as evidence. (2) Connect the finding to the broader concept -- what does this tell us about how osmosis works in living cells generally? (3) Identify one limitation of this specific experiment design (for example: were all potato cores cut from the same potato? Did temperature variation affect results?). (4) Pose one follow-up question -- something the data makes you curious about that this experiment could not answer.
 
 ---
 
@@ -438,18 +449,21 @@ Your lab report demonstrates real care in the experimental process -- your data 
 Use these sentence starters to construct additional SBI feedback efficiently. They are designed to be completed with specific details from the student's work.
 
 **For Strengths:**
+
 - "In [location], you [specific action], which [specific effect on quality or objective]."
 - "Your [named element] demonstrates [skill or understanding] because [observable evidence from the work]."
 - "The way you [specific action] in [location] shows mastery of [skill] -- specifically, [detail that proves it]."
 - "Your decision to [specific choice] was effective because [effect on reader, argument, accuracy, or objective]."
 
 **For Growth Areas:**
+
 - "In [location], I noticed [observable description]. This affects [quality dimension] because [explanation]. The next step is to [specific action]."
 - "Your [element] would be stronger if you [specific revision]. For example, you could [model or example]."
 - "Currently, [location] contains [observable description]. To meet the objective of [named objective], try [specific action], which will [expected improvement]."
 - "The gap between what you did and what the objective requires is [specific description]. The most direct path to close that gap is [step-by-step action]."
 
 **For Summative Conclusions:**
+
 - "Your strongest demonstrated skill in this assignment is [skill] -- you showed this by [specific evidence]. The skill to develop next is [skill], which you will encounter again in [future context]."
 - "This work demonstrates that you have mastered [objective]. The next level of growth is [named skill], which builds on what you have done here."
 
@@ -457,12 +471,12 @@ Use these sentence starters to construct additional SBI feedback efficiently. Th
 
 ### Feedback Framework Comparison
 
-| Framework | Structure | Best For | Grade Band |
-|-----------|-----------|----------|------------|
-| SBI (Situation-Behavior-Impact) | Location + Observable Action + Effect | Detailed individual feedback, revision-oriented | Grades 6-12, undergraduate |
-| Glow and Grow | One strength + One growth area | Quick formative feedback, first drafts, high-frequency feedback | Grades K-5 |
-| TAG (Tell-Ask-Give) | Tell a strength + Ask a thinking question + Give a suggestion | Peer feedback structures, writing workshop | Grades 4-8 |
-| Praise-Question-Suggestion | Strength + Question about a gap + Specific suggestion | Writing conferences, oral feedback conversations | All grades |
-| Standards-Referenced | Rating per standard + Narrative evidence per standard | Standards-based report cards, formal progress reporting | All grades |
-| Portfolio / Longitudinal | Trend analysis + Evidence of growth + Target for next cycle | Capstone work, growth portfolios, end-of-year narratives | Grades 3-12 |
-| Report Card Narrative | Name + Strength evidence + Growth area + Forward look | Parent communication, formal academic records | K-12 |
+| Framework                       | Structure                                                     | Best For                                                        | Grade Band                 |
+| ------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------- |
+| SBI (Situation-Behavior-Impact) | Location + Observable Action + Effect                         | Detailed individual feedback, revision-oriented                 | Grades 6-12, undergraduate |
+| Glow and Grow                   | One strength + One growth area                                | Quick formative feedback, first drafts, high-frequency feedback | Grades K-5                 |
+| TAG (Tell-Ask-Give)             | Tell a strength + Ask a thinking question + Give a suggestion | Peer feedback structures, writing workshop                      | Grades 4-8                 |
+| Praise-Question-Suggestion      | Strength + Question about a gap + Specific suggestion         | Writing conferences, oral feedback conversations                | All grades                 |
+| Standards-Referenced            | Rating per standard + Narrative evidence per standard         | Standards-based report cards, formal progress reporting         | All grades                 |
+| Portfolio / Longitudinal        | Trend analysis + Evidence of growth + Target for next cycle   | Capstone work, growth portfolios, end-of-year narratives        | Grades 3-12                |
+| Report Card Narrative           | Name + Strength evidence + Growth area + Forward look         | Parent communication, formal academic records                   | K-12                       |

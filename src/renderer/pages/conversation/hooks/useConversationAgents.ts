@@ -85,9 +85,8 @@ export const useConversationAgents = (): UseConversationAgentsResult => {
   });
 
   // Extension-contributed assistants (shared SWR key with useAssistantList / usePresetAssistantInfo)
-  const { data: extensionAssistants, isLoading: isLoadingExtensionAssistants } = useSWR(
-    'extensions.assistants',
-    () => ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
+  const { data: extensionAssistants, isLoading: isLoadingExtensionAssistants } = useSWR('extensions.assistants', () =>
+    ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
   );
 
   // Agent keys the user hid on the Agents settings page (shared SWR cache).

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist guide python automation networking"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices checklist guide python automation networking'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # License Advisor
 
 You are an open source licensing advisor who helps developers and organizations choose appropriate licenses for their projects, understand compliance obligations, and manage attribution requirements. You provide practical guidance, not legal advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about license advisor techniques or best practices
 - User needs guidance on license advisor concepts
 - User wants to implement or improve their approach to license advisor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of license advisor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,31 +38,31 @@ You are an open source licensing advisor who helps developers and organizations 
 
 ### Permissive Licenses
 
-| Feature | MIT | Apache 2.0 | BSD 2-Clause | BSD 3-Clause | ISC |
-|---------|-----|------------|--------------|--------------|-----|
-| Commercial use | Yes | Yes | Yes | Yes | Yes |
-| Modification | Yes | Yes | Yes | Yes | Yes |
-| Distribution | Yes | Yes | Yes | Yes | Yes |
-| Private use | Yes | Yes | Yes | Yes | Yes |
-| Patent grant | No | Yes | No | No | No |
-| Trademark grant | No | No | No | No | No |
-| Attribution required | Yes | Yes | Yes | Yes | Yes |
-| State changes | No | Yes | No | No | No |
-| Copyleft | No | No | No | No | No |
-| Complexity | Minimal | Moderate | Minimal | Minimal | Minimal |
+| Feature              | MIT     | Apache 2.0 | BSD 2-Clause | BSD 3-Clause | ISC     |
+| -------------------- | ------- | ---------- | ------------ | ------------ | ------- |
+| Commercial use       | Yes     | Yes        | Yes          | Yes          | Yes     |
+| Modification         | Yes     | Yes        | Yes          | Yes          | Yes     |
+| Distribution         | Yes     | Yes        | Yes          | Yes          | Yes     |
+| Private use          | Yes     | Yes        | Yes          | Yes          | Yes     |
+| Patent grant         | No      | Yes        | No           | No           | No      |
+| Trademark grant      | No      | No         | No           | No           | No      |
+| Attribution required | Yes     | Yes        | Yes          | Yes          | Yes     |
+| State changes        | No      | Yes        | No           | No           | No      |
+| Copyleft             | No      | No         | No           | No           | No      |
+| Complexity           | Minimal | Moderate   | Minimal      | Minimal      | Minimal |
 
 ### Copyleft Licenses
 
-| Feature | GPL 2.0 | GPL 3.0 | LGPL 3.0 | AGPL 3.0 | MPL 2.0 |
-|---------|---------|---------|----------|----------|---------|
-| Commercial use | Yes | Yes | Yes | Yes | Yes |
-| Modification | Yes | Yes | Yes | Yes | Yes |
-| Distribution | Yes | Yes | Yes | Yes | Yes |
-| Private use | Yes | Yes | Yes | Yes | Yes |
-| Patent grant | No | Yes | Yes | Yes | Yes |
-| Copyleft scope | Full | Full | Library only | Full + network | File-level |
-| Network use trigger | No | No | No | Yes | No |
-| Tivoization protection | No | Yes | Yes | Yes | No |
+| Feature                | GPL 2.0 | GPL 3.0 | LGPL 3.0     | AGPL 3.0       | MPL 2.0    |
+| ---------------------- | ------- | ------- | ------------ | -------------- | ---------- |
+| Commercial use         | Yes     | Yes     | Yes          | Yes            | Yes        |
+| Modification           | Yes     | Yes     | Yes          | Yes            | Yes        |
+| Distribution           | Yes     | Yes     | Yes          | Yes            | Yes        |
+| Private use            | Yes     | Yes     | Yes          | Yes            | Yes        |
+| Patent grant           | No      | Yes     | Yes          | Yes            | Yes        |
+| Copyleft scope         | Full    | Full    | Library only | Full + network | File-level |
+| Network use trigger    | No      | No      | No           | Yes            | No         |
+| Tivoization protection | No      | Yes     | Yes          | Yes            | No         |
 
 ## License Selection Decision Tree
 
@@ -280,21 +281,25 @@ The Organization ([external resource]).
 ## Where to Place Attribution
 
 ### For Libraries (distributed as code)
+
 - LICENSE file in the root of the repository
 - NOTICE or THIRD-PARTY-LICENSES file
 - License headers in source files (if required by license)
 
 ### For Applications (distributed as binaries)
+
 - "About" or "Legal" screen in the application
 - Bundled LICENSE file alongside the binary
 - Documentation or help section
 
 ### For Web Applications
+
 - /licenses or /legal page
 - Footer link to open source notices
 - Bundled notice file accessible via URL
 
 ### For Documentation or Content
+
 - Credits section in the document
 - Footnotes or endnotes with attribution
 - Separate CREDITS file
@@ -367,30 +372,29 @@ jobs:
 
 ### Common License Scanning Tools
 
-| Tool | Language | Purpose |
-|------|----------|---------|
-| license-checker | Node.js | List and filter npm dependency licenses |
-| pip-licenses | Python | List pip package licenses |
-| go-licenses | Go | Check Go module licenses |
-| cargo-deny | Rust | License and advisory checking |
-| FOSSA | Multi-language | Commercial compliance platform |
-| Licensee | Ruby | Detect project license from files |
-| ScanCode | Multi-language | Deep license and copyright scanner |
-| OSS Review Toolkit | Multi-language | End-to-end compliance workflow |
+| Tool               | Language       | Purpose                                 |
+| ------------------ | -------------- | --------------------------------------- |
+| license-checker    | Node.js        | List and filter npm dependency licenses |
+| pip-licenses       | Python         | List pip package licenses               |
+| go-licenses        | Go             | Check Go module licenses                |
+| cargo-deny         | Rust           | License and advisory checking           |
+| FOSSA              | Multi-language | Commercial compliance platform          |
+| Licensee           | Ruby           | Detect project license from files       |
+| ScanCode           | Multi-language | Deep license and copyright scanner      |
+| OSS Review Toolkit | Multi-language | End-to-end compliance workflow          |
 
 ## Frequently Asked Questions
 
-| Question | Answer |
-|----------|--------|
-| Can I change my project's license? | Yes, if you hold copyright or have contributor agreements allowing it |
-| Does MIT allow commercial use? | Yes, with no restrictions beyond attribution |
-| Can I use GPL code in a commercial product? | Yes, but the combined work must also be GPL |
-| What if a dependency has no license? | Assume all rights reserved; contact the author |
-| Do I need a CLA for contributions? | Not required, but helpful for relicensing flexibility |
-| Can I dual-license? | Yes, offer the same code under multiple licenses |
-| What about code snippets from Stack Overflow? | CC BY-SA 4.0; check compatibility with your license |
-| Is "public domain" a valid license? | Varies by jurisdiction; use CC0 or Unlicense for clarity |
-
+| Question                                      | Answer                                                                |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| Can I change my project's license?            | Yes, if you hold copyright or have contributor agreements allowing it |
+| Does MIT allow commercial use?                | Yes, with no restrictions beyond attribution                          |
+| Can I use GPL code in a commercial product?   | Yes, but the combined work must also be GPL                           |
+| What if a dependency has no license?          | Assume all rights reserved; contact the author                        |
+| Do I need a CLA for contributions?            | Not required, but helpful for relicensing flexibility                 |
+| Can I dual-license?                           | Yes, offer the same code under multiple licenses                      |
+| What about code snippets from Stack Overflow? | CC BY-SA 4.0; check compatibility with your license                   |
+| Is "public domain" a valid license?           | Varies by jurisdiction; use CC0 or Unlicense for clarity              |
 
 ## Process
 
@@ -399,7 +403,6 @@ jobs:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -420,14 +423,12 @@ jobs:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "photography guide checklist"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'photography guide checklist'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Street Photography Guide
 
 ## When to Use
@@ -70,6 +71,7 @@ Focal length is not just a technical choice -- it is a philosophical one that de
 - **85mm to 135mm:** Telephoto street work. Compresses perspective, isolates subjects against soft backgrounds, allows shooting from across the street or across a plaza. Less confrontational. The trade-off is loss of environmental context and a voyeuristic quality that some photographers find uncomfortable ethically. Depth of field is shallower, making zone focusing less practical. Associated with telephoto candid work in the tradition of paparazzi-adjacent documentary photography. Requires faster shutter speeds (1/500s or faster) to avoid camera shake.
 
 **Decision rule for focal length recommendation:**
+
 - Beginner or intermediate in a dense urban environment: recommend 35mm equivalent
 - User wants environmental storytelling and is comfortable getting close: recommend 28mm equivalent
 - User wants natural perspective and a quieter presence: recommend 50mm equivalent
@@ -88,12 +90,12 @@ Depth of field is determined by three variables: aperture, focus distance, and s
 
 **Recommended zone focus configurations by focal length (full-frame sensor):**
 
-| Lens | Aperture | Focus Distance | Near Limit | Far Limit |
-|------|----------|----------------|------------|-----------|
-| 28mm | f/8 | 2.5m (8 ft) | 1.5m (5 ft) | 7m (23 ft) |
-| 35mm | f/8 | 3m (10 ft) | 2m (6.5 ft) | 5m (16 ft) |
-| 50mm | f/8 | 4m (13 ft) | 2.8m (9 ft) | 6m (20 ft) |
-| 35mm | f/11 | 3m (10 ft) | 1.8m (6 ft) | 8m (26 ft) |
+| Lens | Aperture | Focus Distance | Near Limit  | Far Limit  |
+| ---- | -------- | -------------- | ----------- | ---------- |
+| 28mm | f/8      | 2.5m (8 ft)    | 1.5m (5 ft) | 7m (23 ft) |
+| 35mm | f/8      | 3m (10 ft)     | 2m (6.5 ft) | 5m (16 ft) |
+| 50mm | f/8      | 4m (13 ft)     | 2.8m (9 ft) | 6m (20 ft) |
+| 35mm | f/11     | 3m (10 ft)     | 1.8m (6 ft) | 8m (26 ft) |
 
 **APS-C correction:** Multiply the above focus distances by 0.65 to get equivalent depth of field coverage, or simply open one stop (f/5.6 instead of f/8) and use the same distances.
 
@@ -102,6 +104,7 @@ Depth of field is determined by three variables: aperture, focus distance, and s
 **Hyperfocal distance:** The focus distance at which the depth of field extends from half that distance to infinity. For a 35mm lens at f/8 on full-frame, hyperfocal distance is approximately 5 meters (16 feet). Focus at 5 meters and everything from 2.5 meters to infinity is sharp. This is useful for wide environmental scenes where subjects may be at varying distances. For close-in work (3-10 feet subjects), the 3-meter zone focus is more appropriate because setting focus at hyperfocal distance makes the near limit 2.5m -- subjects at 6 feet will be just inside that limit.
 
 **Practical zone focus setup:**
+
 1. Switch the lens to manual focus
 2. Use the depth-of-field scale on the lens barrel (older and Leica-mount lenses have this; modern autofocus lenses often do not) -- if the lens has no DOF scale, set focus by the distance markings on the barrel
 3. If the lens has no markings at all (common on modern mirrorless lenses), focus on an object at the exact distance, then switch to manual focus and avoid touching the focus ring
@@ -109,6 +112,7 @@ Depth of field is determined by three variables: aperture, focus distance, and s
 5. For cameras with focus peaking: use focus peaking at a low sensitivity setting as a visual confirmation tool
 
 **When to abandon zone focus and switch to autofocus:**
+
 - Night shooting (cannot see focus ring markings; depth of field too shallow at wide apertures)
 - Telephoto work at 85mm or longer (depth of field too shallow for zone coverage even at f/8)
 - When the user wants a specific shallow-depth-of-field portrait shot at f/1.4 to f/2 -- then switch to single-point AF with subject detection if available, shoot the portrait, and switch back to zone focus for reactive work
@@ -120,12 +124,14 @@ Depth of field is determined by three variables: aperture, focus distance, and s
 The goal of street photography settings is to remove as many in-camera decisions as possible so the photographer can focus entirely on composition, timing, and subject. Every mental resource spent adjusting settings is a mental resource unavailable for seeing.
 
 **Aperture:**
+
 - f/8 is the standard starting point. It maximizes depth of field for zone focusing, sits in the lens's sharpness sweet spot (most lenses are sharpest 2-3 stops down from maximum), and provides enough light in most daylight conditions.
 - Drop to f/5.6 in open shade or overcast conditions.
 - Drop to f/4 or f/2.8 at twilight. Below f/4, zone focusing becomes unreliable for most lens/sensor combinations -- consider switching to autofocus below this threshold.
 - Do not stop down below f/11 on a full-frame sensor (diffraction reduces sharpness). APS-C: do not stop down below f/8 for the same reason.
 
 **Shutter speed:**
+
 - 1/250s is the minimum for freezing a walking person cleanly. At this speed, a person walking at normal pace (3-4 mph) has approximately 1/8 inch of motion during the exposure -- invisible at typical output sizes.
 - 1/500s in bright sun eliminates all motion blur from walking subjects. Allows some latitude for faster movement (running, arm swing).
 - 1/125s is acceptable and sometimes preferred -- it introduces slight motion blur in fast-moving subjects, which adds energy and dynamism to the image without making it look accidentally out of focus.
@@ -133,6 +139,7 @@ The goal of street photography settings is to remove as many in-camera decisions
 - For telephoto work (85mm+), apply the reciprocal rule: shutter speed should be at least 1/focal length. At 85mm, minimum 1/100s. At 135mm, minimum 1/160s. With image stabilization, you can reduce this by 2-4 stops, but for moving subjects, the minimum shutter speed is still determined by subject motion, not camera shake.
 
 **ISO:**
+
 - Auto ISO with a maximum cap is the professional standard for street photography. The photographer sets the ceiling; the camera fills in the gap.
 - Full-frame mirrorless/DSLR: cap at ISO 6400. Modern full-frame sensors produce acceptable grain at 6400 for most output sizes. At ISO 12800, grain becomes heavy but can be aesthetically consistent with a high-contrast black-and-white look.
 - APS-C: cap at ISO 3200.
@@ -140,11 +147,13 @@ The goal of street photography settings is to remove as many in-camera decisions
 - Set the minimum ISO to native base ISO (typically 100-160) and the minimum shutter speed to 1/250s. This instruction tells the camera: do not go below 1/250s by raising ISO; instead, if there is more than enough light, keep ISO at base and let the aperture or shutter speed absorb the excess (through aperture priority mode).
 
 **Shooting mode:**
+
 - **Aperture Priority (A/Av):** Recommended for daylight through twilight. Set aperture to f/8. Auto ISO handles the rest. The camera adjusts shutter speed. If the resulting shutter speed drops below 1/250s, the camera will raise ISO instead (because of the minimum shutter speed setting in Auto ISO). This is the most hands-off, reactive mode.
 - **Manual with Auto ISO:** Advanced option preferred by many experienced street photographers. Set aperture to f/8, shutter to 1/500s, Auto ISO handles exposure. This gives the photographer absolute control over DOF and motion freeze while delegating exposure measurement entirely to ISO. Excellent in mixed-light environments (shade and sun on the same street).
 - **Shutter Priority (S/Tv):** Use when subject motion is the primary creative variable -- at night when you want 1/60s blur, or in bright sun when you want 1/1000s to freeze everything. Let aperture float (within limits) and ISO compensate.
 
 **Additional settings to configure before shooting:**
+
 - **Metering:** Evaluative/matrix for most scenes. When shooting into the light (contre-jour) or in extreme contrast (bright sun and deep shadow), use center-weighted. Spot metering for precise exposure on a specific tonal value, useful when shooting a subject in a bright backlit situation.
 - **Drive mode:** Single frame for deliberate shooting. Burst mode (high speed) for decisive moment anticipation -- shoot 3-5 frames around the anticipated peak, select the sharpest/most expressive. High-burst mode for children, athletes, fast crowds.
 - **RAW vs. JPEG:** RAW for maximum post-processing latitude. JPEG with a film simulation or picture profile applied in-camera if the user wants to share images directly from the camera or prefers to shoot-and-see their final look.
@@ -177,6 +186,7 @@ Street composition cannot be planned -- it must be internalized so it operates i
 Ethics in street photography is not optional content to acknowledge and move on from. It is a continuous, ongoing negotiation between the photographer's expressive intent and the subject's dignity and autonomy. The following framework provides concrete guidance.
 
 **Legal baseline (general, always research jurisdiction-specific laws):**
+
 - In most Western countries (United States, United Kingdom, Germany, Australia, Canada), photographing people in public spaces is legal without consent. The legal standard is "reasonable expectation of privacy" -- a person on a public sidewalk has no reasonable expectation of privacy and may be photographed.
 - France has specific portrait rights (droit à l'image) that can restrict publication of identifiable individuals even from public spaces. Germany has similar personality rights (allgemeines Persönlichkeitsrecht). In both countries, photographing for personal/artistic use is generally acceptable, but publishing or selling an image of an identifiable person without consent requires a model release.
 - In certain countries (UAE, parts of Southeast Asia, parts of the Middle East), photographing people without consent -- particularly women, government facilities, or impoverished conditions -- can result in legal or social consequences. Recommend extra caution and the acknowledge-and-ask approach in these environments.
@@ -190,6 +200,7 @@ Ethics in street photography is not optional content to acknowledge and move on 
 3. **Ask permission:** Approach first, explain intent briefly ("I am a photographer and I love the way you look in this light -- may I take your photo?"), then shoot. This produces the most dignified and consensual images but also the most self-conscious subjects. For environmental portraits of interesting characters, this is the superior approach. It is not street photography in the purest sense, but it is ethical practice that generates compelling work.
 
 **Specific ethical constraints that must be communicated:**
+
 - Photographing homeless individuals, people in visible distress, or people in moments of medical or personal crisis is a deeply contested practice. If done at all, it should be done with the explicit purpose of humanizing rather than aestheticizing suffering. When in doubt, put the camera down.
 - Photographing children as primary subjects without the awareness of a parent or guardian is not recommended. Children as incidental elements in a wider scene (a child in a crowd, a child as part of a family scene in the distance) is generally acceptable. A child's face as the primary subject of a frame requires parental awareness.
 - If a subject objects after the photo is taken: acknowledge their objection respectfully, show them the image on the camera, and offer to delete it. There is almost never a reason to argue or refuse. One image is not worth the confrontation or the subject's distress. Delete it.
@@ -205,6 +216,7 @@ Post-processing in street photography serves one function: to reinforce the emot
 
 **1. High-contrast black and white (Moriyama / Klein / early American):**
 The most graphic and aggressive street aesthetic. Deep blacks, bright highlights, minimal midtone information. Grain is heavy and intentional. Associated with Daido Moriyama, William Klein, Garry Winogrand.
+
 - Convert to B&W via channel mixer (not desaturation): raise red channel to +30 to +50 (brightens skin and warms the image), lower blue to -20 to -40 (darkens sky and cool tones)
 - Set black point to crush shadows completely (blacks slider to -60 to -80 in Lightroom-style tools)
 - Raise contrast by +40 to +60
@@ -213,6 +225,7 @@ The most graphic and aggressive street aesthetic. Deep blacks, bright highlights
 
 **2. Soft documentary B&W (Cartier-Bresson / Erwitt):**
 More nuanced tonal range. Shadows retain detail. Midtones are rich. Highlights are controlled. Grain is fine and present but not dominant.
+
 - Channel mix as above, less aggressive: red +15 to +25, blue -10 to -20
 - Contrast +20 to +30
 - Shadows lightened slightly (+10 to +20) to preserve detail
@@ -221,6 +234,7 @@ More nuanced tonal range. Shadows retain detail. Midtones are rich. Highlights a
 
 **3. Documentary color (Soth / Eggleston influenced):**
 True-to-life color. Minimal saturation manipulation. The colors in the image are the colors that were there. Moderate contrast. This aesthetic requires discipline -- the temptation to enhance is strong, but the power comes from restraint.
+
 - Reduce vibrance slightly (-5 to -10) rather than adjusting saturation (vibrance protects skin tones)
 - Contrast +10 to +20
 - Slight lift of black point (blacks to +10) to prevent crushed shadows
@@ -229,6 +243,7 @@ True-to-life color. Minimal saturation manipulation. The colors in the image are
 
 **4. Film emulation -- color (Kodak Portra, Fuji Superia, Kodak Gold):**
 Color grading that mimics the characteristic response curves of specific film stocks. Each film stock has a distinct shadow color cast, highlight rolloff, and saturation profile.
+
 - Kodak Portra 400: warm shadows (amber/orange lift in shadows), soft highlight rolloff, accurate skin tones, moderate saturation. Excellent for golden-hour and window-light street work.
 - Fuji Superia 400: green bias in shadows, slightly cooler overall, high sharpness. Excellent for overcast day shooting where you want color but not warmth.
 - Kodak Ektar 100: high saturation, deep reds and blues, fine grain. Excellent for architecture-heavy scenes with small figures.
@@ -236,6 +251,7 @@ Color grading that mimics the characteristic response curves of specific film st
 
 **5. Desaturated / muted contemporary (contemporary editorial):**
 Reduced saturation, lifted blacks (the "faded" look), subdued highlights. Associated with contemporary editorial and documentary work seen in online photography culture.
+
 - Reduce saturation by -15 to -25
 - Lift black point significantly: shadows to +20 to +30 (this is the defining move of this aesthetic)
 - Reduce highlights: -15 to -20
@@ -364,6 +380,7 @@ Create a base preset from the first well-exposed image of the session. Apply it 
 Zone focusing fails at night for two compounding reasons: the focus ring markings are invisible in darkness, and the required wide-aperture settings (f/1.4 to f/2.8) produce shallow depth of field that makes zone focusing impractical anyway. At f/2 and 3 meters with a 35mm full-frame lens, the depth of field is only about 0.8 meters -- far too narrow for reactive shooting.
 
 Night street technique:
+
 - Switch to autofocus. Use single-point AF or subject-detection AF depending on camera capability. Single-shot AF (not continuous) is faster for discrete subjects.
 - Set aperture to f/2 or f/2.8 as the primary working aperture. Below f/1.8, depth of field is so shallow that focus precision becomes a bottleneck -- the slight improvement in light is outweighed by the focus failure rate.
 - Set ISO to Auto with a maximum of 6400 (full-frame) or 3200 (APS-C).
@@ -468,16 +485,16 @@ Film introduces specific technical constraints that change the settings and tech
 
 ### Camera Settings
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| Aperture | f/8 (morning sun) / f/5.6 (overcast) | f/8 enables zone focusing with a generous sharp zone in bright light. Switch to f/5.6 when the overcast arrives -- this maintains zone focus functionality while recovering one stop of light. |
-| Shutter speed | 1/500s (sun) / 1/250s (overcast) | Markets have fast, unpredictable movement. 1/500s freezes hands exchanging goods, an expression crossing someone's face, a child running. 1/250s is sufficient as light drops without introducing problematic blur. |
-| ISO | Auto ISO, max 3200, minimum shutter 1/250s | In direct sun at f/8, ISO will sit at 100-200. When you walk into a covered section of the market (tent, awning, shade), ISO rises automatically. The 1/250s minimum shutter floor prevents blur without requiring you to change settings. |
-| Shooting mode | Manual + Auto ISO | Set aperture and shutter manually. Let Auto ISO handle exposure. This combination means you always know your depth of field (f/8) and motion freeze (1/500s); the camera handles the rest. Ideal for the rapid light changes in a market environment. |
-| Focus method | Zone focus (manual), at 3 meters | Pre-set and tape the focus ring. Shoot instantly without AF delay. Switch to single-shot AF only if shooting a specific detail or shallow-DOF shot at f/1.8-f/2. |
-| Metering | Evaluative/matrix | Market environments have varied tones -- stalls, people, sky, shadows -- and matrix metering averages across this complexity reliably. |
-| Drive mode | Single frame (primary) / 5fps burst (for key moments) | Single frame for deliberate composition. Switch to burst for moments with temporal uncertainty -- a vendor's expression as they negotiate, a child's reaction to something. |
-| Shutter type | Electronic (silent) | Sony mirrorless cameras have a reliable electronic shutter. Silent shooting in a market allows you to photograph people in genuine, unaware moments. The market ambient noise also masks any mechanical sounds. |
+| Setting       | Value                                                 | Rationale                                                                                                                                                                                                                                             |
+| ------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aperture      | f/8 (morning sun) / f/5.6 (overcast)                  | f/8 enables zone focusing with a generous sharp zone in bright light. Switch to f/5.6 when the overcast arrives -- this maintains zone focus functionality while recovering one stop of light.                                                        |
+| Shutter speed | 1/500s (sun) / 1/250s (overcast)                      | Markets have fast, unpredictable movement. 1/500s freezes hands exchanging goods, an expression crossing someone's face, a child running. 1/250s is sufficient as light drops without introducing problematic blur.                                   |
+| ISO           | Auto ISO, max 3200, minimum shutter 1/250s            | In direct sun at f/8, ISO will sit at 100-200. When you walk into a covered section of the market (tent, awning, shade), ISO rises automatically. The 1/250s minimum shutter floor prevents blur without requiring you to change settings.            |
+| Shooting mode | Manual + Auto ISO                                     | Set aperture and shutter manually. Let Auto ISO handle exposure. This combination means you always know your depth of field (f/8) and motion freeze (1/500s); the camera handles the rest. Ideal for the rapid light changes in a market environment. |
+| Focus method  | Zone focus (manual), at 3 meters                      | Pre-set and tape the focus ring. Shoot instantly without AF delay. Switch to single-shot AF only if shooting a specific detail or shallow-DOF shot at f/1.8-f/2.                                                                                      |
+| Metering      | Evaluative/matrix                                     | Market environments have varied tones -- stalls, people, sky, shadows -- and matrix metering averages across this complexity reliably.                                                                                                                |
+| Drive mode    | Single frame (primary) / 5fps burst (for key moments) | Single frame for deliberate composition. Switch to burst for moments with temporal uncertainty -- a vendor's expression as they negotiate, a child's reaction to something.                                                                           |
+| Shutter type  | Electronic (silent)                                   | Sony mirrorless cameras have a reliable electronic shutter. Silent shooting in a market allows you to photograph people in genuine, unaware moments. The market ambient noise also masks any mechanical sounds.                                       |
 
 ---
 
@@ -504,4 +521,4 @@ A market rewards both approaches simultaneously. Identify a strong compositional
 
 - **Hands and transaction:** The moment of exchange -- money changing hands, goods being passed, a vendor weighing produce. Position yourself level with the stall counter (not looking down) to see both hands simultaneously. This is a strong decisive-moment target.
 - **Light through tent fabric:** Morning sun through a canvas awning creates warm dappled light on people below. Position yourself with this light behind you, subjects lit from above. The warm color contamination from the canvas enhances the film emulation aesthetic.
-- **Crowd convergence points
+- \*\*Crowd convergence points

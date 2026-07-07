@@ -51,7 +51,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
     const phone = phoneNumber.trim();
     if (!phone) {
       Message.warning(
-        t('settings.channels.signal.credentials.phoneNumber.required', 'Please enter your Signal phone number'),
+        t('settings.channels.signal.credentials.phoneNumber.required', 'Please enter your Signal phone number')
       );
       return;
     }
@@ -59,8 +59,8 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
       Message.warning(
         t(
           'settings.channels.signal.credentials.phoneNumber.invalid',
-          'Phone number must be in E.164 format, e.g. +14155551234',
-        ),
+          'Phone number must be in E.164 format, e.g. +14155551234'
+        )
       );
       return;
     }
@@ -79,8 +79,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.signal.connectionFailed', 'Signal connection test failed'),
+          testResult.data?.error ?? t('settings.channels.signal.connectionFailed', 'Signal connection test failed')
         );
         return;
       }
@@ -102,9 +101,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
           onStatusChange(statusResult.data.find((p) => p.type === 'signal') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.signal.enableFailed', 'Failed to enable Signal plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.signal.enableFailed', 'Failed to enable Signal plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -121,7 +118,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
           <span className='text-12px'>
             {t(
               'settings.channels.signal.replaceWarning',
-              'Connecting a new Signal account will replace your existing one.',
+              'Connecting a new Signal account will replace your existing one.'
             )}
           </span>
         </div>
@@ -131,16 +128,13 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.signal.credentials.phoneNumber.label', 'Phone Number')}
         description={t(
           'settings.channels.signal.credentials.phoneNumber.help',
-          'E.164 format - must be registered with Signal. A dedicated number is recommended.',
+          'E.164 format - must be registered with Signal. A dedicated number is recommended.'
         )}
       >
         <Input
           value={phoneNumber}
           onChange={setPhoneNumber}
-          placeholder={t(
-            'settings.channels.signal.credentials.phoneNumber.placeholder',
-            '+14155551234',
-          )}
+          placeholder={t('settings.channels.signal.credentials.phoneNumber.placeholder', '+14155551234')}
           style={{ width: 220 }}
         />
       </PreferenceRow>
@@ -148,7 +142,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.signal.captchaHint',
-          'If registration fails with "CaptchaRequired", visit https://signalcaptchas.org/registration/generate.html and pass --captcha <token> to signal-cli register.',
+          'If registration fails with "CaptchaRequired", visit https://signalcaptchas.org/registration/generate.html and pass --captcha <token> to signal-cli register.'
         )}
       </div>
 
@@ -156,16 +150,13 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.signal.credentials.cliPath.label', 'signal-cli path (optional)')}
         description={t(
           'settings.channels.signal.credentials.cliPath.help',
-          'Leave blank to use the bundled runtime or the signal-cli on your PATH.',
+          'Leave blank to use the bundled runtime or the signal-cli on your PATH.'
         )}
       >
         <Input
           value={cliPath}
           onChange={setCliPath}
-          placeholder={t(
-            'settings.channels.signal.credentials.cliPath.placeholder',
-            '/usr/local/bin/signal-cli',
-          )}
+          placeholder={t('settings.channels.signal.credentials.cliPath.placeholder', '/usr/local/bin/signal-cli')}
           style={{ width: 220 }}
         />
       </PreferenceRow>
@@ -175,7 +166,7 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
           'settings.channels.signal.installHowTo',
           'signal-cli must be installed separately if the bundled runtime is not present. ' +
             'Install via: brew install signal-cli  |  apt-get install signal-cli. ' +
-            'After installing, register your number: signal-cli -a +1… register',
+            'After installing, register your number: signal-cli -a +1… register'
         )}
       </div>
 
@@ -188,12 +179,11 @@ const SignalConfigForm: React.FC<SignalConfigFormProps> = ({ pluginStatus, model
         <span className='text-12px text-t-tertiary'>
           {t(
             'settings.channels.signal.howToTalk',
-            'Open Signal and check your Note to Self chat. Wayland just said hi there; reply to chat.',
+            'Open Signal and check your Note to Self chat. Wayland just said hi there; reply to chat.'
           )}
         </span>
       )}
       <ChannelAgentModelSelector platform='signal' modelSelection={modelSelection} />
-
     </div>
   );
 };

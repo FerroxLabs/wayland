@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices clean-code guide"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices clean-code guide'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Clean Code
@@ -67,18 +67,19 @@ if (days > MAX_INACTIVE_DAYS) { ... }
 
 ### Naming by Type
 
-| Type | Convention | Examples |
-|------|-----------|---------|
-| Boolean | Phrase as question | `isActive`, `hasPermission`, `canEdit`, `shouldRetry` |
-| Function | Verb + noun | `calculateTotal`, `sendEmail`, `validateInput` |
-| Predicate function | `is`/`has`/`can` | `isExpired()`, `hasAccess()`, `canProceed()` |
-| Collection | Plural noun | `users`, `orderItems`, `activeConnections` |
-| Count | `_count` or `num_` | `retryCount`, `numAttempts` |
-| Class | Noun | `UserRepository`, `PaymentProcessor`, `OrderValidator` |
-| Interface | Adjective or noun | `Serializable`, `Repository`, `EventHandler` |
-| Constant | UPPER_SNAKE_CASE | `MAX_RETRIES`, `DEFAULT_TIMEOUT_MS` |
+| Type               | Convention         | Examples                                               |
+| ------------------ | ------------------ | ------------------------------------------------------ |
+| Boolean            | Phrase as question | `isActive`, `hasPermission`, `canEdit`, `shouldRetry`  |
+| Function           | Verb + noun        | `calculateTotal`, `sendEmail`, `validateInput`         |
+| Predicate function | `is`/`has`/`can`   | `isExpired()`, `hasAccess()`, `canProceed()`           |
+| Collection         | Plural noun        | `users`, `orderItems`, `activeConnections`             |
+| Count              | `_count` or `num_` | `retryCount`, `numAttempts`                            |
+| Class              | Noun               | `UserRepository`, `PaymentProcessor`, `OrderValidator` |
+| Interface          | Adjective or noun  | `Serializable`, `Repository`, `EventHandler`           |
+| Constant           | UPPER_SNAKE_CASE   | `MAX_RETRIES`, `DEFAULT_TIMEOUT_MS`                    |
 
 ### Naming Anti-Patterns
+
 - **Meaningless prefixes**: `IUserService`, `AbstractBaseFactory`. Let the language features speak.
 - **Type in name**: `userList`, `nameString`. The type system handles this.
 - **Noise words**: `data`, `info`, `manager`, `handler`, `processor`. These add length without meaning.
@@ -288,9 +289,11 @@ service = OrderService(db)
 ## DRY vs WET Tradeoffs
 
 ### DRY (Don't Repeat Yourself)
+
 Eliminate duplication of **knowledge** (not just code). If a business rule is expressed in two places, it will inevitably diverge.
 
 ### When DRY Goes Wrong
+
 ```python
 # Over-DRY: shared utility for unrelated things
 def format_thing(thing, type):
@@ -305,6 +308,7 @@ def format_thing(thing, type):
 This function couples three unrelated formatters. When user formatting changes, you risk breaking product formatting.
 
 ### WET (Write Everything Twice) Rule
+
 Allow duplication until you have 3+ instances. Then abstract. This prevents premature abstraction.
 
 ```python
@@ -317,6 +321,7 @@ def validate_email(email): ...
 ```
 
 ### The Abstraction Test
+
 Before extracting shared code, ask: **If one caller needs a change, would ALL callers need the same change?**
 
 - Yes: Extract the shared code (real duplication).
@@ -325,12 +330,14 @@ Before extracting shared code, ask: **If one caller needs a change, would ALL ca
 ## Code Organization
 
 ### File Structure Principles
+
 1. **Group by feature, not by type** (prefer `user/controller.ts`, `user/model.ts` over `controllers/user.ts`, `models/user.ts`).
 2. **Put related code close together.** Functions that call each other should be in the same file or adjacent files.
 3. **Newspaper metaphor**: High-level functions at the top, low-level details at the bottom. Readers scan top-down.
 4. **One concept per file.** A file with 3 unrelated classes should be 3 files.
 
 ### Vertical Formatting
+
 - **Caller above callee.** A function should be defined below the function that calls it.
 - **Related concepts close together.** Do not separate related functions with unrelated ones.
 - **Blank lines between concepts.** Group related statements. Separate logical sections.
@@ -338,6 +345,7 @@ Before extracting shared code, ask: **If one caller needs a change, would ALL ca
 ## Complexity Metrics
 
 ### Cyclomatic Complexity
+
 Count the number of independent paths through a function.
 
 ```python
@@ -356,15 +364,18 @@ def process(order):                           # +1 base
 ```
 
 **Targets**:
+
 - 1-5: Simple, low risk.
 - 6-10: Moderate, consider refactoring.
 - 11-20: Complex, refactor.
 - 21+: Untestable. Refactor immediately.
 
 ### Cognitive Complexity
+
 Measures how hard code is to understand (Sonar metric). Penalizes nesting more heavily than branching.
 
 ### Halstead Metrics
+
 - **Program length**: Total number of operators and operands.
 - **Vocabulary**: Number of distinct operators and operands.
 - **Difficulty**: How error-prone the code is.
@@ -389,6 +400,7 @@ When reviewing code through a clean code lens:
 ## Comments
 
 ### Good Comments
+
 ```python
 # Compensate for browser's non-standard handling of leap seconds
 adjusted_time = timestamp + LEAP_SECOND_OFFSET
@@ -400,6 +412,7 @@ discount = calculate_discount(subtotal)
 ```
 
 ### Bad Comments (Replace with Better Code)
+
 ```python
 # Bad: restating the code
 i += 1  # increment i
@@ -422,7 +435,9 @@ if (condition) {
 ```
 
 ### The Best Comment is No Comment
+
 If you feel the need to comment, first try to express the same information through:
+
 1. A better variable name.
 2. A better function name.
 3. Extracting a well-named function.
@@ -433,6 +448,7 @@ If the code still needs a comment after trying all four, write the comment. Expl
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing clean code solutions
 - Reviewing or improving existing clean code approaches
 - Making architectural or implementation decisions about clean code
@@ -440,6 +456,7 @@ If the code still needs a comment after trying all four, write the comment. Expl
 - Troubleshooting clean code-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -450,21 +467,26 @@ If the code still needs a comment after trying all four, write the comment. Expl
 # Clean Code Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

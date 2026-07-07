@@ -126,7 +126,10 @@ describe('NostrPlugin reconnect backoff - single relay', () => {
           url = url;
           send = vi.fn();
           terminate = vi.fn();
-          removeAllListeners = vi.fn(() => { EventEmitter.prototype.removeAllListeners.call(this); return this; });
+          removeAllListeners = vi.fn(() => {
+            EventEmitter.prototype.removeAllListeners.call(this);
+            return this;
+          });
         }
         const inst = new FakeWs2();
         wsInstances.push(inst as unknown as InstanceType<typeof MockWs>);
@@ -167,7 +170,10 @@ describe('NostrPlugin reconnect backoff - single relay', () => {
           url = url;
           send = vi.fn();
           terminate = vi.fn();
-          removeAllListeners = vi.fn(() => { EventEmitter.prototype.removeAllListeners.call(this); return this; });
+          removeAllListeners = vi.fn(() => {
+            EventEmitter.prototype.removeAllListeners.call(this);
+            return this;
+          });
         }
         const inst = new FakeWs3();
         wsInstances.push(inst as unknown as InstanceType<typeof MockWs>);
@@ -247,7 +253,10 @@ describe('NostrPlugin reconnect backoff - multi-relay partial failure', () => {
           url = url;
           send = vi.fn();
           terminate = vi.fn();
-          removeAllListeners = vi.fn(() => { EventEmitter.prototype.removeAllListeners.call(this); return this; });
+          removeAllListeners = vi.fn(() => {
+            EventEmitter.prototype.removeAllListeners.call(this);
+            return this;
+          });
         }
         const inst = new FailWs();
         wsInstances.push(inst as unknown as InstanceType<typeof MockWs>);

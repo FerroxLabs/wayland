@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing guide"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing guide'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Clarity Editing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to make text clearer, easier to understand, less confusing, or more readable for a specific audience -- including phrases like "make this make sense," "simplify this," "my readers keep asking what I mean," or "this is too hard to follow"
 - The user has received feedback that their writing is unclear, dense, ambiguous, or hard to follow, and wants to address the clarity failures specifically
 - The user is writing for an audience that does not share their level of expertise (technical writer communicating to executives, researcher writing for policymakers, clinician writing patient-facing materials)
@@ -29,6 +31,7 @@ metadata:
 - The user wants a diagnostic scan of their document to identify where clarity breaks down, even if they will do the revisions themselves
 
 **Do NOT use this skill when:**
+
 - The user wants to shorten or tighten the text without changing the clarity problem -- use `conciseness-editing` (though note that clarity edits frequently produce shorter text as a byproduct)
 - The user wants to reorganize sections, add headings, change the order of arguments, or restructure the document's architecture -- use `structural-editing`
 - The user wants to shift from formal to conversational tone, change the emotional register, or adjust the voice -- use `tone-adjustment`
@@ -58,12 +61,14 @@ Before diagnosing or editing, gather three parameters. If the user has not provi
 Scan the text systematically for each of the six categories of clarity failure. Do not read once and intuit -- run each category as a separate pass. The categories are distinct and easy to miss when scanning for all problems simultaneously.
 
 **Category 1: Ambiguous Reference**
+
 - Pronoun with multiple possible antecedents ("After the board reviewed the committee's report, they were satisfied" -- who was satisfied?)
 - "This," "that," "it," "these," "those" at the start of a sentence with no clear single referent ("This led to significant delays" -- what is "this"?)
 - Modifier attachment ambiguity ("We are looking for developers with experience in Python who are self-motivated" -- is self-motivation a requirement, or a preference, and does it modify the whole clause or just the Python requirement?)
 - Scope ambiguity in negation ("Not all vendors were notified of the change in time" -- does "in time" modify when they were notified, or is it a softener meaning some were never notified?)
 
 **Category 2: Convoluted Syntax**
+
 - Sentences where the subject and main verb are separated by more than 12 words. Count them.
 - Sentences with more than three levels of embedding (a clause within a clause within a clause)
 - Sentences exceeding 40 words that carry more than one logical proposition. Sentences of 20--25 words are optimal for complex information; 25--35 requires deliberate parallel structure to remain readable; over 35 without strong parallelism almost always requires breaking.
@@ -71,6 +76,7 @@ Scan the text systematically for each of the six categories of clarity failure. 
 - Left-branching sentences that front-load qualifications before stating the main point ("Although, in light of the previously discussed constraints and given the regulatory environment that pertains in markets where the product is currently sold, the timeline may require adjustment, the core deliverable remains unchanged")
 
 **Category 3: Undefined or Mis-Calibrated Jargon**
+
 - Technical terms used without definition for a non-specialist audience
 - Acronyms expanded only on second use, or not expanded at all
 - Terms that have one meaning in the field and a different common meaning in everyday English ("significant" means statistically tested in research; in everyday English it means "important" -- these are not the same)
@@ -78,18 +84,21 @@ Scan the text systematically for each of the six categories of clarity failure. 
 - False familiarity: assuming the reader knows a term because it has appeared in the industry for years, when the actual reader population may not know it
 
 **Category 4: Logical Gaps**
+
 - Missing causal connectors: two facts are stated but the relationship between them is not stated ("The server load increased 40%. The deployment was rolled back." -- was the rollback caused by the load? Related? Coincident?)
 - Unstated warrants: the argument moves from evidence to conclusion without stating the principle that connects them ("Patient compliance was below 70%. The treatment failed." -- this assumes a 70% threshold is clinically established, but that assumption is invisible to a non-specialist reader)
 - Missing transition: a paragraph ends on one topic and the next begins on another with no bridge
 - Conclusion that does not follow from stated premises -- this is a logical failure that looks like a clarity failure and must be handled carefully (see Edge Cases)
 
 **Category 5: Abstraction Overload**
+
 - More than two consecutive abstract statements without a concrete example, analogy, or illustration
 - Concepts defined in terms of other abstract concepts, creating a chain of abstraction with no grounding
 - Passive constructions that remove the agent and make causation abstract ("Mistakes were made," "Costs were reduced," "A decision was reached" -- by whom?)
 - Heavy nominalization clusters that make the text feel abstract even when the underlying idea is concrete ("the optimization of resource allocation strategies" vs. "allocating resources more efficiently")
 
 **Category 6: Garden-Path and Misparsing Traps**
+
 - Sentences where the reader naturally parses the beginning one way and must reparse after reading the full sentence ("The horse raced past the barn fell" is the textbook example; real-world equivalents appear constantly in business and technical writing)
 - Reduced relative clauses that create temporary ambiguity ("The proposal rejected by the committee was later resubmitted" -- is "rejected" a past tense verb or a participial modifier? Most readers will parse it wrong on first read)
 - Parallel structure that breaks mid-sentence, derailing the reader's expectation ("We need to hire quickly, train thoroughly, and the onboarding process should be streamlined")
@@ -114,33 +123,39 @@ Create a working list of all flagged items by category and tier before making a 
 Each clarity failure category has specific repair techniques. Apply the right technique to the right problem -- do not apply a generic "rewrite this sentence" approach.
 
 **Ambiguous reference repairs:**
+
 - Replace ambiguous pronouns with the specific noun, even if it feels repetitive. Repetition is clearer than ambiguity. ("After the board reviewed the committee's report, the board was satisfied.")
 - For "this/that/it" at the start of a sentence, insert a noun immediately after: "This decision led to..." or "This increase in server load led to..." not "This led to..."
 - For modifier attachment ambiguity, recast the sentence so the modified element is adjacent to its modifier or use a relative clause to make the attachment explicit
 
 **Convoluted syntax repairs:**
+
 - Apply the "one proposition per sentence" rule to sentences over 35 words. Count the logical propositions and split accordingly. The logical relationship between the split sentences must be stated explicitly using a connector (because, therefore, however, as a result, in contrast -- not left implicit).
 - Move subjects and verbs to the front. Left-branch qualifications should become separate preceding sentences or trailing dependent clauses, not front-loaded subordinate clauses.
 - Unstack noun phrases by adding prepositions and relative clauses: "the system performance degradation mitigation strategy implementation team" becomes "the team implementing the strategy to address system performance degradation"
 - Fix broken parallel structure by making all items in a list grammatically identical (all nouns, all infinitives, all gerunds -- choose one and enforce it)
 
 **Jargon repairs:**
+
 - For undefined jargon, apply the parenthetical-on-first-use rule: introduce the full term and a plain-language gloss in parentheses, then use the term freely. Do not re-gloss on subsequent uses -- it is patronizing.
 - For acronyms, spell out on first use with the abbreviation in parentheses, then use the abbreviation.
 - For terms with dual meanings (e.g., "significant," "random," "theory," "error"), flag the specialized meaning explicitly when the audience is non-specialist: "statistically significant (meaning the result is unlikely to be due to chance)"
 - For nominalizations, convert to verb form when the nominalization obscures agency or makes the sentence abstract: "implementation of the solution" -> "we implemented the solution"
 
 **Logical gap repairs:**
+
 - Add the missing causal connector between two juxtaposed facts. If you are not certain of the causal relationship, do not invent one -- flag it for the user to confirm before adding.
 - Add the missing warrant as a brief embedded clause: "Because patient compliance below 70% has been shown to reduce efficacy in similar interventions, the treatment failed."
 - Add the missing transition sentence between paragraphs. A good transition sentence restates the conclusion of the previous paragraph and states the question that the next paragraph answers.
 
 **Abstraction overload repairs:**
+
 - After every two consecutive abstract statements, add a concrete example using the formula "For example," or "In practice, this means..." or "To illustrate:"
 - Convert passive constructions to active where the agent matters: "Costs were reduced by 20%" becomes "The operations team reduced costs by 20%"
 - When a concept is defined in terms of other abstractions, find the concrete bottom of the chain. What does this actually look like when you see it happening?
 
 **Garden-path and misparse repairs:**
+
 - Add "that" after verbs that introduce relative clauses when its absence causes misparse: "The proposal that the committee rejected was later resubmitted"
 - Restore full relative clauses: "the proposal rejected by the committee" -> "the proposal that the committee rejected"
 - Fix broken parallel structure by identifying the implicit pattern and making it explicit throughout
@@ -160,6 +175,7 @@ After editing, run three checks before delivering output.
 ### Step 6: Produce the Tracked-Change Output
 
 Present clarity edits using a consistent tracked-change format (see Output Format below). For each edit:
+
 - Identify the location (sentence number, paragraph, or quoted fragment)
 - State the category of clarity failure
 - Show the original text
@@ -174,6 +190,7 @@ Then present the full edited document with all changes incorporated.
 ### Step 7: Provide a Clarity Audit Summary
 
 After showing all tracked changes and the full edited document, provide a summary that:
+
 - Lists the count of each type of clarity failure found
 - States the estimated Flesch-Kincaid grade level before and after (or a qualitative estimate if FK calculation is not possible)
 - Identifies any unfixed problems (areas that require the user's judgment because fixing would require changing content)
@@ -334,6 +351,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ### Tracked Changes
 
 #### Change 1: Convoluted Syntax -- Severity Tier 1
+
 **Location:** Entire passage (single 122-word sentence)
 **Original:** [the entire paragraph is one sentence with six embedded technical concepts connected by commas, dashes, and a single subordinating clause]
 **Revised:** Split into five sentences, each carrying one logical proposition: (1) what we are doing, (2) what technical approach enables it, (3) what we are doing with the database, (4) the timeline and cost outcome, (5) what the cost projection depends on
@@ -343,6 +361,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 2: Undefined Jargon -- "legacy monolith to a distributed microservices architecture" -- Severity Tier 1
+
 **Location:** Opening clause
 **Original:** "migration from the legacy monolith to a distributed microservices architecture"
 **Revised:** "replacing our current all-in-one software system with a set of smaller, independent components"
@@ -352,6 +371,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 3: Undefined Jargon -- "containerization via Docker and orchestration through Kubernetes" -- Severity Tier 1
+
 **Location:** Second embedded clause
 **Original:** "leverages containerization via Docker and orchestration through Kubernetes to achieve horizontal scalability"
 **Revised:** "packaging each component so it can run independently and scale automatically when demand increases"
@@ -361,6 +381,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 4: Undefined Jargon -- "service mesh implementation using Istio enabling inter-service communication security and observability" -- Severity Tier 1
+
 **Location:** Third embedded clause following the comma after "horizontal scalability"
 **Original:** "with service mesh implementation using Istio enabling inter-service communication security and observability"
 **Revised:** "built-in monitoring and security controls between components"
@@ -370,6 +391,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 5: Undefined Jargon -- "polyglot persistence approach utilizing Redis for caching, Cassandra for time-series write loads, and the retained PostgreSQL core for transactional integrity" -- Severity Tier 1
+
 **Location:** Following the em-dash
 **Original:** "a polyglot persistence approach -- utilizing Redis for caching, Cassandra for time-series write loads, and the retained PostgreSQL core for transactional integrity"
 **Revised:** "using specialized data storage tools optimized for different types of data -- one for rapid temporary lookups, one for high-volume time-stamped records, and the existing database for financial and transactional records"
@@ -379,6 +401,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 6: Logical Gap -- relationship between technical changes and cost reduction -- Severity Tier 1
+
 **Location:** Between the technical description and the "23% TCO reduction" claim
 **Original:** [technical changes described] "...has been scoped to 18 months with an estimated TCO reduction of 23% by year 3"
 **Revised:** Added the causal bridge: "Because each component can scale independently instead of the whole system scaling together, infrastructure costs drop as usage patterns vary. This is projected to reduce total technology operating costs by 23% by year 3."
@@ -388,6 +411,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 7: Ambiguous Reference -- "contingent upon successful completion of the foundational infrastructure buildout" -- Severity Tier 2
+
 **Location:** Final clause
 **Original:** "contingent upon successful completion of the foundational infrastructure buildout in Q1 and Q2"
 **Revised:** "This projection assumes the infrastructure setup work in Q1 and Q2 is completed on schedule. If that work is delayed, the 23% cost reduction timeline shifts accordingly."
@@ -397,6 +421,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 8: Abstraction Overload -- "TCO reduction" -- Severity Tier 2
+
 **Location:** Penultimate clause
 **Original:** "estimated TCO reduction of 23% by year 3"
 **Revised:** "23% reduction in total technology operating costs by year 3"
@@ -406,6 +431,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 9: Convoluted Syntax -- subject-verb distance -- Severity Tier 2
+
 **Location:** "the phased deprecation of the existing PostgreSQL instance in favor of a polyglot persistence approach...has been scoped to 18 months"
 **Original:** Subject ("the phased deprecation...") and verb ("has been scoped") are separated by 22 words and an embedded parenthetical list
 **Revised:** Broken into: (1) sentence describing what is happening to the database, (2) separate sentence with the timeline and scope
@@ -415,6 +441,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 10: Garden-Path Trap -- "phased deprecation" -- Severity Tier 2
+
 **Location:** After the em-dash
 **Original:** "phased deprecation of the existing PostgreSQL instance"
 **Revised:** "a planned, gradual retirement of the existing database"
@@ -424,6 +451,7 @@ Sometimes a user asks for clarity editing on text that has already been through 
 ---
 
 #### Change 11: Passive Construction Obscuring Agency -- Severity Tier 3
+
 **Location:** "has been scoped to 18 months"
 **Original:** "has been scoped to 18 months"
 **Revised:** "The engineering team has scoped the full migration at 18 months"
@@ -434,25 +462,27 @@ Sometimes a user asks for clarity editing on text that has already been through 
 
 ### Clarity Audit Summary
 
-| Clarity Failure Category     | Issues Found | Issues Fixed | Unfixed (Requires User Judgment) |
-|------------------------------|:------------:|:------------:|:--------------------------------:|
-| Ambiguous reference           |      1       |      1       |               0                  |
-| Convoluted syntax             |      2       |      2       |               0                  |
-| Undefined/mis-calibrated jargon |    6       |      6       |               0                  |
-| Logical gap                   |      1       |      1       |               0                  |
-| Abstraction overload          |      1       |      1       |               0                  |
-| Garden-path / misparse        |      1       |      1       |               0                  |
-| Passive (agency obscured)     |      1       |      1       |               0                  |
-| **Total**                     |    **13**    |    **13**    |             **0**                |
+| Clarity Failure Category        | Issues Found | Issues Fixed | Unfixed (Requires User Judgment) |
+| ------------------------------- | :----------: | :----------: | :------------------------------: |
+| Ambiguous reference             |      1       |      1       |                0                 |
+| Convoluted syntax               |      2       |      2       |                0                 |
+| Undefined/mis-calibrated jargon |      6       |      6       |                0                 |
+| Logical gap                     |      1       |      1       |                0                 |
+| Abstraction overload            |      1       |      1       |                0                 |
+| Garden-path / misparse          |      1       |      1       |                0                 |
+| Passive (agency obscured)       |      1       |      1       |                0                 |
+| **Total**                       |    **13**    |    **13**    |              **0**               |
 
 **Readability before:** Grade 18+ (one 122-word sentence; no plain-language anchors; six undefined technical terms)
 **Readability after:** Grade 9--10 (five sentences averaging 22 words; all technical terms replaced or glossed; causal logic explicit)
 
 **Unfixed issues requiring user input:**
+
 - Change 11 assumes the engineering team scoped the 18-month estimate. If a different party (external consultant, vendor, PMO) created this estimate, the revised sentence should name that party instead. Confirm the agent before finalizing.
 - The 23% TCO reduction figure is cited as an estimate. If there is a confidence interval or a range (e.g., 18--28%), adding it would be more accurate for a budget decision. This is a content decision, not a clarity fix.
 
 **Priority recommendations if partial implementation:**
+
 1. Split the single 122-word sentence into multiple sentences (Change 1) -- this alone improves readability by more than any other single edit
 2. Replace the five undefined technical terms (Changes 2--5) -- these are the terms most likely to cause misparse or to make the VP feel unable to evaluate the request
 3. Add the causal bridge between technical changes and cost reduction (Change 6) -- without this, the budget case is incomplete

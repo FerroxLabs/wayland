@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan step-by-step guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan step-by-step guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Differentiated Instruction
 
 ## When to Use
@@ -78,6 +79,7 @@ Tomlinson's framework identifies four differentiation dimensions. Attempting all
 Apply Tomlinson's DI framework with Bloom's Taxonomy as the cognitive scaffold. Each tier must be a coherent, complete activity -- not a stripped-down or padded version of another tier.
 
 **Tier 3: Advanced / Extended Learners**
+
 - Elevate the Bloom's level -- if Tier 2 operates at Analyze, Tier 3 operates at Evaluate or Create
 - Increase **abstraction**: move from concrete to conceptual, from single-context to cross-context, from known scenarios to novel or ambiguous ones
 - Increase **open-endedness**: replace closed tasks with problems that have multiple valid solutions or require the student to frame the question, not just answer it
@@ -87,12 +89,14 @@ Apply Tomlinson's DI framework with Bloom's Taxonomy as the cognitive scaffold. 
 - Avoid "more of the same" at all costs: 25 math problems instead of 12 is not advanced differentiation; a proof, a generalization, or a real-world application problem is
 
 **Tier 2: On-Grade / Core Learners**
+
 - This is the base lesson as designed for the majority of students
 - Ensure the Tier 2 activity genuinely reflects the grade-level standard and sits at the Apply or Analyze level of Bloom's -- if the original lesson was too low (rote memorization) or too high, flag this to the teacher
 - Tier 2 should include **guided practice with clear instructions**, structured feedback loops, and an opportunity for peer collaboration
 - Do not over-scaffold Tier 2 by instinct -- on-grade students often perform better with moderate challenge and agency than with excessive support
 
 **Tier 1: Support-Needed / Scaffolded Learners**
+
 - Maintain the same **conceptual core** as Tier 2 -- the goal is access, not a reduced curriculum
 - Use named, specific scaffolds: graphic organizers with labeled sections, word banks with definitions and example sentences, sentence starters (not just sentence frames -- starters with the first half of the sentence), partially completed models, annotated examples, visual step-by-step process guides
 - Chunk multi-step instructions into single-step directions, one per page or card if possible
@@ -142,20 +146,20 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 **Grade/Level:** [Grade and subject]
 **Primary Standard(s):** [Exact standard code(s) and text]
 **Core Objective (All Tiers):** [The non-negotiable learning target in measurable terms --
-  all tiers must achieve this]
+all tiers must achieve this]
 **Differentiation Dimension(s):** [Process / Product / Content / Environment -- select
-  the dimension(s) applied]
+the dimension(s) applied]
 **Lesson Duration:** [Total minutes available]
 
 ---
 
 ### Learner Population Summary
 
-| Tier | Number of Students | Special Populations in This Tier |
-|------|-------------------|----------------------------------|
-| Tier 3: Advanced/Extended | [n] | [Gifted designation, dual-exceptionality, etc.] |
-| Tier 2: On-Grade/Core | [n] | [General education, any IEP students at grade level] |
-| Tier 1: Support-Needed | [n] | [ELL levels, IEP categories, below-grade readers] |
+| Tier                      | Number of Students | Special Populations in This Tier                     |
+| ------------------------- | ------------------ | ---------------------------------------------------- |
+| Tier 3: Advanced/Extended | [n]                | [Gifted designation, dual-exceptionality, etc.]      |
+| Tier 2: On-Grade/Core     | [n]                | [General education, any IEP students at grade level] |
+| Tier 1: Support-Needed    | [n]                | [ELL levels, IEP categories, below-grade readers]    |
 
 ---
 
@@ -163,9 +167,9 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Essential Question:** [The big conceptual question all students answer through this lesson]
 **Bloom's Level for Tier 2 (baseline):** [Remember / Understand / Apply / Analyze /
-  Evaluate / Create]
+Evaluate / Create]
 **Prerequisite Knowledge Required:** [What students must already know to access
-  this lesson at any tier]
+this lesson at any tier]
 
 ---
 
@@ -176,20 +180,23 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Differentiation Rationale:**
 [1-2 sentences explaining WHY this specific extension is appropriate -- what cognitive
-  demand is added and how it connects to the core concept]
+demand is added and how it connects to the core concept]
 
 **Scaffolds Removed (vs. Tier 2):**
+
 - [Name the Tier 2 scaffold that Tier 3 does not receive and why]
 
 **Activity Description:**
 [Complete, step-by-step description of what the student does, what materials they have,
-  how long it takes, and what their product looks like at the end]
+how long it takes, and what their product looks like at the end]
 
 **Specific Materials Needed:**
+
 - [Item 1 -- e.g., scenario cards with specific content described]
 - [Item 2]
 
 **Assessment:**
+
 - Criteria: [Specific criteria with point values]
 - Format: [How the student submits or presents their work]
 - Total points: [X]
@@ -206,18 +213,21 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Activity Description:**
 [Complete description of the standard activity -- this should match the original lesson
-  with any necessary clarifications]
+with any necessary clarifications]
 
 **Specific Materials Needed:**
+
 - [Item 1]
 - [Item 2]
 
 **Guided Practice Structure:**
+
 - [Modeling phase: what the teacher demonstrates and for how long]
 - [Practice phase: what students do independently or in pairs]
 - [Check-in point: at what moment the teacher circulates and what they look for]
 
 **Assessment:**
+
 - Criteria: [Specific criteria with point values]
 - Format: [How the student demonstrates mastery]
 - Total points: [X]
@@ -231,34 +241,38 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Differentiation Rationale:**
 [1-2 sentences explaining the primary barrier being addressed and the primary scaffold
-  being applied]
+being applied]
 
 **Scaffolds Provided:**
 
-| Scaffold Type | Specific Scaffold | Fading Plan |
-|---------------|-------------------|-------------|
-| Vocabulary | [e.g., Word bank with 8 terms, each with a definition and example sentence] | [Remove definitions after 3 lessons with 85%+ accuracy] |
-| Structural | [e.g., Graphic organizer with headers pre-filled and first example row completed] | [Remove pre-filled example after 2 lessons] |
-| Linguistic | [e.g., Sentence starters: "This process causes ___ because ___"] | [Replace with sentence frames, then remove at WIDA Level 5] |
-| Procedural | [e.g., Step-by-step instruction card with one step per card, numbered] | [Student self-selects which steps they still need after first independent attempt] |
+| Scaffold Type | Specific Scaffold                                                                 | Fading Plan                                                                        |
+| ------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Vocabulary    | [e.g., Word bank with 8 terms, each with a definition and example sentence]       | [Remove definitions after 3 lessons with 85%+ accuracy]                            |
+| Structural    | [e.g., Graphic organizer with headers pre-filled and first example row completed] | [Remove pre-filled example after 2 lessons]                                        |
+| Linguistic    | [e.g., Sentence starters: "This process causes ___ because ___"]                  | [Replace with sentence frames, then remove at WIDA Level 5]                        |
+| Procedural    | [e.g., Step-by-step instruction card with one step per card, numbered]            | [Student self-selects which steps they still need after first independent attempt] |
 
 **Activity Description:**
 [Complete, step-by-step description of the scaffolded activity -- same concept as Tier 2,
-  accessed through scaffolds]
+accessed through scaffolds]
 
 **Specific Materials Needed:**
+
 - [Item 1]
 - [Item 2]
 
 **ELL-Specific Additions (if applicable):**
+
 - [Language scaffold 1 by WIDA level]
 - [Language scaffold 2]
 
 **IEP/504 Accommodation Overlays (if applicable):**
+
 - [Accommodation 1 -- e.g., extended time: allow 15 additional minutes beyond class period]
 - [Accommodation 2]
 
 **Assessment:**
+
 - Criteria: [Same core concept measured; format modified for accessibility]
 - Format: [How the student demonstrates mastery with scaffolds intact]
 - Total points: [X -- note if scoring rubric is modified from Tier 2]
@@ -267,13 +281,13 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 ### UDL Alignment Summary
 
-| UDL Guideline | Tier 3 Implementation | Tier 2 Implementation | Tier 1 Implementation |
-|---------------|----------------------|----------------------|----------------------|
-| Representation: Multiple formats | [Specific modalities used] | [Specific modalities used] | [Specific modalities used] |
-| Representation: Language & symbols | [How academic language is addressed] | [How academic language is addressed] | [Vocabulary/glossary supports] |
-| Action & Expression: Options for response | [Response format available] | [Response format available] | [Response format available] |
-| Engagement: Relevance & authenticity | [Real-world connection] | [Real-world connection] | [Real-world connection] |
-| Engagement: Challenge & support | [How challenge is calibrated] | [How challenge is calibrated] | [How support prevents frustration] |
+| UDL Guideline                             | Tier 3 Implementation                | Tier 2 Implementation                | Tier 1 Implementation              |
+| ----------------------------------------- | ------------------------------------ | ------------------------------------ | ---------------------------------- |
+| Representation: Multiple formats          | [Specific modalities used]           | [Specific modalities used]           | [Specific modalities used]         |
+| Representation: Language & symbols        | [How academic language is addressed] | [How academic language is addressed] | [Vocabulary/glossary supports]     |
+| Action & Expression: Options for response | [Response format available]          | [Response format available]          | [Response format available]        |
+| Engagement: Relevance & authenticity      | [Real-world connection]              | [Real-world connection]              | [Real-world connection]            |
+| Engagement: Challenge & support           | [How challenge is calibrated]        | [How challenge is calibrated]        | [How support prevents frustration] |
 
 ---
 
@@ -281,13 +295,14 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Grouping Strategy:**
 [Specific grouping configuration -- who works with whom, whether groups are homogeneous
-  or heterogeneous, and for which parts of the lesson]
+or heterogeneous, and for which parts of the lesson]
 
 **Materials Distribution (without signaling ability levels):**
 [Specific method -- e.g., color-coded folders with student names, choice board posted on
-  board, pre-placed at seats, digital LMS assignment by roster section]
+board, pre-placed at seats, digital LMS assignment by roster section]
 
 **Pacing and Transitions:**
+
 - [0-X minutes]: [What all students do -- launch, hook, or direct instruction]
 - [X-Y minutes]: [When tiered activities begin -- what each tier is doing simultaneously]
 - [Y-Z minutes]: [Closure structure -- how tiers reconvene or share]
@@ -296,12 +311,14 @@ The differentiation guide is only useful if a teacher can implement it on a regu
   optional]
 
 **Mid-Lesson Progress Monitoring:**
+
 - Check-in prompt at [X minutes]: [Specific question or task the teacher uses to gauge
   tier-fit -- observable in 30 seconds per student]
 - End-of-lesson exit ticket (all tiers): [Single prompt that every student answers in
   the same format -- allows cross-tier comparison]
 
 **Tier Re-Placement Criteria:**
+
 - Move UP from Tier 1 to Tier 2 when: [Observable, measurable criterion across
   2-3 lessons]
 - Move DOWN from Tier 2 to Tier 1 when: [Observable, measurable criterion across
@@ -310,7 +327,7 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 **Flexible Grouping Note:**
 [Which upcoming lessons this differentiation should be revisited for -- tier placement
-  should be fluid, not permanent]
+should be fluid, not permanent]
 ```
 
 ---
@@ -321,7 +338,7 @@ The differentiation guide is only useful if a teacher can implement it on a regu
 
 2. **Bloom's level must demonstrably increase from Tier 2 to Tier 3.** If Tier 2 is at Apply, Tier 3 must reach Analyze, Evaluate, or Create. Adding more items at the same cognitive level (20 problems instead of 10, a longer essay, additional research) is quantity inflation, not differentiation. Name the Bloom's level for each tier explicitly.
 
-3. **Every scaffold must be named with specificity.** "Provide support" and "offer guidance" are not scaffolds. Acceptable scaffold descriptions include: "word bank of 10 terms with definitions in student-friendly language and an example sentence for each," "graphic organizer with the central concept pre-labeled and three evidence boxes numbered 1-3," "sentence starter: 'One piece of evidence that supports this is ___, which shows that ___'." The specificity is what makes the scaffold usable by a substitute or paraprofessional.
+3. **Every scaffold must be named with specificity.** "Provide support" and "offer guidance" are not scaffolds. Acceptable scaffold descriptions include: "word bank of 10 terms with definitions in student-friendly language and an example sentence for each," "graphic organizer with the central concept pre-labeled and three evidence boxes numbered 1-3," "sentence starter: 'One piece of evidence that supports this is **_, which shows that _**'." The specificity is what makes the scaffold usable by a substitute or paraprofessional.
 
 4. **Every scaffold must include a fading plan.** Scaffolds without fading plans create dependency. The fading plan must be observable (not "when the student is ready") and criterion-referenced (e.g., "remove the word bank when the student uses all 10 terms correctly in context across 3 independent writing tasks").
 
@@ -398,11 +415,11 @@ Student self-selection works well when combined with a structured, low-stakes sy
 
 ### Learner Population Summary
 
-| Tier | Number of Students | Special Populations in This Tier |
-|------|-------------------|----------------------------------|
-| Tier 3: Advanced/Extended | 6 | 2 dual-enrollment candidates |
-| Tier 2: On-Grade/Core | 16 | General education |
-| Tier 1: Support-Needed | 6 | 3 ELL (WIDA 2, 3, 4); 2 IEP/written expression; 1 below-grade reader |
+| Tier                      | Number of Students | Special Populations in This Tier                                     |
+| ------------------------- | ------------------ | -------------------------------------------------------------------- |
+| Tier 3: Advanced/Extended | 6                  | 2 dual-enrollment candidates                                         |
+| Tier 2: On-Grade/Core     | 16                 | General education                                                    |
+| Tier 1: Support-Needed    | 6                  | 3 ELL (WIDA 2, 3, 4); 2 IEP/written expression; 1 below-grade reader |
 
 ---
 
@@ -426,6 +443,7 @@ Student self-selection works well when combined with a structured, low-stakes sy
 Identifying a single theme and supporting it with two quotes is an Analyze-level task that advanced readers can complete without meaningful challenge. Asking students to hold two themes in tension, weigh their relative centrality, and construct an argument introduces Evaluate-level thinking -- students must apply criteria (author's purpose, frequency of development, resolution at the novel's end) to make a judgment, not just describe.
 
 **Scaffolds Removed (vs. Tier 2):**
+
 - No provided theme list -- Tier 3 students generate their own theme statements from scratch
 - No graphic organizer for organizing evidence -- students design their own organizational structure
 - No sentence starters of any kind
@@ -434,11 +452,13 @@ Identifying a single theme and supporting it with two quotes is an Analyze-level
 Students receive the Tier 3 task card: "Hinton is doing more than one thing thematically in this novel. Choose two themes you believe she is developing simultaneously (e.g., class division + the cost of violence, OR loyalty + the futility of cycles of revenge). Write a structured analytical paragraph for each theme (8-10 sentences each), then write a concluding 4-6 sentence argument for which theme is more central to Hinton's purpose. Your argument must reference at least four distinct pieces of textual evidence total, drawn from at least three different chapters. Use specific page numbers." Students work independently for 30 minutes. At the 20-minute mark, students swap drafts with their Tier 3 partner for a 5-minute peer review focused on one question: "Did the writer prove which theme is more central, or just describe both themes equally?" Revision continues for 5 minutes.
 
 **Specific Materials Needed:**
+
 - Tier 3 task card (described above)
 - Their annotated copy of The Outsiders
 - No additional materials provided
 
 **Assessment:**
+
 - Theme 1 paragraph: accurate theme statement as universal claim (2 pts), 2 pieces of evidence correctly cited with page numbers (2 pts), analysis explaining how each piece develops the theme (2 pts) -- subtotal 6 pts
 - Theme 2 paragraph: same criteria -- subtotal 6 pts
 - Argument paragraph: clear claim about which theme is more central (2 pts), criterion-based reasoning (not just "I think") explaining why (3 pts), evidence-linked to the argument (2 pts) -- subtotal 7 pts
@@ -456,19 +476,22 @@ Students who complete all three paragraphs with time remaining find one passage 
 **Objective:** Identify a theme in The Outsiders and support it with two pieces of specific textual evidence, explaining in each case how the evidence develops the theme.
 
 **Activity Description:**
-The teacher opens with a 5-minute whole-class reminder of the theme vs. topic distinction using one teacher-modeled example on the board (topic: "loyalty"; theme statement: "True loyalty demands sacrifice of personal safety"). The teacher models writing the first sentence of an analytical paragraph aloud ("In S.E. Hinton's The Outsiders, the theme that _____ is developed through...") then releases students. Students receive the Tier 2 graphic organizer (one box for their theme statement written as a complete sentence, two evidence boxes each containing sub-prompts: "Exact quote or paraphrase," "Chapter and page number," "What this shows about the theme"). After completing the graphic organizer (approximately 15 minutes), students use it to write a single analytical paragraph (6-8 sentences). Paragraph structure: topic sentence stating the theme → evidence 1 introduction → evidence 1 quote or paraphrase → analysis of evidence 1 → evidence 2 introduction → evidence 2 quote or paraphrase → analysis of evidence 2 → closing sentence. Students work independently; they may quietly consult a partner only for the question "does this count as theme or topic?"
+The teacher opens with a 5-minute whole-class reminder of the theme vs. topic distinction using one teacher-modeled example on the board (topic: "loyalty"; theme statement: "True loyalty demands sacrifice of personal safety"). The teacher models writing the first sentence of an analytical paragraph aloud ("In S.E. Hinton's The Outsiders, the theme that **\_** is developed through...") then releases students. Students receive the Tier 2 graphic organizer (one box for their theme statement written as a complete sentence, two evidence boxes each containing sub-prompts: "Exact quote or paraphrase," "Chapter and page number," "What this shows about the theme"). After completing the graphic organizer (approximately 15 minutes), students use it to write a single analytical paragraph (6-8 sentences). Paragraph structure: topic sentence stating the theme → evidence 1 introduction → evidence 1 quote or paraphrase → analysis of evidence 1 → evidence 2 introduction → evidence 2 quote or paraphrase → analysis of evidence 2 → closing sentence. Students work independently; they may quietly consult a partner only for the question "does this count as theme or topic?"
 
 **Specific Materials Needed:**
+
 - Tier 2 graphic organizer (described above -- can be a half-sheet)
 - Their copy of The Outsiders
 - Paragraph structure reminder posted on board or included at the bottom of the graphic organizer
 
 **Guided Practice Structure:**
+
 - Modeling phase (5 minutes): Teacher writes topic vs. theme example on board, models first sentence of analytical paragraph
 - Practice phase (25 minutes): Students complete graphic organizer (15 min) then write paragraph (10 min)
 - Check-in at minute 20: Teacher circulates and reads each student's theme statement -- if a student wrote a topic instead of a theme, the teacher asks one question: "What does Hinton seem to be saying about [topic] -- what does it mean for human beings?"
 
 **Assessment:**
+
 - Theme statement written as a universal claim, not a topic (2 pts)
 - Evidence 1: specific, accurate quote or paraphrase with citation (2 pts)
 - Analysis 1: at least one sentence explaining how the evidence develops the theme (2 pts)
@@ -490,17 +513,18 @@ The primary barriers for this group are (a) generating a theme statement as a co
 
 **Scaffolds Provided:**
 
-| Scaffold Type | Specific Scaffold | Fading Plan |
-|---------------|-------------------|-------------|
-| Conceptual entry | Theme menu: 5 complete theme statements from The Outsiders written as universal claims (e.g., "People who society rejects often find belonging in unexpected communities") -- students choose one or write their own if ready | Remove theme menu after student independently generates an accurate theme statement for 2 consecutive tasks |
-| Structural | Graphic organizer identical to Tier 2's but with first sub-prompt completed as a model: Evidence Box 1 contains a pre-filled example ("In Chapter 5, when Ponyboy recites poetry to Johnny, Hinton shows...") which students read and then complete Evidence Box 2 independently | Remove the pre-filled example after 3 lessons with 85%+ accuracy on evidence selection |
-| Linguistic | Sentence starters for each paragraph component: Topic sentence: "In The Outsiders, S.E. Hinton develops the theme that _____ through the experiences of her characters." Analysis starters: "This shows the theme because ___" and "Hinton uses this moment to show that ___" | Replace full starters with frames (blanks only, no stem) after student uses starters correctly for 4 consecutive writing tasks |
-| Procedural | Step-by-step task card: (1) Choose a theme from the menu. (2) Find one moment in the book that shows this theme. (3) Write the quote or write what happened in your own words. (4) Use the analysis starter to explain the connection. (5) Repeat for a second moment. (6) Connect your boxes into a paragraph using the sentence starters. | Student self-removes cards they no longer need |
+| Scaffold Type    | Specific Scaffold                                                                                                                                                                                                                                                                                                                           | Fading Plan                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Conceptual entry | Theme menu: 5 complete theme statements from The Outsiders written as universal claims (e.g., "People who society rejects often find belonging in unexpected communities") -- students choose one or write their own if ready                                                                                                               | Remove theme menu after student independently generates an accurate theme statement for 2 consecutive tasks                    |
+| Structural       | Graphic organizer identical to Tier 2's but with first sub-prompt completed as a model: Evidence Box 1 contains a pre-filled example ("In Chapter 5, when Ponyboy recites poetry to Johnny, Hinton shows...") which students read and then complete Evidence Box 2 independently                                                            | Remove the pre-filled example after 3 lessons with 85%+ accuracy on evidence selection                                         |
+| Linguistic       | Sentence starters for each paragraph component: Topic sentence: "In The Outsiders, S.E. Hinton develops the theme that **\_** through the experiences of her characters." Analysis starters: "This shows the theme because **_" and "Hinton uses this moment to show that _**"                                                              | Replace full starters with frames (blanks only, no stem) after student uses starters correctly for 4 consecutive writing tasks |
+| Procedural       | Step-by-step task card: (1) Choose a theme from the menu. (2) Find one moment in the book that shows this theme. (3) Write the quote or write what happened in your own words. (4) Use the analysis starter to explain the connection. (5) Repeat for a second moment. (6) Connect your boxes into a paragraph using the sentence starters. | Student self-removes cards they no longer need                                                                                 |
 
 **Activity Description:**
 Students receive the Tier 1 packet containing: the theme menu (5 theme statements plus a blank for student-generated themes), the scaffold graphic organizer with one pre-filled evidence example, and the step-by-step task card. The teacher spends 3 minutes at the Tier 1 table during the first 5 minutes of independent work to launch the task (confirm each student understands which theme they chose and can identify at least one place in the book where that theme appears). Students work independently through the graphic organizer using their copy of The Outsiders. The goal is completing both evidence boxes and both analysis starters before the period ends. If a student completes the graphic organizer, they attempt to write the paragraph using the sentence starters. The paragraph is not required if they cannot finish -- the graphic organizer alone is assessed.
 
 **Specific Materials Needed:**
+
 - Tier 1 packet: theme menu, scaffolded graphic organizer, step-by-step task card
 - Their copy of The Outsiders with any prior annotations
 - Sticky notes for marking relevant pages before writing
@@ -517,6 +541,7 @@ Students receive the Tier 1 packet containing: the theme menu (5 theme statement
 - If a student with a written expression IEP has an aide/scribe assigned, the scribe writes exactly what the student dictates -- the scribe does not add analytical language.
 
 **Assessment:**
+
 - Theme statement selected or written as a universal claim (2 pts -- selecting from menu earns full credit; writing one's own earns 2 pts only if it is a universal claim, not a topic)
 - Evidence 1: specific quote or accurate paraphrase with chapter identification (2 pts)
 - Analysis 1: sentence starter completed with a logical connection to the theme -- not just restating the quote (2 pts)
@@ -529,13 +554,13 @@ Students receive the Tier 1 packet containing: the theme menu (5 theme statement
 
 ### UDL Alignment Summary
 
-| UDL Guideline | Tier 3 Implementation | Tier 2 Implementation | Tier 1 Implementation |
-|---------------|----------------------|----------------------|----------------------|
-| Representation: Multiple formats | Student-annotated text + peer oral feedback | Modeled example on board + graphic organizer + paragraph structure guide | Theme menu (visual list) + pre-filled example + step-by-step card + teacher verbal launch |
-| Representation: Language & symbols | No additional support (deliberate) | "Theme vs. topic" example on board with labeling | Bilingual vocabulary card, L1 option for ELL, academic vocabulary preview card |
-| Action & Expression: Options for response | Written analytical paragraphs + oral peer review | Graphic organizer → paragraph | Graphic organizer alone (sufficient) OR graphic organizer + paragraph; oral dictation for IEP students |
-| Engagement: Relevance & authenticity | Authentic interpretive argument -- same kind of thinking college and AP students do; students who write strong arguments share during closure | Connection to a book they've been reading + choice of which theme resonates with them | Theme menu includes themes connected to class identity, belonging, and social division -- relevant to adolescent experience |
-| Engagement: Challenge & support | Challenge: self-selected competing themes; no safety net of scaffold | Challenge: genuine Analyze-level task; peer check available only for theme/topic question | Support: teacher checks in first 5 minutes; step-by-step card prevents "I don't know where to start" |
+| UDL Guideline                             | Tier 3 Implementation                                                                                                                         | Tier 2 Implementation                                                                     | Tier 1 Implementation                                                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Representation: Multiple formats          | Student-annotated text + peer oral feedback                                                                                                   | Modeled example on board + graphic organizer + paragraph structure guide                  | Theme menu (visual list) + pre-filled example + step-by-step card + teacher verbal launch                                   |
+| Representation: Language & symbols        | No additional support (deliberate)                                                                                                            | "Theme vs. topic" example on board with labeling                                          | Bilingual vocabulary card, L1 option for ELL, academic vocabulary preview card                                              |
+| Action & Expression: Options for response | Written analytical paragraphs + oral peer review                                                                                              | Graphic organizer → paragraph                                                             | Graphic organizer alone (sufficient) OR graphic organizer + paragraph; oral dictation for IEP students                      |
+| Engagement: Relevance & authenticity      | Authentic interpretive argument -- same kind of thinking college and AP students do; students who write strong arguments share during closure | Connection to a book they've been reading + choice of which theme resonates with them     | Theme menu includes themes connected to class identity, belonging, and social division -- relevant to adolescent experience |
+| Engagement: Challenge & support           | Challenge: self-selected competing themes; no safety net of scaffold                                                                          | Challenge: genuine Analyze-level task; peer check available only for theme/topic question | Support: teacher checks in first 5 minutes; step-by-step card prevents "I don't know where to start"                        |
 
 ---
 
@@ -548,6 +573,7 @@ Tier 3 works in pairs for the peer review section only (minutes 20-25); otherwis
 Pre-place differentiated packets face-down at seats before students arrive. Each packet is a different color (consistent with the classroom's existing color-coding for workshop stations -- do not introduce a new color code for this lesson only). Teacher says: "Turn over your packet when I give the signal. Your packet has everything you need. You may notice packets look different -- that's because today you're each working with a version that fits where you are in your thinking about theme. All of you are working on the same question." This framing normalizes differentiation without assigning ability labels.
 
 **Pacing and Transitions:**
+
 - 0-5 minutes: Whole-class -- teacher models theme vs. topic distinction on board; all students present for this direct instruction moment
 - 5-10 minutes: Teacher releases students to packets; circulates to Tier 1 cluster for a 3-minute launch check
 - 10-30 minutes: Independent differentiated work -- teacher circulates between Tier 2 (checking theme statements at the 20-minute mark) and Tier 1 (checking evidence selection at the

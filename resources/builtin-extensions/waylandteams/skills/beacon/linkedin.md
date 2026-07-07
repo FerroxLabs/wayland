@@ -23,10 +23,10 @@ Trigger phrases:
 
 **3. Build the post mix.**
 
-- *Think-stage text post (most common):* hook line, narrative middle, takeaway, single CTA. 1,200-1,800 characters typically optimal as of 2026-05-16 for in-feed dwell time.
-- *Think-stage carousel (PDF document):* 8-12 slides, framework or process content, optimized for saves.
-- *Care-stage story post:* customer transformation, lesson learned, post-mortem on a public failure.
-- *Lightweight engagement:* polls (low-frequency, high-visibility), comments on others' posts (compounds your distribution).
+- _Think-stage text post (most common):_ hook line, narrative middle, takeaway, single CTA. 1,200-1,800 characters typically optimal as of 2026-05-16 for in-feed dwell time.
+- _Think-stage carousel (PDF document):_ 8-12 slides, framework or process content, optimized for saves.
+- _Care-stage story post:_ customer transformation, lesson learned, post-mortem on a public failure.
+- _Lightweight engagement:_ polls (low-frequency, high-visibility), comments on others' posts (compounds your distribution).
 
 **4. Cadence and dwell mechanics.** A sustainable B2B posting cadence is 3-5 posts per week per profile. The platform rewards in-feed dwell time more than vanity engagement — long posts that earn read-through outperform short posts with high likes. Spec hook lines that earn the "see more" click; bury the punchline.
 
@@ -55,7 +55,9 @@ Trigger phrases:
 **Brief:** "Help me get more B2B leads from LinkedIn."
 
 **Before** (vague, no stage):
-> *Post daily — mix of thought leadership and product updates.*
+
+> _Post daily — mix of thought leadership and product updates._
 
 **After** (stage-anchored, 2026-05-16):
-> *Surface: personal profile (founder), not company page. Stage: Think (problem framing for [ICP]) + Care (customer transformation stories). Mix: 3 Think text posts/week (1,200-1,800 chars, hook earns the "see more" click, no out-links), 1 PDF carousel/week (8-slide framework, save-optimized), 1 customer-story post/week. Push interested readers to DM via comment-trigger CTA, not landing-page link. Measure: impressions among target titles, comment-to-impression ratio, DM-initiation rate. Brand sets voice; Copy writes posts.*
+
+> _Surface: personal profile (founder), not company page. Stage: Think (problem framing for [ICP]) + Care (customer transformation stories). Mix: 3 Think text posts/week (1,200-1,800 chars, hook earns the "see more" click, no out-links), 1 PDF carousel/week (8-slide framework, save-optimized), 1 customer-story post/week. Push interested readers to DM via comment-trigger CTA, not landing-page link. Measure: impressions among target titles, comment-to-impression ratio, DM-initiation rate. Brand sets voice; Copy writes posts._

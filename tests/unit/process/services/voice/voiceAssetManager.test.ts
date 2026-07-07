@@ -5,7 +5,11 @@
  */
 
 import type { DownloadProgress } from '@/common/types/voiceAsset';
-import { VoiceAssetDownloadError, VoiceAssetManager, type VoiceAssetIo } from '@process/services/voice/VoiceAssetManager';
+import {
+  VoiceAssetDownloadError,
+  VoiceAssetManager,
+  type VoiceAssetIo,
+} from '@process/services/voice/VoiceAssetManager';
 import { createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -17,7 +21,10 @@ const sha256Hex = (chunks: Uint8Array[]): string => {
   return h.digest('hex');
 };
 
-const responseFor = (chunks: Uint8Array[], opts: { ok?: boolean; status?: number; statusText?: string; omitContentLength?: boolean } = {}): Response => {
+const responseFor = (
+  chunks: Uint8Array[],
+  opts: { ok?: boolean; status?: number; statusText?: string; omitContentLength?: boolean } = {}
+): Response => {
   const ok = opts.ok ?? true;
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -129,8 +136,28 @@ describe('VoiceAssetManager.download', () => {
     const binIo = makeIo({ fetch: vi.fn(async () => responseFor(binChunks)) });
     const weightIo = makeIo({ fetch: vi.fn(async () => responseFor(weightChunks)) });
 
-    const binResult = await VoiceAssetManager.download({ id: 'whisper-cpp-binary', url: 'https://x.test/whisper-cli', destPath: '/c/bin/whisper-cli', sha256: sha256Hex(binChunks) }, undefined, undefined, binIo);
-    const weightResult = await VoiceAssetManager.download({ id: 'whisper-ggml-base', url: 'https://x.test/ggml.bin', destPath: '/c/models/ggml.bin', sha256: sha256Hex(weightChunks) }, undefined, undefined, weightIo);
+    const binResult = await VoiceAssetManager.download(
+      {
+        id: 'whisper-cpp-binary',
+        url: 'https://x.test/whisper-cli',
+        destPath: '/c/bin/whisper-cli',
+        sha256: sha256Hex(binChunks),
+      },
+      undefined,
+      undefined,
+      binIo
+    );
+    const weightResult = await VoiceAssetManager.download(
+      {
+        id: 'whisper-ggml-base',
+        url: 'https://x.test/ggml.bin',
+        destPath: '/c/models/ggml.bin',
+        sha256: sha256Hex(weightChunks),
+      },
+      undefined,
+      undefined,
+      weightIo
+    );
 
     expect(binResult.bytesWritten).toBe(3);
     expect(weightResult.bytesWritten).toBe(12);
@@ -140,7 +167,13 @@ describe('VoiceAssetManager.download', () => {
 
   it('uses the totalBytes hint when Content-Length is absent', async () => {
     const chunks = [encoder.encode('abc')];
-    const asset = { id: 'a', url: 'https://x.test/a', destPath: '/c/a.bin', sha256: sha256Hex(chunks), totalBytes: 999 };
+    const asset = {
+      id: 'a',
+      url: 'https://x.test/a',
+      destPath: '/c/a.bin',
+      sha256: sha256Hex(chunks),
+      totalBytes: 999,
+    };
     const io = makeIo({ fetch: vi.fn(async () => responseFor(chunks, { omitContentLength: true })) });
     const progress: DownloadProgress[] = [];
     await VoiceAssetManager.download(asset, (p) => progress.push(p), undefined, io);

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness budgeting nutrition stress-management quick-reference cloud testing planning"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness budgeting nutrition stress-management quick-reference cloud testing planning'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Emergency Kit Builder
@@ -22,15 +22,16 @@ You are an emergency preparedness specialist who helps individuals and families 
 
 > **DISCLAIMER**: This skill provides general emergency preparedness guidance. It is not a substitute for official emergency management recommendations from your local emergency management agency, FEMA, or equivalent national authority. Individual medical needs should be discussed with healthcare providers. Always follow official guidance during actual emergencies.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about emergency kit builder techniques or best practices
 - User needs guidance on emergency kit builder concepts
 - User wants to implement or improve their approach to emergency kit builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of emergency kit builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,6 +76,7 @@ You are an emergency preparedness specialist who helps individuals and families 
 - [ ] Disposable plates, cups, utensils, paper towels
 
 **Considerations:**
+
 - Choose foods your family actually eats
 - Minimize items requiring water to prepare
 - Include high-calorie, nutrient-dense options
@@ -292,30 +294,36 @@ You are an emergency preparedness specialist who helps individuals and families 
 ### Build Over Time Strategy
 
 **Month 1: Water and Light** (~$20-40)
+
 - Water storage (reuse clean containers or buy 3-gal/person)
 - Flashlight and batteries
 - Whistle
 
 **Month 2: Food and First Aid** (~$25-50)
+
 - 3-day food supply (buy extra of shelf-stable foods you normally eat)
 - Basic first aid supplies
 
 **Month 3: Shelter and Warmth** (~$20-40)
+
 - Emergency blankets
 - Rain poncho
 - Spare clothing in a bag
 
 **Month 4: Tools and Communication** (~$30-60)
+
 - Multi-tool
 - Battery or crank radio
 - Phone charger / power bank
 
 **Month 5: Sanitation and Documents** (~$15-30)
+
 - Hygiene supplies
 - Document copies in waterproof bag
 - Cash reserve
 
 **Month 6: Review and Fill Gaps** (~$20-40)
+
 - Complete any missing items
 - Add specialized items for your household
 - Test and organize everything
@@ -381,7 +389,6 @@ If you have to leave fast, grab items in this order:
 
 Keep your go-bag packed and ready at all times. Do not unpack supplies "temporarily" for everyday use.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -389,7 +396,6 @@ Keep your go-bag packed and ready at all times. Do not unpack supplies "temporar
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -410,14 +416,12 @@ Keep your go-bag packed and ready at all times. Do not unpack supplies "temporar
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices guide"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices guide'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # E2E Test Architect
@@ -24,17 +24,17 @@ End-to-end tests validate complete user workflows through the real application. 
 
 ## Framework Selection
 
-| Feature | Playwright | Cypress |
-|---------|-----------|---------|
-| Language | JS/TS, Python, Java, .NET | JavaScript/TypeScript only |
-| Browser support | Chromium, Firefox, WebKit | Chrome, Firefox, Edge, Electron |
-| Multi-tab/window | Yes | No (workarounds exist) |
-| iframes | Full support | Limited |
-| Network interception | Yes | Yes |
-| Parallel execution | Built-in | Via CI parallelization or Cypress Cloud |
-| Auto-wait | Yes (built-in) | Yes (built-in) |
-| Speed | Fast | Moderate |
-| Best for | Cross-browser, complex apps | Simple to moderate web apps |
+| Feature              | Playwright                  | Cypress                                 |
+| -------------------- | --------------------------- | --------------------------------------- |
+| Language             | JS/TS, Python, Java, .NET   | JavaScript/TypeScript only              |
+| Browser support      | Chromium, Firefox, WebKit   | Chrome, Firefox, Edge, Electron         |
+| Multi-tab/window     | Yes                         | No (workarounds exist)                  |
+| iframes              | Full support                | Limited                                 |
+| Network interception | Yes                         | Yes                                     |
+| Parallel execution   | Built-in                    | Via CI parallelization or Cypress Cloud |
+| Auto-wait            | Yes (built-in)              | Yes (built-in)                          |
+| Speed                | Fast                        | Moderate                                |
+| Best for             | Cross-browser, complex apps | Simple to moderate web apps             |
 
 ## Playwright Patterns
 
@@ -44,40 +44,40 @@ End-to-end tests validate complete user workflows through the real application. 
 import { test, expect } from '@playwright/test';
 
 test.describe('User Authentication', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/login');
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+  });
 
-    test('successful login redirects to dashboard', async ({ page }) => {
-        await page.getByLabel('Email').fill('alice@example.com');
-        await page.getByLabel('Password').fill('secure-password');
-        await page.getByRole('button', { name: 'Sign In' }).click();
+  test('successful login redirects to dashboard', async ({ page }) => {
+    await page.getByLabel('Email').fill('alice@example.com');
+    await page.getByLabel('Password').fill('secure-password');
+    await page.getByRole('button', { name: 'Sign In' }).click();
 
-        await expect(page).toHaveURL('/dashboard');
-        await expect(page.getByRole('heading', { name: 'Welcome, Alice' })).toBeVisible();
-    });
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByRole('heading', { name: 'Welcome, Alice' })).toBeVisible();
+  });
 
-    test('invalid credentials show error message', async ({ page }) => {
-        await page.getByLabel('Email').fill('alice@example.com');
-        await page.getByLabel('Password').fill('wrong-password');
-        await page.getByRole('button', { name: 'Sign In' }).click();
+  test('invalid credentials show error message', async ({ page }) => {
+    await page.getByLabel('Email').fill('alice@example.com');
+    await page.getByLabel('Password').fill('wrong-password');
+    await page.getByRole('button', { name: 'Sign In' }).click();
 
-        await expect(page.getByRole('alert')).toHaveText('Invalid email or password');
-        await expect(page).toHaveURL('/login');
-    });
+    await expect(page.getByRole('alert')).toHaveText('Invalid email or password');
+    await expect(page).toHaveURL('/login');
+  });
 
-    test('locked account shows lockout message after 5 attempts', async ({ page }) => {
-        for (let i = 0; i < 5; i++) {
-            await page.getByLabel('Email').fill('alice@example.com');
-            await page.getByLabel('Password').fill('wrong');
-            await page.getByRole('button', { name: 'Sign In' }).click();
-            if (i < 4) {
-                await page.getByRole('alert').waitFor();
-            }
-        }
+  test('locked account shows lockout message after 5 attempts', async ({ page }) => {
+    for (let i = 0; i < 5; i++) {
+      await page.getByLabel('Email').fill('alice@example.com');
+      await page.getByLabel('Password').fill('wrong');
+      await page.getByRole('button', { name: 'Sign In' }).click();
+      if (i < 4) {
+        await page.getByRole('alert').waitFor();
+      }
+    }
 
-        await expect(page.getByText('Account locked')).toBeVisible();
-    });
+    await expect(page.getByText('Account locked')).toBeVisible();
+  });
 });
 ```
 
@@ -88,26 +88,26 @@ test.describe('User Authentication', () => {
 import { test as setup, expect } from '@playwright/test';
 
 setup('authenticate as admin', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel('Email').fill('admin@example.com');
-    await page.getByLabel('Password').fill('admin-password');
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await expect(page).toHaveURL('/dashboard');
+  await page.goto('/login');
+  await page.getByLabel('Email').fill('admin@example.com');
+  await page.getByLabel('Password').fill('admin-password');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await expect(page).toHaveURL('/dashboard');
 
-    // Save signed-in state to file
-    await page.context().storageState({ path: '.auth/admin.json' });
+  // Save signed-in state to file
+  await page.context().storageState({ path: '.auth/admin.json' });
 });
 
 // playwright.config.ts
 export default defineConfig({
-    projects: [
-        { name: 'setup', testMatch: /.*\.setup\.ts/ },
-        {
-            name: 'admin-tests',
-            dependencies: ['setup'],
-            use: { storageState: '.auth/admin.json' }
-        }
-    ]
+  projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'admin-tests',
+      dependencies: ['setup'],
+      use: { storageState: '.auth/admin.json' },
+    },
+  ],
 });
 ```
 
@@ -120,84 +120,82 @@ export default defineConfig({
 import { Page, Locator, expect } from '@playwright/test';
 
 export class LoginPage {
-    readonly page: Page;
-    readonly emailInput: Locator;
-    readonly passwordInput: Locator;
-    readonly signInButton: Locator;
-    readonly errorAlert: Locator;
-    readonly forgotPasswordLink: Locator;
+  readonly page: Page;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+  readonly errorAlert: Locator;
+  readonly forgotPasswordLink: Locator;
 
-    constructor(page: Page) {
-        this.page = page;
-        this.emailInput = page.getByLabel('Email');
-        this.passwordInput = page.getByLabel('Password');
-        this.signInButton = page.getByRole('button', { name: 'Sign In' });
-        this.errorAlert = page.getByRole('alert');
-        this.forgotPasswordLink = page.getByRole('link', { name: 'skipped password?' });
-    }
+  constructor(page: Page) {
+    this.page = page;
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Password');
+    this.signInButton = page.getByRole('button', { name: 'Sign In' });
+    this.errorAlert = page.getByRole('alert');
+    this.forgotPasswordLink = page.getByRole('link', { name: 'skipped password?' });
+  }
 
-    async goto() {
-        await this.page.goto('/login');
-    }
+  async goto() {
+    await this.page.goto('/login');
+  }
 
-    async login(email: string, password: string) {
-        await this.emailInput.fill(email);
-        await this.passwordInput.fill(password);
-        await this.signInButton.click();
-    }
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.signInButton.click();
+  }
 
-    async expectError(message: string) {
-        await expect(this.errorAlert).toHaveText(message);
-    }
+  async expectError(message: string) {
+    await expect(this.errorAlert).toHaveText(message);
+  }
 }
 
 // pages/DashboardPage.ts
 export class DashboardPage {
-    readonly page: Page;
-    readonly welcomeHeading: Locator;
-    readonly createButton: Locator;
-    readonly searchInput: Locator;
-    readonly dataTable: Locator;
+  readonly page: Page;
+  readonly welcomeHeading: Locator;
+  readonly createButton: Locator;
+  readonly searchInput: Locator;
+  readonly dataTable: Locator;
 
-    constructor(page: Page) {
-        this.page = page;
-        this.welcomeHeading = page.getByRole('heading', { name: /Welcome/ });
-        this.createButton = page.getByRole('button', { name: 'Create New' });
-        this.searchInput = page.getByPlaceholder('Search...');
-        this.dataTable = page.getByTestId('data-table');
-    }
+  constructor(page: Page) {
+    this.page = page;
+    this.welcomeHeading = page.getByRole('heading', { name: /Welcome/ });
+    this.createButton = page.getByRole('button', { name: 'Create New' });
+    this.searchInput = page.getByPlaceholder('Search...');
+    this.dataTable = page.getByTestId('data-table');
+  }
 
-    async expectLoaded() {
-        await expect(this.welcomeHeading).toBeVisible();
-    }
+  async expectLoaded() {
+    await expect(this.welcomeHeading).toBeVisible();
+  }
 
-    async search(query: string) {
-        await this.searchInput.fill(query);
-        await this.searchInput.press('Enter');
-        // Wait for table to update
-        await this.page.waitForResponse(resp =>
-            resp.url().includes('/api/search') && resp.status() === 200
-        );
-    }
+  async search(query: string) {
+    await this.searchInput.fill(query);
+    await this.searchInput.press('Enter');
+    // Wait for table to update
+    await this.page.waitForResponse((resp) => resp.url().includes('/api/search') && resp.status() === 200);
+  }
 
-    async getRowCount(): Promise<number> {
-        return await this.dataTable.locator('tbody tr').count();
-    }
+  async getRowCount(): Promise<number> {
+    return await this.dataTable.locator('tbody tr').count();
+  }
 }
 
 // Using page objects in tests
 test('admin can search users', async ({ page }) => {
-    const login = new LoginPage(page);
-    const dashboard = new DashboardPage(page);
+  const login = new LoginPage(page);
+  const dashboard = new DashboardPage(page);
 
-    await login.goto();
-    await login.login('admin@example.com', 'admin-password');
-    await dashboard.expectLoaded();
+  await login.goto();
+  await login.login('admin@example.com', 'admin-password');
+  await dashboard.expectLoaded();
 
-    await dashboard.search('Alice');
+  await dashboard.search('Alice');
 
-    const rows = await dashboard.getRowCount();
-    expect(rows).toBeGreaterThan(0);
+  const rows = await dashboard.getRowCount();
+  expect(rows).toBeGreaterThan(0);
 });
 ```
 
@@ -225,8 +223,8 @@ page.getByTestId('submit-order-button');
 page.getByTestId('user-avatar');
 
 // 4. AVOID: CSS selectors (brittle, coupled to implementation)
-page.locator('.btn-primary');         // Breaks when CSS class changes
-page.locator('#submit-form');         // Tight coupling to DOM structure
+page.locator('.btn-primary'); // Breaks when CSS class changes
+page.locator('#submit-form'); // Tight coupling to DOM structure
 page.locator('div > form > button'); // Extremely brittle
 ```
 
@@ -265,9 +263,7 @@ await expect(page).toHaveURL('/dashboard');
 await expect(page).toHaveURL(/\/orders\/\d+/);
 
 // Wait for network response
-const responsePromise = page.waitForResponse(
-    resp => resp.url().includes('/api/orders') && resp.status() === 200
-);
+const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/orders') && resp.status() === 200);
 await page.getByRole('button', { name: 'Save' }).click();
 const response = await responsePromise;
 const data = await response.json();
@@ -285,8 +281,8 @@ await expect(page.getByTestId('data-table')).toBeVisible();
 await page.waitForTimeout(3000);
 
 // BAD: Polling with short sleep
-while (!await page.getByText('Ready').isVisible()) {
-    await page.waitForTimeout(100);
+while (!(await page.getByText('Ready').isVisible())) {
+  await page.waitForTimeout(100);
 }
 
 // GOOD: Use expect with auto-retry
@@ -294,7 +290,7 @@ await expect(page.getByText('Ready')).toBeVisible({ timeout: 15000 });
 
 // GOOD: Wait for a specific condition
 await page.waitForFunction(() => {
-    return document.querySelectorAll('table tbody tr').length > 0;
+  return document.querySelectorAll('table tbody tr').length > 0;
 });
 ```
 
@@ -303,32 +299,32 @@ await page.waitForFunction(() => {
 ```typescript
 // Full page screenshot comparison
 test('dashboard renders correctly', async ({ page }) => {
-    await page.goto('/dashboard');
-    await expect(page).toHaveScreenshot('dashboard.png', {
-        maxDiffPixelRatio: 0.01,
-        animations: 'disabled',
-    });
+  await page.goto('/dashboard');
+  await expect(page).toHaveScreenshot('dashboard.png', {
+    maxDiffPixelRatio: 0.01,
+    animations: 'disabled',
+  });
 });
 
 // Element-level screenshot
 test('navigation menu renders correctly', async ({ page }) => {
-    await page.goto('/dashboard');
-    const nav = page.getByRole('navigation');
-    await expect(nav).toHaveScreenshot('navigation.png');
+  await page.goto('/dashboard');
+  const nav = page.getByRole('navigation');
+  await expect(nav).toHaveScreenshot('navigation.png');
 });
 
 // Update baselines: npx playwright test --update-snapshots
 
 // playwright.config.ts
 export default defineConfig({
-    expect: {
-        toHaveScreenshot: {
-            maxDiffPixelRatio: 0.01,
-            animations: 'disabled',
-            caret: 'hide',
-        },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.01,
+      animations: 'disabled',
+      caret: 'hide',
     },
-    snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+  },
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
 });
 ```
 
@@ -337,17 +333,17 @@ export default defineConfig({
 ```typescript
 // playwright.config.ts
 export default defineConfig({
-    fullyParallel: true,           // Run tests in parallel
-    workers: ENV_CONFIG_VALUE ? 4 : undefined,  // 4 workers in CI
-    retries: ENV_CONFIG_VALUE ? 2 : 0,          // Retry flaky tests in CI
+  fullyParallel: true, // Run tests in parallel
+  workers: ENV_CONFIG_VALUE ? 4 : undefined, // 4 workers in CI
+  retries: ENV_CONFIG_VALUE ? 2 : 0, // Retry flaky tests in CI
 
-    projects: [
-        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-        { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-        { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-        { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
-        { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
-    ],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
+    { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+  ],
 });
 
 // Tests must be independent for parallel execution
@@ -361,11 +357,8 @@ export default defineConfig({
 ```typescript
 // playwright.config.ts
 export default defineConfig({
-    retries: 2,  // Retry failed tests up to 2 times
-    reporter: [
-        ['html'],
-        ['json', { outputFile: 'test-results.json' }]
-    ],
+  retries: 2, // Retry failed tests up to 2 times
+  reporter: [['html'], ['json', { outputFile: 'test-results.json' }]],
 });
 
 // After running: analyze test-results.json for tests that passed on retry
@@ -425,12 +418,12 @@ jobs:
 ```typescript
 // playwright.config.ts
 export default defineConfig({
-    reporter: [
-        ['list'],                                    // Console output
-        ['html', { open: 'never' }],                // HTML report
-        ['junit', { outputFile: 'results.xml' }],   // For CI
-        ['json', { outputFile: 'results.json' }],   // For custom dashboards
-    ],
+  reporter: [
+    ['list'], // Console output
+    ['html', { open: 'never' }], // HTML report
+    ['junit', { outputFile: 'results.xml' }], // For CI
+    ['json', { outputFile: 'results.json' }], // For custom dashboards
+  ],
 });
 ```
 
@@ -448,6 +441,7 @@ export default defineConfig({
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing e2e test architect solutions
 - Reviewing or improving existing e2e test architect approaches
 - Making architectural or implementation decisions about e2e test architect
@@ -455,6 +449,7 @@ export default defineConfig({
 - Troubleshooting e2e test architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -465,21 +460,26 @@ export default defineConfig({
 # E2e Test Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "debt-management personal-finance budgeting analysis"
-  category: "personal-finance"
-  subcategory: "debt-management"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'debt-management personal-finance budgeting analysis'
+  category: 'personal-finance'
+  subcategory: 'debt-management'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Debt Avalanche Planner
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly wants to minimize total interest paid and has two or more debts with different APRs -- the avalanche method produces maximum mathematical savings when APR spreads are 5 percentage points or greater
 - The user asks about the debt avalanche method, highest-interest-first payoff, or mathematically optimal debt elimination
 - The user is analytically motivated and has stated they prefer data-driven decision making over quick psychological wins
@@ -34,6 +36,7 @@ metadata:
 - The user is deciding whether to pay more than minimums and wants to see the precise interest cost of inaction
 
 **Do NOT use when:**
+
 - The user is primarily motivated by eliminating individual debts for psychological wins -- use `debt-snowball-planner` instead, as the snowball method's motivational structure produces better real-world outcomes for many people even at a small mathematical cost
 - The user wants to evaluate whether combining debts into a single new loan makes sense -- use `debt-consolidation-analysis`, which accounts for origination fees, credit score requirements, and break-even timelines
 - The user is comparing new loan options (personal loan vs. balance transfer vs. HELOC) -- use `loan-comparison`
@@ -93,12 +96,14 @@ This is the computational core. Generic estimates produce errors that accumulate
 4. **Repeat until balance reaches zero**
 
 **Rollover mechanics -- this is where most errors occur:**
+
 - When Debt #1 reaches zero, in the SAME month record: final interest charge, final payment (which may be less than the normal monthly payment if the balance is small), and the freed amount
 - The freed amount = minimum payment of Debt #1 + the extra payment that was directed to Debt #1
 - In the following month, this entire freed amount is added to Debt #2's payment on top of Debt #2's existing minimum
 - Carry this rollover forward identically with each subsequent debt elimination
 
 **Modeling declining minimums for credit cards under minimum-payment-only scenario:**
+
 - Credit card minimums typically = max($25, 1% of balance + current month's interest) -- this means minimum payments decline as the balance falls
 - Under minimum-payments-only, use this declining formula for the comparison baseline. Using a fixed minimum understates how long minimum-only payoff actually takes and overstates interest, making your savings comparison inaccurate
 - A $3,200 balance at 24% APR on minimum payments only (declining formula) takes approximately 11--13 years to pay off, not 3--4 years
@@ -108,12 +113,14 @@ This is the computational core. Generic estimates produce errors that accumulate
 Always calculate three scenarios to give the user a complete picture:
 
 **Scenario A -- Minimum Payments Only:**
+
 - Apply minimum payments to all debts indefinitely (use declining minimum formula for revolving debts)
 - For installment loans, minimums are fixed -- use the contractual payment
 - Total interest and time to zero for all debts
 - This is the "cost of inaction" baseline
 
 **Scenario B -- Debt Snowball (smallest balance first):**
+
 - Resort debts from smallest to largest balance
 - Apply the same total monthly budget as the avalanche plan
 - Calculate interest and payoff timeline using the same amortization method
@@ -121,9 +128,11 @@ Always calculate three scenarios to give the user a complete picture:
 - Typically the snowball finishes within 1--3 months of the avalanche (similar timeline) but costs more in interest -- the interest gap widens as APR spread between smallest and largest balance debts increases
 
 **Scenario C -- Debt Avalanche:**
+
 - The primary plan as calculated in Step 4
 
 **Key calculation -- Avalanche vs. Snowball difference:**
+
 - This gap is driven by how long high-APR debt sits unattacked while the snowball targets small-balance/low-APR debts first
 - If the highest-APR debt also has the smallest balance (e.g., a small credit card balance at 24%), avalanche and snowball are identical -- same debt targeted first
 - The largest avalanche advantage occurs when the highest-APR debt has a large balance AND there are multiple small-balance low-APR debts the snowball would target first
@@ -131,6 +140,7 @@ Always calculate three scenarios to give the user a complete picture:
 ### Step 6: Build the Formatted Payoff Schedule
 
 For each debt in avalanche order, document:
+
 - Phase start date (Month 1 for Debt #1; month after prior debt payoff for subsequent debts)
 - Monthly payment amount broken into: minimum + rollover from prior debts + original extra
 - Number of months in active payoff phase
@@ -309,17 +319,21 @@ Create the Monthly Payment Flow table showing all phases simultaneously -- this 
 ## Edge Cases
 
 ### Highest-APR Debt Is Also the Largest Balance (Long First Phase)
+
 When the first target has both the highest rate AND the largest balance -- common when a large credit card balance exists alongside small installment loans -- the first payoff milestone can be 24--36 months away. This is the scenario where avalanche users are most likely to abandon the plan.
 
 Handle this by:
+
 - Calculating and displaying quarterly "interest saved to date" milestones within Phase 1 (e.g., "After 3 months of the plan, you've already saved $180 in interest vs. minimum payments")
 - Showing the balance reduction curve explicitly month by month for Debt #1 -- seeing $3,200 → $2,970 → $2,730 over the first few months reinforces progress even without a full payoff event
 - Noting that under the snowball method, the first payoff would occur in [X months] at a cost of [Y dollars more in interest] -- present this as a genuine trade-off, not a failure mode
 
 ### Promotional 0% Rate Expiring Mid-Plan
+
 This is the most consequential edge case and the most commonly mishandled. A balance transfer card with 0% for 18 months appears last in the avalanche at 0% APR. But if the avalanche won't reach it for 30 months, the post-promo rate of 24--27% will be active for 12 months before the avalanche arrives -- costing hundreds of dollars in unnecessary interest.
 
 Resolution process:
+
 1. Identify the month the promo expires
 2. Calculate what the balance will be at that expiration date (accounting for minimum payments applied during Phases 1--N)
 3. Recalculate the debt's priority using the post-promo APR from expiration forward
@@ -327,9 +341,11 @@ Resolution process:
 5. Alternatively, flag that the user should attempt to pay off this debt entirely before the promo expires -- calculate whether the budget allows it
 
 ### All Debts Within a Narrow APR Band (Within 2--3 Percentage Points)
+
 When all debts are clustered within 3 points of each other (e.g., 14%, 15.5%, 16%, 16.5%), the mathematical advantage of avalanche over snowball is under $100--200 over the entire payoff horizon. At this spread, the choice of method should be driven entirely by which approach the user will adhere to. Explicitly quantify the difference ("The avalanche saves approximately $85 more than the snowball over 36 months -- less than $3/month") and recommend the snowball unless the user explicitly prefers the avalanche for principled reasons.
 
 ### Windfall Applied Mid-Plan
+
 When a user receives a bonus, tax refund, or other lump sum during an active avalanche plan:
 
 1. Apply the entire windfall to the current active target (highest-APR debt) -- do not split it or put it toward a lower-rate debt "to pay it off"
@@ -339,12 +355,15 @@ When a user receives a bonus, tax refund, or other lump sum during an active ava
 5. Note: if the windfall is larger than the remaining balance on Debt #1, apply the remainder to Debt #2 (the next avalanche target), not to any other debt
 
 ### Mixed Secured and Unsecured Debts With Near-Equal APRs
+
 When a secured debt (auto loan at 7.5%) and an unsecured debt (personal loan at 8%) have nearly identical APRs, the math says to target the personal loan first. However, the behavioral risk profile differs: missing a payment on the auto loan risks repossession; missing the personal loan triggers fees and credit damage but not immediate asset loss.
 
 Document this explicitly in the plan -- note which debts are secured and reinforce that minimum payments on secured debts are structurally non-negotiable regardless of their position in the avalanche order.
 
 ### User's Budget Can't Cover All Minimums
+
 If total minimums exceed the monthly budget, the avalanche plan cannot proceed. The user is in a debt crisis scenario, not a debt optimization scenario. Steps to take:
+
 1. Identify the shortfall (e.g., "Your minimums total $850 but you have $700 available -- a $150 monthly gap")
 2. Do not produce an avalanche plan that implicitly shows missed minimums
 3. Recommend the user contact each creditor's hardship department -- most major lenders have temporary reduced-payment programs
@@ -352,9 +371,11 @@ If total minimums exceed the monthly budget, the avalanche plan cannot proceed. 
 5. Redirect to a budget-building skill before returning to debt optimization
 
 ### Variable-Rate Debts (HELOCs, Adjustable-Rate Loans)
+
 Variable-rate debts are sorted by their current rate but their position in the avalanche can shift. HELOCs tied to prime rate can move 0.25--0.50% per Federal Reserve meeting.
 
 Handle this by:
+
 - Flagging the debt clearly in the Risk Flags section with the current rate, the rate index it tracks, and the rate cap if available
 - Instructing the user to reassess avalanche order whenever the variable rate changes by more than 1 full percentage point
 - Modeling a "rate increase scenario" if relevant -- e.g., "If this HELOC rate rises from 8.5% to 10.5% by next year, it would move from position #3 to position #1 in your avalanche order"
@@ -375,19 +396,19 @@ Handle this by:
 
 ### Debt Inventory (Sorted: Highest to Lowest APR)
 
-| # | Debt Name     | Current Balance | APR   | Min. Payment | Avalanche Order | Notes              |
-|---|---------------|-----------------|-------|--------------|-----------------|---------------------|
-| 1 | Credit Card   | $3,200          | 24.0% | $90          | Target first    | Unsecured revolving |
-| 2 | Store Card    | $1,800          | 19.0% | $55          | Target second   | Unsecured revolving |
-| 3 | Personal Loan | $7,500          | 12.0% | $175         | Target third    | Unsecured installment|
-| 4 | Car Loan      | $11,000         | 6.0%  | $320         | Target last     | Secured -- auto ⚠️  |
+| #   | Debt Name     | Current Balance | APR   | Min. Payment | Avalanche Order | Notes                 |
+| --- | ------------- | --------------- | ----- | ------------ | --------------- | --------------------- |
+| 1   | Credit Card   | $3,200          | 24.0% | $90          | Target first    | Unsecured revolving   |
+| 2   | Store Card    | $1,800          | 19.0% | $55          | Target second   | Unsecured revolving   |
+| 3   | Personal Loan | $7,500          | 12.0% | $175         | Target third    | Unsecured installment |
+| 4   | Car Loan      | $11,000         | 6.0%  | $320         | Target last     | Secured -- auto ⚠️    |
 
 ---
 
 ### Payment Configuration
 
 | Metric                         | Amount |
-|--------------------------------|--------|
+| ------------------------------ | ------ |
 | Total monthly budget           | $800   |
 | Sum of all minimum payments    | $640   |
 | Extra payment (avalanche fuel) | $160   |
@@ -401,19 +422,19 @@ Handle this by:
 
 Monthly interest rate: 24% ÷ 12 = 2.0% per month
 
-| Field                              | Value                               |
-|------------------------------------|-------------------------------------|
-| Starting balance                   | $3,200.00                           |
-| Monthly payment                    | $250 ($90 min + $160 extra)         |
-| Month 1 interest charge            | $64.00 (2.0% × $3,200)              |
-| Month 1 principal reduction        | $186.00 ($250 -- $64)               |
-| Balance after Month 1              | $3,014.00                           |
-| Months in active payoff            | ~15 months                          |
-| Phase start                        | February 2025                       |
-| Payoff date                        | April 2026                          |
-| Total interest paid (avalanche)    | ~$493                               |
-| Total interest (minimums only)     | ~$1,290 (over ~13 years, declining min)|
-| **Interest saved by targeting first**  | **~$797**                       |
+| Field                                 | Value                                   |
+| ------------------------------------- | --------------------------------------- |
+| Starting balance                      | $3,200.00                               |
+| Monthly payment                       | $250 ($90 min + $160 extra)             |
+| Month 1 interest charge               | $64.00 (2.0% × $3,200)                  |
+| Month 1 principal reduction           | $186.00 ($250 -- $64)                   |
+| Balance after Month 1                 | $3,014.00                               |
+| Months in active payoff               | ~15 months                              |
+| Phase start                           | February 2025                           |
+| Payoff date                           | April 2026                              |
+| Total interest paid (avalanche)       | ~$493                                   |
+| Total interest (minimums only)        | ~$1,290 (over ~13 years, declining min) |
+| **Interest saved by targeting first** | **~$797**                               |
 
 Midpoint check (Month 8): Balance ≈ $1,755; you have already reduced the balance by 45% and saved approximately $320 in interest vs. minimum payments.
 
@@ -423,17 +444,17 @@ Midpoint check (Month 8): Balance ≈ $1,755; you have already reduced the balan
 
 During Phase 1 (15 months), Store Card accrues interest at 19% ÷ 12 = 1.583%/month on minimums of $55/month. Balance at start of Phase 2 ≈ $1,620 (interest accrued during Phase 1 offset by 15 months of minimum payments).
 
-| Field                              | Value                                        |
-|------------------------------------|----------------------------------------------|
-| Balance at Phase 2 start           | ~$1,620                                      |
-| Monthly payment                    | $305 ($55 min + $250 rollover from Debt #1)  |
-| Month 1 interest charge (Phase 2)  | ~$25.64 (1.583% × $1,620)                   |
-| Months in active payoff            | ~6 months                                    |
-| Phase start                        | May 2026                                     |
-| Payoff date                        | October 2026                                 |
-| Total interest paid (avalanche)    | ~$78                                         |
-| Total interest (minimums only)     | ~$680                                        |
-| **Interest saved**                 | **~$602**                                    |
+| Field                             | Value                                       |
+| --------------------------------- | ------------------------------------------- |
+| Balance at Phase 2 start          | ~$1,620                                     |
+| Monthly payment                   | $305 ($55 min + $250 rollover from Debt #1) |
+| Month 1 interest charge (Phase 2) | ~$25.64 (1.583% × $1,620)                   |
+| Months in active payoff           | ~6 months                                   |
+| Phase start                       | May 2026                                    |
+| Payoff date                       | October 2026                                |
+| Total interest paid (avalanche)   | ~$78                                        |
+| Total interest (minimums only)    | ~$680                                       |
+| **Interest saved**                | **~$602**                                   |
 
 ---
 
@@ -442,10 +463,10 @@ During Phase 1 (15 months), Store Card accrues interest at 19% ÷ 12 = 1.583%/mo
 During Phases 1--2 (21 months total), Personal Loan accrues interest at 12% ÷ 12 = 1.0%/month on minimums of $175/month. Balance at start of Phase 3 ≈ $5,780 (standard installment amortization; 21 payments of $175 at 1%/month from $7,500).
 
 | Field                              | Value                                             |
-|------------------------------------|---------------------------------------------------|
+| ---------------------------------- | ------------------------------------------------- |
 | Balance at Phase 3 start           | ~$5,780                                           |
 | Monthly payment                    | $480 ($175 min + $305 rollover from Debts #1--#2) |
-| Month 1 interest charge (Phase 3)  | ~$57.80 (1.0% × $5,780)                          |
+| Month 1 interest charge (Phase 3)  | ~$57.80 (1.0% × $5,780)                           |
 | Months in active payoff            | ~13 months                                        |
 | Phase start                        | November 2026                                     |
 | Payoff date                        | November 2027                                     |
@@ -459,28 +480,28 @@ During Phases 1--2 (21 months total), Personal Loan accrues interest at 12% ÷ 1
 
 During Phases 1--3 (34 months total), Car Loan amortizes normally at 6% ÷ 12 = 0.5%/month on $320/month minimum from $11,000. Balance at start of Phase 4 ≈ $4,250 (standard amortization over 34 months).
 
-| Field                              | Value                                                     |
-|------------------------------------|-----------------------------------------------------------|
-| Balance at Phase 4 start           | ~$4,250                                                   |
-| Monthly payment                    | $800 (entire budget -- all other debts cleared)           |
-| Month 1 interest charge (Phase 4)  | ~$21.25 (0.5% × $4,250)                                  |
-| Months in active payoff            | ~6 months                                                 |
-| Phase start                        | December 2027                                             |
-| Payoff date                        | May 2028                                                  |
-| Total interest paid (avalanche)    | ~$72                                                      |
-| Interest under original schedule   | ~$390 (remaining term at $320/month)                      |
-| **Interest saved**                 | **~$318**                                                 |
+| Field                             | Value                                           |
+| --------------------------------- | ----------------------------------------------- |
+| Balance at Phase 4 start          | ~$4,250                                         |
+| Monthly payment                   | $800 (entire budget -- all other debts cleared) |
+| Month 1 interest charge (Phase 4) | ~$21.25 (0.5% × $4,250)                         |
+| Months in active payoff           | ~6 months                                       |
+| Phase start                       | December 2027                                   |
+| Payoff date                       | May 2028                                        |
+| Total interest paid (avalanche)   | ~$72                                            |
+| Interest under original schedule  | ~$390 (remaining term at $320/month)            |
+| **Interest saved**                | **~$318**                                       |
 
 ---
 
 ### Monthly Payment Flow (All Phases)
 
-| Phase   | Months       | Active Target | Payment to Target | Minimums Elsewhere | Total Monthly |
-|---------|--------------|---------------|-------------------|--------------------|---------------|
-| Phase 1 | Feb 2025 -- Apr 2026 (15 mo) | Credit Card   | $250              | $550 (store+loan+car) | $800 |
-| Phase 2 | May 2026 -- Oct 2026 (6 mo)  | Store Card    | $305              | $495 (loan+car)    | $800          |
-| Phase 3 | Nov 2026 -- Nov 2027 (13 mo) | Personal Loan | $480              | $320 (car only)    | $800          |
-| Phase 4 | Dec 2027 -- May 2028 (6 mo)  | Car Loan      | $800              | $0 (all paid)      | $800          |
+| Phase   | Months                       | Active Target | Payment to Target | Minimums Elsewhere    | Total Monthly |
+| ------- | ---------------------------- | ------------- | ----------------- | --------------------- | ------------- |
+| Phase 1 | Feb 2025 -- Apr 2026 (15 mo) | Credit Card   | $250              | $550 (store+loan+car) | $800          |
+| Phase 2 | May 2026 -- Oct 2026 (6 mo)  | Store Card    | $305              | $495 (loan+car)       | $800          |
+| Phase 3 | Nov 2026 -- Nov 2027 (13 mo) | Personal Loan | $480              | $320 (car only)       | $800          |
+| Phase 4 | Dec 2027 -- May 2028 (6 mo)  | Car Loan      | $800              | $0 (all paid)         | $800          |
 
 **Total plan duration: ~40 months (Feb 2025 -- May 2028)**
 
@@ -488,11 +509,11 @@ During Phases 1--3 (34 months total), Car Loan amortizes normally at 6% ÷ 12 = 
 
 ### Scenario Comparison
 
-| Scenario                | Total Interest | Months to Debt-Free | Interest Saved vs. Min  | vs. Snowball          |
-|-------------------------|---------------|---------------------|-------------------------|-----------------------|
-| Minimum payments only   | ~$3,460       | ~78 months          | baseline                | --                    |
-| Debt snowball           | ~$1,330       | ~41 months          | ~$2,130 saved           | --                    |
-| **Debt avalanche**      | **~$1,058**   | **~40 months**      | **~$2,402 saved**       | **~$272 less interest** |
+| Scenario              | Total Interest | Months to Debt-Free | Interest Saved vs. Min | vs. Snowball            |
+| --------------------- | -------------- | ------------------- | ---------------------- | ----------------------- |
+| Minimum payments only | ~$3,460        | ~78 months          | baseline               | --                      |
+| Debt snowball         | ~$1,330        | ~41 months          | ~$2,130 saved          | --                      |
+| **Debt avalanche**    | **~$1,058**    | **~40 months**      | **~$2,402 saved**      | **~$272 less interest** |
 
 > **Note on snowball vs. avalanche timing:** Both methods reach debt-free within 1 month of each other (40 vs. 41 months). The avalanche saves $272 more in interest over that period -- about $6.80/month averaged across the plan. For some users, the snowball's first payoff milestone of 6--8 months (targeting the $1,800 store card first) is worth $272 in motivational value. For others, the avalanche's mathematical clarity is its own motivation. Neither choice is wrong. Choose the method you will follow without deviation for 40 months.
 
@@ -502,16 +523,16 @@ During Phases 1--3 (34 months total), Car Loan amortizes normally at 6% ÷ 12 = 
 
 ### Plan Summary
 
-| Metric                              | Value              |
-|-------------------------------------|--------------------|
-| Total debt today                    | $23,500            |
-| Total interest under avalanche      | ~$1,058            |
-| Total amount you will pay           | ~$24,558           |
-| Effective blended interest rate     | ~9.1% (weighted avg by balance)|
-| Interest saved vs. minimum payments | ~$2,402            |
-| Interest saved vs. snowball         | ~$272              |
-| Months to debt-free                 | ~40 months         |
-| Debt-free date                      | ~May 2028          |
+| Metric                              | Value                           |
+| ----------------------------------- | ------------------------------- |
+| Total debt today                    | $23,500                         |
+| Total interest under avalanche      | ~$1,058                         |
+| Total amount you will pay           | ~$24,558                        |
+| Effective blended interest rate     | ~9.1% (weighted avg by balance) |
+| Interest saved vs. minimum payments | ~$2,402                         |
+| Interest saved vs. snowball         | ~$272                           |
+| Months to debt-free                 | ~40 months                      |
+| Debt-free date                      | ~May 2028                       |
 
 ---
 

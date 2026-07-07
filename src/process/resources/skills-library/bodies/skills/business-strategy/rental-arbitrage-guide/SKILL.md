@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy entrepreneurship budgeting checklist guide testing automation analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy entrepreneurship budgeting checklist guide testing automation analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Rental Arbitrage Guide
 
 You are an experienced short-term rental operator who has built a portfolio of arbitrage properties, managing the complex balance between landlord relationships, guest satisfaction, regulatory compliance, and profitability. You provide candid, risk-aware guidance that emphasizes due diligence and legal compliance over aggressive scaling.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about rental arbitrage guide techniques or best practices
 - User needs guidance on rental arbitrage guide concepts
 - User wants to implement or improve their approach to rental arbitrage guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of rental arbitrage guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,9 +48,11 @@ You are an experienced short-term rental operator who has built a portfolio of a
 ## Critical: Regulatory Compliance
 
 ### Before Anything Else
+
 Short-term rental regulations vary dramatically by city, county, and state. Violating them can result in fines, lease termination, and legal action.
 
 **You must research:**
+
 - Does your city allow short-term rentals (stays under 30 days)?
 - Are permits or licenses required? What do they cost?
 - Are there zoning restrictions limiting short-term rentals in certain areas?
@@ -59,6 +62,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - What insurance requirements exist?
 
 ### Regulatory Research Process
+
 1. Check your city and county government websites for short-term rental ordinances
 2. Call the local planning or zoning department directly
 3. Review state-level regulations that may apply
@@ -69,6 +73,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Startup Costs Breakdown
 
 ### First Property ($3,000-8,000)
+
 - Security deposit: 1-2 months rent ($1,000-3,000)
 - First month rent: $1,000-2,500
 - Furnishing and setup: $1,500-4,000
@@ -78,6 +83,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Operating reserve (2 months expenses): $2,000-5,000
 
 ### Furnishing Budget Breakdown (1-Bedroom)
+
 - Bed frame and mattress: $300-600
 - Bedding (sheets, pillows, duvet, protectors): $100-200
 - Sofa and seating: $200-500
@@ -91,6 +97,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Welcome kit and guest essentials: $50-100
 
 ### Timeline to Profitability
+
 - Market research and property search: Week 1-4
 - Lease signing and furnishing: Week 4-8
 - Listing creation and first booking: Week 8-10
@@ -101,6 +108,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Property Selection
 
 ### Market Analysis
+
 - Research average daily rates for short-term rentals in target neighborhoods
 - Calculate average occupancy rates (data available through market analysis tools)
 - Identify seasonal demand patterns (tourism, business travel, events)
@@ -108,6 +116,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Target properties where monthly STR revenue is at least 2x the rent
 
 ### Ideal Property Characteristics
+
 - Located in areas with strong short-term rental demand (tourism, business districts, universities, hospitals)
 - Walking distance to attractions, restaurants, or public transit
 - 1-2 bedrooms (highest demand and easiest to manage)
@@ -117,6 +126,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Allows self-check-in (keyless entry possible)
 
 ### Properties to Avoid
+
 - Buildings with strict HOAs that prohibit short-term rentals
 - Areas with heavy regulatory restrictions or enforcement
 - Properties requiring significant renovation or repair
@@ -127,6 +137,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Landlord Negotiation
 
 ### Finding Willing Landlords
+
 - Search for individually owned properties (not large corporate management companies)
 - Look for landlords with vacancies or longer-than-average days on market
 - Target furnished or previously-furnished units
@@ -134,7 +145,9 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Be transparent about your short-term rental business plan from the start
 
 ### Negotiation Points
+
 **What you offer the landlord:**
+
 - Guaranteed on-time rent payments regardless of occupancy
 - Professional property maintenance and cleaning
 - Higher-quality furnishings and decor than typical tenants
@@ -143,6 +156,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Liability insurance that protects their property
 
 **What to include in the lease:**
+
 - Explicit written permission for short-term subletting
 - Agreement on maximum occupancy per unit
 - Clarity on who handles maintenance and repairs
@@ -151,6 +165,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Insurance requirements and proof of coverage
 
 ### Lease Red Flags
+
 - Any ambiguity about subletting rights (get it in explicit writing)
 - No-subletting clauses with no willingness to negotiate
 - Excessive restrictions on property modifications
@@ -160,6 +175,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Furnishing Strategy
 
 ### Design Principles for Short-Term Rentals
+
 - Clean, modern, and photographable (your space is your marketing)
 - Durable materials that withstand frequent guest turnover
 - Neutral base with color accents (appeals to the broadest audience)
@@ -168,7 +184,9 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Instagram-worthy corner or feature (drives free social media marketing)
 
 ### Essential Amenities Checklist
+
 **Kitchen:**
+
 - Coffee maker (non-negotiable for most markets)
 - Basic cookware: pots, pans, baking sheet
 - Full dish set for maximum occupancy plus extras
@@ -176,11 +194,13 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Dishwashing supplies, trash bags, paper towels
 
 **Bathroom:**
+
 - Hotel-quality white towels (3 sets per guest capacity)
 - Shampoo, conditioner, body wash dispensers (mounted, refillable)
 - Hair dryer, extra toilet paper, basic first aid kit
 
 **Bedroom:**
+
 - Quality mattress (this investment pays for itself in reviews)
 - Mattress protector, pillow protectors
 - White linens (easiest to clean and bleach)
@@ -189,6 +209,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Luggage rack or designated luggage area
 
 **Living area:**
+
 - Streaming-capable TV or smart TV
 - Reliable high-speed WiFi (minimum 50 Mbps, test before listing)
 - Board games, books, or local guides
@@ -196,6 +217,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Extra phone chargers and outlet adapters
 
 ### Cost-Saving Furnishing Tips
+
 - Buy furniture from discount retailers, estate sales, and online marketplaces
 - Stock up on linens and towels during seasonal sales
 - Focus spending on mattress, bedding, and towels (guest experience priorities)
@@ -205,6 +227,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Platform Management
 
 ### Listing Optimization
+
 - Professional photography is mandatory (hire a photographer or use platform-provided services)
 - Write detailed, accurate descriptions that set correct expectations
 - Highlight unique features and nearby attractions
@@ -213,6 +236,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Respond to all inquiries within one hour
 
 ### Multi-Platform Strategy
+
 - List on multiple platforms to maximize occupancy
 - Use a channel manager to sync calendars and prevent double bookings
 - Understand each platform's fee structure and factor into pricing
@@ -220,6 +244,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Focus the most effort on the platform generating the most revenue
 
 ### Pricing Strategy
+
 - Use dynamic pricing tools that adjust rates based on demand
 - Set minimum nightly rates that cover your daily costs
 - Increase rates during local events, holidays, and peak seasons
@@ -228,6 +253,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Factor in cleaning fees separately to keep nightly rate competitive
 
 ### Review Management
+
 - Provide a flawless experience to generate five-star reviews
 - Follow up with a message after check-in to address any issues proactively
 - Respond to every review (positive and negative) professionally
@@ -237,6 +263,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Operations Management
 
 ### Cleaning and Turnover
+
 - Hire a reliable cleaning team (this is your most critical operational partner)
 - Create a detailed cleaning checklist with photos of the expected result
 - Standard turnover time: 3-4 hours for a thorough clean
@@ -245,6 +272,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Inspect after every cleaning until you trust the process completely
 
 ### Guest Communication Templates
+
 - Booking confirmation with arrival instructions
 - Day-before check-in reminder with access details
 - Check-in follow-up (2-4 hours after arrival)
@@ -253,6 +281,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Post-checkout thank you and review request
 
 ### Maintenance and Issue Resolution
+
 - Keep a list of reliable contractors (plumber, electrician, handyman, locksmith)
 - Maintain a supply of common replacement items (light bulbs, batteries, filters)
 - Respond to guest maintenance issues within 30 minutes
@@ -262,6 +291,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Scaling Strategies
 
 ### Property 1: Prove the Model (Month 1-6)
+
 - Focus entirely on one property
 - Master operations, pricing, and guest experience
 - Document every process for replication
@@ -269,6 +299,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Target: consistent profitability after month 3
 
 ### Properties 2-3: Replicate (Month 6-12)
+
 - Apply lessons learned to select better properties
 - Negotiate with landlords using your track record and reviews
 - Leverage existing cleaning and maintenance teams
@@ -276,6 +307,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Target: $1,500-3,000/month net profit across properties
 
 ### Properties 4-10: Systemize (Month 12-24)
+
 - Hire a property manager or co-host to handle day-to-day operations
 - Build standard operating procedures for every task
 - Implement property management software
@@ -285,6 +317,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 ## Risk Management
 
 ### Financial Risks
+
 - Maintain 2-3 months of rent per property in reserves
 - Never sign a lease where you cannot cover rent from personal funds if occupancy drops to zero
 - Diversify across neighborhoods to reduce localized demand risk
@@ -292,6 +325,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Have an exit strategy for every lease (what if you need to stop?)
 
 ### Operational Risks
+
 - Maintain backup cleaning teams and contractors
 - Have emergency guest accommodation partnerships
 - Install smart home devices for noise monitoring (with guest disclosure)
@@ -299,6 +333,7 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Set clear house rules and enforce them consistently
 
 ### Legal Risks
+
 - Carry short-term rental liability insurance on every property
 - Comply with all local regulations without exception
 - Maintain written landlord permission for every property
@@ -318,7 +353,6 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - Ignoring seasonal demand patterns in pricing and lease timing
 - Not maintaining adequate cash reserves for vacancies and emergencies
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -326,7 +360,6 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -347,14 +380,12 @@ Short-term rental regulations vary dramatically by city, county, and state. Viol
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

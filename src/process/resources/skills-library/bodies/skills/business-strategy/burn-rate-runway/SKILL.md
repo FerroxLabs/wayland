@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning entrepreneurship strategy spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning entrepreneurship strategy spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Burn Rate Runway
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how many months of cash they have left, when they will run out of money, or whether their burn rate is sustainable
 - The user wants to calculate gross burn vs. net burn and understand the difference between the two
 - The user needs to model different spending trajectories -- cost-cutting scenarios, hiring freezes, or aggressive growth -- against their current cash balance
@@ -28,6 +30,7 @@ metadata:
 - The user has received a new funding round and wants to build a post-close spending plan that optimizes runway against milestones
 
 **Do NOT use this skill when:**
+
 - The user is calculating a personal savings rate, emergency fund, or household budget -- use `budget-planning`
 - The user needs a full three-statement financial model (income statement, balance sheet, cash flow statement) with accrual accounting -- use `financial-model-structure`
 - The user needs to craft the fundraising story, pitch narrative, or investor memo -- use `fundraising-narrative`
@@ -330,6 +333,7 @@ When the user is targeting a specific round (e.g., "we're raising a $3M Series A
 ### Complete Output
 
 ## Burn Rate & Runway Analysis: Seed-Stage B2B SaaS
+
 **As of:** Current month
 **Data period:** 4 months of actuals (revenue); 9-month expense history available
 
@@ -337,16 +341,16 @@ When the user is targeting a specific round (e.g., "we're raising a $3M Series A
 
 ### Current Position
 
-| Item | Value |
-|------|-------|
-| Cash balance (unrestricted) | $620,000 |
-| Monthly Revenue (MRR) | $18,500 |
-| MoM Revenue Growth Rate | 12% |
-| Monthly Gross Burn | $99,900 |
-| Monthly Net Burn | $81,400 |
-| Static Runway | 7.6 months → **7 months** |
-| Dynamic Runway (base case with hires) | **6 months** |
-| Default Alive? | **No** -- crossover requires ~22 months at 12% MoM growth |
+| Item                                  | Value                                                     |
+| ------------------------------------- | --------------------------------------------------------- |
+| Cash balance (unrestricted)           | $620,000                                                  |
+| Monthly Revenue (MRR)                 | $18,500                                                   |
+| MoM Revenue Growth Rate               | 12%                                                       |
+| Monthly Gross Burn                    | $99,900                                                   |
+| Monthly Net Burn                      | $81,400                                                   |
+| Static Runway                         | 7.6 months → **7 months**                                 |
+| Dynamic Runway (base case with hires) | **6 months**                                              |
+| Default Alive?                        | **No** -- crossover requires ~22 months at 12% MoM growth |
 
 ⚠️ **Immediate flag:** With 7 months of static runway and two planned hires that will increase gross burn by approximately $33,000/month, the effective runway is closer to 6 months. Fundraising for a Series A should begin immediately or within the next 30 days.
 
@@ -356,23 +360,23 @@ When the user is targeting a specific round (e.g., "we're raising a $3M Series A
 
 **Headcount note:** Fully-loaded costs modeled at salary + 7.65% payroll tax + $650/employee/month benefits + $40/month equipment amortization per person.
 
-| Category | Monthly Cost | % of Gross Burn | Notes |
-|----------|-------------|-----------------|-------|
-| Salaries & Benefits (fully loaded, 6 people) | $83,100 | 83% | See headcount detail below |
-| Cloud Infrastructure (AWS + tools) | $6,200 | 6% | Likely to scale with user growth |
-| Sales & Marketing Tools + LinkedIn Ads | $3,800 | 4% | |
-| Office (Austin) | $4,500 | 5% | Lease commitment -- not cuttable short-term |
-| Professional Services (legal, accounting, insurance) | $2,500 | 3% | Includes normalized monthly insurance |
-| **Total Gross Burn** | **$100,100** | **100%** | Rounded to $99,900 after rounding each line |
+| Category                                             | Monthly Cost | % of Gross Burn | Notes                                       |
+| ---------------------------------------------------- | ------------ | --------------- | ------------------------------------------- |
+| Salaries & Benefits (fully loaded, 6 people)         | $83,100      | 83%             | See headcount detail below                  |
+| Cloud Infrastructure (AWS + tools)                   | $6,200       | 6%              | Likely to scale with user growth            |
+| Sales & Marketing Tools + LinkedIn Ads               | $3,800       | 4%              |                                             |
+| Office (Austin)                                      | $4,500       | 5%              | Lease commitment -- not cuttable short-term |
+| Professional Services (legal, accounting, insurance) | $2,500       | 3%              | Includes normalized monthly insurance       |
+| **Total Gross Burn**                                 | **$100,100** | **100%**        | Rounded to $99,900 after rounding each line |
 
 **Headcount Detail (current 6 FTEs, fully loaded):**
 
-| Role | Base Salary | Fully Loaded Monthly |
-|------|-------------|---------------------|
-| Engineer x4 | $130,000 each | $12,700/month each = $50,800 total |
-| Designer | $105,000 | $10,300/month |
-| CEO | $90,000 | $8,900/month |
-| **Total (6 FTEs)** | **$845,000/yr** | **$70,000/month** |
+| Role               | Base Salary     | Fully Loaded Monthly               |
+| ------------------ | --------------- | ---------------------------------- |
+| Engineer x4        | $130,000 each   | $12,700/month each = $50,800 total |
+| Designer           | $105,000        | $10,300/month                      |
+| CEO                | $90,000         | $8,900/month                       |
+| **Total (6 FTEs)** | **$845,000/yr** | **$70,000/month**                  |
 
 Note: Benefits, employer FICA, and equipment add approximately $13,100/month above base salary across 6 employees -- a 19% uplift on base payroll.
 
@@ -383,20 +387,20 @@ Note: Benefits, employer FICA, and equipment add approximately $13,100/month abo
 Revenue: 12% MoM growth applied throughout.
 Expenses: Per hiring plan -- VP of Sales added in month 3 (fully loaded ~$18,000/month: $150K base + variable OTE averaged to fully loaded + FICA + benefits); senior engineer added in month 5 (fully loaded ~$15,600/month: $155K base + taxes + benefits).
 
-| Month | MRR | Expenses | Net Burn | Ending Cash | Flag |
-|-------|-----|----------|----------|-------------|------|
-| M1 | $18,500 | $100,100 | $81,600 | $538,400 | |
-| M2 | $20,720 | $100,100 | $79,380 | $459,020 | |
-| M3 | $23,206 | $118,100 | $94,894 | $364,126 | 🔴 VP Sales starts |
-| M4 | $25,991 | $118,100 | $92,109 | $272,017 | |
-| M5 | $29,110 | $133,700 | $104,590 | $167,427 | 🔴 Sr Engineer starts |
-| M6 | $32,603 | $133,700 | $101,097 | $66,330 | ⚠️ Danger zone entered |
-| M7 | $36,515 | $133,700 | $97,185 | -$30,855 | 💀 Zero-cash date |
-| M8 | $40,897 | $133,700 | $92,803 | -- | |
-| M9 | $45,804 | $133,700 | $87,896 | -- | |
-| M10 | $51,301 | $133,700 | $82,399 | -- | |
-| M11 | $57,457 | $133,700 | $76,243 | -- | |
-| M12 | $64,352 | $133,700 | $69,348 | -- | |
+| Month | MRR     | Expenses | Net Burn | Ending Cash | Flag                   |
+| ----- | ------- | -------- | -------- | ----------- | ---------------------- |
+| M1    | $18,500 | $100,100 | $81,600  | $538,400    |                        |
+| M2    | $20,720 | $100,100 | $79,380  | $459,020    |                        |
+| M3    | $23,206 | $118,100 | $94,894  | $364,126    | 🔴 VP Sales starts     |
+| M4    | $25,991 | $118,100 | $92,109  | $272,017    |                        |
+| M5    | $29,110 | $133,700 | $104,590 | $167,427    | 🔴 Sr Engineer starts  |
+| M6    | $32,603 | $133,700 | $101,097 | $66,330     | ⚠️ Danger zone entered |
+| M7    | $36,515 | $133,700 | $97,185  | -$30,855    | 💀 Zero-cash date      |
+| M8    | $40,897 | $133,700 | $92,803  | --          |                        |
+| M9    | $45,804 | $133,700 | $87,896  | --          |                        |
+| M10   | $51,301 | $133,700 | $82,399  | --          |                        |
+| M11   | $57,457 | $133,700 | $76,243  | --          |                        |
+| M12   | $64,352 | $133,700 | $69,348  | --          |                        |
 
 **Cash-flow neutral MRR required:** $133,700/month (post-hire gross burn)
 **Months to reach $133,700 MRR at 12% MoM from current $18,500:** approximately 18 months (month 22 from company launch)
@@ -405,24 +409,24 @@ Expenses: Per hiring plan -- VP of Sales added in month 3 (fully loaded ~$18,000
 
 ### Scenario Analysis
 
-| Scenario | Net Burn (Month 1) | Runway | Zero-Cash Date | Assumptions |
-|----------|-------------------|--------|----------------|-------------|
-| **Base case** | $81,600 | **6 months** | Month 7 | 12% MoM growth; both hires proceed on schedule |
-| **Conservative** | $81,600 | **5 months** | Month 6 | 6% MoM growth (half of plan); expenses +10% due to contractor usage |
-| **Cost-optimization: defer VP Sales** | $81,600 | **8 months** | Month 9 | Defer VP Sales hire by 3 months; defer Sr Engineer by 2 months; saves ~$18K-$33K/month during critical window |
-| **Cost-optimization: defer both hires + pause ads** | $77,800 | **9 months** | Month 10 | Defer both hires 4 months; pause $2,200/month ad spend; saves ~$36K/month |
-| **Series A closes in month 3** | $81,600 | **26 months post-close** | -- | $3.5M raised at month 3; new post-close burn ~$133K/month; 26 months runway |
+| Scenario                                            | Net Burn (Month 1) | Runway                   | Zero-Cash Date | Assumptions                                                                                                   |
+| --------------------------------------------------- | ------------------ | ------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Base case**                                       | $81,600            | **6 months**             | Month 7        | 12% MoM growth; both hires proceed on schedule                                                                |
+| **Conservative**                                    | $81,600            | **5 months**             | Month 6        | 6% MoM growth (half of plan); expenses +10% due to contractor usage                                           |
+| **Cost-optimization: defer VP Sales**               | $81,600            | **8 months**             | Month 9        | Defer VP Sales hire by 3 months; defer Sr Engineer by 2 months; saves ~$18K-$33K/month during critical window |
+| **Cost-optimization: defer both hires + pause ads** | $77,800            | **9 months**             | Month 10       | Defer both hires 4 months; pause $2,200/month ad spend; saves ~$36K/month                                     |
+| **Series A closes in month 3**                      | $81,600            | **26 months post-close** | --             | $3.5M raised at month 3; new post-close burn ~$133K/month; 26 months runway                                   |
 
 ---
 
 ### Capital Efficiency Metrics
 
-| Metric | Value | Benchmark | Assessment |
-|--------|-------|-----------|------------|
-| Burn Multiple | 4.4x | <1.5x excellent, <2x good | 🔴 High -- $81.4K burned per ~$18.5K MRR added (at 12% = ~$2,220 net new MRR) |
-| MRR per $1M of Cash Spent | ~$25/month | Varies by stage | Will improve as revenue scales |
-| Fully Loaded Cost per Employee | $11,683 | $8,000--$15,000 expected | Within normal range |
-| Revenue as % of Gross Burn | 18.5% | Growing | Improving monthly at 12% MoM |
+| Metric                         | Value      | Benchmark                 | Assessment                                                                    |
+| ------------------------------ | ---------- | ------------------------- | ----------------------------------------------------------------------------- |
+| Burn Multiple                  | 4.4x       | <1.5x excellent, <2x good | 🔴 High -- $81.4K burned per ~$18.5K MRR added (at 12% = ~$2,220 net new MRR) |
+| MRR per $1M of Cash Spent      | ~$25/month | Varies by stage           | Will improve as revenue scales                                                |
+| Fully Loaded Cost per Employee | $11,683    | $8,000--$15,000 expected  | Within normal range                                                           |
+| Revenue as % of Gross Burn     | 18.5%      | Growing                   | Improving monthly at 12% MoM                                                  |
 
 **Burn Multiple note:** The 4.4x burn multiple is high for a Series A raise conversation. At Series A, investors typically look for burn multiples below 2x as a sign of capital efficiency. To improve this metric before fundraising, the company should prioritize revenue acceleration (or demonstrate a credible path to revenue acceleration) alongside cost discipline. The VP of Sales hire, if it meaningfully accelerates revenue growth from 12% to 18-20% MoM, would significantly improve the burn multiple within 6-9 months post-hire.
 
@@ -430,13 +434,13 @@ Expenses: Per hiring plan -- VP of Sales added in month 3 (fully loaded ~$18,000
 
 ### Key Dates
 
-| Milestone | Date | Notes |
-|-----------|------|-------|
-| **Fundraising must begin** | **Immediately / within 30 days** | Only 6 months of runway with planned hires |
-| Danger zone entry (<3x gross burn = <$400K) | Month 6 ($66K remaining) | Cash is below 3x current monthly gross burn by Month 4 |
-| Zero-cash date (base case) | **Month 7** | Without a close by month 3-4, company is insolvent |
-| Cash-flow neutral MRR (post-hire structure) | $133,700/month | ~18 months from today at 12% MoM growth |
-| Default alive crossover | Month 22 from today | Company is default dead under current trajectory |
+| Milestone                                   | Date                             | Notes                                                  |
+| ------------------------------------------- | -------------------------------- | ------------------------------------------------------ |
+| **Fundraising must begin**                  | **Immediately / within 30 days** | Only 6 months of runway with planned hires             |
+| Danger zone entry (<3x gross burn = <$400K) | Month 6 ($66K remaining)         | Cash is below 3x current monthly gross burn by Month 4 |
+| Zero-cash date (base case)                  | **Month 7**                      | Without a close by month 3-4, company is insolvent     |
+| Cash-flow neutral MRR (post-hire structure) | $133,700/month                   | ~18 months from today at 12% MoM growth                |
+| Default alive crossover                     | Month 22 from today              | Company is default dead under current trajectory       |
 
 ---
 

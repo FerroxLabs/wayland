@@ -16,10 +16,8 @@ import log from 'electron-log';
 
 const MARK_START = '<!-- IJFW-PRELUDE-START -->';
 const MARK_END = '<!-- IJFW-PRELUDE-END -->';
-const DISABLED_NOTICE =
-  '<!-- IJFW-PRELUDE-DISABLED-BY-WAYLAND: Memory layer initializing. -->';
-const PRELUDE_BLOCK =
-  'Project memory at .ijfw/memory/. Call `ijfw_memory_prelude` for full context.';
+const DISABLED_NOTICE = '<!-- IJFW-PRELUDE-DISABLED-BY-WAYLAND: Memory layer initializing. -->';
+const PRELUDE_BLOCK = 'Project memory at .ijfw/memory/. Call `ijfw_memory_prelude` for full context.';
 
 const MANAGED_FILES = ['CLAUDE.md', 'AGENTS.md', 'GEMINI.md', '.cursorrules'] as const;
 
@@ -42,10 +40,7 @@ export interface PreludeTarget {
   files: string[];
 }
 
-export async function applyPreludeForStatus(
-  status: IjfwStatus,
-  targets: PreludeTarget[],
-): Promise<void> {
+export async function applyPreludeForStatus(status: IjfwStatus, targets: PreludeTarget[]): Promise<void> {
   const shouldEnable = status === 'installed_current' || status === 'installed_empty';
   for (const t of targets) {
     for (const filename of t.files) {

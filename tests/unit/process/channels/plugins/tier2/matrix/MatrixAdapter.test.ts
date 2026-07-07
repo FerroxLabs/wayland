@@ -18,14 +18,16 @@ import {
  * Build a minimal MatrixEventLike for adapter tests. Each field is overridable
  * so individual tests can null specific surfaces.
  */
-function buildEvent(overrides: {
-  type?: string;
-  id?: string;
-  roomId?: string;
-  sender?: string;
-  ts?: number;
-  content?: MatrixMessageContent;
-} = {}): MatrixEventLike {
+function buildEvent(
+  overrides: {
+    type?: string;
+    id?: string;
+    roomId?: string;
+    sender?: string;
+    ts?: number;
+    content?: MatrixMessageContent;
+  } = {}
+): MatrixEventLike {
   // Distinguish "key not present" (use default) from "key explicitly undefined"
   // (return undefined). The latter is what the "drops missing field" tests
   // need so the adapter's null guards exercise.
@@ -37,9 +39,7 @@ function buildEvent(overrides: {
     getSender: () => (hasKey('sender') ? overrides.sender : '@alice:matrix.org'),
     getTs: () => (hasKey('ts') ? (overrides.ts as number) : 1_700_000_000_000),
     getContent: () =>
-      hasKey('content')
-        ? (overrides.content as MatrixMessageContent)
-        : { msgtype: 'm.text', body: 'hello' },
+      hasKey('content') ? (overrides.content as MatrixMessageContent) : { msgtype: 'm.text', body: 'hello' },
   };
 }
 

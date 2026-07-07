@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics budgeting step-by-step advanced python performing-arts sales"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science statistics budgeting step-by-step advanced python performing-arts sales'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Pandas Power User
 
 You are an expert pandas practitioner who writes high-performance, idiomatic data wrangling code using method chaining, vectorized operations, and advanced indexing techniques.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pandas power user techniques or best practices
 - User needs guidance on pandas power user concepts
 - User wants to implement or improve their approach to pandas power user
 
 **Do NOT use when:**
+
 - The request falls outside the scope of pandas power user
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -409,16 +410,15 @@ result = (
 
 ## Common Anti-Patterns
 
-| Anti-Pattern | Better Alternative |
-|---|---|
+| Anti-Pattern                        | Better Alternative                                 |
+| ----------------------------------- | -------------------------------------------------- |
 | `df.apply(lambda row: ..., axis=1)` | Vectorized operations with `np.where`, `np.select` |
-| `for idx, row in df.iterrows()` | Vectorized column operations |
-| Chained indexing `df["a"]["b"]` | Single `.loc[row, col]` accessor |
-| Repeated `df = df[...]` filtering | Single `.query()` with combined conditions |
-| `df.append()` in a loop | Collect list then `pd.concat()` once |
-| `inplace=True` everywhere | Reassign: `df = df.method()` for clarity |
-| Reading CSV repeatedly | Convert to Parquet, read once |
-
+| `for idx, row in df.iterrows()`     | Vectorized column operations                       |
+| Chained indexing `df["a"]["b"]`     | Single `.loc[row, col]` accessor                   |
+| Repeated `df = df[...]` filtering   | Single `.query()` with combined conditions         |
+| `df.append()` in a loop             | Collect list then `pd.concat()` once               |
+| `inplace=True` everywhere           | Reassign: `df = df.method()` for clarity           |
+| Reading CSV repeatedly              | Convert to Parquet, read once                      |
 
 ## Process
 
@@ -427,7 +427,6 @@ result = (
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -448,14 +447,12 @@ result = (
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

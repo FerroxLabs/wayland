@@ -97,16 +97,14 @@ describe('NextcloudTalkPlugin.testConnection - credential errors', () => {
   });
 
   it('returns failure when serverUrl is missing', async () => {
-    const result = await NextcloudTalkPlugin.testConnection(
-      JSON.stringify({ username: 'bot', appPassword: 'pass' }),
-    );
+    const result = await NextcloudTalkPlugin.testConnection(JSON.stringify({ username: 'bot', appPassword: 'pass' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/server url/i);
   });
 
   it('returns failure when username is missing', async () => {
     const result = await NextcloudTalkPlugin.testConnection(
-      JSON.stringify({ serverUrl: 'https://cloud.example.com', appPassword: 'pass' }),
+      JSON.stringify({ serverUrl: 'https://cloud.example.com', appPassword: 'pass' })
     );
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/username/i);
@@ -114,7 +112,7 @@ describe('NextcloudTalkPlugin.testConnection - credential errors', () => {
 
   it('returns failure when appPassword is missing', async () => {
     const result = await NextcloudTalkPlugin.testConnection(
-      JSON.stringify({ serverUrl: 'https://cloud.example.com', username: 'bot' }),
+      JSON.stringify({ serverUrl: 'https://cloud.example.com', username: 'bot' })
     );
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/app password/i);

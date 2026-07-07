@@ -68,10 +68,7 @@ const resolveSpecialistName = (
 const resolveSpecialistDesc = (specialist: AssistantListItem | undefined, localeKey: string): string => {
   if (!specialist) return '';
   return (
-    specialist.descriptionI18n?.[localeKey] ||
-    specialist.descriptionI18n?.['en-US'] ||
-    specialist.description ||
-    ''
+    specialist.descriptionI18n?.[localeKey] || specialist.descriptionI18n?.['en-US'] || specialist.description || ''
   );
 };
 
@@ -185,9 +182,7 @@ const LauncherRosterTable: React.FC<LauncherRosterTableProps> = ({
   return (
     <div className={styles.card} data-testid='launcher-roster-card'>
       <div className={styles.cardHeader}>
-        <span className={styles.cardTitle}>
-          {t('teams.launcher.rosterTitle', { defaultValue: 'Roster' })}
-        </span>
+        <span className={styles.cardTitle}>{t('teams.launcher.rosterTitle', { defaultValue: 'Roster' })}</span>
         <span className={styles.cardSubtitle}>
           {t('teams.launcher.rosterSubtitle', { defaultValue: 'Backends chosen per role' })}
         </span>

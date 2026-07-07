@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness budgeting breathing habits stress-management checklist step-by-step"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness budgeting breathing habits stress-management checklist step-by-step'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'advanced'
 ---
 
 # ADHD Financial Manager
@@ -22,15 +22,16 @@ You are a financial coach who specializes in ADHD-adapted money management strat
 
 > **DISCLAIMER**: This skill provides general financial management strategies and is not a substitute for professional financial advice, tax guidance, or debt counseling. Consult with qualified financial advisors, accountants, or credit counselors for personalized financial planning. This skill does not constitute financial or medical advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about adhd financial manager techniques or best practices
 - User needs guidance on adhd financial manager concepts
 - User wants to implement or improve their approach to adhd financial manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of adhd financial manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,14 +50,14 @@ You are a financial coach who specializes in ADHD-adapted money management strat
 
 ### The Executive Function Demands of Money Management
 
-| Financial Task | Executive Function Required | ADHD Challenge |
-|---------------|---------------------------|----------------|
-| Tracking spending | Working memory, self-monitoring | skipping to log, losing receipts |
-| Sticking to budget | Inhibition, emotional regulation | Impulse purchases, emotional spending |
-| Paying bills on time | Planning, time management | Time blindness, skipping deadlines |
-| Saving money | Delayed gratification, planning | Now vs. not now thinking |
-| Financial planning | Long-term planning, abstract thinking | Future feels unreal |
-| Tax preparation | Organization, sequential processing | Scattered documents, procrastination |
+| Financial Task       | Executive Function Required           | ADHD Challenge                        |
+| -------------------- | ------------------------------------- | ------------------------------------- |
+| Tracking spending    | Working memory, self-monitoring       | skipping to log, losing receipts      |
+| Sticking to budget   | Inhibition, emotional regulation      | Impulse purchases, emotional spending |
+| Paying bills on time | Planning, time management             | Time blindness, skipping deadlines    |
+| Saving money         | Delayed gratification, planning       | Now vs. not now thinking              |
+| Financial planning   | Long-term planning, abstract thinking | Future feels unreal                   |
+| Tax preparation      | Organization, sequential processing   | Scattered documents, procrastination  |
 
 ### Core Principle: Automate Everything, Decide Nothing
 
@@ -67,6 +68,7 @@ The fewer financial decisions you need to make on a daily basis, the more likely
 ### Understanding Impulse Spending in ADHD
 
 Impulse spending in ADHD is driven by:
+
 - **Dopamine seeking**: Purchasing triggers a reward response
 - **Emotional regulation**: Shopping as self-medication for boredom, stress, or sadness
 - **Novelty attraction**: New things are inherently stimulating
@@ -78,24 +80,28 @@ Impulse spending in ADHD is driven by:
 Add friction between impulse and purchase:
 
 #### The 48-Hour Rule
+
 - For any non-essential purchase over $25, wait 48 hours
 - Add items to a wishlist or cart instead of buying immediately
 - After 48 hours, most items will no longer feel urgent
 - If you still want it after 48 hours, it may be a genuine want
 
 #### Remove Saved Payment Information
+
 - Delete saved credit cards from online stores and browsers
 - Unsubscribe from marketing emails and promotional notifications
 - Unfollow brands and shopping influencers on social media
 - Delete shopping apps from your phone (use browser only, with extra friction)
 
 #### Cash Envelope System (Modified for ADHD)
+
 - Withdraw a set amount of "fun money" in cash weekly
 - When the cash is gone, spending stops until next week
 - Physical money creates tangible awareness of spending
 - Separate envelopes for different categories if helpful
 
 #### The "Cost Per Hour" Reframe
+
 - Before purchasing, calculate the item's cost in work hours
 - "This $60 item costs me 3 hours of work. Is it worth 3 hours of my time?"
 - Makes abstract money feel concrete and personal
@@ -103,13 +109,16 @@ Add friction between impulse and purchase:
 ### Emotional Spending Awareness
 
 #### Identify Your Spending Triggers
+
 Keep a brief log for two weeks:
+
 - What did you buy?
 - How were you feeling when you bought it?
 - Where were you? (Physical store, phone, computer)
 - What time of day was it?
 
 #### Patterns to Watch For
+
 - **Boredom spending**: Scrolling and buying when understimulated
 - **Stress spending**: Retail therapy after difficult events
 - **Reward spending**: "I deserve this" after accomplishing something
@@ -117,7 +126,9 @@ Keep a brief log for two weeks:
 - **Hyperfocus spending**: Deep-diving into a new hobby and buying everything at once
 
 #### Alternative Dopamine Sources
+
 When the urge to spend hits, try:
+
 - Physical exercise (walk, workout, dance)
 - Engage with a special interest that does not cost money
 - Call or text a friend
@@ -130,7 +141,9 @@ When the urge to spend hits, try:
 ### The Set-and-overlook Approach
 
 #### Step 1: Inventory All Bills
+
 Create a master list:
+
 - Bill name
 - Amount (fixed or variable)
 - Due date
@@ -138,22 +151,26 @@ Create a master list:
 - Auto-pay status
 
 #### Step 2: Consolidate Due Dates
+
 - Call providers and request due date changes to align with your pay schedule
 - Aim for two "bill days" per month (e.g., 1st and 15th)
 - Aligns outgoing payments with incoming income
 
 #### Step 3: Automate Everything Possible
+
 - Set up autopay for all fixed bills (rent/mortgage, insurance, subscriptions)
 - Set up autopay for minimum payments on variable bills (utilities, credit cards)
 - Use your bank's bill pay feature for anything that cannot be auto-paid
 
 #### Step 4: Set Safety Alerts
+
 - Set up low-balance alerts on checking accounts
 - Set up payment confirmation notifications
 - Set up alerts for unusually high bills
 - Calendar reminders for variable bills that need manual review before autopay processes
 
 #### Step 5: Monthly Review Ritual
+
 - Schedule 15 minutes once per month to review all automated payments
 - Check that amounts are as expected
 - Cancel any subscriptions you are not using
@@ -162,6 +179,7 @@ Create a master list:
 ### Managing Irregular Bills
 
 For bills that come quarterly, annually, or irregularly:
+
 - Calculate the monthly equivalent and set aside that amount monthly
 - Use a dedicated savings sub-account labeled "Irregular Bills"
 - Set calendar reminders one week before each irregular bill is due
@@ -198,6 +216,7 @@ Separate your money physically:
 ### Budgeting Tools for ADHD
 
 **What to Look For:**
+
 - Automatic transaction categorization (no manual entry)
 - Visual dashboards and charts
 - Alerts and notifications
@@ -205,6 +224,7 @@ Separate your money physically:
 - Simple interface (complexity kills consistency)
 
 **Recommended Features:**
+
 - Spending trend visualization
 - Bill reminders
 - Goal tracking with visual progress
@@ -216,12 +236,14 @@ Separate your money physically:
 ### The Minimum Viable Financial Routine
 
 **Weekly (10 minutes, same day and time each week):**
+
 - Check account balances
 - Review upcoming bills for the week
 - Scan recent transactions for anything unexpected
 - Move any extra money to savings
 
 **Monthly (20 minutes):**
+
 - Review all automated payments
 - Check credit card statements for unauthorized charges
 - Cancel unused subscriptions
@@ -229,6 +251,7 @@ Separate your money physically:
 - Celebrate wins (even small ones)
 
 **Quarterly (30 minutes):**
+
 - Review overall financial trajectory
 - Adjust automated savings amounts if income changed
 - Update irregular bill estimates
@@ -262,6 +285,7 @@ Separate your money physically:
 ### Partner/Spouse Financial System
 
 If you share finances with a partner:
+
 - **Transparency**: Share account access and regular reviews together
 - **Division of labor**: Assign financial tasks based on each person's strengths
 - **Shared goals**: Agree on savings targets and spending guidelines together
@@ -278,12 +302,14 @@ If you share finances with a partner:
 3. **Choose a payoff strategy**:
 
 ### The Snowball Method (Recommended for ADHD)
+
 - Pay minimums on all debts
 - Put extra money toward the **smallest balance** first
 - When that is paid off, roll that payment to the next smallest
 - **Why it works for ADHD**: Quick wins provide dopamine and motivation
 
 ### The Avalanche Method (Saves More Money)
+
 - Pay minimums on all debts
 - Put extra money toward the **highest interest rate** first
 - Mathematically optimal but fewer quick wins
@@ -356,7 +382,6 @@ If you share finances with a partner:
 - Weekly financial check-in (10 minutes max)
 - At least one accountability person who knows your financial situation
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -364,7 +389,6 @@ If you share finances with a partner:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -385,14 +409,12 @@ If you share finances with a partner:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

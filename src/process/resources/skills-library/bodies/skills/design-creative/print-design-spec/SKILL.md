@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design template checklist"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design template checklist'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Print Design Spec
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs complete print-ready file specifications for a physical print product -- business cards, letterhead, brochures, flyers, posters, packaging, labels, booklets, envelopes, or specialty items
 - A user asks what bleed, trim, or safe area values to use for a specific product type or printer
 - A user is converting an existing digital design to print and needs to know what settings to apply (color mode conversion, resolution upscaling assessment, ICC profile selection)
@@ -30,6 +32,7 @@ metadata:
 - A user is troubleshooting a print rejection -- mismatched color mode, insufficient bleed, font embedding failure, excessive ink coverage
 
 **Do NOT use when:**
+
 - The user wants to design a screen-based layout, wireframe, or UI (use `wireframe-specification`)
 - The user needs a color palette created or refined for digital or brand use (use `color-palette-design`)
 - The user is selecting or pairing typefaces without a defined print context (use `typography-system`)
@@ -61,24 +64,24 @@ Every print document exists within three concentric zones. Document size equals 
 
 - **Trim size (the final product):** The dimensions of the piece after all cutting is done. Use the standard size reference below. If the user specifies a custom size, verify it is within the printer's sheet size and impose limitations. Always confirm whether measurements are width x height (portrait: height > width) or width x height (landscape: width > height). State orientation explicitly.
 
-  | Product                | Trim Size (mm)          | Trim Size (inches)         | Notes                          |
-  |------------------------|-------------------------|----------------------------|--------------------------------|
-  | Business card (standard) | 89 x 51 mm            | 3.5 x 2 in                 | US standard                    |
-  | Business card (EU)     | 85 x 55 mm              | 3.35 x 2.17 in             | ISO standard                   |
-  | Business card (square) | 65 x 65 mm              | 2.56 x 2.56 in             | Boutique format                |
-  | Postcard (A6)          | 148 x 105 mm            | 5.83 x 4.13 in             |                                |
-  | DL flyer/compliment slip | 210 x 99 mm           | 8.27 x 3.9 in              | Fits DL envelope               |
-  | A5 flyer               | 210 x 148 mm            | 8.27 x 5.83 in             |                                |
-  | A4 flyer/letter        | 297 x 210 mm            | 11.69 x 8.27 in            |                                |
-  | US Letter              | 279 x 216 mm            | 11 x 8.5 in                |                                |
-  | A3 poster              | 420 x 297 mm            | 16.54 x 11.69 in           |                                |
-  | A2 poster              | 594 x 420 mm            | 23.39 x 16.54 in           |                                |
-  | A1 poster              | 841 x 594 mm            | 33.11 x 23.39 in           |                                |
-  | Large banner (roll-up) | 850 x 2000 mm           | 33.46 x 78.74 in           | Varies by stand                |
-  | Tri-fold brochure      | 297 x 210 mm (flat)     | 11.69 x 8.27 in (flat)     | Folds to 99 x 210 mm          |
-  | Bi-fold (half-fold) A4 | 297 x 210 mm (flat)    | 11.69 x 8.27 in (flat)     | Folds to 148.5 x 210 mm       |
-  | Booklet (A5 saddle)    | A4 flat, A5 finished    | --                          | Page count divisible by 4      |
-  | CD/DVD insert          | 120 x 120 mm            | 4.72 x 4.72 in             |                                |
+  | Product                  | Trim Size (mm)       | Trim Size (inches)     | Notes                     |
+  | ------------------------ | -------------------- | ---------------------- | ------------------------- |
+  | Business card (standard) | 89 x 51 mm           | 3.5 x 2 in             | US standard               |
+  | Business card (EU)       | 85 x 55 mm           | 3.35 x 2.17 in         | ISO standard              |
+  | Business card (square)   | 65 x 65 mm           | 2.56 x 2.56 in         | Boutique format           |
+  | Postcard (A6)            | 148 x 105 mm         | 5.83 x 4.13 in         |                           |
+  | DL flyer/compliment slip | 210 x 99 mm          | 8.27 x 3.9 in          | Fits DL envelope          |
+  | A5 flyer                 | 210 x 148 mm         | 8.27 x 5.83 in         |                           |
+  | A4 flyer/letter          | 297 x 210 mm         | 11.69 x 8.27 in        |                           |
+  | US Letter                | 279 x 216 mm         | 11 x 8.5 in            |                           |
+  | A3 poster                | 420 x 297 mm         | 16.54 x 11.69 in       |                           |
+  | A2 poster                | 594 x 420 mm         | 23.39 x 16.54 in       |                           |
+  | A1 poster                | 841 x 594 mm         | 33.11 x 23.39 in       |                           |
+  | Large banner (roll-up)   | 850 x 2000 mm        | 33.46 x 78.74 in       | Varies by stand           |
+  | Tri-fold brochure        | 297 x 210 mm (flat)  | 11.69 x 8.27 in (flat) | Folds to 99 x 210 mm      |
+  | Bi-fold (half-fold) A4   | 297 x 210 mm (flat)  | 11.69 x 8.27 in (flat) | Folds to 148.5 x 210 mm   |
+  | Booklet (A5 saddle)      | A4 flat, A5 finished | --                     | Page count divisible by 4 |
+  | CD/DVD insert            | 120 x 120 mm         | 4.72 x 4.72 in         |                           |
 
 - **Bleed zone:** Background artwork, images, and color fills that reach the edge of the final product must extend into the bleed zone. This prevents white slivers appearing when the cutter is even fractionally off-position. Standard bleed values:
   - Standard offset/digital print (business cards, flyers, brochures): 3mm (0.125 in) on all four sides
@@ -400,24 +403,31 @@ Assemble all gathered information into the structured output format. Include the
 ## Edge Cases
 
 ### Large Format Printing (Banners, Trade Show Displays, Signage)
+
 Large format inkjet printing on vinyl, fabric, or rigid substrates follows different rules from sheet-fed print. Resolution at final size drops to 100-150 DPI because viewing distance compensates for lower pixel density -- at 2 meters, 72-100 DPI is often acceptable; at 3+ meters, even lower. Always state the intended viewing distance in the spec so the resolution requirement is contextually justified. Bleed increases to 10-15mm (some roll-up banner stands require 50-80mm at the bottom for the cassette). Ink coverage limits are lower (180-220% for solvent inks on vinyl). Color management is less precise -- large format inkjet RIPs use their own proprietary color calibration and the printer's profile should be requested and used. Total ink coverage concerns shift from drying time to ink pooling and dry time on substrate. Pantone spot colors are not available -- CMYK (or extended gamut RGB where the printer uses a 6- or 8-color inkset) only.
 
 ### Packaging with Die-Cut, Crease, and Multiple Panels
+
 Packaging specifications are structurally more complex than flat print products. The dieline is the engineering document -- it specifies cut lines, crease lines (valley and mountain folds), glue tabs, and window cutouts. Each type of line must be on a separate layer with a distinct spot color: "Die Cut," "Valley Fold," "Mountain Fold," "Glue Area," "Window." Artwork for each face must account for panel bleed independently -- background color and patterns must extend 3mm beyond every cut and crease line. The "bleed" on a packaging dieline is relative to each face panel's trim, not the overall sheet. Specify the structure flat (how it unfolds) and confirm the assembly direction. Registration is critical for multi-pass packaging (e.g., white base + CMYK over-print on metallic substrate). Always request a physical mock-up proof (a white dummy or unprinted cut-and-fold) before press approval. Ink coverage limits on folded carton board can be as low as 240-260% due to board weight and finishing interactions.
 
 ### Two-Color and Single-Color Spot Color Jobs
+
 When budget constrains a job to one or two Pantone spot colors instead of full CMYK, the entire color workflow changes. There are no CMYK channels -- only spot color plates. Every design element must be either 100% of Spot Color 1, 100% of Spot Color 2, a screen tint (percentage) of either, or an overprint mix of both. Gradients must be expressed as tints of a single spot color or a transition from one spot to another. Photographs must be converted to duotone (two-color halftone) or monotone using one of the spot colors. Total ink coverage limits still apply but are simpler to manage. The file must contain only the named spot colors in the swatch panel -- no stray CMYK or RGB objects. PDF/X-1a handles spot-only jobs correctly. Pantone swatch books must be used for color selection -- screen display of Pantone colors is not reliable for approval decisions.
 
 ### Variable Data Printing (VDP) and Personalization
+
 Variable data printing -- where recipient name, address, offer code, or image varies per printed piece -- requires PDF/X-4 (or PDF/VT-1) format to support the variable layers. The spec must distinguish fixed (invariant) artwork from variable zones. Variable fields must be clearly marked in the design with bounding box dimensions, font specification, maximum character counts, and text overflow handling rules (what happens if a name is 40 characters vs. 10). All variable data fonts must be embedded in the PDF or pre-approved for printer-resident fonts. Images in variable zones (personalized photos) must all be pre-converted to CMYK at 300 DPI and named to match the data merge fields exactly. Bleed handling for variable items near the trim edge requires confirmation with the VDP vendor. Pantone spot colors are typically not available in digital VDP workflows.
 
 ### Specialty Finishes -- Spot UV, Foil Stamping, Soft-Touch Lamination
+
 These finishes each add a file layer and production complexity. Spot UV is applied over a laminated surface: the artwork must include a separate vector layer ("Spot UV") showing exactly which areas receive the gloss varnish coating. This layer should be 100% black fill (or a named spot color), vector outlines only -- no gradients or raster content. Minimum feature size for spot UV is 1mm lines and 8pt text. Foil stamping is similar but presses a metallic foil onto the substrate using heat and pressure -- the foil layer must be vector closed paths with no gradients or transparency. Minimum text size for foil is 8-10pt depending on foil type and press capability. Soft-touch matte lamination changes the surface feel but also affects color perception -- printed colors appear slightly darker under soft-touch laminate than they do under gloss. If a job has soft-touch lamination, add 5-10% lightness to dark colors to compensate. Always specify the order of finishes: print, then laminate, then spot UV or foil, then die-cut. Never spot UV before lamination (the varnish has nothing to bond to). Embossing and debossing require the finish to happen after lamination and after any foil.
 
 ### Double-Sided Print and Booklet Imposition
+
 Double-sided print requires front and back to be separate pages in the PDF. Page 1 = front (or outside), Page 2 = back (or inside). The orientation relationship between front and back must be explicitly specified: head-to-head (both pages read with the same edge at top when flipped vertically, standard for portrait) or head-to-foot (flip horizontally, sometimes used for landscape pieces). For booklets and books in saddle-stitch binding, pages must be in reading order (1, 2, 3, 4...) and the printer will impose them into signature sheets -- do not attempt to manually reorder pages into printer spreads unless explicitly requested. Page count for saddle-stitch must be divisible by 4 (each sheet provides 4 pages). Add blank pages if needed and note which pages are intentionally blank. For perfect binding, the spine width must be calculated based on page count and paper stock -- approximately 0.1mm per page for 80gsm uncoated text stock. Gutter safe area on bound documents adds 3-5mm on the spine side beyond the standard 5mm safe margin. Bleeds on the spine (inside) edge of perfect-bound documents may not be achievable -- confirm trimming with the binder.
 
 ### Offset Press Registration and Critical Color Tolerance
+
 When specifying color for offset print, understand that press registration tolerance (the accuracy with which plates align) is typically ±0.15-0.25mm on a well-maintained sheetfed offset press. This means any design element thinner than 0.5mm that uses more than one color plate risks visible misregistration. Thin color outlines, fine serif type in color, and hairline rules in CMYK must be treated with caution. Converting a thin colored rule to a single spot color eliminates this risk. Color tolerance on press is measured in delta-E (ΔE) -- a ΔE of 2 or below is considered a match; ΔE of 3-5 is a near match; above 5 is a visible deviation. When proofing for critical brand colors, specify the acceptable ΔE tolerance in the spec (typically ΔE ≤ 3 for brand compliance). Colors near the CMYK gamut boundary (saturated cyan-greens, bright oranges, vivid purples) will shift noticeably from screen appearance -- always proof these colors before approving the run.
 
 ---
@@ -433,32 +443,35 @@ When specifying color for offset print, understand that press registration toler
 ## Print Design Spec: Square Business Card (Double-Sided, Soft-Touch + Spot UV)
 
 ### Product Overview
-| Parameter          | Value                                                              |
-|--------------------|--------------------------------------------------------------------|
-| Product type       | Square business card, double-sided                                 |
-| Print run quantity | 500 copies                                                         |
-| Printing method    | Digital short-run or short-run offset (confirm with vendor at 500) |
-| Substrate          | 400gsm silk coated board (recommended for lamination)              |
+
+| Parameter          | Value                                                                      |
+| ------------------ | -------------------------------------------------------------------------- |
+| Product type       | Square business card, double-sided                                         |
+| Print run quantity | 500 copies                                                                 |
+| Printing method    | Digital short-run or short-run offset (confirm with vendor at 500)         |
+| Substrate          | 400gsm silk coated board (recommended for lamination)                      |
 | Finishing          | Soft-touch matte lamination (both sides) + spot UV (front, logo area only) |
-| Proof required     | Digital PDF proof minimum; wet proof recommended for spot UV placement |
-| Delivery region    | EU -- Fogra39 ICC profile                                          |
+| Proof required     | Digital PDF proof minimum; wet proof recommended for spot UV placement     |
+| Delivery region    | EU -- Fogra39 ICC profile                                                  |
 
 ---
 
 ### Dimensions
-| Zone              | Width (mm)  | Width (in)  | Height (mm) | Height (in) | Notes                              |
-|-------------------|-------------|-------------|-------------|-------------|------------------------------------|
-| Trim size         | 65mm        | 2.56in      | 65mm        | 2.56in      | Square format, final cut size      |
-| Bleed             | +3mm each   | +0.125in each | +3mm each | +0.125in each | All four sides                  |
-| Document/artboard | 71mm        | 2.795in     | 71mm        | 2.795in     | 65mm + 3mm bleed each side         |
+
+| Zone              | Width (mm)      | Width (in)     | Height (mm)     | Height (in)    | Notes                           |
+| ----------------- | --------------- | -------------- | --------------- | -------------- | ------------------------------- |
+| Trim size         | 65mm            | 2.56in         | 65mm            | 2.56in         | Square format, final cut size   |
+| Bleed             | +3mm each       | +0.125in each  | +3mm each       | +0.125in each  | All four sides                  |
+| Document/artboard | 71mm            | 2.795in        | 71mm            | 2.795in        | 65mm + 3mm bleed each side      |
 | Safe area margin  | 3mm inside trim | 0.118in inside | 3mm inside trim | 0.118in inside | Smaller product; 3mm sufficient |
 
 ---
 
 ### Color Specifications
-| Element              | Mode   | C   | M   | Y   | K   | PMS (if applicable)  | TIC  | Notes                         |
-|----------------------|--------|-----|-----|-----|-----|----------------------|------|-------------------------------|
-| Body text (name, title, contact) | CMYK | 0 | 0 | 0 | 100 | -- | 100% | K-only black mandatory for fine type |
-| Brand blue (back fill)| CMYK | 100 | 72 | 0   | 18  | PMS 2945 C           | 190% | Solid flood fill on back; verify with proof |
-| Brand blue (front accents) | CMYK | 100 | 72 | 0 | 18 | PMS 2945 C         | 190% | Match back exactly            |
-| Logo (spot UV area)  | CMYK   | [logo CMYK]
+
+| Element                          | Mode | C           | M   | Y   | K   | PMS (if applicable) | TIC  | Notes                                       |
+| -------------------------------- | ---- | ----------- | --- | --- | --- | ------------------- | ---- | ------------------------------------------- |
+| Body text (name, title, contact) | CMYK | 0           | 0   | 0   | 100 | --                  | 100% | K-only black mandatory for fine type        |
+| Brand blue (back fill)           | CMYK | 100         | 72  | 0   | 18  | PMS 2945 C          | 190% | Solid flood fill on back; verify with proof |
+| Brand blue (front accents)       | CMYK | 100         | 72  | 0   | 18  | PMS 2945 C          | 190% | Match back exactly                          |
+| Logo (spot UV area)              | CMYK | [logo CMYK] |

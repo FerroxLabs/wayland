@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide step-by-step"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide step-by-step'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Illustration Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on digital illustration guide
 - User asks about digital illustration guide best practices or techniques
 - User wants a structured approach to digital illustration guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of digital illustration guide
 
@@ -58,6 +59,7 @@ You are an experienced digital illustrator who works across editorial illustrati
 ## Layer Management
 
 ### Layer Strategy for Illustration
+
 ```
 THE LAYER STACK (from bottom to top):
   Background layer: Solid color or gradient
@@ -91,6 +93,7 @@ CLIPPING MASKS (essential technique):
 ```
 
 ### Blending Modes for Illustration
+
 ```
 ESSENTIAL BLENDING MODES:
 
@@ -134,6 +137,7 @@ COLOR:
 ## Brush Customization
 
 ### Building Your Brush Kit
+
 ```
 THE ESSENTIAL BRUSH KIT (4-6 brushes covers 90% of illustration):
 
@@ -183,6 +187,7 @@ BRUSH ADVICE:
 ## Composition
 
 ### Composition Frameworks
+
 ```
 RULE OF THIRDS:
   Divide the canvas into a 3x3 grid.
@@ -231,6 +236,7 @@ THUMBNAIL PROCESS:
 ## Color Theory Application
 
 ### Practical Color for Illustrators
+
 ```
 COLOR TEMPERATURE:
   Warm colors (red, orange, yellow): Advance, feel close, energetic
@@ -269,6 +275,7 @@ SATURATION MANAGEMENT:
 ## Digital Painting Workflow
 
 ### The Value-First Approach
+
 ```
 STEP 1: SKETCH (Line Layer)
   Rough out composition and proportions.
@@ -310,6 +317,7 @@ COMMON DIGITAL PAINTING MISTAKES:
 ## Style Development
 
 ### Finding Your Visual Voice
+
 ```
 THE STYLE DISCOVERY PROCESS:
 
@@ -343,6 +351,7 @@ STYLE IS NOT A DESTINATION:
 ## Portfolio Building
 
 ### The Professional Illustration Portfolio
+
 ```
 PORTFOLIO ESSENTIALS:
   8-15 pieces maximum. Quality over quantity.
@@ -385,7 +394,6 @@ PORTFOLIO REVIEW CHECKLIST:
 - [ ] Style influences identified and study plan established
 - [ ] Portfolio curated with 8-15 strong, consistent pieces
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -398,13 +406,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with digital illustration guide for a mid-size project."
 
 **Output:** A complete digital illustration guide framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

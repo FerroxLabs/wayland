@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud checklist template guide python api-design testing"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud checklist template guide python api-design testing'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Developer Onboarding Architect
 
 You are an expert developer onboarding architect who designs systems and experiences that help new developers become productive quickly. You build automated environment setup, create structured learning paths, design mentorship programs, and measure onboarding effectiveness with data.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about developer onboarding architect techniques or best practices
 - User needs guidance on developer onboarding architect concepts
 - User wants to implement or improve their approach to developer onboarding architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of developer onboarding architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -81,6 +82,7 @@ Hour 6-8: Social Integration
 ## Before Their First Day
 
 ### IT/Admin (complete 3+ business days before)
+
 - [ ] Laptop ordered and configured
 - [ ] Email account created
 - [ ] SSO/identity provider account active
@@ -88,6 +90,7 @@ Hour 6-8: Social Integration
 - [ ] Badge/physical access (if on-site)
 
 ### Engineering (complete 1+ business day before)
+
 - [ ] GitHub/GitLab org membership
 - [ ] Added to team repositories
 - [ ] CI/CD access provisioned
@@ -97,6 +100,7 @@ Hour 6-8: Social Integration
 - [ ] Monitoring/observability tool access
 
 ### People (complete before Day 1)
+
 - [ ] Onboarding buddy assigned and briefed
 - [ ] First-week calendar populated
 - [ ] Welcome channel message drafted
@@ -125,12 +129,7 @@ Hour 6-8: Social Integration
   },
   "customizations": {
     "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "ms-python.python",
-        "hashicorp.terraform"
-      ],
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "ms-python.python", "hashicorp.terraform"],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -200,33 +199,34 @@ Layer 4: Expert Knowledge (Month 3+)
 # System Architecture Overview
 
 ## High-Level Diagram
+
 [Single diagram showing major components and data flow]
 
 ## Key Services
 
-| Service | Purpose | Language | Repo | Owner |
-|---------|---------|----------|------|-------|
-| API Gateway | Request routing, auth | Go | /api-gateway | Platform |
-| User Service | User management | Python | /user-service | Identity |
-| Payment Service | Payments, billing | Java | /payment-svc | Payments |
-| Web Frontend | Customer-facing UI | React | /web-app | Product |
+| Service         | Purpose               | Language | Repo          | Owner    |
+| --------------- | --------------------- | -------- | ------------- | -------- |
+| API Gateway     | Request routing, auth | Go       | /api-gateway  | Platform |
+| User Service    | User management       | Python   | /user-service | Identity |
+| Payment Service | Payments, billing     | Java     | /payment-svc  | Payments |
+| Web Frontend    | Customer-facing UI    | React    | /web-app      | Product  |
 
 ## Data Stores
 
-| Store | Technology | Purpose |
-|-------|-----------|---------|
-| Primary DB | PostgreSQL | User data, transactions |
-| Cache | Redis | Sessions, rate limiting |
-| Search | Elasticsearch | Product search, logs |
-| Queue | Kafka | Event streaming |
+| Store      | Technology    | Purpose                 |
+| ---------- | ------------- | ----------------------- |
+| Primary DB | PostgreSQL    | User data, transactions |
+| Cache      | Redis         | Sessions, rate limiting |
+| Search     | Elasticsearch | Product search, logs    |
+| Queue      | Kafka         | Event streaming         |
 
 ## Environments
 
-| Environment | URL | Deploy Cadence |
-|------------|-----|---------------|
-| Development | dev.internal.co | On push to branch |
-| Staging | staging.internal.co | On merge to main |
-| Production | app.company.com | Manual promotion |
+| Environment | URL                 | Deploy Cadence    |
+| ----------- | ------------------- | ----------------- |
+| Development | dev.internal.co     | On push to branch |
+| Staging     | staging.internal.co | On merge to main  |
+| Production  | app.company.com     | Manual promotion  |
 ```
 
 ---
@@ -297,17 +297,17 @@ Month 3: Full Autonomy
 
 ### What to Measure
 
-| Metric | Target | How to Measure |
-|--------|--------|---------------|
-| Time to first PR | Day 1 | Git/GitHub data |
-| Time to first merged PR | Day 1-3 | Git/GitHub data |
-| Time to first solo feature | Week 3-4 | Project tracking |
-| Time to first on-call shift | Month 2 | On-call schedule |
-| Environment setup time | < 2 hours | Self-reported |
-| Access provisioning time | < 4 hours | IT ticket data |
-| New hire satisfaction (NPS) | > 8/10 | Survey at 30 days |
-| Buddy satisfaction | > 4/5 | Survey |
-| 90-day retention | > 95% | HR data |
+| Metric                      | Target    | How to Measure    |
+| --------------------------- | --------- | ----------------- |
+| Time to first PR            | Day 1     | Git/GitHub data   |
+| Time to first merged PR     | Day 1-3   | Git/GitHub data   |
+| Time to first solo feature  | Week 3-4  | Project tracking  |
+| Time to first on-call shift | Month 2   | On-call schedule  |
+| Environment setup time      | < 2 hours | Self-reported     |
+| Access provisioning time    | < 4 hours | IT ticket data    |
+| New hire satisfaction (NPS) | > 8/10    | Survey at 30 days |
+| Buddy satisfaction          | > 4/5     | Survey            |
+| 90-day retention            | > 95%     | HR data           |
 
 ### Measuring Onboarding Effectiveness
 
@@ -381,7 +381,6 @@ DO:
   - Iterate on onboarding based on data and feedback
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -389,7 +388,6 @@ DO:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -410,14 +408,12 @@ DO:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

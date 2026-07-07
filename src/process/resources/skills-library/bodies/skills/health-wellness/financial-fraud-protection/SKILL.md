@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist guide cloud safety emergency-preparedness investing tax-planning"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist guide cloud safety emergency-preparedness investing tax-planning'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Financial Fraud Protection Guide
 
 > **Disclaimer:** This guide is for educational purposes only and does not constitute legal or financial advice. If you are a victim of fraud, contact law enforcement and consult with an attorney. Financial fraud laws and recovery options vary by jurisdiction and fraud type.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about financial fraud protection techniques or best practices
 - User needs guidance on financial fraud protection concepts
 - User wants to implement or improve their approach to financial fraud protection
 
 **Do NOT use when:**
+
 - The request falls outside the scope of financial fraud protection
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ metadata:
 ### Protecting Your Personal Information
 
 **Physical Security:**
+
 - [ ] Shred documents containing personal information before discarding
 - [ ] Lock your mailbox or use a PO Box for sensitive mail
 - [ ] Do not carry your Social Security card (memorize the number)
@@ -61,6 +63,7 @@ metadata:
 - [ ] Opt out of pre-approved credit offers (OptOutPrescreen.com or 1-888-567-8688)
 
 **Digital Security:**
+
 - [ ] Use strong, unique passwords for all financial accounts
 - [ ] Enable two-factor authentication on all financial accounts
 - [ ] Monitor accounts for unauthorized transactions weekly
@@ -70,6 +73,7 @@ metadata:
 - [ ] Use a password manager
 
 **Mail and Phone:**
+
 - [ ] Opt out of junk mail (DMAchoice.org)
 - [ ] Register with the Do Not Call Registry (donotcall.gov)
 - [ ] Do not provide personal information to unsolicited callers
@@ -78,15 +82,15 @@ metadata:
 
 ### Types of Identity Theft
 
-| Type | What Happens | Warning Signs |
-|------|-------------|---------------|
-| Financial | Fraudster opens accounts or makes charges in your name | Unknown accounts on credit report, unexpected bills |
-| Tax | Someone files a tax return using your SSN | IRS rejection of your filing, unexpected refund |
-| Medical | Someone uses your identity for medical services | Unknown medical bills, incorrect medical records |
-| Employment | Someone uses your SSN for employment | IRS reports income from unknown employer |
-| Child | A child's SSN is used for accounts | Child receives credit offers, cannot open accounts at 18 |
-| Criminal | Someone uses your identity during arrest | Arrest warrant for crimes you did not commit |
-| Synthetic | Fraudster combines real and fake information | Harder to detect; often found during credit check |
+| Type       | What Happens                                           | Warning Signs                                            |
+| ---------- | ------------------------------------------------------ | -------------------------------------------------------- |
+| Financial  | Fraudster opens accounts or makes charges in your name | Unknown accounts on credit report, unexpected bills      |
+| Tax        | Someone files a tax return using your SSN              | IRS rejection of your filing, unexpected refund          |
+| Medical    | Someone uses your identity for medical services        | Unknown medical bills, incorrect medical records         |
+| Employment | Someone uses your SSN for employment                   | IRS reports income from unknown employer                 |
+| Child      | A child's SSN is used for accounts                     | Child receives credit offers, cannot open accounts at 18 |
+| Criminal   | Someone uses your identity during arrest               | Arrest warrant for crimes you did not commit             |
+| Synthetic  | Fraudster combines real and fake information           | Harder to detect; often found during credit check        |
 
 ---
 
@@ -94,27 +98,30 @@ metadata:
 
 ### Three Credit Bureaus
 
-| Bureau | Free Report | Freeze | Fraud Alert | Phone |
-|--------|------------|--------|-------------|-------|
-| Equifax | AnnualCreditReport.com | equifax.com/freeze | equifax.com | 1-800-349-9960 |
-| Experian | AnnualCreditReport.com | experian.com/freeze | experian.com | 1-888-397-3742 |
+| Bureau     | Free Report            | Freeze                | Fraud Alert    | Phone          |
+| ---------- | ---------------------- | --------------------- | -------------- | -------------- |
+| Equifax    | AnnualCreditReport.com | equifax.com/freeze    | equifax.com    | 1-800-349-9960 |
+| Experian   | AnnualCreditReport.com | experian.com/freeze   | experian.com   | 1-888-397-3742 |
 | TransUnion | AnnualCreditReport.com | transunion.com/freeze | transunion.com | 1-888-909-8872 |
 
 ### Monitoring Strategy
 
 **Free monitoring approach:**
+
 - Request one free report from each bureau annually at AnnualCreditReport.com
 - Stagger requests (one bureau every 4 months for year-round coverage)
 - Set calendar reminders for each check
 - Review for unknown accounts, inquiries, and incorrect information
 
 **Enhanced monitoring:**
+
 - Many banks and credit cards offer free credit score monitoring
 - Credit Karma (free) monitors TransUnion and Equifax
 - Experian offers free monitoring of your Experian report
 - Paid services (LifeLock, Identity Guard) offer additional features
 
 ### What to Look for on Credit Reports
+
 - [ ] Accounts you did not open
 - [ ] Inquiries you did not authorize
 - [ ] Incorrect personal information (addresses, employers)
@@ -130,6 +137,7 @@ metadata:
 ### Phishing Scams (Email)
 
 **Common phishing scenarios:**
+
 - "Your account has been compromised -- click here to verify"
 - "You have a package delivery issue -- update your information"
 - "Your payment failed -- enter your card information again"
@@ -137,6 +145,7 @@ metadata:
 - "Your boss needs you to buy gift cards urgently" (business email compromise)
 
 **How to identify:**
+
 - Check the actual sender email address (not just the display name)
 - Hover over links before clicking (does the URL match the claimed sender?)
 - Look for urgency, threats, or pressure
@@ -147,6 +156,7 @@ metadata:
 ### Vishing Scams (Phone)
 
 **Common phone scam scripts:**
+
 - "This is the IRS. You owe back taxes and a warrant has been issued for your arrest."
 - "This is Social Security. Your number has been suspended due to suspicious activity."
 - "This is your bank's fraud department. We detected unauthorized charges."
@@ -155,6 +165,7 @@ metadata:
 - "Your grandchild is in jail and needs bail money immediately."
 
 **Key rules:**
+
 - The IRS never calls to demand immediate payment or threaten arrest
 - Social Security never suspends your number
 - Your bank may call about fraud, but will never ask for your full password or PIN
@@ -164,6 +175,7 @@ metadata:
 ### Romance Scams
 
 **Warning signs:**
+
 - Met online (dating site, social media) but always has excuses not to meet in person
 - Professes love very quickly
 - Claims to be working abroad (military, oil rig, doctor overseas)
@@ -173,6 +185,7 @@ metadata:
 - Photos may be stolen (reverse image search on Google)
 
 **Protection:**
+
 - Never send money to someone you have not met in person
 - Reverse image search their photos
 - Be skeptical of overly perfect profiles
@@ -182,6 +195,7 @@ metadata:
 ### Investment Scams
 
 **Red flags:**
+
 - Guaranteed returns with no risk
 - Pressure to invest immediately
 - Unsolicited investment offers (cold calls, social media messages)
@@ -192,6 +206,7 @@ metadata:
 - Ponzi structure (returns paid from new investors' money)
 
 **Protection:**
+
 - Verify the investment and the advisor at SEC.gov/EDGAR or FINRA BrokerCheck
 - Never invest based on a phone call or social media message
 - If it sounds too good to be true, it is
@@ -200,14 +215,14 @@ metadata:
 
 ### Other Common Scams
 
-| Scam Type | How It Works | Protection |
-|-----------|-------------|-----------|
-| Tech support | Fake pop-up says your computer is infected; call a number | Never call numbers from pop-ups; close the browser |
-| Charity scam | Fake charity solicitation after disasters or holidays | Verify at CharityNavigator.org or GuideStar |
-| Lottery/sweepstakes | "You've won! Pay processing fee to claim" | You cannot win a contest you did not enter |
-| Rental scam | Below-market rent for a property the scammer does not own | Never pay without seeing the property and verifying ownership |
-| Job scam | Pay for training, supplies, or background check upfront | Legitimate employers do not charge you to start working |
-| Government impersonation | Fake calls from IRS, SSA, FBI demanding payment | Government agencies communicate by mail, not threats |
+| Scam Type                | How It Works                                              | Protection                                                    |
+| ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------- |
+| Tech support             | Fake pop-up says your computer is infected; call a number | Never call numbers from pop-ups; close the browser            |
+| Charity scam             | Fake charity solicitation after disasters or holidays     | Verify at CharityNavigator.org or GuideStar                   |
+| Lottery/sweepstakes      | "You've won! Pay processing fee to claim"                 | You cannot win a contest you did not enter                    |
+| Rental scam              | Below-market rent for a property the scammer does not own | Never pay without seeing the property and verifying ownership |
+| Job scam                 | Pay for training, supplies, or background check upfront   | Legitimate employers do not charge you to start working       |
+| Government impersonation | Fake calls from IRS, SSA, FBI demanding payment           | Government agencies communicate by mail, not threats          |
 
 ---
 
@@ -218,6 +233,7 @@ metadata:
 **What it does:** Prevents anyone (including you) from opening new credit accounts in your name until you lift the freeze.
 
 **How to set it up:**
+
 1. Contact each bureau separately (Equifax, Experian, TransUnion)
 2. Provide identification information
 3. Each bureau will give you a unique PIN or password
@@ -226,6 +242,7 @@ metadata:
 **Cost:** Free (federally mandated since 2018)
 
 **To temporarily lift:**
+
 - Contact the bureau where you need the inquiry
 - Provide your PIN
 - Specify how long to lift the freeze (can be for a specific creditor or time period)
@@ -233,12 +250,12 @@ metadata:
 
 ### Credit Lock vs. Credit Freeze
 
-| Feature | Credit Freeze | Credit Lock |
-|---------|--------------|-------------|
-| Legal protection | Federal law (guaranteed) | Contractual (company policy) |
-| Cost | Free | Free or paid (depending on bureau) |
-| Speed to lift | Within 1 hour (online/phone) | Often instant (via app) |
-| Offered by | All three bureaus (required by law) | Individual bureau products |
+| Feature          | Credit Freeze                       | Credit Lock                        |
+| ---------------- | ----------------------------------- | ---------------------------------- |
+| Legal protection | Federal law (guaranteed)            | Contractual (company policy)       |
+| Cost             | Free                                | Free or paid (depending on bureau) |
+| Speed to lift    | Within 1 hour (online/phone)        | Often instant (via app)            |
+| Offered by       | All three bureaus (required by law) | Individual bureau products         |
 
 **Recommendation:** A credit freeze is sufficient for most people and has legal protections that locks do not.
 
@@ -249,6 +266,7 @@ metadata:
 ### If You Are a Victim of Fraud
 
 **Immediate steps (first 24 hours):**
+
 1. Contact your bank and credit card companies to freeze affected accounts
 2. Change passwords on compromised accounts
 3. File a report at IdentityTheft.gov (FTC) -- this creates your official recovery plan
@@ -256,6 +274,7 @@ metadata:
 5. Place a fraud alert with one credit bureau (they notify the other two)
 
 **Within the first week:**
+
 - [ ] Freeze your credit at all three bureaus
 - [ ] Review all three credit reports for unauthorized accounts
 - [ ] Dispute unauthorized accounts with each creditor in writing
@@ -265,6 +284,7 @@ metadata:
 - [ ] Contact your state attorney general's office
 
 **Ongoing recovery:**
+
 - Monitor credit reports monthly for at least 12 months
 - Keep detailed records of all communications and actions
 - Follow up on disputes (creditors have 30 days to investigate)
@@ -294,6 +314,7 @@ Credit Bureau Fraud Lines:
 ## Phase 6: Elder Fraud Awareness
 
 ### Why Seniors Are Targeted
+
 - Often have significant savings and good credit
 - May be more trusting or polite to callers
 - May be less familiar with technology and digital scams
@@ -303,17 +324,18 @@ Credit Bureau Fraud Lines:
 
 ### Most Common Scams Targeting Seniors
 
-| Scam | Tactic | Prevention |
-|------|--------|-----------|
-| Grandparent scam | "Your grandchild is in trouble and needs money now" | Verify by calling the grandchild directly at their known number |
-| Medicare/insurance scam | Request Medicare number for "new card" or "free benefit" | Medicare will never call to ask for your number |
-| Tech support | Fake virus warning, remote access to computer | Never give remote access; hang up and call a trusted person |
-| Romance scam | Online relationship leading to money requests | Never send money to someone you have not met |
-| Sweepstakes/lottery | "You've won! Pay the fee to claim" | You cannot win a contest you did not enter |
-| Home repair | Unsolicited door-to-door contractors | Get multiple quotes, never pay full amount upfront |
-| Power of attorney abuse | Trusted person misuses financial authority | Use an attorney to set up POA, consider co-agents |
+| Scam                    | Tactic                                                   | Prevention                                                      |
+| ----------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| Grandparent scam        | "Your grandchild is in trouble and needs money now"      | Verify by calling the grandchild directly at their known number |
+| Medicare/insurance scam | Request Medicare number for "new card" or "free benefit" | Medicare will never call to ask for your number                 |
+| Tech support            | Fake virus warning, remote access to computer            | Never give remote access; hang up and call a trusted person     |
+| Romance scam            | Online relationship leading to money requests            | Never send money to someone you have not met                    |
+| Sweepstakes/lottery     | "You've won! Pay the fee to claim"                       | You cannot win a contest you did not enter                      |
+| Home repair             | Unsolicited door-to-door contractors                     | Get multiple quotes, never pay full amount upfront              |
+| Power of attorney abuse | Trusted person misuses financial authority               | Use an attorney to set up POA, consider co-agents               |
 
 ### Protecting Elderly Family Members
+
 - Have regular conversations about common scams (non-judgmental, informative)
 - Set up caller ID and call blocking
 - Help them register on the Do Not Call Registry
@@ -330,12 +352,14 @@ Credit Bureau Fraud Lines:
 ### Age-Appropriate Scam Education
 
 **Ages 6-10:**
+
 - Not everyone online is who they say they are
 - Never share personal information (name, address, school, phone number) with strangers online
 - Tell a parent or trusted adult if something online makes them uncomfortable
 - Not everything on the internet is true
 
 **Ages 10-14:**
+
 - Recognize phishing emails and fake websites
 - Understand that "free" offers online usually have a catch
 - Never click links from unknown senders
@@ -344,6 +368,7 @@ Credit Bureau Fraud Lines:
 - Recognize social media manipulation
 
 **Ages 14-18:**
+
 - Understand identity theft and its consequences
 - Recognize job scams and employment fraud
 - Be cautious with online shopping (verify sellers)
@@ -353,6 +378,7 @@ Credit Bureau Fraud Lines:
 - Learn about cryptocurrency and investment scams targeting young people
 
 ### Conversation Starters
+
 - "Have you ever seen something online that seemed too good to be true?"
 - "What would you do if someone online asked for your personal information?"
 - "Let me show you how to tell if an email is real or fake"
@@ -363,6 +389,7 @@ Credit Bureau Fraud Lines:
 ## Financial Security Checklist
 
 ### Essential Protections
+
 - [ ] Credit frozen at all three bureaus
 - [ ] Two-factor authentication on all financial accounts
 - [ ] Unique passwords for every financial account
@@ -373,6 +400,7 @@ Credit Bureau Fraud Lines:
 - [ ] Do Not Call Registry enrollment
 
 ### Ongoing Monitoring
+
 - [ ] Review bank and credit card statements weekly
 - [ ] Check credit reports at least quarterly
 - [ ] Verify tax return filed (or file early to prevent tax fraud)
@@ -382,7 +410,6 @@ Credit Bureau Fraud Lines:
 
 Financial fraud prevention is an ongoing practice, not a one-time setup. Stay informed about new scam tactics, maintain your protective measures, and communicate openly with family members about threats. The best defense combines technology (freezes, 2FA, monitoring) with awareness (recognizing scams before they succeed).
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -390,7 +417,6 @@ Financial fraud prevention is an ongoing practice, not a one-time setup. Stay in
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +437,12 @@ Financial fraud prevention is an ongoing practice, not a one-time setup. Stay in
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

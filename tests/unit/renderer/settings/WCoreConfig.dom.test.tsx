@@ -8,12 +8,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // --- Hoist mocks ---
-const { mockNavigate, mockGetAvailableAgents, mockProviders, mockMcpServers } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
-  mockGetAvailableAgents: vi.fn(),
-  mockProviders: { value: [] as Array<{ providerId: string }> },
-  mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
-}));
+const { mockNavigate, mockGetAvailableAgents, mockProviders, mockMcpServers, mockWcoreCheck, mockWcoreInstall } =
+  vi.hoisted(() => ({
+    mockNavigate: vi.fn(),
+    mockGetAvailableAgents: vi.fn(),
+    mockProviders: { value: [] as Array<{ providerId: string }> },
+    mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
+    mockWcoreCheck: vi.fn(),
+    mockWcoreInstall: vi.fn(),
+  }));
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
@@ -64,8 +67,8 @@ vi.mock('../../../../src/common', () => ({
     },
     // In-app engine updater (Overview pane "update available" card).
     wcoreUpdate: {
-      check: { invoke: () => Promise.resolve(null) },
-      install: { invoke: () => Promise.resolve({ ok: true }) },
+      check: { invoke: () => mockWcoreCheck() },
+      install: { invoke: () => mockWcoreInstall() },
       progress: { on: () => () => {} },
     },
   },
@@ -95,6 +98,8 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
       success: true,
       data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
     });
+    mockWcoreCheck.mockResolvedValue(null);
+    mockWcoreInstall.mockResolvedValue({ ok: true, version: '0.12.21' });
   });
 
   it('renders the seven engine rail sections (no Constitution — engine has none)', () => {
@@ -195,5 +200,30 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockGetAvailableAgents.mockResolvedValue({ success: true, data: [] });
     render(<WCoreConfig />);
     await waitFor(() => expect(screen.getByText('engine stopped')).toBeTruthy());
+  });
+
+  it('surfaces a failed engine install instead of silently reverting to "update available" (#680)', async () => {
+    // A failed install (e.g. checksum mismatch) resolves `{ ok: false }`
+    // WITHOUT ever streaming a `phase: 'error'` progress event - the invoke()
+    // result is the only signal. Before the fix this looked like the update
+    // silently did nothing after downloading.
+    mockWcoreCheck.mockResolvedValue({
+      current: '0.12.20',
+      latest: '0.12.21',
+      tag: 'v0.12.21',
+      updateAvailable: true,
+      htmlUrl: null,
+    });
+    mockWcoreInstall.mockResolvedValue({ ok: false, error: 'checksum mismatch' });
+
+    render(<WCoreConfig />);
+    await waitFor(() => expect(screen.getByText('Wayland Core 0.12.21 is available')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Update now'));
+
+    await waitFor(() => expect(screen.getByText('Wayland Core update failed')).toBeTruthy());
+    expect(screen.getByText('checksum mismatch')).toBeTruthy();
+    // A retry stays available - the failure must not strand the user.
+    expect(screen.getByText('Retry update')).toBeTruthy();
   });
 });

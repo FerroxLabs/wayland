@@ -13,14 +13,15 @@ description: >-
   (use wayland-objection-library-build).
 license: Apache-2.0
 type: workflow
-skills: "sales-coach sales-qualify sales-objections sales-followup"
+skills: 'sales-coach sales-qualify sales-objections sales-followup'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales deal-diagnosis objections forensics step-by-step
   category: sales
-  depends: "sales-coach sales-qualify sales-objections sales-followup"
+  depends: 'sales-coach sales-qualify sales-objections sales-followup'
 ---
+
 # Deal Forensic
 
 **Estimated time:** 15-25 minutes

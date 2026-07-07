@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation shell-scripting guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # n8n Workflow Builder
@@ -70,14 +70,14 @@ n8n Components:
 
 ### Common Trigger Patterns
 
-| Trigger | Use Case | Configuration |
-|---------|----------|--------------|
-| Webhook | Receive external events | Path, auth, response mode |
-| Schedule | Periodic tasks | Cron expression or interval |
-| Email Trigger (IMAP) | Process incoming emails | Mailbox, folder, filters |
-| Database Trigger | React to data changes | Poll interval, query |
-| n8n Trigger | Called by other workflows | Sub-workflow invocation |
-| Chat Trigger | Conversational AI workflows | Message input, memory |
+| Trigger              | Use Case                    | Configuration               |
+| -------------------- | --------------------------- | --------------------------- |
+| Webhook              | Receive external events     | Path, auth, response mode   |
+| Schedule             | Periodic tasks              | Cron expression or interval |
+| Email Trigger (IMAP) | Process incoming emails     | Mailbox, folder, filters    |
+| Database Trigger     | React to data changes       | Poll interval, query        |
+| n8n Trigger          | Called by other workflows   | Sub-workflow invocation     |
+| Chat Trigger         | Conversational AI workflows | Message input, memory       |
 
 ## Data Transformation
 
@@ -128,13 +128,17 @@ for (const item of items) {
   if (data.total_spend > 10000) tier = 'enterprise';
   else if (data.total_spend > 1000) tier = 'premium';
 
-  const daysSinceLastOrder = Math.floor(
-    (Date.now() - new Date(data.last_order_date).getTime()) / 86400000
-  );
+  const daysSinceLastOrder = Math.floor((Date.now() - new Date(data.last_order_date).getTime()) / 86400000);
 
   results.push({
-    json: { ...data, full_name: fullName, tier, days_since_last_order: daysSinceLastOrder,
-            is_at_risk: daysSinceLastOrder > 90, processed_at: new Date().toISOString() }
+    json: {
+      ...data,
+      full_name: fullName,
+      tier,
+      days_since_last_order: daysSinceLastOrder,
+      is_at_risk: daysSinceLastOrder > 90,
+      processed_at: new Date().toISOString(),
+    },
   });
 }
 return results;
@@ -142,7 +146,7 @@ return results;
 
 ```javascript
 // Code Node: Aggregate and summarize
-const data = $input.all().map(i => i.json);
+const data = $input.all().map((i) => i.json);
 const grouped = {};
 for (const record of data) {
   const key = record.category;
@@ -153,8 +157,12 @@ for (const record of data) {
 }
 
 return Object.entries(grouped).map(([category, stats]) => ({
-  json: { category, count: stats.count, total: stats.total,
-          average: Math.round(stats.total / stats.count * 100) / 100 }
+  json: {
+    category,
+    count: stats.count,
+    total: stats.total,
+    average: Math.round((stats.total / stats.count) * 100) / 100,
+  },
 }));
 ```
 
@@ -240,8 +248,7 @@ const batches = [];
 for (let i = 0; i < items.length; i += batchSize) {
   const batch = items.slice(i, i + batchSize);
   batches.push({
-    json: { batch_index: Math.floor(i / batchSize),
-            records: batch.map(item => item.json), count: batch.length }
+    json: { batch_index: Math.floor(i / batchSize), records: batch.map((item) => item.json), count: batch.length },
   });
 }
 return batches;
@@ -271,7 +278,7 @@ services:
   n8n:
     image: n8nio/n8n:latest
     restart: always
-    ports: ["5678:5678"]
+    ports: ['5678:5678']
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_USER}
@@ -370,6 +377,7 @@ Configuration: EXECUTIONS_MODE=queue, workers run "n8n worker" command
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing n8n workflow builder solutions
 - Reviewing or improving existing n8n workflow builder approaches
 - Making architectural or implementation decisions about n8n workflow builder
@@ -377,6 +385,7 @@ Configuration: EXECUTIONS_MODE=queue, workers run "n8n worker" command
 - Troubleshooting n8n workflow builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -387,21 +396,26 @@ Configuration: EXECUTIONS_MODE=queue, workers run "n8n worker" command
 # N8n Workflow Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

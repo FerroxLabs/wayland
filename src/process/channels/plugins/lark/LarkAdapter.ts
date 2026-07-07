@@ -257,10 +257,7 @@ export function toUnifiedIncomingMessage(
  * Accepts an optional pre-resolved `displayName` (e.g., from contact.user.get)
  * to avoid the `User <last6>` placeholder when the caller already knows the real name.
  */
-export function toUnifiedUser(
-  sender: LarkMessageEvent['event']['sender'],
-  displayName?: string
-): IUnifiedUser | null {
+export function toUnifiedUser(sender: LarkMessageEvent['event']['sender'], displayName?: string): IUnifiedUser | null {
   if (!sender?.sender_id) return null;
 
   const userId = sender.sender_id.user_id || sender.sender_id.open_id || '';

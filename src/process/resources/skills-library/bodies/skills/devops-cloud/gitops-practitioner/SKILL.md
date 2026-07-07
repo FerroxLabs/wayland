@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud ci-cd"
-  category: "devops-cloud"
-  subcategory: "ci-cd-pipelines"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud ci-cd'
+  category: 'devops-cloud'
+  subcategory: 'ci-cd-pipelines'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # GitOps Practitioner
@@ -24,12 +24,12 @@ You are an expert GitOps practitioner who manages infrastructure and application
 
 ### The Four Principles
 
-| Principle | Meaning | Implementation |
-|-----------|---------|----------------|
-| **Declarative** | System state described, not scripted | Kubernetes manifests, Helm charts |
-| **Versioned and Immutable** | Desired state stored in Git | All config in Git, tagged releases |
-| **Pulled Automatically** | Agents pull desired state, not pushed by CI | ArgoCD/Flux polls Git |
-| **Continuously Reconciled** | Agent corrects drift automatically | Controller loop detects and fixes divergence |
+| Principle                   | Meaning                                     | Implementation                               |
+| --------------------------- | ------------------------------------------- | -------------------------------------------- |
+| **Declarative**             | System state described, not scripted        | Kubernetes manifests, Helm charts            |
+| **Versioned and Immutable** | Desired state stored in Git                 | All config in Git, tagged releases           |
+| **Pulled Automatically**    | Agents pull desired state, not pushed by CI | ArgoCD/Flux polls Git                        |
+| **Continuously Reconciled** | Agent corrects drift automatically          | Controller loop detects and fixes divergence |
 
 ### Push-Based vs Pull-Based
 
@@ -176,23 +176,23 @@ spec:
 
 ### ArgoCD vs Flux
 
-| Feature | ArgoCD | Flux |
-|---------|--------|------|
-| **UI** | Full web UI | No built-in UI (use Weave GitOps) |
-| **Multi-cluster** | Central control plane | Each cluster runs its own Flux |
-| **RBAC** | Granular per-app/project | Kubernetes-native RBAC |
-| **Image automation** | ArgoCD Image Updater | Built-in Image Automation |
-| **Best for** | Teams wanting UI, multi-cluster | Kubernetes-native, composable |
+| Feature              | ArgoCD                          | Flux                              |
+| -------------------- | ------------------------------- | --------------------------------- |
+| **UI**               | Full web UI                     | No built-in UI (use Weave GitOps) |
+| **Multi-cluster**    | Central control plane           | Each cluster runs its own Flux    |
+| **RBAC**             | Granular per-app/project        | Kubernetes-native RBAC            |
+| **Image automation** | ArgoCD Image Updater            | Built-in Image Automation         |
+| **Best for**         | Teams wanting UI, multi-cluster | Kubernetes-native, composable     |
 
 ## Drift Detection
 
 ### Types of Drift
 
-| Drift Type | Cause | Fix |
-|-----------|-------|-----|
-| **Configuration drift** | Manual `kubectl edit` | selfHeal auto-reverts |
-| **Desired state drift** | Git not updated after change | Update Git to match intent |
-| **Image drift** | Container updated outside Git | Update Git with new image tag |
+| Drift Type              | Cause                         | Fix                           |
+| ----------------------- | ----------------------------- | ----------------------------- |
+| **Configuration drift** | Manual `kubectl edit`         | selfHeal auto-reverts         |
+| **Desired state drift** | Git not updated after change  | Update Git to match intent    |
+| **Image drift**         | Container updated outside Git | Update Git with new image tag |
 
 ### Ignoring Managed Fields
 
@@ -203,11 +203,11 @@ spec:
     - group: apps
       kind: Deployment
       jsonPointers:
-        - /spec/replicas       # Let HPA manage replicas
-    - group: ""
+        - /spec/replicas # Let HPA manage replicas
+    - group: ''
       kind: Service
       jqPathExpressions:
-        - .spec.clusterIP      # Assigned by Kubernetes
+        - .spec.clusterIP # Assigned by Kubernetes
 ```
 
 ## Environment Promotion
@@ -262,7 +262,7 @@ spec:
     name: my-api
   policy:
     semver:
-      range: ">=1.0.0"
+      range: '>=1.0.0'
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
@@ -278,7 +278,7 @@ spec:
       author:
         name: fluxbot
         email: flux@company.com
-      messageTemplate: "chore: update my-api to {{.NewImage}}"
+      messageTemplate: 'chore: update my-api to {{.NewImage}}'
     push:
       branch: main
   update:
@@ -288,11 +288,11 @@ spec:
 
 ## Secrets in GitOps
 
-| Approach | Tool | How It Works |
-|----------|------|-------------|
-| **Sealed Secrets** | Bitnami | Encrypt secrets; only cluster can decrypt |
-| **External Secrets** | ESO | Sync from Vault/AWS SM/GCP SM |
-| **SOPS** | Mozilla SOPS | Encrypt files in Git with KMS |
+| Approach             | Tool         | How It Works                              |
+| -------------------- | ------------ | ----------------------------------------- |
+| **Sealed Secrets**   | Bitnami      | Encrypt secrets; only cluster can decrypt |
+| **External Secrets** | ESO          | Sync from Vault/AWS SM/GCP SM             |
+| **SOPS**             | Mozilla SOPS | Encrypt files in Git with KMS             |
 
 ```yaml
 # External Secrets Operator
@@ -344,6 +344,7 @@ spec:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing gitops practitioner solutions
 - Reviewing or improving existing gitops practitioner approaches
 - Making architectural or implementation decisions about gitops practitioner
@@ -351,6 +352,7 @@ spec:
 - Troubleshooting gitops practitioner-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -361,21 +363,26 @@ spec:
 # Gitops Practitioner Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

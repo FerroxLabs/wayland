@@ -28,13 +28,13 @@ Trigger phrases:
 
 **3. Apply the critical compile rules.** Non-negotiable.
 
-- **Samples beat self-report.** Answer says "I never use exclamation marks," samples show three per post → *"Uses exclamation marks for emphasis, contrary to self-report — trust the writing."* Surface, don't silently override.
+- **Samples beat self-report.** Answer says "I never use exclamation marks," samples show three per post → _"Uses exclamation marks for emphasis, contrary to self-report — trust the writing."_ Surface, don't silently override.
 - **No generic style descriptors.** Strip "engaging," "authentic," "conversational," "professional yet approachable" unless you can name the move. "Direct" becomes "opens with the claim before the setup." "Conversational" becomes "uses 'you' in line one and contractions throughout."
-- **Quote actual phrases.** *"Opens posts with 'Three years ago…'"* beats *"uses time-anchored openings."*
+- **Quote actual phrases.** _"Opens posts with 'Three years ago…'"_ beats _"uses time-anchored openings."_
 - **Name structural moves.** "Closes with a one-line restatement of the opening claim." "Mid-piece em-dash instead of a colon to introduce a list."
-- **Flag thin categories.** Only two samples in a register? Say so: *"Calibration for short-form social is thin — one tweet in the set. Add three next refresh."* Refusing to fabricate keeps this file trustworthy a year from now.
+- **Flag thin categories.** Only two samples in a register? Say so: _"Calibration for short-form social is thin — one tweet in the set. Add three next refresh."_ Refusing to fabricate keeps this file trustworthy a year from now.
 
-**4. Framing line at the top.** Below the H1: *"Use this profile when drafting. Match the DOs, avoid the DON'Ts. If the request needs something the profile doesn't cover, ask before guessing."* The last clause stops the model from improvising in rejected directions.
+**4. Framing line at the top.** Below the H1: _"Use this profile when drafting. Match the DOs, avoid the DON'Ts. If the request needs something the profile doesn't cover, ask before guessing."_ The last clause stops the model from improvising in rejected directions.
 
 **5. Save as `<username>-voice.md`.** Roughly 3,000–4,000 tokens. Hand it back with one sentence on where to paste (Claude Projects, ChatGPT custom instructions, Gemini Gems, API system prompt, Obsidian as canonical copy).
 
@@ -55,12 +55,14 @@ Trigger phrases:
 
 ## Before / after
 
-**Brief:** Compile a DO bullet for a user whose answer was *"I write conversationally."*
+**Brief:** Compile a DO bullet for a user whose answer was _"I write conversationally."_
 
 **Before** (generic):
-> *Writes in a conversational tone. Uses everyday language.*
+
+> _Writes in a conversational tone. Uses everyday language._
 
 **After** (samples-driven, verbatim, structural):
-> *Opens posts with a two-word fragment ("Quick one." / "True story.") then states the claim. Uses "you" within the first 15 words. Contractions throughout. Average paragraph: 1–3 sentences.*
+
+> _Opens posts with a two-word fragment ("Quick one." / "True story.") then states the claim. Uses "you" within the first 15 words. Contractions throughout. Average paragraph: 1–3 sentences._
 
 The first applies to half the writers on the internet. The second tells a fresh model exactly what to do.

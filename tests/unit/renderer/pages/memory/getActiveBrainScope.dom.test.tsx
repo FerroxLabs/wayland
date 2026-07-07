@@ -26,10 +26,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  ConversationProvider,
-  type ConversationContextValue,
-} from '@renderer/hooks/context/ConversationContext';
+import { ConversationProvider, type ConversationContextValue } from '@renderer/hooks/context/ConversationContext';
 import { useActiveBrainScope } from '@renderer/pages/memory/getActiveBrainScope';
 
 describe('useActiveBrainScope', () => {

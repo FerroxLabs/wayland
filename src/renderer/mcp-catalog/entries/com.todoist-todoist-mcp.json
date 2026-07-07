@@ -7,9 +7,7 @@
   "websiteUrl": "https://www.todoist.com/help/articles/mcp",
   "repository": { "url": "https://github.com/Doist/todoist-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://ai.todoist.net/mcp" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://ai.todoist.net/mcp" }],
   "x-wayland": {
     "tier": "core",
     "categories": ["productivity", "tasks"],
@@ -25,9 +23,7 @@
       "method": "oauth2-byo",
       "providerName": "Todoist",
       "providerSignupUrl": "https://todoist.com",
-      "scopes": [
-        { "name": "data:read_write", "plainLanguage": "Read and modify all your tasks and projects." }
-      ]
+      "scopes": [{ "name": "data:read_write", "plainLanguage": "Read and modify all your tasks and projects." }]
     },
     "toolGroups": [
       { "label": "Tasks", "count": 6 },

@@ -67,7 +67,12 @@ describe('signalInboundToUnified', () => {
       dataMessage: {
         message: '',
         timestamp: 1_700_000_000_000,
-        reaction: { emoji: '👍', targetSentTimestamp: 1_699_999_999_999, targetAuthorUuid: 'some-uuid', isRemove: false },
+        reaction: {
+          emoji: '👍',
+          targetSentTimestamp: 1_699_999_999_999,
+          targetAuthorUuid: 'some-uuid',
+          isRemove: false,
+        },
       },
     });
     expect(signalInboundToUnified(msg, SELF)).toBeNull();

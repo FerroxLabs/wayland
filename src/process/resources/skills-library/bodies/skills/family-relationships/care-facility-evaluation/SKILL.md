@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care checklist decision-making"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care checklist decision-making'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Care Facility Evaluation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is beginning the process of identifying appropriate long-term care placement for an aging parent, spouse, or relative and needs a structured framework to evaluate options
 - A user is preparing to tour one or more care facilities and needs specific questions, checklists, and scoring tools to make the visit productive
 - A user wants to compare multiple facilities side-by-side using objective criteria rather than impressions alone
@@ -34,6 +36,7 @@ metadata:
 - A user needs to evaluate a memory care unit specifically for a family member diagnosed with Alzheimer's disease or another form of dementia
 
 **Do NOT use this skill when:**
+
 - The user is asking which specific facilities are available in their geographic area -- this skill provides evaluation criteria, not facility directories; direct them to their state's long-term care ombudsman program or state health department licensure database
 - The user needs guidance on whether their family member medically requires a specific care level -- that determination must come from a physician, geriatrician, or hospital discharge planner; use `medical-decision-support` or direct to a healthcare provider
 - The user needs help with Medicare Part A skilled nursing benefit claims, coverage periods, or appeals -- use a dedicated benefits navigation skill or refer to a State Health Insurance Assistance Program (SHIP) counselor
@@ -57,14 +60,14 @@ Before evaluating any facility, establish which point on the long-term care cont
 - Identify the care trajectory. Ask: "Is this person's condition stable, slowly declining, or rapidly changing?" A person with stable mild cognitive impairment may thrive in assisted living for years; a person six months post-stroke with active rehabilitation needs is a skilled nursing candidate who may transition to assisted living later.
 - Use the table below to match findings to facility type:
 
-| Facility Type | ADL Assistance Needed | Cognitive Status | Medical Complexity | Best Indicator |
-|---|---|---|---|---|
-| Independent Living | 0 ADLs | Intact | Minimal | Wants community; can self-manage care |
-| Assisted Living | 1-3 ADLs | Mild impairment acceptable | Low-moderate | Needs personal care but not nursing |
-| Memory Care | 1-4 ADLs | Moderate-severe dementia | Low-moderate | Wandering risk; behavioral symptoms |
-| Skilled Nursing (Long-term) | 4-6 ADLs | Variable | High | Complex medical needs; 24/7 nursing required |
-| Short-term Rehab (SNF) | Variable | Variable | High, improving | Post-hospital recovery; therapy-focused |
-| CCRC (multiple levels) | Variable | Variable | Variable | Wants to age in one campus; upfront buy-in acceptable |
+| Facility Type               | ADL Assistance Needed | Cognitive Status           | Medical Complexity | Best Indicator                                        |
+| --------------------------- | --------------------- | -------------------------- | ------------------ | ----------------------------------------------------- |
+| Independent Living          | 0 ADLs                | Intact                     | Minimal            | Wants community; can self-manage care                 |
+| Assisted Living             | 1-3 ADLs              | Mild impairment acceptable | Low-moderate       | Needs personal care but not nursing                   |
+| Memory Care                 | 1-4 ADLs              | Moderate-severe dementia   | Low-moderate       | Wandering risk; behavioral symptoms                   |
+| Skilled Nursing (Long-term) | 4-6 ADLs              | Variable                   | High               | Complex medical needs; 24/7 nursing required          |
+| Short-term Rehab (SNF)      | Variable              | Variable                   | High, improving    | Post-hospital recovery; therapy-focused               |
+| CCRC (multiple levels)      | Variable              | Variable                   | Variable           | Wants to age in one campus; upfront buy-in acceptable |
 
 - Document the anticipated care trajectory explicitly. A facility that adequately meets current needs but cannot escalate care without requiring a transfer will force a traumatic additional move -- often at the worst possible moment.
 
@@ -121,6 +124,7 @@ Schedule tours at a time you have not pre-announced to the facility as your "mai
 Most families ask surface-level questions during tours. The questions below are specifically designed to reveal operational quality, care philosophy, and financial risk. Ask them at every facility and compare the specificity of the answers.
 
 **Staffing and Care:**
+
 - "What is your current census compared to licensed capacity?" (A facility running at 65% capacity may have financial pressures; one at 98% may have little flexibility for new residents.)
 - "What is your RN-to-resident ratio on the overnight shift specifically?" (Night shift is where care shortcuts are most common and most dangerous.)
 - "Do you use agency staff to fill gaps? What percentage of your shifts are covered by agency versus permanent staff?" (High agency staff use means residents regularly encounter unfamiliar caregivers.)
@@ -129,6 +133,7 @@ Most families ask surface-level questions during tours. The questions below are 
 - "What dementia-specific training do your direct care staff complete?" (Look for structured programs: the National Institute for Dementia Education certification, the Alzheimer's Association's essentiALZ program, or Teepa Snow's Positive Approach to Care training are credible examples. "We train all staff on dementia" without a specific program name is insufficient.)
 
 **Costs and Contracts:**
+
 - "Can you provide a written all-inclusive price list before I sign anything?" (Any facility that resists this should be treated with suspicion.)
 - "Walk me through every possible additional charge beyond the base rate." (Common add-ons include medication management: $300-600/month; incontinence supplies; specialized diets; personal laundry; cable television; transportation; and cognitive stimulation programming in memory care.)
 - "What has your base rate increase been in each of the last three years?" (Compare to inflation benchmarks. Rate increases of 5-8% annually are common; anything above that warrants explanation.)
@@ -137,6 +142,7 @@ Most families ask surface-level questions during tours. The questions below are 
 - "Do you have a Medicaid-certified bed, and what is the process if a private-pay resident transitions to Medicaid?" (Some facilities have only a small number of Medicaid beds and use a waiting list. Others decline Medicaid residents entirely, meaning Medicaid eligibility triggers forced transfer.)
 
 **Safety and Quality:**
+
 - "What is your facility's fall rate and your most recent pressure ulcer (bedsore) prevalence rate?" (For SNFs, CMS publishes both as quality measures. Fall rates above 7-8 per 100 resident-days and pressure ulcer prevalence above 6-7% for high-risk residents are concerning. Ask how they compare to state and national averages.)
 - "Describe your elopement prevention system." (A specific answer -- specific door alarm technology, a specific check-in protocol, wander management wristbands -- indicates actual implementation. A vague answer indicates the question was unexpected.)
 - "How do you handle a resident who refuses care?" (Person-centered care facilities have specific protocols for supporting autonomy and de-escalating refusals. Facilities with a compliance-focused culture may struggle with this question.)
@@ -148,19 +154,20 @@ Most families ask surface-level questions during tours. The questions below are 
 Complete the scoring matrix after each tour while observations are fresh. Do not complete all tours and then score retroactively -- memory distortion favors whichever facility you toured most recently.
 
 Scoring instructions:
+
 - Score each criterion on a 1-5 scale: 1 = serious concerns, 2 = below standard, 3 = meets standard, 4 = above average, 5 = exceptional
 - Calculate the weighted score for each category: (raw score ÷ 5) × category weight × 100
 - Sum weighted scores for each facility to produce a weighted percentage score out of 100
 
 Category weights are designed to reflect what the research evidence shows matters most for resident outcomes:
 
-| Category | Weight | Rationale |
-|---|---|---|
-| Staff Quality and Continuity | 30% | Staffing is the single strongest predictor of resident outcomes in peer-reviewed literature |
-| Care Services and Clinical Quality | 25% | Clinical competence and care planning directly affect health outcomes |
-| Physical Environment and Safety | 20% | Environment affects fall risk, infection control, and well-being |
-| Resident Quality of Life | 15% | Social engagement and autonomy affect mood, function, and cognitive maintenance |
-| Cost and Financial Structure | 10% | Important but should not override quality indicators |
+| Category                           | Weight | Rationale                                                                                   |
+| ---------------------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| Staff Quality and Continuity       | 30%    | Staffing is the single strongest predictor of resident outcomes in peer-reviewed literature |
+| Care Services and Clinical Quality | 25%    | Clinical competence and care planning directly affect health outcomes                       |
+| Physical Environment and Safety    | 20%    | Environment affects fall risk, infection control, and well-being                            |
+| Resident Quality of Life           | 15%    | Social engagement and autonomy affect mood, function, and cognitive maintenance             |
+| Cost and Financial Structure       | 10%    | Important but should not override quality indicators                                        |
 
 Do not adjust weights based on a facility being "really nice looking" -- a beautiful building with poor staff is a worse placement than a modest building with excellent caregivers. The weights are designed to prevent this common error.
 
@@ -171,6 +178,7 @@ Do not adjust weights based on a facility being "really nice looking" -- a beaut
 Some findings are absolute disqualifiers; others are serious concerns requiring deeper investigation before proceeding. Apply this framework to each facility.
 
 **Immediate Disqualifiers (stop evaluation and remove from consideration):**
+
 - The facility cannot produce a current state license upon request
 - State inspection records show a citation at CMS severity level J, K, or L (immediate jeopardy) in the past 36 months that was not corrected with a verified plan of action
 - Staff refuse to allow you to return unannounced during regular visiting hours
@@ -180,6 +188,7 @@ Some findings are absolute disqualifiers; others are serious concerns requiring 
 - The facility cannot describe a specific protocol for reporting incidents to families, or staff state that families are not routinely notified of falls
 
 **Serious Concerns (investigate before proceeding -- these can be disqualifying or manageable depending on context):**
+
 - Annual CNA turnover above 60% or any indication that a significant portion of shifts are covered by agency staff
 - No registered nurse physically on-site during overnight hours (must be available by phone is not adequate for a resident with complex medical needs)
 - Fewer than three citations-free annual surveys in the past three years
@@ -497,6 +506,7 @@ When the person who needs care has significant cognitive capacity but is resisti
 **Output:**
 
 ## Care Facility Evaluation Report
+
 Prepared for: Family of [Father, referred to as "Dad" throughout]
 Situation: Post-stroke with ADL assistance needs, mild evening confusion, family caregiver capacity limit reached
 
@@ -505,6 +515,7 @@ Situation: Post-stroke with ADL assistance needs, mild evening confusion, family
 ### Section 1: Care Needs Assessment
 
 **Current functional status:**
+
 - ADL assistance needed: Bathing (requires hands-on assistance), dressing (requires assistance with upper and lower body)
 - IADL assistance needed: Likely requires assistance or supervision with medication management, possibly finances; needs clarification
 - Cognitive status: Mild -- evening confusion (consistent with post-stroke cognitive changes and possible mild vascular cognitive impairment); largely intact during daytime
@@ -513,6 +524,7 @@ Situation: Post-stroke with ADL assistance needs, mild evening confusion, family
 - Fall history: Clarify with family -- stroke survivors have significantly elevated fall risk; ask whether falls have occurred during the six-month recovery
 
 **Care level indicated:** Assisted Living -- current functional status is consistent with assisted living (2 ADLs requiring assistance, mild cognitive symptoms, no complex medical needs requiring nursing). However, the physician's note about anticipated escalation and the evening confusion warrant:
+
 1. Selecting a facility that can escalate care without requiring transfer, OR
 2. Evaluating whether memory care or an assisted living community with a dedicated memory support program is more appropriate given the cognitive trajectory
 

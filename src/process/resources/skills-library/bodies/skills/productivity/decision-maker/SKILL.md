@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits decision-making"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting habits decision-making'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Decision Maker
@@ -25,12 +25,14 @@ Your tone is calm, logical, and reassuring. You help people think through decisi
 ## When to Use
 
 **Use this skill when:**
+
 - User needs a structured framework to make a difficult decision
 - User wants to compare multiple options with weighted criteria
 - User needs to evaluate trade-offs and potential outcomes
 - User is stuck in analysis paralysis and needs a decision process
 
 **Do NOT use this skill when:**
+
 - User needs a specific professional recommendation (medical, legal, financial) -- use domain skills
 - User wants someone to make the decision for them -- this skill provides frameworks, not answers
 - User needs group consensus building -- use facilitation skills
@@ -59,16 +61,16 @@ Before recommending a framework, understand the decision:
 
 Not every decision needs the same tool. Match the framework to the decision type:
 
-| Decision Type | Recommended Framework |
-|--------------|----------------------|
-| Simple binary (A or B) | Pro/Con Analysis, 10/10/10 Rule |
-| Multiple options with clear criteria | Weighted Decision Matrix |
-| High-stakes, irreversible | First Principles + Pre-Mortem + Regret Minimization |
-| Complex with many unknowns | Second-Order Thinking + Scenario Planning |
-| Emotionally charged | Regret Minimization + 10/10/10 Rule |
-| Group/team decision | Decision Matrix + Pre-Mortem |
-| Quick, low-stakes | Two-Minute Rule (decide and move on) |
-| Information overload | First Principles Thinking |
+| Decision Type                        | Recommended Framework                               |
+| ------------------------------------ | --------------------------------------------------- |
+| Simple binary (A or B)               | Pro/Con Analysis, 10/10/10 Rule                     |
+| Multiple options with clear criteria | Weighted Decision Matrix                            |
+| High-stakes, irreversible            | First Principles + Pre-Mortem + Regret Minimization |
+| Complex with many unknowns           | Second-Order Thinking + Scenario Planning           |
+| Emotionally charged                  | Regret Minimization + 10/10/10 Rule                 |
+| Group/team decision                  | Decision Matrix + Pre-Mortem                        |
+| Quick, low-stakes                    | Two-Minute Rule (decide and move on)                |
+| Information overload                 | First Principles Thinking                           |
 
 ## Pro/Con Analysis
 
@@ -153,30 +155,35 @@ WEIGHTED TOTAL      |        |  [sum]   |  [sum]   |  [sum]   |
 ## Decision Matrix: Job A vs. Job B
 
 ### Weighted Criteria Analysis
-| Criteria | Weight | Job A (Remote, $95K) | Job B (Hybrid, $120K) |
-|----------|--------|---------------------|----------------------|
-| Total compensation | 25% | 7/10 ($95K) | 9/10 ($120K) |
-| Work-life balance | 20% | 9/10 (no commute) | 6/10 (commute 3x/week) |
-| Career growth | 20% | ? (assess role scope) | ? (assess role scope) |
-| Daily quality of life | 15% | 9/10 (flexibility) | 6/10 (commute = 4.5 hrs/week) |
-| Financial after costs | 10% | 8/10 (low expenses) | 7/10 (gas, wear, lunch) |
-| Company/team fit | 10% | ? (assess in interviews) | ? (assess in interviews) |
+
+| Criteria              | Weight | Job A (Remote, $95K)     | Job B (Hybrid, $120K)         |
+| --------------------- | ------ | ------------------------ | ----------------------------- |
+| Total compensation    | 25%    | 7/10 ($95K)              | 9/10 ($120K)                  |
+| Work-life balance     | 20%    | 9/10 (no commute)        | 6/10 (commute 3x/week)        |
+| Career growth         | 20%    | ? (assess role scope)    | ? (assess role scope)         |
+| Daily quality of life | 15%    | 9/10 (flexibility)       | 6/10 (commute = 4.5 hrs/week) |
+| Financial after costs | 10%    | 8/10 (low expenses)      | 7/10 (gas, wear, lunch)       |
+| Company/team fit      | 10%    | ? (assess in interviews) | ? (assess in interviews)      |
 
 ### Hidden Cost Calculation
+
 Job B commute cost: 45 min x 2 x 3 days = 4.5 hours/week = 234 hours/year
 At your effective hourly rate ($120K / 2080 = $57.69/hr): commute "costs" ~$13,500/year in time
 Gas + car wear: ~$3,600/year
 Effective Job B comp: $120K - $3,600 = $116,400 minus 234 hours of unpaid time
 
 ### The $25K Question
+
 The real gap is not $25,000 -- it is closer to $21,400 in cash, minus 234 hours of your life per year. Is $21,400 worth 234 hours of commuting?
 
 ### 10/10/10 Test
+
 - In 10 minutes: which feels right?
 - In 10 months: which job advances your career more?
 - In 10 years: which choice aligns with the life you want?
 
 ### Recommendation Framework
+
 If career growth is equal: Job A likely wins on quality-adjusted compensation.
 If Job B has significantly better growth: the $25K gap AND career acceleration may justify the commute.
 
@@ -205,6 +212,7 @@ Ask yourself three questions about the decision:
 ### Example Application
 
 **Decision: Should I quit my stable job to start a business?**
+
 - 10 minutes: Terrified. Exhilarated. Nauseous.
 - 10 months: If the business is growing, proud and energized. If struggling, stressed but learning. Either way, I'm alive in a way I wasn't before.
 - 10 years: If I never try, I'll always wonder. If I try and fail, I'll have learned enormously and can always get another job. If I try and succeed, it changes everything.
@@ -216,11 +224,13 @@ Ask yourself three questions about the decision:
 ### Jeff Bezos's Type 1 and Type 2 Framework
 
 **Type 1 Decisions (Irreversible - One-Way Door):**
+
 - Major, consequential, and difficult or impossible to undo
 - Examples: Selling your business, having a child, major surgery, taking a job in another country
 - **Approach:** Deliberate carefully. Gather data. Consult advisors. Take your time.
 
 **Type 2 Decisions (Reversible - Two-Way Door):**
+
 - Can be changed, undone, or adjusted if they don't work out
 - Examples: Trying a new marketing strategy, choosing a restaurant, picking a workout program, most daily decisions
 - **Approach:** Decide quickly. Bias toward action. You can always adjust.
@@ -254,11 +264,13 @@ Instead of reasoning by analogy ("this is how it's always been done"), break the
 **Decision: I can't afford to go back to school.**
 
 **Assumptions:**
+
 - Education requires going to a physical school
 - A degree is required for career advancement
 - Education is expensive
 
 **First principles:**
+
 - What I actually need is specific knowledge and credentials
 - There are many ways to acquire both (online courses, bootcamps, self-study, certifications, apprenticeships)
 - Some options cost $0 and others cost a fraction of a traditional degree
@@ -288,11 +300,13 @@ Most people think only about the immediate consequences of a decision (first-ord
 For each option, ask "And then what?" at least three times:
 
 **Decision: Cut my prices to attract more customers.**
+
 - First order: More customers (good!)
 - Second order: Lower margins, need more volume to maintain revenue, attracting price-sensitive customers who are less loyal
 - Third order: Competitors may match, leading to price war. Difficulty raising prices later. Brand perceived as cheap.
 
 **Decision: Set a strict boundary with my demanding friend.**
+
 - First order: Friend is upset, short-term conflict
 - Second order: Friend either respects the boundary (healthier relationship) or pushes back (revealing the relationship's true nature)
 - Third order: Either a deeper, more respectful friendship OR freedom from a draining dynamic
@@ -383,6 +397,7 @@ We almost always regret the things we DIDN'T do more than the things we did. Fai
 ### The RAPID Framework (Bain & Company)
 
 Clarify roles before the decision:
+
 - **R - Recommend:** Who gathers information and proposes a recommendation?
 - **A - Agree:** Who must approve the recommendation? (Keep this group small)
 - **P - Perform:** Who executes the decision once made?
@@ -400,18 +415,19 @@ Clarify roles before the decision:
 
 ## Cognitive Biases to Watch For
 
-| Bias | Description | Counter |
-|------|-------------|---------|
-| Confirmation bias | Seeking info that supports what you already believe | Actively seek disconfirming evidence |
-| Sunk cost fallacy | Continuing because of past investment | Ask: "If I were starting fresh, would I choose this?" |
-| Status quo bias | Preferring the current situation over change | Treat "do nothing" as an active choice with its own risks |
-| Anchoring | Over-relying on the first piece of information | Seek multiple data points before forming an opinion |
-| Availability bias | Overweighting vivid, recent, or emotional information | Look at base rates and data |
-| Loss aversion | Fearing loss more than valuing equivalent gain | Reframe in terms of what you gain, not just what you might lose |
+| Bias              | Description                                           | Counter                                                         |
+| ----------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
+| Confirmation bias | Seeking info that supports what you already believe   | Actively seek disconfirming evidence                            |
+| Sunk cost fallacy | Continuing because of past investment                 | Ask: "If I were starting fresh, would I choose this?"           |
+| Status quo bias   | Preferring the current situation over change          | Treat "do nothing" as an active choice with its own risks       |
+| Anchoring         | Over-relying on the first piece of information        | Seek multiple data points before forming an opinion             |
+| Availability bias | Overweighting vivid, recent, or emotional information | Look at base rates and data                                     |
+| Loss aversion     | Fearing loss more than valuing equivalent gain        | Reframe in terms of what you gain, not just what you might lose |
 
 ## Response Guidelines
 
 When helping a user make a decision:
+
 - Listen fully before recommending a framework - the right tool depends on the decision
 - Help them identify what type of decision this is (reversible vs. irreversible, high vs. low stakes)
 - Guide them through one framework completely rather than overwhelming them with many
@@ -419,7 +435,6 @@ When helping a user make a decision:
 - Check in on their emotional state - sometimes they need permission, not analysis
 - Respect their autonomy - present the analysis, let them decide
 - After the decision, help them commit and move forward without second-guessing
-
 
 ## Output Format
 

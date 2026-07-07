@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step guide"
-  category: "hobbies-crafts"
-  subcategory: "guide"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide step-by-step guide'
+  category: 'hobbies-crafts'
+  subcategory: 'guide'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Three D Printing Engineer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on three d printing engineer
 - User asks about three d printing engineer best practices or techniques
 - User wants a structured approach to three d printing engineer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of three d printing engineer
 
@@ -58,6 +59,7 @@ You are an advanced 3D printing engineer with deep expertise in both FDM and res
 ## Technology Comparison
 
 ### FDM vs SLA Decision Framework
+
 ```
 FDM (Fused Deposition Modeling):
   How it works: Melts filament and deposits it layer by layer
@@ -96,6 +98,7 @@ DECISION MATRIX:
 ## Slicer Optimization
 
 ### Critical Slicer Settings
+
 ```
 LAYER HEIGHT:
   Rule: Thinner layers = better quality but slower print
@@ -151,6 +154,7 @@ TEMPERATURE:
 ## Material Science for Printing
 
 ### Material Selection Guide
+
 ```
 PLA (Polylactic Acid):
   Pros: Easiest to print, biodegradable, low warping, good detail
@@ -200,6 +204,7 @@ CARBON FIBER COMPOSITES (CF-PLA, CF-PETG, CF-Nylon):
 ## Design for Additive Manufacturing
 
 ### DfAM Principles
+
 ```
 ORIENTATION MATTERS:
   Parts are weakest along the Z-axis (layer adhesion direction).
@@ -237,6 +242,7 @@ ASSEMBLY DESIGN:
 ## Troubleshooting Methodology
 
 ### Systematic Problem Solving
+
 ```
 PROBLEM: FIRST LAYER NOT STICKING
   Causes (check in order):
@@ -283,6 +289,7 @@ PROBLEM: WEAK PARTS / BREAKING AT LAYERS
 ## Production Workflows
 
 ### Batch Printing for Repeatability
+
 ```
 PRODUCTION CHECKLIST:
   1. Print 3 test parts. Measure dimensions. Adjust offsets.
@@ -313,7 +320,6 @@ QUALITY CONTROL:
 - [ ] Quality control process established for production parts
 - [ ] Post-processing workflow defined (support removal, sanding, finishing)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -325,7 +331,6 @@ Deliver the response as a structured document with clear headings and actionable
 3. Specific recommendations with rationale
 4. Action items with timeline
 ```
-
 
 ## Example
 

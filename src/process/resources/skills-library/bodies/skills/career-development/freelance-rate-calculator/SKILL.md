@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "freelancing career budgeting personal-finance"
-  category: "career-development"
-  subcategory: "freelancing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'freelancing career budgeting personal-finance'
+  category: 'career-development'
+  subcategory: 'freelancing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Freelance Rate Calculator
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to calculate a sustainable hourly or project rate for freelance or independent consulting work -- including first-time freelancers setting initial rates, experienced freelancers auditing whether their current rates still make sense, or anyone transitioning from employment to self-employment
 - Asks what to charge for a specific project and needs to verify whether the proposed fee covers their true costs and income goals
 - Is building a freelance services menu or rate card and needs a defensible, math-backed foundation for each price point
@@ -34,6 +36,7 @@ metadata:
 - Wants to model how rate changes affect annual income -- for example, what raising their rate by $25/hour does to their annual take-home given realistic utilization
 
 **Do NOT use this skill when:**
+
 - The user is negotiating a salary, raise, or promotion as a W-2 employee -- use `salary-negotiation-script` instead
 - The user needs full business financial modeling, multi-year revenue projections, or investor-facing financial statements -- use business finance planning skills
 - The user is calculating return on investment for financial instruments, retirement accounts, or business capital expenditures -- use personal-finance or investment-modeling skills
@@ -327,18 +330,18 @@ significantly de-risks the freelance income model by providing a predictable rev
 
 This is extremely common for first-time freelancers or employees transitioning to independent work. Provide a structured expense estimation template with typical ranges, ask the user to fill in what they know, and use the midpoints of typical ranges for items they cannot estimate.
 
-| Expense Category | Low Estimate | High Estimate | Default Assumption |
-|-----------------|-------------|--------------|-------------------|
-| Software subscriptions (creative/productivity tools) | $600/yr | $3,600/yr | $1,800/yr |
-| Professional liability / E&O insurance | $400/yr | $2,400/yr | $1,200/yr |
-| Health insurance (if not covered elsewhere) | $4,800/yr | $12,000/yr | $7,200/yr |
-| Disability insurance | $300/yr | $1,500/yr | $600/yr |
-| Accounting software / bookkeeper | $240/yr | $2,400/yr | $900/yr |
-| Home office or coworking | $0/yr | $6,000/yr | $1,800/yr |
-| Professional development / courses | $200/yr | $2,000/yr | $800/yr |
-| Hardware depreciation (laptop, peripherals) | $300/yr | $1,500/yr | $600/yr |
-| Miscellaneous (subscriptions, domain, hosting) | $200/yr | $800/yr | $400/yr |
-| **Typical total range** | **$7,040/yr** | **$32,200/yr** | **$15,300/yr** |
+| Expense Category                                     | Low Estimate  | High Estimate  | Default Assumption |
+| ---------------------------------------------------- | ------------- | -------------- | ------------------ |
+| Software subscriptions (creative/productivity tools) | $600/yr       | $3,600/yr      | $1,800/yr          |
+| Professional liability / E&O insurance               | $400/yr       | $2,400/yr      | $1,200/yr          |
+| Health insurance (if not covered elsewhere)          | $4,800/yr     | $12,000/yr     | $7,200/yr          |
+| Disability insurance                                 | $300/yr       | $1,500/yr      | $600/yr            |
+| Accounting software / bookkeeper                     | $240/yr       | $2,400/yr      | $900/yr            |
+| Home office or coworking                             | $0/yr         | $6,000/yr      | $1,800/yr          |
+| Professional development / courses                   | $200/yr       | $2,000/yr      | $800/yr            |
+| Hardware depreciation (laptop, peripherals)          | $300/yr       | $1,500/yr      | $600/yr            |
+| Miscellaneous (subscriptions, domain, hosting)       | $200/yr       | $800/yr        | $400/yr            |
+| **Typical total range**                              | **$7,040/yr** | **$32,200/yr** | **$15,300/yr**     |
 
 Label all default assumptions explicitly and invite the user to correct them before finalizing the calculation.
 
@@ -433,18 +436,18 @@ Freelancers operating in global remote markets frequently face the question of w
 
 ### SECTION 1: Annual Revenue Required
 
-| Line Item | Amount | Calculation / Notes |
-|-----------|--------|---------------------|
-| Target net annual income | $90,000 | After-tax take-home goal |
-| Software and tools | $1,700 | Adobe CC + Figma ($1,500) + Notion/Linear ($200) |
-| Coworking membership | $3,600 | $300/month x 12 |
-| Health insurance | $6,600 | $550/month x 12 |
-| Retirement contributions | $8,400 | $700/month x 12 |
-| **Subtotal before tax gross-up** | **$110,300** | Net income + expenses + benefits |
-| Gross-up for taxes (29% effective rate) | **$155,352** | $110,300 / (1 - 0.29) = $155,352 |
-| Tax load (derived) | $45,052 | Gross minus subtotal -- estimated, verify with tax professional |
-| Profit and stability buffer (15%) | $23,303 | 15% applied to grossed-up revenue |
-| **TOTAL ANNUAL REVENUE REQUIRED** | **$178,655** | |
+| Line Item                               | Amount       | Calculation / Notes                                             |
+| --------------------------------------- | ------------ | --------------------------------------------------------------- |
+| Target net annual income                | $90,000      | After-tax take-home goal                                        |
+| Software and tools                      | $1,700       | Adobe CC + Figma ($1,500) + Notion/Linear ($200)                |
+| Coworking membership                    | $3,600       | $300/month x 12                                                 |
+| Health insurance                        | $6,600       | $550/month x 12                                                 |
+| Retirement contributions                | $8,400       | $700/month x 12                                                 |
+| **Subtotal before tax gross-up**        | **$110,300** | Net income + expenses + benefits                                |
+| Gross-up for taxes (29% effective rate) | **$155,352** | $110,300 / (1 - 0.29) = $155,352                                |
+| Tax load (derived)                      | $45,052      | Gross minus subtotal -- estimated, verify with tax professional |
+| Profit and stability buffer (15%)       | $23,303      | 15% applied to grossed-up revenue                               |
+| **TOTAL ANNUAL REVENUE REQUIRED**       | **$178,655** |                                                                 |
 
 **SE tax note:** Estimated at 14.1% of net self-employment income (15.3% statutory minus the 50% deductibility adjustment). Included in the 29% combined effective rate assumption above.
 **Income tax assumption:** 29% combined effective rate includes estimated federal income tax (~12-15%), self-employment tax component (~14%), and approximate state income tax (~3-5% average). This is an estimate -- verify with a tax professional or accountant.
@@ -454,23 +457,23 @@ Freelancers operating in global remote markets frequently face the question of w
 
 ### SECTION 2: Billable Hours Model
 
-| Line Item | Value | Notes |
-|-----------|-------|-------|
-| Total weeks per year | 52 weeks | |
-| Vacation weeks | 3 weeks | User-specified |
-| Available working weeks | 49 weeks | |
-| Working days per week | 5 days | |
-| Gross working days | 245 days | 49 x 5 |
-| Public holidays | 10 days | US standard |
-| Sick day / unplanned absence allowance | 7 days | Conservative but realistic |
-| Net working days | 228 days | 245 - 10 - 7 |
-| Target billable hours per day | 7 hours | User-specified |
-| Total potential hours | 1,596 hours | 228 x 7 |
-| Non-billable time percentage | 30% | Experienced freelancer (4 years): business development, proposals, invoicing, client communication, professional development |
-| Non-billable hours | 479 hours | 1,596 x 0.30 |
-| **BILLABLE HOURS PER YEAR (target)** | **1,117 hours** | 1,596 - 479, rounded |
-| **BILLABLE HOURS PER YEAR (conservative)** | **1,037 hours** | 35% non-billable + sick days included |
-| **BILLABLE HOURS PER MONTH (target)** | **102 hours** | 1,117 / 11 (11 working months) |
+| Line Item                                  | Value           | Notes                                                                                                                        |
+| ------------------------------------------ | --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Total weeks per year                       | 52 weeks        |                                                                                                                              |
+| Vacation weeks                             | 3 weeks         | User-specified                                                                                                               |
+| Available working weeks                    | 49 weeks        |                                                                                                                              |
+| Working days per week                      | 5 days          |                                                                                                                              |
+| Gross working days                         | 245 days        | 49 x 5                                                                                                                       |
+| Public holidays                            | 10 days         | US standard                                                                                                                  |
+| Sick day / unplanned absence allowance     | 7 days          | Conservative but realistic                                                                                                   |
+| Net working days                           | 228 days        | 245 - 10 - 7                                                                                                                 |
+| Target billable hours per day              | 7 hours         | User-specified                                                                                                               |
+| Total potential hours                      | 1,596 hours     | 228 x 7                                                                                                                      |
+| Non-billable time percentage               | 30%             | Experienced freelancer (4 years): business development, proposals, invoicing, client communication, professional development |
+| Non-billable hours                         | 479 hours       | 1,596 x 0.30                                                                                                                 |
+| **BILLABLE HOURS PER YEAR (target)**       | **1,117 hours** | 1,596 - 479, rounded                                                                                                         |
+| **BILLABLE HOURS PER YEAR (conservative)** | **1,037 hours** | 35% non-billable + sick days included                                                                                        |
+| **BILLABLE HOURS PER MONTH (target)**      | **102 hours**   | 1,117 / 11 (11 working months)                                                                                               |
 
 **Non-billable time note:** 30% non-billable is appropriate for a 4-year freelancer with an established client base. If you are actively rebuilding your pipeline or shifting markets, use the conservative (35%) scenario. Non-billable activities include: sales calls and discovery conversations, proposal and contract writing, invoicing and collections follow-up, client check-ins and project management overhead, portfolio updates and case study writing, professional development and tool learning.
 
@@ -478,10 +481,10 @@ Freelancers operating in global remote markets frequently face the question of w
 
 ### SECTION 3: Base Hourly Rate Calculation
 
-| Scenario | Revenue Required | Billable Hours | Raw Rate | Rounded Rate |
-|----------|-----------------|---------------|---------|-------------|
-| Target | $178,655 | 1,117 hours | $159.94/hr | **$160/hr** |
-| Conservative | $178,655 | 1,037 hours | $172.28/hr | **$175/hr** |
+| Scenario     | Revenue Required | Billable Hours | Raw Rate   | Rounded Rate |
+| ------------ | ---------------- | -------------- | ---------- | ------------ |
+| Target       | $178,655         | 1,117 hours    | $159.94/hr | **$160/hr**  |
+| Conservative | $178,655         | 1,037 hours    | $172.28/hr | **$175/hr**  |
 
 **Working rate:** $160/hour (target scenario -- use this as your standard rate)
 **Floor rate (break-even, zero profit buffer):** $178,655 x (1/1.15) / 1,117 hours = $139/hour -- do not accept work below this rate.
@@ -492,26 +495,26 @@ Freelancers operating in global remote markets frequently face the question of w
 
 ### SECTION 4: Rate Tier Structure
 
-| Tier | Multiplier | Rate | Trigger Conditions |
-|------|-----------|------|-------------------|
-| Standard rate | 1.00x | $160/hour | Normal UX work, 5+ business day lead time, defined scope |
-| Rush rate | 1.50x | $240/hour | Delivery under 3 business days, displacing scheduled client work, weekend delivery required |
-| Retainer rate (15-20h/month) | 0.90x | $144/hour | Monthly commitment of 15-20+ hours, advance booking, rolling engagement |
-| Retainer rate (30h+/month) | 0.85x | $136/hour | Monthly commitment of 30+ hours, multi-month contract, anchor client relationship |
-| Minimum project fee | n/a | $640 | No engagement accepted under 4 hours equivalent -- protects against small-task overhead |
+| Tier                         | Multiplier | Rate      | Trigger Conditions                                                                          |
+| ---------------------------- | ---------- | --------- | ------------------------------------------------------------------------------------------- |
+| Standard rate                | 1.00x      | $160/hour | Normal UX work, 5+ business day lead time, defined scope                                    |
+| Rush rate                    | 1.50x      | $240/hour | Delivery under 3 business days, displacing scheduled client work, weekend delivery required |
+| Retainer rate (15-20h/month) | 0.90x      | $144/hour | Monthly commitment of 15-20+ hours, advance booking, rolling engagement                     |
+| Retainer rate (30h+/month)   | 0.85x      | $136/hour | Monthly commitment of 30+ hours, multi-month contract, anchor client relationship           |
+| Minimum project fee          | n/a        | $640      | No engagement accepted under 4 hours equivalent -- protects against small-task overhead     |
 
 ---
 
 ### SECTION 5: Project Pricing by Type
 
-| Project Type | Est. Hours | Scope Buffer | Calculation | Quoted Price |
-|-------------|-----------|-------------|------------|-------------|
-| UX audit (existing app, 10-15 screens) | 20 hours | 1.15x | 20 x $160 x 1.15 | **$3,680** |
-| End-to-end app design (MVP, 20-30 screens) | 55 hours | 1.15x | 55 x $160 x 1.15 | **$10,120** |
-| Design system creation (from scratch) | 45 hours | 1.15x | 45 x $160 x 1.15 | **$8,280** |
-| Design system audit and update | 18 hours | 1.15x | 18 x $160 x 1.15 | **$3,312** |
-| Discovery and research sprint (1 week) | 25 hours | 1.15x | 25 x $160 x 1.15 | **$4,600** |
-| Rush UX audit (3-day turnaround) | 20 hours | 1.15x | 20 x $240 (rush) x 1.15 | **$5,520** |
+| Project Type                               | Est. Hours | Scope Buffer | Calculation             | Quoted Price |
+| ------------------------------------------ | ---------- | ------------ | ----------------------- | ------------ |
+| UX audit (existing app, 10-15 screens)     | 20 hours   | 1.15x        | 20 x $160 x 1.15        | **$3,680**   |
+| End-to-end app design (MVP, 20-30 screens) | 55 hours   | 1.15x        | 55 x $160 x 1.15        | **$10,120**  |
+| Design system creation (from scratch)      | 45 hours   | 1.15x        | 45 x $160 x 1.15        | **$8,280**   |
+| Design system audit and update             | 18 hours   | 1.15x        | 18 x $160 x 1.15        | **$3,312**   |
+| Discovery and research sprint (1 week)     | 25 hours   | 1.15x        | 25 x $160 x 1.15        | **$4,600**   |
+| Rush UX audit (3-day turnaround)           | 20 hours   | 1.15x        | 20 x $240 (rush) x 1.15 | **$5,520**   |
 
 **Revision policy:** Two rounds of revisions included in all quoted project prices. Additional rounds billed at $160/hour (standard rate). Round definition: a consolidated set of feedback addressed in one pass -- not individual comments spread across multiple days.
 **Change order threshold:** Scope additions beyond the original brief billed at $160/hour, invoiced separately. Client notified in writing and must approve before work proceeds.
@@ -520,7 +523,7 @@ Freelancers operating in global remote markets frequently face the question of w
 
 ### SECTION 6: Retainer Model
 
-| Commitment Level | Hours/Month | Rate | Monthly Fee | Annual Revenue |
-|-----------------|------------|------|------------|----------------|
-| Light retainer | 15 hours | $144/hr | $2,160/month | $25,920/year |
-| Standard retainer | 20 hours |
+| Commitment Level  | Hours/Month | Rate    | Monthly Fee  | Annual Revenue |
+| ----------------- | ----------- | ------- | ------------ | -------------- |
+| Light retainer    | 15 hours    | $144/hr | $2,160/month | $25,920/year   |
+| Standard retainer | 20 hours    |

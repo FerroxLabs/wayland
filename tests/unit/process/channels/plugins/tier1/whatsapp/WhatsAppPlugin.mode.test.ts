@@ -182,9 +182,7 @@ describe('WhatsAppPlugin - personal vs dedicated mode', () => {
 
   it('dedicated mode: owner-number inbound is flagged isOwner', async () => {
     const plugin = new WhatsAppPlugin();
-    await plugin.initialize(
-      configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['+1 (555) 111-2222'] }),
-    );
+    await plugin.initialize(configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['+1 (555) 111-2222'] }));
     const captured = captureMessages(plugin);
     await connect(plugin, '99999@s.whatsapp.net');
     emitFromBridge({
@@ -204,9 +202,7 @@ describe('WhatsAppPlugin - personal vs dedicated mode', () => {
 
   it('dedicated mode: non-owner inbound is NOT isOwner (pairing path preserved)', async () => {
     const plugin = new WhatsAppPlugin();
-    await plugin.initialize(
-      configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['15551112222'] }),
-    );
+    await plugin.initialize(configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['15551112222'] }));
     const captured = captureMessages(plugin);
     await connect(plugin, '99999@s.whatsapp.net');
     emitFromBridge({
@@ -220,9 +216,7 @@ describe('WhatsAppPlugin - personal vs dedicated mode', () => {
 
   it('dedicated mode: self-chat is NOT owner (owner talks from another device)', async () => {
     const plugin = new WhatsAppPlugin();
-    await plugin.initialize(
-      configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['15551112222'] }),
-    );
+    await plugin.initialize(configFor({ backend: 'baileys', mode: 'dedicated', ownerNumbers: ['15551112222'] }));
     const captured = captureMessages(plugin);
     await connect(plugin, '99999@s.whatsapp.net');
     emitFromBridge({

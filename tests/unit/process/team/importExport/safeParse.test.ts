@@ -23,10 +23,7 @@ import {
   rejectPrototypePollutionKeys,
   safeParseWithTimeout,
 } from '@process/team/importExport/safeParse';
-import {
-  TeamImportBusyError,
-  TeamImportError,
-} from '@process/team/importExport/errors';
+import { TeamImportBusyError, TeamImportError } from '@process/team/importExport/errors';
 
 describe('safeParseWithTimeout - DOS + recursion guards', () => {
   it('rejects input larger than 256KB before spawning a worker', async () => {
@@ -85,15 +82,11 @@ describe('rejectPrototypePollutionKeys', () => {
   });
 
   it('rejects {"constructor": …} at root', () => {
-    expect(() => rejectPrototypePollutionKeys({ constructor: { polluted: true } })).toThrow(
-      /Prototype-pollution/
-    );
+    expect(() => rejectPrototypePollutionKeys({ constructor: { polluted: true } })).toThrow(/Prototype-pollution/);
   });
 
   it('rejects {"prototype": …} at root', () => {
-    expect(() => rejectPrototypePollutionKeys({ prototype: { polluted: true } })).toThrow(
-      /Prototype-pollution/
-    );
+    expect(() => rejectPrototypePollutionKeys({ prototype: { polluted: true } })).toThrow(/Prototype-pollution/);
   });
 
   it('rejects pollution keys nested deep in the object graph', () => {
@@ -107,15 +100,13 @@ describe('rejectPrototypePollutionKeys', () => {
 
   it('rejects `constructor` key nested deep in the object graph', () => {
     // `constructor` is a normal own property in object literals, no parse needed.
-    expect(() =>
-      rejectPrototypePollutionKeys({ a: { b: { c: { constructor: { polluted: true } } } } })
-    ).toThrow(/Prototype-pollution/);
+    expect(() => rejectPrototypePollutionKeys({ a: { b: { c: { constructor: { polluted: true } } } } })).toThrow(
+      /Prototype-pollution/
+    );
   });
 
   it('walks arrays without false-positives', () => {
-    expect(() =>
-      rejectPrototypePollutionKeys([{ ok: 1 }, { also: { ok: 1 } }])
-    ).not.toThrow();
+    expect(() => rejectPrototypePollutionKeys([{ ok: 1 }, { also: { ok: 1 } }])).not.toThrow();
   });
 
   it('global Object.prototype is not polluted after a rejected payload', () => {

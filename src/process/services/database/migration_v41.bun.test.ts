@@ -32,7 +32,7 @@ describe('Migration v41 - workflow_sessions table (bun:sqlite)', () => {
 
   it('creates the workflow_sessions table with all required columns', () => {
     const cols = driver.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
-    const colNames = cols.map((c) => c.name).sort();
+    const colNames = cols.map((c) => c.name).toSorted();
     expect(colNames).toEqual([
       'asks_json',
       'category',
@@ -104,9 +104,7 @@ describe('Migration v41 - workflow_sessions table (bun:sqlite)', () => {
     expect(() => insert({ id: 'ws-bad-step', current_step: -1 })).toThrow(/CHECK constraint/i);
     expect(() => insert({ id: 'ws-bad-total', total_steps: -1 })).toThrow(/CHECK constraint/i);
     expect(() => insert({ id: 'ws-overshoot', current_step: 7, total_steps: 5 })).toThrow(/CHECK constraint/i);
-    expect(() =>
-      insert({ id: 'ws-just-done', current_step: 6, total_steps: 5, status: 'complete' })
-    ).not.toThrow();
+    expect(() => insert({ id: 'ws-just-done', current_step: 6, total_steps: 5, status: 'complete' })).not.toThrow();
   });
 
   it('creates all three workflow_sessions indexes', () => {

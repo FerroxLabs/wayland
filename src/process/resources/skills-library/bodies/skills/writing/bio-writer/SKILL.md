@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart writing budgeting checklist template"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart writing budgeting checklist template'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bio Writer
 
 You are a professional bio writing specialist. Help the user write compelling bios for different contexts. Provide templates and formulas so they can generate bios quickly. A good bio builds credibility, shows personality, and serves the specific context.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about bio writer techniques or best practices
 - User needs guidance on bio writer concepts
 - User wants to implement or improve their approach to bio writer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of bio writer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,12 +48,14 @@ element: interest, passion, or personal touch].
 ### By Length
 
 **One-liner (25-30 words):**
+
 ```
 [Name] is a [title] at [company], specializing in [area].
 [One notable credential or achievement].
 ```
 
 **Short bio (50-75 words):**
+
 ```
 [Name] is a [title] at [company] where [he/she/they]
 [what you do]. With [X years] of experience in [field],
@@ -62,6 +65,7 @@ element: interest, passion, or personal touch].
 ```
 
 **Full bio (100-150 words):**
+
 ```
 [Name] is a [title] at [company], where [he/she/they] leads
 [area of responsibility]. With [X+ years] of experience in
@@ -156,15 +160,18 @@ Before joining [company], [Name] [previous experience highlights].
 ### Social Media Bios
 
 **Twitter/X (160 characters):**
+
 ```
 [Title] at [Company]. [One specialty]. [One human detail]. [Emoji optional].
 ```
 
 Examples:
+
 - "VP Engineering at DataCo. Building data tools for everyone. Trail runner. He/him."
 - "Product Designer. Making B2B software less boring. Formerly Stripe. She/her."
 
 **Instagram (150 characters):**
+
 ```
 [What you do] | [Where/Company]
 [Interest or lifestyle element]
@@ -255,37 +262,37 @@ BIO REVIEW CHECKLIST
 
 ## First vs Third Person
 
-| Context | Person | Example |
-|---------|--------|---------|
-| LinkedIn About | First person | "I lead the engineering team..." |
-| Conference bio | Third person | "Sarah leads the engineering team..." |
-| Author byline | Third person | "Sarah Kim is a senior engineer..." |
-| Twitter/Social | First person | "Engineering lead at..." |
-| Company website | Third person | "Sarah joined in 2023..." |
-| Personal website | Either | Your preference |
-| Board/Official | Third person | "Ms. Kim serves as..." |
+| Context          | Person       | Example                               |
+| ---------------- | ------------ | ------------------------------------- |
+| LinkedIn About   | First person | "I lead the engineering team..."      |
+| Conference bio   | Third person | "Sarah leads the engineering team..." |
+| Author byline    | Third person | "Sarah Kim is a senior engineer..."   |
+| Twitter/Social   | First person | "Engineering lead at..."              |
+| Company website  | Third person | "Sarah joined in 2023..."             |
+| Personal website | Either       | Your preference                       |
+| Board/Official   | Third person | "Ms. Kim serves as..."                |
 
 ## Words to Avoid
 
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| "Passionate" | Overused, means nothing | Show it through specific interests |
-| "Innovative" | Everyone claims this | Describe what you actually innovated |
-| "Results-driven" | Cliche | Show results with numbers |
-| "Thought leader" | Self-appointed, cringe | Let credentials speak |
-| "Guru / Ninja / Rockstar" | Unprofessional | Expert, Specialist, Lead |
-| "Seasoned professional" | Dated phrasing | State years of experience |
-| "Dynamic" | Meaningless filler | Remove entirely |
+| Avoid                     | Why                     | Use Instead                          |
+| ------------------------- | ----------------------- | ------------------------------------ |
+| "Passionate"              | Overused, means nothing | Show it through specific interests   |
+| "Innovative"              | Everyone claims this    | Describe what you actually innovated |
+| "Results-driven"          | Cliche                  | Show results with numbers            |
+| "Thought leader"          | Self-appointed, cringe  | Let credentials speak                |
+| "Guru / Ninja / Rockstar" | Unprofessional          | Expert, Specialist, Lead             |
+| "Seasoned professional"   | Dated phrasing          | State years of experience            |
+| "Dynamic"                 | Meaningless filler      | Remove entirely                      |
 
 ## Update Schedule
 
 Review and update your bios:
+
 - **LinkedIn:** Every 6 months or after role change
 - **Speaking bio:** Before each submission
 - **Company page:** Annually
 - **Social media:** Quarterly
 - **All bios:** After any major achievement, role change, or milestone
-
 
 ## Process
 
@@ -294,7 +301,6 @@ Review and update your bios:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -315,14 +321,12 @@ Review and update your bios:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

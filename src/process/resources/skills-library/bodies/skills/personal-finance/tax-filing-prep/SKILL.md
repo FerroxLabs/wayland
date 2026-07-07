@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tax-planning personal-finance planning checklist"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'tax-planning personal-finance planning checklist'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Tax Filing Preparation Guide
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks what documents they need to file their taxes
 - User wants help organizing for tax season
 - User asks how to prepare for meeting with a tax professional
@@ -36,6 +37,7 @@ metadata:
 - User is filing taxes for the first time and needs guidance on the process
 
 **Do NOT use this skill when:**
+
 - User wants year-end tax planning strategies (use `year-end-tax-checklist`)
 - User wants to track deductions during the year (use `tax-deduction-tracker`)
 - User wants to estimate quarterly payments (use `quarterly-tax-estimator`)
@@ -243,6 +245,7 @@ Before filing, verify:
 ## Tax Filing Preparation Package
 
 ### Your Filing Profile
+
 - Filing status: [Confirm -- single, married, etc.?]
 - Income sources: W-2 employment + freelance/self-employment
 - Life events: Home purchase this year
@@ -252,20 +255,23 @@ Before filing, verify:
 ### Document Checklist
 
 #### A. Identity and Personal Information
+
 - [ ] Government identification numbers for all filers [JURISDICTION: verify]
 - [ ] Prior year tax return (for reference)
 - [ ] Bank account and routing numbers for refund deposit
 
 #### B. Income Documents
-| Document | Source | Expected By | Received? |
-|----------|--------|-------------|-----------|
-| W-2 | Full-time employer | [JURISDICTION: verify] | [ ] |
-| Freelance income forms | Each client who paid above threshold | [JURISDICTION: verify] | [ ] |
-| Interest/dividend statements | Bank and investment accounts | [JURISDICTION: verify] | [ ] |
+
+| Document                     | Source                               | Expected By            | Received? |
+| ---------------------------- | ------------------------------------ | ---------------------- | --------- |
+| W-2                          | Full-time employer                   | [JURISDICTION: verify] | [ ]       |
+| Freelance income forms       | Each client who paid above threshold | [JURISDICTION: verify] | [ ]       |
+| Interest/dividend statements | Bank and investment accounts         | [JURISDICTION: verify] | [ ]       |
 
 Note: Track freelance income yourself even if clients do not issue formal documents. All income is reportable.
 
 #### C. Deduction Documents (Evaluate Itemizing)
+
 - [ ] **Mortgage interest statement** from lender [JURISDICTION: verify form name] -- This is new for you this year
 - [ ] **Property tax records** -- Amount paid at closing and any payments since
 - [ ] **Closing disclosure** from home purchase -- Shows points paid, property taxes prorated at closing
@@ -273,21 +279,23 @@ Note: Track freelance income yourself even if clients do not issue formal docume
 - [ ] State/local tax records
 - [ ] Medical expenses (if significant)
 
-Itemization check: Mortgage interest + property taxes + SALT + charitable = $____
+Itemization check: Mortgage interest + property taxes + SALT + charitable = $\_\_\_\_
 vs. standard deduction [JURISDICTION: verify amount for your filing status]
 
 #### D. Self-Employment Documents (Freelance Income)
+
 - [ ] Total freelance income received: $[amount]
 - [ ] Business expense receipts organized by category:
-  - Software/tools: $____
-  - Equipment: $____
-  - Professional development: $____
-  - Other business expenses: $____
+  - Software/tools: $\_\_\_\_
+  - Equipment: $\_\_\_\_
+  - Professional development: $\_\_\_\_
+  - Other business expenses: $\_\_\_\_
 - [ ] Mileage log (if you drove for freelance work)
 - [ ] Home office documentation (if applicable)
 - [ ] Record of estimated tax payments made (if any)
 
 #### E. Home Purchase Documents
+
 - [ ] Closing disclosure (HUD-1 or equivalent)
 - [ ] Mortgage interest paid from closing date through year end
 - [ ] Property taxes paid (both at closing and after)
@@ -295,6 +303,7 @@ vs. standard deduction [JURISDICTION: verify amount for your filing status]
 - [ ] Private mortgage insurance premiums [JURISDICTION: verify if deductible]
 
 #### F. Other Documents
+
 - [ ] Student loan interest statement (if applicable)
 - [ ] Retirement account contribution records
 - [ ] HSA contribution records (if applicable)
@@ -302,13 +311,13 @@ vs. standard deduction [JURISDICTION: verify amount for your filing status]
 
 ### Filing Timeline
 
-| Timeframe | Action |
-|-----------|--------|
-| [JURISDICTION: verify] | Expect W-2 and freelance income forms to arrive |
-| [JURISDICTION: verify] | Mortgage interest and property tax documents arrive |
-| By mid-filing-season | Review all documents for accuracy and completeness |
+| Timeframe              | Action                                               |
+| ---------------------- | ---------------------------------------------------- |
+| [JURISDICTION: verify] | Expect W-2 and freelance income forms to arrive      |
+| [JURISDICTION: verify] | Mortgage interest and property tax documents arrive  |
+| By mid-filing-season   | Review all documents for accuracy and completeness   |
 | [JURISDICTION: verify] | File return or schedule tax professional appointment |
-| [JURISDICTION: verify] | Filing deadline |
+| [JURISDICTION: verify] | Filing deadline                                      |
 
 ### Special Notes for Your Situation
 
@@ -317,6 +326,7 @@ vs. standard deduction [JURISDICTION: verify amount for your filing status]
 **Freelance income with a day job:** You have two types of income requiring different tax treatment. W-2 income has taxes withheld; freelance income does not. Verify whether your W-2 withholding covered the additional tax on freelance income. If not, you may owe a balance and should consider quarterly estimated payments next year.
 
 ### Next Steps
+
 - [ ] Start a folder system now (do not wait for documents to arrive)
 - [ ] Calculate freelance income total from bank deposits or invoices
 - [ ] Locate your closing disclosure from the home purchase

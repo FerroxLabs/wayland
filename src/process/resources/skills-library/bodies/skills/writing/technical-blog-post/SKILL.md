@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing blog-post planning"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'technical-writing blog-post planning'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Technical Blog Post
 
 ## When to Use
@@ -90,7 +91,7 @@ Code is the primary evidence in a technical blog post. Prose explains; code prov
 - Comment code sparingly inside the block -- use inline comments only for non-obvious values or decisions. Move explanation to the prose. Over-commented code blocks are harder to read than under-commented ones.
 - For before/after comparisons, show both blocks with identical formatting so the diff is visually obvious. Label them explicitly: `// Before: N+1 query pattern` and `// After: batched query`.
 - Name every code variable as if it will be read in isolation -- avoid `x`, `temp`, `data`, `result`. Readers copy and adapt examples, and they inherit the variable names.
-- Specify language identifiers on every code block for syntax highlighting: ```python, ```go, ```sql, ```yaml, ```bash. Never use plain ``` for a code block that has a language.
+- Specify language identifiers on every code block for syntax highlighting: `python, `go, `sql, `yaml, `bash. Never use plain ` for a code block that has a language.
 - If the code requires setup context (imports, config, a specific schema), either include it in the block or say explicitly "assuming the standard library imports from the previous section." Do not silently omit dependencies.
 
 ### Step 5: Build the Evidence Section
@@ -131,7 +132,7 @@ The trade-offs section is where technical credibility is established or destroye
 
 ## Output Format
 
-```markdown
+````markdown
 # [Technical Title: Specific Problem, Discovery, or Claim]
 
 [Opening: 2-4 sentences. Name the system, the scale, the specific symptom or question,
@@ -147,6 +148,7 @@ problem visible.]
 [Code showing the problematic approach or the initial state. Real code, 10-40 lines.
 Label with a comment if this is a "before" example.]
 ```
+````
 
 [Explanation of WHY this code or approach is insufficient. Name the failure mode,
 not just the symptom. "This executes one query per item in the list (N+1 pattern).
@@ -204,10 +206,10 @@ to the `orders-dlq` dead letter topic."]
 [2-3 sentences describing the test environment: production or staging, load profile,
 measurement duration, tool used.]
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| [Primary metric] | [Value with unit] | [Value with unit] | [Absolute and %] |
-| [Secondary metric] | [Value with unit] | [Value with unit] | [Absolute and %] |
+| Metric               | Before            | After             | Change           |
+| -------------------- | ----------------- | ----------------- | ---------------- |
+| [Primary metric]     | [Value with unit] | [Value with unit] | [Absolute and %] |
+| [Secondary metric]   | [Value with unit] | [Value with unit] | [Absolute and %] |
 | [Operational metric] | [Value with unit] | [Value with unit] | [Absolute and %] |
 
 [Interpretation: what the numbers mean, any surprising results, and confidence level.
@@ -237,9 +239,10 @@ measurement or question the reader should take back to their own system.]
 
 ---
 
-*Technologies: [language vX.Y, framework vX.Y, database vX.Y, tool vX.Y]*
-*Measured in: [environment description, date range if production data]*
-```
+_Technologies: [language vX.Y, framework vX.Y, database vX.Y, tool vX.Y]_
+_Measured in: [environment description, date range if production data]_
+
+````
 
 ---
 
@@ -332,7 +335,7 @@ async def persist_readings(session: AsyncSession, readings: list[SensorReading])
             )
         )
     await session.commit()
-```
+````
 
 At 200 million rows per day, this loop executes 200 million separate INSERT statements. Each INSERT in PostgreSQL requires: parsing the SQL, acquiring a row-level lock, performing constraint checks (NOT NULL, foreign key on `sensor_id`), writing to the WAL, and releasing the lock. Even at 1ms per insert -- optimistic for a network-connected database -- that is 55 hours of serial work.
 
@@ -470,13 +473,13 @@ We tested batch sizes from 1,000 to 100,000 rows. Below 5,000 rows, the per-batc
 
 Measured in production over 7 days, same Kafka partition, same server hardware (8-core, 32GB RAM application server; PostgreSQL 15 on 16-core, 64GB RAM with NVMe SSD).
 
-| Metric | Before (INSERT loop) | After (COPY bulk) | Change |
-|--------|----------------------|-------------------|--------|
-| Ingestion throughput | 4,200 rows/sec | 382,000 rows/sec | +9,000% |
-| Pipeline lag at peak | 6.2 hours | < 3 minutes | -99.2% |
-| DB CPU at peak | 71% | 22% | -49 percentage points |
-| Application CPU at peak | 83% | 31% | -52 percentage points |
-| p99 batch latency | 4,200ms | 68ms | -98.4% |
+| Metric                  | Before (INSERT loop) | After (COPY bulk) | Change                |
+| ----------------------- | -------------------- | ----------------- | --------------------- |
+| Ingestion throughput    | 4,200 rows/sec       | 382,000 rows/sec  | +9,000%               |
+| Pipeline lag at peak    | 6.2 hours            | < 3 minutes       | -99.2%                |
+| DB CPU at peak          | 71%                  | 22%               | -49 percentage points |
+| Application CPU at peak | 83%                  | 31%               | -52 percentage points |
+| p99 batch latency       | 4,200ms              | 68ms              | -98.4%                |
 
 The application CPU drop was unexpected. The SQLAlchemy ORM layer was generating Python objects for each row on insertion (for dirty tracking). Removing the ORM from the write path eliminated that overhead.
 
@@ -496,5 +499,5 @@ Before tuning a slow ingestion pipeline, measure `mean_exec_time` and `calls` in
 
 ---
 
-*Technologies: Python 3.12, asyncpg 0.29, PostgreSQL 15.4, aiokafka 0.10*
-*Measured in: AWS us-east-1 production, 7-day window, March 2024, peak 12,000 Kafka messages/second*
+_Technologies: Python 3.12, asyncpg 0.29, PostgreSQL 15.4, aiokafka 0.10_
+_Measured in: AWS us-east-1 production, 7-day window, March 2024, peak 12,000 Kafka messages/second_

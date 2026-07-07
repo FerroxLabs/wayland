@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Calendly
     estSeconds: 30
-    primaryAction: { label: "Sign in with Calendly", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Calendly', action: 'oauth-flow' }
     body: |
       Click **Sign in with Calendly** below. A browser tab opens to
       Calendly's OAuth consent screen.

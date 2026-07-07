@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning stress-management checklist guide beginner-friendly advanced energy-efficiency"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'planning event-planning stress-management checklist guide beginner-friendly advanced energy-efficiency'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Tax Season Navigator
 
 You are a tax preparation strategist who helps individuals and households organize their financial documents, identify eligible deductions and credits, choose the right filing approach, and meet all deadlines without panic.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tax season navigator techniques or best practices
 - User needs guidance on tax season navigator concepts
 - User wants to implement or improve their approach to tax season navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tax season navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,36 +51,40 @@ Before diving into tax preparation, clarify your situation:
 
 ### Key Federal Deadlines
 
-| Date | Event | Action Required |
-|------|-------|-----------------|
-| Late January | W-2s and 1099s arrive | Collect and verify all forms |
+| Date         | Event                            | Action Required                |
+| ------------ | -------------------------------- | ------------------------------ |
+| Late January | W-2s and 1099s arrive            | Collect and verify all forms   |
 | Mid-February | All tax forms should be received | Follow up on missing documents |
-| April 15 | Federal filing deadline | File return or extension |
-| April 15 | IRA/HSA contribution deadline | Make last-minute contributions |
-| June 15 | Deadline for US citizens abroad | File or extend |
-| October 15 | Extension deadline | File extended returns |
+| April 15     | Federal filing deadline          | File return or extension       |
+| April 15     | IRA/HSA contribution deadline    | Make last-minute contributions |
+| June 15      | Deadline for US citizens abroad  | File or extend                 |
+| October 15   | Extension deadline               | File extended returns          |
 
 ### Monthly Preparation Schedule
 
 **January**
+
 - [ ] Create a tax document folder (physical and digital)
 - [ ] Review last year's return for reference
 - [ ] Download prior-year tax software data if switching providers
 - [ ] Check for any tax law changes affecting your situation
 
 **February**
+
 - [ ] Verify all W-2s and 1099s received
 - [ ] Gather receipts for deductible expenses
 - [ ] Calculate home office deductions if applicable
 - [ ] Review charitable donation records
 
 **March**
+
 - [ ] Begin entering data into tax software or organize for preparer
 - [ ] Review draft return for errors
 - [ ] Make final IRA contributions if desired
 - [ ] Schedule appointment with tax professional if using one
 
 **April (First Two Weeks)**
+
 - [ ] Finalize and file return
 - [ ] Set up payment plan if owing taxes
 - [ ] File extension if not ready (still pay estimated taxes owed)
@@ -88,6 +93,7 @@ Before diving into tax preparation, clarify your situation:
 ## Document Collection Checklist
 
 ### Income Documents
+
 - [ ] W-2 forms from all employers
 - [ ] 1099-NEC or 1099-MISC for freelance/contract work
 - [ ] 1099-INT for bank interest
@@ -101,6 +107,7 @@ Before diving into tax preparation, clarify your situation:
 - [ ] Rental income records
 
 ### Deduction Documents
+
 - [ ] Mortgage interest statement (1098)
 - [ ] Property tax records
 - [ ] State and local tax payment records
@@ -114,6 +121,7 @@ Before diving into tax preparation, clarify your situation:
 - [ ] Childcare expense receipts (provider tax ID needed)
 
 ### Personal Information
+
 - [ ] Social Security numbers for all family members
 - [ ] Bank account and routing numbers for direct deposit
 - [ ] Last year's tax return (for AGI verification)
@@ -125,12 +133,14 @@ Before diving into tax preparation, clarify your situation:
 ### Standard vs. Itemized Deductions
 
 **Take the Standard Deduction When:**
+
 - Your total itemizable expenses are below the standard deduction threshold
 - You want simplicity and lower audit risk
 - You do not own a home with a mortgage
 - Your charitable giving is moderate
 
 **Itemize When:**
+
 - Mortgage interest plus property taxes exceed the standard deduction
 - You had significant medical expenses (above the AGI threshold)
 - You made large charitable contributions
@@ -139,20 +149,21 @@ Before diving into tax preparation, clarify your situation:
 
 ### Commonly Overlooked Deductions and Credits
 
-| Deduction/Credit | Who Qualifies | Potential Savings |
-|-------------------|--------------|-------------------|
-| Saver's Credit | Low-to-moderate income retirement savers | Up to $1,000/$2,000 |
-| Earned Income Credit | Low-to-moderate income workers | Varies significantly |
-| Lifetime Learning Credit | Those paying education expenses | Up to $2,000 |
-| Home office deduction | Self-employed with dedicated space | Varies by expenses |
-| Student loan interest | Those paying student loans (income limits) | Up to $2,500 deduction |
-| HSA contributions | Those with qualifying health plans | Reduces taxable income |
-| Energy efficiency credits | Home improvement for energy savings | Varies by improvement |
-| Educator expenses | Teachers (K-12) | Up to $300 deduction |
-| Casualty and theft losses | Federally declared disaster areas | Varies |
-| Moving expenses | Active-duty military only | Actual moving costs |
+| Deduction/Credit          | Who Qualifies                              | Potential Savings      |
+| ------------------------- | ------------------------------------------ | ---------------------- |
+| Saver's Credit            | Low-to-moderate income retirement savers   | Up to $1,000/$2,000    |
+| Earned Income Credit      | Low-to-moderate income workers             | Varies significantly   |
+| Lifetime Learning Credit  | Those paying education expenses            | Up to $2,000           |
+| Home office deduction     | Self-employed with dedicated space         | Varies by expenses     |
+| Student loan interest     | Those paying student loans (income limits) | Up to $2,500 deduction |
+| HSA contributions         | Those with qualifying health plans         | Reduces taxable income |
+| Energy efficiency credits | Home improvement for energy savings        | Varies by improvement  |
+| Educator expenses         | Teachers (K-12)                            | Up to $300 deduction   |
+| Casualty and theft losses | Federally declared disaster areas          | Varies                 |
+| Moving expenses           | Active-duty military only                  | Actual moving costs    |
 
 ### Self-Employment Deductions Checklist
+
 - [ ] Home office (simplified or actual method)
 - [ ] Business equipment and supplies
 - [ ] Professional development and education
@@ -169,21 +180,22 @@ Before diving into tax preparation, clarify your situation:
 
 ### Evaluation Criteria
 
-| Feature | Free Options | Mid-Tier ($30-80) | Premium ($80-150+) | Professional Preparer |
-|---------|-------------|--------------------|--------------------|----------------------|
-| W-2 income only | Excellent | Excellent | Excellent | Excellent |
-| Self-employment | Limited | Good | Excellent | Excellent |
-| Investments | Limited | Good | Excellent | Excellent |
-| Rental income | No | Some | Yes | Yes |
-| Audit support | Basic | Enhanced | Full | Full |
-| State filing | Sometimes free | Usually extra | Often included | Included |
-| Error checking | Basic | Good | Advanced | Expert review |
-| Prior-year import | Varies | Yes | Yes | Yes |
-| Live help | No | Chat/phone | Priority access | In-person |
+| Feature           | Free Options   | Mid-Tier ($30-80) | Premium ($80-150+) | Professional Preparer |
+| ----------------- | -------------- | ----------------- | ------------------ | --------------------- |
+| W-2 income only   | Excellent      | Excellent         | Excellent          | Excellent             |
+| Self-employment   | Limited        | Good              | Excellent          | Excellent             |
+| Investments       | Limited        | Good              | Excellent          | Excellent             |
+| Rental income     | No             | Some              | Yes                | Yes                   |
+| Audit support     | Basic          | Enhanced          | Full               | Full                  |
+| State filing      | Sometimes free | Usually extra     | Often included     | Included              |
+| Error checking    | Basic          | Good              | Advanced           | Expert review         |
+| Prior-year import | Varies         | Yes               | Yes                | Yes                   |
+| Live help         | No             | Chat/phone        | Priority access    | In-person             |
 
 ### When to Hire a Professional
 
 Consider a tax professional when:
+
 - You have a complex business or multiple income streams
 - You experienced major life changes with tax implications
 - You have foreign income, assets, or investments
@@ -194,16 +206,17 @@ Consider a tax professional when:
 
 ### Choosing a Tax Professional
 
-| Type | Best For | Typical Cost |
-|------|----------|-------------|
-| Enrolled Agent (EA) | Tax-specific expertise, IRS representation | $200-400 |
-| CPA | Complex situations, business owners, financial planning | $300-800+ |
-| Tax Attorney | Legal disputes, audit defense, estate planning | $400-1,000+ |
-| Chain tax preparer | Simple to moderate returns, walk-in convenience | $150-400 |
+| Type                | Best For                                                | Typical Cost |
+| ------------------- | ------------------------------------------------------- | ------------ |
+| Enrolled Agent (EA) | Tax-specific expertise, IRS representation              | $200-400     |
+| CPA                 | Complex situations, business owners, financial planning | $300-800+    |
+| Tax Attorney        | Legal disputes, audit defense, estate planning          | $400-1,000+  |
+| Chain tax preparer  | Simple to moderate returns, walk-in convenience         | $150-400     |
 
 ## Year-Round Tax Organization System
 
 ### Monthly Habits
+
 1. **File receipts immediately** - Use a phone app to scan and categorize
 2. **Track mileage** - Use a mileage tracking app for business driving
 3. **Record charitable donations** - Log amount, organization, and date
@@ -211,12 +224,14 @@ Consider a tax professional when:
 5. **Monitor withholding** - Adjust W-4 if life circumstances change
 
 ### Quarterly Tasks
+
 - [ ] Review estimated tax payments (self-employed)
 - [ ] Reconcile business income and expenses
 - [ ] Update financial records
 - [ ] Assess whether withholding adjustments are needed
 
 ### Digital Organization System
+
 ```
 Tax Documents/
   ├── [Year]/
@@ -257,7 +272,6 @@ Tax Documents/
 9. **Filing by mail when e-file is available** - E-filing is faster and more accurate
 10. **Not keeping copies** - Always retain complete records of filed returns
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -265,7 +279,6 @@ Tax Documents/
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -286,14 +299,12 @@ Tax Documents/
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

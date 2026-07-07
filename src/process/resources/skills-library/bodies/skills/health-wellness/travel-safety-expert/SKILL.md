@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist cloud research planning networking safety emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist cloud research planning networking safety emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Travel Safety Expert
@@ -22,15 +22,16 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 
 **DISCLAIMER**: This guidance is general in nature and may not cover every situation or destination. Always check current government travel advisories (e.g., US State Department, UK FCDO, or your country's equivalent) before traveling. No amount of preparation eliminates all risk. Consult with medical professionals regarding health precautions for specific destinations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about travel safety expert techniques or best practices
 - User needs guidance on travel safety expert concepts
 - User wants to implement or improve their approach to travel safety expert
 
 **Do NOT use when:**
+
 - The request falls outside the scope of travel safety expert
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -83,6 +84,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 ### Document Safety Protocol
 
 **Physical copies (carry separately from originals)**:
+
 - Passport photo page
 - Visa
 - Travel insurance policy and emergency number
@@ -93,6 +95,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Emergency contact list
 
 **Digital copies (secure cloud storage)**:
+
 - All of the above, stored in encrypted cloud service
 - Photos of all documents
 - Accessible from any device with internet
@@ -103,6 +106,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 ### Daily Safety Habits
 
 **Situational awareness**:
+
 - Stay alert in crowded areas, transit stations, tourist attractions
 - Know your exits in any building or venue
 - Trust your instincts - if something feels wrong, leave
@@ -112,6 +116,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Avoid looking at maps or phones in the street; step into a shop
 
 **Accommodation security**:
+
 - Use the deadbolt and chain every time you're in the room
 - Use a rubber door stopper for added security (lightweight, packable)
 - Don't open the door to unexpected visitors
@@ -123,6 +128,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Never leave your room number visible or tell strangers where you're staying
 
 **Transportation safety**:
+
 - Use officially marked taxis or reputable ride-hailing apps
 - Verify the driver and vehicle match the app before entering
 - Share your ride status with a contact
@@ -134,6 +140,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Be cautious of motorcycle taxis in countries where they're common (insist on a helmet)
 
 **Walking safety**:
+
 - Stay on well-lit, populated streets, especially at night
 - Walk facing traffic to see approaching vehicles
 - Avoid alleys, shortcuts through empty areas, and unlit paths
@@ -145,6 +152,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 ### Money and Valuables
 
 **Managing cash and cards**:
+
 - Carry only what you need for the day
 - Split money into multiple locations (wallet, money belt, hidden pocket, shoe)
 - Use a money belt or neck wallet for large amounts and backup cards
@@ -155,6 +163,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Use RFID-blocking wallet or sleeve for contactless cards
 
 **Electronics**:
+
 - Use phone locks and tracking (Find My iPhone, Find My Device)
 - Back up photos and data to cloud daily
 - Don't leave devices unattended (even at restaurant tables)
@@ -167,12 +176,14 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 ### Common Travel Scams by Category
 
 **Distraction and theft**:
+
 - Someone "accidentally" spills something on you while an accomplice picks your pocket
 - A group of children surrounds you with papers/trinkets while others steal
 - Someone points out "bird droppings" (actually applied by an accomplice) and offers to help clean
 - A friendly stranger engages you in conversation while another steals your bag
 
 **Price manipulation**:
+
 - Taxi without meter or "broken" meter
 - Restaurant with no prices on menu, outrageous bill later
 - "Special price just for you" that is actually several times the real price
@@ -180,6 +191,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Currency confusion (giving change in a less valuable currency)
 
 **Trust exploitation**:
+
 - "Closed today" scam: Someone near an attraction says it's closed and offers an alternative (their friend's shop or tour)
 - Fake police asking to see your wallet or demanding fines
 - Overly friendly strangers inviting you to a bar or club (inflated drink bills follow)
@@ -187,6 +199,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 - Fake charity or petition scams (while you're distracted signing, you're pickpocketed)
 
 **Accommodation and booking**:
+
 - Fake listings on booking platforms
 - "Hotel is full" taxi driver redirecting to a commission-paying hotel
 - Fake Wi-Fi networks at cafes and hotels (data interception)
@@ -210,6 +223,7 @@ You are a seasoned travel safety consultant who helps travelers prepare for and 
 ### Emergency Preparedness Kit
 
 Carry on your person daily:
+
 - Phone (charged) with local emergency numbers saved
 - Small flashlight or phone flashlight
 - Copy of passport and insurance card
@@ -221,6 +235,7 @@ Carry on your person daily:
 ### Emergency Response Framework
 
 **If robbed or mugged**:
+
 1. Comply with demands - possessions are replaceable, you are not
 2. Do not resist or chase the thief
 3. Note descriptions if safe to do so (appearance, direction of escape)
@@ -231,6 +246,7 @@ Carry on your person daily:
 8. Contact travel insurance provider
 
 **If in a natural disaster**:
+
 1. Follow local authority instructions
 2. Move to higher ground in flooding, away from windows in earthquakes
 3. Contact your embassy for citizen assistance
@@ -239,6 +255,7 @@ Carry on your person daily:
 6. Stay away from damaged buildings and downed power lines
 
 **If detained or arrested**:
+
 1. Stay calm and cooperative
 2. Ask to contact your embassy/consulate (this is your right under international law)
 3. Do not sign documents you cannot read and understand
@@ -247,6 +264,7 @@ Carry on your person daily:
 6. Ask for an interpreter if needed
 
 **Medical emergency**:
+
 1. Call local emergency number
 2. Go to the nearest hospital recommended by your hotel or embassy
 3. Contact travel insurance emergency line (they can coordinate care)
@@ -272,11 +290,13 @@ Carry on your person daily:
 ### Food and Water Safety
 
 **Water safety by risk level**:
+
 - **Low risk**: Tap water generally safe (most of Western Europe, North America, Australia, Japan)
 - **Moderate risk**: Stick to bottled water, ice may be risky (much of Southeast Asia, Central America)
 - **High risk**: Only sealed bottled water, avoid ice, use bottled water for brushing teeth (parts of South Asia, sub-Saharan Africa)
 
 **Food safety principles**:
+
 - "Cook it, boil it, peel it, or overlook it" for high-risk areas
 - Eat at busy establishments (high turnover = fresher food)
 - Avoid raw or undercooked meat and seafood in unfamiliar settings
@@ -287,14 +307,14 @@ Carry on your person daily:
 
 ### Common Travel Illnesses and Prevention
 
-| Illness | Prevention | Symptoms | Action |
-|---------|-----------|----------|--------|
-| Traveler's diarrhea | Water/food safety, hand hygiene | Loose stools, cramps, nausea | Hydrate, ORS, seek care if bloody or lasting 3+ days |
-| Malaria | Prophylaxis, mosquito avoidance, repellent | Fever, chills, flu-like symptoms | Seek immediate medical attention |
-| Dengue | Mosquito avoidance (daytime biters) | High fever, severe headache, joint pain | Medical attention, avoid aspirin |
-| Altitude sickness | Gradual ascent, hydration, acclimatization | Headache, nausea, fatigue | Descend if symptoms worsen |
-| Heat exhaustion | Hydration, shade, gradual acclimatization | Sweating, weakness, dizziness | Cool down, hydrate, rest |
-| Sunburn | Sunscreen, protective clothing, shade | Red, painful skin | Aloe vera, stay hydrated, avoid further exposure |
+| Illness             | Prevention                                 | Symptoms                                | Action                                               |
+| ------------------- | ------------------------------------------ | --------------------------------------- | ---------------------------------------------------- |
+| Traveler's diarrhea | Water/food safety, hand hygiene            | Loose stools, cramps, nausea            | Hydrate, ORS, seek care if bloody or lasting 3+ days |
+| Malaria             | Prophylaxis, mosquito avoidance, repellent | Fever, chills, flu-like symptoms        | Seek immediate medical attention                     |
+| Dengue              | Mosquito avoidance (daytime biters)        | High fever, severe headache, joint pain | Medical attention, avoid aspirin                     |
+| Altitude sickness   | Gradual ascent, hydration, acclimatization | Headache, nausea, fatigue               | Descend if symptoms worsen                           |
+| Heat exhaustion     | Hydration, shade, gradual acclimatization  | Sweating, weakness, dizziness           | Cool down, hydrate, rest                             |
+| Sunburn             | Sunscreen, protective clothing, shade      | Red, painful skin                       | Aloe vera, stay hydrated, avoid further exposure     |
 
 ## Solo Travel Safety
 
@@ -346,7 +366,6 @@ Carry on your person daily:
 - Have multiple communication methods (phone, messaging apps, email)
 - Know the embassy's after-hours emergency number
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -354,7 +373,6 @@ Carry on your person daily:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -375,14 +393,12 @@ Carry on your person daily:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

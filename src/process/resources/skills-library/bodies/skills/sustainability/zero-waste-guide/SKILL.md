@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability waste-reduction guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'sustainability waste-reduction guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Zero Waste Living Guide
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about zero waste guide
 - User needs guidance on zero waste guide topics
 - User wants a structured approach to zero waste guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -61,6 +63,7 @@ metadata:
 ### Applying Each R
 
 **REFUSE:**
+
 - Decline plastic bags (bring your own)
 - Say no to free promotional items and swag
 - Unsubscribe from junk mail (DMAchoice.org, CatalogChoice.org)
@@ -69,6 +72,7 @@ metadata:
 - Skip freebies you do not actually need
 
 **REDUCE:**
+
 - Buy only what you will use (especially food)
 - Choose products with less packaging
 - Buy concentrated products (cleaning supplies, soap)
@@ -77,6 +81,7 @@ metadata:
 - Choose quality over quantity (longer-lasting items)
 
 **REUSE:**
+
 - Use cloth napkins, towels, and handkerchiefs
 - Bring reusable bags, bottles, cups, and containers
 - Repurpose glass jars for storage
@@ -86,6 +91,7 @@ metadata:
 - Donate or sell items you no longer need
 
 **RECYCLE (Correctly):**
+
 - Know your local recycling rules (they vary significantly)
 - Clean and dry recyclables before placing in the bin
 - Do not "wish-cycle" (putting non-recyclable items in hoping they will be recycled)
@@ -94,6 +100,7 @@ metadata:
 - Keep plastic bags out of curbside recycling (return to store drop-offs)
 
 **ROT (Compost):**
+
 - Compost food scraps (fruit, vegetables, coffee grounds, eggshells)
 - Compost yard waste (leaves, grass clippings, small branches)
 - Use compostable products when disposables are unavoidable
@@ -140,46 +147,47 @@ Total Recycling: ____________
 
 ### Kitchen Swaps
 
-| Disposable Item | Zero-Waste Alternative | Approximate Cost |
-|----------------|----------------------|-----------------|
-| Paper towels | Cloth towels and rags (cut old t-shirts) | $0-$15 |
-| Plastic wrap | Beeswax wraps or silicone lids | $10-$20 |
-| Plastic bags (zip-lock) | Silicone reusable bags or containers | $10-$25 |
-| Paper napkins | Cloth napkins | $10-$20 for a set |
-| Sponges | Compostable sponges, dish brushes with replaceable heads | $5-$15 |
-| Plastic bottles (cleaning) | Concentrated refill tablets or DIY solutions | $5-$15 |
-| Aluminum foil | Reusable silicone mats or stainless steel sheets | $10-$20 |
-| Disposable cups/plates | Reusable dishes for all occasions | $0 (use what you have) |
-| Tea bags | Loose leaf tea with reusable infuser | $10-$15 (infuser) |
-| Coffee pods | French press, pour-over, or moka pot | $15-$40 |
-| Plastic produce bags | Reusable mesh produce bags | $5-$10 |
+| Disposable Item            | Zero-Waste Alternative                                   | Approximate Cost       |
+| -------------------------- | -------------------------------------------------------- | ---------------------- |
+| Paper towels               | Cloth towels and rags (cut old t-shirts)                 | $0-$15                 |
+| Plastic wrap               | Beeswax wraps or silicone lids                           | $10-$20                |
+| Plastic bags (zip-lock)    | Silicone reusable bags or containers                     | $10-$25                |
+| Paper napkins              | Cloth napkins                                            | $10-$20 for a set      |
+| Sponges                    | Compostable sponges, dish brushes with replaceable heads | $5-$15                 |
+| Plastic bottles (cleaning) | Concentrated refill tablets or DIY solutions             | $5-$15                 |
+| Aluminum foil              | Reusable silicone mats or stainless steel sheets         | $10-$20                |
+| Disposable cups/plates     | Reusable dishes for all occasions                        | $0 (use what you have) |
+| Tea bags                   | Loose leaf tea with reusable infuser                     | $10-$15 (infuser)      |
+| Coffee pods                | French press, pour-over, or moka pot                     | $15-$40                |
+| Plastic produce bags       | Reusable mesh produce bags                               | $5-$10                 |
 
 ### Bathroom Swaps
 
-| Disposable Item | Zero-Waste Alternative | Approximate Cost |
-|----------------|----------------------|-----------------|
-| Plastic toothbrush | Bamboo toothbrush | $3-$5 each |
-| Bottled shampoo | Shampoo bar or refill station | $8-$15 per bar |
-| Bottled conditioner | Conditioner bar | $8-$15 per bar |
-| Body wash in plastic | Bar soap | $3-$8 per bar |
-| Disposable razors | Safety razor (stainless steel) | $20-$40 (razor), $0.10/blade |
-| Cotton rounds | Reusable cotton rounds | $8-$15 for a set |
-| Cotton swabs | Reusable silicone swabs or bamboo swabs | $5-$12 |
-| Plastic floss containers | Silk or bamboo floss in refillable container | $5-$10 |
-| Menstrual products | Menstrual cup, period underwear, or cloth pads | $15-$40 |
-| Tissues | Handkerchiefs | $5-$15 for a set |
+| Disposable Item          | Zero-Waste Alternative                         | Approximate Cost             |
+| ------------------------ | ---------------------------------------------- | ---------------------------- |
+| Plastic toothbrush       | Bamboo toothbrush                              | $3-$5 each                   |
+| Bottled shampoo          | Shampoo bar or refill station                  | $8-$15 per bar               |
+| Bottled conditioner      | Conditioner bar                                | $8-$15 per bar               |
+| Body wash in plastic     | Bar soap                                       | $3-$8 per bar                |
+| Disposable razors        | Safety razor (stainless steel)                 | $20-$40 (razor), $0.10/blade |
+| Cotton rounds            | Reusable cotton rounds                         | $8-$15 for a set             |
+| Cotton swabs             | Reusable silicone swabs or bamboo swabs        | $5-$12                       |
+| Plastic floss containers | Silk or bamboo floss in refillable container   | $5-$10                       |
+| Menstrual products       | Menstrual cup, period underwear, or cloth pads | $15-$40                      |
+| Tissues                  | Handkerchiefs                                  | $5-$15 for a set             |
 
 ### Laundry and Cleaning Swaps
 
-| Disposable Item | Zero-Waste Alternative | Approximate Cost |
-|----------------|----------------------|-----------------|
-| Plastic laundry bottles | Laundry strips or powder in cardboard | $10-$15 |
-| Dryer sheets | Wool dryer balls | $10-$15 for a set |
-| Spray bottle cleaners | DIY cleaners or concentrate refills | $5-$15 |
-| Trash bags | Compostable bags, or line bin with newspaper | $5-$10 |
-| Disposable mop pads | Washable mop pads or traditional mop | $10-$20 |
+| Disposable Item         | Zero-Waste Alternative                       | Approximate Cost  |
+| ----------------------- | -------------------------------------------- | ----------------- |
+| Plastic laundry bottles | Laundry strips or powder in cardboard        | $10-$15           |
+| Dryer sheets            | Wool dryer balls                             | $10-$15 for a set |
+| Spray bottle cleaners   | DIY cleaners or concentrate refills          | $5-$15            |
+| Trash bags              | Compostable bags, or line bin with newspaper | $5-$10            |
+| Disposable mop pads     | Washable mop pads or traditional mop         | $10-$20           |
 
 ### On-the-Go Swaps
+
 - Reusable water bottle (stainless steel or glass)
 - Reusable coffee cup or thermos
 - Cloth shopping bags (keep in car or by door)
@@ -194,19 +202,20 @@ Total Recycling: ____________
 
 ### Choosing Your Composting Method
 
-| Method | Space Needed | Best For | Effort Level | Time to Compost |
-|--------|-------------|----------|-------------|-----------------|
-| Backyard bin | Outdoor space | Houses with yards | Medium | 2-6 months |
-| Tumbler composter | Small outdoor space | Suburban homes | Medium | 1-3 months |
-| Worm bin (vermicomposting) | Indoor or outdoor | Apartments, small spaces | Medium | 2-4 months |
-| Bokashi | Indoor countertop | Apartments, all climates | Low-Medium | 2-4 weeks (fermentation) + burial |
-| Municipal composting | None | Where curbside service exists | Very Low | N/A (city handles) |
-| Community garden compost | None at home | Urban areas | Low | Drop off |
-| Electric composter | Kitchen counter | Any living situation | Very Low | 24-48 hours |
+| Method                     | Space Needed        | Best For                      | Effort Level | Time to Compost                   |
+| -------------------------- | ------------------- | ----------------------------- | ------------ | --------------------------------- |
+| Backyard bin               | Outdoor space       | Houses with yards             | Medium       | 2-6 months                        |
+| Tumbler composter          | Small outdoor space | Suburban homes                | Medium       | 1-3 months                        |
+| Worm bin (vermicomposting) | Indoor or outdoor   | Apartments, small spaces      | Medium       | 2-4 months                        |
+| Bokashi                    | Indoor countertop   | Apartments, all climates      | Low-Medium   | 2-4 weeks (fermentation) + burial |
+| Municipal composting       | None                | Where curbside service exists | Very Low     | N/A (city handles)                |
+| Community garden compost   | None at home        | Urban areas                   | Low          | Drop off                          |
+| Electric composter         | Kitchen counter     | Any living situation          | Very Low     | 24-48 hours                       |
 
 ### What to Compost (and What NOT to)
 
 **Compostable (Green/Nitrogen):**
+
 - Fruit and vegetable scraps
 - Coffee grounds and paper filters
 - Tea leaves
@@ -214,6 +223,7 @@ Total Recycling: ____________
 - Plant trimmings
 
 **Compostable (Brown/Carbon):**
+
 - Dry leaves
 - Shredded newspaper and cardboard
 - Straw and hay
@@ -222,6 +232,7 @@ Total Recycling: ____________
 - Eggshells (crushed)
 
 **Do NOT Compost (standard home composting):**
+
 - Meat and fish scraps (attracts pests; Bokashi can handle these)
 - Dairy products (attracts pests)
 - Oils and fats
@@ -231,6 +242,7 @@ Total Recycling: ____________
 - Plastic, even "compostable" plastic (in home systems)
 
 ### Basic Composting Ratio
+
 Aim for approximately 3 parts brown (carbon) to 1 part green (nitrogen) by volume. Keep the pile moist like a wrung-out sponge. Turn regularly for faster decomposition.
 
 ---
@@ -240,6 +252,7 @@ Aim for approximately 3 parts brown (carbon) to 1 part green (nitrogen) by volum
 ### Bulk Shopping Guide
 
 **What to buy in bulk:**
+
 - Grains (rice, oats, quinoa, pasta)
 - Beans and legumes (dried)
 - Nuts and seeds
@@ -252,6 +265,7 @@ Aim for approximately 3 parts brown (carbon) to 1 part green (nitrogen) by volum
 - Personal care products (refill stations)
 
 **Bulk shopping tips:**
+
 - Bring your own containers (weigh empty at checkout first -- called "tare weight")
 - Use cloth bags for dry goods
 - Start with a few staples you use regularly
@@ -260,6 +274,7 @@ Aim for approximately 3 parts brown (carbon) to 1 part green (nitrogen) by volum
 - Label everything with contents and purchase date
 
 ### Reducing Packaging Waste
+
 - Choose products in glass, metal, or cardboard over plastic
 - Buy the largest size you will use (less packaging per unit)
 - Choose concentrated products
@@ -275,6 +290,7 @@ Aim for approximately 3 parts brown (carbon) to 1 part green (nitrogen) by volum
 ### Simple DIY Recipes
 
 **All-Purpose Cleaner:**
+
 ```
 1 cup white vinegar
 1 cup water
@@ -283,6 +299,7 @@ Mix in a spray bottle. Do not use on marble or stone (vinegar is acidic).
 ```
 
 **Dish Soap (Simple):**
+
 ```
 1 cup liquid castile soap
 1 tablespoon white vinegar
@@ -291,6 +308,7 @@ Mix gently. Use a small amount per load of dishes.
 ```
 
 **Laundry Powder:**
+
 ```
 1 cup washing soda
 1 cup baking soda
@@ -299,6 +317,7 @@ Mix thoroughly. Use 2 tablespoons per load.
 ```
 
 **Body Scrub:**
+
 ```
 1/2 cup sugar or salt
 1/4 cup coconut oil (melted)
@@ -307,6 +326,7 @@ Mix and store in a glass jar. Use within 2-3 months.
 ```
 
 **Beeswax Wraps:**
+
 ```
 Cotton fabric (cut to desired sizes)
 Beeswax pellets
@@ -324,6 +344,7 @@ and absorbed, or bake at 200F for a few minutes. Hang to dry.
 **The average household wastes 30-40% of purchased food.**
 
 **Step 1: Shop with a plan**
+
 - Inventory what you already have before shopping
 - Plan meals for the week using what needs to be used first
 - Make a list and stick to it
@@ -342,6 +363,7 @@ and absorbed, or bake at 200F for a few minutes. Hang to dry.
 | Apples | Refrigerator (separate from other produce) | Weeks |
 
 **Step 3: Use what you have**
+
 - FIFO system (First In, First Out -- use oldest items first)
 - "Eat the fridge" meals once per week (use up leftovers and odds and ends)
 - Freeze items before they go bad (bread, fruit, vegetables, cooked meals)
@@ -357,14 +379,15 @@ After refusing waste, reducing consumption, and reusing/repurposing, compost any
 
 ### The 30-Day Zero Waste Kickstart
 
-| Week | Focus Area | Actions |
-|------|-----------|---------|
-| Week 1 | Assessment | Conduct waste audit, identify top 3 waste categories |
-| Week 2 | Kitchen | Switch to reusable bags, start composting food scraps, reduce food waste |
-| Week 3 | Bathroom | Try a bar soap or shampoo bar, switch one disposable item |
-| Week 4 | On-the-go | Carry reusable water bottle, coffee cup, and bags consistently |
+| Week   | Focus Area | Actions                                                                  |
+| ------ | ---------- | ------------------------------------------------------------------------ |
+| Week 1 | Assessment | Conduct waste audit, identify top 3 waste categories                     |
+| Week 2 | Kitchen    | Switch to reusable bags, start composting food scraps, reduce food waste |
+| Week 3 | Bathroom   | Try a bar soap or shampoo bar, switch one disposable item                |
+| Week 4 | On-the-go  | Carry reusable water bottle, coffee cup, and bags consistently           |
 
 ### Mindset Principles
+
 - **Progress, not perfection.** Zero waste is a direction, not a destination.
 - **Start with the easiest swaps.** Build momentum before tackling harder changes.
 - **One swap at a time.** Finish what you have before buying alternatives.
@@ -374,14 +397,14 @@ After refusing waste, reducing consumption, and reusing/repurposing, compost any
 
 ### Common Challenges and Solutions
 
-| Challenge | Solution |
-|-----------|---------|
-| "It takes too much time" | Start with 2-3 swaps that fit your routine; it becomes habitual |
-| "It costs too much" | Most swaps save money long-term; start with free changes |
-| "My family won't participate" | Lead by example; make it easy (put bins where they are needed) |
-| "I can't find bulk/refill stores" | Online refill services exist; focus on reducing packaging, not eliminating it |
-| "Medical/health needs require disposables" | That is completely valid -- reduce where you can, do not feel guilt |
-| "Recycling is confusing" | Call your local waste management for a clear guide |
+| Challenge                                  | Solution                                                                      |
+| ------------------------------------------ | ----------------------------------------------------------------------------- |
+| "It takes too much time"                   | Start with 2-3 swaps that fit your routine; it becomes habitual               |
+| "It costs too much"                        | Most swaps save money long-term; start with free changes                      |
+| "My family won't participate"              | Lead by example; make it easy (put bins where they are needed)                |
+| "I can't find bulk/refill stores"          | Online refill services exist; focus on reducing packaging, not eliminating it |
+| "Medical/health needs require disposables" | That is completely valid -- reduce where you can, do not feel guilt           |
+| "Recycling is confusing"                   | Call your local waste management for a clear guide                            |
 
 ---
 
@@ -408,7 +431,6 @@ Next month's focus area: _________________________________
 ```
 
 Every small change adds up. A family that reduces waste by even one bag per week keeps 52 bags out of the landfill each year. Start where you are and keep going.
-
 
 ## Output Format
 

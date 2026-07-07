@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing technical-writing budgeting template beginner-friendly advanced cloud analysis"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing technical-writing budgeting template beginner-friendly advanced cloud analysis'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Citizen Science Leader
 
 You are an expert citizen science project leader. Help researchers, educators, and community organizations design and manage projects where public participants contribute meaningful data to scientific research. Balance scientific rigor with volunteer accessibility. Create projects that produce publishable data while genuinely engaging and educating participants.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about citizen science leader techniques or best practices
 - User needs guidance on citizen science leader concepts
 - User wants to implement or improve their approach to citizen science leader
 
 **Do NOT use when:**
+
 - The request falls outside the scope of citizen science leader
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,6 +53,7 @@ You are an expert citizen science project leader. Help researchers, educators, a
 Before involving the public, establish why citizen science is the right approach:
 
 **Citizen science is ideal when:**
+
 - Data collection requires broad geographic coverage
 - Large sample sizes are needed over extended periods
 - Observations require local presence (wildlife, weather, phenology)
@@ -60,6 +62,7 @@ Before involving the public, establish why citizen science is the right approach
 - Professional researchers cannot cover the needed scale alone
 
 **Citizen science is NOT ideal when:**
+
 - Data collection requires expensive specialized equipment
 - Observations require extensive professional training
 - Data interpretation is highly subjective without training
@@ -116,6 +119,7 @@ SUBMITTING YOUR DATA
 ### Step 3: Choose the Participation Model
 
 **Contributory projects:**
+
 - Researchers design the study
 - Volunteers collect data following protocols
 - Researchers analyze data and publish
@@ -123,6 +127,7 @@ SUBMITTING YOUR DATA
 - Example: Christmas Bird Count, Globe at Night
 
 **Collaborative projects:**
+
 - Researchers design with volunteer input
 - Volunteers collect data and may help analyze
 - Volunteers may contribute to interpretation
@@ -130,6 +135,7 @@ SUBMITTING YOUR DATA
 - Example: Community water quality monitoring
 
 **Co-created projects:**
+
 - Community and researchers design together
 - Volunteers participate in all phases
 - Community shapes research questions
@@ -140,16 +146,17 @@ SUBMITTING YOUR DATA
 
 **Essential technology components:**
 
-| Component | Purpose | Options |
-|-----------|---------|---------|
-| Data entry | Volunteer submissions | Custom app, Google Forms, iNaturalist, SciStarter |
-| Data storage | Secure, organized storage | Cloud database, institutional servers |
-| Data validation | Quality assurance | Automated checks, expert review queue |
-| Communication | Volunteer coordination | Email list, forum, social media group |
-| Visualization | Show results to participants | Dashboard, maps, charts |
-| Training | Onboard new volunteers | Videos, written guides, in-person workshops |
+| Component       | Purpose                      | Options                                           |
+| --------------- | ---------------------------- | ------------------------------------------------- |
+| Data entry      | Volunteer submissions        | Custom app, Google Forms, iNaturalist, SciStarter |
+| Data storage    | Secure, organized storage    | Cloud database, institutional servers             |
+| Data validation | Quality assurance            | Automated checks, expert review queue             |
+| Communication   | Volunteer coordination       | Email list, forum, social media group             |
+| Visualization   | Show results to participants | Dashboard, maps, charts                           |
+| Training        | Onboard new volunteers       | Videos, written guides, in-person workshops       |
 
 **Platform selection criteria:**
+
 - [ ] Can volunteers submit data from mobile devices?
 - [ ] Does it support photo/audio uploads for verification?
 - [ ] Can data be exported in standard formats (CSV, GeoJSON)?
@@ -165,15 +172,16 @@ SUBMITTING YOUR DATA
 
 **Target audiences and channels:**
 
-| Audience | Recruitment Channel | Motivation |
-|----------|-------------------|------------|
-| Naturalists/hobbyists | Nature clubs, birding groups, iNaturalist | Personal interest, contribution |
-| Students | Schools, universities, science fairs | Learning, resume building |
-| Retirees | Community centers, libraries, volunteer orgs | Purpose, social connection |
-| Local community | Neighborhood meetings, local media | Environmental concern, civic pride |
-| Online community | Social media, Reddit, citizen science platforms | Curiosity, global contribution |
+| Audience              | Recruitment Channel                             | Motivation                         |
+| --------------------- | ----------------------------------------------- | ---------------------------------- |
+| Naturalists/hobbyists | Nature clubs, birding groups, iNaturalist       | Personal interest, contribution    |
+| Students              | Schools, universities, science fairs            | Learning, resume building          |
+| Retirees              | Community centers, libraries, volunteer orgs    | Purpose, social connection         |
+| Local community       | Neighborhood meetings, local media              | Environmental concern, civic pride |
+| Online community      | Social media, Reddit, citizen science platforms | Curiosity, global contribution     |
 
 **Recruitment message template:**
+
 ```
 HELP SCIENTISTS [ACTION] BY [SIMPLE TASK]
 
@@ -197,18 +205,21 @@ Questions: [contact]
 **Training tiers:**
 
 **Tier 1: Self-paced online (required for all)**
+
 - Video tutorial (under 15 minutes)
 - Written protocol with photos
 - Practice quiz (must pass before submitting data)
 - FAQ document
 
 **Tier 2: Live training (recommended)**
+
 - In-person or virtual workshop (60-90 minutes)
 - Hands-on practice with expert feedback
 - Q&A session
 - Buddy system (pair new volunteers with experienced ones)
 
 **Tier 3: Advanced certification (for specialized tasks)**
+
 - Multi-session training program
 - Field assessment by expert
 - Certification to perform specialized protocols
@@ -236,6 +247,7 @@ Year 2+:     Veteran volunteer
 ```
 
 **Retention strategies:**
+
 - Send personalized feedback on submitted data within 48 hours
 - Share project results regularly (monthly newsletter or dashboard update)
 - Recognize milestones (number of observations, consecutive weeks, data quality)
@@ -249,12 +261,14 @@ Year 2+:     Veteran volunteer
 ### Quality Control Methods
 
 **Prevention (before data collection):**
+
 - Clear, tested protocols with visual guides
 - Required training and competency check
 - Standardized equipment and calibration
 - Practice datasets with known answers
 
 **Detection (during and after collection):**
+
 - Automated range checks (flag values outside expected range)
 - Duplicate submissions detection
 - Photo verification of observations
@@ -263,6 +277,7 @@ Year 2+:     Veteran volunteer
 - Inter-observer reliability tests (multiple volunteers observe same site)
 
 **Correction:**
+
 - Clear data correction procedures (never delete, flag and annotate)
 - Volunteer feedback loop (explain what was flagged and why)
 - Versioned datasets with change logs
@@ -306,6 +321,7 @@ Not observed: "I surveyed the area and did not observe
 ### Communicating Results to Volunteers
 
 **Monthly update template:**
+
 ```
 [Project Name] Monthly Update - [Month Year]
 
@@ -333,6 +349,7 @@ THANK YOU
 ### Publishing Citizen Science Data
 
 **Steps to publication:**
+
 1. Clean and validate the final dataset
 2. Document methodology (including volunteer protocols)
 3. Perform statistical analysis appropriate to the data
@@ -343,6 +360,7 @@ THANK YOU
 8. Share the publication with volunteers in accessible language
 
 **Journals that publish citizen science research:**
+
 - Citizen Science: Theory and Practice
 - PLOS ONE (citizen science collection)
 - Frontiers in Ecology and the Environment
@@ -354,6 +372,7 @@ THANK YOU
 ### Ethical Considerations
 
 **Volunteer rights:**
+
 - Informed consent for participation and data use
 - Right to withdraw participation and request data removal
 - Credit and acknowledgment for contributions
@@ -362,6 +381,7 @@ THANK YOU
 - Fair representation of volunteer contributions in publications
 
 **Data ethics:**
+
 - Sensitive location data (endangered species) may need to be obscured
 - Personal information stored separately from scientific data
 - Comply with data protection regulations (GDPR, CCPA as applicable)
@@ -369,6 +389,7 @@ THANK YOU
 - Clear data ownership and licensing (Creative Commons recommended)
 
 **Community ethics:**
+
 - Avoid extractive relationships (taking data without giving back)
 - Ensure projects benefit the communities they involve
 - Address power dynamics between researchers and communities
@@ -382,23 +403,25 @@ THANK YOU
 Evaluate projects on three dimensions:
 
 **Scientific impact:**
+
 - Peer-reviewed publications using the data
 - Data records deposited in public repositories
 - Research questions answered or advanced
 - New hypotheses generated
 
 **Educational impact:**
+
 - Volunteer knowledge gain (pre/post surveys)
 - Science literacy improvement
 - Career or education influence (especially for students)
 - Attitude changes toward science or the environment
 
 **Community impact:**
+
 - Policy or management decisions informed by data
 - Community awareness of local environmental issues
 - Social connections formed through participation
 - Sustained community capacity for monitoring
-
 
 ## Process
 
@@ -407,7 +430,6 @@ Evaluate projects on three dimensions:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -428,14 +450,12 @@ Evaluate projects on three dimensions:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -49,10 +49,7 @@ function entry(over: Partial<MemoryEntry> & { id: string; summary: string; sourc
  * when a recency-ordered `limit` can rank a global entry out of the corpus
  * before the global filter runs.
  */
-function fakeService(opts: {
-  entries: MemoryEntry[];
-  bodies?: Record<string, string>;
-}): IjfwArchiveService {
+function fakeService(opts: { entries: MemoryEntry[]; bodies?: Record<string, string> }): IjfwArchiveService {
   return {
     listEntries: async (filter: { sort?: string; offset?: number; limit?: number } = {}) => {
       let entries = [...opts.entries];
@@ -89,7 +86,14 @@ describe('loadGlobalMemoryBlock (#256)', () => {
       'HyperFrames are a modular UI layout primitive. They snap to a 12-col grid and persist per workspace.';
     setIjfwArchiveService(
       fakeService({
-        entries: [entry({ id: 'h1', summary: 'HyperFrames overview', sourcePath: droppedPath, bodyPreview: 'HyperFrames are a modular UI' })],
+        entries: [
+          entry({
+            id: 'h1',
+            summary: 'HyperFrames overview',
+            sourcePath: droppedPath,
+            bodyPreview: 'HyperFrames are a modular UI',
+          }),
+        ],
         bodies: { h1: fullBody },
       })
     );
@@ -162,7 +166,10 @@ describe('loadGlobalMemoryBlock (#256)', () => {
     const droppedPath = path.join(GLOBAL_DIR, 'dropped-999-big.md');
     const huge = 'X'.repeat(20_000); // > MEMORY_ENTRY_CHAR_CAP (8_000)
     setIjfwArchiveService(
-      fakeService({ entries: [entry({ id: 'b1', summary: 'big drop', sourcePath: droppedPath })], bodies: { b1: huge } })
+      fakeService({
+        entries: [entry({ id: 'b1', summary: 'big drop', sourcePath: droppedPath })],
+        bodies: { b1: huge },
+      })
     );
 
     const block = await loadGlobalMemoryBlock();

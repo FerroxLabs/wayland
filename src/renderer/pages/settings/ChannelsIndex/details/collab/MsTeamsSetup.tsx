@@ -50,7 +50,7 @@ const MsTeamsSetup: React.FC = () => {
       pluginId='ms-teams_default'
       helpText={t(
         'settings.channels.msTeams.help',
-        'Bot Framework via Azure Bot Service. Register a bot, set the webhook endpoint, and paste your App ID and client secret below.',
+        'Bot Framework via Azure Bot Service. Register a bot, set the webhook endpoint, and paste your App ID and client secret below.'
       )}
     >
       <MsTeamsConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

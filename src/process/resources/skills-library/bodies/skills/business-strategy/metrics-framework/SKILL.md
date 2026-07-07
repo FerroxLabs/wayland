@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning strategy decision-making project-management"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'analysis planning strategy decision-making project-management'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Metrics Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - A product manager, founder, or team lead asks to build or redesign a metrics framework for their product -- including net-new frameworks, frameworks that have grown stale, or frameworks inherited from a previous team
 - A user needs to identify or validate a North Star Metric (NSM) for their product and is uncertain whether their current candidate metric is actually capturing user value versus revenue signals
 - A user wants to decompose a high-level goal into an actionable hierarchy of L1 and L2 metrics that individual teams can own and influence
@@ -28,6 +30,7 @@ metadata:
 - A user is building or scaling a data analytics function and needs a canonical metric taxonomy that analysts, engineers, and product managers can all align to
 
 **Do NOT use this skill when:**
+
 - The user needs financial KPIs for board or investor reporting (use `financial-kpis` -- financial frameworks use GAAP-aligned metrics like ARR, EBITDA, and gross margin in ways that differ from product analytics hierarchies)
 - The user wants to design a specific A/B test with hypothesis, sample size, and power calculations (use `ab-test-design` -- experiment design is a separate discipline from metric definition)
 - The user needs marketing attribution, campaign ROI, or channel-level analytics (use `marketing-analytics-report` -- marketing analytics focuses on top-of-funnel performance against spend, not product value delivery)
@@ -282,6 +285,7 @@ A metrics framework that is not reviewed and updated becomes cargo cult measurem
 ### Metrics Map
 
 ```
+
                           [NORTH STAR METRIC]
                     /              |               \
           [Acquisition]      [Retention]       [Engagement]
@@ -292,9 +296,10 @@ NSM Relationship Type: [Acquisition × Activation Rate × Retention Rate ≈ NSM
 
 GUARDRAILS (Constraints -- not optimization targets):
 ┌────────────────────────────────────────────────────────────────┐
-│ Performance: [Threshold] | Quality: [Threshold]                │
-│ Business: [Threshold]    | Experience: [Threshold]             │
+│ Performance: [Threshold] | Quality: [Threshold] │
+│ Business: [Threshold] | Experience: [Threshold] │
 └────────────────────────────────────────────────────────────────┘
+
 ```
 
 ---
@@ -346,6 +351,7 @@ GUARDRAILS (Constraints -- not optimization targets):
 ## Edge Cases
 
 ### Pre-Launch or Pre-PMF Product
+
 The NSM cannot be computed because there are no users. Do not fabricate a framework that implies measurement exists where it does not.
 
 - Define a **proxy NSM** based on the most specific leading behavior that beta users exhibit that the team believes correlates with long-term value delivery. For a B2B tool in closed beta with 50 teams: "Teams who voluntarily return to the product without a prompt within 7 days of first use."
@@ -354,6 +360,7 @@ The NSM cannot be computed because there are no users. Do not fabricate a framew
 - Include a **PMF signal tracker** as a supplemental section: Sean Ellis PMF survey score ("How disappointed would you be if this product disappeared?" -- target >40% saying "very disappointed"), alongside Net Promoter Score from the beta cohort. These are not official framework metrics but inform when the framework should be formalized.
 
 ### Two-Sided Marketplace with Misaligned Supply and Demand Growth
+
 Marketplaces have two user populations whose health metrics can diverge. A single NSM (completed transactions) will drop even if only one side of the market has a problem.
 
 - Build **parallel L1 frameworks** for supply and demand, each reporting up to the shared NSM.
@@ -362,6 +369,7 @@ Marketplaces have two user populations whose health metrics can diverge. A singl
 - Distinguish between **supply-constrained** and **demand-constrained** states: If fill rate is high but transaction volume is low, the problem is demand acquisition. If fill rate is low, the problem is supply quality or matching algorithm. The diagnostic protocol must explicitly route to the correct side.
 
 ### Mature Product with Flat or Declining Growth
+
 An NSM designed for a growth-stage product often stalls as the product matures. New user acquisition slows because the addressable market is partially penetrated, but that does not mean the product is unhealthy.
 
 - Shift the NSM from **growth-oriented** (new users, new teams) to **value-depth-oriented**: "Teams using 3+ product modules weekly" or "Users with a workflow integration active" -- metrics that capture embedded, habitual use rather than new acquisition.
@@ -370,6 +378,7 @@ An NSM designed for a growth-stage product often stalls as the product matures. 
 - If the product is approaching decline: the framework should explicitly flag this and shift attention to **segmentation metrics** -- identifying which user cohorts remain highly engaged versus which are churning, so the business can decide whether to invest in retention, repositioning, or sunset.
 
 ### Developer Platform or API Product
+
 Developer behavior metrics differ fundamentally from consumer or business user metrics. Developers evaluate products technically before committing, have long evaluation windows, and are extremely sensitive to reliability and documentation quality.
 
 - The NSM should be **"developers with at least one successful API call in the last 7 days"** rather than API call volume (which one power user can inflate) or registered developers (which includes inactive evaluators).
@@ -378,6 +387,7 @@ Developer behavior metrics differ fundamentally from consumer or business user m
 - Guardrails are unusually strict: API P99 latency (not just P95), error rate, and uptime are existential metrics for developer platforms. A developer whose integration fails silently will churn without filing a support ticket. Set error rate guardrail at < 0.1% (not 0.5%), and P99 latency at < 500ms for synchronous endpoints.
 
 ### Product with Offline or Delayed Value Delivery (Health Tech, Education, Professional Certification)
+
 The core value of the product -- improved health outcomes, learning achievement, professional advancement -- cannot be measured in-product on a weekly cadence. This creates a dangerous gap where teams optimize for in-product engagement proxies while the actual value delivery is unmeasured.
 
 - Use a **two-tier NSM structure**: a **lagging outcome NSM** (measured periodically via survey, exam score, health assessment -- e.g., "% of active users who report skill improvement after 90 days") and a **leading proxy NSM** (the in-product behavior most strongly correlated with the lagging outcome -- e.g., "users who completed at least 3 practice sessions in the last 7 days").
@@ -386,6 +396,7 @@ The core value of the product -- improved health outcomes, learning achievement,
 - Avoid using **time-on-product as an engagement metric** for these product types. Spending more time on an educational platform is not inherently good if the time is not producing learning. Use **completion events** and **assessment performance** instead.
 
 ### Post-Acquisition Integration of Two Products
+
 After a merger or acquisition, two product teams often bring incompatible metrics frameworks. Teams fight about which NSM to use, whether to report combined or separate metrics, and how to attribute users who use both products.
 
 - In the short term (first 6 months post-acquisition): **run parallel frameworks** for each product, mapped to their own NSMs. Do not force artificial consolidation before the integration architecture is defined.
@@ -414,28 +425,28 @@ After a merger or acquisition, two product teams often bring incompatible metric
 
 ### North Star Metric
 
-| Field              | Detail |
-|--------------------|--------|
-| **Metric Name**    | Weekly Engaged Teams (WET) |
-| **Definition**     | Teams in which at least 3 distinct members performed the `task_updated` or `comment_posted` event in a rolling 7-day window |
-| **Formula**        | COUNT(DISTINCT team_id WHERE member_event_count >= 3 AND event_date >= TODAY - 7 AND event_type IN ('task_updated', 'comment_posted')) |
-| **Data Source**    | Amplitude -- `task_updated` and `comment_posted` event stream, joined to teams table |
-| **Current Value**  | 820 teams (41% of 2,000 total teams) |
-| **Target**         | 1,300 teams (65% of current base) within 2 quarters |
-| **Rationale**      | Captures team-level value delivery (collaborative use, not solo use), requires recurring behavior (7-day window excludes one-time users), requires multi-member engagement (a team using the tool together is the core value proposition). Excludes single-user teams to prevent inflation from trial accounts. Revenue and seat count are excluded because they lag this metric by 30-90 days. |
-| **NSM Test**       | (1) Measures user value, not business extraction -- yes. (2) Leads retention and expansion -- yes: internal analysis shows 90-day retention rate for teams that reach WET status within 14 days of signup is 78% vs. 22% for teams that do not. (3) Influenced by product teams -- yes: onboarding, feature adoption, and engagement flows all directly affect it. (4) Universally understandable -- yes. (5) If it grows while guardrails hold, is the business sustainably healthy? -- yes. |
+| Field             | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Metric Name**   | Weekly Engaged Teams (WET)                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Definition**    | Teams in which at least 3 distinct members performed the `task_updated` or `comment_posted` event in a rolling 7-day window                                                                                                                                                                                                                                                                                                                                                                   |
+| **Formula**       | COUNT(DISTINCT team_id WHERE member_event_count >= 3 AND event_date >= TODAY - 7 AND event_type IN ('task_updated', 'comment_posted'))                                                                                                                                                                                                                                                                                                                                                        |
+| **Data Source**   | Amplitude -- `task_updated` and `comment_posted` event stream, joined to teams table                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Current Value** | 820 teams (41% of 2,000 total teams)                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Target**        | 1,300 teams (65% of current base) within 2 quarters                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Rationale**     | Captures team-level value delivery (collaborative use, not solo use), requires recurring behavior (7-day window excludes one-time users), requires multi-member engagement (a team using the tool together is the core value proposition). Excludes single-user teams to prevent inflation from trial accounts. Revenue and seat count are excluded because they lag this metric by 30-90 days.                                                                                               |
+| **NSM Test**      | (1) Measures user value, not business extraction -- yes. (2) Leads retention and expansion -- yes: internal analysis shows 90-day retention rate for teams that reach WET status within 14 days of signup is 78% vs. 22% for teams that do not. (3) Influenced by product teams -- yes: onboarding, feature adoption, and engagement flows all directly affect it. (4) Universally understandable -- yes. (5) If it grows while guardrails hold, is the business sustainably healthy? -- yes. |
 
 ---
 
 ### L1 Metrics
 
-| L1 Metric            | Exact Definition                                                                                           | Formula                                                                          | Owner           | Current        | Target              | NSM Relationship |
-|----------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|-----------------|----------------|---------------------|------------------|
-| New Team Acquisition | Teams completing account setup (team created + at least 1 non-admin member invited) per calendar month    | COUNT(team_id WHERE setup_completed = TRUE AND month = reporting_month)           | Growth/Product  | 200 teams/mo   | 250 teams/mo (Q3)   | Additive input   |
-| Activation Rate      | % of new teams (from same month cohort) that become WET within 14 days of signup                           | WET_within_14d / new_teams_in_cohort                                             | Product (Onboarding squad) | 28%      | 50% (Q3)            | Multiplicative   |
-| Engagement Depth     | Median tasks updated per WET team per rolling 7-day window                                                 | MEDIAN(task_updated_count WHERE team IS WET AND window = last 7d)                | Product (Core squad) | 18 tasks/team/wk | 28 tasks/team/wk | Correlative      |
-| 90-Day Team Retention | % of teams that became WET in a given month cohort and are still WET 90 days later                        | WET_at_day90 / WET_at_day1 (same cohort)                                         | Product + CS    | 38%            | 60% (Q4)            | Multiplicative   |
-| Seat Expansion       | Average seat count per team after 90 days on platform                                                      | AVG(seat_count WHERE team_age_days >= 90)                                         | Revenue/Product | 4.1 seats      | 6.5 seats (Q4)      | Correlative      |
+| L1 Metric             | Exact Definition                                                                                       | Formula                                                                 | Owner                      | Current          | Target            | NSM Relationship |
+| --------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | -------------------------- | ---------------- | ----------------- | ---------------- |
+| New Team Acquisition  | Teams completing account setup (team created + at least 1 non-admin member invited) per calendar month | COUNT(team_id WHERE setup_completed = TRUE AND month = reporting_month) | Growth/Product             | 200 teams/mo     | 250 teams/mo (Q3) | Additive input   |
+| Activation Rate       | % of new teams (from same month cohort) that become WET within 14 days of signup                       | WET_within_14d / new_teams_in_cohort                                    | Product (Onboarding squad) | 28%              | 50% (Q3)          | Multiplicative   |
+| Engagement Depth      | Median tasks updated per WET team per rolling 7-day window                                             | MEDIAN(task_updated_count WHERE team IS WET AND window = last 7d)       | Product (Core squad)       | 18 tasks/team/wk | 28 tasks/team/wk  | Correlative      |
+| 90-Day Team Retention | % of teams that became WET in a given month cohort and are still WET 90 days later                     | WET_at_day90 / WET_at_day1 (same cohort)                                | Product + CS               | 38%              | 60% (Q4)          | Multiplicative   |
+| Seat Expansion        | Average seat count per team after 90 days on platform                                                  | AVG(seat_count WHERE team_age_days >= 90)                               | Revenue/Product            | 4.1 seats        | 6.5 seats (Q4)    | Correlative      |
 
 **Retention note**: The stated 60% first-month churn (meaning 40% first-month retention) is confirmed by the 38% 90-day WET retention rate above. This is the primary lever. Acquisition is not the constraint -- 200 new teams/month is reasonable. The constraint is activation and retention.
 
@@ -445,28 +456,28 @@ After a merger or acquisition, two product teams often bring incompatible metric
 
 **Under Activation Rate (28% -- priority focus)**
 
-| L2 Metric                          | Exact Definition                                                                                          | Current     | Target     | Data Source                  | Type   |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------|-------------|------------|------------------------------|--------|
-| Time to First Task Creation (P50)  | Median minutes from account setup completion to first `task_created` event, new teams in last 30d         | 22 min      | 8 min      | Amplitude -- `task_created`  | Input  |
-| Time to First Task Creation (P90)  | P90 minutes to first `task_created` -- reveals tail friction                                              | 4.2 hrs     | 45 min     | Amplitude -- `task_created`  | Input  |
-| Onboarding Flow Completion Rate    | % of new teams who complete all 5 onboarding checklist steps within 48h of signup                         | 31%         | 60%        | Amplitude -- `onboarding_step_completed` | Input |
-| Second Member Invited (72h)        | % of new teams where a second member accepts an invite within 72h of signup                               | 29%         | 55%        | Backend event -- `invite_accepted` | Input |
-| Template Adoption (First Session)  | % of new teams who apply a project template during their first session                                     | 12%         | 35%        | Amplitude -- `template_applied` | Input |
+| L2 Metric                         | Exact Definition                                                                                  | Current | Target | Data Source                              | Type  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- | ------- | ------ | ---------------------------------------- | ----- |
+| Time to First Task Creation (P50) | Median minutes from account setup completion to first `task_created` event, new teams in last 30d | 22 min  | 8 min  | Amplitude -- `task_created`              | Input |
+| Time to First Task Creation (P90) | P90 minutes to first `task_created` -- reveals tail friction                                      | 4.2 hrs | 45 min | Amplitude -- `task_created`              | Input |
+| Onboarding Flow Completion Rate   | % of new teams who complete all 5 onboarding checklist steps within 48h of signup                 | 31%     | 60%    | Amplitude -- `onboarding_step_completed` | Input |
+| Second Member Invited (72h)       | % of new teams where a second member accepts an invite within 72h of signup                       | 29%     | 55%    | Backend event -- `invite_accepted`       | Input |
+| Template Adoption (First Session) | % of new teams who apply a project template during their first session                            | 12%     | 35%    | Amplitude -- `template_applied`          | Input |
 
 **Diagnostic note on Activation**: The P90 time to first task of 4.2 hours indicates a bimodal distribution. Fast activators (who likely understand project tools) convert quickly. Slow activators are likely hitting a comprehension or motivation barrier. The second-member invite rate (29%) is the likely root cause -- single users who sign up without immediately inviting colleagues have no social reinforcement to complete setup. Template adoption at 12% suggests users are starting from blank-canvas onboarding rather than guided starting points.
 
 **Under 90-Day Team Retention (38% -- critical problem)**
 
-| L2 Metric                          | Exact Definition                                                                                          | Current     | Target     | Data Source                     | Type    |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------|-------------|------------|---------------------------------|---------|
-| WET Status at Day 30               | % of newly activated teams (WET within 14d) that are still WET at Day 30                                 | 62%         | 80%        | Amplitude cohort analysis       | Output  |
-| Feature Breadth Score              | Average distinct feature modules used per WET team per month (out of 7 core modules)                      | 2.1         | 3.5        | Amplitude -- module-level events | Input  |
-| Core Action Streak (3-of-4 weeks)  | % of WET teams that were WET in 3 or more of the last 4 rolling 7-day windows                            | 44%         | 65%        | Amplitude -- WET cohort query   | Output  |
-| Churn by Team Size                 | 90-day retention rate segmented: teams with 2 members vs. 3-5 members vs. 6+ members                      | 2-member: 28% / 3-5: 51% / 6+: 74% | 6+ cohort maintained; grow 3-5 cohort to 65% | Backend teams table join | Output |
-| Resurrection Rate (90d)            | % of teams that became inactive (not WET for 30+ days) and became WET again within 90 days               | 11%         | 20%        | Amplitude -- WET reactivation   | Output  |
+| L2 Metric                         | Exact Definition                                                                           | Current                            | Target                                       | Data Source                      | Type   |
+| --------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------- | -------------------------------------------- | -------------------------------- | ------ |
+| WET Status at Day 30              | % of newly activated teams (WET within 14d) that are still WET at Day 30                   | 62%                                | 80%                                          | Amplitude cohort analysis        | Output |
+| Feature Breadth Score             | Average distinct feature modules used per WET team per month (out of 7 core modules)       | 2.1                                | 3.5                                          | Amplitude -- module-level events | Input  |
+| Core Action Streak (3-of-4 weeks) | % of WET teams that were WET in 3 or more of the last 4 rolling 7-day windows              | 44%                                | 65%                                          | Amplitude -- WET cohort query    | Output |
+| Churn by Team Size                | 90-day retention rate segmented: teams with 2 members vs. 3-5 members vs. 6+ members       | 2-member: 28% / 3-5: 51% / 6+: 74% | 6+ cohort maintained; grow 3-5 cohort to 65% | Backend teams table join         | Output |
+| Resurrection Rate (90d)           | % of teams that became inactive (not WET for 30+ days) and became WET again within 90 days | 11%                                | 20%                                          | Amplitude -- WET reactivation    | Output |
 
 **Diagnostic note on Retention**: The team-size segmentation reveals the retention problem clearly. 2-member teams retain at 28% -- these are effectively trial accounts where a manager signed up without organizational buy-in. 6+ member teams retain at 74% -- these are real organizational deployments. The fix is not retention campaigns targeting churned teams; it is preventing small teams from failing to expand past 2 members in the first 30 days. This reframes the problem as an expansion-within-activation problem, not a late-stage retention problem.
 
 **Under New Team Acquisition (200/mo -- healthy, but quality matters)**
 
-| L2 Metric                          | Exact Definition                                
+| L2 Metric | Exact Definition

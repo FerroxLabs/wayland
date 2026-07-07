@@ -128,9 +128,7 @@ describe('NextcloudTalkPlugin lifecycle: created → ready → running → stopp
     const plugin = new NextcloudTalkPlugin();
     await plugin.initialize(makeConfig());
     await plugin.start();
-    const whoamiCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/cloud/user'),
-    );
+    const whoamiCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/cloud/user'));
     expect(whoamiCalls.length).toBeGreaterThanOrEqual(1);
     await plugin.stop();
   });
@@ -141,23 +139,17 @@ describe('NextcloudTalkPlugin lifecycle: created → ready → running → stopp
 describe('NextcloudTalkPlugin initialize validation', () => {
   it('throws when serverUrl is missing', async () => {
     const plugin = new NextcloudTalkPlugin();
-    await expect(plugin.initialize(makeConfig({ serverUrl: '' }))).rejects.toThrow(
-      /server url/i,
-    );
+    await expect(plugin.initialize(makeConfig({ serverUrl: '' }))).rejects.toThrow(/server url/i);
   });
 
   it('throws when username is missing', async () => {
     const plugin = new NextcloudTalkPlugin();
-    await expect(plugin.initialize(makeConfig({ username: '' }))).rejects.toThrow(
-      /username/i,
-    );
+    await expect(plugin.initialize(makeConfig({ username: '' }))).rejects.toThrow(/username/i);
   });
 
   it('throws when appPassword is missing', async () => {
     const plugin = new NextcloudTalkPlugin();
-    await expect(plugin.initialize(makeConfig({ appPassword: '' }))).rejects.toThrow(
-      /app password/i,
-    );
+    await expect(plugin.initialize(makeConfig({ appPassword: '' }))).rejects.toThrow(/app password/i);
   });
 
   it('transitions to error status on initialize failure', async () => {
@@ -177,7 +169,7 @@ describe('NextcloudTalkPlugin start failure', () => {
         status: 401,
         statusText: 'Unauthorized',
         json: async () => ({}),
-      } as unknown as Response),
+      } as unknown as Response)
     );
 
     const plugin = new NextcloudTalkPlugin();
@@ -206,9 +198,7 @@ describe('NextcloudTalkPlugin room configuration', () => {
     // Give the async poll loops one tick to fire their first requests.
     await new Promise((r) => setTimeout(r, 0));
     // Poll calls should include both room tokens.
-    const pollCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/chat/'),
-    );
+    const pollCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/chat/'));
     const targets = pollCalls.map(([url]: [string]) => String(url));
     expect(targets.some((u) => u.includes('room1'))).toBe(true);
     expect(targets.some((u) => u.includes('room2'))).toBe(true);
@@ -220,9 +210,7 @@ describe('NextcloudTalkPlugin room configuration', () => {
     await plugin.initialize(makeConfig({ rooms: ['roomA', 'roomB'] }));
     await plugin.start();
     await new Promise((r) => setTimeout(r, 0));
-    const pollCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/chat/'),
-    );
+    const pollCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/chat/'));
     const targets = pollCalls.map(([url]: [string]) => String(url));
     expect(targets.some((u) => u.includes('roomA'))).toBe(true);
     await plugin.stop();

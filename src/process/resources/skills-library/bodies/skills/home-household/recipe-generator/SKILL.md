@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning template"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning template'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Recipe Generator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about recipe generator
 - User needs guidance on recipe generator topics
 - User wants a structured approach to recipe generator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -106,23 +108,23 @@ BALANCING GUIDE:
 
 ### Classic Flavor Pairings
 
-| Ingredient | Pairs Well With | Cuisine Context |
-|-----------|----------------|-----------------|
-| Chicken | Lemon, garlic, rosemary, thyme, mushrooms | Universal |
-| Beef | Red wine, onions, mushrooms, black pepper, mustard | French, American |
-| Pork | Apple, sage, garlic, ginger, soy sauce | Universal |
-| Salmon | Dill, lemon, capers, mustard, honey | Nordic, American |
-| Shrimp | Garlic, butter, lemon, chili, cilantro | Cajun, Asian |
-| Tomato | Basil, garlic, mozzarella, oregano, olive oil | Italian |
-| Potato | Rosemary, butter, cheese, sour cream, chives | Universal |
-| Egg | Cheese, herbs, tomato, avocado, bacon | Universal |
-| Mushroom | Thyme, garlic, cream, soy sauce, truffle | French, Asian |
-| Avocado | Lime, cilantro, chili, tomato, cumin | Mexican |
-| Lemon | Herbs, garlic, olive oil, capers, butter | Mediterranean |
-| Ginger | Garlic, soy sauce, sesame, scallion, chili | Asian |
-| Chocolate | Vanilla, coffee, orange, mint, chili, sea salt | Dessert |
-| Cinnamon | Apple, vanilla, nutmeg, cardamom, honey | Baking, Indian |
-| Basil | Tomato, garlic, mozzarella, pine nuts, lemon | Italian, Thai |
+| Ingredient | Pairs Well With                                    | Cuisine Context  |
+| ---------- | -------------------------------------------------- | ---------------- |
+| Chicken    | Lemon, garlic, rosemary, thyme, mushrooms          | Universal        |
+| Beef       | Red wine, onions, mushrooms, black pepper, mustard | French, American |
+| Pork       | Apple, sage, garlic, ginger, soy sauce             | Universal        |
+| Salmon     | Dill, lemon, capers, mustard, honey                | Nordic, American |
+| Shrimp     | Garlic, butter, lemon, chili, cilantro             | Cajun, Asian     |
+| Tomato     | Basil, garlic, mozzarella, oregano, olive oil      | Italian          |
+| Potato     | Rosemary, butter, cheese, sour cream, chives       | Universal        |
+| Egg        | Cheese, herbs, tomato, avocado, bacon              | Universal        |
+| Mushroom   | Thyme, garlic, cream, soy sauce, truffle           | French, Asian    |
+| Avocado    | Lime, cilantro, chili, tomato, cumin               | Mexican          |
+| Lemon      | Herbs, garlic, olive oil, capers, butter           | Mediterranean    |
+| Ginger     | Garlic, soy sauce, sesame, scallion, chili         | Asian            |
+| Chocolate  | Vanilla, coffee, orange, mint, chili, sea salt     | Dessert          |
+| Cinnamon   | Apple, vanilla, nutmeg, cardamom, honey            | Baking, Indian   |
+| Basil      | Tomato, garlic, mozzarella, pine nuts, lemon       | Italian, Thai    |
 
 ### Spice and Herb Profiles by Cuisine
 
@@ -171,6 +173,7 @@ KOREAN: gochugaru (red pepper flakes), garlic, ginger, sesame,
 Ingredients that grow together or share volatile aromatic compounds tend to pair well:
 
 **Complementary Pairings (enhance each other):**
+
 - Tomato + basil (share linalool compound)
 - Chocolate + coffee (shared roasted notes)
 - Apple + cinnamon (classic volatile match)
@@ -178,6 +181,7 @@ Ingredients that grow together or share volatile aromatic compounds tend to pair
 - Garlic + ginger (pungent aromatics)
 
 **Contrasting Pairings (create interesting tension):**
+
 - Sweet + salty (salted caramel, prosciutto + melon)
 - Rich + acidic (butter sauce + lemon)
 - Spicy + cooling (chili + yogurt, hot sauce + avocado)
@@ -233,18 +237,18 @@ CUISINE DIRECTION: _______________
 
 ### Step 2: Select Cooking Method
 
-| Method | Best For | Temperature | Time | Texture Result |
-|--------|---------|------------|------|---------------|
-| Saute | Thin cuts, vegetables | High heat | 3-10 min | Browned, tender-crisp |
-| Roast | Large cuts, root veg | 375-450F | 20-60 min | Caramelized, tender |
-| Grill | Steaks, chicken, fish, veg | High direct heat | 5-20 min | Charred, smoky |
-| Braise | Tough cuts, beans | Low (300-325F) | 2-4 hours | Fall-apart tender |
-| Steam | Delicate fish, vegetables | 212F | 5-15 min | Tender, retains nutrients |
-| Poach | Eggs, fish, chicken breast | 160-180F | 5-20 min | Gentle, moist |
-| Stir-fry | Thin-cut everything | Very high heat | 3-8 min | Crispy, vibrant |
-| Bake | Casseroles, grains, desserts | 325-400F | 20-60 min | Even, thorough |
-| Boil | Pasta, grains, potatoes | 212F | Varies | Soft, cooked through |
-| Deep-fry | Coated proteins, vegetables | 350-375F | 3-8 min | Crispy exterior |
+| Method   | Best For                     | Temperature      | Time      | Texture Result            |
+| -------- | ---------------------------- | ---------------- | --------- | ------------------------- |
+| Saute    | Thin cuts, vegetables        | High heat        | 3-10 min  | Browned, tender-crisp     |
+| Roast    | Large cuts, root veg         | 375-450F         | 20-60 min | Caramelized, tender       |
+| Grill    | Steaks, chicken, fish, veg   | High direct heat | 5-20 min  | Charred, smoky            |
+| Braise   | Tough cuts, beans            | Low (300-325F)   | 2-4 hours | Fall-apart tender         |
+| Steam    | Delicate fish, vegetables    | 212F             | 5-15 min  | Tender, retains nutrients |
+| Poach    | Eggs, fish, chicken breast   | 160-180F         | 5-20 min  | Gentle, moist             |
+| Stir-fry | Thin-cut everything          | Very high heat   | 3-8 min   | Crispy, vibrant           |
+| Bake     | Casseroles, grains, desserts | 325-400F         | 20-60 min | Even, thorough            |
+| Boil     | Pasta, grains, potatoes      | 212F             | Varies    | Soft, cooked through      |
+| Deep-fry | Coated proteins, vegetables  | 350-375F         | 3-8 min   | Crispy exterior           |
 
 ### Step 3: Build the Recipe
 
@@ -298,34 +302,34 @@ Example: Recipe serves 4, need to serve 6
 
 ### Scaling Exceptions (do NOT scale linearly)
 
-| Category | Scaling Rule |
-|----------|-------------|
-| Salt and spices | Scale to 75% when doubling; taste and adjust |
-| Garlic | Scale to 75% when doubling (can overpower) |
-| Baking powder/soda | Scale to 80-90% when doubling |
-| Cooking oil (for sauteing) | Only increase slightly; need enough to coat pan |
-| Liquids in braises/soups | Scale to 75-80% when doubling (less evaporation per volume) |
-| Cooking time | Does NOT scale linearly; use temperature probe |
-| Eggs | Round to nearest whole egg |
-| Pan size | Must increase or use multiple pans; crowding changes results |
+| Category                   | Scaling Rule                                                 |
+| -------------------------- | ------------------------------------------------------------ |
+| Salt and spices            | Scale to 75% when doubling; taste and adjust                 |
+| Garlic                     | Scale to 75% when doubling (can overpower)                   |
+| Baking powder/soda         | Scale to 80-90% when doubling                                |
+| Cooking oil (for sauteing) | Only increase slightly; need enough to coat pan              |
+| Liquids in braises/soups   | Scale to 75-80% when doubling (less evaporation per volume)  |
+| Cooking time               | Does NOT scale linearly; use temperature probe               |
+| Eggs                       | Round to nearest whole egg                                   |
+| Pan size                   | Must increase or use multiple pans; crowding changes results |
 
 ### Common Measurement Conversions
 
-| Measurement | Equivalent |
-|------------|-----------|
-| 1 tablespoon | 3 teaspoons |
-| 1/4 cup | 4 tablespoons |
-| 1/3 cup | 5 tbsp + 1 tsp |
-| 1/2 cup | 8 tablespoons |
-| 1 cup | 16 tablespoons / 8 fl oz |
-| 1 pint | 2 cups |
-| 1 quart | 4 cups / 2 pints |
-| 1 gallon | 4 quarts / 16 cups |
-| 1 pound | 16 ounces |
-| 1 ounce | 28 grams |
-| 1 cup flour | approximately 120-125 grams |
-| 1 cup sugar | approximately 200 grams |
-| 1 cup butter | 2 sticks / 227 grams |
+| Measurement  | Equivalent                  |
+| ------------ | --------------------------- |
+| 1 tablespoon | 3 teaspoons                 |
+| 1/4 cup      | 4 tablespoons               |
+| 1/3 cup      | 5 tbsp + 1 tsp              |
+| 1/2 cup      | 8 tablespoons               |
+| 1 cup        | 16 tablespoons / 8 fl oz    |
+| 1 pint       | 2 cups                      |
+| 1 quart      | 4 cups / 2 pints            |
+| 1 gallon     | 4 quarts / 16 cups          |
+| 1 pound      | 16 ounces                   |
+| 1 ounce      | 28 grams                    |
+| 1 cup flour  | approximately 120-125 grams |
+| 1 cup sugar  | approximately 200 grams     |
+| 1 cup butter | 2 sticks / 227 grams        |
 
 ## Substitution Guides
 
@@ -370,6 +374,7 @@ Example: Recipe serves 4, need to serve 6
 ## Plating Suggestions
 
 ### The Rule of Thirds
+
 - Place the main element off-center
 - Use the plate as a canvas; leave white space
 - Odd numbers of elements are more visually appealing
@@ -388,19 +393,21 @@ PLATING CHECKLIST
 ```
 
 ### Color Guide for Plating
-| Color | Food Sources |
-|-------|-------------|
-| Green | Fresh herbs, microgreens, peas, asparagus, avocado |
-| Red | Tomatoes, peppers, radishes, pomegranate |
-| Orange | Carrots, sweet potato, citrus, paprika |
-| Yellow | Corn, lemon, turmeric, egg yolk |
-| White | Rice, cauliflower, cream, cheese, onion |
-| Brown/Gold | Seared meats, caramelized onions, toasted nuts |
-| Purple | Red cabbage, beets, eggplant, purple potato |
+
+| Color      | Food Sources                                       |
+| ---------- | -------------------------------------------------- |
+| Green      | Fresh herbs, microgreens, peas, asparagus, avocado |
+| Red        | Tomatoes, peppers, radishes, pomegranate           |
+| Orange     | Carrots, sweet potato, citrus, paprika             |
+| Yellow     | Corn, lemon, turmeric, egg yolk                    |
+| White      | Rice, cauliflower, cream, cheese, onion            |
+| Brown/Gold | Seared meats, caramelized onions, toasted nuts     |
+| Purple     | Red cabbage, beets, eggplant, purple potato        |
 
 ## Quick Recipe Formulas
 
 ### Universal Stir-Fry Formula
+
 ```
 1. Oil in hot wok/pan
 2. Aromatics: garlic + ginger + scallion whites (30 sec)
@@ -414,6 +421,7 @@ PLATING CHECKLIST
 ```
 
 ### Universal Pasta Formula
+
 ```
 1. Salt water generously, cook pasta to al dente (reserve 1 cup pasta water)
 2. While pasta cooks: saute aromatics in olive oil
@@ -424,6 +432,7 @@ PLATING CHECKLIST
 ```
 
 ### Universal Grain Bowl Formula
+
 ```
 BASE:     Cooked grain (rice, quinoa, farro, couscous)
 PROTEIN:  Grilled, baked, or pan-seared (4-6 oz)
@@ -435,6 +444,7 @@ ACID:     Squeeze of lemon/lime or pickled element
 ```
 
 ### Universal Soup Formula
+
 ```
 1. Sweat aromatics: onion, celery, carrot (mirepoix) in oil (5 min)
 2. Add garlic and spices (1 min)
@@ -448,21 +458,21 @@ ACID:     Squeeze of lemon/lime or pickled element
 
 ## Food Safety Quick Reference
 
-| Food | Safe Internal Temperature |
-|------|-------------------------|
-| Poultry (chicken, turkey) | 165F (74C) |
-| Ground meat (beef, pork, lamb) | 160F (71C) |
-| Beef/pork/lamb (steaks, chops) | 145F (63C) + 3 min rest |
-| Fish and shellfish | 145F (63C) |
-| Eggs | Cook until firm; 160F for dishes |
-| Leftovers (reheating) | 165F (74C) |
+| Food                           | Safe Internal Temperature        |
+| ------------------------------ | -------------------------------- |
+| Poultry (chicken, turkey)      | 165F (74C)                       |
+| Ground meat (beef, pork, lamb) | 160F (71C)                       |
+| Beef/pork/lamb (steaks, chops) | 145F (63C) + 3 min rest          |
+| Fish and shellfish             | 145F (63C)                       |
+| Eggs                           | Cook until firm; 160F for dishes |
+| Leftovers (reheating)          | 165F (74C)                       |
 
 ### The Danger Zone
+
 - Bacteria grow rapidly between 40F-140F (4C-60C)
 - Do not leave food at room temperature for more than 2 hours
 - Refrigerate leftovers promptly
 - When in doubt, throw it out
-
 
 ## Output Format
 

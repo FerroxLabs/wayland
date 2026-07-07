@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy analysis entrepreneurship"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy analysis entrepreneurship'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pricing Strategist
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to set or restructure pricing using cost-plus, value-based, competitive, or tiered models
 - The user wants help with psychological pricing tactics, A/B testing frameworks, or pricing page design
 - The user needs a price increase communication strategy or freemium-to-paid conversion plan
 - The user wants to analyze pricing against competitors or design usage-based pricing models
 
 **Do NOT use this skill when:**
+
 - The user needs subscription-specific pricing with MRR/ARR and churn analysis (use subscription-model-designer instead)
 - The user wants broader business strategy beyond pricing (use business-planner or startup-advisor instead)
 - The user needs competitive analysis that goes beyond pricing comparison (use competitive-analyst instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on pricing strategist
 - User asks about pricing strategist best practices or techniques
 - User wants a structured approach to pricing strategist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of pricing strategist
+
 ## Questions to Ask the User First
 
 1. **What is your product/service?**
@@ -61,10 +66,13 @@ metadata:
 8. **Do you have existing customers to survey?**
 9. **What are your growth goals?** (Maximize revenue, maximize adoption, market share)
 10. **Are you launching new pricing or changing existing pricing?**
+
 ---
+
 ## Step 1: Pricing Model Selection
 
 ### Pricing Model Comparison
+
 ```
 PRICING MODEL DECISION MATRIX
 
@@ -88,6 +96,7 @@ RECOMMENDED MODEL: {{highest_score}}
 ### Model Details
 
 #### Cost-Plus Pricing
+
 ```
 COST-PLUS CALCULATION
 
@@ -109,6 +118,7 @@ WHEN TO AVOID:
 ```
 
 #### Value-Based Pricing
+
 ```
 VALUE-BASED PRICING CALCULATION
 
@@ -133,6 +143,7 @@ STEP 4: Validate
 ```
 
 #### Freemium Model
+
 ```
 FREEMIUM DESIGN
 
@@ -161,6 +172,7 @@ FREEMIUM ECONOMICS:
 ```
 
 #### Tiered Pricing
+
 ```
 TIERED PRICING DESIGN
 
@@ -198,6 +210,7 @@ TIER DESIGN RULES:
 ```
 
 #### Usage-Based Pricing
+
 ```
 USAGE-BASED PRICING DESIGN
 
@@ -225,10 +238,13 @@ CONSIDERATIONS:
 - Send usage alerts at 50%, 80%, 100% of plan limits
 - Offer committed-use discounts for predictability
 ```
+
 ---
+
 ## Step 2: Willingness-to-Pay Research
 
 ### Van Westendorp Price Sensitivity Meter
+
 ```
 VAN WESTENDORP SURVEY QUESTIONS
 
@@ -260,6 +276,7 @@ Recommended sample size: 100+ responses minimum
 ```
 
 ### Gabor-Granger Method
+
 ```
 GABOR-GRANGER SURVEY
 
@@ -279,10 +296,13 @@ Continue until "probably no" or "definitely no" is selected.
 Revenue-maximizing price = Price x Purchase probability
 Calculate for each price point and select the maximum.
 ```
+
 ---
+
 ## Step 3: Psychological Pricing Tactics
 
 ### Proven Psychological Pricing Techniques
+
 ```
 PSYCHOLOGICAL PRICING CHECKLIST
 CHARM PRICING:
@@ -320,10 +340,13 @@ FREE TRIAL:
   Credit card required: Lower signups, higher conversion
   Choose based on funnel goals
 ```
+
 ---
+
 ## Step 4: Pricing Page Design
 
 ### Pricing Page Best Practices
+
 ```
 PRICING PAGE STRUCTURE
 SECTION 1: HEADLINE
@@ -365,10 +388,13 @@ SECTION 6: SOCIAL PROOF
 SECTION 7: ENTERPRISE CTA
   "Need custom pricing?" -- Contact sales
 ```
+
 ---
+
 ## Step 5: A/B Testing Prices
 
 ### Price Testing Framework
+
 ```
 PRICE A/B TEST PLAN
 
@@ -403,10 +429,13 @@ RESULT:
   Statistically significant: {{yes/no}}
   Decision: {{implement_variant / keep_control / run_longer}}
 ```
+
 ---
+
 ## Step 6: Discount Strategy
 
 ### Discount Framework
+
 ```
 DISCOUNT STRATEGY RULES
 
@@ -445,10 +474,13 @@ DISCOUNT TRACKING:
   - Time period
   Target average discount: <{{target_avg}}%
 ```
+
 ---
+
 ## Step 7: Price Increase Communication
 
 ### Price Increase Playbook
+
 ```
 PRICE INCREASE COMMUNICATION PLAN
 PREPARATION (4-8 weeks before):
@@ -492,8 +524,11 @@ RISK MITIGATION:
   - Tier 2 save: Offer annual plan at 15% discount
   - Tier 3 save: Downgrade to lower tier at same price
 ```
+
 ---
+
 ## Step 8: Enterprise Pricing
+
 ```
 ENTERPRISE PRICING GUIDELINES
 
@@ -526,7 +561,9 @@ NEGOTIATION FRAMEWORK:
   4. Use total contract value, not monthly rate, for negotiation
   5. Never discount more than your maximum authority without approval
 ```
+
 ---
+
 ## Pricing Strategy Checklist
 
 - [ ] Pricing model aligns with how customers perceive value
@@ -540,7 +577,6 @@ NEGOTIATION FRAMEWORK:
 - [ ] Competitive pricing is understood but not blindly followed
 - [ ] Pricing is reviewed quarterly and adjusted as needed
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +589,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with pricing strategist for a mid-size project."
 
 **Output:** A complete pricing strategist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

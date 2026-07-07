@@ -45,14 +45,7 @@ export async function appendAudit(entry: AuditEntry): Promise<boolean> {
         `INSERT INTO audit_log (user_id, action, target, ip, reached_via, created_at)
          VALUES (?, ?, ?, ?, ?, ?)`
       )
-      .run(
-        entry.userId,
-        entry.action,
-        entry.target ?? null,
-        entry.ip ?? null,
-        entry.reachedVia ?? null,
-        Date.now()
-      );
+      .run(entry.userId, entry.action, entry.target ?? null, entry.ip ?? null, entry.reachedVia ?? null, Date.now());
     return true;
   } catch (error) {
     console.error('[audit] Failed to append audit entry:', error);

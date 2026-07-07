@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Payment System Architect
@@ -85,19 +85,17 @@ ADDITIONAL STATES:
 // Payment state machine implementation
 class PaymentStateMachine {
   private transitions: Record<string, Record<string, string>> = {
-    'created':    { 'authorize': 'authorized', 'fail': 'failed' },
-    'authorized': { 'capture': 'captured', 'decline': 'declined', 'cancel': 'canceled' },
-    'captured':   { 'refund': 'refunded', 'partial_refund': 'partially_refunded', 'dispute': 'disputed' },
-    'partially_refunded': { 'refund': 'refunded', 'dispute': 'disputed' },
-    'disputed':   { 'resolve_merchant': 'captured', 'resolve_customer': 'refunded' },
+    created: { authorize: 'authorized', fail: 'failed' },
+    authorized: { capture: 'captured', decline: 'declined', cancel: 'canceled' },
+    captured: { refund: 'refunded', partial_refund: 'partially_refunded', dispute: 'disputed' },
+    partially_refunded: { refund: 'refunded', dispute: 'disputed' },
+    disputed: { resolve_merchant: 'captured', resolve_customer: 'refunded' },
   };
 
   transition(currentState: string, action: string): string {
     const nextState = this.transitions[currentState]?.[action];
     if (!nextState) {
-      throw new InvalidTransitionError(
-        `Cannot ${action} payment in ${currentState} state`
-      );
+      throw new InvalidTransitionError(`Cannot ${action} payment in ${currentState} state`);
     }
     return nextState;
   }
@@ -115,11 +113,11 @@ const stripe = new Stripe(ENV_CONFIG_VALUE);
 
 async function createPaymentIntent(order: Order): Promise<string> {
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: order.totalCents,          // Always in smallest currency unit
-    currency: order.currency,           // "usd", "eur", etc.
+    amount: order.totalCents, // Always in smallest currency unit
+    currency: order.currency, // "usd", "eur", etc.
     customer: order.stripeCustomerId,
     metadata: {
-      orderId: order.id,               // Your internal reference
+      orderId: order.id, // Your internal reference
       userId: order.userId,
     },
     idempotency_key: `pi_${order.id}`, // Prevent duplicate charges
@@ -132,7 +130,7 @@ async function createPaymentIntent(order: Order): Promise<string> {
     paymentStatus: 'created',
   });
 
-  return paymentIntent.client_secret;    // Send to frontend
+  return paymentIntent.client_secret; // Send to frontend
 }
 
 // Client-side: Confirm payment
@@ -156,7 +154,7 @@ app.post('/webhooks/stripe', async (req, res) => {
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.body,           // Raw body, NOT parsed JSON
+      req.body, // Raw body, NOT parsed JSON
       sig,
       ENV_CONFIG_VALUE
     );
@@ -217,36 +215,42 @@ SAQ TYPES (Self-Assessment Questionnaire):
 ## PCI Compliance Strategy: SAQ A (Recommended)
 
 ### Architecture Decisions
+
 [x] Use Stripe Elements / PayPal hosted fields for card collection
 [x] Card numbers NEVER touch your servers (tokenized by provider)
 [x] Use HTTPS everywhere (TLS 1.2+)
 [x] No card data in logs, errors, or analytics
 
 ### Infrastructure
+
 [x] All systems in a segmented network (PCI scope minimization)
 [x] Quarterly vulnerability scans (ASV - Approved Scanning Vendor)
 [x] Annual penetration test
 [x] WAF on payment-related endpoints
 
 ### Access Control
+
 [x] Multi-factor authentication for payment admin access
 [x] Unique IDs for all users with access to payment systems
 [x] Principle of least privilege for payment data access
 [x] Audit trail for all access to payment data
 
 ### Data Storage Rules
+
 NEVER STORE:
-  - Full card numbers (PAN)
-  - CVV/CVC
-  - PIN or PIN block
-  - Full magnetic stripe data
+
+- Full card numbers (PAN)
+- CVV/CVC
+- PIN or PIN block
+- Full magnetic stripe data
 
 OK TO STORE (encrypted):
-  - Last 4 digits of card number
-  - Card brand (Visa, Mastercard)
-  - Expiration date
-  - Cardholder name
-  - Stripe token / PaymentMethod ID
+
+- Last 4 digits of card number
+- Card brand (Visa, Mastercard)
+- Expiration date
+- Cardholder name
+- Stripe token / PaymentMethod ID
 ```
 
 ## Subscription Billing
@@ -489,6 +493,7 @@ IDEMPOTENCY: Deterministic keys per operation, never random UUIDs
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing payment system architect solutions
 - Reviewing or improving existing payment system architect approaches
 - Making architectural or implementation decisions about payment system architect
@@ -496,6 +501,7 @@ IDEMPOTENCY: Deterministic keys per operation, never random UUIDs
 - Troubleshooting payment system architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +512,26 @@ IDEMPOTENCY: Deterministic keys per operation, never random UUIDs
 # Payment System Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

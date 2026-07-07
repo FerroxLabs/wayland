@@ -28,9 +28,4 @@ export {
   type ExposureStatus,
   type ResolveExposureInput,
 } from './WebhookExposureService';
-export {
-  DEFAULT_TUNNEL_PROVIDER,
-  type StartTunnelOptions,
-  type TunnelHandle,
-  type TunnelProvider,
-} from './types';
+export { DEFAULT_TUNNEL_PROVIDER, type StartTunnelOptions, type TunnelHandle, type TunnelProvider } from './types';

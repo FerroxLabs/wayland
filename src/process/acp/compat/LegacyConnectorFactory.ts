@@ -29,11 +29,7 @@ import {
 import { AcpError } from '@process/acp/errors/AcpError';
 import type { ChildProcess } from 'node:child_process';
 
-type BuiltinConnectFn = (
-  cwd: string,
-  hooks: NpxConnectHooks,
-  customEnv?: Record<string, string>
-) => Promise<void>;
+type BuiltinConnectFn = (cwd: string, hooks: NpxConnectHooks, customEnv?: Record<string, string>) => Promise<void>;
 
 const NPX_BACKENDS: Record<string, BuiltinConnectFn> = {
   codex: connectCodex,

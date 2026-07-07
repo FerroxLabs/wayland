@@ -11,14 +11,15 @@ description: >-
   variance report.
 license: Apache-2.0
 type: workflow
-skills: "finance-cashflow finance-budget finance-report"
+skills: 'finance-cashflow finance-budget finance-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance budget variance deterministic cfo
   category: business-finance
-  depends: "finance-cashflow finance-budget finance-report"
+  depends: 'finance-cashflow finance-budget finance-report'
 ---
+
 # Monthly Budget Variance Check
 
 **Estimated time:** about 30 seconds

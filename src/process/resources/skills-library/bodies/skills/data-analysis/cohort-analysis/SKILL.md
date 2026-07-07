@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis data-science"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'statistics analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cohort Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to measure retention by signup month, first purchase date, trial start date, or any initial qualifying event that groups users into time-based cohorts
 - The user wants to understand whether engagement, revenue, or activity changes as users "age" after a specific lifecycle event (e.g., "do users who signed up in Q1 still buy more after 6 months than users who signed up in Q3?")
 - The user asks diagnostic questions about product health: "Are we getting better at retaining users?", "Where in the lifecycle do we lose the most users?", "Are recent cohorts behaving differently from older ones?"
@@ -30,6 +32,7 @@ metadata:
 - The user wants to measure "quick ratio" health or net revenue retention (NRR) broken down by cohort vintage
 
 **Do NOT use when:**
+
 - The user wants to analyze conversion between sequential funnel steps (Step 1 → Step 2 → Step 3) -- use `funnel-analysis` instead, as funnel analysis measures ordered event completion, not time-based cohort survival
 - The user wants to group customers by demographic, behavioral, or firmographic attributes independent of when they joined (e.g., "segment users by industry" or "group customers by purchase frequency") -- use `segmentation-design` instead
 - The user wants to compare a control group against a treatment group in a randomized experiment -- use `ab-test-design` instead, since the grouping is random assignment, not cohort entry date
@@ -109,7 +112,7 @@ Recommendations must be specific enough to generate a JIRA ticket or a meeting a
 
 ## Output Format
 
-```
+````
 ## Cohort Analysis: [Retention Metric] by [Cohort Grouping Event]
 
 ### Analysis Parameters
@@ -199,9 +202,10 @@ SELECT
 FROM cohort_activity ca
 JOIN cohort_sizes cs USING (cohort_period)
 ORDER BY ca.cohort_period, ca.period_offset;
-```
+````
 
 **Spreadsheet Pattern (Google Sheets / Excel):**
+
 - Cohort size: =COUNTIFS([signup_date_col], ">="&[period_start], [signup_date_col], "<"&[period_end])
 - Period N active count: =COUNTIFS([signup_date_col], ">="&[cohort_start], [signup_date_col], "<"&[cohort_end], [activity_date_col], ">="&[period_N_start], [activity_date_col], "<"&[period_N_end])
 - Retention rate: =IF(cohort_size=0, "", period_N_count / cohort_size)
@@ -210,33 +214,38 @@ ORDER BY ca.cohort_period, ca.period_offset;
 ---
 
 ### Retention Curve Shape Analysis
+
 - **Drop-off cliff:** [Period X to Period X+1 -- describe magnitude and implication]
 - **Retention floor:** [Period N where decline flattens to < 2pp per period -- value and interpretation]
 - **Industry benchmark comparison:** [Benchmark for this product type -- how does this curve compare?]
 
 ### Cohort Trend Analysis (Diagonal Reading)
+
 - **P1 retention trend across cohorts:** [Improving / Stable / Declining -- with specific values]
 - **Most significant cohort outliers:** [Which cohorts are most above/below average and why, if known]
 - **Inflection point:** [If any cohort shows a marked shift, identify the period boundary]
 
 ### Derived Metrics (if revenue data provided)
+
 - **LTV curve:** Cumulative average revenue per user by period
 - **NRR by cohort:** Cohort revenue in Period N / Cohort revenue in Period 0 x 100
 - **CAC payback period:** Month at which cumulative LTV crosses CAC
 
 ### Recommendations
 
-| Priority | Finding | Intervention | Measurable Target |
-|----------|---------|--------------|-------------------|
+| Priority | Finding                                       | Intervention                                                     | Measurable Target                                     |
+| -------- | --------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------- |
 | 1        | [Specific pattern -- e.g., 55% drop P0 to P1] | [Specific action -- e.g., 3-touch activation email at Day 1/3/7] | [e.g., Raise P1 retention from 38% to 45% in 60 days] |
-| 2        | [Specific pattern] | [Specific action] | [Specific target] |
-| 3        | [Specific pattern] | [Specific action] | [Specific target] |
+| 2        | [Specific pattern]                            | [Specific action]                                                | [Specific target]                                     |
+| 3        | [Specific pattern]                            | [Specific action]                                                | [Specific target]                                     |
 
 ### Data Quality Flags
+
 - [Flag any cohorts below minimum size threshold]
 - [Flag any cohorts with anomalous P0 rates]
 - [Flag any data gaps in the activity table]
-```
+
+````
 
 ---
 
@@ -401,9 +410,10 @@ SELECT
   ROUND(100.0 * active_users / cohort_size, 1) AS retention_pct
 FROM cohort_retention
 ORDER BY cohort_month, period_offset;
-```
+````
 
 **Spreadsheet Pattern (assuming pivot table output from SQL above):**
+
 - Retention rate cell: =IF(cohort_size_ref=0, "", active_users_ref / cohort_size_ref)
 - Column average (excluding blanks): =AVERAGEIF(column_range, "<>")
 - Conditional formatting: Use 3-color scale with midpoint anchored to AVERAGE(column_range)
@@ -411,12 +421,14 @@ ORDER BY cohort_month, period_offset;
 ---
 
 ### Retention Curve Shape Analysis
+
 - **Drop-off cliff:** M0 to M1 is the largest single drop -- an average 29 percentage points (29% of subscribers cancel within 30 days). This is the highest-leverage intervention point. The range across cohorts is 24pp (Jan 2025 at 76% M1) to 36pp (Dec 2024 at 64% M1).
 - **Secondary drop:** M1 to M2 shows an additional 13pp loss on average (71% to 58%). By M2, roughly 42% of subscribers have churned. The deceleration from 29pp to 13pp suggests onboarding impact is real but does not persist long enough.
 - **Retention floor:** The curve flattens decisively at M4 (50%) and barely moves through M7 (46%). The implied monthly churn rate from M4 onward is approximately 1-4%, consistent with organic subscriber attrition rather than active cancellation. This is a healthy signal -- approximately 46-50% of subscribers become long-term loyalists.
 - **Industry benchmark comparison:** For B2C subscription fitness apps, median M1 retention is approximately 65-72% and M3 retention is approximately 45-52%. This product's M1 average of 71% is at the upper end of median, and its M3 of 52% is slightly above median. The floor of 46% is strong for the category. The product is retaining well by industry standards; the primary opportunity is the M1 cliff.
 
 ### Cohort Trend Analysis (Diagonal Reading)
+
 - **M1 retention trend:** Jul (74%) → Aug (71%) → Sep (75%) → Oct (72%) → Nov (68%) → Dec (64%) → Jan (76%). The trend shows a Nov-Dec deterioration followed by a Jan rebound. Nov and Dec cohorts underperform the average by 3-7 percentage points at M1.
 - **Most significant cohort outliers:** Dec 2024 (🔴 64% M1, 51% M2 -- both below average by 7-8pp). Jan 2025 (🟢 76% M1 -- 5pp above average). The Dec underperformance and Jan outperformance together suggest either (a) a holiday acquisition effect (Dec cohort has lower intent buyers attracted by seasonal promotions), (b) a product or onboarding improvement deployed in late December or early January, or (c) both.
 - **Inflection point:** The Dec-to-Jan shift is the most diagnostically important boundary in this dataset. Recommend cross-referencing against (1) any onboarding or product changes deployed in December 2024, (2) the acquisition channel mix for Dec vs. Jan cohorts (were there holiday sale promotions in Dec?), and (3) the plan type distribution (monthly vs. annual) across Dec and Jan cohorts.
@@ -425,13 +437,14 @@ ORDER BY cohort_month, period_offset;
 
 ### Recommendations
 
-| Priority | Finding | Intervention | Measurable Target |
-|----------|---------|--------------|-------------------|
-| 1 | M0→M1 cliff: 29pp average drop; 36pp for Dec cohort. ~42% of all subscribers cancel within 30 days. | Implement a 4-touch in-app and email sequence at Day 3, Day 7, Day 14, and Day 25 post-signup. Day 3 message: guided first workout completion. Day 7 message: personalized plan recommendation. Day 14 message: progress milestone (e.g., "You've completed 4 workouts"). Day 25 message: pre-renewal retention offer for at-risk users (no activity in past 10 days). | Raise average M1 retention from 71% to 76% within 3 cohort cycles. Match Jan 2025's M1 rate as the near-term target. |
-| 2 | Dec 2024 cohort underperforms all other cohorts at M1 and M2 by 6-8pp. Hypothesis: holiday promotional signups with lower intent. | Audit Dec 2024 acquisition channel mix. If paid social or discount codes represent a disproportionate share of Dec signups, implement a minimum-intent signal before counting a promotional signup as a cohort member (e.g., must complete first workout within 7 days). Restructure any December promotions to require engagement, not just signup. | Bring next holiday-season cohort (Nov-Dec 2025) to within 3pp of the trailing 6-month average M1 rate. |
-| 3 | Retention floor is strong at 46% but there is an unexplained 4pp gap between M4 (50%) and M7 (46%). Users are still leaving slowly even after the "loyal" floor has formed. | Survey Month 5+ active users (estimated 1,000+ users in this cohort window) to identify their primary value driver. Survey Month 4 recent churners to identify cancellation trigger. Use findings to introduce a "loyalty lock" feature (annual plan conversion offer, streak-based gamification, or friend-sharing incentive) targeting users who reach M4. | Increase the M7 retention floor from 46% to 50% over 6 months by converting at least 20% of M4-active monthly subscribers to annual plans. |
+| Priority | Finding                                                                                                                                                                     | Intervention                                                                                                                                                                                                                                                                                                                                                           | Measurable Target                                                                                                                          |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1        | M0→M1 cliff: 29pp average drop; 36pp for Dec cohort. ~42% of all subscribers cancel within 30 days.                                                                         | Implement a 4-touch in-app and email sequence at Day 3, Day 7, Day 14, and Day 25 post-signup. Day 3 message: guided first workout completion. Day 7 message: personalized plan recommendation. Day 14 message: progress milestone (e.g., "You've completed 4 workouts"). Day 25 message: pre-renewal retention offer for at-risk users (no activity in past 10 days). | Raise average M1 retention from 71% to 76% within 3 cohort cycles. Match Jan 2025's M1 rate as the near-term target.                       |
+| 2        | Dec 2024 cohort underperforms all other cohorts at M1 and M2 by 6-8pp. Hypothesis: holiday promotional signups with lower intent.                                           | Audit Dec 2024 acquisition channel mix. If paid social or discount codes represent a disproportionate share of Dec signups, implement a minimum-intent signal before counting a promotional signup as a cohort member (e.g., must complete first workout within 7 days). Restructure any December promotions to require engagement, not just signup.                   | Bring next holiday-season cohort (Nov-Dec 2025) to within 3pp of the trailing 6-month average M1 rate.                                     |
+| 3        | Retention floor is strong at 46% but there is an unexplained 4pp gap between M4 (50%) and M7 (46%). Users are still leaving slowly even after the "loyal" floor has formed. | Survey Month 5+ active users (estimated 1,000+ users in this cohort window) to identify their primary value driver. Survey Month 4 recent churners to identify cancellation trigger. Use findings to introduce a "loyalty lock" feature (annual plan conversion offer, streak-based gamification, or friend-sharing incentive) targeting users who reach M4.           | Increase the M7 retention floor from 46% to 50% over 6 months by converting at least 20% of M4-active monthly subscribers to annual plans. |
 
 ### Data Quality Flags
+
 - Feb 2025 cohort has M0 data only. It is excluded from all averages. Do not draw conclusions about this cohort until M1 data is available (mid-March 2025).
 - M6 and M7 averages are derived from 2 and 1 cohorts respectively. Widen the color-coding bands for these columns to ±8pp to avoid false signals from low cohort-count averages.
 - Paused subscriptions are treated as churned per the analysis parameters. If paused users reactivate at a meaningful rate (>5% of all churned users), recommend producing a supplementary "reactivation rate by cohort" table to quantify how much of the later-period retention is driven by reactivation vs. continuous retention.

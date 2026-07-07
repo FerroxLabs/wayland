@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis ai-ml"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis ai-ml'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Sentiment Analysis Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a corpus of text -- customer reviews, social media posts, support tickets, employee pulse surveys, NPS verbatims, or news mentions -- and wants to classify that text by emotional tone or polarity
 - A user wants to compare sentiment across time periods (e.g., before and after a product launch, before and after a policy change) and needs a consistent classification framework
 - A user wants to route or triage text based on sentiment (e.g., escalate negative support tickets, flag distressed employee feedback, prioritize urgent complaints)
@@ -29,6 +31,7 @@ metadata:
 - A user wants to validate or audit an existing sentiment system they already have in place
 
 **Do NOT use when:**
+
 - The user wants to conduct manual qualitative analysis of interview transcripts, focus group recordings, or open-ended survey responses with thematic coding -- use `qualitative-coding` instead
 - The user wants to design the survey or text collection instrument (the questions themselves) -- use `survey-design` instead
 - The user wants text mining beyond sentiment: keyword frequency analysis, topic modeling with LDA or BERTopic, named entity recognition, or document clustering -- use `text-mining-protocol` instead
@@ -58,6 +61,7 @@ Before selecting any method, extract precise information about the data and the 
 Match the method to the data profile established in Step 1. Present the trade-offs explicitly rather than jumping to a recommendation. The four primary methods have distinct accuracy profiles, implementation cost, transparency properties, and failure modes.
 
 **Lexicon-Based Methods**
+
 - Use pre-built sentiment word lists (VADER, SentiWordNet, AFINN, Bing Liu's Opinion Lexicon) where each word or phrase is assigned a polarity score (e.g., AFINN assigns "love" +3, "hate" -3, "okay" +1)
 - VADER (Valence Aware Dictionary and sEntiment Reasoner) is the strongest general-purpose lexicon because it handles intensifiers ("very good" vs. "good"), negation ("not good"), capitalization ("GREAT"), and punctuation ("great!!!")
 - Typical accuracy range: 65-75% on standard benchmarks, dropping to 55-65% on domain-specific text where jargon is common
@@ -65,6 +69,7 @@ Match the method to the data profile established in Step 1. Present the trade-of
 - Fatal weaknesses: sarcasm, negation in complex constructions ("I wouldn't say this is anything but terrible"), comparative sentiment ("better than their competitors but still disappointing"), and slang/emoji
 
 **Pre-Trained Transformer Models (Off-the-Shelf)**
+
 - Models fine-tuned on large sentiment datasets and available without further training: distilBERT-base-uncased-finetuned-sst-2-english (binary), cardiffnlp/twitter-roberta-base-sentiment (ternary, Twitter-optimized), nlptown/bert-base-multilingual-uncased-sentiment (multilingual, 5-class)
 - Typical accuracy range: 80-90% on general text, 85-92% on the domain they were trained on (Twitter models on Twitter data, review models on review data)
 - The critical matching rule: use a model trained on text similar to yours. A model trained on movie reviews applied to medical support tickets will underperform by 10-20 percentage points
@@ -72,6 +77,7 @@ Match the method to the data profile established in Step 1. Present the trade-of
 - Weaknesses: reduced transparency (no simple explanation of why a text was classified as negative), requires Python/API access, and performs poorly on highly specialized jargon not present in training data
 
 **Fine-Tuned Domain-Specific Models**
+
 - Take a pre-trained transformer (typically a BERT variant) and continue training it on labeled examples from the user's specific domain
 - Minimum viable labeled dataset: 200 examples per class (600 total for ternary, 1,000 total for aspect-based). Optimal performance typically reached at 1,000-2,000 examples per class
 - Typical accuracy range: 85-95% when the labeled data quality is high and representative
@@ -80,6 +86,7 @@ Match the method to the data profile established in Step 1. Present the trade-of
 - Weaknesses: requires labeled training data, technical ML infrastructure, model versioning and retraining as language drifts
 
 **Hybrid Approaches**
+
 - Pattern 1 -- Lexicon bootstrapping with ML refinement: Run VADER to get initial classifications, then use a small fine-tuned model only for texts where VADER confidence is below 0.65. This reduces annotation needs by 40-60% while recovering most of the accuracy benefit
 - Pattern 2 -- Rule-based overrides on ML output: Apply the ML model as the primary classifier, then apply deterministic rules for known failure modes (e.g., if text contains "sarcasm markers" identified by a rule set, route to manual review regardless of ML score)
 - Pattern 3 -- Ensemble: Average predictions from two independent models (e.g., VADER and a BERT model). Ensemble typically adds 2-5 percentage points of accuracy over either model alone
@@ -87,15 +94,15 @@ Match the method to the data profile established in Step 1. Present the trade-of
 
 **Decision Framework Summary:**
 
-| Corpus Size | Domain Specificity | Recommended Method | Expected Accuracy |
-|---|---|---|---|
-| < 500 texts | General | Lexicon (VADER) | 65-75% |
-| < 500 texts | Specialized | Lexicon + manual review | 70-80% with review |
-| 500-10,000 texts | General | Pre-trained transformer | 80-90% |
-| 500-10,000 texts | Specialized | Pre-trained + rule overrides | 75-85% |
-| > 10,000 texts | General | Pre-trained transformer | 82-90% |
-| > 10,000 texts | Specialized | Fine-tuned model | 85-95% |
-| Any size | High stakes / consequential | Any method + human review for low-confidence | Method accuracy + 5-10% after review |
+| Corpus Size      | Domain Specificity          | Recommended Method                           | Expected Accuracy                    |
+| ---------------- | --------------------------- | -------------------------------------------- | ------------------------------------ |
+| < 500 texts      | General                     | Lexicon (VADER)                              | 65-75%                               |
+| < 500 texts      | Specialized                 | Lexicon + manual review                      | 70-80% with review                   |
+| 500-10,000 texts | General                     | Pre-trained transformer                      | 80-90%                               |
+| 500-10,000 texts | Specialized                 | Pre-trained + rule overrides                 | 75-85%                               |
+| > 10,000 texts   | General                     | Pre-trained transformer                      | 82-90%                               |
+| > 10,000 texts   | Specialized                 | Fine-tuned model                             | 85-95%                               |
+| Any size         | High stakes / consequential | Any method + human review for low-confidence | Method accuracy + 5-10% after review |
 
 ---
 
@@ -109,6 +116,7 @@ Generic sentiment labels ("positive", "negative", "neutral") are insufficient. E
 - **Aspect-Based Sentiment Analysis (ABSA):** Identify the target entity or feature within the text (the aspect) and the sentiment toward that specific aspect. A review saying "The battery lasts forever but the camera produces blurry photos" contains two aspects: battery (positive) and camera (negative). The overall classification of "mixed/neutral" hides the actionable signal. Aspect categories must be domain-defined (not generic) and exhaustive enough to capture the main drivers
 
 **Defining Aspect Categories (ABSA):**
+
 - Derive aspects from your domain knowledge first, then validate against a random sample of 50-100 texts
 - Aim for 5-10 aspect categories -- fewer than 5 is probably too coarse; more than 10 creates sparse data and overlapping categories
 - For each aspect: define 5-15 seed keywords or phrases that indicate the aspect is being discussed. These seed keywords anchor the extraction logic
@@ -443,17 +451,17 @@ When building a fine-tuned model, training data class imbalance is a critical fa
 
 ### 1. Analysis Context
 
-| Parameter | Value |
-|---|---|
-| Data source | Internal support ticket system (Zendesk or equivalent) |
-| Text type | Professional B2B support tickets |
-| Average text length | 80-150 words (medium-length, structured professional writing) |
-| Language(s) | English (professional/business register) |
-| Data volume | ~800 tickets/month (~27 tickets/day); 9,600/year accumulating |
-| Analysis goal | (1) Route negative-high-confidence tickets for same-day response; (2) Flag urgent tickets for manager review; (3) Track sentiment trend pre/post product updates to assess improvement |
-| Granularity needed | Aspect-based sentiment (payroll, integrations, compliance, features, support experience) + overall urgency signal |
-| Stakes level | Routing and triage -- misclassification causes missed escalations or unnecessary urgency; high stakes for negative class specifically |
-| Baseline sentiment estimate | ~60% negative (support tickets are intrinsically negative-skewing), ~25% neutral (informational/compliance questions), ~15% positive (feedback, thanks) |
+| Parameter                   | Value                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data source                 | Internal support ticket system (Zendesk or equivalent)                                                                                                                                 |
+| Text type                   | Professional B2B support tickets                                                                                                                                                       |
+| Average text length         | 80-150 words (medium-length, structured professional writing)                                                                                                                          |
+| Language(s)                 | English (professional/business register)                                                                                                                                               |
+| Data volume                 | ~800 tickets/month (~27 tickets/day); 9,600/year accumulating                                                                                                                          |
+| Analysis goal               | (1) Route negative-high-confidence tickets for same-day response; (2) Flag urgent tickets for manager review; (3) Track sentiment trend pre/post product updates to assess improvement |
+| Granularity needed          | Aspect-based sentiment (payroll, integrations, compliance, features, support experience) + overall urgency signal                                                                      |
+| Stakes level                | Routing and triage -- misclassification causes missed escalations or unnecessary urgency; high stakes for negative class specifically                                                  |
+| Baseline sentiment estimate | ~60% negative (support tickets are intrinsically negative-skewing), ~25% neutral (informational/compliance questions), ~15% positive (feedback, thanks)                                |
 
 ---
 
@@ -465,6 +473,7 @@ When building a fine-tuned model, training data class imbalance is a critical fa
 At 800 tickets/month, a pre-trained transformer model (specifically a model fine-tuned on customer support or business communication data, rather than social media or movie reviews) will achieve 82-88% accuracy on this corpus. The professional register of B2B HR tickets is well-represented in enterprise communication training sets. A domain override rule layer is added to handle HR-specific terminology where general-language polarity is inverted: "positive" (test result, HRIS flag), "critical" (payroll processing term, not always urgent-negative), and "error" (may be a generic term in integration tickets, not always negative in the emotional sense). Fine-tuning is not recommended at this stage because 800 tickets/month represents a small labeled dataset -- after 3-4 months of operation with manual review labels accumulated, fine-tuning becomes viable.
 
 **Implementation Reference:**
+
 - Tool/model: cardiffnlp/twitter-roberta-base-sentiment (ternary) as baseline -- swap to a model fine-tuned on customer support text (e.g., a BERT model trained on Zendesk or Freshdesk ticket datasets) if available
 - Domain override dictionary: 15-20 HR-specific term overrides applied pre-classification
 - Serving: Python batch processing (runs nightly on previous day's tickets) + real-time API call for urgent routing
@@ -472,15 +481,16 @@ At 800 tickets/month, a pre-trained transformer model (specifically a model fine
 
 **Expected Performance:**
 
-| Metric | Expected Value | Condition |
-|---|---|---|
-| Overall accuracy | 82-88% | Professional English, moderate domain specificity |
-| Positive class F1 | 0.72-0.80 | Positive is least frequent and hardest to recall in support context |
-| Negative class F1 | 0.85-0.90 | Critical metric for routing; target at least 0.85 |
-| Neutral class F1 | 0.70-0.78 | Neutral (compliance questions) hardest to separate from negative |
-| Confidence ≥ 0.80 coverage | ~65-75% of tickets | Professional writing tends toward higher model confidence |
+| Metric                     | Expected Value     | Condition                                                           |
+| -------------------------- | ------------------ | ------------------------------------------------------------------- |
+| Overall accuracy           | 82-88%             | Professional English, moderate domain specificity                   |
+| Positive class F1          | 0.72-0.80          | Positive is least frequent and hardest to recall in support context |
+| Negative class F1          | 0.85-0.90          | Critical metric for routing; target at least 0.85                   |
+| Neutral class F1           | 0.70-0.78          | Neutral (compliance questions) hardest to separate from negative    |
+| Confidence ≥ 0.80 coverage | ~65-75% of tickets | Professional writing tends toward higher model confidence           |
 
 **Known Limitations:**
+
 - Tickets describing payroll errors using clinical HR terminology ("payroll run failed", "off-cycle adjustment required") may score medium-confidence negative when they are urgent-critical
 - Tickets that begin with a polite opener ("I hope this message finds you well") before describing a severe problem may have the polite opener dilute the overall negative signal -- the transformer attends to the full text, so early-text politeness can reduce overall negative confidence
 - Feature requests ("It would be helpful if the integration could...") are frequently classified as neutral or weakly positive when they reflect frustration with a missing capability
@@ -491,11 +501,11 @@ At 800 tickets/month, a pre-trained transformer model (specifically a model fine
 
 **Classification Scheme:** Aspect-Based Sentiment + Overall Ternary + Urgency Flag
 
-| Label | Operational Definition | Score Range | Positive Example | Text that is NOT this class |
-|---|---|---|---|---|
-| Positive | Customer expresses satisfaction, appreciation, resolution confirmation, or recommends a capability | 0.65-1.0 | "The payroll fix you deployed last week resolved everything. Our team is very happy with the turnaround." | "The integration works now but took 3 weeks to fix." -- This is mixed/neutral, not positive |
-| Neutral | Customer asks an informational or compliance question, reports a status without emotional charge, or provides a factual bug description without frustration | 0.40-0.65 | "Can you confirm whether the new tax table update applies to our state withholding configuration?" | "I need to know why this failed. This is the third time." -- The emotional charge makes this negative, not neutral |
-| Negative | Customer expresses frustration, urgency, risk, financial impact, or threatens escalation | 0.0-0.40 | "Payroll is running in 2 hours and the system is showing incorrect deductions for 47 employees. This is a legal and financial risk." | "There is a discrepancy in the October report." -- Without urgency language, this may be neutral |
+| Label    | Operational Definition                                                                                                                                      | Score Range | Positive Example                                                                                                                     | Text that is NOT this class                                                                                        |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Positive | Customer expresses satisfaction, appreciation, resolution confirmation, or recommends a capability                                                          | 0.65-1.0    | "The payroll fix you deployed last week resolved everything. Our team is very happy with the turnaround."                            | "The integration works now but took 3 weeks to fix." -- This is mixed/neutral, not positive                        |
+| Neutral  | Customer asks an informational or compliance question, reports a status without emotional charge, or provides a factual bug description without frustration | 0.40-0.65   | "Can you confirm whether the new tax table update applies to our state withholding configuration?"                                   | "I need to know why this failed. This is the third time." -- The emotional charge makes this negative, not neutral |
+| Negative | Customer expresses frustration, urgency, risk, financial impact, or threatens escalation                                                                    | 0.0-0.40    | "Payroll is running in 2 hours and the system is showing incorrect deductions for 47 employees. This is a legal and financial risk." | "There is a discrepancy in the October report." -- Without urgency language, this may be neutral                   |
 
 **Urgency Flag (applied on top of sentiment):**
 An urgency flag is separate from sentiment polarity. A ticket can be neutral in tone but urgency-flagged because it references a time-sensitive event. Apply urgency flag = true when any of the following are present: payroll deadline (within 48 hours), compliance

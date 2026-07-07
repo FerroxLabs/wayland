@@ -154,10 +154,7 @@ async function pollQRStatus(qrcode: string, callbacks: LoginCallbacks, signal: A
         return {
           accountId: result.ilink_bot_id,
           botToken: result.bot_token,
-          baseUrl:
-            result.baseurl && isAllowedBaseUrl(result.baseurl)
-              ? result.baseurl
-              : DEFAULT_BASE_URL,
+          baseUrl: result.baseurl && isAllowedBaseUrl(result.baseurl) ? result.baseurl : DEFAULT_BASE_URL,
           ...(result.ilink_user_id ? { ilinkUserId: result.ilink_user_id } : {}),
         };
     }

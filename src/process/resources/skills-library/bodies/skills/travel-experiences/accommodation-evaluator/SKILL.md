@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research checklist analysis"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research checklist analysis'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Accommodation Evaluator
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's primary need is **evaluating, comparing, or scoring specific accommodation options** against each other or against personal criteria.
 
 **Trigger scenarios:**
+
 - User has 2-4 specific listings in hand (hotel rooms, vacation rentals, hostels) and needs a structured comparison
 - User is deciding between accommodation types (e.g., "Should I book a hotel or apartment for this trip?") and needs pros/cons plus a scoring framework
 - User wants to know what questions to ask a host or hotel before booking, or what red flags to look for in a listing
@@ -37,6 +39,7 @@ Use this skill when the user's primary need is **evaluating, comparing, or scori
 - User asks "Is this Airbnb price fair?" or "What should I look for in a hostel?" or "How do I know if this rental is a scam?"
 
 **Do NOT use when:**
+
 - User needs end-to-end trip planning (use `trip-itinerary-builder` -- that skill coordinates accommodation within the full itinerary context)
 - User's primary question is about budget allocation across the full trip, not accommodation evaluation (use `budget-travel-planner`)
 - User wants to know the best time to book or how far in advance to reserve (this skill evaluates options, not booking windows -- use booking strategy guidance separately)
@@ -90,12 +93,14 @@ Calculate the weighted score for each dimension: raw score x weight. Sum all wei
 Apply this checklist independently for every option, regardless of how well it scored. A high-scoring option with red flags should trigger explicit caution in the recommendation.
 
 **Pricing red flags:**
+
 - Price more than 30-40% below comparable properties in the same neighborhood and date range -- most common scam indicator for rentals
 - Cleaning fee that exceeds 50% of one night's rate (e.g., $150 cleaning fee on a $100/night property for a 3-night stay) -- this is a fee-hiding practice
 - "Resort fee" or "facility fee" not disclosed in the listing headline price, discovered only at checkout -- common in Las Vegas, Miami, New York hotels; can add $30-60/night
 - Pricing that changes dramatically between the listing page and checkout without clear itemization
 
 **Listing quality red flags:**
+
 - Stock photos or images with metadata suggesting they are from a photo bank rather than the actual property
 - Fewer than 8-10 photos for a full apartment or house listing (a legitimate host has nothing to hide)
 - No photo of the bathroom, the beds, or the street/entrance
@@ -104,6 +109,7 @@ Apply this checklist independently for every option, regardless of how well it s
 - Description mentions amenities (washer, dishwasher, AC) not visible in any photos
 
 **Review red flags:**
+
 - All reviews are 5 stars with generic text ("Great place! Would come back!" with no specifics) -- potential review manipulation
 - No reviews mentioning anything negative, even minor issues -- statistically improbable for any real property
 - Sudden cluster of positive reviews in a short window after a period of negative reviews -- possible review gaming
@@ -113,6 +119,7 @@ Apply this checklist independently for every option, regardless of how well it s
 - Review score below 7.5 on Booking.com (different scale; 8.0+ is good, 7.5-8.0 is acceptable, below 7.5 is concerning)
 
 **Policy red flags:**
+
 - Payment requested outside the booking platform (wire transfer, Zelle, crypto) -- this is almost always a scam
 - Security deposit that seems disproportionate to the property value (e.g., $1,000 deposit on a $100/night studio)
 - Cancellation policy is "non-refundable" by default with no moderate option offered
@@ -120,6 +127,7 @@ Apply this checklist independently for every option, regardless of how well it s
 - No clear process for reporting maintenance issues or emergencies during the stay
 
 **Communication red flags:**
+
 - Host does not respond within 24 hours to a direct question -- a reliable host responds within 2-6 hours during waking hours
 - Evasive or scripted responses that don't actually answer specific questions
 - Host pressures you to book quickly ("someone else is interested") before you have your questions answered -- this is a classic scam tactic
@@ -314,6 +322,7 @@ Peer-to-peer coordination risk increases with group size. Who manages check-in l
 Standard accommodation evaluation criteria apply with modified priorities. Space/layout weight increases because you need a separate sleeping area for the infant -- a studio or open-plan apartment with an infant is functionally unusable for 18 months and older (sleep cycle conflicts). Ground floor or elevator access is non-negotiable with a stroller.
 
 Specific questions to ask before booking any rental with an infant:
+
 - Is a crib or pack-n-play available, or is there space to set up a travel crib? (Measure the proposed space if they provide dimensions)
 - Are outlets covered or is outlet-proofing available?
 - Are there stairs inside the unit without gates?
@@ -370,46 +379,46 @@ Apply a bathroom-to-person ratio test: 1 bathroom per 1-3 people is comfortable;
 
 ### Evaluation Criteria (Weighted)
 
-| Criterion | Weight (1-5) | Reasoning |
-|-----------|-------------|-----------|
-| Location | 4 | Lisbon's three neighborhoods each have distinct characters; proximity to café culture and transit matters for a couple alternating work and exploration |
-| Price/Value | 3 | Budget is €120 target with €150 ceiling -- flexibility exists but not unlimited; true cost comparison matters given fee differences between a hotel and rentals |
-| Space/Layout | 3 | Two remote workers need to be able to work simultaneously without sitting on top of each other; dedicated workspace in addition to a bed is the threshold |
-| Amenities | 5 | Internet reliability is the stated non-negotiable; a workspace with a proper desk; kitchen is high-value for an 8-night stay to control costs |
-| Reviews | 3 | Established hotel has verifiable quality floor; rentals need scrutiny. Reliability matters when work depends on the accommodation |
-| Flexibility | 2 | Dates are set; remote workers typically have more schedule flexibility than office workers. Cancellation risk is lower concern |
-| **Max possible score** | **90** (18 x 5) | |
+| Criterion              | Weight (1-5)    | Reasoning                                                                                                                                                       |
+| ---------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location               | 4               | Lisbon's three neighborhoods each have distinct characters; proximity to café culture and transit matters for a couple alternating work and exploration         |
+| Price/Value            | 3               | Budget is €120 target with €150 ceiling -- flexibility exists but not unlimited; true cost comparison matters given fee differences between a hotel and rentals |
+| Space/Layout           | 3               | Two remote workers need to be able to work simultaneously without sitting on top of each other; dedicated workspace in addition to a bed is the threshold       |
+| Amenities              | 5               | Internet reliability is the stated non-negotiable; a workspace with a proper desk; kitchen is high-value for an 8-night stay to control costs                   |
+| Reviews                | 3               | Established hotel has verifiable quality floor; rentals need scrutiny. Reliability matters when work depends on the accommodation                               |
+| Flexibility            | 2               | Dates are set; remote workers typically have more schedule flexibility than office workers. Cancellation risk is lower concern                                  |
+| **Max possible score** | **90** (18 x 5) |                                                                                                                                                                 |
 
 ---
 
 ### Side-by-Side Comparison
 
-| Criterion | Wt | Option A: 4-Star Chain Hotel (Marquês de Pombal) | Raw | Wtd | Option B: 1-Bedroom Apartment (Alfama) | Raw | Wtd | Option C: Studio (Príncipe Real) | Raw | Wtd |
-|-----------|----|-------------------------------------------------|-----|-----|----------------------------------------|-----|-----|----------------------------------|-----|-----|
-| Location | 4 | Marquês de Pombal: central business district, metro access (Yellow/Blue line), flat terrain, excellent transit hub. Walkable to Chiado and Baixa. Quieter at night than Bairro Alto | 5 | 20 | Alfama: scenic, historic, tourist-heavy. Extremely hilly and largely inaccessible by metro. Beautiful but tiring for daily commuting to other neighborhoods. Poor transit access | 2 | 8 | Príncipe Real: upscale residential, walkable to Chiado and Bica, mirabells and gardens nearby. No metro station but trams and Ubers accessible. Quiet evenings, café-dense | 4 | 16 |
-| Price/Value | 3 | €125/night advertised. Hotel pricing transparent. Continental breakfast included (value ~€12-15/person = €24-30/day). No hidden platform fee | 4 | 12 | €85/night advertised. Vacation rental pricing will add cleaning fee (~€80), Airbnb service fee (~15%), and tourist tax (€2/person/night). True cost will be significantly higher than headline | 3 | 9 | €105/night advertised. Similar rental fee structure. Service fee applies. Cleaning fee (~€60 for studio). More honest headline-to-true ratio than Alfama apartment | 3 | 9 |
-| Space/Layout | 3 | Standard 4-star double room: ~25-30 sqm. Desk in room (hotel standard). No living room separate from sleeping area. One bathroom. No kitchen | 3 | 9 | 1-bedroom apartment: ~45-55 sqm typical for Alfama conversions. Separate bedroom and living room. Kitchen. However, Alfama buildings are historic -- ceiling heights and layouts vary greatly; confirm workspace setup with host | 4 | 12 | Studio: ~30-40 sqm. Single open-plan room with sleeping area. May have a desk but sleeping and working space overlap. No separation for two people working simultaneously | 2 | 6 |
-| Amenities | 5 | Hotel internet: typically 100-300 Mbps fiber in Lisbon 4-star hotels, verified by business traveler reviews. Dedicated desk. No kitchen. Breakfast included. Fitness center and concierge. Daily housekeeping eliminates chore overhead during an 8-night work stay | 4 | 20 | Rental internet: listed as "fiber optic" but speed unverified by host-provided data. Must ask host for a speed test screenshot. Kitchen is excellent for 8-night cost management. Laundry likely included | 3 | 15 | Rental internet: listing mentions WiFi, no speed specified. Studio layouts often place the router in one corner with dead zones. Must verify. Kitchen or kitchenette likely present. Laundry access needs confirmation | 2 | 10 |
-| Reviews | 3 | Chain hotel: 8.4/10 on Booking.com (1,200+ reviews). Consistent mentions of fast internet and quiet rooms. Business traveler reviews specifically note the workspace quality. Negative reviews mention dated décor in some rooms | 5 | 15 | Apartment: 4.72/5 on Airbnb (38 reviews). Recent reviews mention narrow staircase, charming location. Two reviews in the last 6 months mention slow WiFi during peak tourist season -- significant red flag for remote workers | 2 | 6 | Studio: 4.68/5 on Airbnb (22 reviews). 22 reviews is thin but reviews are recent and detailed. Two reviewers specifically mention working from this space successfully. Internet praised in 3 reviews | 4 | 12 |
-| Flexibility | 2 | Free cancellation until 48 hours before check-in. Standard hotel policy. Maximum flexibility | 5 | 10 | Airbnb Moderate policy: free cancellation until 14 days before check-in; 50% refund 7-14 days before. For an 8-night stay at €85/night, non-refundable window represents €340 at risk | 3 | 6 | Airbnb Moderate policy: same structure. At €105/night, non-refundable window = €420 at risk. Slightly worse risk than Option B given higher nightly rate | 3 | 6 |
-| **TOTAL** | **90** | | | **86/90** | | | **56/90** | | | **59/90** |
+| Criterion    | Wt     | Option A: 4-Star Chain Hotel (Marquês de Pombal)                                                                                                                                                                                                                    | Raw | Wtd       | Option B: 1-Bedroom Apartment (Alfama)                                                                                                                                                                                           | Raw | Wtd       | Option C: Studio (Príncipe Real)                                                                                                                                                                                       | Raw | Wtd       |
+| ------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --------- |
+| Location     | 4      | Marquês de Pombal: central business district, metro access (Yellow/Blue line), flat terrain, excellent transit hub. Walkable to Chiado and Baixa. Quieter at night than Bairro Alto                                                                                 | 5   | 20        | Alfama: scenic, historic, tourist-heavy. Extremely hilly and largely inaccessible by metro. Beautiful but tiring for daily commuting to other neighborhoods. Poor transit access                                                 | 2   | 8         | Príncipe Real: upscale residential, walkable to Chiado and Bica, mirabells and gardens nearby. No metro station but trams and Ubers accessible. Quiet evenings, café-dense                                             | 4   | 16        |
+| Price/Value  | 3      | €125/night advertised. Hotel pricing transparent. Continental breakfast included (value ~€12-15/person = €24-30/day). No hidden platform fee                                                                                                                        | 4   | 12        | €85/night advertised. Vacation rental pricing will add cleaning fee (~€80), Airbnb service fee (~15%), and tourist tax (€2/person/night). True cost will be significantly higher than headline                                   | 3   | 9         | €105/night advertised. Similar rental fee structure. Service fee applies. Cleaning fee (~€60 for studio). More honest headline-to-true ratio than Alfama apartment                                                     | 3   | 9         |
+| Space/Layout | 3      | Standard 4-star double room: ~25-30 sqm. Desk in room (hotel standard). No living room separate from sleeping area. One bathroom. No kitchen                                                                                                                        | 3   | 9         | 1-bedroom apartment: ~45-55 sqm typical for Alfama conversions. Separate bedroom and living room. Kitchen. However, Alfama buildings are historic -- ceiling heights and layouts vary greatly; confirm workspace setup with host | 4   | 12        | Studio: ~30-40 sqm. Single open-plan room with sleeping area. May have a desk but sleeping and working space overlap. No separation for two people working simultaneously                                              | 2   | 6         |
+| Amenities    | 5      | Hotel internet: typically 100-300 Mbps fiber in Lisbon 4-star hotels, verified by business traveler reviews. Dedicated desk. No kitchen. Breakfast included. Fitness center and concierge. Daily housekeeping eliminates chore overhead during an 8-night work stay | 4   | 20        | Rental internet: listed as "fiber optic" but speed unverified by host-provided data. Must ask host for a speed test screenshot. Kitchen is excellent for 8-night cost management. Laundry likely included                        | 3   | 15        | Rental internet: listing mentions WiFi, no speed specified. Studio layouts often place the router in one corner with dead zones. Must verify. Kitchen or kitchenette likely present. Laundry access needs confirmation | 2   | 10        |
+| Reviews      | 3      | Chain hotel: 8.4/10 on Booking.com (1,200+ reviews). Consistent mentions of fast internet and quiet rooms. Business traveler reviews specifically note the workspace quality. Negative reviews mention dated décor in some rooms                                    | 5   | 15        | Apartment: 4.72/5 on Airbnb (38 reviews). Recent reviews mention narrow staircase, charming location. Two reviews in the last 6 months mention slow WiFi during peak tourist season -- significant red flag for remote workers   | 2   | 6         | Studio: 4.68/5 on Airbnb (22 reviews). 22 reviews is thin but reviews are recent and detailed. Two reviewers specifically mention working from this space successfully. Internet praised in 3 reviews                  | 4   | 12        |
+| Flexibility  | 2      | Free cancellation until 48 hours before check-in. Standard hotel policy. Maximum flexibility                                                                                                                                                                        | 5   | 10        | Airbnb Moderate policy: free cancellation until 14 days before check-in; 50% refund 7-14 days before. For an 8-night stay at €85/night, non-refundable window represents €340 at risk                                            | 3   | 6         | Airbnb Moderate policy: same structure. At €105/night, non-refundable window = €420 at risk. Slightly worse risk than Option B given higher nightly rate                                                               | 3   | 6         |
+| **TOTAL**    | **90** |                                                                                                                                                                                                                                                                     |     | **86/90** |                                                                                                                                                                                                                                  |     | **56/90** |                                                                                                                                                                                                                        |     | **59/90** |
 
 ---
 
 ### True Cost Analysis
 
-| Cost Component | Option A: Hotel (Marquês) | Option B: Apartment (Alfama) | Option C: Studio (Príncipe Real) |
-|---------------|--------------------------|------------------------------|----------------------------------|
-| Base rate (8 nights) | €1,000 | €680 | €840 |
-| Cleaning fee | €0 (included in hotel rate) | €80 (one-time) | €60 (one-time) |
-| Platform/service fee | €0 (booked direct or via Booking.com -- no guest fee) | ~€102 (15% Airbnb guest fee on €680) | ~€126 (15% Airbnb guest fee on €840) |
-| Resort/facility fee | €0 (not common in Lisbon hotels at this tier) | €0 | €0 |
-| Parking | N/A (couple traveling without car) | N/A | N/A |
-| Lisbon tourist tax | €16 (€1/person/night x 2 people x 8 nights) | €16 | €16 |
-| Breakfast offset | €0 (included in hotel) | -€192 (kitchen saves ~€24/day on breakfast + lunch for 2 people x 8 days) | -€192 (kitchen savings same) |
-| **Total True Cost** | **€1,016** | **€686** | **€850** |
-| **True Per-Night Rate** | **€127/night** | **€86/night** | **€106/night** |
-| **Budget variance vs. €120/night target** | +€7/night (within ceiling) | **-€34/night (excellent value if workspace works)** | -€14/night (within budget) |
+| Cost Component                            | Option A: Hotel (Marquês)                             | Option B: Apartment (Alfama)                                              | Option C: Studio (Príncipe Real)     |
+| ----------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------ |
+| Base rate (8 nights)                      | €1,000                                                | €680                                                                      | €840                                 |
+| Cleaning fee                              | €0 (included in hotel rate)                           | €80 (one-time)                                                            | €60 (one-time)                       |
+| Platform/service fee                      | €0 (booked direct or via Booking.com -- no guest fee) | ~€102 (15% Airbnb guest fee on €680)                                      | ~€126 (15% Airbnb guest fee on €840) |
+| Resort/facility fee                       | €0 (not common in Lisbon hotels at this tier)         | €0                                                                        | €0                                   |
+| Parking                                   | N/A (couple traveling without car)                    | N/A                                                                       | N/A                                  |
+| Lisbon tourist tax                        | €16 (€1/person/night x 2 people x 8 nights)           | €16                                                                       | €16                                  |
+| Breakfast offset                          | €0 (included in hotel)                                | -€192 (kitchen saves ~€24/day on breakfast + lunch for 2 people x 8 days) | -€192 (kitchen savings same)         |
+| **Total True Cost**                       | **€1,016**                                            | **€686**                                                                  | **€850**                             |
+| **True Per-Night Rate**                   | **€127/night**                                        | **€86/night**                                                             | **€106/night**                       |
+| **Budget variance vs. €120/night target** | +€7/night (within ceiling)                            | **-€34/night (excellent value if workspace works)**                       | -€14/night (within budget)           |
 
 > **Key insight:** The hotel's breakfast inclusion and zero platform fees make it significantly more competitive than its headline rate suggests. The apartment closes the gap through kitchen savings -- but only if the internet issue is resolved. If you cannot confirm internet speed, the apartment's €41/night savings over the hotel evaporates in lost work productivity.
 
@@ -417,15 +426,16 @@ Apply a bathroom-to-person ratio test: 1 bathroom per 1-3 people is comfortable;
 
 ### Red-Flag Assessment
 
-| Category | Option A: Hotel | Option B: Apartment (Alfama) | Option C: Studio (Príncipe Real) |
-|----------|----------------|------------------------------|----------------------------------|
-| Pricing transparency | ✅ Clear -- hotel rate includes all fees; tourist tax is the only addition | ⚠️ Caution -- €85/night becomes €86 true cost after fees; headline is misleading by ~30% before kitchen savings | ⚠️ Caution -- €105/night becomes €106 true cost; similar gap |
-| Listing accuracy | ✅ Clear -- chain hotel, photos are standardized and accurate to property type | ⚠️ Caution -- only 12 photos for a 1-bedroom apartment. No photo of the desk or workspace. Alfama interiors vary dramatically building to building | ✅ Clear -- 18 photos including desk area, kitchen, and bathroom. Photos appear current and specific |
-| Review legitimacy | ✅ Clear -- 1,200+ reviews with recent business traveler feedback confirming workspace quality | 🚫 Red Flag -- two recent reviews (within 6 months) mention slow WiFi during peak season. This is directly relevant to the user's primary requirement | ✅ Clear -- 3 reviews specifically mention working from this space; reviews are detailed and consistent |
-| Policy fairness | ✅ Clear -- 48-hour free cancellation standard | ✅ Clear -- Moderate policy is fair for the booking timing | ✅ Clear -- same Moderate policy |
-| Host/property communication | ✅ Clear -- hotel booking standard; no host dependency | ⚠️ To verify -- message host immediately about WiFi speed. If host cannot provide a speed test result (Speedtest.net screenshot showing 50+ Mbps download), this option fails the primary requirement | ✅ Positive signal -- listing includes host note that "fiber is 200 Mbps" and reviewer confirmed it |
+| Category                    | Option A: Hotel                                                                                | Option B: Apartment (Alfama)                                                                                                                                                                          | Option C: Studio (Príncipe Real)                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Pricing transparency        | ✅ Clear -- hotel rate includes all fees; tourist tax is the only addition                     | ⚠️ Caution -- €85/night becomes €86 true cost after fees; headline is misleading by ~30% before kitchen savings                                                                                       | ⚠️ Caution -- €105/night becomes €106 true cost; similar gap                                            |
+| Listing accuracy            | ✅ Clear -- chain hotel, photos are standardized and accurate to property type                 | ⚠️ Caution -- only 12 photos for a 1-bedroom apartment. No photo of the desk or workspace. Alfama interiors vary dramatically building to building                                                    | ✅ Clear -- 18 photos including desk area, kitchen, and bathroom. Photos appear current and specific    |
+| Review legitimacy           | ✅ Clear -- 1,200+ reviews with recent business traveler feedback confirming workspace quality | 🚫 Red Flag -- two recent reviews (within 6 months) mention slow WiFi during peak season. This is directly relevant to the user's primary requirement                                                 | ✅ Clear -- 3 reviews specifically mention working from this space; reviews are detailed and consistent |
+| Policy fairness             | ✅ Clear -- 48-hour free cancellation standard                                                 | ✅ Clear -- Moderate policy is fair for the booking timing                                                                                                                                            | ✅ Clear -- same Moderate policy                                                                        |
+| Host/property communication | ✅ Clear -- hotel booking standard; no host dependency                                         | ⚠️ To verify -- message host immediately about WiFi speed. If host cannot provide a speed test result (Speedtest.net screenshot showing 50+ Mbps download), this option fails the primary requirement | ✅ Positive signal -- listing includes host note that "fiber is 200 Mbps" and reviewer confirmed it     |
 
 **Flags requiring action before booking:**
+
 - **Option B only:** Message the host: "Can you share a recent Speedtest.net result for the apartment's WiFi? Two recent reviews mention slow speeds during June. We depend on reliable internet for work." If the host cannot provide a screenshot showing 50+ Mbps download, do not book this option.
 - **Option B only:** Ask: "Is there a dedicated desk in the apartment separate from the dining table? We need two people to work simultaneously." Confirm workspace for two people.
 
@@ -448,6 +458,7 @@ Do not book until internet speed is confirmed directly by the host with evidence
 ### Pre-Booking Checklist
 
 **If booking Option A (Hotel):**
+
 - [ ] Book directly on the hotel's own website or call the reservations line -- rates are often equal to OTAs and direct bookings give more flexibility on room assignment
 - [ ] At booking, specify: "Double room, upper floors preferred, away from street noise" -- Marquês de Pombal is a busy roundabout; street-facing lower rooms can be loud
 - [ ] Confirm the breakfast start time -- if you work early mornings, verify breakfast begins by 7:00am or request room-service breakfast as an alternative
@@ -457,6 +468,7 @@ Do not book until internet speed is confirmed directly by the host with evidence
 - [ ] Note: June is Lisbon's peak tourist month. Book as soon as possible -- quality rooms at this price point fill 4-8 weeks in advance
 
 **If booking Option C (Studio, Príncipe Real):**
+
 - [ ] Message the host: "We are remote workers. Can you confirm the fiber WiFi is still 200 Mbps as mentioned in the listing? We'd love a current Speedtest screenshot."
 - [ ] Ask: "Is there a dedicated work desk, or is the desk the dining table? We need two people to be able to work at the same time"
 - [ ] Ask: "What is the check-in process? Is self-check-in possible for late arrivals?"

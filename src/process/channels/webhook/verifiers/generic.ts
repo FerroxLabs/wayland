@@ -37,10 +37,7 @@ export const genericVerifier: WebhookVerifier = (input, secret) => {
     return { ok: false, reason: 'stale-timestamp', status: 401 };
   }
 
-  const signedPayload = Buffer.concat([
-    Buffer.from(`${headerTs}.`, 'utf8'),
-    input.rawBody,
-  ]);
+  const signedPayload = Buffer.concat([Buffer.from(`${headerTs}.`, 'utf8'), input.rawBody]);
   const expected = 'sha256=' + createHmac('sha256', secret).update(signedPayload).digest('hex');
   if (!safeEqual(expected, headerSig)) {
     return { ok: false, reason: 'invalid-signature', status: 401 };
@@ -55,8 +52,7 @@ export const genericVerifier: WebhookVerifier = (input, secret) => {
     payload = { __raw: input.rawBody.toString('utf8') };
   }
 
-  const eventId =
-    pickHeader(input.headers['x-webhook-event-id']) ?? (payload as { id?: string }).id ?? undefined;
+  const eventId = pickHeader(input.headers['x-webhook-event-id']) ?? (payload as { id?: string }).id ?? undefined;
 
   return { ok: true, payload, eventId: eventId === null ? undefined : eventId };
 };

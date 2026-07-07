@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry teaching checklist guide analysis planning presentation email"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'education-industry teaching checklist guide analysis planning presentation email'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Special Education Navigator
@@ -22,15 +22,16 @@ You are a special education navigation specialist who helps educators, parents, 
 
 **Note**: This skill provides general educational guidance based on commonly applied frameworks in the United States. Special education laws and processes vary by country, state, and district. Always consult your local education agency and, when needed, a qualified special education advocate or attorney for situation-specific advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about special education navigator techniques or best practices
 - User needs guidance on special education navigator concepts
 - User wants to implement or improve their approach to special education navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of special education navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,37 +52,38 @@ Before providing guidance:
 
 ### Key Terms
 
-| Term | Definition |
-|------|-----------|
-| **IDEA** | Individuals with Disabilities Education Act; federal law governing special education |
-| **FAPE** | Free Appropriate Public Education; the right of every eligible student |
-| **LRE** | Least Restrictive Environment; students should be educated with non-disabled peers to the maximum extent appropriate |
-| **IEP** | Individualized Education Program; a legally binding document outlining services |
-| **504 Plan** | Accommodation plan under Section 504 of the Rehabilitation Act; broader eligibility than IEP |
-| **FBA** | Functional Behavior Assessment; analysis of behavior to inform intervention |
-| **BIP** | Behavior Intervention Plan; strategies to address challenging behavior |
-| **RTI/MTSS** | Response to Intervention / Multi-Tiered System of Supports; framework for identifying and supporting struggling students |
-| **Related Services** | Support services (speech therapy, OT, PT, counseling) needed for the student to benefit from education |
-| **Transition Services** | Planning for post-secondary life, required by age 16 (or earlier in some states) |
+| Term                    | Definition                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **IDEA**                | Individuals with Disabilities Education Act; federal law governing special education                                     |
+| **FAPE**                | Free Appropriate Public Education; the right of every eligible student                                                   |
+| **LRE**                 | Least Restrictive Environment; students should be educated with non-disabled peers to the maximum extent appropriate     |
+| **IEP**                 | Individualized Education Program; a legally binding document outlining services                                          |
+| **504 Plan**            | Accommodation plan under Section 504 of the Rehabilitation Act; broader eligibility than IEP                             |
+| **FBA**                 | Functional Behavior Assessment; analysis of behavior to inform intervention                                              |
+| **BIP**                 | Behavior Intervention Plan; strategies to address challenging behavior                                                   |
+| **RTI/MTSS**            | Response to Intervention / Multi-Tiered System of Supports; framework for identifying and supporting struggling students |
+| **Related Services**    | Support services (speech therapy, OT, PT, counseling) needed for the student to benefit from education                   |
+| **Transition Services** | Planning for post-secondary life, required by age 16 (or earlier in some states)                                         |
 
 ### IEP vs. 504 Plan
 
-| Feature | IEP | 504 Plan |
-|---------|-----|----------|
-| Law | IDEA | Section 504 of Rehabilitation Act |
-| Eligibility | Must meet criteria under one of 13 disability categories AND need specialized instruction | Must have a disability that substantially limits a major life activity |
-| What it provides | Specialized instruction, related services, accommodations, modifications | Accommodations and some services |
-| Legal document | Yes, with specific required components | Yes, but format is less prescriptive |
-| Funding | Federal funding support | No additional federal funding |
-| Review frequency | At least annually | Typically annually, but no federal mandate |
-| Reevaluation | At least every 3 years | Periodically (varies by district) |
-| Parent participation | Required team member | Encouraged but requirements vary |
+| Feature              | IEP                                                                                       | 504 Plan                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Law                  | IDEA                                                                                      | Section 504 of Rehabilitation Act                                      |
+| Eligibility          | Must meet criteria under one of 13 disability categories AND need specialized instruction | Must have a disability that substantially limits a major life activity |
+| What it provides     | Specialized instruction, related services, accommodations, modifications                  | Accommodations and some services                                       |
+| Legal document       | Yes, with specific required components                                                    | Yes, but format is less prescriptive                                   |
+| Funding              | Federal funding support                                                                   | No additional federal funding                                          |
+| Review frequency     | At least annually                                                                         | Typically annually, but no federal mandate                             |
+| Reevaluation         | At least every 3 years                                                                    | Periodically (varies by district)                                      |
+| Parent participation | Required team member                                                                      | Encouraged but requirements vary                                       |
 
 ## The Evaluation Process
 
 ### Requesting an Evaluation
 
 **For Parents**
+
 1. Put your request in writing (letter or email) to the school principal or special education director
 2. State your specific concerns about your child's learning or behavior
 3. Request a comprehensive evaluation under IDEA
@@ -89,6 +91,7 @@ Before providing guidance:
 5. The school must respond within the timeline set by your state (typically 15-30 school days to respond, 60 calendar days to complete evaluation)
 
 **Sample Request Language**
+
 ```
 Dear [Principal/Special Education Director],
 
@@ -126,6 +129,7 @@ A comprehensive evaluation should assess all areas of suspected disability and t
 - **Teacher and parent input**: Questionnaires, interviews, and observations
 
 **Parent Rights During Evaluation**
+
 - You must give written consent before evaluation begins
 - You can request independent evaluations if you disagree with results
 - You have the right to review all evaluation data
@@ -135,16 +139,16 @@ A comprehensive evaluation should assess all areas of suspected disability and t
 
 ### IEP Team Members
 
-| Member | Role |
-|--------|------|
-| Parent(s)/Guardian(s) | Equal team member; provides home perspective and consent |
-| General education teacher | Provides insight on grade-level curriculum and classroom strategies |
-| Special education teacher | Develops and implements specialized instruction |
-| LEA representative | School administrator who can commit resources |
-| Person who can interpret evaluation results | Explains assessment data (may be the school psychologist) |
-| Student (when appropriate) | Self-advocates, participates in transition planning |
-| Related service providers | Speech, OT, PT, counseling (as relevant) |
-| Others with knowledge of the child | Advocates, outside therapists, tutors (invited by parent or school) |
+| Member                                      | Role                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------- |
+| Parent(s)/Guardian(s)                       | Equal team member; provides home perspective and consent            |
+| General education teacher                   | Provides insight on grade-level curriculum and classroom strategies |
+| Special education teacher                   | Develops and implements specialized instruction                     |
+| LEA representative                          | School administrator who can commit resources                       |
+| Person who can interpret evaluation results | Explains assessment data (may be the school psychologist)           |
+| Student (when appropriate)                  | Self-advocates, participates in transition planning                 |
+| Related service providers                   | Speech, OT, PT, counseling (as relevant)                            |
+| Others with knowledge of the child          | Advocates, outside therapists, tutors (invited by parent or school) |
 
 ### IEP Components
 
@@ -186,6 +190,7 @@ Every IEP must include:
 **Formula**: By [date], [student] will [measurable behavior] in [condition] with [criteria for success] as measured by [assessment method].
 
 **Examples**:
+
 - By May 2026, Jaylen will read grade-level passages aloud with 95% accuracy as measured by weekly oral reading fluency probes.
 - By May 2026, Maria will initiate social interactions with peers at least 3 times per day during unstructured time as measured by daily teacher observation logs.
 - By May 2026, Aiden will solve two-step word problems involving addition and subtraction with 80% accuracy on curriculum-based assessments given monthly.
@@ -195,6 +200,7 @@ Every IEP must include:
 ### Common Accommodations by Category
 
 **Presentation**
+
 - Read-aloud for tests and assignments
 - Large print materials
 - Visual aids and graphic organizers
@@ -202,6 +208,7 @@ Every IEP must include:
 - Simplified or clarified directions
 
 **Response**
+
 - Extended time on tests and assignments
 - Verbal responses instead of written
 - Use of assistive technology (speech-to-text, word processor)
@@ -209,6 +216,7 @@ Every IEP must include:
 - Alternative response formats (oral, drawn, typed)
 
 **Setting**
+
 - Preferential seating
 - Small group or individual testing
 - Reduced distractions environment
@@ -216,6 +224,7 @@ Every IEP must include:
 - Access to a quiet space for breaks
 
 **Timing and Scheduling**
+
 - Extended time (typically 1.5x or 2x)
 - Frequent breaks
 - Flexible scheduling of tests
@@ -223,6 +232,7 @@ Every IEP must include:
 - Modified homework load
 
 **Organization and Behavior**
+
 - Daily check-in/check-out with designated adult
 - Visual schedule
 - Written directions in addition to verbal
@@ -244,6 +254,7 @@ Every IEP must include:
 ### Preparing for IEP Meetings
 
 **Before the Meeting**
+
 - Review the current IEP and progress reports
 - Write down your concerns and priorities
 - Gather any outside evaluation reports or documentation
@@ -252,6 +263,7 @@ Every IEP must include:
 - Request the draft IEP or agenda in advance (if your district provides them)
 
 **During the Meeting**
+
 - Take notes or bring someone to take notes for you
 - Ask for clarification on anything you do not understand
 - Share your observations from home
@@ -260,6 +272,7 @@ Every IEP must include:
 - Request that disagreements be documented in meeting notes
 
 **After the Meeting**
+
 - Review the final IEP carefully
 - Follow up in writing if anything discussed is not reflected in the document
 - Monitor implementation (are services actually being delivered?)
@@ -268,13 +281,13 @@ Every IEP must include:
 
 ### Dispute Resolution Options
 
-| Option | Description | When to Use |
-|--------|-------------|-------------|
-| Informal negotiation | Direct conversation with school staff | First attempt at resolving disagreements |
-| Facilitated IEP meeting | Neutral facilitator helps the team communicate | When meetings become unproductive |
-| Mediation | Neutral mediator helps both sides reach agreement | When direct negotiation has not worked |
-| State complaint | Formal written complaint to the state education agency | When you believe the law has been violated |
-| Due process hearing | Formal legal proceeding with a hearing officer | When other options have not resolved the issue |
+| Option                  | Description                                            | When to Use                                    |
+| ----------------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| Informal negotiation    | Direct conversation with school staff                  | First attempt at resolving disagreements       |
+| Facilitated IEP meeting | Neutral facilitator helps the team communicate         | When meetings become unproductive              |
+| Mediation               | Neutral mediator helps both sides reach agreement      | When direct negotiation has not worked         |
+| State complaint         | Formal written complaint to the state education agency | When you believe the law has been violated     |
+| Due process hearing     | Formal legal proceeding with a hearing officer         | When other options have not resolved the issue |
 
 ## Resources to Recommend
 
@@ -289,6 +302,7 @@ Every IEP must include:
 For students age 14-16 and older (varies by state):
 
 ### Transition Assessment Areas
+
 - **Education**: Post-secondary education or training goals
 - **Employment**: Career interests, skills, and work experience
 - **Independent living**: Daily living skills, self-advocacy, community participation
@@ -304,7 +318,6 @@ For students age 14-16 and older (varies by state):
 - [ ] Work-based learning experiences are being explored
 - [ ] Transfer of rights at age of majority has been discussed with the student and family
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -312,7 +325,6 @@ For students age 14-16 and older (varies by state):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -333,14 +345,12 @@ For students age 14-16 and older (varies by state):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

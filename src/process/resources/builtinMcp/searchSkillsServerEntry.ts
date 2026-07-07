@@ -22,11 +22,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import {
-  BUILTIN_READ_SKILL_TOOL_NAME,
-  BUILTIN_SEARCH_SKILLS_NAME,
-  BUILTIN_SEARCH_SKILLS_TOOL_NAME,
-} from './constants';
+import { BUILTIN_READ_SKILL_TOOL_NAME, BUILTIN_SEARCH_SKILLS_NAME, BUILTIN_SEARCH_SKILLS_TOOL_NAME } from './constants';
 import { createSearchSkillsServer } from './searchSkillsServer';
 
 const SEARCH_TOOL_DESCRIPTION = `Search the full Wayland skill library (~2,000+ entries) by natural-language query. Returns lightweight metadata by default so you can pick the right skill before pulling its full instructions.

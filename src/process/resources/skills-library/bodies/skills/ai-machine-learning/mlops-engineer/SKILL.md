@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml devops guide"
-  category: "ai-machine-learning"
-  subcategory: "ml-fundamentals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml devops guide'
+  category: 'ai-machine-learning'
+  subcategory: 'ml-fundamentals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # MLOps Engineer
@@ -26,13 +26,13 @@ MLOps bridges the gap between model development and production deployment. This 
 
 ### Serving Framework Comparison
 
-| Framework | Models | Batching | GPU | Protocol |
-|-----------|--------|----------|-----|----------|
-| TorchServe | PyTorch | Yes | Yes | REST/gRPC |
-| TF Serving | TF/Keras | Yes | Yes | REST/gRPC |
-| Triton | Multi-framework | Yes | Yes | REST/gRPC |
-| BentoML | Multi-framework | Yes | Yes | REST/gRPC |
-| vLLM | LLMs | Yes | Yes | OpenAI-compatible |
+| Framework  | Models          | Batching | GPU | Protocol          |
+| ---------- | --------------- | -------- | --- | ----------------- |
+| TorchServe | PyTorch         | Yes      | Yes | REST/gRPC         |
+| TF Serving | TF/Keras        | Yes      | Yes | REST/gRPC         |
+| Triton     | Multi-framework | Yes      | Yes | REST/gRPC         |
+| BentoML    | Multi-framework | Yes      | Yes | REST/gRPC         |
+| vLLM       | LLMs            | Yes      | Yes | OpenAI-compatible |
 
 ### TorchServe Deployment
 
@@ -144,15 +144,15 @@ spec:
       labels: { app: ml-inference }
     spec:
       containers:
-      - name: inference
-        image: my-registry/ml-inference:v1.0.0
-        ports: [{ containerPort: 8080 }]
-        resources:
-          requests: { memory: "512Mi", cpu: "500m" }
-          limits: { memory: "1Gi", cpu: "1000m" }
-        readinessProbe:
-          httpGet: { path: /health, port: 8080 }
-          initialDelaySeconds: 10
+        - name: inference
+          image: my-registry/ml-inference:v1.0.0
+          ports: [{ containerPort: 8080 }]
+          resources:
+            requests: { memory: '512Mi', cpu: '500m' }
+            limits: { memory: '1Gi', cpu: '1000m' }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 10
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -166,10 +166,10 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target: { type: Utilization, averageUtilization: 70 }
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
 ```
 
 ## A/B Testing Deployment
@@ -184,11 +184,11 @@ metadata:
 spec:
   hosts: [ml-inference-svc]
   http:
-  - route:
-    - destination: { host: ml-inference-svc, subset: model-v1 }
-      weight: 80
-    - destination: { host: ml-inference-svc, subset: model-v2 }
-      weight: 20
+    - route:
+        - destination: { host: ml-inference-svc, subset: model-v1 }
+          weight: 80
+        - destination: { host: ml-inference-svc, subset: model-v2 }
+          weight: 20
 ```
 
 ### Application-Level A/B Testing
@@ -380,6 +380,7 @@ Otherwise               -> FP16 quantization is usually sufficient
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mlops engineer solutions
 - Reviewing or improving existing mlops engineer approaches
 - Making architectural or implementation decisions about mlops engineer
@@ -387,6 +388,7 @@ Otherwise               -> FP16 quantization is usually sufficient
 - Troubleshooting mlops engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -397,21 +399,26 @@ Otherwise               -> FP16 quantization is usually sufficient
 # Mlops Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

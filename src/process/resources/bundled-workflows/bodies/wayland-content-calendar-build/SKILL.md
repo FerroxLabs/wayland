@@ -11,14 +11,15 @@ description: >-
   wants a full multi-week publishing plan.
 license: Apache-2.0
 type: workflow
-skills: "content-audit content-calendar content-repurpose"
+skills: 'content-audit content-calendar content-repurpose'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing content calendar planning funnel step-by-step
   category: marketing
-  depends: "content-audit content-calendar content-repurpose"
+  depends: 'content-audit content-calendar content-repurpose'
 ---
+
 # 30/60/90-Day Content Calendar Builder
 
 **Estimated time:** 30-45 minutes

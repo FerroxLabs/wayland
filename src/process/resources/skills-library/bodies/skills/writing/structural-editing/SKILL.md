@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing guide"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'editing writing guide'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Structural Editing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly requests structural editing, developmental editing, document reorganization, or an editorial assessment of their draft
 - The user says the document "doesn't work," "rambles," "loses the reader," "doesn't land," or "feels disorganized" without being able to pinpoint why
 - The user has a complete or near-complete draft that needs to be evaluated at the architecture level -- the problem is the blueprint, not the brickwork
@@ -29,6 +31,7 @@ metadata:
 - The user is working with a document that has been assembled from multiple sources, contributors, or previous drafts and now needs coherence imposed
 
 **Do NOT use this skill when:**
+
 - The user needs sentence-level grammar, clarity, or style improvements -- use `copy-editing` instead
 - The user needs error correction: spelling, punctuation, subject-verb agreement -- use `proofreading` instead
 - The user needs the voice or register adjusted (formal to conversational, passive to active) -- use `tone-adjustment` instead
@@ -320,14 +323,14 @@ Recommendation: Move Section 4 material to the opening. Integrate the key financ
 
 ### Current vs. Proposed Structure
 
-| # | Current Section | Function (Actual) | Word Weight | Proposed Action | Rationale |
-|---|----------------|-------------------|-------------|-----------------|-----------|
-| 1 | Introduction | Historical context (supply chains since WWII) | ~850 words / 17% | Cut 600 words; reframe as business case hook | Audience already has this context; document must earn attention immediately with financial stakes |
-| 2 | Section 1: "Why Supply Chains Break" | Problem taxonomy with academic citations | ~1,100 words / 22% | Compress to 400-500 words; move to position 3 | Useful context but should follow the business case, not precede it; compress by removing academic citation chains not needed for executive audience |
-| 3 | Section 2: Case Studies | Problem documentation (three failure stories) | ~1,400 words / 28% | Restructure and distribute -- integrate into expanded strategies section as evidence per strategy | Case studies serve solution illustration, not problem documentation; reposition as evidence for each strategy |
-| 4 | Section 3: Resilience Strategies | Solution (five bullets) | ~600 words / 12% | Major expansion to ~2,200 words; reframe as named framework; move to position 2 or 3 | This is the document's core value; it is critically underdeveloped |
-| 5 | Section 4: Cost of Inaction | Financial risk quantification | ~700 words / 14% | Move to position 1 (early in document, after new hook) | Business case must be established before solutions are presented |
-| 6 | Conclusion | Problem recapitulation | ~350 words / 7% | Rewrite as solution synthesis + call to action | Conclusion must crystallize the recommendation and direct reader action |
+| #   | Current Section                      | Function (Actual)                             | Word Weight        | Proposed Action                                                                                   | Rationale                                                                                                                                           |
+| --- | ------------------------------------ | --------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Introduction                         | Historical context (supply chains since WWII) | ~850 words / 17%   | Cut 600 words; reframe as business case hook                                                      | Audience already has this context; document must earn attention immediately with financial stakes                                                   |
+| 2   | Section 1: "Why Supply Chains Break" | Problem taxonomy with academic citations      | ~1,100 words / 22% | Compress to 400-500 words; move to position 3                                                     | Useful context but should follow the business case, not precede it; compress by removing academic citation chains not needed for executive audience |
+| 3   | Section 2: Case Studies              | Problem documentation (three failure stories) | ~1,400 words / 28% | Restructure and distribute -- integrate into expanded strategies section as evidence per strategy | Case studies serve solution illustration, not problem documentation; reposition as evidence for each strategy                                       |
+| 4   | Section 3: Resilience Strategies     | Solution (five bullets)                       | ~600 words / 12%   | Major expansion to ~2,200 words; reframe as named framework; move to position 2 or 3              | This is the document's core value; it is critically underdeveloped                                                                                  |
+| 5   | Section 4: Cost of Inaction          | Financial risk quantification                 | ~700 words / 14%   | Move to position 1 (early in document, after new hook)                                            | Business case must be established before solutions are presented                                                                                    |
+| 6   | Conclusion                           | Problem recapitulation                        | ~350 words / 7%    | Rewrite as solution synthesis + call to action                                                    | Conclusion must crystallize the recommendation and direct reader action                                                                             |
 
 ---
 
@@ -378,6 +381,7 @@ Recommendation: Move Section 4 material to the opening. Integrate the key financ
 ### Next Steps
 
 **Sequence:**
+
 1. Implement the major structural changes -- expand Section 3, reposition the financial risk material, redistribute the case studies, rewrite the introduction and conclusion
 2. Re-read the restructured draft end-to-end before any line-level work to confirm the new sequence reads coherently
 3. Proceed to copy editing on the revised draft for sentence clarity, concision, and executive register

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing automation web-development"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing automation web-development'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # E2E Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to structure or architect an end-to-end test suite for a web application, mobile app, or API surface
 - The user wants to reduce flakiness in their existing Playwright, Cypress, Selenium, or WebdriverIO test suite
 - The user asks which selectors, fixtures, or page object patterns to use for maintainable E2E tests
@@ -30,6 +32,7 @@ metadata:
 - The user asks about the testing pyramid and where E2E tests belong relative to unit and integration tests
 
 **Do NOT use this skill when:**
+
 - The user needs unit testing patterns (Jest, Vitest, pytest, JUnit) -- use the unit testing skill instead
 - The user needs API contract testing (Pact, Dredd) -- use the contract testing skill
 - The user needs component-level testing with testing-library -- use the component testing skill
@@ -146,6 +149,7 @@ When responding to a user about E2E testing patterns, structure the output as fo
 ## E2E Testing Assessment: [Project Context]
 
 ### Context Summary
+
 - **Framework:** [Playwright / Cypress / WebdriverIO]
 - **Application type:** [SPA / SSR / Mobile / Hybrid]
 - **Team size:** [N engineers]
@@ -155,39 +159,44 @@ When responding to a user about E2E testing patterns, structure the output as fo
 ---
 
 ### Critical User Journey Map
-| Journey | Priority | Current Coverage | Recommended Test Count |
-|---------|----------|-----------------|----------------------|
-| [e.g., User login and auth] | P0 | [None / Partial / Full] | [2--4 tests] |
-| [e.g., Core purchase flow] | P0 | [None / Partial / Full] | [4--6 tests] |
-| [e.g., Account settings] | P1 | [None / Partial / Full] | [2--3 tests] |
+
+| Journey                     | Priority | Current Coverage        | Recommended Test Count |
+| --------------------------- | -------- | ----------------------- | ---------------------- |
+| [e.g., User login and auth] | P0       | [None / Partial / Full] | [2--4 tests]           |
+| [e.g., Core purchase flow]  | P0       | [None / Partial / Full] | [4--6 tests]           |
+| [e.g., Account settings]    | P1       | [None / Partial / Full] | [2--3 tests]           |
 
 ---
 
 ### Selector Strategy Decision
-| Element Type | Recommended Selector | Example |
-|--------------|----------------------|---------|
-| Buttons with clear labels | getByRole + name | `getByRole('button', { name: 'Place Order' })` |
-| Form inputs | getByLabel | `getByLabel('Email address')` |
-| Custom UI components | data-testid | `getByTestId('cart-item-count')` |
-| Navigation links | getByRole + name | `getByRole('link', { name: 'My Orders' })` |
+
+| Element Type              | Recommended Selector | Example                                        |
+| ------------------------- | -------------------- | ---------------------------------------------- |
+| Buttons with clear labels | getByRole + name     | `getByRole('button', { name: 'Place Order' })` |
+| Form inputs               | getByLabel           | `getByLabel('Email address')`                  |
+| Custom UI components      | data-testid          | `getByTestId('cart-item-count')`               |
+| Navigation links          | getByRole + name     | `getByRole('link', { name: 'My Orders' })`     |
 
 ---
 
 ### Wait Strategy Assessment
-| Scenario | Anti-Pattern | Correct Pattern |
-|----------|-------------|-----------------|
-| After form submit | `await page.waitForTimeout(2000)` | `await page.waitForResponse('**/api/submit')` |
-| After navigation | `cy.wait(1000)` | `cy.url().should('include', '/dashboard')` |
-| Loading state | Fixed sleep | `waitForSelector('.spinner', { state: 'hidden' })` |
+
+| Scenario          | Anti-Pattern                      | Correct Pattern                                    |
+| ----------------- | --------------------------------- | -------------------------------------------------- |
+| After form submit | `await page.waitForTimeout(2000)` | `await page.waitForResponse('**/api/submit')`      |
+| After navigation  | `cy.wait(1000)`                   | `cy.url().should('include', '/dashboard')`         |
+| Loading state     | Fixed sleep                       | `waitForSelector('.spinner', { state: 'hidden' })` |
 
 ---
 
 ### Test Architecture Recommendation
+
 [Page Object structure or fixture design recommendation specific to the project]
 
 ---
 
 ### CI Configuration
+
 - **Smoke suite:** [N tests, target runtime, trigger]
 - **Full suite:** [N tests, target runtime, trigger, shard count]
 - **Artifact config:** [Screenshot / video / trace settings]
@@ -196,11 +205,13 @@ When responding to a user about E2E testing patterns, structure the output as fo
 ---
 
 ### Implementation: [Specific Pattern or Code Snippet]
+
 [Concrete, runnable code tailored to the user's framework and context]
 
 ---
 
 ### Maintenance Protocol
+
 - Flaky test review cadence: [Weekly]
 - Ownership model: [Feature owner / QA guild / Shared]
 - Definition of done update: [E2E update required for UI changes]
@@ -235,24 +246,31 @@ When responding to a user about E2E testing patterns, structure the output as fo
 ## Edge Cases
 
 ### Flaky Tests Caused by Animation and CSS Transitions
+
 Many UI frameworks use CSS transitions (200--400ms) for modals, dropdowns, and toasts. An element can be technically "visible" in the DOM but still animating -- clicks during animation hit the wrong target or trigger no action. Fix this by: (a) using `actionability` checks that Playwright provides (it waits for elements to stop moving), (b) disabling animations in the E2E test environment via CSS (`*, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }`), injected via a global stylesheet fixture. In Cypress, add this CSS to `cypress/support/index.css`. This single change resolves 30--40% of animation-related flakiness.
 
 ### Third-Party OAuth and SSO Flows
+
 Testing login flows that redirect to an external identity provider (Google OAuth, Okta, Auth0, SAML) is a common E2E challenge. Never automate the third-party login UI directly -- it violates the provider's terms of service, is slow, and breaks when the provider updates their login page. Instead: (a) use the identity provider's test credentials or sandbox environment, (b) if the provider supports it, use a direct token endpoint to exchange credentials for a session token programmatically, bypassing the UI entirely, (c) for providers without sandbox support, use a dedicated test user in the production IdP that is never used by real users, and document its credentials in a secrets manager. In Playwright, use `request.post('https://auth-provider.com/token', ...)` in a fixture to obtain the token before the test starts.
 
 ### Multi-Tab and Pop-Up Window Handling
+
 Some flows open payment iframes, OAuth pop-ups, or file download dialogs in new browser contexts. In Playwright, handle new tabs with `const [newPage] = await Promise.all([context.waitForEvent('page'), page.click('.open-in-new-tab')])` and then interact with `newPage` as a normal page object. In Cypress, new-tab navigation is intentionally blocked -- the standard workaround is to stub `window.open` and assert on the URL argument rather than following the navigation. For file downloads, use Playwright's download event: `const [download] = await Promise.all([page.waitForEvent('download'), page.click('#download-report')])`, then assert on `download.suggestedFilename()` and validate the file content if needed.
 
 ### Dynamic and Virtualized Lists
+
 Infinite scroll lists, virtual scrollers (react-window, TanStack Virtual), and paginated data tables render only a subset of items in the DOM. Trying to find a list item by text when it is not yet rendered will fail. Handle this by: (a) scrolling the container to trigger rendering (`page.evaluate(() => container.scrollTo(0, container.scrollHeight))`), (b) using the application's search or filter API to bring the target item into the visible window before asserting, (c) never writing tests that depend on a specific position in a large dynamic list -- instead filter the list to a known state first.
 
 ### Environment-Specific Feature Flags
+
 Many applications use feature flags (LaunchDarkly, Split.io, Unleash, custom implementations) to control feature rollout. A test written against a flag-enabled UI will fail in an environment where the flag is off. Always: (a) explicitly set required feature flags to a known state at test setup time, either via the flag provider's API or via a URL parameter convention your application supports (e.g., `?flags=new-checkout-enabled`), (b) tag tests that depend on a specific flag state (`@flag:new-checkout`) so they can be excluded from flag-disabled environments, (c) never write tests that silently pass in both flag states by accident -- the test should clearly document which flag state it validates.
 
 ### Testing Behind Authentication in CI with Ephemeral Environments
+
 Ephemeral preview environments (Vercel previews, Railway, Heroku review apps) often have HTTP basic auth applied as a blanket security measure to prevent public access. This breaks Playwright/Cypress navigation. Handle it by: (a) passing HTTP basic auth credentials via the URL (`https://user:pass@preview.example.com`), (b) using Playwright's `page.authenticate({ username, password })` before navigation, (c) storing the basic auth credentials in CI secrets and passing them via environment variables to the test config. Never hardcode preview environment credentials in test files.
 
 ### Visual Regression Testing Integration
+
 Adding visual regression tests (Percy, Playwright's `toHaveScreenshot()`, Chromatic) to an existing E2E suite requires careful scoping. Do not apply visual regression to the entire suite -- maintenance cost is prohibitive. Apply it to: (a) design system components that have no functional assertion that would catch visual regressions, (b) critical landing pages where brand consistency matters, (c) email templates or PDF outputs. For `toHaveScreenshot()`, establish a baseline update workflow (run `--update-snapshots` locally, review the diff, commit the new baseline) and enforce baseline updates in the same PR as the UI change. Use a `--threshold=0.2` (0.2% pixel difference tolerance) to avoid noise from antialiasing differences between platforms.
 
 ---
@@ -266,6 +284,7 @@ Adding visual regression tests (Percy, Playwright's `toHaveScreenshot()`, Chroma
 ## E2E Testing Assessment: React SPA with High Flakiness
 
 ### Context Summary
+
 - **Framework:** Playwright (TypeScript)
 - **Application type:** React SPA
 - **Team size:** Unknown (assume 4--8 based on 80-test suite)
@@ -418,10 +437,7 @@ export async function createTestOrder(
   return response.json();
 }
 
-export async function deleteTestOrder(
-  request: APIRequestContext,
-  orderId: string
-): Promise<void> {
+export async function deleteTestOrder(request: APIRequestContext, orderId: string): Promise<void> {
   await request.delete(`/api/internal/test/orders/${orderId}`, {
     headers: { 'X-Test-API-Key': process.env.E2E_INTERNAL_API_KEY! },
   });
@@ -469,12 +485,12 @@ grep -rn "waitForTimeout\|cy\.wait([0-9]" e2e/
 
 For each occurrence, apply the appropriate replacement:
 
-| Hardcoded Wait Pattern | Replace With |
-|------------------------|-------------|
-| `await page.waitForTimeout(2000)` after form submit | `await page.waitForResponse('**/api/[endpoint]')` |
-| `await page.waitForTimeout(1000)` after navigation | `await expect(page).toHaveURL(/\/dashboard/)` |
+| Hardcoded Wait Pattern                                | Replace With                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `await page.waitForTimeout(2000)` after form submit   | `await page.waitForResponse('**/api/[endpoint]')`                                    |
+| `await page.waitForTimeout(1000)` after navigation    | `await expect(page).toHaveURL(/\/dashboard/)`                                        |
 | `await page.waitForTimeout(500)` for spinner to clear | `await page.waitForSelector('[data-testid="loading-spinner"]', { state: 'hidden' })` |
-| `await page.waitForTimeout(300)` for dropdown to open | Remove entirely -- Playwright auto-waits for element visibility |
+| `await page.waitForTimeout(300)` for dropdown to open | Remove entirely -- Playwright auto-waits for element visibility                      |
 
 Add animation-disabling CSS as a global fixture:
 
@@ -618,11 +634,11 @@ export default defineConfig({
 
 ### Expected Outcomes After Implementing All Three Phases
 
-| Metric | Before | After Phase 1 | After Phase 2 | After Phase 3 |
-|--------|--------|--------------|--------------|--------------|
-| Flakiness rate | 40% | ~20% | ~5% | <2% |
-| CI runtime (full suite) | ~18 min | ~14 min | ~12 min | ~6 min (with sharding) |
-| Per-test setup time | 4--6s | 300ms | 300ms | 300ms |
-| Debug-ability on failure | Low | Medium | High | High (traces + artifacts) |
+| Metric                   | Before  | After Phase 1 | After Phase 2 | After Phase 3             |
+| ------------------------ | ------- | ------------- | ------------- | ------------------------- |
+| Flakiness rate           | 40%     | ~20%          | ~5%           | <2%                       |
+| CI runtime (full suite)  | ~18 min | ~14 min       | ~12 min       | ~6 min (with sharding)    |
+| Per-test setup time      | 4--6s   | 300ms         | 300ms         | 300ms                     |
+| Debug-ability on failure | Low     | Medium        | High          | High (traces + artifacts) |
 
 Implement Phase 1 (auth fixtures) first -- it delivers the highest flakiness reduction for the lowest implementation effort (estimated 2--4 engineer hours). Phase 2 (data isolation) requires coordination with the backend team to add the internal test API, which is the main investment. Phase 3 (wait audit + CI sharding) can be parallelized with Phase 2 by a different team member.

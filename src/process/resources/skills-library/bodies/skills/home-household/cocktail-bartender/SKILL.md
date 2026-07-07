@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking home-maintenance meal-planning budgeting guide beginner-friendly advanced cleaning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking home-maintenance meal-planning budgeting guide beginner-friendly advanced cleaning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Cocktail Bartender
 
 You are a seasoned bartender and cocktail educator. You understand the science of balance, dilution, and temperature, and you can help anyone from a complete beginner to an experienced home bartender elevate their drink-making.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cocktail bartender techniques or best practices
 - User needs guidance on cocktail bartender concepts
 - User wants to implement or improve their approach to cocktail bartender
 
 **Do NOT use when:**
+
 - The request falls outside the scope of cocktail bartender
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,43 +51,43 @@ Before providing guidance, ask:
 
 ### Spirit-Forward
 
-| # | Cocktail | Recipe | Method |
-|---|----------|--------|--------|
-| 1 | Old Fashioned | 2 oz bourbon/rye, 1 tsp simple syrup, 2-3 dashes Angostura | Stir 20-30s, strain over large ice cube, orange peel |
-| 2 | Manhattan | 2 oz rye, 1 oz sweet vermouth, 2 dashes Angostura | Stir 30s, strain into chilled coupe, cherry |
-| 3 | Negroni | 1 oz gin, 1 oz sweet vermouth, 1 oz Campari | Stir 20-30s, strain over large ice cube, orange peel |
-| 4 | Martini | 2.5 oz gin/vodka, 0.5 oz dry vermouth | Stir 30-40s, strain into chilled coupe, lemon twist or olive |
-| 5 | Sazerac | 2 oz rye, 1 tsp simple syrup, 3 dashes Peychaud's, absinthe rinse | Rinse glass with absinthe, stir, strain into rinsed glass (no ice) |
+| #   | Cocktail      | Recipe                                                            | Method                                                             |
+| --- | ------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | Old Fashioned | 2 oz bourbon/rye, 1 tsp simple syrup, 2-3 dashes Angostura        | Stir 20-30s, strain over large ice cube, orange peel               |
+| 2   | Manhattan     | 2 oz rye, 1 oz sweet vermouth, 2 dashes Angostura                 | Stir 30s, strain into chilled coupe, cherry                        |
+| 3   | Negroni       | 1 oz gin, 1 oz sweet vermouth, 1 oz Campari                       | Stir 20-30s, strain over large ice cube, orange peel               |
+| 4   | Martini       | 2.5 oz gin/vodka, 0.5 oz dry vermouth                             | Stir 30-40s, strain into chilled coupe, lemon twist or olive       |
+| 5   | Sazerac       | 2 oz rye, 1 tsp simple syrup, 3 dashes Peychaud's, absinthe rinse | Rinse glass with absinthe, stir, strain into rinsed glass (no ice) |
 
 ### Citrus and Sour
 
-| # | Cocktail | Recipe | Method |
-|---|----------|--------|--------|
-| 6 | Margarita | 2 oz tequila, 1 oz lime, 0.75 oz Cointreau | Shake 12-15s, strain over ice, optional salt rim |
-| 7 | Daiquiri | 2 oz white rum, 1 oz lime, 0.75 oz simple syrup | Shake 12-15s, strain into chilled coupe |
-| 8 | Whiskey Sour | 2 oz bourbon, 0.75 oz lemon, 0.75 oz simple syrup, optional egg white | Dry shake if using egg white, then shake with ice |
-| 9 | Gimlet | 2 oz gin, 0.75 oz lime, 0.75 oz simple syrup | Shake 12-15s, strain into chilled coupe |
-| 10 | Sidecar | 2 oz cognac, 0.75 oz Cointreau, 0.75 oz lemon | Shake 12-15s, strain into chilled coupe |
+| #   | Cocktail     | Recipe                                                                | Method                                            |
+| --- | ------------ | --------------------------------------------------------------------- | ------------------------------------------------- |
+| 6   | Margarita    | 2 oz tequila, 1 oz lime, 0.75 oz Cointreau                            | Shake 12-15s, strain over ice, optional salt rim  |
+| 7   | Daiquiri     | 2 oz white rum, 1 oz lime, 0.75 oz simple syrup                       | Shake 12-15s, strain into chilled coupe           |
+| 8   | Whiskey Sour | 2 oz bourbon, 0.75 oz lemon, 0.75 oz simple syrup, optional egg white | Dry shake if using egg white, then shake with ice |
+| 9   | Gimlet       | 2 oz gin, 0.75 oz lime, 0.75 oz simple syrup                          | Shake 12-15s, strain into chilled coupe           |
+| 10  | Sidecar      | 2 oz cognac, 0.75 oz Cointreau, 0.75 oz lemon                         | Shake 12-15s, strain into chilled coupe           |
 
 ### Tall and Refreshing
 
-| # | Cocktail | Recipe | Method |
-|---|----------|--------|--------|
-| 11 | Mojito | 2 oz white rum, 1 oz lime, 0.75 oz simple syrup, mint, soda | Muddle mint gently, shake, pour into tall glass, top with soda |
-| 12 | Tom Collins | 2 oz gin, 1 oz lemon, 0.75 oz simple syrup, soda | Shake base, strain into tall glass over ice, top with soda |
-| 13 | Moscow Mule | 2 oz vodka, 0.75 oz lime, ginger beer | Build over ice, top with ginger beer, stir gently |
-| 14 | Paloma | 2 oz tequila blanco, 0.5 oz lime, grapefruit soda | Build over ice, stir gently, grapefruit wedge |
+| #   | Cocktail    | Recipe                                                      | Method                                                         |
+| --- | ----------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| 11  | Mojito      | 2 oz white rum, 1 oz lime, 0.75 oz simple syrup, mint, soda | Muddle mint gently, shake, pour into tall glass, top with soda |
+| 12  | Tom Collins | 2 oz gin, 1 oz lemon, 0.75 oz simple syrup, soda            | Shake base, strain into tall glass over ice, top with soda     |
+| 13  | Moscow Mule | 2 oz vodka, 0.75 oz lime, ginger beer                       | Build over ice, top with ginger beer, stir gently              |
+| 14  | Paloma      | 2 oz tequila blanco, 0.5 oz lime, grapefruit soda           | Build over ice, stir gently, grapefruit wedge                  |
 
 ### Complex, Tropical, and Sparkling
 
-| # | Cocktail | Recipe | Method |
-|---|----------|--------|--------|
-| 15 | Boulevardier | 1.5 oz bourbon, 1 oz sweet vermouth, 1 oz Campari | Stir, strain over large ice cube, orange peel |
-| 16 | Aperol Spritz | 3 oz Aperol, 2 oz Prosecco, 1 oz soda | Build over ice in wine glass, stir gently |
-| 17 | Mai Tai | 1.5 oz aged rum, 0.5 oz dark rum float, 1 oz lime, 0.5 oz curacao, 0.5 oz orgeat | Shake all but dark rum, strain over crushed ice, float dark rum |
-| 18 | Espresso Martini | 2 oz vodka, 1 oz espresso, 0.5 oz coffee liqueur, 0.25 oz simple syrup | Shake very hard 15s, strain into chilled coupe |
-| 19 | French 75 | 1 oz gin, 0.5 oz lemon, 0.5 oz simple syrup, Champagne | Shake base, strain into flute, top with Champagne |
-| 20 | Amaretto Sour | 1.5 oz amaretto, 0.75 oz bourbon, 1 oz lemon, 0.5 oz simple syrup | Shake (dry shake first if using egg white), strain over ice |
+| #   | Cocktail         | Recipe                                                                           | Method                                                          |
+| --- | ---------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 15  | Boulevardier     | 1.5 oz bourbon, 1 oz sweet vermouth, 1 oz Campari                                | Stir, strain over large ice cube, orange peel                   |
+| 16  | Aperol Spritz    | 3 oz Aperol, 2 oz Prosecco, 1 oz soda                                            | Build over ice in wine glass, stir gently                       |
+| 17  | Mai Tai          | 1.5 oz aged rum, 0.5 oz dark rum float, 1 oz lime, 0.5 oz curacao, 0.5 oz orgeat | Shake all but dark rum, strain over crushed ice, float dark rum |
+| 18  | Espresso Martini | 2 oz vodka, 1 oz espresso, 0.5 oz coffee liqueur, 0.25 oz simple syrup           | Shake very hard 15s, strain into chilled coupe                  |
+| 19  | French 75        | 1 oz gin, 0.5 oz lemon, 0.5 oz simple syrup, Champagne                           | Shake base, strain into flute, top with Champagne               |
+| 20  | Amaretto Sour    | 1.5 oz amaretto, 0.75 oz bourbon, 1 oz lemon, 0.5 oz simple syrup                | Shake (dry shake first if using egg white), strain over ice     |
 
 ## Core Techniques
 
@@ -133,14 +134,14 @@ Cut a coin-sized piece of citrus peel (no pith). Hold over the drink, colored si
 
 ### Essential Tools (Start Here -- ~$55 total)
 
-| Tool | Purpose | Budget Pick |
-|---|---|---|
-| Boston shaker (two-piece tin) | Shaking cocktails | ~$12 |
-| Hawthorne strainer | Straining shaken drinks | ~$8 |
-| Jigger (1 oz / 2 oz) | Precise measurement | ~$8 |
-| Barspoon | Stirring, measuring, floating | ~$8 |
-| Muddler | Crushing herbs and fruit | ~$8 |
-| Citrus juicer (handheld) | Juicing lemons and limes | ~$10 |
+| Tool                          | Purpose                       | Budget Pick |
+| ----------------------------- | ----------------------------- | ----------- |
+| Boston shaker (two-piece tin) | Shaking cocktails             | ~$12        |
+| Hawthorne strainer            | Straining shaken drinks       | ~$8         |
+| Jigger (1 oz / 2 oz)          | Precise measurement           | ~$8         |
+| Barspoon                      | Stirring, measuring, floating | ~$8         |
+| Muddler                       | Crushing herbs and fruit      | ~$8         |
+| Citrus juicer (handheld)      | Juicing lemons and limes      | ~$10        |
 
 **Upgraded tools** (when ready): Mixing glass, julep strainer, fine mesh strainer, Y-peeler, Lewis bag and mallet, cocktail picks.
 
@@ -157,24 +158,24 @@ Cut a coin-sized piece of citrus peel (no pith). Hold over the drink, colored si
 
 ### Essential Modifiers
 
-| Category | Examples | Used In |
-|---|---|---|
+| Category       | Examples                    | Used In            |
+| -------------- | --------------------------- | ------------------ |
 | Sweet vermouth | Carpano Antica, Dolin Rouge | Manhattan, Negroni |
-| Dry vermouth | Dolin Dry, Noilly Prat | Martini |
-| Orange liqueur | Cointreau, Grand Marnier | Margarita, Sidecar |
-| Bitter liqueur | Campari, Aperol | Negroni, Spritz |
-| Coffee liqueur | Kahlua, Mr. Black | Espresso Martini |
+| Dry vermouth   | Dolin Dry, Noilly Prat      | Martini            |
+| Orange liqueur | Cointreau, Grand Marnier    | Margarita, Sidecar |
+| Bitter liqueur | Campari, Aperol             | Negroni, Spritz    |
+| Coffee liqueur | Kahlua, Mr. Black           | Espresso Martini   |
 
 ## Ice and Garnishes
 
 ### Ice Types
 
-| Type | Best For |
-|---|---|
-| Standard cubes | Shaking, building tall drinks |
-| Large cubes (2 inch) | Rocks drinks -- slow melting, minimal dilution |
-| Crushed ice | Juleps, Tiki drinks, swizzles |
-| Clear ice | Stirred drinks, presentation (use directional freezing in a cooler) |
+| Type                 | Best For                                                            |
+| -------------------- | ------------------------------------------------------------------- |
+| Standard cubes       | Shaking, building tall drinks                                       |
+| Large cubes (2 inch) | Rocks drinks -- slow melting, minimal dilution                      |
+| Crushed ice          | Juleps, Tiki drinks, swizzles                                       |
+| Clear ice            | Stirred drinks, presentation (use directional freezing in a cooler) |
 
 **Ice rules:** Always use fresh, clean-tasting ice. Fill the shaker or glass fully -- more ice means faster chilling and less dilution. Never reuse shaking/stirring ice. Chill glassware in the freezer before serving.
 
@@ -245,6 +246,7 @@ The same balance principles apply: you need body, acidity, sweetness, and diluti
 **Spirit substitutes:** Seedlip (botanical distillate), Lyre's (non-alcoholic spirit replicas), strong tea (provides tannin and body), shrubs (drinking vinegars for complexity).
 
 **Quick zero-proof recipes:**
+
 - **Virgin Margarita:** 2 oz OJ, 1 oz lime, 0.5 oz agave, pinch of salt -- shake, strain over ice
 - **Nojito:** Muddle mint with lime and simple syrup, add ice, top with soda and splash of ginger ale
 - **Espresso Tonic:** 4 oz tonic over ice, slowly pour 1 oz espresso over the back of a spoon for layering
@@ -266,7 +268,6 @@ The same balance principles apply: you need body, acidity, sweetness, and diluti
 6. **Simplicity is sophistication.** A perfect three-ingredient cocktail beats a mediocre seven-ingredient one.
 7. **Always offer a non-alcoholic option.** Great hospitality means everyone feels welcome.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -274,7 +275,6 @@ The same balance principles apply: you need body, acidity, sweetness, and diluti
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -295,14 +295,12 @@ The same balance principles apply: you need body, acidity, sweetness, and diluti
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

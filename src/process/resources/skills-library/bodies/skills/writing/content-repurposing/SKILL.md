@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing template"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing writing template'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Content Repurposing
 
 ## When to Use
@@ -78,6 +79,7 @@ Aim to extract at least 6-8 discrete elements from any piece 800+ words. A 3,000
 For each platform the user is active on, identify the 1-3 formats that will best carry the source material. Understand the content architecture of each platform before mapping:
 
 **LinkedIn:**
+
 - Text post (1,300-character sweet spot for organic reach; 3,000-character maximum)
 - Newsletter article (600-2,000 words; appears in subscriber feeds separately from the main feed)
 - Document/carousel (PDF upload; 10-18 slides optimal; native carousel format drives 3-5x more impressions than link posts on LinkedIn)
@@ -85,21 +87,25 @@ For each platform the user is active on, identify the 1-3 formats that will best
 - Poll (4 answer options; drives comments when framed as a debate)
 
 **Twitter/X:**
+
 - Single tweet (280 characters; works best for standalone stats, contrarian claims, or questions)
 - Thread (8-15 tweets; works best for frameworks, step-by-step processes, and case studies; the first tweet must standalone as a hook)
 - Quote card (a visual tweet image; use for the strongest quotable sentence)
 
 **Email newsletter:**
+
 - Lead story (full adaptation of the source as the primary newsletter section; 300-600 words)
 - Supporting section (brief callout of one element; 100-150 words; links to the original)
 - Digest mention (one-liner with link; works when the newsletter is a curated roundup format)
 
 **YouTube / video:**
+
 - Long-form video (the source content as a scripted or outlined video; requires script adaptation, not just the transcript)
 - YouTube Short / Reel / TikTok (60-90 seconds; one key insight or contrarian claim; hook in the first 3 seconds)
 - Audiogram (extract a 60-second audio clip with captions and a static or animated background; works for podcast repurposing)
 
 **Other surfaces:**
+
 - Medium or Substack (full republication with a canonical tag pointing to the original, or a substantially adapted version for a different angle)
 - Reddit or Quora (answer format; extract the most useful tactical section and write it as a direct answer to a question in relevant communities)
 - Slide deck / presentation (convert a framework section into a downloadable template or resource)
@@ -122,6 +128,7 @@ Limit the map to a maximum of 10 derivatives total. Presenting 15 options to a t
 Content repurposing is most effective when derivatives are staggered -- not clustered. A publication timeline prevents simultaneous cannibalization (posting the same core message on multiple platforms on the same day, which audiences in overlap will perceive as spam) and extends the content's active lifespan from one day to 3-5 weeks.
 
 **Standard stagger model:**
+
 - **Day 0-1:** Publish the source content (or confirm it is already live). Post one immediate quick-win derivative (a single-stat tweet, a one-paragraph LinkedIn text post) to capture momentum from fresh publication
 - **Days 2-4:** Release the highest-reach social derivatives (thread on X, LinkedIn text post) while the source is still "new" and the algorithm still pushes it
 - **Week 2:** Newsletter section (email audiences expect weekly or biweekly cadence; matching their expectation, not your publication date, matters more)
@@ -335,30 +342,30 @@ Slide decks require reverse-engineering -- you must reconstruct the argument fro
 
 ### Repurposable Elements
 
-| # | Element Type | Content | Derivative Potential |
-|---|-------------|---------|---------------------|
-| 1 | Core data point | Content teams using sprint models publish 2.4x more consistently than teams running ad-hoc (cite internal data or reference source) | Tweet, newsletter callout, carousel stat slide, LinkedIn hook |
-| 2 | Framework/process | The 5-step weekly sprint: Monday kick-off (30 min) → Tuesday draft → Wednesday edit → Thursday finalize + schedule → Friday retrospective (15 min) | Carousel, thread, newsletter breakdown, slide graphic |
-| 3 | Contrarian claim | "A content calendar isn't a workflow. Most teams mistake planning for execution." | LinkedIn post opener, thread hook, newsletter pull quote |
-| 4 | Story/case study | A 4-person content team that reduced missed deadlines from 40% to under 5% in 6 weeks after adopting sprints | LinkedIn post, Reel/Short hook, newsletter section |
-| 5 | Quotable sentence | "Ad-hoc content doesn't underperform because the writers are bad. It underperforms because no one agreed on what 'done' means." | Quote card, Twitter single tweet, newsletter opener |
-| 6 | Pain point/question | Why content managers feel like they are always behind even when working hard | Poll, thread opener, LinkedIn post hook |
-| 7 | Checklist/template | The 5-question Friday retro checklist for content teams | LinkedIn document download, newsletter attachment, tweet with screenshot |
-| 8 | Conclusion/reframe | Sprint methodology transfers from software because both disciplines share the same core tension: speed vs. quality vs. volume | Newsletter closer, final thread tweet, LinkedIn comment seed |
+| #   | Element Type        | Content                                                                                                                                            | Derivative Potential                                                     |
+| --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1   | Core data point     | Content teams using sprint models publish 2.4x more consistently than teams running ad-hoc (cite internal data or reference source)                | Tweet, newsletter callout, carousel stat slide, LinkedIn hook            |
+| 2   | Framework/process   | The 5-step weekly sprint: Monday kick-off (30 min) → Tuesday draft → Wednesday edit → Thursday finalize + schedule → Friday retrospective (15 min) | Carousel, thread, newsletter breakdown, slide graphic                    |
+| 3   | Contrarian claim    | "A content calendar isn't a workflow. Most teams mistake planning for execution."                                                                  | LinkedIn post opener, thread hook, newsletter pull quote                 |
+| 4   | Story/case study    | A 4-person content team that reduced missed deadlines from 40% to under 5% in 6 weeks after adopting sprints                                       | LinkedIn post, Reel/Short hook, newsletter section                       |
+| 5   | Quotable sentence   | "Ad-hoc content doesn't underperform because the writers are bad. It underperforms because no one agreed on what 'done' means."                    | Quote card, Twitter single tweet, newsletter opener                      |
+| 6   | Pain point/question | Why content managers feel like they are always behind even when working hard                                                                       | Poll, thread opener, LinkedIn post hook                                  |
+| 7   | Checklist/template  | The 5-question Friday retro checklist for content teams                                                                                            | LinkedIn document download, newsletter attachment, tweet with screenshot |
+| 8   | Conclusion/reframe  | Sprint methodology transfers from software because both disciplines share the same core tension: speed vs. quality vs. volume                      | Newsletter closer, final thread tweet, LinkedIn comment seed             |
 
 ---
 
 ### Derivative Map
 
-| Tier | # | Platform | Format | Source Elements | Est. Time | Priority Score |
-|------|---|----------|--------|----------------|-----------|---------------|
-| 1 | 1 | LinkedIn | Text post (contrarian hook) | Elements 3, 6, 4 | 15 min | 8/9 |
-| 1 | 2 | Twitter/X | Thread (8 tweets) | Elements 2, 1, 5, 7 | 30 min | 8/9 |
-| 1 | 3 | Email newsletter | Lead section (framework breakdown) | Elements 2, 7, 8 | 45 min | 7/9 |
-| 2 | 4 | LinkedIn | Document carousel (sprint framework) | Element 2 | 60 min | 6/9 |
-| 2 | 5 | LinkedIn | Text post (case study angle) | Element 4 | 15 min | 6/9 |
-| 2 | 6 | Twitter/X | Single tweet (stat) | Element 1 | 5 min | 5/9 |
-| 3 | 7 | LinkedIn | Newsletter article (full adaptation) | Elements 1-8 | 90 min | 4/9 |
+| Tier | #   | Platform         | Format                               | Source Elements     | Est. Time | Priority Score |
+| ---- | --- | ---------------- | ------------------------------------ | ------------------- | --------- | -------------- |
+| 1    | 1   | LinkedIn         | Text post (contrarian hook)          | Elements 3, 6, 4    | 15 min    | 8/9            |
+| 1    | 2   | Twitter/X        | Thread (8 tweets)                    | Elements 2, 1, 5, 7 | 30 min    | 8/9            |
+| 1    | 3   | Email newsletter | Lead section (framework breakdown)   | Elements 2, 7, 8    | 45 min    | 7/9            |
+| 2    | 4   | LinkedIn         | Document carousel (sprint framework) | Element 2           | 60 min    | 6/9            |
+| 2    | 5   | LinkedIn         | Text post (case study angle)         | Element 4           | 15 min    | 6/9            |
+| 2    | 6   | Twitter/X        | Single tweet (stat)                  | Element 1           | 5 min     | 5/9            |
+| 3    | 7   | LinkedIn         | Newsletter article (full adaptation) | Elements 1-8        | 90 min    | 4/9            |
 
 **Total estimated production time for Tier 1:** ~90 minutes (within the 3-hour bandwidth)
 **Tier 2 total if bandwidth extends:** additional 80 minutes
@@ -367,15 +374,15 @@ Slide decks require reverse-engineering -- you must reconstruct the argument fro
 
 ### Publication Timeline
 
-| Date | Derivative | Platform | Key Adaptation Note |
-|------|-----------|----------|-------------------|
-| Day 1 (today) | Derivative #1 -- LinkedIn contrarian post | LinkedIn | Post between 8-10 AM Tuesday; link to blog in first comment |
-| Day 2 | Derivative #2 -- Twitter thread | Twitter/X | Post 8 AM Wednesday; link to blog in final tweet |
-| Day 5 | Derivative #6 -- single stat tweet | Twitter/X | Quick mid-week reinforcement; no link needed, standalone value |
-| Week 2, send day | Derivative #3 -- newsletter section | Email | Run as the lead section of the regular newsletter; include the retro checklist as inline text |
-| Week 2, Day 9-10 | Derivative #5 -- LinkedIn case study post | LinkedIn | Space 7+ days from Derivative #1; different angle (evidence vs. argument) |
-| Week 3, Day 15-18 | Derivative #4 -- LinkedIn carousel | LinkedIn | Requires design production; schedule after the text posts have seeded the topic |
-| Week 4+ | Derivative #7 -- LinkedIn newsletter article | LinkedIn | Tier 3; produce when next sprint of bandwidth opens |
+| Date              | Derivative                                   | Platform  | Key Adaptation Note                                                                           |
+| ----------------- | -------------------------------------------- | --------- | --------------------------------------------------------------------------------------------- |
+| Day 1 (today)     | Derivative #1 -- LinkedIn contrarian post    | LinkedIn  | Post between 8-10 AM Tuesday; link to blog in first comment                                   |
+| Day 2             | Derivative #2 -- Twitter thread              | Twitter/X | Post 8 AM Wednesday; link to blog in final tweet                                              |
+| Day 5             | Derivative #6 -- single stat tweet           | Twitter/X | Quick mid-week reinforcement; no link needed, standalone value                                |
+| Week 2, send day  | Derivative #3 -- newsletter section          | Email     | Run as the lead section of the regular newsletter; include the retro checklist as inline text |
+| Week 2, Day 9-10  | Derivative #5 -- LinkedIn case study post    | LinkedIn  | Space 7+ days from Derivative #1; different angle (evidence vs. argument)                     |
+| Week 3, Day 15-18 | Derivative #4 -- LinkedIn carousel           | LinkedIn  | Requires design production; schedule after the text posts have seeded the topic               |
+| Week 4+           | Derivative #7 -- LinkedIn newsletter article | LinkedIn  | Tier 3; produce when next sprint of bandwidth opens                                           |
 
 **Re-promotion window:** Revisit this content in 5 months. At the 6-month mark, run a "what I learned after 6 months of sprint-based content" follow-up post that references the original guide.
 
@@ -399,8 +406,8 @@ Slide decks require reverse-engineering -- you must reconstruct the argument fro
 ---
 
 **Derivative 1: LinkedIn -- Text Post (Tier 1, Priority Score: 8/9)**
-*Source elements used: Elements 3 (contrarian claim), 6 (pain point), 4 (case study outcome)*
-*Adaptation notes: Opens with the contrarian claim as a hook; single-sentence paragraphs for LinkedIn readability; ends with a question targeting content managers specifically; no link in body*
+_Source elements used: Elements 3 (contrarian claim), 6 (pain point), 4 (case study outcome)_
+_Adaptation notes: Opens with the contrarian claim as a hook; single-sentence paragraphs for LinkedIn readability; ends with a question targeting content managers specifically; no link in body_
 
 ---
 
@@ -437,8 +444,8 @@ Do you have a weekly workflow, or just a weekly wish list?
 ---
 
 **Derivative 2: Twitter/X -- Thread (8 Tweets) (Tier 1, Priority Score: 8/9)**
-*Source elements used: Elements 2 (5-step sprint), 1 (data point), 5 (quotable), 7 (retro checklist)*
-*Adaptation notes: First tweet delivers the complete core promise independently; numbered explicitly; alternates short punchy tweets with explanatory ones; link to source held for reply after posting*
+_Source elements used: Elements 2 (5-step sprint), 1 (data point), 5 (quotable), 7 (retro checklist)_
+_Adaptation notes: First tweet delivers the complete core promise independently; numbered explicitly; alternates short punchy tweets with explanatory ones; link to source held for reply after posting_
 
 ---
 
@@ -497,8 +504,8 @@ Link in the reply below.
 ---
 
 **Derivative 3: Email Newsletter -- Lead Section (Tier 1, Priority Score: 7/9)**
-*Source elements used: Elements 2 (framework), 7 (retro checklist), 8 (conclusion/reframe)*
-*Adaptation notes: Opens with a personal framing sentence, not the contrarian hook (newsletter readers expect a warmer tone); framework is presented as directly usable guidance; retro checklist included inline so the section is fully self-contained; link to full guide at the end for those who want depth*
+_Source elements used: Elements 2 (framework), 7 (retro checklist), 8 (conclusion/reframe)_
+_Adaptation notes: Opens with a personal framing sentence, not the contrarian hook (newsletter readers expect a warmer tone); framework is presented as directly usable guidance; retro checklist included inline so the section is fully self-contained; link to full guide at the end for those who want depth_
 
 ---
 
@@ -528,6 +535,7 @@ Every piece that is ready goes into the queue. Everything that isn't ready gets 
 
 **Friday -- Retro (15 minutes):**
 Five questions, answered honestly:
+
 1. Did we hit our scope?
 2. What got stuck in review, and why?
 3. What took longer than estimated?

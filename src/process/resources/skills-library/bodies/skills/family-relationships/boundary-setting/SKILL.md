@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships planning strategy"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships planning strategy'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Boundary Setting
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user describes a specific recurring situation where their limits are being crossed -- for example, a parent who drops by unannounced, a friend who borrows money and does not repay it, or a partner who reads their private messages
 - A user says they cannot say no without feeling overwhelming guilt, obligation, or fear of abandonment, and wants practical tools to change that pattern
 - A user needs specific language scripts to communicate a boundary they already know they want but cannot find words for
@@ -29,6 +31,7 @@ metadata:
 - A user wants to distinguish between a genuine boundary and a wish that someone would behave differently, and needs help identifying what they can actually control
 
 **Do NOT use when:**
+
 - The user describes fear of physical harm, intimidation, or coercion in response to asserting themselves -- use safety planning guidance and professional resources instead (this skill's enforcement frameworks can be dangerous in coercive control situations)
 - The user is asking whether their relationship constitutes abuse, whether they are codependent, or whether a pattern is "normal" -- these are clinical assessments requiring therapeutic evaluation, not boundary scripts
 - The user needs workplace-specific boundary setting with a manager, HR situation, or professional context -- the relational dynamics, power structures, and stakes differ substantially and require professional communication frameworks
@@ -254,6 +257,7 @@ Boundary conversations, especially with people the user loves, are emotionally t
 This is the most emotionally complex boundary scenario and the most common. The power dynamic has been in place for decades. The parent may genuinely not understand why their child's adulthood warrants independent decision-making, particularly in cultures where parental authority is considered permanent.
 
 Key handling guidance:
+
 - Acknowledge the historical weight directly: "This is one of the hardest boundary conversations to have because the power dynamic has existed your entire life."
 - The script must be respectful in tone while being completely clear in substance. These are not in conflict.
 - Expect the parent to escalate: crying, invoking sacrifice, threatening to tell other family members, or withdrawing affection. Each of these is a protest behavior, not evidence that the limit is wrong.
@@ -338,13 +342,13 @@ Many modern limit violations happen through digital channels: excessive texting,
 
 ### The Boundary
 
-| Component | Detail |
-|-----------|--------|
-| **Person** | Sister -- close relationship, high emotional intimacy, no prior limits established |
-| **Specific behavior** | Multi-hour phone calls, several times per week including late at night, focused on her processing anxiety and relationship problems without the user having agreed to the session or having a natural exit |
-| **Impact on user** | Emotional exhaustion, dreading contact from someone she loves, disrupted sleep on late-night calls, one-directional emotional labor, beginning to resent the relationship |
-| **Boundary type** | Emotional labor + Time/availability |
-| **The boundary (what user will do)** | Limit calls to a defined duration; not take calls after a set hour; name when the conversation has gone past what she can hold at that moment and offer to continue at a different time |
+| Component                            | Detail                                                                                                                                                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Person**                           | Sister -- close relationship, high emotional intimacy, no prior limits established                                                                                                                         |
+| **Specific behavior**                | Multi-hour phone calls, several times per week including late at night, focused on her processing anxiety and relationship problems without the user having agreed to the session or having a natural exit |
+| **Impact on user**                   | Emotional exhaustion, dreading contact from someone she loves, disrupted sleep on late-night calls, one-directional emotional labor, beginning to resent the relationship                                  |
+| **Boundary type**                    | Emotional labor + Time/availability                                                                                                                                                                        |
+| **The boundary (what user will do)** | Limit calls to a defined duration; not take calls after a set hour; name when the conversation has gone past what she can hold at that moment and offer to continue at a different time                    |
 
 ---
 
@@ -355,11 +359,13 @@ Many modern limit violations happen through digital channels: excessive texting,
 ---
 
 **Opening / Setting the boundary:**
+
 > "I want to talk to you about something because you're one of the most important people in my life and I want to keep it that way. Lately I've been noticing that a lot of our calls involve you working through a lot of anxiety or stuff with [partner/situation], and they go for a long time -- sometimes really late. I love being there for you, and I'm also realizing I'm not the right person to hold all of that, all the time. I get depleted, and then I start not showing up well for you. I need to put some shape around that so I can actually be a good sister rather than just a tired one."
 
 ---
 
 **If she asks why:**
+
 > "Because I care about you enough to be honest. I've been passive-absorbing the load for a while, and it's not working. This is me trying to actually fix it rather than just slowly pulling back."
 >
 > If she keeps asking or wants more explanation: "I've told you what I need. I'm not trying to hurt you -- I'm trying to be honest so our relationship doesn't get damaged."
@@ -367,35 +373,39 @@ Many modern limit violations happen through digital channels: excessive texting,
 ---
 
 **If she pushes back with hurt ("So you don't want to talk to me anymore?"):**
+
 > "That is not what I'm saying. I want to talk to you. I'm putting a limit on the calls being hours long and happening at midnight -- not on talking to you."
 
 ---
 
 **If she pushes back with anxiety ("But what do I do when I'm really spiraling?"):**
+
 > "I hear that. We can talk about what to do when that happens. And I also want to gently say -- if the spiraling is happening several times a week at that intensity, it might be worth talking to a therapist, because that's a lot for one person to carry, including you."
 
 ---
 
 **If she pushes back with guilt ("I thought we were close enough that I could come to you"):**
+
 > "We are close. Close enough that I'm telling you this instead of slowly disappearing. I'm not closing a door -- I'm telling you what I need to keep it open."
 
 ---
 
 **Closing:**
+
 > "I'm not going anywhere. I still want to hear about your life and be there for you. I just need the calls to have some limits so I can be genuinely present when we do talk."
 
 ---
 
 ### Enforcement Plan
 
-| Situation | What to Say or Do |
-|-----------|------------------|
-| **Call is heading past 45 minutes** | "I need to wrap up in the next few minutes -- I'm running low. Can we pick this up [tomorrow / later this week]?" Then actually end the call within five minutes of saying this. |
-| **Call comes in after 9pm (or user's set hour)** | Do not answer. Text the next morning: "Saw I missed you last night -- I had my phone on Do Not Disturb. Are you okay? Call me today?" |
-| **She calls right back after the Do Not Disturb** | Do not answer. Same morning text. Do this consistently -- one exception re-teaches the old pattern. |
-| **She brings it up with hurt or accusation ("You never answer anymore")** | "I have a late-night cutoff for calls now. I told you about that. I'm answering -- just within those hours." |
-| **Call goes long and she is in genuine distress (not just processing)** | Use judgment. True crisis -- be present. If the content sounds like elevated processing rather than emergency, use the wrap-up language anyway: "I can hear you're in a hard spot. I want to keep talking but I need to go in five minutes -- let me make sure I'm hearing what matters most before we hang up." |
-| **Pattern reverts after a few weeks** | Return to the setting language: "I notice we're back to the late calls and the long ones. I need to re-establish that. Not upset -- just naming it." |
+| Situation                                                                 | What to Say or Do                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Call is heading past 45 minutes**                                       | "I need to wrap up in the next few minutes -- I'm running low. Can we pick this up [tomorrow / later this week]?" Then actually end the call within five minutes of saying this.                                                                                                                                 |
+| **Call comes in after 9pm (or user's set hour)**                          | Do not answer. Text the next morning: "Saw I missed you last night -- I had my phone on Do Not Disturb. Are you okay? Call me today?"                                                                                                                                                                            |
+| **She calls right back after the Do Not Disturb**                         | Do not answer. Same morning text. Do this consistently -- one exception re-teaches the old pattern.                                                                                                                                                                                                              |
+| **She brings it up with hurt or accusation ("You never answer anymore")** | "I have a late-night cutoff for calls now. I told you about that. I'm answering -- just within those hours."                                                                                                                                                                                                     |
+| **Call goes long and she is in genuine distress (not just processing)**   | Use judgment. True crisis -- be present. If the content sounds like elevated processing rather than emergency, use the wrap-up language anyway: "I can hear you're in a hard spot. I want to keep talking but I need to go in five minutes -- let me make sure I'm hearing what matters most before we hang up." |
+| **Pattern reverts after a few weeks**                                     | Return to the setting language: "I notice we're back to the late calls and the long ones. I need to re-establish that. Not upset -- just naming it."                                                                                                                                                             |
 
 **Note on enforcement tone:** Warm, consistent, brief. The goal is not to make the sister feel punished -- it is to create a new normal. A warm text the next morning after a missed late call signals that the limit is about time, not about care.
 
@@ -403,13 +413,13 @@ Many modern limit violations happen through digital channels: excessive texting,
 
 ### Anticipating the Hard Moments
 
-| Challenge | What Is Actually Happening | What to Say or Do |
-|-----------|---------------------------|------------------|
-| **Guilt immediately after the conversation** | Conditioned response to changing a long-standing pattern with someone she loves -- not a sign she did something wrong | Remind herself: "I said this because the relationship matters to me, not because I want to pull away." Resist the urge to call back and walk it back. |
-| **Sister becomes tearful or shut down during the conversation** | An emotional response to the change -- not evidence the limit is wrong | Let the sister have the feeling without rescuing her from it. "I know this is a lot to hear. I'm still here." Do not retract the limit to soothe the moment. |
-| **Other family members hear about it and check in** | Triangulation -- sister may process this with parents or other siblings | "I had a direct conversation with her about something. I'd rather you let us work it out between us." Do not re-litigate the content. |
-| **User doubts the limit when sister is visibly struggling** | Fear of abandoning someone she loves -- but not answering a call is not abandonment | The user can be a good sister within the limits she has set. Checking in proactively at reasonable hours is still available to her. |
-| **The sister does not change her calling patterns and keeps trying** | The sister may be testing whether the limit is real, or may be having genuine difficulty adjusting | Consistent, warm enforcement. The pattern will shift when she learns the new normal is real. Most people do adjust within two to four weeks of consistent follow-through. |
+| Challenge                                                            | What Is Actually Happening                                                                                            | What to Say or Do                                                                                                                                                         |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Guilt immediately after the conversation**                         | Conditioned response to changing a long-standing pattern with someone she loves -- not a sign she did something wrong | Remind herself: "I said this because the relationship matters to me, not because I want to pull away." Resist the urge to call back and walk it back.                     |
+| **Sister becomes tearful or shut down during the conversation**      | An emotional response to the change -- not evidence the limit is wrong                                                | Let the sister have the feeling without rescuing her from it. "I know this is a lot to hear. I'm still here." Do not retract the limit to soothe the moment.              |
+| **Other family members hear about it and check in**                  | Triangulation -- sister may process this with parents or other siblings                                               | "I had a direct conversation with her about something. I'd rather you let us work it out between us." Do not re-litigate the content.                                     |
+| **User doubts the limit when sister is visibly struggling**          | Fear of abandoning someone she loves -- but not answering a call is not abandonment                                   | The user can be a good sister within the limits she has set. Checking in proactively at reasonable hours is still available to her.                                       |
+| **The sister does not change her calling patterns and keeps trying** | The sister may be testing whether the limit is real, or may be having genuine difficulty adjusting                    | Consistent, warm enforcement. The pattern will shift when she learns the new normal is real. Most people do adjust within two to four weeks of consistent follow-through. |
 
 ---
 

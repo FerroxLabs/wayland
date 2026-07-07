@@ -416,12 +416,12 @@ gh pr comment <PR_NUMBER> --body "<!-- pr-review-bot -->
 
 Map the review conclusion to CONCLUSION value based on the **highest severity issue found**:
 
-| Highest issue severity | Review verdict          | CONCLUSION  |
-| ---------------------- | ----------------------- | ----------- |
-| None / LOW only        | ✅ Approved             | APPROVED    |
+| Highest issue severity | Review verdict            | CONCLUSION  |
+| ---------------------- | ------------------------- | ----------- |
+| None / LOW only        | ✅ Approved               | APPROVED    |
 | MEDIUM                 | ⚠️ Conditionally approved | CONDITIONAL |
 | HIGH                   | ⚠️ Conditionally approved | CONDITIONAL |
-| CRITICAL               | ❌ Changes required     | REJECTED    |
+| CRITICAL               | ❌ Changes required       | REJECTED    |
 
 **Key rule:** If all issues are LOW (or there are no issues), emit `APPROVED` even when the human-facing verdict says "Conditionally approved". `pr-fix` explicitly skips LOW issues, so triggering a fix session for LOW-only reviews wastes a round with no actionable outcome.
 

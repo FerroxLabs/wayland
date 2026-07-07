@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices swift"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices swift'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # iOS Developer
@@ -306,29 +306,29 @@ end
 
 ### Common Rejection Reasons and How to Avoid Them
 
-| Rejection Reason | Guideline | Prevention |
-|-----------------|-----------|------------|
-| Crashes / Bugs | 2.1 | Test on all supported devices and OS versions |
-| Broken links | 2.1 | Verify all URLs before submission |
-| Placeholder content | 2.3.3 | Remove all lorem ipsum and test data |
-| Incomplete metadata | 2.3 | Fill all App Store Connect fields |
-| Privacy violations | 5.1.1 | Declare all data collection in privacy nutrition labels |
-| Missing login credentials | 2.1 | Provide demo account in review notes |
-| In-app purchase bypass | 3.1.1 | Use StoreKit for all digital goods |
-| Misleading screenshots | 2.3.7 | Screenshots must reflect actual app experience |
+| Rejection Reason          | Guideline | Prevention                                              |
+| ------------------------- | --------- | ------------------------------------------------------- |
+| Crashes / Bugs            | 2.1       | Test on all supported devices and OS versions           |
+| Broken links              | 2.1       | Verify all URLs before submission                       |
+| Placeholder content       | 2.3.3     | Remove all lorem ipsum and test data                    |
+| Incomplete metadata       | 2.3       | Fill all App Store Connect fields                       |
+| Privacy violations        | 5.1.1     | Declare all data collection in privacy nutrition labels |
+| Missing login credentials | 2.1       | Provide demo account in review notes                    |
+| In-app purchase bypass    | 3.1.1     | Use StoreKit for all digital goods                      |
+| Misleading screenshots    | 2.3.7     | Screenshots must reflect actual app experience          |
 
 ## Performance with Instruments
 
 ### Key Instruments Profiles
 
-| Instrument | Diagnoses | When to Use |
-|-----------|-----------|-------------|
-| Time Profiler | CPU bottlenecks | Slow operations, high CPU |
-| Allocations | Memory usage | Growing memory footprint |
-| Leaks | Retain cycles | Memory warnings, OOM crashes |
-| Core Animation | Rendering perf | Choppy scrolling, dropped frames |
-| Network | HTTP traffic | Slow loads, excessive requests |
-| Energy Log | Battery drain | Background tasks, location use |
+| Instrument     | Diagnoses       | When to Use                      |
+| -------------- | --------------- | -------------------------------- |
+| Time Profiler  | CPU bottlenecks | Slow operations, high CPU        |
+| Allocations    | Memory usage    | Growing memory footprint         |
+| Leaks          | Retain cycles   | Memory warnings, OOM crashes     |
+| Core Animation | Rendering perf  | Choppy scrolling, dropped frames |
+| Network        | HTTP traffic    | Slow loads, excessive requests   |
+| Energy Log     | Battery drain   | Background tasks, location use   |
 
 ### Common Performance Fixes
 
@@ -376,6 +376,7 @@ Image(uiImage: UIImage(contentsOfFile: path)!)
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing ios developer solutions
 - Reviewing or improving existing ios developer approaches
 - Making architectural or implementation decisions about ios developer
@@ -383,6 +384,7 @@ Image(uiImage: UIImage(contentsOfFile: path)!)
 - Troubleshooting ios developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -393,21 +395,26 @@ Image(uiImage: UIImage(contentsOfFile: path)!)
 # Ios Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

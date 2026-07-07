@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices guide python sql api-design analysis investing"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices guide python sql api-design analysis investing'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # OSS Metrics Analyst
 
 You are an expert open source metrics analyst who helps maintainers measure community health, understand contributor behavior, identify sustainability risks, and make data-driven decisions about project direction. You apply the CHAOSS framework and practical metrics to guide open source strategy.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about oss metrics analyst techniques or best practices
 - User needs guidance on oss metrics analyst concepts
 - User wants to implement or improve their approach to oss metrics analyst
 
 **Do NOT use when:**
+
 - The request falls outside the scope of oss metrics analyst
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -183,23 +184,23 @@ class ContributorFunnel:
 
 ### Project Velocity
 
-| Metric | Formula | Healthy Range | Warning |
-|--------|---------|---------------|---------|
-| PR merge time (median) | Time from PR open to merge | < 3 days | > 14 days |
-| Issue response time | Time to first maintainer comment | < 48 hours | > 7 days |
-| Issue close rate | Closed issues / opened issues (monthly) | > 0.8 | < 0.5 |
-| Release frequency | Releases per quarter | 2-6 | 0 in 6+ months |
-| Commit frequency | Commits per week (excluding bots) | Stable or growing | Declining 3+ months |
+| Metric                 | Formula                                 | Healthy Range     | Warning             |
+| ---------------------- | --------------------------------------- | ----------------- | ------------------- |
+| PR merge time (median) | Time from PR open to merge              | < 3 days          | > 14 days           |
+| Issue response time    | Time to first maintainer comment        | < 48 hours        | > 7 days            |
+| Issue close rate       | Closed issues / opened issues (monthly) | > 0.8             | < 0.5               |
+| Release frequency      | Releases per quarter                    | 2-6               | 0 in 6+ months      |
+| Commit frequency       | Commits per week (excluding bots)       | Stable or growing | Declining 3+ months |
 
 ### Community Health
 
-| Metric | How to Measure | What It Indicates |
-|--------|---------------|-------------------|
-| Bus factor | Number of contributors for 50% of commits | Knowledge concentration risk |
-| Elephant factor | Number of orgs for 50% of contributions | Organizational diversity |
-| New contributor rate | First-time contributors per month | Community growth |
-| Contributor retention | Percent of contributors active 6 months later | Community stickiness |
-| Responsive maintainers | Percent of issues with response under 48h | Maintainer engagement |
+| Metric                 | How to Measure                                | What It Indicates            |
+| ---------------------- | --------------------------------------------- | ---------------------------- |
+| Bus factor             | Number of contributors for 50% of commits     | Knowledge concentration risk |
+| Elephant factor        | Number of orgs for 50% of contributions       | Organizational diversity     |
+| New contributor rate   | First-time contributors per month             | Community growth             |
+| Contributor retention  | Percent of contributors active 6 months later | Community stickiness         |
+| Responsive maintainers | Percent of issues with response under 48h     | Maintainer engagement        |
 
 ### Sustainability Indicators
 
@@ -267,7 +268,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
 ```
@@ -401,7 +402,6 @@ Target: 40% of first-time contributors make a second contribution
 5. Iterate: Add metrics as questions arise, remove noise
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -409,7 +409,6 @@ Target: 40% of first-time contributors make a second contribution
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -430,14 +429,12 @@ Target: 40% of first-time contributors make a second contribution
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Game Puzzle Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design puzzles for games, escape rooms, puzzle books, or team-building events
 - The user needs help with difficulty calibration, hint system design, or the satisfaction curve framework
 - The user is building an escape room and needs puzzle flow design (linear, parallel, or hybrid)
@@ -26,6 +27,7 @@ metadata:
 - The user needs testing methodologies for puzzle solvability, fairness, and accessibility
 
 **Do NOT use this skill when:**
+
 - The user is designing overall game mechanics or systems beyond puzzles (use video-game-designer instead)
 - The user needs help with crossword publishing or word game apps as a business (use relevant business skill)
 - The user wants to design educational games where puzzles serve learning objectives (use educational-game-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on game puzzle designer
 - User asks about game puzzle designer best practices or techniques
 - User wants a structured approach to game puzzle designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of game puzzle designer
 
@@ -488,23 +492,28 @@ POST-TEST QUESTIONS:
 ## Practice Exercises
 
 ### Exercise 1: The "Aha" First
+
 Design a puzzle backwards: start with the "aha" moment you want the solver to experience, then build the puzzle structure around delivering that moment.
 
 ### Exercise 2: Difficulty Scaling
+
 Take a single puzzle concept and create three versions: easy, medium, and hard. The core mechanism should be the same; only the difficulty parameters should change.
 
 ### Exercise 3: Hint Writing
+
 Take a puzzle you've designed. Write a 4-level progressive hint system for it. Test: Can someone stuck at any point use the minimum hint level to make progress?
 
 ### Exercise 4: Cross-Domain Translation
+
 Take a physical puzzle concept and redesign it for digital. Or take a digital puzzle and redesign it for physical/escape room. What changes? What stays the same?
 
 ### Exercise 5: Playtest Observation
+
 Watch 5 people solve the same puzzle. Don't interact. Note where each person gets stuck. The patterns reveal design problems; the outliers reveal interesting alternative approaches.
 
 ### Exercise 6: One Mechanic, Five Puzzles
-Choose a single puzzle mechanic (e.g., mirror reflection, gravity manipulation, word substitution). Design 5 puzzles of increasing difficulty using only that mechanic. Each should feel fresh despite using the same core idea.
 
+Choose a single puzzle mechanic (e.g., mirror reflection, gravity manipulation, word substitution). Design 5 puzzles of increasing difficulty using only that mechanic. Each should feel fresh despite using the same core idea.
 
 ## Output Format
 
@@ -518,13 +527,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with game puzzle designer for a mid-size project."
 
 **Output:** A complete game puzzle designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

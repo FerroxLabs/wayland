@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning strategy agile project-management template"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning strategy agile project-management template'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Product Roadmap
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to create or restructure a product roadmap for any audience -- engineering teams, executives, customers, investors, or board members
 - A user needs to organize a backlog of features, initiatives, or investments into a Now/Next/Later or quarterly framework with strategic rationale
 - A user wants to communicate product strategy and sequencing decisions to stakeholders with clear business justification
@@ -29,6 +31,7 @@ metadata:
 - A user has an existing roadmap that has drifted from business goals and needs a structured reset
 
 **Do NOT use this skill when:**
+
 - The user needs to score and numerically rank individual features using weighted criteria such as RICE, ICE, or Kano -- use `prioritization-framework` instead
 - The user needs sprint-level story breakdown, acceptance criteria, or engineering task decomposition -- use `user-story-writing` instead
 - The user needs a strategic business roadmap covering company-level initiatives, OKRs, hiring plans, or market expansion -- use `strategic-roadmap` instead
@@ -90,6 +93,7 @@ For each candidate initiative, capture a consistent set of attributes before pla
 The Now/Next/Later framework is intentionally asymmetric in specificity. Resist the pressure to make Later items as specific as Now items -- that specificity would be false precision.
 
 **Now (current quarter or active sprint cycle):**
+
 - Initiatives must be committed: teams assigned, discovery complete, work actively scoped or in progress.
 - Every Now item needs a named team or named person responsible.
 - Now items should represent no more than 70-80% of team capacity for the period. The remaining 20-30% absorbs unplanned work, bug fixes, and team overhead. A 100%-loaded "Now" will fail.
@@ -97,6 +101,7 @@ The Now/Next/Later framework is intentionally asymmetric in specificity. Resist 
 - Include effort estimates and current status for every Now item. Stakeholders need to be able to track progress.
 
 **Next (1-2 quarters out):**
+
 - Initiatives should be validated but not fully scoped. Discovery work (user interviews, technical spikes, design exploration) should be underway or planned.
 - Avoid assigning specific engineers to Next items -- that creates premature commitments and discourages replanning when circumstances change.
 - Next items should be specific enough to plan resourcing but flexible enough to be de-scoped, split, or resequenced without breaking trust.
@@ -104,12 +109,14 @@ The Now/Next/Later framework is intentionally asymmetric in specificity. Resist 
 - Target 5-10 initiatives in Next. More than that suggests the team has not actually prioritized; every item on the list carries implied commitment weight with stakeholders.
 
 **Later (3+ quarters out):**
+
 - Express Later primarily at the theme or capability level, not initiative level. "Expand internationalization to support Japanese and Korean" is a capable Later item. "Build a custom calendar date picker with Japanese locale support" is initiative-level detail that does not belong here.
 - Later is where you place items that are strategically important but whose design, scope, and sequencing should remain flexible until they approach Now.
 - Do not include more than 8-10 items in Later. If there are 30 items, you have a wish list, not a roadmap. Cull it.
 - Pair each Later item with a brief rationale: why does this matter strategically, and what would cause it to move forward into Next?
 
 **Not Doing (explicit deprioritization list):**
+
 - This section is as important as the three horizons. It demonstrates analytical rigor and prevents the roadmap from ballooning.
 - For each item in "Not Doing," provide a specific reason: insufficient demand signal (include data), team capacity constraints, strategic misalignment, or a deliberate decision to wait for a technology to mature.
 - Items explicitly deprioritized with rationale help deflect recurring stakeholder requests. Instead of relitigating every quarter, you can point to the documented decision.
@@ -168,6 +175,7 @@ This narrative paragraph should be 4-6 sentences maximum and should appear at th
 
 ```markdown
 ## Product Roadmap: [Product Name]
+
 **Version:** [e.g., Q2 2026 -- Last updated: April 3, 2026]
 **Author:** [PM name or team]
 **Distribution:** [Engineering | Leadership | Customers | Investors -- choose one]
@@ -175,12 +183,14 @@ This narrative paragraph should be 4-6 sentences maximum and should appear at th
 ---
 
 ### Roadmap Narrative
+
 [4-6 sentences answering: What are we accomplishing and why now? What is the key trade-off?
 What must be true for this roadmap to succeed?]
 
 ---
 
 ### Product Vision and North Star
+
 **Vision:** [One-sentence statement of the product's purpose and future state]
 **North star metric:** [The single metric most correlated with product success]
 **Current baseline:** [Current value of the north star metric]
@@ -191,56 +201,60 @@ What must be true for this roadmap to succeed?]
 
 ### Strategic Themes
 
-| # | Theme | Business Objective | Key Metric | Current Baseline | Target |
-|---|-------|-------------------|------------|-----------------|--------|
-| 1 | [Theme name -- outcome-oriented] | [Acquisition/Activation/Retention/Revenue/Efficiency/Platform] | [Specific metric] | [Current value] | [Target value] |
-| 2 | [Theme name] | [Objective] | [Metric] | [Baseline] | [Target] |
-| 3 | [Theme name] | [Objective] | [Metric] | [Baseline] | [Target] |
-| 4 | [Theme name -- technical health] | [Platform/Efficiency] | [Metric] | [Baseline] | [Target] |
+| #   | Theme                            | Business Objective                                             | Key Metric        | Current Baseline | Target         |
+| --- | -------------------------------- | -------------------------------------------------------------- | ----------------- | ---------------- | -------------- |
+| 1   | [Theme name -- outcome-oriented] | [Acquisition/Activation/Retention/Revenue/Efficiency/Platform] | [Specific metric] | [Current value]  | [Target value] |
+| 2   | [Theme name]                     | [Objective]                                                    | [Metric]          | [Baseline]       | [Target]       |
+| 3   | [Theme name]                     | [Objective]                                                    | [Metric]          | [Baseline]       | [Target]       |
+| 4   | [Theme name -- technical health] | [Platform/Efficiency]                                          | [Metric]          | [Baseline]       | [Target]       |
 
 ---
 
 ### Now: [Quarter and Year, e.g., Q2 2026]
-*Committed work. Teams assigned, discovery complete, actively in progress or scheduled.*
-*Capacity check: [X] of [Y] available team-weeks allocated ([Z]% utilization)*
 
-| Initiative | Theme | One-Line Description | Impact | Effort | Team | Status | Confidence |
-|-----------|-------|---------------------|--------|--------|------|--------|------------|
-| [Initiative name] | [#] | [What it is and the problem it solves] | [Specific metric impact] | [S/M/L/XL] | [Team or person] | [In progress / In design / In QA] | High |
-| [Initiative name] | [#] | [Description] | [Impact] | [S/M/L/XL] | [Team] | [In discovery] | High |
+_Committed work. Teams assigned, discovery complete, actively in progress or scheduled._
+_Capacity check: [X] of [Y] available team-weeks allocated ([Z]% utilization)_
+
+| Initiative        | Theme | One-Line Description                   | Impact                   | Effort     | Team             | Status                            | Confidence |
+| ----------------- | ----- | -------------------------------------- | ------------------------ | ---------- | ---------------- | --------------------------------- | ---------- |
+| [Initiative name] | [#]   | [What it is and the problem it solves] | [Specific metric impact] | [S/M/L/XL] | [Team or person] | [In progress / In design / In QA] | High       |
+| [Initiative name] | [#]   | [Description]                          | [Impact]                 | [S/M/L/XL] | [Team]           | [In discovery]                    | High       |
 
 **Now -- Open Risks:**
+
 - [Any dependency, blocker, or uncertainty that could affect Now delivery]
 
 ---
 
 ### Next: [e.g., Q3-Q4 2026]
-*Planned and validated. Discovery underway. Flexible on scope and sequencing.*
-*Note: No delivery dates committed. Sequence may change as Now items complete and we learn more.*
 
-| Initiative | Theme | One-Line Description | Impact | Effort | Open Dependencies | Confidence |
-|-----------|-------|---------------------|--------|--------|------------------|------------|
-| [Initiative name] | [#] | [Description] | [Impact] | [S/M/L/XL] | [Dependency or "None"] | Medium |
-| [Initiative name] | [#] | [Description] | [Impact] | [S/M/L/XL] | [Dependency] | Medium |
+_Planned and validated. Discovery underway. Flexible on scope and sequencing._
+_Note: No delivery dates committed. Sequence may change as Now items complete and we learn more._
+
+| Initiative        | Theme | One-Line Description | Impact   | Effort     | Open Dependencies      | Confidence |
+| ----------------- | ----- | -------------------- | -------- | ---------- | ---------------------- | ---------- |
+| [Initiative name] | [#]   | [Description]        | [Impact] | [S/M/L/XL] | [Dependency or "None"] | Medium     |
+| [Initiative name] | [#]   | [Description]        | [Impact] | [S/M/L/XL] | [Dependency]           | Medium     |
 
 ---
 
 ### Later: [e.g., 2027 and beyond]
-*Directional and strategic. Theme-level intent. Details will be defined when items move to Next.*
 
-| Theme | Strategic Direction | Why It Matters | What Would Accelerate It |
-|-------|--------------------|-----------------|-----------------------------|
-| [#] | [Capability or direction, not feature spec] | [Strategic rationale] | [Signal or trigger that would move this to Next] |
-| [#] | [Direction] | [Rationale] | [Trigger] |
+_Directional and strategic. Theme-level intent. Details will be defined when items move to Next._
+
+| Theme | Strategic Direction                         | Why It Matters        | What Would Accelerate It                         |
+| ----- | ------------------------------------------- | --------------------- | ------------------------------------------------ |
+| [#]   | [Capability or direction, not feature spec] | [Strategic rationale] | [Signal or trigger that would move this to Next] |
+| [#]   | [Direction]                                 | [Rationale]           | [Trigger]                                        |
 
 ---
 
 ### Not Doing (and Why)
 
-| Initiative | Reason for Deprioritization | Revisit Condition |
-|-----------|---------------------------|-------------------|
+| Initiative                     | Reason for Deprioritization                 | Revisit Condition                 |
+| ------------------------------ | ------------------------------------------- | --------------------------------- |
 | [Item requested or considered] | [Specific reason: data, capacity, strategy] | [What would change this decision] |
-| [Item] | [Reason] | [Condition] |
+| [Item]                         | [Reason]                                    | [Condition]                       |
 
 ---
 
@@ -249,22 +263,22 @@ What must be true for this roadmap to succeed?]
 **Team:** [X] engineers, [Y] designers, [Z] PMs
 **Available capacity this quarter:** ~[N] team-weeks (after accounting for meetings, on-call, holidays)
 
-| Investment Category | % of Capacity | Rationale |
-|--------------------|--------------:|-----------|
-| New feature development | [X]% | [Why this allocation] |
-| Product improvements / UX debt | [Y]% | [Why] |
-| Technical debt and infrastructure | [Z]% | [Why -- industry benchmark: 15-25%] |
-| Discovery and research | [W]% | [Why] |
-| **Total** | **100%** | |
+| Investment Category               | % of Capacity | Rationale                           |
+| --------------------------------- | ------------: | ----------------------------------- |
+| New feature development           |          [X]% | [Why this allocation]               |
+| Product improvements / UX debt    |          [Y]% | [Why]                               |
+| Technical debt and infrastructure |          [Z]% | [Why -- industry benchmark: 15-25%] |
+| Discovery and research            |          [W]% | [Why]                               |
+| **Total**                         |      **100%** |                                     |
 
 ---
 
 ### Assumptions and Dependencies
 
-| Assumption / Dependency | Type | Risk Level | Owner | Mitigation |
-|------------------------|------|-----------|-------|------------|
-| [e.g., Platform team delivers Auth API by end of April] | External dependency | High | [Name] | [Contingency plan] |
-| [e.g., Mid-market demand signal holds based on 12 sales interviews] | Assumption | Medium | PM | [Revalidate with 5 more interviews before Next quarter] |
+| Assumption / Dependency                                             | Type                | Risk Level | Owner  | Mitigation                                              |
+| ------------------------------------------------------------------- | ------------------- | ---------- | ------ | ------------------------------------------------------- |
+| [e.g., Platform team delivers Auth API by end of April]             | External dependency | High       | [Name] | [Contingency plan]                                      |
+| [e.g., Mid-market demand signal holds based on 12 sales interviews] | Assumption          | Medium     | PM     | [Revalidate with 5 more interviews before Next quarter] |
 
 ---
 
@@ -391,6 +405,7 @@ Many organizations do annual planning before the previous year's results are fin
 **Output:**
 
 ## Product Roadmap: WorkStream (Project Management Platform)
+
 **Version:** Q3-Q4 2026 -- Last updated: June 15, 2026
 **Author:** Product Management
 **Distribution:** Internal -- Leadership and Engineering
@@ -415,30 +430,32 @@ WorkStream's most urgent challenge entering H2 2026 is a 3.8% monthly churn rate
 
 ### Strategic Themes
 
-| # | Theme | Business Objective | Key Metric | Current Baseline | Target (EOY 2026) |
-|---|-------|-------------------|------------|-----------------|-------------------|
-| 1 | Stop the bleed: reduce churn | Retention | Monthly churn rate | 3.8% | <2.0% |
-| 2 | Enterprise readiness | Revenue expansion / Acquisition | Win rate on 50-200 seat deals | ~18% (est. from sales data) | >40% |
-| 3 | Performance and reliability | Platform / Retention | Task search P95 latency; Uptime | 12.4s P95 search; 99.6% uptime | <1.5s P95; 99.9% uptime |
-| 4 | Onboarding and activation | Activation / Retention | % of new accounts reaching 5+ active projects in week 1 | 22% | 45% |
+| #   | Theme                        | Business Objective              | Key Metric                                              | Current Baseline               | Target (EOY 2026)       |
+| --- | ---------------------------- | ------------------------------- | ------------------------------------------------------- | ------------------------------ | ----------------------- |
+| 1   | Stop the bleed: reduce churn | Retention                       | Monthly churn rate                                      | 3.8%                           | <2.0%                   |
+| 2   | Enterprise readiness         | Revenue expansion / Acquisition | Win rate on 50-200 seat deals                           | ~18% (est. from sales data)    | >40%                    |
+| 3   | Performance and reliability  | Platform / Retention            | Task search P95 latency; Uptime                         | 12.4s P95 search; 99.6% uptime | <1.5s P95; 99.9% uptime |
+| 4   | Onboarding and activation    | Activation / Retention          | % of new accounts reaching 5+ active projects in week 1 | 22%                            | 45%                     |
 
 **Theme rationale:** Theme 1 and Theme 3 are directly linked -- exit interviews suggest performance issues are a top-3 churn reason. Themes 1 and 4 address the retention problem from two angles: keeping current users and getting new users to value faster. Theme 2 is the growth investment, sequenced after retention work because mid-market customers will scrutinize reliability more, not less.
 
 ---
 
 ### Now: Q3 2026 (July -- September 2026)
-*Committed work. Teams assigned, discovery complete, actively scoped.*
-*Capacity check: ~60 team-weeks available (5 engineers x 13 weeks x 85% productive time, after meetings and on-call). 47 team-weeks allocated = 78% utilization. 13 team-weeks reserved for unplanned work and bug escalations.*
 
-| Initiative | Theme | One-Line Description | Impact | Effort | Team | Status | Confidence |
-|-----------|-------|---------------------|--------|--------|------|--------|------------|
-| Task search re-architecture | 3 | Rebuild search index using Postgres full-text search with pagination; eliminate timeout for projects >500 tasks | Eliminate #1 reported performance complaint; estimated to recover 0.8% churn/month based on exit interviews | L (14 team-weeks) | Backend team (2 engineers) | Technical spike complete; implementation ready | High |
-| Churn interview program (10 accounts) | 1 | Conduct structured 30-minute exit interviews with 10 churned accounts from last 60 days; synthesize into top 5 fixable root causes | Grounds Q4 retention initiatives in validated root causes rather than guesses | S (2 team-weeks -- PM time + 1 designer for concept testing) | PM + Designer | Recruiting underway; 6 of 10 confirmed | High |
-| Role-based permissions (3-tier: Admin, Member, Viewer) | 2 | Implement three permission tiers; required by 100% of mid-market prospects in active pipeline | Unblocks 11 deals in pipeline estimated at $340K ARR | M (10 team-weeks) | Full-stack team (2 engineers) | Design complete; engineering scoped | High |
-| In-app onboarding checklist with sample project | 4 | Replace blank-slate first experience with a guided checklist and pre-populated sample project matching user's stated use case | Benchmark: similar products report 35-50% improvement in week-1 activation after guided onboarding | S (5 team-weeks) | Designer (design complete) + 1 engineer | In development | High |
-| Critical bug backlog clearance (Q3 sprint) | 3 | Resolve top 12 bugs by severity from support queue; 4 are customer-blocking, 8 are significant UX degraders | Estimated 0.3% churn reduction based on ticket-to-churn correlation analysis | S (4 team-weeks) | Rotating (1 engineer dedicated per 3-week sprint) | Ongoing | High |
+_Committed work. Teams assigned, discovery complete, actively scoped._
+_Capacity check: ~60 team-weeks available (5 engineers x 13 weeks x 85% productive time, after meetings and on-call). 47 team-weeks allocated = 78% utilization. 13 team-weeks reserved for unplanned work and bug escalations._
+
+| Initiative                                             | Theme | One-Line Description                                                                                                               | Impact                                                                                                      | Effort                                                       | Team                                              | Status                                         | Confidence |
+| ------------------------------------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------- | ---------------------------------------------- | ---------- |
+| Task search re-architecture                            | 3     | Rebuild search index using Postgres full-text search with pagination; eliminate timeout for projects >500 tasks                    | Eliminate #1 reported performance complaint; estimated to recover 0.8% churn/month based on exit interviews | L (14 team-weeks)                                            | Backend team (2 engineers)                        | Technical spike complete; implementation ready | High       |
+| Churn interview program (10 accounts)                  | 1     | Conduct structured 30-minute exit interviews with 10 churned accounts from last 60 days; synthesize into top 5 fixable root causes | Grounds Q4 retention initiatives in validated root causes rather than guesses                               | S (2 team-weeks -- PM time + 1 designer for concept testing) | PM + Designer                                     | Recruiting underway; 6 of 10 confirmed         | High       |
+| Role-based permissions (3-tier: Admin, Member, Viewer) | 2     | Implement three permission tiers; required by 100% of mid-market prospects in active pipeline                                      | Unblocks 11 deals in pipeline estimated at $340K ARR                                                        | M (10 team-weeks)                                            | Full-stack team (2 engineers)                     | Design complete; engineering scoped            | High       |
+| In-app onboarding checklist with sample project        | 4     | Replace blank-slate first experience with a guided checklist and pre-populated sample project matching user's stated use case      | Benchmark: similar products report 35-50% improvement in week-1 activation after guided onboarding          | S (5 team-weeks)                                             | Designer (design complete) + 1 engineer           | In development                                 | High       |
+| Critical bug backlog clearance (Q3 sprint)             | 3     | Resolve top 12 bugs by severity from support queue; 4 are customer-blocking, 8 are significant UX degraders                        | Estimated 0.3% churn reduction based on ticket-to-churn correlation analysis                                | S (4 team-weeks)                                             | Rotating (1 engineer dedicated per 3-week sprint) | Ongoing                                        | High       |
 
 **Now -- Open Risks:**
+
 - Task search re-architecture depends on a schema migration that will require a 2-4 hour read-only maintenance window. Customer communication plan must be ready by July 14.
 - Role-based permissions requires data model changes that may conflict with the search re-architecture migration if both are deployed in the same 2-week window. Engineering to confirm merge order by July 7.
 - If churn interviews reveal a root cause not currently on the roadmap (e.g., integration gaps), we will re-evaluate Q4 Next items in the August replanning session.
@@ -446,39 +463,41 @@ WorkStream's most urgent challenge entering H2 2026 is a 3.8% monthly churn rate
 ---
 
 ### Next: Q4 2026 (October -- December 2026)
-*Planned and validated through sales pipeline data, support ticket analysis, and partial churn interview results. Scope flexible; will be finalized in September replanning.*
-*Note: No delivery dates committed for these items. Sequencing will be confirmed based on Q3 outcomes.*
 
-| Initiative | Theme | One-Line Description | Impact | Effort | Open Dependencies | Confidence |
-|-----------|-------|---------------------|--------|--------|------------------|------------|
-| SSO / SAML integration | 2 | Integrate SAML 2.0 SSO; support Okta and Azure AD as the two most requested IdPs | Required by 9 of 11 pipeline deals; primary reason for mid-market loss per sales | M (8 team-weeks) | Role-based permissions must ship in Q3 (SSO requires permission tiers to enforce) | High |
-| Proactive at-risk account intervention (health score + PM alert) | 1 | Build account health score (based on WAP/account, login frequency, task completion rate); alert PM when account drops below threshold for 2 consecutive weeks | Enables Customer Success to intervene before churn, not after. Estimated to reduce churn 0.5-1.0% if CS acts within 5 days | M (9 team-weeks) | Requires WAP/account metric instrumentation (already in Now as part of search work) | Medium |
-| Audit log (read-only, 90-day retention) | 2 | Provide admin-accessible log of all permission changes, project deletions, and member additions/removals | Required by compliance-sensitive mid-market accounts; blocks 4 of 11 pipeline deals | S-M (6 team-weeks) | Role-based permissions (Q3) | High |
-| Onboarding personalization by use case (3 tracks) | 4 | Extend Q3 onboarding checklist with 3 distinct tracks: software development, marketing campaigns, and professional services | Target: lift week-1 activation from 45% (Q3 target) to 60%; use cases cover 74% of current customer base | M (8 team-weeks) | Q3 onboarding checklist must ship and have 4+ weeks of data before building personalization on top | Medium |
-| Guest / external collaborator access | 2 | Allow accounts to invite non-paying external collaborators (clients, contractors) with limited Viewer-only access | Requested by 34% of accounts in NPS survey (Q1 2026); also a viral growth mechanic -- guests see the product and may convert | M (10 team-weeks) | Role-based permissions (Q3) | Medium |
+_Planned and validated through sales pipeline data, support ticket analysis, and partial churn interview results. Scope flexible; will be finalized in September replanning._
+_Note: No delivery dates committed for these items. Sequencing will be confirmed based on Q3 outcomes._
+
+| Initiative                                                       | Theme | One-Line Description                                                                                                                                          | Impact                                                                                                                       | Effort             | Open Dependencies                                                                                  | Confidence |
+| ---------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------- | ---------- |
+| SSO / SAML integration                                           | 2     | Integrate SAML 2.0 SSO; support Okta and Azure AD as the two most requested IdPs                                                                              | Required by 9 of 11 pipeline deals; primary reason for mid-market loss per sales                                             | M (8 team-weeks)   | Role-based permissions must ship in Q3 (SSO requires permission tiers to enforce)                  | High       |
+| Proactive at-risk account intervention (health score + PM alert) | 1     | Build account health score (based on WAP/account, login frequency, task completion rate); alert PM when account drops below threshold for 2 consecutive weeks | Enables Customer Success to intervene before churn, not after. Estimated to reduce churn 0.5-1.0% if CS acts within 5 days   | M (9 team-weeks)   | Requires WAP/account metric instrumentation (already in Now as part of search work)                | Medium     |
+| Audit log (read-only, 90-day retention)                          | 2     | Provide admin-accessible log of all permission changes, project deletions, and member additions/removals                                                      | Required by compliance-sensitive mid-market accounts; blocks 4 of 11 pipeline deals                                          | S-M (6 team-weeks) | Role-based permissions (Q3)                                                                        | High       |
+| Onboarding personalization by use case (3 tracks)                | 4     | Extend Q3 onboarding checklist with 3 distinct tracks: software development, marketing campaigns, and professional services                                   | Target: lift week-1 activation from 45% (Q3 target) to 60%; use cases cover 74% of current customer base                     | M (8 team-weeks)   | Q3 onboarding checklist must ship and have 4+ weeks of data before building personalization on top | Medium     |
+| Guest / external collaborator access                             | 2     | Allow accounts to invite non-paying external collaborators (clients, contractors) with limited Viewer-only access                                             | Requested by 34% of accounts in NPS survey (Q1 2026); also a viral growth mechanic -- guests see the product and may convert | M (10 team-weeks)  | Role-based permissions (Q3)                                                                        | Medium     |
 
 ---
 
 ### Later: 2027 and Beyond
-*Directional and strategic. Theme-level intent only. Details will be defined when items enter Next.*
 
-| Theme | Strategic Direction | Why It Matters | What Would Accelerate It |
-|-------|--------------------|-----------------|-----------------------------|
-| 2 | Enterprise admin console: centralized billing, user provisioning, and usage analytics for IT administrators | Mid-market at 200+ seats requires IT governance capabilities that go beyond team-level admin | 3+ closed mid-market deals at 150+ seats where IT buyer explicitly requires this; target Q1 2027 |
-| 1 | Automated re-engagement sequences for dormant projects | Projects that go dormant are a leading indicator of account churn 60-90 days later; automated nudges could recapture engagement before CS intervention is needed | Churn interview data from Q3 confirms project abandonment (vs. feature gaps) as top-3 churn driver |
-| 4 | Integrations marketplace: Slack, Jira, Google Workspace, and Zapier | Reduces switching cost and increases daily habit formation by embedding WorkStream into existing workflows | Top integration requests reach 30% of active accounts; currently at 19% for Slack, 14% for Google Workspace |
-| 3 | Real-time collaboration (live cursor and simultaneous editing on task boards) | Table-stakes feature for next competitive tier; differentiates from async-only tools in enterprise evaluation shortlists | Real-time capability appears in competitive losses at rate >35%; currently at 22% |
+_Directional and strategic. Theme-level intent only. Details will be defined when items enter Next._
+
+| Theme | Strategic Direction                                                                                         | Why It Matters                                                                                                                                                   | What Would Accelerate It                                                                                    |
+| ----- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 2     | Enterprise admin console: centralized billing, user provisioning, and usage analytics for IT administrators | Mid-market at 200+ seats requires IT governance capabilities that go beyond team-level admin                                                                     | 3+ closed mid-market deals at 150+ seats where IT buyer explicitly requires this; target Q1 2027            |
+| 1     | Automated re-engagement sequences for dormant projects                                                      | Projects that go dormant are a leading indicator of account churn 60-90 days later; automated nudges could recapture engagement before CS intervention is needed | Churn interview data from Q3 confirms project abandonment (vs. feature gaps) as top-3 churn driver          |
+| 4     | Integrations marketplace: Slack, Jira, Google Workspace, and Zapier                                         | Reduces switching cost and increases daily habit formation by embedding WorkStream into existing workflows                                                       | Top integration requests reach 30% of active accounts; currently at 19% for Slack, 14% for Google Workspace |
+| 3     | Real-time collaboration (live cursor and simultaneous editing on task boards)                               | Table-stakes feature for next competitive tier; differentiates from async-only tools in enterprise evaluation shortlists                                         | Real-time capability appears in competitive losses at rate >35%; currently at 22%                           |
 
 ---
 
 ### Not Doing (and Why)
 
-| Initiative | Reason for Deprioritization | Revisit Condition |
-|-----------|---------------------------|-------------------|
-| Mobile app (iOS/Android) | Usage analytics show 3.1% of sessions on mobile; insufficient demand to justify 3-4 months of engineering for a 5-person team. Not a table-stakes expectation in our B2B segment. | Mobile session share exceeds 12%, or 3+ enterprise churns cite mobile access as primary reason |
-| Time tracking and billing module | Requested by 8 accounts; builds into a different product category (PSA software) requiring dedicated PM focus we don't have. Risk of over-complicating the core PM product. | 25+ accounts request it, or a dedicated PM role is added to the team |
-| AI task suggestion / auto-assignment | Interesting directional bet but requires a data foundation (activity history, workload data) that doesn't exist yet. Building AI features on thin data produces poor models and erodes user trust. | 12+ months of normalized activity data per account available; model accuracy >70% in internal testing |
-| White-label / OEM version for resellers | Two reseller inquiries in Q1 2026; not enough signal to justify the architectural complexity of multi-tenant branding customization | 5+ signed LOIs from reseller partners or a strategic partnership deal that justifies dedicated investment |
+| Initiative                              | Reason for Deprioritization                                                                                                                                                                        | Revisit Condition                                                                                         |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Mobile app (iOS/Android)                | Usage analytics show 3.1% of sessions on mobile; insufficient demand to justify 3-4 months of engineering for a 5-person team. Not a table-stakes expectation in our B2B segment.                  | Mobile session share exceeds 12%, or 3+ enterprise churns cite mobile access as primary reason            |
+| Time tracking and billing module        | Requested by 8 accounts; builds into a different product category (PSA software) requiring dedicated PM focus we don't have. Risk of over-complicating the core PM product.                        | 25+ accounts request it, or a dedicated PM role is added to the team                                      |
+| AI task suggestion / auto-assignment    | Interesting directional bet but requires a data foundation (activity history, workload data) that doesn't exist yet. Building AI features on thin data produces poor models and erodes user trust. | 12+ months of normalized activity data per account available; model accuracy >70% in internal testing     |
+| White-label / OEM version for resellers | Two reseller inquiries in Q1 2026; not enough signal to justify the architectural complexity of multi-tenant branding customization                                                                | 5+ signed LOIs from reseller partners or a strategic partnership deal that justifies dedicated investment |
 
 ---
 
@@ -487,27 +506,27 @@ WorkStream's most urgent challenge entering H2 2026 is a 3.8% monthly churn rate
 **Team:** 5 engineers (2 senior, 3 mid-level), 1 designer, 1 PM
 **Available capacity Q3 2026:** ~60 team-weeks
 
-| Investment Category | % of Capacity | Team-Weeks | Rationale |
-|--------------------|--------------:|------------|-----------|
-| New feature development | 38% | 23 | Role-based permissions, onboarding checklist |
-| Product improvements and UX debt | 13% | 8 | Bug backlog, onboarding UX |
-| Technical debt and infrastructure | 23% | 14 | Search re-architecture (above 15-25% benchmark this quarter because the debt is actively causing churn) |
-| Discovery and research | 3% | 2 | Churn interview program (PM + designer time) |
-| Unplanned buffer | 22% | 13 | On-call, escalations, unscoped requests |
-| **Total** | **100%** | **60** | |
+| Investment Category               | % of Capacity | Team-Weeks | Rationale                                                                                               |
+| --------------------------------- | ------------: | ---------- | ------------------------------------------------------------------------------------------------------- |
+| New feature development           |           38% | 23         | Role-based permissions, onboarding checklist                                                            |
+| Product improvements and UX debt  |           13% | 8          | Bug backlog, onboarding UX                                                                              |
+| Technical debt and infrastructure |           23% | 14         | Search re-architecture (above 15-25% benchmark this quarter because the debt is actively causing churn) |
+| Discovery and research            |            3% | 2          | Churn interview program (PM + designer time)                                                            |
+| Unplanned buffer                  |           22% | 13         | On-call, escalations, unscoped requests                                                                 |
+| **Total**                         |      **100%** | **60**     |                                                                                                         |
 
-*Note: Technical debt allocation is above the 15-25% benchmark this quarter due to the search performance issue actively contributing to churn. This is a one-quarter exception, not a baseline.*
+_Note: Technical debt allocation is above the 15-25% benchmark this quarter due to the search performance issue actively contributing to churn. This is a one-quarter exception, not a baseline._
 
 ---
 
 ### Assumptions and Dependencies
 
-| Assumption / Dependency | Type | Risk Level | Owner | Mitigation |
-|------------------------|------|-----------|-------|------------|
-| Churn interviews (10 accounts) confirm performance and onboarding as top root causes | Assumption | Medium | PM | If interviews reveal a different root cause (e.g., pricing, integration gaps), August replanning session will adjust Q4 Next items |
-| Role-based permissions ships by end of August to unblock SSO in Q4 | Internal dependency | High | Engineering Lead | Two-engineer allocation confirmed; scope locked; no new requirements accepted |
-| Sales pipeline of 11 mid-market deals holds through Q3 | External assumption | Medium | Sales Lead | Monitor weekly; if pipeline drops below 5 deals, rebalance Theme 2 effort toward retention |
-| Schema migration for search can be executed with a maintenance window acceptable to enterprise customers | Technical assumption | Medium | Backend Lead | Customer advisory communication plan ready by July 14; fallback is a phased migration approach with zero-downtime cutover |
+| Assumption / Dependency                                                                                  | Type                 | Risk Level | Owner            | Mitigation                                                                                                                         |
+| -------------------------------------------------------------------------------------------------------- | -------------------- | ---------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Churn interviews (10 accounts) confirm performance and onboarding as top root causes                     | Assumption           | Medium     | PM               | If interviews reveal a different root cause (e.g., pricing, integration gaps), August replanning session will adjust Q4 Next items |
+| Role-based permissions ships by end of August to unblock SSO in Q4                                       | Internal dependency  | High       | Engineering Lead | Two-engineer allocation confirmed; scope locked; no new requirements accepted                                                      |
+| Sales pipeline of 11 mid-market deals holds through Q3                                                   | External assumption  | Medium     | Sales Lead       | Monitor weekly; if pipeline drops below 5 deals, rebalance Theme 2 effort toward retention                                         |
+| Schema migration for search can be executed with a maintenance window acceptable to enterprise customers | Technical assumption | Medium     | Backend Lead     | Customer advisory communication plan ready by July 14; fallback is a phased migration approach with zero-downtime cutover          |
 
 ---
 

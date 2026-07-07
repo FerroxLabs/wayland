@@ -56,6 +56,15 @@ export class CronService {
   private timers: Map<string, Cron | NodeJS.Timeout> = new Map();
   private retryTimers: Map<string, NodeJS.Timeout> = new Map();
   private retryCounts: Map<string, number> = new Map();
+  /**
+   * Job ids with an executeJob() run currently in flight. Guards against
+   * overlapping runs: high-frequency jobs (e.g. `new_conversation` mode) have
+   * no stable conversationId to busy-check against, so the per-conversation
+   * check in executeJob() is effectively bypassed for them and a fast cron
+   * (e.g. every minute) can otherwise re-enter while the prior run hasn't
+   * finished (#163).
+   */
+  private runningJobIds: Set<string> = new Set();
   private initialized = false;
   private powerSaveBlockerId: number | null = null;
 
@@ -578,7 +587,19 @@ export class CronService {
    * Execute a job - send message to conversation
    * Handles conversation busy state with retries and power management
    */
-  private async executeJob(job: CronJob, preparedConversationId?: string): Promise<void> {
+  private async executeJob(job: CronJob, preparedConversationId?: string, isRetryContinuation = false): Promise<void> {
+    // Overlap guard: a fresh trigger (timer fire, triggerJob, runNow) for a job
+    // that's already running is skipped rather than started concurrently. The
+    // busy-retry continuation below re-enters with isRetryContinuation=true so
+    // it doesn't trip over the guard it's already holding.
+    if (!isRetryContinuation) {
+      if (this.runningJobIds.has(job.id)) {
+        console.warn(`[CronService] Job "${job.name}" (${job.id}) is still running - skipping overlapping run`);
+        return;
+      }
+      this.runningJobIds.add(job.id);
+    }
+
     const conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Check if conversation is busy
@@ -590,6 +611,7 @@ export class CronService {
       if (currentRetry > (job.state.maxRetries || 3)) {
         // Max retries exceeded, skip this run
         this.retryCounts.delete(job.id);
+        this.runningJobIds.delete(job.id);
         this.updateNextRunTime(job);
         await this.repo.update(job.id, {
           state: {
@@ -607,10 +629,11 @@ export class CronService {
         return;
       }
 
-      // Schedule retry in 30 seconds
+      // Schedule retry in 30 seconds. The in-flight guard stays held across
+      // the wait - this is a continuation of the same run, not a new one.
       const retryTimer = setTimeout(() => {
         this.retryTimers.delete(job.id);
-        void this.executeJob(job);
+        void this.executeJob(job, undefined, true);
       }, 30000);
       this.retryTimers.set(job.id, retryTimer);
       return;
@@ -660,6 +683,9 @@ export class CronService {
       lastStatus = 'error';
       lastError = error instanceof Error ? error.message : String(error);
       console.error(`[CronService] Job ${job.id} failed:`, error);
+    } finally {
+      // Run has genuinely finished (success or error) - release the overlap guard.
+      this.runningJobIds.delete(job.id);
     }
 
     // Update next run time

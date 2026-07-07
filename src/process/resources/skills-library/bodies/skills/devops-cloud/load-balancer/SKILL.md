@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Load Balancer
@@ -224,13 +224,12 @@ upstream backend {
 ```yaml
 # HAProxy health checks
 backend app_servers
-    option httpchk GET /health
-    http-check expect status 200
+option httpchk GET /health
+http-check expect status 200
 
-    server web1 10.0.1.10:8080 check inter 5s fall 3 rise 2
-    server web2 10.0.1.11:8080 check inter 5s fall 3 rise 2
-    server web3 10.0.1.12:8080 check inter 5s fall 3 rise 2
-
+server web1 10.0.1.10:8080 check inter 5s fall 3 rise 2
+server web2 10.0.1.11:8080 check inter 5s fall 3 rise 2
+server web3 10.0.1.12:8080 check inter 5s fall 3 rise 2
 # inter: check interval
 # fall:  consecutive failures to mark unhealthy
 # rise:  consecutive successes to mark healthy
@@ -253,11 +252,11 @@ Cons: Requires cookie support (browsers), cookie overhead
 ```yaml
 # HAProxy cookie persistence
 backend app_servers
-    balance roundrobin
-    cookie SERVERID insert indirect nocache httponly secure
-    server web1 10.0.1.10:8080 cookie web1
-    server web2 10.0.1.11:8080 cookie web2
-    server web3 10.0.1.12:8080 cookie web3
+balance roundrobin
+cookie SERVERID insert indirect nocache httponly secure
+server web1 10.0.1.10:8080 cookie web1
+server web2 10.0.1.11:8080 cookie web2
+server web3 10.0.1.12:8080 cookie web3
 ```
 
 ```nginx
@@ -484,6 +483,7 @@ Core Configuration:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing load balancer solutions
 - Reviewing or improving existing load balancer approaches
 - Making architectural or implementation decisions about load balancer
@@ -491,6 +491,7 @@ Core Configuration:
 - Troubleshooting load balancer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -501,21 +502,26 @@ Core Configuration:
 # Load Balancer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Create Design System
 
 **Estimated time:** 6-12 weeks
@@ -120,7 +121,7 @@ develop an adoption strategy. Start with one willing team as a pilot. Help them 
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Expand audit scope to cover missed surfaces
   - If **After Step 3**: Fix accessibility issues before testing and docs
   - If **After Step 5**: Improve docs until a developer can self-serve
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

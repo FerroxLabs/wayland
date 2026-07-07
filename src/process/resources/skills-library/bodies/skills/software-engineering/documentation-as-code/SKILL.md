@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices clean-code documentation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'best-practices clean-code documentation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Documentation as Code
@@ -111,38 +111,47 @@ project/
 # ADR-NNNN: [Title]
 
 ## Status
+
 [Proposed | Accepted | Deprecated | Superseded by ADR-NNNN]
 
 ## Date
+
 YYYY-MM-DD
 
 ## Context
+
 [What is the issue that we are seeing that is motivating this decision?
 What technical, business, or team constraints exist?]
 
 ## Decision
+
 [What is the change that we are proposing and/or doing?
 State the decision clearly and concisely.]
 
 ## Consequences
 
 ### Positive
+
 - [Benefit 1]
 - [Benefit 2]
 
 ### Negative
+
 - [Trade-off 1]
 - [Trade-off 2]
 
 ### Neutral
+
 - [Side effect that is neither clearly positive nor negative]
 
 ## Alternatives Considered
 
 ### [Alternative 1 Name]
+
 [Brief description and why it was rejected]
 
 ### [Alternative 2 Name]
+
 [Brief description and why it was rejected]
 ```
 
@@ -226,7 +235,7 @@ Generate images in CI, or use tools that render from source
 
 ### Mermaid Diagrams (GitHub-Native)
 
-```markdown
+````markdown
 ## Order State Machine
 
     ```mermaid
@@ -244,7 +253,7 @@ Generate images in CI, or use tools that render from source
         Refunded --> [*]
         Cancelled --> [*]
     ```
-```
+````
 
 ## Documentation Testing
 
@@ -412,6 +421,7 @@ HEALTH INDICATORS:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing documentation as code solutions
 - Reviewing or improving existing documentation as code approaches
 - Making architectural or implementation decisions about documentation as code
@@ -419,6 +429,7 @@ HEALTH INDICATORS:
 - Troubleshooting documentation as code-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -429,21 +440,26 @@ HEALTH INDICATORS:
 # Documentation As Code Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

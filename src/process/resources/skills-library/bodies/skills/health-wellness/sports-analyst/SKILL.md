@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness guide"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness guide'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Sports Analyst
@@ -25,11 +25,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sports analyst
 - User needs guidance on sports analyst topics
 - User wants a structured approach to sports analyst
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,38 +52,39 @@ metadata:
 
 #### Hitting Metrics
 
-| Metric | Full Name | What It Measures | Good/Elite |
-|--------|-----------|-----------------|------------|
-| AVG | Batting Average | Hits per at-bat | .270 / .300+ |
-| OBP | On-Base Percentage | Times reaching base / plate appearances | .340 / .380+ |
-| SLG | Slugging Percentage | Total bases / at-bats | .430 / .500+ |
-| OPS | On-Base Plus Slugging | OBP + SLG | .770 / .900+ |
-| OPS+ | Adjusted OPS | OPS adjusted for park and league (100 = avg) | 110 / 140+ |
-| wOBA | Weighted On-Base Average | Comprehensive offensive value | .320 / .370+ |
-| wRC+ | Weighted Runs Created Plus | Runs created adjusted (100 = avg) | 110 / 140+ |
-| WAR | Wins Above Replacement | Total player value in wins | 3 / 6+ |
-| ISO | Isolated Power | SLG - AVG (raw power) | .150 / .220+ |
-| BABIP | Batting Avg on Balls in Play | Luck/skill indicator | .290-.310 avg |
-| BB% | Walk Rate | Walks / plate appearances | 9% / 13%+ |
-| K% | Strikeout Rate | Strikeouts / plate appearances | <20% / <15% |
-| HR/FB | Home Run to Fly Ball Ratio | Power on fly balls | 12% / 18%+ |
+| Metric | Full Name                    | What It Measures                             | Good/Elite    |
+| ------ | ---------------------------- | -------------------------------------------- | ------------- |
+| AVG    | Batting Average              | Hits per at-bat                              | .270 / .300+  |
+| OBP    | On-Base Percentage           | Times reaching base / plate appearances      | .340 / .380+  |
+| SLG    | Slugging Percentage          | Total bases / at-bats                        | .430 / .500+  |
+| OPS    | On-Base Plus Slugging        | OBP + SLG                                    | .770 / .900+  |
+| OPS+   | Adjusted OPS                 | OPS adjusted for park and league (100 = avg) | 110 / 140+    |
+| wOBA   | Weighted On-Base Average     | Comprehensive offensive value                | .320 / .370+  |
+| wRC+   | Weighted Runs Created Plus   | Runs created adjusted (100 = avg)            | 110 / 140+    |
+| WAR    | Wins Above Replacement       | Total player value in wins                   | 3 / 6+        |
+| ISO    | Isolated Power               | SLG - AVG (raw power)                        | .150 / .220+  |
+| BABIP  | Batting Avg on Balls in Play | Luck/skill indicator                         | .290-.310 avg |
+| BB%    | Walk Rate                    | Walks / plate appearances                    | 9% / 13%+     |
+| K%     | Strikeout Rate               | Strikeouts / plate appearances               | <20% / <15%   |
+| HR/FB  | Home Run to Fly Ball Ratio   | Power on fly balls                           | 12% / 18%+    |
 
 #### Pitching Metrics
 
-| Metric | Full Name | What It Measures | Good/Elite |
-|--------|-----------|-----------------|------------|
-| ERA | Earned Run Average | Earned runs per 9 innings | 3.50 / 2.80 |
-| ERA+ | Adjusted ERA | ERA adjusted (100 = avg, higher is better) | 115 / 140+ |
-| FIP | Fielding Independent Pitching | Pitching independent of defense | 3.40 / 2.80 |
-| xFIP | Expected FIP | FIP with normalized HR/FB rate | 3.40 / 2.80 |
-| WHIP | Walks + Hits per IP | Baserunners allowed per inning | 1.20 / 1.00 |
-| K/9 | Strikeouts per 9 | Strikeout rate | 8.5 / 10.5+ |
-| BB/9 | Walks per 9 | Control measure | 2.8 / 2.0 |
-| K/BB | Strikeout to Walk Ratio | Command efficiency | 3.0 / 4.5+ |
-| WAR | Wins Above Replacement | Total pitcher value | 3 / 6+ |
-| SIERA | Skill-Interactive ERA | Advanced ERA estimator | 3.40 / 2.80 |
+| Metric | Full Name                     | What It Measures                           | Good/Elite  |
+| ------ | ----------------------------- | ------------------------------------------ | ----------- |
+| ERA    | Earned Run Average            | Earned runs per 9 innings                  | 3.50 / 2.80 |
+| ERA+   | Adjusted ERA                  | ERA adjusted (100 = avg, higher is better) | 115 / 140+  |
+| FIP    | Fielding Independent Pitching | Pitching independent of defense            | 3.40 / 2.80 |
+| xFIP   | Expected FIP                  | FIP with normalized HR/FB rate             | 3.40 / 2.80 |
+| WHIP   | Walks + Hits per IP           | Baserunners allowed per inning             | 1.20 / 1.00 |
+| K/9    | Strikeouts per 9              | Strikeout rate                             | 8.5 / 10.5+ |
+| BB/9   | Walks per 9                   | Control measure                            | 2.8 / 2.0   |
+| K/BB   | Strikeout to Walk Ratio       | Command efficiency                         | 3.0 / 4.5+  |
+| WAR    | Wins Above Replacement        | Total pitcher value                        | 3 / 6+      |
+| SIERA  | Skill-Interactive ERA         | Advanced ERA estimator                     | 3.40 / 2.80 |
 
 #### Baseball Analysis Framework
+
 ```
 HITTER EVALUATION TEMPLATE:
 Player: _______________
@@ -101,26 +104,27 @@ Sustainability Flags: [BABIP outlier? / HR/FB outlier? / Age concern?]
 
 #### Key Metrics
 
-| Metric | Full Name | What It Measures | Good/Elite |
-|--------|-----------|-----------------|------------|
-| PER | Player Efficiency Rating | Per-minute productivity (15 = avg) | 18 / 25+ |
-| TS% | True Shooting Percentage | Scoring efficiency including FT and 3PT | 56% / 62%+ |
-| USG% | Usage Rate | Percentage of team plays used | 22% / 30%+ |
-| BPM | Box Plus/Minus | Points per 100 possessions vs average | 2 / 6+ |
-| VORP | Value Over Replacement Player | Total value over replacement | 2 / 5+ |
-| WS | Win Shares | Wins contributed | 5 / 10+ |
-| WS/48 | Win Shares per 48 min | Per-minute win contribution | .100 / .200+ |
-| RAPTOR | Robust Algorithm (FiveThirtyEight) | Total on-court impact | +2 / +6+ |
-| RPM | Real Plus-Minus | On/off court impact adjusted | +2 / +5+ |
-| AST% | Assist Percentage | Percentage of teammate FGs assisted | 20% / 35%+ |
-| REB% | Rebound Percentage | Percentage of available rebounds | 10% / 18%+ |
-| STL% | Steal Percentage | Steals per 100 possessions | 1.5% / 2.5%+ |
-| BLK% | Block Percentage | Blocks per 100 possessions | 2% / 5%+ |
-| ORTG | Offensive Rating | Points per 100 possessions | 110 / 118+ |
-| DRTG | Defensive Rating | Points allowed per 100 poss (lower=better) | 108 / 104 |
-| Net Rating | ORTG - DRTG | Overall impact | +3 / +8+ |
+| Metric     | Full Name                          | What It Measures                           | Good/Elite   |
+| ---------- | ---------------------------------- | ------------------------------------------ | ------------ |
+| PER        | Player Efficiency Rating           | Per-minute productivity (15 = avg)         | 18 / 25+     |
+| TS%        | True Shooting Percentage           | Scoring efficiency including FT and 3PT    | 56% / 62%+   |
+| USG%       | Usage Rate                         | Percentage of team plays used              | 22% / 30%+   |
+| BPM        | Box Plus/Minus                     | Points per 100 possessions vs average      | 2 / 6+       |
+| VORP       | Value Over Replacement Player      | Total value over replacement               | 2 / 5+       |
+| WS         | Win Shares                         | Wins contributed                           | 5 / 10+      |
+| WS/48      | Win Shares per 48 min              | Per-minute win contribution                | .100 / .200+ |
+| RAPTOR     | Robust Algorithm (FiveThirtyEight) | Total on-court impact                      | +2 / +6+     |
+| RPM        | Real Plus-Minus                    | On/off court impact adjusted               | +2 / +5+     |
+| AST%       | Assist Percentage                  | Percentage of teammate FGs assisted        | 20% / 35%+   |
+| REB%       | Rebound Percentage                 | Percentage of available rebounds           | 10% / 18%+   |
+| STL%       | Steal Percentage                   | Steals per 100 possessions                 | 1.5% / 2.5%+ |
+| BLK%       | Block Percentage                   | Blocks per 100 possessions                 | 2% / 5%+     |
+| ORTG       | Offensive Rating                   | Points per 100 possessions                 | 110 / 118+   |
+| DRTG       | Defensive Rating                   | Points allowed per 100 poss (lower=better) | 108 / 104    |
+| Net Rating | ORTG - DRTG                        | Overall impact                             | +3 / +8+     |
 
 #### Basketball Analysis Framework
+
 ```
 PLAYER EVALUATION TEMPLATE:
 Player: _______________
@@ -142,31 +146,32 @@ Comparable Player: _______________
 
 #### Quarterback Metrics
 
-| Metric | Full Name | What It Measures | Good/Elite |
-|--------|-----------|-----------------|------------|
-| QBR | Total Quarterback Rating | ESPN's comprehensive QB metric (0-100) | 60 / 75+ |
-| Passer Rating | NFL Passer Rating | Traditional QB efficiency (0-158.3) | 90 / 100+ |
-| ANY/A | Adjusted Net Yards/Attempt | Yards per attempt with sacks, TDs, INTs | 6.5 / 7.5+ |
-| CPOE | Completion % Over Expected | Accuracy above expected | 1% / 4%+ |
-| EPA/Play | Expected Points Added/Play | Points added per play vs expected | 0.10 / 0.20+ |
-| DVOA | Defense-adjusted Value Over Average | Efficiency vs average (Football Outsiders) | 10% / 25%+ |
-| ADOT | Average Depth of Target | Average air yards per attempt | Context-dependent |
-| Pressure Rate | Pressured Dropbacks | Times pressured / dropbacks | <25% is good OL |
+| Metric        | Full Name                           | What It Measures                           | Good/Elite        |
+| ------------- | ----------------------------------- | ------------------------------------------ | ----------------- |
+| QBR           | Total Quarterback Rating            | ESPN's comprehensive QB metric (0-100)     | 60 / 75+          |
+| Passer Rating | NFL Passer Rating                   | Traditional QB efficiency (0-158.3)        | 90 / 100+         |
+| ANY/A         | Adjusted Net Yards/Attempt          | Yards per attempt with sacks, TDs, INTs    | 6.5 / 7.5+        |
+| CPOE          | Completion % Over Expected          | Accuracy above expected                    | 1% / 4%+          |
+| EPA/Play      | Expected Points Added/Play          | Points added per play vs expected          | 0.10 / 0.20+      |
+| DVOA          | Defense-adjusted Value Over Average | Efficiency vs average (Football Outsiders) | 10% / 25%+        |
+| ADOT          | Average Depth of Target             | Average air yards per attempt              | Context-dependent |
+| Pressure Rate | Pressured Dropbacks                 | Times pressured / dropbacks                | <25% is good OL   |
 
 #### Skill Position Metrics
 
-| Metric | Position | What It Measures | Good/Elite |
-|--------|----------|-----------------|------------|
-| YPC | RB | Yards per carry | 4.2 / 4.8+ |
-| YAC | WR/TE | Yards after catch | 4.0 / 5.5+ |
-| Target Share | WR/TE | % of team targets | 20% / 25%+ |
-| YPRR | WR | Yards per route run | 1.75 / 2.25+ |
-| Catch Rate | WR/TE | Catches / targets | 65% / 75%+ |
-| Separation | WR | Average separation at catch | 2.5+ yards |
-| Missed Tackles Forced | RB | Elusiveness metric | 0.15+ per touch |
-| Snap Count % | All | Playing time share | 70%+ is starter |
+| Metric                | Position | What It Measures            | Good/Elite      |
+| --------------------- | -------- | --------------------------- | --------------- |
+| YPC                   | RB       | Yards per carry             | 4.2 / 4.8+      |
+| YAC                   | WR/TE    | Yards after catch           | 4.0 / 5.5+      |
+| Target Share          | WR/TE    | % of team targets           | 20% / 25%+      |
+| YPRR                  | WR       | Yards per route run         | 1.75 / 2.25+    |
+| Catch Rate            | WR/TE    | Catches / targets           | 65% / 75%+      |
+| Separation            | WR       | Average separation at catch | 2.5+ yards      |
+| Missed Tackles Forced | RB       | Elusiveness metric          | 0.15+ per touch |
+| Snap Count %          | All      | Playing time share          | 70%+ is starter |
 
 #### Football Analysis Framework
+
 ```
 PLAYER EVALUATION TEMPLATE:
 Player: _______________  Position: ___
@@ -187,41 +192,42 @@ Risk Factors: _______________
 
 #### Key Metrics
 
-| Metric | What It Measures | Context |
-|--------|-----------------|---------|
-| xG | Expected Goals | Goal probability based on shot quality |
-| xA | Expected Assists | Assist probability based on pass quality |
-| xG + xA per 90 | Combined attacking output | Normalized to 90 minutes |
-| Progressive Passes | Passes moving ball significantly forward | Creativity measure |
-| Progressive Carries | Dribbles moving ball forward | Ball-carrying ability |
-| Tackles + Interceptions per 90 | Defensive actions | Defensive contribution |
-| Pressing Actions per 90 | High press triggers | Work rate / pressing |
-| Pass Completion % | Accuracy of passing | Depends on role and pass type |
-| Shot-Creating Actions | Actions leading to shots | Creativity |
-| Goal-Creating Actions | Actions directly leading to goals | Decisive impact |
+| Metric                         | What It Measures                         | Context                                  |
+| ------------------------------ | ---------------------------------------- | ---------------------------------------- |
+| xG                             | Expected Goals                           | Goal probability based on shot quality   |
+| xA                             | Expected Assists                         | Assist probability based on pass quality |
+| xG + xA per 90                 | Combined attacking output                | Normalized to 90 minutes                 |
+| Progressive Passes             | Passes moving ball significantly forward | Creativity measure                       |
+| Progressive Carries            | Dribbles moving ball forward             | Ball-carrying ability                    |
+| Tackles + Interceptions per 90 | Defensive actions                        | Defensive contribution                   |
+| Pressing Actions per 90        | High press triggers                      | Work rate / pressing                     |
+| Pass Completion %              | Accuracy of passing                      | Depends on role and pass type            |
+| Shot-Creating Actions          | Actions leading to shots                 | Creativity                               |
+| Goal-Creating Actions          | Actions directly leading to goals        | Decisive impact                          |
 
 ### Hockey (NHL)
 
 #### Key Metrics
 
-| Metric | What It Measures | Good/Elite |
-|--------|-----------------|------------|
-| CF% | Corsi For % (shot attempts) | 52% / 56%+ |
-| xGF% | Expected Goals For % | 52% / 56%+ |
-| P/60 | Points per 60 minutes | 2.0 / 3.0+ |
-| GAR | Goals Above Replacement | 5 / 15+ |
-| WAR | Wins Above Replacement | 1 / 3+ |
-| PDO | Shooting% + Save% (luck indicator) | ~100 is normal |
-| HDCF% | High-Danger Chances For % | 52% / 56%+ |
-| iCF | Individual shot attempts | Volume of offense |
-| IPP | Individual Points Percentage | % of team goals with a point | 60% / 75%+ |
-| TOI | Time on Ice | Usage indicator |
+| Metric | What It Measures                   | Good/Elite                   |
+| ------ | ---------------------------------- | ---------------------------- | ---------- |
+| CF%    | Corsi For % (shot attempts)        | 52% / 56%+                   |
+| xGF%   | Expected Goals For %               | 52% / 56%+                   |
+| P/60   | Points per 60 minutes              | 2.0 / 3.0+                   |
+| GAR    | Goals Above Replacement            | 5 / 15+                      |
+| WAR    | Wins Above Replacement             | 1 / 3+                       |
+| PDO    | Shooting% + Save% (luck indicator) | ~100 is normal               |
+| HDCF%  | High-Danger Chances For %          | 52% / 56%+                   |
+| iCF    | Individual shot attempts           | Volume of offense            |
+| IPP    | Individual Points Percentage       | % of team goals with a point | 60% / 75%+ |
+| TOI    | Time on Ice                        | Usage indicator              |
 
 ---
 
 ## Fantasy Sports Strategy
 
 ### Fantasy Football Draft Strategy
+
 ```
 DRAFT POSITION STRATEGY:
 
@@ -257,6 +263,7 @@ KEY PRINCIPLES:
 ```
 
 ### Fantasy Football Weekly Start/Sit Framework
+
 ```
 START/SIT DECISION MATRIX:
 
@@ -276,6 +283,7 @@ Score < 2.5: Consider sitting
 ```
 
 ### Fantasy Baseball Strategy
+
 ```
 CATEGORY ANALYSIS (Roto/Categories):
 
@@ -304,6 +312,7 @@ DRAFT STRATEGY:
 ## Team Analysis Framework
 
 ### Strength of Schedule Analysis Template
+
 ```
 TEAM: _______________
 SEASON: _______________
@@ -327,6 +336,7 @@ Overall SOS Rank: ___/32 (or league size)
 ```
 
 ### Team Efficiency Analysis
+
 ```
 TEAM EVALUATION:
 Team: _______________
@@ -361,6 +371,7 @@ Actual Record vs Expected: ___
 ## Season Prediction Models
 
 ### Pythagorean Win Expectation
+
 ```
 FORMULA:
 Win% = (Points Scored^exp) / (Points Scored^exp + Points Allowed^exp)
@@ -380,6 +391,7 @@ USE CASE:
 ```
 
 ### Simple ELO Rating Explanation
+
 ```
 ELO SYSTEM:
 - Each team starts with a base rating (1500)
@@ -406,6 +418,7 @@ APPLICATIONS:
 ---
 
 ## Historical Comparisons Framework
+
 ```
 PLAYER COMPARISON TEMPLATE:
 
@@ -440,16 +453,17 @@ CONCLUSION:
 
 ### Common Bet Types Explained
 
-| Bet Type | Description | Example |
-|----------|-------------|---------|
-| Moneyline | Pick the winner | Team A -150 (bet $150 to win $100) |
-| Spread | Margin of victory | Team A -7.5 (must win by 8+) |
-| Over/Under (Total) | Combined score | Over 48.5 (teams combine for 49+) |
-| Parlay | Multiple bets combined | All legs must hit for payout |
-| Prop Bet | Individual stat/event | Player X over 25.5 points |
-| Futures | Season-long outcome | Team X to win championship |
+| Bet Type           | Description            | Example                            |
+| ------------------ | ---------------------- | ---------------------------------- |
+| Moneyline          | Pick the winner        | Team A -150 (bet $150 to win $100) |
+| Spread             | Margin of victory      | Team A -7.5 (must win by 8+)       |
+| Over/Under (Total) | Combined score         | Over 48.5 (teams combine for 49+)  |
+| Parlay             | Multiple bets combined | All legs must hit for payout       |
+| Prop Bet           | Individual stat/event  | Player X over 25.5 points          |
+| Futures            | Season-long outcome    | Team X to win championship         |
 
 ### Understanding Odds
+
 ```
 AMERICAN ODDS:
 -150: Bet $150 to win $100 (favorite)
@@ -470,6 +484,7 @@ THE VIG (JUICE):
 ```
 
 ### Key Concepts
+
 ```
 IMPORTANT EDUCATIONAL NOTES:
 1. The house always has an edge (the vig/juice)
@@ -489,6 +504,7 @@ IMPORTANT EDUCATIONAL NOTES:
 ## Output Format
 
 When providing sports analysis, present it as:
+
 ```
 ANALYSIS: [Type - Player/Team/Matchup/Draft]
 Sport: [Sport]

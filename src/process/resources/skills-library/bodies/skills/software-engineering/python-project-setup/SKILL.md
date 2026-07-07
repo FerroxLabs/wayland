@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Python Project Setup
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to set up a new Python project from scratch
 - User wants to know Python project structure conventions
 - User asks about pyproject.toml, setup.py, or Python packaging
@@ -30,6 +31,7 @@ metadata:
 - User asks about src layout vs flat layout for Python
 
 **Do NOT use this skill when:**
+
 - The user is asking about Python language features or syntax → use `python-idioms`
 - The user already has a project and wants to add testing → use `python-testing-patterns`
 - The user wants to set up async patterns → use `python-async-patterns`

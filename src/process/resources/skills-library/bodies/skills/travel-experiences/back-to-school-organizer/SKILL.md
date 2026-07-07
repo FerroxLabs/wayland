@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning budgeting checklist template guide beginner-friendly cloud"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning event-planning budgeting checklist template guide beginner-friendly cloud'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Back-to-School Organizer
 
 You are a back-to-school preparation strategist who helps families navigate the transition from summer to the school year with organized systems for supplies, routines, activities, and emotional readiness.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about back to school organizer techniques or best practices
 - User needs guidance on back to school organizer concepts
 - User wants to implement or improve their approach to back to school organizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of back to school organizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ Before creating your back-to-school plan, clarify:
 ### 6-8 Weeks Before School
 
 **Administrative Tasks**
+
 - [ ] Complete registration and enrollment paperwork
 - [ ] Schedule required physicals and immunizations
 - [ ] Submit health forms and medication authorization
@@ -63,6 +65,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Attend orientation events or open houses
 
 **Planning Tasks**
+
 - [ ] Request supply lists from school or download online
 - [ ] Inventory existing supplies from last year
 - [ ] Assess clothing and shoe sizes for growth
@@ -72,6 +75,7 @@ Before creating your back-to-school plan, clarify:
 ### 3-4 Weeks Before School
 
 **Shopping Tasks**
+
 - [ ] Purchase school supplies (see checklist below)
 - [ ] Buy clothing essentials (focus on basics first)
 - [ ] Purchase new shoes and backpack if needed
@@ -80,6 +84,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Stock up on healthy snack and lunch foods
 
 **Organizational Tasks**
+
 - [ ] Set up homework station or study area
 - [ ] Create a family command center (calendar, schedules, papers)
 - [ ] Label all supplies, clothing, and belongings
@@ -89,6 +94,7 @@ Before creating your back-to-school plan, clarify:
 ### 1-2 Weeks Before School
 
 **Routine Building**
+
 - [ ] Practice the full morning routine for at least 3 days
 - [ ] Do a dry run of the commute/bus route
 - [ ] Establish homework and screen time rules
@@ -96,6 +102,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Practice lunch packing or cafeteria procedures
 
 **Emotional Preparation**
+
 - [ ] Visit the school if possible (especially for new students)
 - [ ] Talk about expectations, concerns, and excitement
 - [ ] Connect with classmates through playdates if possible
@@ -105,6 +112,7 @@ Before creating your back-to-school plan, clarify:
 ## School Supply Checklist by Level
 
 ### Elementary School (K-5)
+
 - [ ] Backpack (appropriately sized, with padded straps)
 - [ ] Pencils (No. 2, one box per semester)
 - [ ] Erasers (cap and block style)
@@ -123,6 +131,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Lunch box and ice pack
 
 ### Middle School (6-8)
+
 - [ ] Sturdy backpack with laptop compartment
 - [ ] Binder(s) with dividers
 - [ ] Loose-leaf paper (wide or college ruled per teacher)
@@ -139,6 +148,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Earbuds or headphones
 
 ### High School (9-12)
+
 - [ ] Backpack or messenger bag
 - [ ] Binders and/or folders (per class preference)
 - [ ] College-ruled notebooks
@@ -155,6 +165,7 @@ Before creating your back-to-school plan, clarify:
 ## Budget-Smart Shopping Strategies
 
 ### Supply Shopping
+
 - Check what you already have before buying anything new
 - Compare prices across multiple retailers (online and in-store)
 - Buy generic brands for basics (paper, pencils, folders)
@@ -165,18 +176,19 @@ Before creating your back-to-school plan, clarify:
 
 ### Clothing Budget
 
-| Category | Quantity Needed | Budget Priority |
-|----------|----------------|----------------|
-| Everyday pants/shorts | 5-7 | High |
-| Everyday tops | 7-10 | High |
-| Outerwear (jacket/coat) | 1-2 | High |
-| Shoes (everyday) | 1-2 pairs | High |
-| Undergarments/socks | 7-10 sets | High |
-| Dressy outfit | 1 | Low |
-| Athletic wear (PE) | 2-3 sets | Medium |
-| Athletic shoes | 1 pair | Medium |
+| Category                | Quantity Needed | Budget Priority |
+| ----------------------- | --------------- | --------------- |
+| Everyday pants/shorts   | 5-7             | High            |
+| Everyday tops           | 7-10            | High            |
+| Outerwear (jacket/coat) | 1-2             | High            |
+| Shoes (everyday)        | 1-2 pairs       | High            |
+| Undergarments/socks     | 7-10 sets       | High            |
+| Dressy outfit           | 1               | Low             |
+| Athletic wear (PE)      | 2-3 sets        | Medium          |
+| Athletic shoes          | 1 pair          | Medium          |
 
 ### Money-Saving Clothing Tips
+
 - Inventory what still fits before shopping
 - Buy basics first, trendy items later
 - Choose versatile pieces that mix and match
@@ -191,6 +203,7 @@ Before creating your back-to-school plan, clarify:
 ### Morning Routine Builder
 
 **The Night Before (saves 20-30 minutes)**
+
 - [ ] Pack backpack completely
 - [ ] Set out clothes including shoes and accessories
 - [ ] Prepare lunch and snacks
@@ -198,6 +211,7 @@ Before creating your back-to-school plan, clarify:
 - [ ] Review the next day's schedule
 
 **Morning Flow (customize timing)**
+
 - [ ] Wake up (allow time before rushing)
 - [ ] Hygiene (bathroom, teeth, hair, face)
 - [ ] Get dressed
@@ -207,30 +221,31 @@ Before creating your back-to-school plan, clarify:
 
 ### After-School Routine Template
 
-| Time Block | Activity | Duration |
-|-----------|----------|----------|
-| Arrival home | Snack and decompress | 15-30 min |
-| Block 1 | Homework (hardest subject first) | 30-60 min |
-| Break | Physical activity or free play | 15-30 min |
-| Block 2 | Remaining homework or reading | 20-40 min |
-| Late afternoon | Extracurriculars or free time | 60-90 min |
-| Evening | Dinner, family time, hygiene | Variable |
-| Bedtime prep | Pack bag, lay out clothes, read | 20-30 min |
+| Time Block     | Activity                         | Duration  |
+| -------------- | -------------------------------- | --------- |
+| Arrival home   | Snack and decompress             | 15-30 min |
+| Block 1        | Homework (hardest subject first) | 30-60 min |
+| Break          | Physical activity or free play   | 15-30 min |
+| Block 2        | Remaining homework or reading    | 20-40 min |
+| Late afternoon | Extracurriculars or free time    | 60-90 min |
+| Evening        | Dinner, family time, hygiene     | Variable  |
+| Bedtime prep   | Pack bag, lay out clothes, read  | 20-30 min |
 
 ### Age-Appropriate Bedtime Guide
 
-| Age | Recommended Sleep | Suggested Bedtime | Wake Time |
-|-----|-------------------|-------------------|-----------|
-| 5-7 | 10-11 hours | 7:30-8:00 PM | 6:30-7:00 AM |
-| 8-10 | 10-11 hours | 8:00-8:30 PM | 6:30-7:00 AM |
-| 11-13 | 9-11 hours | 8:30-9:30 PM | 6:30-7:00 AM |
-| 14-17 | 8-10 hours | 9:00-10:00 PM | 6:30-7:00 AM |
+| Age   | Recommended Sleep | Suggested Bedtime | Wake Time    |
+| ----- | ----------------- | ----------------- | ------------ |
+| 5-7   | 10-11 hours       | 7:30-8:00 PM      | 6:30-7:00 AM |
+| 8-10  | 10-11 hours       | 8:00-8:30 PM      | 6:30-7:00 AM |
+| 11-13 | 9-11 hours        | 8:30-9:30 PM      | 6:30-7:00 AM |
+| 14-17 | 8-10 hours        | 9:00-10:00 PM     | 6:30-7:00 AM |
 
 ## Extracurricular Activity Management
 
 ### Activity Evaluation Checklist
 
 Before committing to an activity, consider:
+
 - [ ] Does your child genuinely want to do this?
 - [ ] What is the time commitment (practices, games, rehearsals)?
 - [ ] What is the cost (fees, equipment, uniforms, travel)?
@@ -242,6 +257,7 @@ Before committing to an activity, consider:
 ### Avoiding Over-Scheduling
 
 **Warning Signs of Over-Scheduling**
+
 - Child resists going to activities they used to enjoy
 - Homework quality is declining
 - Increased emotional outbursts or withdrawal
@@ -251,6 +267,7 @@ Before committing to an activity, consider:
 - Weekends are fully booked
 
 **Guidelines by Age**
+
 - Elementary: 1-2 activities per season maximum
 - Middle school: 2-3 activities per season
 - High school: Balance academics, 1-2 activities, and rest
@@ -260,6 +277,7 @@ Before committing to an activity, consider:
 ### Starting a New School
 
 **For the Child**
+
 - Visit the school before the first day if possible
 - Walk through the schedule and find all classrooms
 - Identify one safe adult (counselor, teacher, office staff)
@@ -267,6 +285,7 @@ Before committing to an activity, consider:
 - Pack a comfort item if age-appropriate
 
 **For Parents**
+
 - Attend parent orientation and meet teachers
 - Join the PTA or parent volunteer list
 - Exchange contact information with other parents
@@ -275,16 +294,17 @@ Before committing to an activity, consider:
 
 ### Grade-Level Transition Challenges
 
-| Transition | Key Challenges | Preparation Strategies |
-|-----------|----------------|----------------------|
-| Preschool to K | Longer days, structure, separation | Practice routines, visit classroom |
-| Elementary to Middle | Lockers, multiple teachers, independence | Practice combination locks, review schedule |
-| Middle to High | Increased academics, social pressure | Discuss expectations, organizational systems |
-| High school to college | Full independence, self-management | Practice life skills, discuss safety |
+| Transition             | Key Challenges                           | Preparation Strategies                       |
+| ---------------------- | ---------------------------------------- | -------------------------------------------- |
+| Preschool to K         | Longer days, structure, separation       | Practice routines, visit classroom           |
+| Elementary to Middle   | Lockers, multiple teachers, independence | Practice combination locks, review schedule  |
+| Middle to High         | Increased academics, social pressure     | Discuss expectations, organizational systems |
+| High school to college | Full independence, self-management       | Practice life skills, discuss safety         |
 
 ## Homework and Study Systems
 
 ### Creating an Effective Study Space
+
 - Quiet area with good lighting and minimal distractions
 - Stocked with necessary supplies (no trips needed during study time)
 - Comfortable seating at an appropriate desk or table height
@@ -293,6 +313,7 @@ Before committing to an activity, consider:
 - Bulletin board or whiteboard for reminders and schedules
 
 ### Homework Help Framework
+
 1. Let them try independently first
 2. Ask guiding questions rather than giving answers
 3. Help break large assignments into smaller steps
@@ -303,6 +324,7 @@ Before committing to an activity, consider:
 ### Communication with Teachers
 
 **Effective Email Template**
+
 - Subject line: [Child's Name] - [Specific Topic] - [Class Period if applicable]
 - Brief greeting and introduction
 - Specific concern or question (one topic per email)
@@ -313,6 +335,7 @@ Before committing to an activity, consider:
 ## Family Command Center Setup
 
 ### Essential Components
+
 - [ ] Large family calendar (wall or digital shared calendar)
 - [ ] Individual child schedules posted visibly
 - [ ] Important contacts list (school, doctors, emergency)
@@ -322,7 +345,6 @@ Before committing to an activity, consider:
 - [ ] Charging station for devices
 - [ ] Weekly menu board
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -330,7 +352,6 @@ Before committing to an activity, consider:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -351,14 +372,12 @@ Before committing to an activity, consider:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

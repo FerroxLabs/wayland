@@ -12,14 +12,15 @@ description: >-
   or building a cold outreach sequence (use wayland-outreach-build).
 license: Apache-2.0
 type: workflow
-skills: "sales-coach sales-icp sales-qualify"
+skills: 'sales-coach sales-icp sales-qualify'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales icp customer-profile segmentation qualification step-by-step
   category: sales
-  depends: "sales-coach sales-icp sales-qualify"
+  depends: 'sales-coach sales-icp sales-qualify'
 ---
+
 # ICP Build
 
 **Estimated time:** 30-45 minutes

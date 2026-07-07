@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decluttering cleaning guide"
-  category: "home-household"
-  subcategory: "interior-organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'decluttering cleaning guide'
+  category: 'home-household'
+  subcategory: 'interior-organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Decluttering Method
 
 ## When to Use
@@ -66,27 +67,32 @@ If the user just wants to start immediately without answering questions, default
 Present the method that matches the user's situation. Do not list all methods and make them choose -- recommend one with a brief explanation of why.
 
 **Category-Based (Recommended for full-home declutters with at least a full day available):**
+
 - Popularized by Marie Kondo's KonMari method but used in many systems. The core insight is that you see the full scope of what you own only when you gather all instances of a category in one place.
 - Standard category order: clothing -- books -- papers -- komono (miscellaneous: kitchen, bathroom, garage, hobby items, electronics) -- sentimental items. This order is deliberate: earlier categories build decision speed, and sentimental items require the sharpest judgment, so they come last.
 - Best for: people who own a lot and want to do it once, thoroughly, rather than repeatedly
 
 **Room-Based (Recommended for time-constrained users or those who want visible progress quickly):**
+
 - Work through one room at a time to completion before moving to the next
 - Recommended room order: bathroom (easiest decisions, fastest results, builds confidence) -- bedroom closets -- kitchen -- living room -- home office or papers -- storage areas and garage (hardest and most time-intensive)
 - Best for: people with busy schedules who need tangible wins to stay motivated
 
 **Momentum-Based (Recommended for overwhelmed beginners or people who have stalled before):**
+
 - Start with the category or zone with the clearest decisions and lowest emotional weight
 - Build confidence before moving to items with higher attachment
 - The 5-minute start variation: commit to 5 minutes only. Nearly every user who starts continues past the timer. The mental contract is "I only have to do 5 minutes" -- this eliminates the activation energy barrier
 - Best for: first-time declutterers, people with anxiety about the process, households with very high volume
 
 **Swedish Death Cleaning (Döstädning) Approach (Recommended for older adults, estate-related decluttering, or anyone who wants a legacy-conscious framework):**
+
 - Developed by Margareta Magnusson. The central question is not "does this spark joy" but "would anyone else want this after I'm gone, or will it become a burden?" This reframes decluttering as an act of consideration for the people you love.
 - Works systematically through every room and category, beginning with large furniture and ending with photographs and letters (most personal items last)
 - Particularly useful for users downsizing from a family home after children have left, or processing belongings after a loss
 
 **The 20/20 Rule (Supplementary technique for the "just in case" problem):**
+
 - Coined by minimalists Joshua Fields Millburn and Ryan Nicodemus: if an item can be replaced for under $20 and in under 20 minutes, you do not need to keep it "just in case"
 - Apply this test whenever a user hesitates on a utilitarian item out of scarcity thinking
 
@@ -95,28 +101,33 @@ Present the method that matches the user's situation. Do not list all methods an
 Give the user clear, specific questions to ask of every item. Different item types have different primary criteria:
 
 **For clothing:**
+
 - Does it fit right now (not "when I lose weight," not "if I alter it")? If no, donate.
 - Have you worn it in the last 12 months? If no, and it is not a true special-occasion item, donate.
 - Does it require a repair or alteration you have been delaying for more than 6 months? It will not get done. Donate.
 - Is it worn out, pilled, stained, or stretched? Discard (not donate -- donating wearable garbage shifts your burden onto a charity).
 
 **For books:**
+
 - Will you realistically reread it? "I might" without a specific reason means no.
 - Is the information still accurate and not freely available online? Reference books from the 1990s rarely meet this standard.
 - Are you keeping it because you feel you should have read it? Donate. The guilt associated with unread books does not improve with keeping them.
 
 **For kitchen items:**
+
 - Have you used it in the last 12 months? Single-use gadgets with a "no" are almost always donate candidates.
 - Does it perform a function that another item you own already performs? Duplicate function = donate the inferior version.
 - Is it damaged in a way that affects safety or hygiene (cracked non-stick coating, chipped ceramic, rust)? Discard.
 
 **For all categories -- the four universal tests:**
+
 1. **12-Month Test:** Used in the last 12 months? (Seasonal and emergency items are exempt.)
 2. **Duplicate Test:** Do you own more than one that does the same thing? Keep the best.
 3. **Replacement Test:** If lost, would you buy it again at full price? If no, release it.
 4. **Space-Value Test:** Does the value of keeping this item exceed the cost of the space it occupies and the mental load of managing it?
 
 **The "Decide Later" rule:**
+
 - Maximum 10% of total items evaluated may go in the Decide Later box
 - The box must be sealed, labeled with today's date and a 2-week deadline, and placed somewhere inconvenient (not back in its original location)
 - If not decided within 2 weeks, the default action is DONATE -- the delay signals low attachment
@@ -138,6 +149,7 @@ A poor sorting setup is the single most common reason a declutter session turns 
 Provide the full sequence with time estimates. Time estimates assume average accumulation for a typical household; adjust upward 50% for someone who describes themselves as having "a lot of stuff" and downward 30% for someone moving from a small space or who declutters regularly.
 
 **Time estimates per category (one adult, moderate accumulation):**
+
 - Bathroom products and medicine cabinet: 30-60 minutes
 - Clothing, shoes, and accessories (single person's wardrobe): 2-4 hours
 - Books and media: 1-2 hours
@@ -150,6 +162,7 @@ Provide the full sequence with time estimates. Time estimates assume average acc
 - Sentimental items: 1-3 hours
 
 **Execution tactics within a session:**
+
 - Touch every single item -- do not just scan visually. The physical act of handling an object activates the decision process in a way that looking does not.
 - Work quickly on the first pass. Aim for no more than 5-10 seconds per utilitarian item. Slowing down on non-sentimental items is where decision fatigue builds.
 - Never leave the sorting area to put something away mid-session. Put KEEP items in the keep pile; put RELOCATE items in the relocate basket. Leaving the area breaks the session.
@@ -160,10 +173,12 @@ Provide the full sequence with time estimates. Time estimates assume average acc
 Sentimental items are the hardest category in every decluttering system. Address them with a specific framework -- never rush them, never tackle them first, and never let the user feel judged for keeping them.
 
 **The Memory Box method:**
+
 - Designate one container per person as the memory box. Standard size: one legal-size banker's box (10" x 12" x 15"), one under-bed storage bin, or one medium plastic tote. The container cannot grow -- this is the constraint.
 - When the memory box is full and a new sentimental item needs to enter, something must leave. This is not cruelty -- it is a framework for honoring what matters most by making real choices.
 
 **Techniques for releasing sentimental items:**
+
 - **Photo preservation:** Photograph the item in good light before donating or discarding. The memory is preserved; the object is released. This works for children's artwork, greeting cards, inherited items, and memorabilia.
 - **Pass it on intentionally:** Inherited items given to a family member who genuinely wants them carries a completely different emotional weight than donating to a stranger. Ask: "Is there someone in the family who would cherish this?" If yes, contact them before donating.
 - **Grief acknowledgment:** When an item is connected to a loss, the difficulty of releasing it is not irrational -- it is appropriate grief. Acknowledge this directly. There is no rule that says a person must declutter grief-adjacent items on any particular timeline.
@@ -184,20 +199,24 @@ Clutter that is sorted but not removed is not decluttered. Items that stay in th
 The most common decluttering failure is the accumulation rebound: 6-12 months after a thorough declutter, the home returns to its previous state because no behavioral change accompanied the purge.
 
 **The One-In-One-Out Rule:**
+
 - For every new item of a given type brought into the home, one item of similar type leaves. New coat = one coat donated. New book = one book donated. This is the single most impactful maintenance habit.
 - Apply strictly to: clothing, shoes, books, kitchen gadgets, decor, and toiletries. These are the highest-accumulation categories.
 - Exceptions for true consumables (food, cleaning supplies) and items with a designated replacement lifecycle (towels when worn out, mattress every 8-10 years)
 
 **The 10-Minute Nightly Reset:**
+
 - Every item in the home has an assigned home -- a specific location it returns to when not in use. The nightly reset takes 5-10 minutes and returns everything to its home. This prevents the accumulation of small disorder that becomes large disorder over weeks.
 - If the reset consistently takes more than 10 minutes, it signals either too many items without homes or insufficient storage for what is kept.
 
 **Quarterly 30-Minute Sweep:**
+
 - Set a calendar reminder every 3 months
 - Walk through every room with a donation bag. Target: 10-20 items per sweep.
 - This is not a deep declutter -- it is maintenance. Focus on: items not used since the last sweep, items that crept in via gifts or impulse purchases, expired products, worn-out items.
 
 **The Purchase Pause:**
+
 - Before buying any non-consumable item, impose a 24-48-hour wait
 - This single behavioral intervention eliminates the majority of impulse accumulation
 - For items over $50, extend the pause to 72 hours. Studies on impulse buying show that 60-80% of paused non-essential purchases are abandoned within 72 hours.
@@ -381,14 +400,14 @@ For every item, ask in order. Stop at the first "yes" that tells you what to do:
 
 ### Sorting Setup (Set up Friday night or early Saturday morning)
 
-| Bin | Purpose | Container |
-|-----|---------|-----------|
-| KEEP | Going back to a designated home | Two laundry baskets -- one per room |
-| DONATE | Good condition, useful to someone else | 8-10 large black garbage bags |
-| DISCARD | Damaged, expired, broken, unusable | 4-5 large garbage bags (separate recycling bag) |
-| SELL (optional) | List within 30 days, then donate | One small cardboard box |
-| DECIDE LATER | Maximum 10% of items, reviewed by next Sunday | One banker's box, sealed with today's date |
-| RELOCATE | Belongs in another room, not a declutter candidate | One laundry basket |
+| Bin             | Purpose                                            | Container                                       |
+| --------------- | -------------------------------------------------- | ----------------------------------------------- |
+| KEEP            | Going back to a designated home                    | Two laundry baskets -- one per room             |
+| DONATE          | Good condition, useful to someone else             | 8-10 large black garbage bags                   |
+| DISCARD         | Damaged, expired, broken, unusable                 | 4-5 large garbage bags (separate recycling bag) |
+| SELL (optional) | List within 30 days, then donate                   | One small cardboard box                         |
+| DECIDE LATER    | Maximum 10% of items, reviewed by next Sunday      | One banker's box, sealed with today's date      |
+| RELOCATE        | Belongs in another room, not a declutter candidate | One laundry basket                              |
 
 **Drop-off scheduled for:** Sunday at 4:00 PM. Confirm your nearest drop-off location now and note the address. Most Goodwill and Salvation Army locations accept walk-in donations without appointments.
 
@@ -426,6 +445,7 @@ This is the highest-volume category and often the most clarifying. Pull everythi
 **Watch out for:** "I'll wear it when I lose weight." This is the single most common reason closets overfill. Clothes that do not fit now do not belong in an active closet. If this triggers a deeper conversation, acknowledge it and keep the discussion focused on what serves you today.
 
 **Tops, bottoms, dresses, and suits:**
+
 - [ ] Try on anything you are uncertain about. The mirror does not lie.
 - [ ] Items needing alterations you have been meaning to do for over 6 months: DONATE. It will not happen.
 - [ ] Items that fit technically but you always skip when getting dressed: DONATE. Your subconscious knows.
@@ -433,6 +453,7 @@ This is the highest-volume category and often the most clarifying. Pull everythi
 - [ ] Duplicates in the same function (6 plain white t-shirts): keep 3, donate 3.
 
 **Shoes:**
+
 - [ ] Line up every pair. Every pair.
 - [ ] Worn out soles, broken heels, scuffed beyond repair: DISCARD.
 - [ ] Not worn in 12 months: DONATE. Shoes that hurt your feet but cost a lot: DONATE. Shoes do not improve from sitting in a box.
@@ -440,6 +461,7 @@ This is the highest-volume category and often the most clarifying. Pull everythi
 - [ ] Seasonal shoes (snow boots, sandals): exempt from the 12-month rule. Evaluate on fit and condition only.
 
 **Accessories:**
+
 - [ ] Bags: keep 1 everyday bag, 1 work bag if different from everyday, 1 formal/evening bag, 1 gym/sport bag. Donate the rest.
 - [ ] Belts: keep 2-3 in active use. Donate the rest.
 - [ ] Scarves, hats, gloves: keep what you actually wear. One drawer or bin maximum.
@@ -464,24 +486,28 @@ The kitchen is the room where "just in case" thinking is strongest. Address it d
 **Watch out for:** The guilt attached to expensive single-use appliances (bread makers, pasta machines, air fryers used twice). The purchase price is gone either way. The question is only whether the item earns the counter or cabinet space it occupies.
 
 **Pantry and food:**
+
 - [ ] Check every expiration date. Discard anything expired. This is non-negotiable -- expired food is not a declutter candidate, it is a discard.
 - [ ] Duplicate items: 4 cans of the same soup is fine (pantry stock). 3 bottles of balsamic vinegar is not -- use what you have.
 - [ ] Specialty ingredients purchased for one recipe, never used again: if they have a shelf life and are expired, discard. If still good, donate to a food pantry or use within 2 weeks.
 - [ ] Spices: check dates and smell. Spices older than 2-3 years have lost most of their potency. Discard and replace the ones you actually use.
 
 **Gadgets and small appliances:**
+
 - [ ] Lay every gadget and small appliance on the kitchen table or floor. Every one.
 - [ ] Powered by electricity and not used in 12 months: DONATE unless it is genuinely seasonal (holiday cookie press, outdoor grill accessories).
 - [ ] Manual gadgets used under 5 times total: DONATE (avocado slicer, strawberry huller, cherry pitter, apple corer -- the function almost always has a substitute in a good chef's knife).
 - [ ] Duplicates: you need 1 can opener, 1-2 spatulas, 1-2 wooden spoons, 1 chef's knife. Not 3 of each.
 
 **Dishes, glasses, and cookware:**
+
 - [ ] Chipped dishes or cracked glasses: DISCARD. Chipped ceramics and cracked non-stick coatings are a food safety issue, not just an aesthetic one.
 - [ ] Plastic containers: match every container to its lid right now. Lids without containers, containers without lids: DISCARD. Keep a set of 6-8 containers (glass preferred for longevity).
 - [ ] Mugs: keep 1 per person plus 2 for guests. If you live alone, that is 3 mugs total. Most people own 12-20.
 - [ ] Duplicate pots or pans performing the same function: keep the best quality. Donate the duplicate.
 
 **Linens, shopping bags, takeout containers:**
+
 - [ ] Reusable shopping bags: keep 4-6 in the most accessible place (your front door or car). Donate the rest.
 - [ ] Takeout containers: keep a small stack (10-15) if you reuse them. Beyond that, discard.
 - [ ] Kitchen towels and dish rags: threadbare = discard. Keep 4-6 dish towels, 4-6 dish rags.
@@ -541,16 +567,19 @@ This is likely the most volume-intensive zone. The items here ended up here prec
 **Important:** This section handles only the declutter triage. For complete paper organization and filing, see `paper-document-organization`.
 
 **Keep permanently (cannot discard under any circumstances):**
+
 - Vital records: birth certificates, Social Security cards, marriage/divorce certificates, naturalization papers
 - Legal documents: will, trust documents, power of attorney, property deeds, vehicle titles
 - Medical: vaccination records, surgical history for significant procedures, current prescriptions, advance directives
 
 **Keep for 7 years:**
+
 - Tax returns and all supporting documents (IRS audit window is 3 years for standard returns, 6 years if you under-reported income by 25%+, unlimited for fraud -- 7 years covers the standard case with buffer)
 - W-2s and 1099s
 - Receipts for major purchases (for warranty, insurance, or tax purposes)
 
 **Discard:**
+
 - Bills older than 1 year that are paid and not tax-related (if you need a record, your online account has it)
 - Pay stubs older than 1 year (after reconciling with your W-2)
 - ATM and deposit receipts older than 1 month (after reconciling with statements)
@@ -565,11 +594,13 @@ This is likely the most volume-intensive zone. The items here ended up here prec
 Allocate this time for items you set aside throughout the weekend plus any items clearly sentimental in the second bedroom. Do not rush this category. Do not set a volume target. But do use the framework.
 
 **Memory box rule:**
+
 - One banker's box (10" x 12" x 15") per person. This is your sentimental container. It can be filled with whatever matters most to you.
 - It does not expand. When it is full and something new needs to enter, something else must leave -- you decide what.
 - This constraint is not cruelty. It is the framework that makes "keep what matters most" a real choice rather than "keep everything."
 
 **What to do with each category:**
+
 - [ ] Greeting cards: read through them. Keep the 10-15 that carry the most meaning. Photograph the rest if you want to preserve the messages. Recycle the physical cards.
 - [ ] Photos (physical prints): organize by rough era. Keep the ones that show something meaningful -- a face, an event, a place that matters. Scan favorites if you want a digital backup. Donate albums with generic landscapes or unknown people to antique stores (they have buyers for this).
 - [ ] Gifts kept out of obligation rather than love: you are not obligated to keep a gift. The act of giving was the expression of love -- the object does not

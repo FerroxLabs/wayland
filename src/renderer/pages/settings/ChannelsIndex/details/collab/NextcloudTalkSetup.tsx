@@ -51,10 +51,14 @@ const NextcloudTalkSetup: React.FC = () => {
       pluginId='nextcloud-talk_default'
       helpText={t(
         'settings.channels.nextcloudTalk.help',
-        'Self-hosted Nextcloud Talk via app-password Basic auth. Provide your server URL, Nextcloud username, and an app password generated under Personal → Security → Devices & sessions.',
+        'Self-hosted Nextcloud Talk via app-password Basic auth. Provide your server URL, Nextcloud username, and an app password generated under Personal → Security → Devices & sessions.'
       )}
     >
-      <NextcloudTalkConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <NextcloudTalkConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

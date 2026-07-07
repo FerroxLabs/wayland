@@ -29,13 +29,7 @@ export type McpLibraryRailProps = {
   onSelect: (sel: McpRailSelection) => void;
 };
 
-const McpLibraryRail: React.FC<McpLibraryRailProps> = ({
-  search,
-  onSearch,
-  counts,
-  active,
-  onSelect,
-}) => {
+const McpLibraryRail: React.FC<McpLibraryRailProps> = ({ search, onSearch, counts, active, onSelect }) => {
   const { t } = useTranslation();
 
   const showAttention = counts.attention > 0 || (active.kind === 'status' && active.value === 'attention');

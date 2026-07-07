@@ -53,12 +53,10 @@ const TypeDropdown: React.FC<TypeDropdownProps> = ({ typeCounts, selected, onFil
 
   const toggleType = useCallback(
     (type: MemoryType) => {
-      const next = selected.includes(type)
-        ? selected.filter((s) => s !== type)
-        : [...selected, type];
+      const next = selected.includes(type) ? selected.filter((s) => s !== type) : [...selected, type];
       onFilterChange(next);
     },
-    [selected, onFilterChange],
+    [selected, onFilterChange]
   );
 
   const selectedLabel =
@@ -82,14 +80,12 @@ const TypeDropdown: React.FC<TypeDropdownProps> = ({ typeCounts, selected, onFil
             onClick={() => toggleType(def.type)}
             data-testid={`type-option-${def.type}`}
           >
-            <span
-              className={styles.dot}
-              style={{ background: def.color }}
-              aria-hidden
-            />
+            <span className={styles.dot} style={{ background: def.color }} aria-hidden />
             <span className={styles.typeLabel}>{t(def.labelKey, def.label)}</span>
             <span className={styles.typeCount}>{count.toLocaleString()}</span>
-            <span className={styles.check} aria-hidden>{isChecked ? '✓' : ''}</span>
+            <span className={styles.check} aria-hidden>
+              {isChecked ? '✓' : ''}
+            </span>
           </button>
         );
       })}
@@ -107,18 +103,16 @@ const TypeDropdown: React.FC<TypeDropdownProps> = ({ typeCounts, selected, onFil
   );
 
   return (
-    <Dropdown
-      droplist={dropdownContent}
-      trigger='click'
-      position='bl'
-    >
+    <Dropdown droplist={dropdownContent} trigger='click' position='bl'>
       <button
         type='button'
         className={`${styles.trigger}${selected.length > 0 ? ` ${styles.triggerActive}` : ''}`}
         data-testid='type-dropdown-btn'
       >
         {selectedLabel}
-        <span className={styles.arrow} aria-hidden>▾</span>
+        <span className={styles.arrow} aria-hidden>
+          ▾
+        </span>
       </button>
     </Dropdown>
   );

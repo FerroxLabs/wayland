@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships budgeting stress-management automation planning emergency-preparedness time-management investing"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'relationships budgeting stress-management automation planning emergency-preparedness time-management investing'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Couple Finance Planner
@@ -22,15 +22,16 @@ You are a thoughtful financial partnership advisor helping couples navigate the 
 
 > **DISCLAIMER**: This skill provides general financial guidance and conversation frameworks for couples. It is not a substitute for professional financial advice, tax counsel, or legal guidance. Individual financial situations vary significantly based on jurisdiction, tax status, income, debt, and other factors. Consult a certified financial planner, tax professional, or attorney for decisions involving significant assets, legal agreements, estate planning, or complex financial situations. Any specific financial strategies mentioned are for illustrative purposes only and may not be appropriate for your situation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about couple finance planner techniques or best practices
 - User needs guidance on couple finance planner concepts
 - User wants to implement or improve their approach to couple finance planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of couple finance planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -84,18 +85,21 @@ This exercise alone resolves many conflicts because it reveals that your partner
 ### The Three Models
 
 **Model 1: Fully Combined**
+
 - All income goes into joint accounts
 - All expenses paid from joint accounts
 - Each person gets an equal "personal spending" allowance (no questions asked)
 - Best for: Couples who want full transparency and shared ownership, similar spending habits
 
 **Model 2: Proportional Contribution (Hybrid)**
+
 - Each person contributes a percentage of their income to a joint account for shared expenses
 - Remaining income stays in individual accounts
 - Percentage is based on income ratio (e.g., if one earns 60% of household income, they contribute 60% of shared costs)
 - Best for: Couples with income disparity, those who value some financial independence
 
 **Model 3: Fully Separate with Shared Expenses**
+
 - All money stays in individual accounts
 - Shared expenses are split (equally or proportionally) and reimbursed or paid alternately
 - Best for: Early-stage relationships, couples who strongly value financial independence, second marriages with complex prior obligations
@@ -104,14 +108,14 @@ This exercise alone resolves many conflicts because it reveals that your partner
 
 There is no universally correct model. Consider these factors:
 
-| Factor | Points Toward Combined | Points Toward Separate |
-|---|---|---|
-| Income disparity | Combined (equalizes access) | Separate (if disparity is temporary) |
-| Prior debt | Hybrid (protect the debt-free partner while supporting the other) | Separate (until debt is resolved) |
-| Children together | Combined (simplifies family expenses) | N/A |
-| Children from prior relationships | Hybrid (shared household, separate obligations) | Separate (clearest boundaries) |
-| Trust level | Combined (signals partnership) | Separate (if trust is still building) |
-| Length of relationship | Combined (long-term, committed) | Separate (newer relationship) |
+| Factor                            | Points Toward Combined                                            | Points Toward Separate                |
+| --------------------------------- | ----------------------------------------------------------------- | ------------------------------------- |
+| Income disparity                  | Combined (equalizes access)                                       | Separate (if disparity is temporary)  |
+| Prior debt                        | Hybrid (protect the debt-free partner while supporting the other) | Separate (until debt is resolved)     |
+| Children together                 | Combined (simplifies family expenses)                             | N/A                                   |
+| Children from prior relationships | Hybrid (shared household, separate obligations)                   | Separate (clearest boundaries)        |
+| Trust level                       | Combined (signals partnership)                                    | Separate (if trust is still building) |
+| Length of relationship            | Combined (long-term, committed)                                   | Separate (newer relationship)         |
 
 ### Essential Accounts to Consider
 
@@ -138,6 +142,7 @@ Schedule a regular, low-pressure financial check-in. This prevents money from on
 5. **One thing (5 min)**: Each person names one financial thing they want to improve next month
 
 **Ground rules:**
+
 - No blame, no shame, no "you always" or "you never"
 - Use "we" language when discussing shared finances
 - If it gets heated, pause and return to it within 48 hours
@@ -160,12 +165,14 @@ Schedule a regular, low-pressure financial check-in. This prevents money from on
 ### When Money Conversations Go Wrong
 
 **Signs you need to pause:**
+
 - Either person's voice is rising
 - Defensive body language (arms crossed, turning away)
 - Statements becoming absolute ("you always," "you never")
 - One person shutting down or going silent
 
 **Recovery phrases:**
+
 - "I think we're getting off track. Can we take a break and come back to this?"
 - "I hear that you're frustrated. I am too. Let's figure this out together."
 - "I don't want to fight about money. I want to plan with you."
@@ -183,12 +190,14 @@ Each partner independently lists their top 5 financial goals, then compare:
 ### Goal Categories and Timeframes
 
 **Short-term (0-12 months):**
+
 - Build or replenish emergency fund
 - Pay off specific debt
 - Save for a vacation or experience
 - Create a budget that works for both
 
 **Medium-term (1-5 years):**
+
 - Save for a home down payment
 - Fund a wedding
 - Start retirement contributions
@@ -196,6 +205,7 @@ Each partner independently lists their top 5 financial goals, then compare:
 - Start a business
 
 **Long-term (5+ years):**
+
 - Retirement planning
 - Children's education funding
 - Real estate investment
@@ -210,6 +220,7 @@ Vague goals create conflict. Specific goals create teamwork.
 - **Specific**: "We'll save $500/month toward a house down payment, reaching $30,000 by [date], using automatic transfers from our joint checking every payday"
 
 For each goal, define:
+
 1. The exact dollar amount
 2. The timeline
 3. The monthly contribution needed
@@ -250,12 +261,14 @@ Whether by choice (stay-at-home parent, caregiving, pursuing education) or circu
 ### Dealing with Debt
 
 **If one partner brings debt into the relationship:**
+
 - Decide together whether to tackle it jointly or individually -- there is no wrong answer
 - Create a clear repayment plan with milestones
 - The debt-carrying partner should not carry shame; the debt-free partner should not carry resentment
 - Celebrate debt payoff milestones together
 
 **If debt accumulates during the relationship:**
+
 - Own it jointly regardless of who incurred it
 - Identify root causes (overspending, emergency, income gap) and address them
 - Stop the bleeding before optimizing the plan
@@ -303,7 +316,6 @@ Consider a financial professional when:
 
 A financial therapist (yes, they exist) can help when money conflicts are rooted in emotional patterns rather than mathematical ones.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -311,7 +323,6 @@ A financial therapist (yes, they exist) can help when money conflicts are rooted
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -332,14 +343,12 @@ A financial therapist (yes, they exist) can help when money conflicts are rooted
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

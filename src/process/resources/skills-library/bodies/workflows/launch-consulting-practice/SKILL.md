@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "consulting-practice personal-brand-architect sales-coach business-planner"
+skills: 'consulting-practice personal-brand-architect sales-coach business-planner'
 trigger_phrases: >-
   I want to start a consulting practice help me launch a consulting business
   become an independent consultant start my own advisory firm transition to
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship freelancing step-by-step planning
   category: business-operations
-  depends: "consulting-practice personal-brand-architect sales-coach business-planner"
+  depends: 'consulting-practice personal-brand-architect sales-coach business-planner'
 ---
+
 # Launch Consulting Practice
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -161,6 +162,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -171,7 +173,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **All delivery, no sales:** Block time for business development every week, even when fully booked. An empty pipeline catches up fast.
 - **Underpricing:** Consulting rates should reflect the value of the outcome, not the hours invested. Do not anchor to your previous salary divided by 2,000 hours.
 - **No delivery framework:** Winging each engagement leads to inconsistent quality and makes scaling impossible.
-
 
 ### Timeline Considerations
 

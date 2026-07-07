@@ -10,8 +10,18 @@ import { resolve } from 'node:path';
 
 const URL_BASE = 'http://localhost:9876/settings-redesign-mockup.html';
 const ANCHORS = [
-  'providers', 'channels', 'channels-telegram', 'mcp', 'image-gen', 'voice',
-  'editor', 'storage', 'general', 'notifications', 'webui', 'theme',
+  'providers',
+  'channels',
+  'channels-telegram',
+  'mcp',
+  'image-gen',
+  'voice',
+  'editor',
+  'storage',
+  'general',
+  'notifications',
+  'webui',
+  'theme',
 ];
 
 const outDir = resolve(process.argv[2] || '.planning/audit/mockup');

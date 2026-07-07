@@ -69,7 +69,26 @@ describeNativeSqlite('Migration v50 - run_mode + interactivity', () => {
           created_at, updated_at, completed_at, begin_sent_at, run_mode, interactivity)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .run('keep-1', 'demo', 'Demo', 'conv-1', 1, 2, '[]', '[]', '[]', 'active', 'amber', 'build', 1, 1, null, beginTs, 'paused', 'auto');
+      .run(
+        'keep-1',
+        'demo',
+        'Demo',
+        'conv-1',
+        1,
+        2,
+        '[]',
+        '[]',
+        '[]',
+        'active',
+        'amber',
+        'build',
+        1,
+        1,
+        null,
+        beginTs,
+        'paused',
+        'auto'
+      );
 
     const v50 = ALL_MIGRATIONS.find((m) => m.version === 50);
     expect(v50).toBeDefined();
@@ -80,9 +99,10 @@ describeNativeSqlite('Migration v50 - run_mode + interactivity', () => {
     expect(cols).not.toContain('interactivity');
     expect(cols).toContain('begin_sent_at');
 
-    const row = driver
-      .prepare('SELECT id, begin_sent_at FROM workflow_sessions WHERE id = ?')
-      .get('keep-1') as { id: string; begin_sent_at: number };
+    const row = driver.prepare('SELECT id, begin_sent_at FROM workflow_sessions WHERE id = ?').get('keep-1') as {
+      id: string;
+      begin_sent_at: number;
+    };
     expect(row.id).toBe('keep-1');
     expect(row.begin_sent_at).toBe(beginTs);
   });

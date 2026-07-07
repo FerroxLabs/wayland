@@ -14,14 +14,15 @@ description: >-
   atomic finance skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "pitch-fin-model finance-pl finance-cashflow finance-balance-sheet"
+skills: 'pitch-fin-model finance-pl finance-cashflow finance-balance-sheet'
 metadata:
   author: wayland
   version: 1.0.0
   tags: finance modeling fundraising projections sensitivity step-by-step planning
   category: finance
-  depends: "pitch-fin-model finance-pl finance-cashflow finance-balance-sheet"
+  depends: 'pitch-fin-model finance-pl finance-cashflow finance-balance-sheet'
 ---
+
 # Build a Financial Model
 
 **Estimated time:** 60-90 minutes

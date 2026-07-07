@@ -34,6 +34,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Migrate Monolith To Microservices
 
 **Estimated time:** 3-12 months
@@ -139,7 +140,7 @@ Repeat Steps 3-8 for each subsequent service extraction. Each iteration should b
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Invest more time in domain analysis; consider module boundaries within the monolith instead
   - If **After Step 4**: Debug discrepancies; do not proceed with data inconsistencies
   - If **After Step 7**: Fix failures; do not cut over with known issues
@@ -194,6 +195,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

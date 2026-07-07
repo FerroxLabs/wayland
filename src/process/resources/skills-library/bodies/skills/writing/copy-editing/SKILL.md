@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing guide"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing guide'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Copy Editing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly requests copy editing, line editing, or sentence-level revision of a document
 - The user asks you to "clean up," "polish," "tighten," or "fix the writing" in a way that implies sentence-level work, not just error correction
 - The user wants their text brought into compliance with a specific style guide (AP, Chicago, APA, MLA, AMA, IEEE, house style)
@@ -30,6 +32,7 @@ metadata:
 - The user needs an editorial pass on a specific section (e.g., the abstract, the executive summary, one chapter) while preserving voice continuity with the rest
 
 **Do NOT use this skill when:**
+
 - The user only wants error spotting without sentence improvement -- use `proofreading` instead
 - The user wants paragraphs reordered, sections reconceived, or the overall structure evaluated -- use `structural-editing` instead
 - The user wants to shift the document's tone, register, or persona -- use `tone-adjustment` instead
@@ -70,12 +73,14 @@ For documents longer than 2,000 words, building an internal terminology and cons
 Work through categories in the following priority order, because higher-priority changes can make lower-priority changes unnecessary:
 
 **Priority 1 -- Correctness (Essential edits):**
+
 - Grammatical errors: subject-verb agreement, pronoun-antecedent agreement, dangling modifiers, misplaced modifiers, faulty parallelism, run-on sentences, comma splices, sentence fragments (unless stylistically intentional)
 - Usage errors: commonly confused words (affect/effect, fewer/less, compose/comprise, that/which, who/whom, lay/lie, ensure/insure/assure)
 - Punctuation errors: comma misuse, apostrophe errors, incorrect semicolon use, missing or excess hyphens in compounds
 - Spelling errors: both outright misspellings and wrong-word errors spell-checkers miss (their/there/they're, its/it's, your/you're, principal/principle, discrete/discreet)
 
 **Priority 2 -- Clarity (Essential or suggested depending on severity):**
+
 - Ambiguous pronoun reference (when "it" or "they" could refer to multiple antecedents)
 - Unclear antecedents for "this," "these," "those," "such" -- these demonstratives must always have a clear referent; if not, add a noun ("this decision," "these findings," "such practices")
 - Long, embedded sentences where the subject and verb are separated by more than 15-20 words -- consider splitting or restructuring
@@ -83,6 +88,7 @@ Work through categories in the following priority order, because higher-priority
 - Passive voice that obscures the agent of an action (passive voice is not inherently wrong -- it is wrong when it hides important information)
 
 **Priority 3 -- Concision (Suggested unless extreme):**
+
 - Redundant pairs: "each and every," "null and void," "various different," "first and foremost," "totally and completely" -- cut one element
 - Wordy prepositional phrases with single-word replacements: "in order to" → "to," "due to the fact that" → "because," "in the event that" → "if," "at this point in time" → "now," "on a daily basis" → "daily," "in regards to" → "regarding," "for the purpose of" → "to"
 - Empty openers that delay the subject: "It is important to note that," "It should be mentioned that," "There is a need for" -- cut to the subject
@@ -90,6 +96,7 @@ Work through categories in the following priority order, because higher-priority
 - Nominalizations (turning verbs into nouns): "make a decision" → "decide," "provide assistance" → "assist," "conduct an investigation" → "investigate," "give consideration to" → "consider"
 
 **Priority 4 -- Consistency (Essential across the document):**
+
 - Terminology: if a concept is called "the intervention" in paragraph 2 and "the treatment" in paragraph 7 and "the protocol" in paragraph 12, standardize unless the variation is intentional
 - Hyphenation of compound modifiers: "long-term plan" vs. "long term plan" -- pick one and apply it everywhere; Chicago's hyphenation table is the standard reference
 - Capitalization of job titles, department names, product names, and organizational names
@@ -98,6 +105,7 @@ Work through categories in the following priority order, because higher-priority
 - Oxford/serial comma: apply consistently in every list throughout the document
 
 **Priority 5 -- Flow (Suggested):**
+
 - Transitions between sentences: when the logical connection between two sentences is unclear, add a transition word or phrase ("however," "therefore," "in contrast," "as a result," "more importantly") or restructure to make the connection explicit
 - Sentence length variation: a paragraph of eight consecutive sentences all running 8-12 words becomes monotonous; vary the rhythm
 - Paragraph-ending sentences: a paragraph that ends weakly (trailing off with a minor detail) when the major claim was in the middle loses impact -- consider reordering within the paragraph (though full paragraph restructuring is structural editing)
@@ -108,6 +116,7 @@ Work through categories in the following priority order, because higher-priority
 Style guides are not optional suggestions -- they are binding rules when specified. Apply these common rules systematically:
 
 **AP Stylebook key rules frequently violated:**
+
 - No Oxford serial comma
 - Numbers one through nine spelled out; 10 and above as numerals
 - Dates formatted as "Jan. 5, 2024" (abbreviated months except March, April, May, June, July)
@@ -116,6 +125,7 @@ Style guides are not optional suggestions -- they are binding rules when specifi
 - No hyphen in "email," "website," "online"
 
 **Chicago Manual of Style (17th ed.) key rules frequently violated:**
+
 - Oxford serial comma required
 - Numbers one through one hundred spelled out; also spell out round numbers like "three hundred" and "four thousand"
 - Em dashes with no spaces around them (not " -- " but "--" with no spaces -- though this skill uses double dash per convention)
@@ -124,6 +134,7 @@ Style guides are not optional suggestions -- they are binding rules when specifi
 - Headline-style capitalization for headings: capitalize the first and last words plus all major words
 
 **APA (7th ed.) key rules frequently violated:**
+
 - Numbers one through nine spelled out; numbers 10 and above as numerals; but always use numerals for measurements, statistics, and quantities paired with units
 - Bias-free language: use person-first language ("people with disabilities" not "disabled people") unless the community prefers identity-first language ("Autistic people")
 - Oxford serial comma required
@@ -132,6 +143,7 @@ Style guides are not optional suggestions -- they are binding rules when specifi
 - DOI formatted as a hyperlink: https://doi.org/xxxxx
 
 **AMA (11th ed.) key rules frequently violated:**
+
 - Use numerals for all numbers except at the start of a sentence
 - Abbreviate units of measure when used with numerals (5 mg, 10 mL, 3 h)
 - Specific requirements for statistical reporting (report exact P values to two or three significant figures; do not report P = .000)
@@ -329,20 +341,20 @@ Some style guide compliance issues are copy editing tasks (comma placement, capi
 
 **Paragraph 1 (full paragraph):**
 
-| # | Original | Revised | Category | Necessity | Rationale |
-|---|----------|---------|----------|-----------|-----------|
-| 1 | ~~Researchers who study self-regulation has consistently found~~ | **Researchers who study self-regulation have consistently found** | Correctness | Essential | Subject-verb agreement error. The subject is the plural "Researchers," not "self-regulation." The verb must be "have," not "has." |
-| 2 | ~~individual's who struggle~~ | **individuals who struggle** | Correctness | Essential | Apostrophe error. "Individuals" is a plural noun here, not a possessive. No apostrophe. |
-| 3 | ~~worse academic outcomes then their peers~~ | **worse academic outcomes than their peers** | Correctness | Essential | Confused homophones. "Then" indicates time sequence; "than" is required for comparisons. |
-| 4 | ~~This is due to the fact that the ability to delay gratification~~ | **The ability to delay gratification** | Concision | Suggested | "This is due to the fact that" is a wordy throat-clearing opener that delays the subject by nine words. Beginning directly with the subject is cleaner and more direct -- appropriate for academic prose. |
-| 5 | ~~-- sometimes called executive function --~~ | **-- sometimes called executive function --** | No change | -- | Em dash parenthetical preserved. Note: APA does not specify em dash spacing, but consistent no-space em dashes (or spaced en dashes) should be used throughout the document. Confirm house style for the target journal. **[FLAG: Journal-specific formatting for dashes -- verify target journal's author guidelines.]** |
-| 6 | ~~a strong predicter~~ | **a strong predictor** | Correctness | Essential | Spelling error. The correct form is "predictor" (from the Latin root "praedictor"). "Predicter" is a nonstandard form not accepted in formal academic writing. |
-| 7 | ~~Jones et al (2021)~~ | **Jones et al. (2021)** | Style guide | Essential | APA 7th ed. requires a period after "al" in "et al." because "al." is an abbreviation of "alii." The period is not optional. |
-| 8 | ~~a 12-week mindfulness-based intervention effected participants' ability~~ | **a 12-week mindfulness-based intervention affected participants' ability** | Correctness | Essential | Wrong word. "Effect" as a verb means "to bring about" or "to cause to come into being" (e.g., "to effect change"). "Affect" as a verb means "to have an influence on." The intended meaning is that the intervention influenced participants' ability -- "affected" is correct. This is one of the most common word-choice errors in psychological writing. |
-| 9 | ~~regulate their emotions, however the effect sizes were modest~~ | **regulate their emotions; however, the effect sizes were modest** | Correctness | Essential | Comma splice. Joining two independent clauses with a comma and a conjunctive adverb ("however") requires a semicolon before "however" and a comma after it. The comma alone produces a splice. |
-| 10 | ~~(d = .23)~~ | **(d = 0.24 [verify])** | Style guide / Correctness | Essential (flag) | APA 7th ed. requires a leading zero before the decimal point for values that can exceed 1.0. Cohen's d can exceed 1.0, so it requires the leading zero: "d = 0.23." **[FLAG: Verify the reported effect size d = .23 in the source -- corrected to d = 0.23 per APA 7th ed. §7.36 (leading zeros). If the value should be 0.23, no further change needed.]** |
-| 11 | ~~Going forward, future research should investigate~~ | **Future research should investigate** | Concision | Suggested | "Going forward" is a redundant filler phrase -- "future research" already implies forward direction. The phrase adds no information and is considered jargon in academic writing. |
-| 12 | ~~more different kinds of populations~~ | **more diverse populations** | Clarity / Concision | Suggested | "More different kinds of" is an imprecise, redundant construction. In context, the intended meaning is populations that vary in demographic, cultural, or clinical characteristics -- "more diverse populations" captures this precisely in two words. |
+| #   | Original                                                                    | Revised                                                                     | Category                  | Necessity        | Rationale                                                                                                                                                                                                                                                                                                                                                    |
+| --- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | ~~Researchers who study self-regulation has consistently found~~            | **Researchers who study self-regulation have consistently found**           | Correctness               | Essential        | Subject-verb agreement error. The subject is the plural "Researchers," not "self-regulation." The verb must be "have," not "has."                                                                                                                                                                                                                            |
+| 2   | ~~individual's who struggle~~                                               | **individuals who struggle**                                                | Correctness               | Essential        | Apostrophe error. "Individuals" is a plural noun here, not a possessive. No apostrophe.                                                                                                                                                                                                                                                                      |
+| 3   | ~~worse academic outcomes then their peers~~                                | **worse academic outcomes than their peers**                                | Correctness               | Essential        | Confused homophones. "Then" indicates time sequence; "than" is required for comparisons.                                                                                                                                                                                                                                                                     |
+| 4   | ~~This is due to the fact that the ability to delay gratification~~         | **The ability to delay gratification**                                      | Concision                 | Suggested        | "This is due to the fact that" is a wordy throat-clearing opener that delays the subject by nine words. Beginning directly with the subject is cleaner and more direct -- appropriate for academic prose.                                                                                                                                                    |
+| 5   | ~~-- sometimes called executive function --~~                               | **-- sometimes called executive function --**                               | No change                 | --               | Em dash parenthetical preserved. Note: APA does not specify em dash spacing, but consistent no-space em dashes (or spaced en dashes) should be used throughout the document. Confirm house style for the target journal. **[FLAG: Journal-specific formatting for dashes -- verify target journal's author guidelines.]**                                    |
+| 6   | ~~a strong predicter~~                                                      | **a strong predictor**                                                      | Correctness               | Essential        | Spelling error. The correct form is "predictor" (from the Latin root "praedictor"). "Predicter" is a nonstandard form not accepted in formal academic writing.                                                                                                                                                                                               |
+| 7   | ~~Jones et al (2021)~~                                                      | **Jones et al. (2021)**                                                     | Style guide               | Essential        | APA 7th ed. requires a period after "al" in "et al." because "al." is an abbreviation of "alii." The period is not optional.                                                                                                                                                                                                                                 |
+| 8   | ~~a 12-week mindfulness-based intervention effected participants' ability~~ | **a 12-week mindfulness-based intervention affected participants' ability** | Correctness               | Essential        | Wrong word. "Effect" as a verb means "to bring about" or "to cause to come into being" (e.g., "to effect change"). "Affect" as a verb means "to have an influence on." The intended meaning is that the intervention influenced participants' ability -- "affected" is correct. This is one of the most common word-choice errors in psychological writing.  |
+| 9   | ~~regulate their emotions, however the effect sizes were modest~~           | **regulate their emotions; however, the effect sizes were modest**          | Correctness               | Essential        | Comma splice. Joining two independent clauses with a comma and a conjunctive adverb ("however") requires a semicolon before "however" and a comma after it. The comma alone produces a splice.                                                                                                                                                               |
+| 10  | ~~(d = .23)~~                                                               | **(d = 0.24 [verify])**                                                     | Style guide / Correctness | Essential (flag) | APA 7th ed. requires a leading zero before the decimal point for values that can exceed 1.0. Cohen's d can exceed 1.0, so it requires the leading zero: "d = 0.23." **[FLAG: Verify the reported effect size d = .23 in the source -- corrected to d = 0.23 per APA 7th ed. §7.36 (leading zeros). If the value should be 0.23, no further change needed.]** |
+| 11  | ~~Going forward, future research should investigate~~                       | **Future research should investigate**                                      | Concision                 | Suggested        | "Going forward" is a redundant filler phrase -- "future research" already implies forward direction. The phrase adds no information and is considered jargon in academic writing.                                                                                                                                                                            |
+| 12  | ~~more different kinds of populations~~                                     | **more diverse populations**                                                | Clarity / Concision       | Suggested        | "More different kinds of" is an imprecise, redundant construction. In context, the intended meaning is populations that vary in demographic, cultural, or clinical characteristics -- "more diverse populations" captures this precisely in two words.                                                                                                       |
 
 **[FLAG: The claim that executive function is "sometimes called" impulse control delay -- these constructs are related but technically distinct in the self-regulation literature. Author: verify that equating "delay of gratification" with "executive function" is accurate for your argument. No change made.]**
 
@@ -350,25 +362,25 @@ Some style guide compliance issues are copy editing tasks (comma placement, capi
 
 ### Consistency Checklist
 
-| Element | Chosen Form | Instances Corrected |
-|---------|-------------|---------------------|
-| Numbers | Numerals for 12 (measurement, per APA) | 1 -- "12-week" correctly uses numeral; retained |
-| Effect size notation | Leading zero (APA 7th ed.) | 1 -- d = .23 → d = 0.23 |
-| "et al." | With period after "al." | 1 |
+| Element              | Chosen Form                            | Instances Corrected                             |
+| -------------------- | -------------------------------------- | ----------------------------------------------- |
+| Numbers              | Numerals for 12 (measurement, per APA) | 1 -- "12-week" correctly uses numeral; retained |
+| Effect size notation | Leading zero (APA 7th ed.)             | 1 -- d = .23 → d = 0.23                         |
+| "et al."             | With period after "al."                | 1                                               |
 
 ---
 
 ### Edit Summary
 
-| Category | Essential | Suggested | Total |
-|----------|-----------|-----------|-------|
-| Correctness | 6 | - | 6 |
-| Clarity | - | 1 | 1 |
-| Concision | - | 2 | 2 |
-| Consistency | - | - | 0 |
-| Flow | - | - | 0 |
-| Style guide | 2 | - | 2 |
-| **Total** | **8** | **3** | **11** |
+| Category    | Essential | Suggested | Total  |
+| ----------- | --------- | --------- | ------ |
+| Correctness | 6         | -         | 6      |
+| Clarity     | -         | 1         | 1      |
+| Concision   | -         | 2         | 2      |
+| Consistency | -         | -         | 0      |
+| Flow        | -         | -         | 0      |
+| Style guide | 2         | -         | 2      |
+| **Total**   | **8**     | **3**     | **11** |
 
 ---
 

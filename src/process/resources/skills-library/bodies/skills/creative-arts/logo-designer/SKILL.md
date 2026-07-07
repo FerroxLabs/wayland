@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design branding guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design branding guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Logo Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on logo designer
 - User asks about logo designer best practices or techniques
 - User wants a structured approach to logo designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of logo designer
 
@@ -60,9 +61,11 @@ Before providing logo design guidance:
 ## The Discovery Process
 
 ### Client Discovery Meeting
+
 The discovery phase is the foundation. A logo created without understanding the brand is decoration, not design.
 
 **Questions to ask the client**:
+
 - Tell me about your business in one sentence. What do you do?
 - Who is your ideal customer or audience?
 - What makes you different from your competitors?
@@ -76,14 +79,18 @@ The discovery phase is the foundation. A logo created without understanding the 
 - Are there any design directions you want to avoid?
 
 ### Competitive Analysis
+
 Study the visual landscape of the client's industry:
+
 - Collect 10-20 logos from direct competitors and adjacent businesses
 - Identify visual patterns: do they all use blue? Are they all sans-serif? Do they all use abstract symbols?
 - Find the opportunity: where can this brand be visually distinctive? If every competitor uses cool colors, warm colors will stand out.
 - Note what works and what does not. Do not copy -- differentiate.
 
 ### Mood Board
+
 Create a visual reference board that captures the intended brand personality:
+
 - Colors, textures, and patterns that match the brand's mood
 - Typography styles that feel appropriate
 - Imagery and photography that evokes the right feeling
@@ -93,35 +100,45 @@ Create a visual reference board that captures the intended brand personality:
 ## Logo Types
 
 ### Wordmark (Logotype)
+
 The company name styled as the logo. No separate symbol.
+
 - **Examples**: Google, Coca-Cola, FedEx, Disney
 - **Best for**: Companies with short, distinctive names. When the name itself is the brand.
 - **Advantages**: Simple, no confusion about what the brand name is
 - **Challenges**: Must work without the support of a symbol. Typography must carry all the personality.
 
 ### Lettermark (Monogram)
+
 Initials or abbreviation styled as the logo.
+
 - **Examples**: IBM, HBO, CNN, NASA
 - **Best for**: Companies with long names that are commonly referred to by initials
 - **Advantages**: Compact, memorable, works at small sizes
 - **Challenges**: Requires strong brand awareness -- the letters alone do not communicate the business
 
 ### Symbol (Brandmark)
+
 A standalone icon or graphic.
+
 - **Examples**: Apple, Nike, Twitter, Target
 - **Best for**: Established brands that have achieved recognition without needing the name. Also good for international brands (transcends language).
 - **Advantages**: Iconic, versatile, works across cultures
 - **Challenges**: New brands need the name alongside the symbol until recognition is built
 
 ### Combination Mark
+
 A wordmark and symbol used together but designed to also work independently.
+
 - **Examples**: Adidas, Burger King, Lacoste, Spotify
 - **Best for**: Most businesses. Provides the flexibility of both wordmark and symbol.
 - **Advantages**: Versatile. Name and symbol reinforce each other.
 - **Challenges**: More complex design challenge. Both elements must work alone and together.
 
 ### Emblem
+
 Text contained within a symbol or badge shape.
+
 - **Examples**: Starbucks, Harley-Davidson, NFL, Harvard
 - **Best for**: Traditional, authoritative brands. Heritage brands. Organizations.
 - **Advantages**: Strong, official, cohesive
@@ -130,14 +147,18 @@ Text contained within a symbol or badge shape.
 ## Concept Development
 
 ### Brainstorming
+
 Before you sketch, think:
+
 1. List all words associated with the brand (products, services, values, attributes, industry terminology)
 2. For each word, list visual associations. What does "speed" look like? What does "trust" look like? What does "innovation" look like?
 3. Look for unexpected connections. The best logos are often metaphors -- two concepts merged into one visual idea.
 4. Mind-map: start with the brand name in the center and branch outward with related concepts, images, and wordplay.
 
 ### Sketching
+
 Sketching is the fastest way to explore ideas. Work on paper, not on screen:
+
 - Generate quantity first. Aim for 30-50 rough thumbnail sketches before evaluating.
 - Work small. Thumbnails should be 1-2 inches. This forces simplicity and prevents premature detailing.
 - Do not self-edit. Sketch every idea, even the ones that seem bad. Often the 40th sketch leads to the breakthrough.
@@ -145,7 +166,9 @@ Sketching is the fastest way to explore ideas. Work on paper, not on screen:
 - After generating options, circle the 5-8 strongest concepts and develop them further with larger, more refined sketches.
 
 ### Refining Concepts
+
 From your best sketches, select 2-3 concepts to develop digitally:
+
 - Recreate the sketch in vector (Illustrator or Figma)
 - Clean up proportions and geometry. Use circles, grids, and guides for precision.
 - Test at multiple sizes: 16x16px favicon, 32x32px, 200x200px, and full page.
@@ -156,6 +179,7 @@ From your best sketches, select 2-3 concepts to develop digitally:
 ## Typography for Logos
 
 ### Typeface Categories
+
 - **Serif**: Traditional, established, authoritative. (Times New Roman, Garamond, Playfair Display)
 - **Sans-serif**: Modern, clean, accessible. (Helvetica, Inter, Futura, Montserrat)
 - **Slab serif**: Strong, bold, contemporary. (Rockwell, Clarendon, Roboto Slab)
@@ -163,13 +187,16 @@ From your best sketches, select 2-3 concepts to develop digitally:
 - **Display/Decorative**: Distinctive, character-driven. Best for wordmarks where the typeface IS the design.
 
 ### Custom Typography
+
 For premium logo work, modify an existing typeface or create custom letterforms:
+
 - Adjust letter spacing (kerning) for visual balance. Optical spacing, not mathematical spacing.
 - Modify specific letters to create a unique character (cut a notch, round a corner, connect two letters)
 - Ensure modifications improve the logo and do not reduce legibility
 - License any commercial typeface properly. Many font licenses do not cover logo use.
 
 ### Typography Dos and Don'ts
+
 - DO ensure the typeface matches the brand personality
 - DO test legibility at small sizes (logos appear on business cards and favicons)
 - DO manually kern the type (automatic kerning is rarely perfect for logos)
@@ -180,7 +207,9 @@ For premium logo work, modify an existing typeface or create custom letterforms:
 ## Color Psychology and Selection
 
 ### Color Associations
+
 Colors carry cultural and psychological associations:
+
 - **Blue**: Trust, stability, professionalism. (Finance, technology, healthcare)
 - **Red**: Energy, passion, urgency. (Food, entertainment, retail)
 - **Green**: Growth, nature, health. (Environment, wellness, finance)
@@ -192,6 +221,7 @@ Colors carry cultural and psychological associations:
 These are generalizations, not rules. Context matters more than universal associations.
 
 ### Color Selection Process
+
 1. Start in black and white. The logo must work without color.
 2. Choose a primary brand color that aligns with the brand personality and differentiates from competitors.
 3. Add a secondary color for contrast and flexibility. Use complementary or analogous relationships.
@@ -200,7 +230,9 @@ These are generalizations, not rules. Context matters more than universal associ
 6. Test color blindness accessibility. 8% of men and 0.5% of women have some form of color vision deficiency.
 
 ### Color Versions
+
 Every logo needs multiple color versions:
+
 - **Full color**: The primary version
 - **One-color** (single brand color): For limited color applications
 - **Black**: For black-and-white printing and high-contrast applications
@@ -210,7 +242,9 @@ Every logo needs multiple color versions:
 ## Versatility Testing
 
 ### The Logo Must Work
+
 Test every logo concept across these applications before presenting to the client:
+
 - **Favicon** (16x16px): Can you recognize it?
 - **Social media avatar** (circular crop, small size)
 - **Business card**: Is it legible at small sizes?
@@ -222,12 +256,16 @@ Test every logo concept across these applications before presenting to the clien
 - **On a photograph**: Can it be placed over images with sufficient contrast?
 
 ### Clear Space Rules
+
 Define a minimum clear space around the logo where no other elements may intrude:
+
 - Common standard: the height of the letter "x" in the wordmark, applied equally on all sides
 - Minimum size: Define the smallest size the logo should be reproduced. Below this size, details become illegible.
 
 ### Logo Misuse Guidelines
+
 Document what NOT to do with the logo:
+
 - Do not stretch or distort
 - Do not change the colors outside the defined palette
 - Do not add effects (drop shadow, gradient, outline, bevel)
@@ -239,6 +277,7 @@ Document what NOT to do with the logo:
 ## Client Presentation
 
 ### Presenting Concepts
+
 How you present the logo determines whether the client sees its value:
 
 1. **Context, not isolation**: Show the logo in realistic mockups (business card, website header, storefront, app icon). Clients struggle to evaluate a logo floating on a white background.
@@ -248,6 +287,7 @@ How you present the logo determines whether the client sees its value:
 5. **Address the brief**: Explicitly connect each design decision back to the discovery phase. "You described your brand as innovative and approachable. The geometric form represents innovation while the rounded letterforms add warmth."
 
 ### Handling Feedback
+
 - Ask open-ended questions: "What is your reaction?" not "Do you like it?"
 - Understand the underlying concern behind surface feedback. "Make it bigger" often means "I am not sure it is prominent enough." The solution may be contrast, not size.
 - Push back on feedback that contradicts the brief or harms the design, but do so with reasoning, not ego
@@ -257,7 +297,9 @@ How you present the logo determines whether the client sees its value:
 ## File Delivery
 
 ### Required File Formats
+
 Deliver a comprehensive file package:
+
 - **AI or Source File**: Editable vector file with all fonts outlined. The master file.
 - **SVG**: Scalable vector for web use
 - **EPS**: Vector format compatible with most design software
@@ -267,7 +309,9 @@ Deliver a comprehensive file package:
 - **Favicon**: ICO or PNG at 16x16, 32x32, 48x48, and 180x180 (Apple Touch Icon)
 
 ### File Organization
+
 Deliver files in an organized folder structure:
+
 ```
 BrandName_Logo_Files/
   Vector/
@@ -294,11 +338,13 @@ BrandName_Logo_Files/
 ## Pricing Logo Design
 
 ### Pricing Tiers
+
 - **Beginner/Emerging** ($200-$800): Basic discovery, 2-3 concepts, 2 revision rounds, standard file delivery
 - **Professional** ($1,000-$5,000): Thorough discovery, competitive analysis, 2-3 concepts with mockups, 3 revision rounds, comprehensive file delivery, basic brand guidelines
 - **Premium/Agency** ($5,000-$50,000+): Full brand strategy, extensive research, multiple creative directions, comprehensive brand identity system, guidelines document, brand applications
 
 ### What Determines the Price
+
 - Scope of research and discovery
 - Number of concepts presented
 - Revision rounds included
@@ -308,6 +354,7 @@ BrandName_Logo_Files/
 - Market and region
 
 ### Structuring Payment
+
 - 50% deposit before work begins
 - 50% upon final approval and before file delivery
 - For larger projects: 30% deposit, 30% after concept approval, 40% upon final delivery
@@ -316,7 +363,9 @@ BrandName_Logo_Files/
 ## Brand Guidelines Document
 
 ### What to Include
+
 A brand guidelines document ensures the logo and brand identity are used correctly by everyone:
+
 1. **Brand overview**: Mission, values, personality, voice (brief)
 2. **Logo**: Primary logo, variations, clear space, minimum size, misuse examples
 3. **Color palette**: Primary and secondary colors with Pantone, CMYK, RGB, and Hex values
@@ -326,7 +375,6 @@ A brand guidelines document ensures the logo and brand identity are used correct
 7. **Do's and Don'ts**: Clear visual examples of correct and incorrect brand usage
 
 Even a simple 4-6 page guidelines PDF adds enormous value to the client and positions your work as professional brand design, not just graphic creation.
-
 
 ## Output Format
 
@@ -340,13 +388,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with logo designer for a mid-size project."
 
 **Output:** A complete logo designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

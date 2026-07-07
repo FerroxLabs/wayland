@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching content-marketing entrepreneurship"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching content-marketing entrepreneurship'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Online Course Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on online course creator
 - User asks about online course creator best practices or techniques
 - User wants a structured approach to online course creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of online course creator
 
@@ -115,38 +116,38 @@ Each lesson should follow the TELL framework:
 
 ### Content Types to Mix
 
-| Type | Best For | Engagement Level |
-|------|----------|-----------------|
-| Video lecture | Concepts, demonstrations | Medium |
-| Screencast | Software tutorials, walkthroughs | High |
-| Downloadable PDF | Checklists, templates, worksheets | High |
-| Quiz/Assessment | Knowledge verification | Medium |
-| Discussion prompt | Community building, reflection | High |
-| Live Q&A replay | Addressing real student questions | Very High |
-| Case study | Showing results, building belief | High |
-| Audio lesson | Theory, mindset, on-the-go learning | Medium |
+| Type              | Best For                            | Engagement Level |
+| ----------------- | ----------------------------------- | ---------------- |
+| Video lecture     | Concepts, demonstrations            | Medium           |
+| Screencast        | Software tutorials, walkthroughs    | High             |
+| Downloadable PDF  | Checklists, templates, worksheets   | High             |
+| Quiz/Assessment   | Knowledge verification              | Medium           |
+| Discussion prompt | Community building, reflection      | High             |
+| Live Q&A replay   | Addressing real student questions   | Very High        |
+| Case study        | Showing results, building belief    | High             |
+| Audio lesson      | Theory, mindset, on-the-go learning | Medium           |
 
 ## Platform Comparison
 
 ### Self-Hosted Platforms
 
-| Platform | Monthly Cost | Transaction Fee | Best For |
-|----------|-------------|----------------|----------|
-| Teachable | $39-199/mo | 0-5% | Beginners, simple courses |
-| Kajabi | $149-399/mo | 0% | All-in-one business |
-| Thinkific | $49-199/mo | 0% | Feature-rich, scalable |
-| Podia | $39-199/mo | 0% | Simple, clean, community |
-| LearnDash (WordPress) | $199/yr | 0% | Full control, WordPress users |
-| Circle + course feature | $89-399/mo | 0% | Community-first approach |
+| Platform                | Monthly Cost | Transaction Fee | Best For                      |
+| ----------------------- | ------------ | --------------- | ----------------------------- |
+| Teachable               | $39-199/mo   | 0-5%            | Beginners, simple courses     |
+| Kajabi                  | $149-399/mo  | 0%              | All-in-one business           |
+| Thinkific               | $49-199/mo   | 0%              | Feature-rich, scalable        |
+| Podia                   | $39-199/mo   | 0%              | Simple, clean, community      |
+| LearnDash (WordPress)   | $199/yr      | 0%              | Full control, WordPress users |
+| Circle + course feature | $89-399/mo   | 0%              | Community-first approach      |
 
 ### Marketplace Platforms
 
-| Platform | Cost | Revenue Split | Best For |
-|----------|------|--------------|----------|
-| Udemy | Free to publish | 37-97% to creator | Reach, volume play |
-| Skillshare | Free to publish | Per-minute royalties | Creative topics |
-| Coursera | Application | Revenue share | Academic credentials |
-| LinkedIn Learning | Invitation | Per-course fee | Professional development |
+| Platform          | Cost            | Revenue Split        | Best For                 |
+| ----------------- | --------------- | -------------------- | ------------------------ |
+| Udemy             | Free to publish | 37-97% to creator    | Reach, volume play       |
+| Skillshare        | Free to publish | Per-minute royalties | Creative topics          |
+| Coursera          | Application     | Revenue share        | Academic credentials     |
+| LinkedIn Learning | Invitation      | Per-course fee       | Professional development |
 
 ### Platform Selection Decision Tree
 
@@ -166,12 +167,12 @@ Do you have an existing audience (1,000+ email list)?
 
 ### Price Positioning Framework
 
-| Price Tier | Range | What's Included | Audience Size Needed |
-|-----------|-------|-----------------|---------------------|
-| Low-ticket | $27-97 | Self-paced video, basic resources | Large (volume play) |
-| Mid-ticket | $197-497 | Video + community + templates | Medium |
-| High-ticket | $497-2,000 | Video + community + coaching | Small (high-touch) |
-| Premium | $2,000-10,000 | Cohort-based, live, mentorship | Very small |
+| Price Tier  | Range         | What's Included                   | Audience Size Needed |
+| ----------- | ------------- | --------------------------------- | -------------------- |
+| Low-ticket  | $27-97        | Self-paced video, basic resources | Large (volume play)  |
+| Mid-ticket  | $197-497      | Video + community + templates     | Medium               |
+| High-ticket | $497-2,000    | Video + community + coaching      | Small (high-touch)   |
+| Premium     | $2,000-10,000 | Cohort-based, live, mentorship    | Very small           |
 
 ### Pricing Psychology Principles
 
@@ -204,18 +205,21 @@ This isn't manipulation -- it's helping students understand the full scope of wh
 Average online course completion rate: 5-15%. Your goal: 40%+.
 
 **Structural engagement:**
+
 - Keep lessons under 10 minutes
 - End each lesson with a micro-action (not just "watch the next one")
 - Create accountability through cohort deadlines or drip content
 - Celebrate progress (completion certificates, badges, milestone emails)
 
 **Content engagement:**
+
 - Open every lesson with a hook (what they'll be able to do after)
 - Use stories and real examples, not just theory
 - Vary content format (video, text, audio, interactive)
 - Include "implementation breaks" between modules
 
 **Community engagement:**
+
 - Discussion prompts after each module
 - Peer accountability partners
 - Student showcase opportunities
@@ -224,12 +228,14 @@ Average online course completion rate: 5-15%. Your goal: 40%+.
 ### The Drip vs All-Access Decision
 
 **Drip release** (unlock modules on a schedule):
+
 - Prevents overwhelm
 - Creates anticipation
 - Enables cohort progression
 - Reduces refund requests (they stay engaged longer)
 
 **All-access** (everything available immediately):
+
 - Students can go at their own pace
 - Reduces support questions about access
 - Better for reference-style courses
@@ -254,22 +260,26 @@ Your target:   40%  <-- With the strategies below
 ### Tactics by Drop-off Point
 
 **If students don't start (enrolled but never log in):**
+
 - Improve welcome email sequence (3 emails in first week)
 - Assign a Day 1 quick-win task
 - Send a personal video from you welcoming them
 
 **If students drop after Module 1:**
+
 - Module 1 might be too theoretical -- add an immediate win
 - Check if the content matches what was promised in the sales page
 - Survey dropouts: "What prevented you from continuing?"
 
 **If students drop in the middle:**
+
 - Modules may be too long -- break into smaller chunks
 - Add more variety in content format
 - Implement progress tracking visible to the student
 - Send automated "we miss you" emails
 
 **If students don't finish the last 20%:**
+
 - Make the final project compelling and shareable
 - Offer a completion certificate
 - Tie community access to completion
@@ -280,18 +290,21 @@ Your target:   40%  <-- With the strategies below
 ### The 4-Phase Launch
 
 **Phase 1: Seed (4-8 weeks before launch)**
+
 - Share behind-the-scenes course creation content
 - Ask your audience what they want to learn
 - Create a waitlist landing page
 - Goal: Build anticipation and collect emails
 
 **Phase 2: Pre-Launch (2-4 weeks before)**
+
 - Free value content related to course topic (webinar, challenge, PDF)
 - Email sequence educating on the problem your course solves
 - Early-bird pricing for waitlist members
 - Testimonials from beta students if available
 
 **Phase 3: Launch Week (5-7 days)**
+
 ```
 Day 1: Cart open email + social announcement
 Day 2: FAQ and objection handling email
@@ -303,6 +316,7 @@ Day 7: Cart close, final email sequence (3 emails on close day)
 ```
 
 **Phase 4: Post-Launch (immediately after)**
+
 - Welcome sequence for new students
 - Post-mortem: what worked, what didn't
 - Collect testimonials from first cohort
@@ -319,13 +333,13 @@ Day 7: Cart close, final email sequence (3 emails on close day)
 
 ### Support Tier Structure
 
-| Tier | Method | Response Time | Cost to You |
-|------|--------|--------------|-------------|
-| Self-service | FAQ, knowledge base, course community | Instant | Minimal |
-| Community | Peer support in forum/Discord | Hours | Moderate (moderation) |
-| Email | Direct student support | 24-48 hours | Moderate |
-| Office hours | Weekly live Q&A | Weekly | Moderate |
-| 1-on-1 coaching | Direct access | Scheduled | High |
+| Tier            | Method                                | Response Time | Cost to You           |
+| --------------- | ------------------------------------- | ------------- | --------------------- |
+| Self-service    | FAQ, knowledge base, course community | Instant       | Minimal               |
+| Community       | Peer support in forum/Discord         | Hours         | Moderate (moderation) |
+| Email           | Direct student support                | 24-48 hours   | Moderate              |
+| Office hours    | Weekly live Q&A                       | Weekly        | Moderate              |
+| 1-on-1 coaching | Direct access                         | Scheduled     | High                  |
 
 ### Automating Support
 
@@ -388,7 +402,6 @@ Year 4: Certification program, train other instructors, license content
 9. **Not building an email list**: Platform followers are rented, email is owned
 10. **Copying competitor pricing without understanding their audience**: Price based on your audience's ability and willingness to pay
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -401,13 +414,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with online course creator for a mid-size project."
 
 **Output:** A complete online course creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

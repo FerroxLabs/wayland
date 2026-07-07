@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis spreadsheets"
-  category: "data-analysis"
-  subcategory: "exploratory-data-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science analysis spreadsheets'
+  category: 'data-analysis'
+  subcategory: 'exploratory-data-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Data Profiling
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user presents a new table, CSV export, database view, or API payload and asks "what does this data look like?" or "can I trust this data for analysis?"
 - A user is onboarding to an inherited dataset -- from a departing colleague, a legacy system, or a vendor data feed -- and needs a structural and quality baseline before touching the data
 - A data governance stakeholder needs a documented quality score for an audit, a data contract, or a regulatory review (GDPR data inventory, SOX data lineage, HIPAA data classification)
@@ -30,6 +32,7 @@ metadata:
 - A user is comparing two versions of the same dataset (before/after ETL, production vs. staging) and needs systematic differences surfaced
 
 **Do NOT use when:**
+
 - The user wants statistical distributions, correlations, skewness, kurtosis, or hypothesis testing -- that is exploratory statistical analysis, use `eda-framework`
 - The user wants to actually fix, impute, or transform data issues -- that is remediation work, use `data-cleaning-protocol` (this skill diagnoses, that skill treats)
 - The user wants to document and cross-link many tables in a searchable inventory -- use `data-catalog-setup`, which handles lineage graphs, table relationships, and business glossaries at scale
@@ -355,22 +358,23 @@ When a user indicates the dataset has millions of rows or more, full profiling i
 
 ### Schema Documentation
 
-| # | Column Name | Declared Type | Inferred Type | Semantic Type | Nullable | Max Length / Precision | Description (Business Terms) | Example Values |
-|---|-------------|--------------|--------------|--------------|----------|------------------------|------------------------------|----------------|
-| 1 | order_id | VARCHAR(20) | Text/Integer mix | Identifier | No | 15 chars observed | Unique identifier for each order line | ORD-10001, 10452, ORD10999 |
-| 2 | customer_id | INTEGER | Integer | Foreign Key Reference | No | 6 digits | References customer master table | 100234, 200891, 100005 |
-| 3 | order_date | VARCHAR(50) | Mixed date formats | Date | No | 10-19 chars | Date the order was placed | 2024-01-15, 01/22/2024, Jan 5 2024 |
-| 4 | ship_date | VARCHAR(50) | Mixed date formats | Date | Yes | 10-19 chars | Date order was shipped to customer | 2024-01-18, 01/25/2024, NULL |
-| 5 | product_sku | VARCHAR(20) | Text | Identifier (FK) | No | 12 chars observed | Product stock keeping unit | SKU-A1042, SKU-B0321, SKU-C9911 |
-| 6 | quantity | INTEGER | Integer with text | Discrete Count | No | 4 digits | Units ordered | 1, 5, 12, "bulk" |
-| 7 | unit_price | DECIMAL(10,2) | Mixed -- decimal and text | Currency Amount | No | 10 chars | Per-unit price in USD at time of sale | 29.99, 149.00, $85.50 |
-| 8 | discount_pct | DECIMAL(5,2) | Mixed -- decimal, integer, text | Percentage / Ratio | Yes | 6 chars | Discount percentage applied (0-100 scale) | 0, 10, 15.5, 100, "N/A" |
-| 9 | total_amount | DECIMAL(10,2) | Mixed | Currency Amount | No | 12 chars | Order line total after discount | 29.99, 637.50, (45.00) |
-| 10 | status | VARCHAR(20) | Text | Categorical Nominal | No | 12 chars | Current fulfillment status | Shipped, Delivered, Cancelled, shipped |
-| 11 | region | VARCHAR(50) | Text | Categorical Nominal | No | 15 chars | Geographic sales region | Northeast, Southwest, NE, North East |
-| 12 | sales_rep_id | VARCHAR(10) | Mixed integer and NULL | Foreign Key Reference | Yes | 8 chars | Sales rep identifier (FK to reps table) | SR-1042, SR-0891, NULL |
+| #   | Column Name  | Declared Type | Inferred Type                   | Semantic Type         | Nullable | Max Length / Precision | Description (Business Terms)              | Example Values                         |
+| --- | ------------ | ------------- | ------------------------------- | --------------------- | -------- | ---------------------- | ----------------------------------------- | -------------------------------------- |
+| 1   | order_id     | VARCHAR(20)   | Text/Integer mix                | Identifier            | No       | 15 chars observed      | Unique identifier for each order line     | ORD-10001, 10452, ORD10999             |
+| 2   | customer_id  | INTEGER       | Integer                         | Foreign Key Reference | No       | 6 digits               | References customer master table          | 100234, 200891, 100005                 |
+| 3   | order_date   | VARCHAR(50)   | Mixed date formats              | Date                  | No       | 10-19 chars            | Date the order was placed                 | 2024-01-15, 01/22/2024, Jan 5 2024     |
+| 4   | ship_date    | VARCHAR(50)   | Mixed date formats              | Date                  | Yes      | 10-19 chars            | Date order was shipped to customer        | 2024-01-18, 01/25/2024, NULL           |
+| 5   | product_sku  | VARCHAR(20)   | Text                            | Identifier (FK)       | No       | 12 chars observed      | Product stock keeping unit                | SKU-A1042, SKU-B0321, SKU-C9911        |
+| 6   | quantity     | INTEGER       | Integer with text               | Discrete Count        | No       | 4 digits               | Units ordered                             | 1, 5, 12, "bulk"                       |
+| 7   | unit_price   | DECIMAL(10,2) | Mixed -- decimal and text       | Currency Amount       | No       | 10 chars               | Per-unit price in USD at time of sale     | 29.99, 149.00, $85.50                  |
+| 8   | discount_pct | DECIMAL(5,2)  | Mixed -- decimal, integer, text | Percentage / Ratio    | Yes      | 6 chars                | Discount percentage applied (0-100 scale) | 0, 10, 15.5, 100, "N/A"                |
+| 9   | total_amount | DECIMAL(10,2) | Mixed                           | Currency Amount       | No       | 12 chars               | Order line total after discount           | 29.99, 637.50, (45.00)                 |
+| 10  | status       | VARCHAR(20)   | Text                            | Categorical Nominal   | No       | 12 chars               | Current fulfillment status                | Shipped, Delivered, Cancelled, shipped |
+| 11  | region       | VARCHAR(50)   | Text                            | Categorical Nominal   | No       | 15 chars               | Geographic sales region                   | Northeast, Southwest, NE, North East   |
+| 12  | sales_rep_id | VARCHAR(10)   | Mixed integer and NULL          | Foreign Key Reference | Yes      | 8 chars                | Sales rep identifier (FK to reps table)   | SR-1042, SR-0891, NULL                 |
 
 **Schema Notes:**
+
 - `order_id` has inconsistent format: some values are prefixed with "ORD-" and some are plain integers. This is an identifier integrity issue -- uniqueness analysis will clarify whether these represent different ID systems or formatting inconsistencies in the same system
 - `status` and `region` both show case variation in the declared examples, which will be quantified in type/consistency validation
 - `total_amount` contains parenthetical negative values -- a common accounting convention for credits/returns that will fail standard numeric parsing
@@ -379,20 +383,20 @@ When a user indicates the dataset has millions of rows or more, full profiling i
 
 ### Completeness Analysis
 
-| Column | Null Count | Empty String Count | Sentinel Values | Total Missing | Completeness | Missing Type |
-|--------|-----------|-------------------|-----------------|--------------|-------------|--------------|
-| order_id | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| customer_id | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| order_date | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| ship_date | ~1,240 | ~85 | 0 | ~1,325 (10.6%) | 89.4% | Structural -- unshipped/cancelled orders expected to lack ship date |
-| product_sku | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| quantity | 0 | 0 | ~15 ("bulk") | ~15 (0.1%) | 99.9% | Missing -- sentinel value encodes unknown quantity |
-| unit_price | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| discount_pct | ~320 | 0 | ~210 ("N/A") | ~530 (4.3%) | 95.7% | Mixed -- nulls may be structural (no discount program), "N/A" is sentinel |
-| total_amount | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| status | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| region | 0 | 0 | 0 | 0 (0%) | 100% | N/A |
-| sales_rep_id | ~890 | 0 | 0 | ~890 (7.1%) | 92.9% | Mixed -- direct web orders have no sales rep (structural); some may be missing |
+| Column       | Null Count | Empty String Count | Sentinel Values | Total Missing  | Completeness | Missing Type                                                                   |
+| ------------ | ---------- | ------------------ | --------------- | -------------- | ------------ | ------------------------------------------------------------------------------ |
+| order_id     | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| customer_id  | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| order_date   | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| ship_date    | ~1,240     | ~85                | 0               | ~1,325 (10.6%) | 89.4%        | Structural -- unshipped/cancelled orders expected to lack ship date            |
+| product_sku  | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| quantity     | 0          | 0                  | ~15 ("bulk")    | ~15 (0.1%)     | 99.9%        | Missing -- sentinel value encodes unknown quantity                             |
+| unit_price   | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| discount_pct | ~320       | 0                  | ~210 ("N/A")    | ~530 (4.3%)    | 95.7%        | Mixed -- nulls may be structural (no discount program), "N/A" is sentinel      |
+| total_amount | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| status       | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| region       | 0          | 0                  | 0               | 0 (0%)         | 100%         | N/A                                                                            |
+| sales_rep_id | ~890       | 0                  | 0               | ~890 (7.1%)    | 92.9%        | Mixed -- direct web orders have no sales rep (structural); some may be missing |
 
 **Table-Level Completeness:** 98.7% (~1,980 missing out of 149,400 total cells)
 **Columns with >5% missing:** ship_date (10.6%), sales_rep_id (7.1%)
@@ -403,28 +407,30 @@ When a user indicates the dataset has millions of rows or more, full profiling i
 
 ### Uniqueness and Cardinality Analysis
 
-| Column | Total Rows | Distinct Values | Null Count | Uniqueness Ratio | Duplicate Count | Cardinality Tier | Notes |
-|--------|-----------|----------------|-----------|-----------------|----------------|-----------------|-------|
-| order_id | 12,450 | 12,403 | 0 | 99.6% | 47 | Near-Unique | 47 duplicates to investigate -- likely from "ORD-" vs plain integer formatting of same ID |
-| customer_id | 12,450 | 3,218 | 0 | 25.8% | -- | Medium | ~3,200 unique customers across 12,450 orders |
-| order_date | 12,450 | 387 | 0 | 3.1% | -- | Low-Medium | ~387 distinct order dates -- plausible for daily orders over ~1 year |
-| ship_date | 11,125 | 362 | 1,325 | 3.3% | -- | Low-Medium | Assessed on non-null rows only |
-| product_sku | 12,450 | 842 | 0 | 6.8% | -- | Low-Medium | 842 distinct SKUs -- verify against product catalog size |
-| quantity | 12,450 | 67 | 0 | 0.5% | -- | Low | Quantities 1-50 expected; values above 100 should be verified |
-| unit_price | 12,450 | 1,205 | 0 | 9.7% | -- | Medium | 1,205 distinct prices -- may include historical prices if prices change over time |
-| discount_pct | 11,920 | 28 | 530 | 0.2% | -- | Low | Only 28 distinct discount percentages -- categorical in practice |
-| total_amount | 12,450 | 8,943 | 0 | 71.8% | -- | High | High cardinality expected for calculated monetary values |
-| status | 12,450 | 7 | 0 | 0.056% | -- | Binary-Low | 7 distinct values observed -- should be 5 (see consistency notes) |
-| region | 12,450 | 9 | 0 | 0.072% | -- | Low | 9 distinct values observed -- should be 5 (see consistency notes) |
-| sales_rep_id | 11,560 | 145 | 890 | 1.3% | -- | Low | 145 distinct sales reps |
+| Column       | Total Rows | Distinct Values | Null Count | Uniqueness Ratio | Duplicate Count | Cardinality Tier | Notes                                                                                     |
+| ------------ | ---------- | --------------- | ---------- | ---------------- | --------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| order_id     | 12,450     | 12,403          | 0          | 99.6%            | 47              | Near-Unique      | 47 duplicates to investigate -- likely from "ORD-" vs plain integer formatting of same ID |
+| customer_id  | 12,450     | 3,218           | 0          | 25.8%            | --              | Medium           | ~3,200 unique customers across 12,450 orders                                              |
+| order_date   | 12,450     | 387             | 0          | 3.1%             | --              | Low-Medium       | ~387 distinct order dates -- plausible for daily orders over ~1 year                      |
+| ship_date    | 11,125     | 362             | 1,325      | 3.3%             | --              | Low-Medium       | Assessed on non-null rows only                                                            |
+| product_sku  | 12,450     | 842             | 0          | 6.8%             | --              | Low-Medium       | 842 distinct SKUs -- verify against product catalog size                                  |
+| quantity     | 12,450     | 67              | 0          | 0.5%             | --              | Low              | Quantities 1-50 expected; values above 100 should be verified                             |
+| unit_price   | 12,450     | 1,205           | 0          | 9.7%             | --              | Medium           | 1,205 distinct prices -- may include historical prices if prices change over time         |
+| discount_pct | 11,920     | 28              | 530        | 0.2%             | --              | Low              | Only 28 distinct discount percentages -- categorical in practice                          |
+| total_amount | 12,450     | 8,943           | 0          | 71.8%            | --              | High             | High cardinality expected for calculated monetary values                                  |
+| status       | 12,450     | 7               | 0          | 0.056%           | --              | Binary-Low       | 7 distinct values observed -- should be 5 (see consistency notes)                         |
+| region       | 12,450     | 9               | 0          | 0.072%           | --              | Low              | 9 distinct values observed -- should be 5 (see consistency notes)                         |
+| sales_rep_id | 11,560     | 145             | 890        | 1.3%             | --              | Low              | 145 distinct sales reps                                                                   |
 
 **Candidate Primary Key(s):** None -- `order_id` is 99.6% unique but has 47 duplicates. No single column achieves 100% uniqueness.
 **Composite Key Candidates Tested:**
+
 - (`order_id`, `product_sku`): Not tested -- requires data access. Recommended as the most semantically likely natural key for an order line table.
 - If the stated grain is one row per order (not per line), then `order_id` should be the PK and the 47 duplicates are defects.
-**Table-Level Duplicate Rows (full-row duplicates excluding surrogate keys):** Unknown without data access -- recommend: `SELECT order_id, COUNT(*) FROM orders GROUP BY order_id HAVING COUNT(*) > 1`
+  **Table-Level Duplicate Rows (full-row duplicates excluding surrogate keys):** Unknown without data access -- recommend: `SELECT order_id, COUNT(*) FROM orders GROUP BY order_id HAVING COUNT(*) > 1`
 
 **Categorical Column Value Inventories (based on stated examples -- requires full enumeration):**
+
 - **status** (7 observed, should be 5): "Shipped" (~6,200, 49.8%), "Delivered" (~3,800, 30.5%), "Cancelled" (~1,100, 8.8%), "Pending" (~900, 7.2%), "Processing" (~405, 3.3%), "shipped" (case variant -- ~30, 0.2%), "CANCELLED" (case variant -- ~15, 0.1%)
 - **region** (9 observed, should be 5): "Northeast" (~3,100), "Southwest" (~2,800), "Southeast" (~2,200), "Midwest" (~2,100), "West" (~2,000), "NE" (variant for Northeast -- ~120), "North East" (variant -- ~80), "S.W." (variant for Southwest -- ~35), "midwest" (case variant -- ~15)
 
@@ -432,14 +438,14 @@ When a user indicates the dataset has millions of rows or more, full profiling i
 
 ### Data Type and Format Validation
 
-| Column | Expected / Inferred Type | Violation Count | Conformity Rate | Violation Examples | Root Cause |
-|--------|--------------------------|----------------|----------------|-------------------|------------|
-| order_id | Standardized text identifier | ~47 (0.4%) | 99.6% | "10452" vs "ORD-10452" (same ID, two formats) | Format applied inconsistently -- likely a system migration or two entry points |
-| order_date | Date (YYYY-MM-DD standard) | ~840 (6.7%) | 93.3% | "01/22/2024", "Jan 5 2024" | Multiple input sources (API, manual entry, system import) using different locale settings |
-| ship_date | Date (YYYY-MM-DD standard) | ~310 (2.8% of non-null) | 97.2% (non-null) | "01/25/2024", "25-Jan-24" | Same as order_date |
-| quantity | Positive integer | ~15 (0.1%) | 99.9% | "bulk" | Free-text entry in numeric field -- likely B2B bulk orders entered manually |
-| unit_price | DECIMAL(10,2), positive | ~185 (1.5%) | 98.5% | "$85.50", "€29.99" | Currency symbols included -- suggest export from a system that stores formatted display values rather than raw numeric values |
-| discount_pct | DECIMAL(5,2), 0-100 range | ~210 (1.7%) | 98.3% | "N/A" (sentinel), "100" (verify -- 100% discount means free) | Sentinel values in numeric column; 100% discounts should be verified as intentional |
-| total_amount | DECIMAL(10,2), may be negative | ~95 (0.8%) | 99.2% | "(45.00)" | Accounting parenthetical negative format -- returns/credits. Not a true violation but requires parser handling |
-| status | Controlled vocabulary, 5 values | ~45 (0.4%) | 99.6% | "shipped", "CANCELLED" | Case inconsistency from multiple entry points |
-| region |
+| Column       | Expected / Inferred Type        | Violation Count         | Conformity Rate  | Violation Examples                                           | Root Cause                                                                                                                    |
+| ------------ | ------------------------------- | ----------------------- | ---------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| order_id     | Standardized text identifier    | ~47 (0.4%)              | 99.6%            | "10452" vs "ORD-10452" (same ID, two formats)                | Format applied inconsistently -- likely a system migration or two entry points                                                |
+| order_date   | Date (YYYY-MM-DD standard)      | ~840 (6.7%)             | 93.3%            | "01/22/2024", "Jan 5 2024"                                   | Multiple input sources (API, manual entry, system import) using different locale settings                                     |
+| ship_date    | Date (YYYY-MM-DD standard)      | ~310 (2.8% of non-null) | 97.2% (non-null) | "01/25/2024", "25-Jan-24"                                    | Same as order_date                                                                                                            |
+| quantity     | Positive integer                | ~15 (0.1%)              | 99.9%            | "bulk"                                                       | Free-text entry in numeric field -- likely B2B bulk orders entered manually                                                   |
+| unit_price   | DECIMAL(10,2), positive         | ~185 (1.5%)             | 98.5%            | "$85.50", "€29.99"                                           | Currency symbols included -- suggest export from a system that stores formatted display values rather than raw numeric values |
+| discount_pct | DECIMAL(5,2), 0-100 range       | ~210 (1.7%)             | 98.3%            | "N/A" (sentinel), "100" (verify -- 100% discount means free) | Sentinel values in numeric column; 100% discounts should be verified as intentional                                           |
+| total_amount | DECIMAL(10,2), may be negative  | ~95 (0.8%)              | 99.2%            | "(45.00)"                                                    | Accounting parenthetical negative format -- returns/credits. Not a true violation but requires parser handling                |
+| status       | Controlled vocabulary, 5 values | ~45 (0.4%)              | 99.6%            | "shipped", "CANCELLED"                                       | Case inconsistency from multiple entry points                                                                                 |
+| region       |

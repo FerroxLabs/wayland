@@ -112,6 +112,14 @@ describe('autoUpdaterService install guard (#286)', () => {
     expect(fs.existsSync(markerPath())).toBe(false);
   });
 
+  it('on win32, quitAndInstall shows the UAC prompt instead of applying silently (#492)', () => {
+    setPlatform('win32');
+    service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+    service.quitAndInstall();
+
+    expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(false, true);
+  });
+
   it('reconcile: version advanced → success, marker removed, no failure surfaced', () => {
     fs.writeFileSync(markerPath(), JSON.stringify({ version: '1.0.0', attemptedAt: 1 }));
     (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
@@ -227,6 +235,9 @@ describe('autoUpdaterService install guard (#286)', () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(service.installOnQuitIfReady()).toBe(true);
+      // win32 per-machine install cannot apply silently (EACCES), so the on-quit
+      // path also requests elevation (isSilent=false) rather than failing invisibly (#492).
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(false, false);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 

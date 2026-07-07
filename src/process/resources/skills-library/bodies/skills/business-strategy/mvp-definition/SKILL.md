@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy agile decision-making"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy agile decision-making'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # MVP Definition
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to define, scope, or scope-cut an MVP for a product they are planning to build or have partially built
 - User is deciding what to include in a first public launch, private beta, or pilot and needs a principled framework to draw the line
 - User wants to apply lean product development principles to avoid building months of features that the market does not want
@@ -29,6 +31,7 @@ metadata:
 - User needs to choose between multiple potential MVP scopes and evaluate which tests the most critical assumption at the lowest cost
 
 **Do NOT use this skill when:**
+
 - The user has not yet validated whether the problem is real -- run `idea-validation` first to determine whether an MVP is worth building
 - The user needs a Lean Canvas, business model overview, or go-to-market strategy -- use `lean-canvas`
 - The user wants detailed feature specifications with acceptance criteria, edge cases, and UX requirements -- use `feature-spec`
@@ -122,7 +125,7 @@ An MVP without a pre-defined success metric produces ambiguous results. The team
   - **Proceed to Phase 2** (if primary metric is at or above target)
   - **Pivot** (if primary metric is below target but qualitative data reveals a different valuable direction)
   - **Kill** (if primary metric is below target and no clear pivot hypothesis emerges from user research)
-  Setting this in advance removes the temptation to rationalize weak results.
+    Setting this in advance removes the temptation to rationalize weak results.
 
 ---
 
@@ -404,27 +407,28 @@ Developer tools have a different definition of "viable" because the user is also
 
 ### Target User
 
-| Field | Detail |
-|---|---|
-| **Segment** | Independent RIAs (registered investment advisors) operating solo or with 1-2 support staff, managing 50-150 household relationships |
+| Field                     | Detail                                                                                                                                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Segment**               | Independent RIAs (registered investment advisors) operating solo or with 1-2 support staff, managing 50-150 household relationships                                                                                                                                            |
 | **Early adopter profile** | Advisors who are currently spending 2+ days per quarter manually producing quarterly review reports, have expressed frustration with the process in advisor forums (NAPFA, XY Planning Network), and are already attempting partial automation with mail merge or Excel macros |
-| **Current workaround** | Manual process: export CSV from custodian (Schwab, Fidelity, TD Ameritrade), paste data into a Word template, write personalized commentary for each client, PDF it, and email it. 3-4 hours per client report. |
-| **Core pain** | Time cost of report production crowds out time for client acquisition and financial planning work. Many advisors delay or skip quarterly reviews because of the production burden. |
-| **Out of scope users** | Enterprise RIAs with dedicated ops staff, broker-dealers using proprietary reporting systems, advisors using full-suite wealth management platforms (Orion, Tamarac) that already include reporting modules |
+| **Current workaround**    | Manual process: export CSV from custodian (Schwab, Fidelity, TD Ameritrade), paste data into a Word template, write personalized commentary for each client, PDF it, and email it. 3-4 hours per client report.                                                                |
+| **Core pain**             | Time cost of report production crowds out time for client acquisition and financial planning work. Many advisors delay or skip quarterly reviews because of the production burden.                                                                                             |
+| **Out of scope users**    | Enterprise RIAs with dedicated ops staff, broker-dealers using proprietary reporting systems, advisors using full-suite wealth management platforms (Orion, Tamarac) that already include reporting modules                                                                    |
 
 ---
 
 ### Core Functionality (IN Scope)
 
-| # | Feature | Why On Critical Path | Simplest Viable Version | Build Estimate |
-|---|---|---|---|---|
-| 1 | CSV data import and normalization | Without data input, no report is possible. Custodian API integrations are 3-6 month projects; CSV export is already part of the advisor's workflow | Accept a standardized CSV export from Schwab Advisor Center or Fidelity Wealthscape. Parse and normalize: account value, allocation, performance YTD and 1-year, top holdings. Reject malformed files with a clear error message. | 4 days |
-| 2 | Report template engine | Produces the structured output that is the product's core value. One template in the MVP -- advisors who want customization can wait for Phase 2 | Single template: executive summary (AI-generated), portfolio performance table, allocation breakdown chart (static bar chart), benchmark comparison (S&P 500 and 60/40 default), 3-bullet forward-looking commentary draft. No custom branding, no color themes. | 5 days |
-| 3 | AI narrative generation | This is the riskiest assumption -- the advisor must trust the output enough to send it. Without this, the product is just a formatting tool, which is not worth paying for | GPT-4o fine-tuned prompt generating 3 sections: (a) performance summary relative to benchmark, (b) allocation rationale, (c) outlook paragraph. Advisor can edit inline in the browser before export. Tone preset: professional and client-friendly. No custom voice in MVP. | 4 days |
-| 4 | PDF export | The output format advisors actually send to clients. Without a clean PDF, the report cannot be used | Single-page and multi-page PDF export. Advisor firm name and logo on header (text input only -- no custom color/font theming). Download button. | 2 days |
-| - | **Infrastructure** | Auth + secure file handling (data must be treated as sensitive financial data, not stored beyond the session without consent) | Clerk for auth, server-side CSV processing (no client-side storage of financial data), session-scoped data deletion after export. No long-term data persistence in MVP -- advisor uploads fresh each time. | 3 days |
+| #   | Feature                           | Why On Critical Path                                                                                                                                                       | Simplest Viable Version                                                                                                                                                                                                                                                      | Build Estimate |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1   | CSV data import and normalization | Without data input, no report is possible. Custodian API integrations are 3-6 month projects; CSV export is already part of the advisor's workflow                         | Accept a standardized CSV export from Schwab Advisor Center or Fidelity Wealthscape. Parse and normalize: account value, allocation, performance YTD and 1-year, top holdings. Reject malformed files with a clear error message.                                            | 4 days         |
+| 2   | Report template engine            | Produces the structured output that is the product's core value. One template in the MVP -- advisors who want customization can wait for Phase 2                           | Single template: executive summary (AI-generated), portfolio performance table, allocation breakdown chart (static bar chart), benchmark comparison (S&P 500 and 60/40 default), 3-bullet forward-looking commentary draft. No custom branding, no color themes.             | 5 days         |
+| 3   | AI narrative generation           | This is the riskiest assumption -- the advisor must trust the output enough to send it. Without this, the product is just a formatting tool, which is not worth paying for | GPT-4o fine-tuned prompt generating 3 sections: (a) performance summary relative to benchmark, (b) allocation rationale, (c) outlook paragraph. Advisor can edit inline in the browser before export. Tone preset: professional and client-friendly. No custom voice in MVP. | 4 days         |
+| 4   | PDF export                        | The output format advisors actually send to clients. Without a clean PDF, the report cannot be used                                                                        | Single-page and multi-page PDF export. Advisor firm name and logo on header (text input only -- no custom color/font theming). Download button.                                                                                                                              | 2 days         |
+| -   | **Infrastructure**                | Auth + secure file handling (data must be treated as sensitive financial data, not stored beyond the session without consent)                                              | Clerk for auth, server-side CSV processing (no client-side storage of financial data), session-scoped data deletion after export. No long-term data persistence in MVP -- advisor uploads fresh each time.                                                                   | 3 days         |
 
 **Manual processes replacing build (Wizard of Oz / Concierge):**
+
 - **Onboarding:** No in-product tutorial. Founder conducts a 20-minute Zoom onboarding call with each of the first 10 beta advisors. Collects qualitative feedback on the narrative quality during this call.
 - **Error handling for unusual CSV formats:** Beta advisors email their CSV to the founder directly if the parser fails. Founder manually reformats and returns a report within 24 hours. This covers edge cases without building a robust parser in Week 1.
 - **Benchmark data:** In the MVP, benchmark returns (S&P 500, Bloomberg Aggregate Bond Index) are hard-coded monthly values updated manually by the founder in a config file. No live market data API integration required.
@@ -433,56 +437,56 @@ Developer tools have a different definition of "viable" because the user is also
 
 ### Critical User Journey
 
-| Step | Action | What Makes This Possible | Can It Be Manual? |
-|---|---|---|---|
-| 1 | Advisor discovers product via NAPFA forum post or XY Planning Network community | Founder-led community outreach + waitlist landing page | N/A |
-| 2 | Advisor signs up for beta access | Email signup with Clerk auth, founder approves access within 24 hours (manual gate in MVP) | Yes -- founder emails access code |
-| 3 | Advisor exports CSV from their custodian and uploads it | CSV upload component, parser normalizes data, displays preview table for advisor to confirm | Partially -- founder can manually process misformatted CSVs |
-| 4 | **Advisor reviews AI-generated report draft** | Template engine + GPT-4o narrative generation. Advisor sees formatted report with editable text fields. This is the aha moment. | No -- this is the core automated value |
-| 5 | Advisor edits narrative and exports PDF | Inline text editor + PDF export | No -- PDF generation must be automated |
-| 6 | Advisor returns next quarter | Email reminder 2 weeks before end of quarter: "Q[X] reports are due soon -- upload your client data to AdvisorReport" | Yes -- founder sends this email manually in MVP |
+| Step | Action                                                                          | What Makes This Possible                                                                                                        | Can It Be Manual?                                           |
+| ---- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1    | Advisor discovers product via NAPFA forum post or XY Planning Network community | Founder-led community outreach + waitlist landing page                                                                          | N/A                                                         |
+| 2    | Advisor signs up for beta access                                                | Email signup with Clerk auth, founder approves access within 24 hours (manual gate in MVP)                                      | Yes -- founder emails access code                           |
+| 3    | Advisor exports CSV from their custodian and uploads it                         | CSV upload component, parser normalizes data, displays preview table for advisor to confirm                                     | Partially -- founder can manually process misformatted CSVs |
+| 4    | **Advisor reviews AI-generated report draft**                                   | Template engine + GPT-4o narrative generation. Advisor sees formatted report with editable text fields. This is the aha moment. | No -- this is the core automated value                      |
+| 5    | Advisor edits narrative and exports PDF                                         | Inline text editor + PDF export                                                                                                 | No -- PDF generation must be automated                      |
+| 6    | Advisor returns next quarter                                                    | Email reminder 2 weeks before end of quarter: "Q[X] reports are due soon -- upload your client data to AdvisorReport"           | Yes -- founder sends this email manually in MVP             |
 
 ---
 
 ### Out of Scope (Explicit Exclusions)
 
-| Feature | Deferred Phase | Reason for Exclusion | Who Requested It |
-|---|---|---|---|
-| Direct custodian API integration (Schwab, Fidelity) | Phase 2 | API partnerships take 3-6 months to negotiate and build. CSV covers 100% of the use case for MVP. | Initial advisor interviews |
-| Custom report templates and branding | Phase 2 | Tests a customization hypothesis, not the core time-savings hypothesis. One template is sufficient to validate the primary hypothesis. | Founder vision |
-| Client portal (advisors email reports directly from the platform) | Phase 2 | Adds compliance complexity (email delivery regulations for financial communications). Copy-paste or download is acceptable for MVP. | Advisor interviews |
-| Multi-advisor firm accounts and role management | Phase 3 | MVP targets solo advisors. Team features require the solo use case to be validated first. | None yet |
-| Automated performance calculation (YTD, IRR) | Phase 2 | Advisor's custodian already calculates performance and includes it in the CSV export. Recalculating independently adds risk without adding value in MVP. | Founder |
-| CRM integration (Salesforce, Redtail, Wealthbox) | Phase 3 | CSV import covers the data need. Integration adds 3-4 weeks of scope and tests a different hypothesis (workflow integration vs. core value). | Advisor interviews |
-| Regulatory disclosure management (adding required disclaimers automatically) | Phase 2 | Advisors have existing disclaimer language they append manually. This is a workflow convenience, not a core value feature. Note: advisors are responsible for their own compliance; MVP terms of service must state this clearly. | Compliance advisor |
-| Historical report archive | Phase 2 | MVP does not store data beyond the session. No archive to display. Persistent storage is a Phase 2 architectural decision. | None yet |
+| Feature                                                                      | Deferred Phase | Reason for Exclusion                                                                                                                                                                                                              | Who Requested It           |
+| ---------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Direct custodian API integration (Schwab, Fidelity)                          | Phase 2        | API partnerships take 3-6 months to negotiate and build. CSV covers 100% of the use case for MVP.                                                                                                                                 | Initial advisor interviews |
+| Custom report templates and branding                                         | Phase 2        | Tests a customization hypothesis, not the core time-savings hypothesis. One template is sufficient to validate the primary hypothesis.                                                                                            | Founder vision             |
+| Client portal (advisors email reports directly from the platform)            | Phase 2        | Adds compliance complexity (email delivery regulations for financial communications). Copy-paste or download is acceptable for MVP.                                                                                               | Advisor interviews         |
+| Multi-advisor firm accounts and role management                              | Phase 3        | MVP targets solo advisors. Team features require the solo use case to be validated first.                                                                                                                                         | None yet                   |
+| Automated performance calculation (YTD, IRR)                                 | Phase 2        | Advisor's custodian already calculates performance and includes it in the CSV export. Recalculating independently adds risk without adding value in MVP.                                                                          | Founder                    |
+| CRM integration (Salesforce, Redtail, Wealthbox)                             | Phase 3        | CSV import covers the data need. Integration adds 3-4 weeks of scope and tests a different hypothesis (workflow integration vs. core value).                                                                                      | Advisor interviews         |
+| Regulatory disclosure management (adding required disclaimers automatically) | Phase 2        | Advisors have existing disclaimer language they append manually. This is a workflow convenience, not a core value feature. Note: advisors are responsible for their own compliance; MVP terms of service must state this clearly. | Compliance advisor         |
+| Historical report archive                                                    | Phase 2        | MVP does not store data beyond the session. No archive to display. Persistent storage is a Phase 2 architectural decision.                                                                                                        | None yet                   |
 
 ---
 
 ### Success Metrics
 
-| Type | Metric | Target | Timeline | Measurement Method |
-|---|---|---|---|---|
-| **Primary** | Quarterly report adoption rate: % of beta advisors who generate reports for ≥80% of their client book using AdvisorReport in their first full quarter | ≥ 40% of beta advisors | Q1 post-launch (approx. 10-12 weeks after launch) | Founder manually counts reports generated per advisor in the session log |
-| **Secondary** | Time-to-first-report: time from CSV upload to PDF download for a first-time user | ≤ 25 minutes | Measured for first 20 reports generated | Server-side timestamps on upload event and download event |
-| **Secondary** | Narrative edit rate: % of AI-generated narrative sections that advisors edit before export | Baseline measurement only -- no pass/fail target in MVP | Ongoing | Track character diff between generated text and exported text |
-| **Guardrail** | Support escalation rate: % of report generation sessions that require founder intervention (broken parser, generation failure, etc.) | ≤ 15% of sessions | Ongoing | Manual count from support emails and Zoom calls |
+| Type          | Metric                                                                                                                                                | Target                                                  | Timeline                                          | Measurement Method                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Primary**   | Quarterly report adoption rate: % of beta advisors who generate reports for ≥80% of their client book using AdvisorReport in their first full quarter | ≥ 40% of beta advisors                                  | Q1 post-launch (approx. 10-12 weeks after launch) | Founder manually counts reports generated per advisor in the session log |
+| **Secondary** | Time-to-first-report: time from CSV upload to PDF download for a first-time user                                                                      | ≤ 25 minutes                                            | Measured for first 20 reports generated           | Server-side timestamps on upload event and download event                |
+| **Secondary** | Narrative edit rate: % of AI-generated narrative sections that advisors edit before export                                                            | Baseline measurement only -- no pass/fail target in MVP | Ongoing                                           | Track character diff between generated text and exported text            |
+| **Guardrail** | Support escalation rate: % of report generation sessions that require founder intervention (broken parser, generation failure, etc.)                  | ≤ 15% of sessions                                       | Ongoing                                           | Manual count from support emails and Zoom calls                          |
 
 ---
 
 ### Build Plan
 
-| Component | Owner | Estimate | Dependencies |
-|---|---|---|---|
-| Auth + secure session infrastructure | Engineer | 3 days | None |
-| CSV parser and normalization (Schwab + Fidelity formats) | Engineer | 4 days | Auth |
-| Report template engine + static chart generation | Engineer | 5 days | CSV parser |
-| GPT-4o prompt engineering + narrative generation API | Engineer + Founder | 4 days | Template engine |
-| Inline text editor + edit tracking | Engineer | 2 days | Template engine |
-| PDF generation and download | Engineer | 2 days | Editor |
-| Landing page + waitlist + beta access flow | Founder | 2 days | Auth |
-| QA, edge case testing, bug fix buffer | Engineer | 4 days | All components |
-| **Total** | | **26 days (~5.5 weeks for solo engineer)** | |
+| Component                                                | Owner              | Estimate                                   | Dependencies    |
+| -------------------------------------------------------- | ------------------ | ------------------------------------------ | --------------- |
+| Auth + secure session infrastructure                     | Engineer           | 3 days                                     | None            |
+| CSV parser and normalization (Schwab + Fidelity formats) | Engineer           | 4 days                                     | Auth            |
+| Report template engine + static chart generation         | Engineer           | 5 days                                     | CSV parser      |
+| GPT-4o prompt engineering + narrative generation API     | Engineer + Founder | 4 days                                     | Template engine |
+| Inline text editor + edit tracking                       | Engineer           | 2 days                                     | Template engine |
+| PDF generation and download                              | Engineer           | 2 days                                     | Editor          |
+| Landing page + waitlist + beta access flow               | Founder            | 2 days                                     | Auth            |
+| QA, edge case testing, bug fix buffer                    | Engineer           | 4 days                                     | All components  |
+| **Total**                                                |                    | **26 days (~5.5 weeks for solo engineer)** |                 |
 
 **Launch date:** Fixed at 6 weeks from project start
 **Beta cohort size:** 15-20 independent RIA advisors recruited via NAPFA and XY Planning Network communities
@@ -492,11 +496,11 @@ Developer tools have a different definition of "viable" because the user is also
 
 ### Decision Gate
 
-| Outcome | Condition | Action |
-|---|---|---|
-| **Proceed to Phase 2** | ≥40% of beta advisors use AdvisorReport for ≥80% of their Q1 reports | Begin Phase 2: custodian API integration (Schwab), custom branding, client email delivery |
-| **Pivot** | <40% adoption rate, but qualitative interviews reveal advisors are using it for a different workflow (e.g., prospect presentations rather than client reviews) | Redefine hypothesis around prospect workflow use case, scope new MVP around that use case |
-| **Kill** | <40% adoption rate, narrative edit rate >90% (advisors are rewriting everything, so AI adds no value), and no clear alternate use case emerges | Sunset AdvisorReport, apply learning to adjacent problem in the RIA workflow |
+| Outcome                | Condition                                                                                                                                                      | Action                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Proceed to Phase 2** | ≥40% of beta advisors use AdvisorReport for ≥80% of their Q1 reports                                                                                           | Begin Phase 2: custodian API integration (Schwab), custom branding, client email delivery |
+| **Pivot**              | <40% adoption rate, but qualitative interviews reveal advisors are using it for a different workflow (e.g., prospect presentations rather than client reviews) | Redefine hypothesis around prospect workflow use case, scope new MVP around that use case |
+| **Kill**               | <40% adoption rate, narrative edit rate >90% (advisors are rewriting everything, so AI adds no value), and no clear alternate use case emerges                 | Sunset AdvisorReport, apply learning to adjacent problem in the RIA workflow              |
 
 ---
 

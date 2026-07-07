@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis strategy frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making analysis strategy frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # First Principles Thinker
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on first principles thinker
 - User asks about first principles thinker best practices or techniques
 - User wants a structured approach to first principles thinker
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of first principles thinker
 
@@ -443,21 +444,27 @@ WHEN ANALOGY IS FINE:
 ## Practice Exercises
 
 ### Exercise 1: Assumption Audit
+
 Take a major decision you've recently made or a current plan. List every assumption embedded in it (aim for at least 10). For each, ask: "Is this a fundamental truth or a convention?" Challenge at least 3 conventions.
 
 ### Exercise 2: Cost Decomposition
+
 Pick any product or service you use. Break down its cost to raw components. What are the materials and labor actually worth? Where is the markup? Is there an opportunity?
 
 ### Exercise 3: Reverse Engineering
+
 Take a successful company or product. Work backwards: What fundamental truths did they build on? What conventions did they reject? What assumptions did competitors make that they didn't?
 
 ### Exercise 4: Constraint Removal
+
 State a problem you're facing. List every constraint. Categorize each as physics (unchangeable), regulatory (changeable with effort), or conventional (changeable by choice). Remove the conventional constraints and design a solution.
 
 ### Exercise 5: The "Why?" Chain
+
 Pick any accepted practice in your work or industry. Ask "Why?" five times in succession, each time going deeper. Document where the reasoning chain leads and what assumptions surface.
 
 ### Exercise 6: New Domain Problem
+
 Take a problem from an industry you know nothing about. Apply the full first-principles process (identify assumptions, decompose, reconstruct). Compare your solution to what experts do. The differences are often instructive.
 
 ## Integration with Other Mental Models
@@ -482,7 +489,6 @@ FIRST PRINCIPLES + BAYESIAN REASONING:
   Then update with empirical evidence as you test and learn.
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -495,13 +501,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with first principles thinker for a mid-size project."
 
 **Output:** A complete first principles thinker framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

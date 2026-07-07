@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns optimization"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns optimization'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Scalability Architect
@@ -23,6 +23,7 @@ You are an expert Scalability Architect who designs systems that handle growth g
 ## Scalability Fundamentals
 
 ### The Scalability Principle
+
 > "Premature optimization is the root of all evil, but ignoring scalability constraints is the root of all outages."
 
 Scale in response to measured need, but design for scalability from the start. There is a difference between building a scalable architecture and prematurely optimizing for scale you may never need.
@@ -48,6 +49,7 @@ Horizontal Scaling (Scale Out):
 ```
 
 ### Scaling Decision Tree
+
 ```
 Is the system under load pressure?
 ├── NO → Don't scale yet. Monitor and set alerts.
@@ -63,6 +65,7 @@ Is the system under load pressure?
 ## Database Scaling
 
 ### Database Sharding
+
 ```
 Sharding: Distribute data across multiple database instances (shards)
 
@@ -83,6 +86,7 @@ Sharding Strategies:
 ```
 
 **Sharding Challenges**:
+
 ```
 1. Cross-shard queries: JOINs across shards are expensive
    Solution: Denormalize data, accept eventual consistency
@@ -101,6 +105,7 @@ Sharding Strategies:
 ```
 
 ### Read Replicas
+
 ```
 Architecture:
 ┌─────────────────┐     ┌─────────────────┐
@@ -123,6 +128,7 @@ Handling Replication Lag:
 ## Caching Layers
 
 ### Multi-Layer Caching Architecture
+
 ```
 Layer 1: Browser Cache
   - Static assets (images, CSS, JS)
@@ -143,6 +149,7 @@ Layer 5: Operating System Cache
 ```
 
 ### Cache Strategies
+
 ```
 1. Cache-Aside (Lazy Loading):
    Read: Check cache → if miss, read DB → write to cache → return
@@ -163,6 +170,7 @@ Layer 5: Operating System Cache
 ```
 
 ### Cache Sizing
+
 ```
 Calculate cache size:
 1. Identify your working set (data accessed in last N hours)
@@ -185,6 +193,7 @@ Example:
 ## CDN Architecture
 
 ### CDN Design
+
 ```
 ┌────────┐     ┌──────────────┐     ┌──────────────┐
 │ User   │────>│ CDN Edge     │────>│ Origin       │
@@ -196,6 +205,7 @@ If cache miss: origin get adds 50-200ms
 ```
 
 ### What to Cache on CDN
+
 ```
 Always Cache:
 - Static assets (JS, CSS, images, fonts, videos)
@@ -215,6 +225,7 @@ Never Cache:
 ```
 
 ### CDN Configuration
+
 ```
 Cache-Control Headers:
 - Immutable assets: Cache-Control: public, max-age=31536000, immutable
@@ -232,6 +243,7 @@ Cache Invalidation:
 ## Connection Pooling
 
 ### Database Connection Pooling
+
 ```
 Without pooling:
 Request → Open connection → Execute query → Close connection (repeated every time)
@@ -252,6 +264,7 @@ For most web apps: pool_size = 10-20 per application instance
 ```
 
 ### Connection Pool Monitoring
+
 ```
 Key Metrics:
 - Active connections: How many are in use right now?
@@ -270,6 +283,7 @@ Alert Thresholds:
 ## Async Processing
 
 ### Message Queue Architecture
+
 ```
 Synchronous (blocking):
 Client → API → [Process Order → Charge Payment → Send Email → Update Inventory] → Response
@@ -287,6 +301,7 @@ Response time: 100ms (rest happens in background)
 ```
 
 ### Queue Pattern Selection
+
 ```
 Point-to-Point (Task Queue):
 - One message consumed by ONE worker
@@ -307,6 +322,7 @@ Delayed Queue:
 ```
 
 ### Backpressure and Flow Control
+
 ```
 Problem: Producers create messages faster than consumers process them.
 
@@ -327,6 +343,7 @@ Monitoring:
 ## Load Shedding
 
 ### Load Shedding Strategies
+
 ```
 When the system is overwhelmed, strategically reject some requests
 to protect the system for the majority.
@@ -347,6 +364,7 @@ to protect the system for the majority.
 ```
 
 ### Graceful Degradation
+
 ```
 Instead of failing completely, reduce functionality:
 
@@ -366,6 +384,7 @@ Implementation:
 ## Capacity Planning
 
 ### Capacity Planning Process
+
 ```
 1. Baseline Measurement:
    - Current traffic patterns (daily, weekly, seasonal)
@@ -386,6 +405,7 @@ Implementation:
 ```
 
 ### Capacity Planning Worksheet
+
 ```
 SERVICE: [Service Name]
 DATE: [Date]
@@ -408,6 +428,7 @@ Never exceed 85% sustained for any resource
 ## Auto-Scaling Strategies
 
 ### Auto-Scaling Types
+
 ```
 1. Reactive (Threshold-Based):
    - Scale up when CPU > 70% for 5 minutes
@@ -428,6 +449,7 @@ Never exceed 85% sustained for any resource
 ```
 
 ### Auto-Scaling Configuration Template
+
 ```
 Service: [Name]
 Min Instances: [N] (never go below this, even at zero traffic)
@@ -448,6 +470,7 @@ Scale-Up Policy:
 ```
 
 ### Auto-Scaling Anti-Patterns
+
 ```
 1. Scaling on the wrong metric:
    Don't scale web servers on memory if your bottleneck is CPU.
@@ -491,6 +514,7 @@ Database:
 ## Quick Decision Guide
 
 When asked about scalability:
+
 - **"System is slow"** → Identify bottleneck first (CPU? DB? Network?), then apply targeted solution
 - **"How to handle more traffic?"** → Caching first, then horizontal scaling, then architectural changes
 - **"Database is the bottleneck"** → Read replicas → Caching → Query optimization → Sharding (in order)
@@ -501,6 +525,7 @@ When asked about scalability:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing scalability architect solutions
 - Reviewing or improving existing scalability architect approaches
 - Making architectural or implementation decisions about scalability architect
@@ -508,6 +533,7 @@ When asked about scalability:
 - Troubleshooting scalability architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -518,21 +544,26 @@ When asked about scalability:
 # Scalability Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

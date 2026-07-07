@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "gardening sustainability guide"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'gardening sustainability guide'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Permaculture Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on permaculture designer
 - User asks about permaculture designer best practices or techniques
 - User wants a structured approach to permaculture designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of permaculture designer
 
@@ -58,11 +59,13 @@ Before designing a permaculture system:
 ## Permaculture Design Principles
 
 ### The Three Ethics
+
 1. **Earth Care**: Work with natural systems, build soil, protect biodiversity
 2. **People Care**: Meet human needs sustainably, build community
 3. **Fair Share**: Limit consumption, redistribute surplus, share abundance
 
 ### David Holmgren's 12 Design Principles
+
 1. **Observe and interact**: Spend a full year observing your site before major changes
 2. **Catch and store energy**: Harvest water, sunlight, biomass, and nutrients
 3. **Obtain a yield**: Ensure every element produces something useful
@@ -79,15 +82,18 @@ Before designing a permaculture system:
 ## Zone Planning
 
 ### The Zone System
+
 Zones organize your landscape by frequency of use and maintenance needs:
 
 **Zone 0: The Home**
+
 - Indoor food production (sprouts, herbs on windowsill)
 - Energy efficiency
 - Thermal mass and passive solar design
 - Indoor air quality plants
 
 **Zone 1: Intensive Use (Daily visits)**
+
 - Kitchen herb garden
 - Salad greens and frequently harvested vegetables
 - Compost bins
@@ -97,6 +103,7 @@ Zones organize your landscape by frequency of use and maintenance needs:
 - Typically within 50 feet of the home
 
 **Zone 2: Semi-Intensive (Regular maintenance)**
+
 - Main vegetable garden
 - Perennial vegetables
 - Small fruit trees and berry bushes
@@ -106,6 +113,7 @@ Zones organize your landscape by frequency of use and maintenance needs:
 - Cover crops and green manures
 
 **Zone 3: Farm Zone (Occasional maintenance)**
+
 - Orchard and food forest
 - Staple crops (corn, potatoes, grains on larger sites)
 - Pasture for livestock
@@ -113,12 +121,14 @@ Zones organize your landscape by frequency of use and maintenance needs:
 - Larger water storage (dam, large swale)
 
 **Zone 4: Semi-Wild (Minimal management)**
+
 - Managed woodland for timber, mushrooms, nuts
 - Wild food foraging areas
 - Grazing land managed with rotational grazing
 - Wildlife corridors
 
 **Zone 5: Wild (No management)**
+
 - Unmanaged natural area
 - Wildlife habitat
 - Observation and learning area
@@ -126,7 +136,9 @@ Zones organize your landscape by frequency of use and maintenance needs:
 - Watershed protection
 
 ### Sector Analysis
+
 Map external energies affecting your site:
+
 - **Sun sector**: Track sun path across seasons (shade patterns shift dramatically)
 - **Wind sector**: Prevailing wind directions by season
 - **Water sector**: Where water flows during rain, flood risk areas
@@ -137,6 +149,7 @@ Map external energies affecting your site:
 ## Food Forest Design
 
 ### What Is a Food Forest?
+
 A designed ecosystem mimicking a natural forest structure, with all layers producing food, medicine, or useful materials.
 
 ### Seven Layers of the Food Forest
@@ -151,6 +164,7 @@ A designed ecosystem mimicking a natural forest structure, with all layers produ
 8. **Mycelial layer**: Mushrooms (shiitake on logs, wine caps in mulch, oyster mushrooms)
 
 ### Food Forest Design Steps
+
 1. **Site assessment**: Sun, water, soil, microclimate
 2. **Choose canopy trees first**: These define the system (plant spacing matters most)
 3. **Select understory trees**: Choose species that tolerate partial shade
@@ -161,6 +175,7 @@ A designed ecosystem mimicking a natural forest structure, with all layers produ
 8. **Mulch heavily**: 4-6 inches of wood chip or straw mulch everywhere bare soil exists
 
 ### Food Forest Spacing (General Guidelines)
+
 - Large fruit trees: 20-30 feet apart
 - Small fruit trees: 12-18 feet apart
 - Berry bushes: 4-8 feet apart
@@ -170,24 +185,28 @@ A designed ecosystem mimicking a natural forest structure, with all layers produ
 ## Companion Planting Guide
 
 ### The Three Sisters (Classic)
+
 - **Corn**: Tall stalk provides support for beans
 - **Beans**: Fix nitrogen in soil for corn and squash
 - **Squash**: Large leaves shade soil, suppress weeds, retain moisture
 
 ### Beneficial Combinations
-| Plant | Good Companions | Avoid |
-|-------|----------------|-------|
-| Tomatoes | Basil, carrots, parsley, marigolds | Fennel, brassicas |
-| Peppers | Basil, onions, spinach, tomatoes | Fennel, kohlrabi |
-| Beans | Corn, squash, cucumber, carrots | Onions, garlic, fennel |
-| Carrots | Onions, leeks, tomatoes, peas | Dill, parsnips |
-| Lettuce | Carrots, radishes, strawberries, chives | None significant |
-| Brassicas | Onions, garlic, beets, celery | Strawberries, tomatoes |
+
+| Plant     | Good Companions                         | Avoid                    |
+| --------- | --------------------------------------- | ------------------------ |
+| Tomatoes  | Basil, carrots, parsley, marigolds      | Fennel, brassicas        |
+| Peppers   | Basil, onions, spinach, tomatoes        | Fennel, kohlrabi         |
+| Beans     | Corn, squash, cucumber, carrots         | Onions, garlic, fennel   |
+| Carrots   | Onions, leeks, tomatoes, peas           | Dill, parsnips           |
+| Lettuce   | Carrots, radishes, strawberries, chives | None significant         |
+| Brassicas | Onions, garlic, beets, celery           | Strawberries, tomatoes   |
 | Cucumbers | Beans, corn, peas, radishes, sunflowers | Potatoes, aromatic herbs |
-| Roses | Garlic, chives, lavender, marigolds | None significant |
+| Roses     | Garlic, chives, lavender, marigolds     | None significant         |
 
 ### Dynamic Accumulators
+
 Plants that mine deep nutrients and make them available at the surface:
+
 - **Comfrey**: Potassium, calcium, phosphorus (the "king" of permaculture plants)
 - **Yarrow**: Potassium, phosphorus, copper
 - **Dandelion**: Potassium, calcium, iron
@@ -195,6 +214,7 @@ Plants that mine deep nutrients and make them available at the surface:
 - Chop and drop these plants as mulch around fruit trees and vegetables
 
 ### Nitrogen-Fixing Plants
+
 - **Trees**: Black locust, alder, autumn olive (caution: invasive in some regions)
 - **Shrubs**: Siberian pea shrub, goumi
 - **Herbaceous**: Clover, vetch, lupine, alfalfa
@@ -203,6 +223,7 @@ Plants that mine deep nutrients and make them available at the surface:
 ## Water Management
 
 ### Swale Design
+
 - **Swales**: Level ditches on contour that catch and infiltrate rainwater
 - Dig a ditch along the contour line (level from end to end, NOT running downhill)
 - Pile excavated soil on the downhill side (the berm)
@@ -211,6 +232,7 @@ Plants that mine deep nutrients and make them available at the surface:
 - Spacing: 30-60 feet apart on gentle slopes, closer on steeper slopes
 
 ### Rain Gardens
+
 - Shallow depression planted with native species that tolerate wet and dry
 - Capture runoff from roofs, driveways, and paved areas
 - Size: Roughly 20% of the area draining into it
@@ -219,6 +241,7 @@ Plants that mine deep nutrients and make them available at the surface:
 - Overflow outlet for major storms
 
 ### Rainwater Harvesting
+
 - **Roof collection**: 1 inch of rain on 1,000 sq ft roof = 623 gallons
 - **First flush diverter**: Removes initial dirty water from roof
 - **Storage**: Tanks, cisterns, barrels (55 gallon to 10,000+ gallon)
@@ -226,6 +249,7 @@ Plants that mine deep nutrients and make them available at the surface:
 - **Check regulations**: Some states restrict rainwater harvesting (most allow it)
 
 ### Keyline Design
+
 - Advanced water management system for farms and large properties
 - Uses the natural topography to spread water from valleys to ridges
 - Keyline plow creates shallow channels that redirect water
@@ -235,12 +259,15 @@ Plants that mine deep nutrients and make them available at the surface:
 ## Soil Building
 
 ### The Living Soil
+
 Healthy soil is a living ecosystem containing billions of organisms per teaspoon:
+
 - Bacteria, fungi, protozoa, nematodes, arthropods, earthworms
 - Mycorrhizal fungi form networks connecting plant roots (the "wood wide web")
 - Building soil biology is more important than adding fertilizers
 
 ### Soil Building Techniques
+
 1. **Sheet mulching (lasagna gardening)**: Layer cardboard, compost, straw/wood chips directly over grass or weeds. Plant into it after decomposition (3-6 months).
 2. **Composting**: Hot compost (thermophilic, 130-160F) for fast results, cold compost for less effort
 3. **Vermicomposting**: Red wiggler worms process kitchen scraps into castings
@@ -250,6 +277,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 7. **No-till / minimal disturbance**: Avoid turning soil, which disrupts fungal networks
 
 ### Soil Testing
+
 - Get a soil test before major planting (through local agricultural extension office, $15-30)
 - Test for: pH, nitrogen (N), phosphorus (P), potassium (K), organic matter, micronutrients
 - Retest every 2-3 years to track improvement
@@ -260,6 +288,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 ## Seasonal Planning
 
 ### Spring
+
 - Start seeds indoors (6-8 weeks before last frost)
 - Sheet mulch new garden areas
 - Divide and transplant perennials
@@ -268,6 +297,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - Set up rainwater collection before spring rains
 
 ### Summer
+
 - Succession plant quick crops (lettuce, radishes) every 2-3 weeks
 - Mulch heavily to retain moisture
 - Chop and drop comfrey and dynamic accumulators
@@ -276,6 +306,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - Plan fall plantings
 
 ### Fall
+
 - Plant garlic, onions, and overwintering crops
 - Seed cover crops on empty beds
 - Plant trees and shrubs (good root establishment before winter)
@@ -284,6 +315,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - Clean and store season-extension equipment
 
 ### Winter
+
 - Plan next season's garden design
 - Order seeds and bare-root plants
 - Prune dormant fruit trees
@@ -294,6 +326,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 ## Community Garden Design
 
 ### Site Selection
+
 - Minimum 6 hours direct sunlight
 - Water access (hose bib, irrigation connection)
 - Reasonable distance from participants' homes
@@ -301,6 +334,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - Not contaminated (test soil for lead, especially in urban areas)
 
 ### Layout Considerations
+
 - Individual plots: 4x8 or 4x12 feet typical (raised beds in contaminated soil areas)
 - Shared/communal areas: Herb spiral, perennial beds, tool shed
 - Pathways: 3-4 feet wide for wheelbarrow access, ADA accessible
@@ -310,6 +344,7 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - Perimeter: Fruit trees, berry bushes, or pollinator hedgerow
 
 ### Governance
+
 - Written rules and agreement signed by all participants
 - Plot assignment process (waitlist, lottery, priority for returning gardeners)
 - Maintenance responsibilities (individual plots + shared areas)
@@ -347,7 +382,6 @@ Healthy soil is a living ecosystem containing billions of organisms per teaspoon
 - **Organizations**: Permaculture Institute, local permaculture guilds
 - **Software**: Google Earth for site analysis, Sun Surveyor app for solar analysis
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -360,13 +394,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with permaculture designer for a mid-size project."
 
 **Output:** A complete permaculture designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

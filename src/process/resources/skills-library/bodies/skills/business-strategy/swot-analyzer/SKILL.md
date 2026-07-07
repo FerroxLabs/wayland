@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy analysis frameworks decision-making"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy analysis frameworks decision-making'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Swot Analyzer
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants a deep strategic analysis using SWOT, PESTLE, Porter's Five Forces, or TOWS matrix
 - The user needs to convert strategic analysis into actionable strategy with a competitive positioning matrix
 - The user wants to assess internal strengths and weaknesses alongside external opportunities and threats
 - The user needs a structured strategic framework for a business decision, market entry, or organizational change
 
 **Do NOT use this skill when:**
+
 - The user needs detailed competitor-by-competitor analysis (use competitive-analyst instead)
 - The user wants market sizing or customer research (use market-researcher instead)
 - The user needs a full business plan rather than strategic analysis (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on swot analyzer
 - User asks about swot analyzer best practices or techniques
 - User wants a structured approach to swot analyzer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of swot analyzer
 
@@ -74,6 +78,7 @@ A rigorous strategic analysis skill that goes beyond basic SWOT to deliver actio
 ### Strengths Identification Framework
 
 Evaluate each internal area and identify strengths where you have a clear advantage.
+
 ```
 STRENGTHS ASSESSMENT
 
@@ -114,6 +119,7 @@ S5: {{strength}} -- Evidence: {{data_or_proof}}
 ### Weaknesses Identification Framework
 
 Be honest and specific. Vague weaknesses lead to vague strategies.
+
 ```
 WEAKNESSES ASSESSMENT
 
@@ -156,6 +162,7 @@ W5: {{weakness}} -- Impact: {{potential_consequence}}
 ## Step 2: External Assessment (Opportunities & Threats)
 
 ### Opportunities Identification
+
 ```
 OPPORTUNITIES ASSESSMENT
 
@@ -192,6 +199,7 @@ O5: {{opportunity}} -- Potential value: {{estimate}}
 ```
 
 ### Threats Identification
+
 ```
 THREATS ASSESSMENT
 
@@ -234,6 +242,7 @@ T5: {{threat}} -- Likelihood: {{H/M/L}} -- Severity: {{H/M/L}}
 ## Step 3: PESTLE Analysis
 
 Use PESTLE to systematically scan the external environment.
+
 ```
 PESTLE ANALYSIS: {{entity/industry}}
 
@@ -300,6 +309,7 @@ TOP 3 PESTLE FACTORS TO MONITOR:
 ---
 
 ## Step 4: Porter's Five Forces
+
 ```
 PORTER'S FIVE FORCES ANALYSIS: {{industry}}
 
@@ -358,6 +368,7 @@ OVERALL INDUSTRY ATTRACTIVENESS:
 ## Step 5: TOWS Strategy Matrix
 
 Convert SWOT findings into actionable strategies using the TOWS matrix.
+
 ```
 TOWS STRATEGY MATRIX
 
@@ -405,6 +416,7 @@ WT STRATEGIES (Defensive/Survival):
 ---
 
 ## Step 6: Competitive Positioning Matrix
+
 ```
 COMPETITIVE POSITIONING MAP
 
@@ -451,6 +463,7 @@ YOUR POSITIONING STATEMENT:
 ## Step 7: Strategy Prioritization
 
 ### Impact-Effort Matrix
+
 ```
 STRATEGY PRIORITIZATION
 
@@ -482,6 +495,7 @@ TOP 3 STRATEGIC PRIORITIES:
 ---
 
 ## Step 8: Strategic Action Plan
+
 ```
 STRATEGIC ACTION PLAN
 
@@ -536,7 +550,6 @@ REVIEW CADENCE: {{weekly/biweekly/monthly}}
 - [ ] Strategies are prioritized with clear next steps and owners
 - [ ] Analysis is reviewed by someone outside the team for blind spots
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -549,13 +562,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with swot analyzer for a mid-size project."
 
 **Output:** A complete swot analyzer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

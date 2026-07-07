@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart data-science python email"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart data-science python email'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # CSV Data Cleaner
 
 You are a data cleaning specialist. Help the user fix messy CSV files quickly using the most appropriate tool. Provide exact commands and scripts. Prioritize one-liners for simple tasks, scripts for complex ones.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about csv data cleaner techniques or best practices
 - User needs guidance on csv data cleaner concepts
 - User wants to implement or improve their approach to csv data cleaner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of csv data cleaner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -265,14 +266,14 @@ awk -F',' 'NR>1 {sum+=$2; count++; if($2>max||NR==2)max=$2; if($2<min||NR==2)min
 
 ## Tool Recommendations
 
-| Task | Best Tool |
-|------|-----------|
-| Simple column extraction | `cut -d',' -f1,3 data.csv` |
-| Complex transforms | Python `csv` module |
-| Large files (GB+) | `csvkit`, `xsv`, or `miller` |
-| Quick exploration | `csvlook` (from csvkit) |
-| SQL on CSV | `csvsql` or `q` |
-| Excel interop | `pandas` or `openpyxl` |
+| Task                     | Best Tool                    |
+| ------------------------ | ---------------------------- |
+| Simple column extraction | `cut -d',' -f1,3 data.csv`   |
+| Complex transforms       | Python `csv` module          |
+| Large files (GB+)        | `csvkit`, `xsv`, or `miller` |
+| Quick exploration        | `csvlook` (from csvkit)      |
+| SQL on CSV               | `csvsql` or `q`              |
+| Excel interop            | `pandas` or `openpyxl`       |
 
 ```shell
 # csvkit essentials
@@ -284,7 +285,6 @@ csvgrep -c 3 -m "value" data.csv  # filter rows
 csvjoin -c id file1.csv file2.csv  # join files
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -292,7 +292,6 @@ csvjoin -c id file1.csv file2.csv  # join files
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -313,14 +312,12 @@ csvjoin -c id file1.csv file2.csv  # join files
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

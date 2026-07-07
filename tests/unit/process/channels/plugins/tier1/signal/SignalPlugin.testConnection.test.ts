@@ -43,7 +43,7 @@ function stubExecFile(stdout: string, stderr: string, code: number) {
         err.code = code;
         cb(err, stdout, stderr);
       }
-    },
+    }
   );
 }
 
@@ -81,14 +81,18 @@ describe('SignalPlugin.testConnection', () => {
   it('returns success:false when number is not registered', async () => {
     // First call is --version (success), second is listContacts (not registered).
     mockExecFile
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
-        cb(null, 'signal-cli 0.13.5', '');
-      })
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: Error, stdout: string, stderr: string) => void) => {
-        const err = new Error('exit 1') as NodeJS.ErrnoException;
-        err.code = 1;
-        cb(err, '', 'This number is not registered');
-      });
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          cb(null, 'signal-cli 0.13.5', '');
+        }
+      )
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: Error, stdout: string, stderr: string) => void) => {
+          const err = new Error('exit 1') as NodeJS.ErrnoException;
+          err.code = 1;
+          cb(err, '', 'This number is not registered');
+        }
+      );
 
     const r = await SignalPlugin.testConnection(JSON.stringify({ phoneNumber: '+14155551234' }));
     expect(r.success).toBe(false);
@@ -98,12 +102,16 @@ describe('SignalPlugin.testConnection', () => {
   it('returns success:true + botUsername on registered account', async () => {
     // --version succeeds, listContacts succeeds.
     mockExecFile
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
-        cb(null, 'signal-cli 0.13.5', '');
-      })
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
-        cb(null, '[]', '');
-      });
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          cb(null, 'signal-cli 0.13.5', '');
+        }
+      )
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          cb(null, '[]', '');
+        }
+      );
 
     const r = await SignalPlugin.testConnection(JSON.stringify({ phoneNumber: '+14155551234' }));
     expect(r.success).toBe(true);
@@ -112,36 +120,39 @@ describe('SignalPlugin.testConnection', () => {
 
   it('includes configDir in args when provided', async () => {
     mockExecFile
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
-        cb(null, 'signal-cli 0.13.5', '');
-      })
-      .mockImplementationOnce((
-        _f: unknown,
-        args: string[],
-        _o: unknown,
-        cb: (err: null, stdout: string, stderr: string) => void,
-      ) => {
-        // configDir must appear in the args
-        expect(args).toContain('/custom/config');
-        cb(null, '[]', '');
-      });
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          cb(null, 'signal-cli 0.13.5', '');
+        }
+      )
+      .mockImplementationOnce(
+        (_f: unknown, args: string[], _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          // configDir must appear in the args
+          expect(args).toContain('/custom/config');
+          cb(null, '[]', '');
+        }
+      );
 
     const r = await SignalPlugin.testConnection(
-      JSON.stringify({ phoneNumber: '+14155551234', configDir: '/custom/config' }),
+      JSON.stringify({ phoneNumber: '+14155551234', configDir: '/custom/config' })
     );
     expect(r.success).toBe(true);
   });
 
   it('returns success:false with clear message on pending SMS verification', async () => {
     mockExecFile
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
-        cb(null, 'signal-cli 0.13.5', '');
-      })
-      .mockImplementationOnce((_f: unknown, _a: unknown, _o: unknown, cb: (err: Error, stdout: string, stderr: string) => void) => {
-        const err = new Error('exit 1') as NodeJS.ErrnoException;
-        err.code = 1;
-        cb(err, '', 'Registration pending SMS verification');
-      });
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: null, stdout: string, stderr: string) => void) => {
+          cb(null, 'signal-cli 0.13.5', '');
+        }
+      )
+      .mockImplementationOnce(
+        (_f: unknown, _a: unknown, _o: unknown, cb: (err: Error, stdout: string, stderr: string) => void) => {
+          const err = new Error('exit 1') as NodeJS.ErrnoException;
+          err.code = 1;
+          cb(err, '', 'Registration pending SMS verification');
+        }
+      );
 
     const r = await SignalPlugin.testConnection(JSON.stringify({ phoneNumber: '+14155551234' }));
     expect(r.success).toBe(false);

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security optimization backend"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security optimization backend'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Rate Limiting Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to protect an API endpoint from abuse, DDoS amplification, or runaway clients consuming disproportionate resources
 - User is designing a multi-tenant SaaS platform and needs to enforce per-customer quotas (e.g., 1,000 API calls/day on the free tier, 100,000 on pro)
 - User has an existing system experiencing "thundering herd" problems -- many clients retrying simultaneously after an outage, overwhelming recovery
@@ -30,6 +32,7 @@ metadata:
 - User needs to coordinate rate limiting state across multiple horizontally-scaled application instances using a shared store
 
 **Do NOT use this skill when:**
+
 - User needs circuit breaker patterns for downstream failure handling -- that is a separate resilience pattern (see circuit-breaker-patterns skill)
 - User needs API gateway configuration for routing, authentication middleware, or TLS termination -- rate limiting at the gateway level is a thin wrapper around the patterns here but gateway config is its own skill
 - User needs database connection pooling limits -- those are resource pool constraints, not rate limiting
@@ -58,23 +61,27 @@ Each class maps to different algorithm choices and storage strategies. Mixing th
 Choose based on the problem class, burst tolerance, and accuracy requirements:
 
 **Fixed Window Counter**
+
 - Divide time into fixed slots (e.g., each minute starts at :00). Increment a counter per slot. Reset when the slot expires.
 - Implementation: one Redis `INCR` + `EXPIRE` per request. Extremely cheap at ~0.1ms round-trip.
 - Fatal flaw: a client can send 2x the limit by sending the full quota at 11:59:59 and the full quota again at 12:00:00. This is the "window boundary burst" problem.
 - Use when: internal throughput controls where burst spikes are acceptable and implementation simplicity matters. NOT for abuse prevention.
 
 **Sliding Window Log**
+
 - Store a timestamped log of every request in the window. On each new request, evict entries older than the window and count remaining entries.
 - Implementation: Redis sorted set with `ZADD` (score = timestamp in milliseconds), `ZREMRANGEBYSCORE` to evict, `ZCARD` to count. Wrap in a Lua script or pipeline for atomicity.
 - Cost: O(log N) per request plus memory proportional to requests-per-window. At 1,000 req/window per user, storage is acceptable. At 100,000 req/window, the sorted set becomes expensive.
 - Use when: strict accuracy is required and per-client request volumes are moderate. Best for abuse prevention and authentication endpoints.
 
 **Sliding Window Counter (Approximate)**
+
 - Hybrid of fixed window and sliding window log. Track counts for the current and previous fixed windows. Interpolate: `count = previous_window_count * ((window_size - elapsed_in_current_window) / window_size) + current_window_count`.
 - Implementation: two counters in Redis, ~0.15ms. Accuracy is within 0.1% of the true sliding window for most traffic distributions.
 - Use when: abuse prevention at scale where the log approach would use too much memory. This is the algorithm Redis's own rate limiting modules use by default.
 
 **Token Bucket**
+
 - A bucket holds up to `capacity` tokens. Tokens refill at a fixed rate (e.g., 100 tokens/second). Each request consumes one or more tokens. If the bucket is empty, the request is rejected or queued.
 - Key parameters: `capacity` (maximum burst size), `refill_rate` (sustained throughput).
 - Implementation: store `(token_count, last_refill_timestamp)` in Redis. On each request: compute tokens earned since last refill, add to stored count (capped at capacity), attempt to consume, store updated state. Lua script for atomicity.
@@ -82,12 +89,14 @@ Choose based on the problem class, burst tolerance, and accuracy requirements:
 - Example configuration: a client is allowed 20 burst requests and 5 req/s sustained. Set `capacity=20`, `refill_rate=5`.
 
 **Leaky Bucket**
+
 - Requests enter a queue (the bucket). A worker drains the queue at a fixed rate. If the queue is full, new requests are rejected.
 - This enforces a perfectly smooth output rate regardless of bursty input -- the "leak" is constant.
 - Implementation: a queue + rate-limited consumer. In application code, often implemented as a semaphore or async queue with a fixed drain interval.
 - Use when: you need to call a downstream API at exactly N req/s with no bursts allowed (e.g., a legacy SMS gateway that cannot tolerate even short spikes). Not suitable for user-facing latency-sensitive endpoints because queuing adds variable delay.
 
 **Concurrency Limiting (Inflight Request Counting)**
+
 - Limit the number of simultaneous in-progress requests, not the rate over time. Use a semaphore counter: increment on request start, decrement on completion.
 - This is the correct pattern for protecting CPU-bound or DB-bound endpoints where response time, not throughput, determines system stress.
 - Implementation: Redis `INCR` / `DECR` with a ceiling check, or an in-process semaphore for single-instance services.
@@ -130,7 +139,7 @@ Rate limiting state must be fast, atomic, and -- for multi-instance deployments 
   - Set key TTLs equal to the window size plus a 10% buffer to handle clock skew. A 60-second window gets a 66-second TTL.
   - For token bucket, store state as a Redis Hash: `HSET rl:key tokens 20 last_refill 1700000000000`.
   - Deploy Redis with replication but understand that replica reads introduce slight staleness. For rate limiting, always read and write to the primary.
-  - Connection pool size: for rate limiting, each application thread needs at most one Redis connection in flight at a time. Pool size = (number of application threads) * 1.2 as a starting point.
+  - Connection pool size: for rate limiting, each application thread needs at most one Redis connection in flight at a time. Pool size = (number of application threads) \* 1.2 as a starting point.
 - **Database (PostgreSQL, MySQL):** Acceptable for quota enforcement where the window is hours or days and you tolerate 1-5ms write latency. Use `INSERT ... ON CONFLICT DO UPDATE` (upsert) for atomic counter increments. Not acceptable for per-request abuse prevention (too slow).
 - **Distributed caches (Memcached):** Supports atomic increment via the `incr` command but lacks Lua scripting, sorted sets for sliding window logs, and TTL-per-key precision. Use only for fixed window counters if Redis is unavailable.
 - **Sticky sessions / consistent hashing:** If Redis is unavailable and you must use local memory, use consistent hashing to route the same client always to the same instance. This is fragile and should be a last resort.
@@ -228,11 +237,13 @@ Rate limiting bugs are silent -- they either fail open (no limiting) or fail clo
 
 ### Key Structure
 ```
-Primary key:   rl:[endpoint_category]:[identity_type]:[identity_value]
-Secondary key: rl:[endpoint_category]:ip:[ip_address]   (layered, if applicable)
-Example:       rl:auth:user:u_a3f9b2
-Example:       rl:write:key:sha256(api_key)[:8]
-```
+
+Primary key: rl:[endpoint_category]:[identity_type]:[identity_value]
+Secondary key: rl:[endpoint_category]:ip:[ip_address] (layered, if applicable)
+Example: rl:auth:user:u_a3f9b2
+Example: rl:write:key:sha256(api_key)[:8]
+
+````
 
 ### Threshold Configuration
 | Endpoint / Category | Limit | Window | Burst Capacity | Algorithm   |
@@ -257,15 +268,17 @@ Example:       rl:write:key:sha256(api_key)[:8]
 
 ```[language]
 [Complete, runnable implementation for the selected algorithm]
-```
+````
 
 ### Test Plan
+
 - [ ] Boundary test: Nth request succeeds, N+1 returns 429
 - [ ] Window rollover test: counter resets after window expiry
 - [ ] Concurrent request test: N concurrent requests, exactly [limit] succeed
 - [ ] Backend failure test: behavior when Redis is unreachable
 - [ ] Header accuracy test: Retry-After reflects actual wait time
 - [ ] False positive rate: target < 0.1% of legitimate traffic blocked
+
 ```
 
 ---
@@ -351,15 +364,17 @@ The report endpoint has two distinct concerns: preventing runaway abuse within a
 ### Key Structure
 
 ```
-Per-minute bucket:  rl:report:burst:tenant:{tenant_id}
+
+Per-minute bucket: rl:report:burst:tenant:{tenant_id}
 Daily quota bucket: rl:report:daily:tenant:{tenant_id}
-Abuse guard (IP):   rl:report:ip:{ip_address}   (secondary, 30 req/hour per IP)
+Abuse guard (IP): rl:report:ip:{ip_address} (secondary, 30 req/hour per IP)
 
 Examples:
-  rl:report:burst:tenant:t_8f2a1c
-  rl:report:daily:tenant:t_8f2a1c
-  rl:report:ip:198.51.100.42
-```
+rl:report:burst:tenant:t_8f2a1c
+rl:report:daily:tenant:t_8f2a1c
+rl:report:ip:198.51.100.42
+
+````
 
 ### Threshold Configuration
 
@@ -536,7 +551,7 @@ function reportRateLimitMiddleware(req, res, next) {
 }
 
 module.exports = { reportRateLimitMiddleware };
-```
+````
 
 ### Test Plan
 
@@ -544,7 +559,6 @@ module.exports = { reportRateLimitMiddleware };
 // Key test cases for the report rate limiter
 
 describe('Report Rate Limiter', () => {
-
   it('allows exactly 100 daily requests then blocks', async () => {
     const tenant = 'test_tenant_daily';
     // Send 100 requests with large gaps (avoid burst limit)
@@ -586,7 +600,9 @@ describe('Report Rate Limiter', () => {
 
   it('isolates limits between tenants', async () => {
     // Exhaust tenant A's daily quota
-    for (let i = 0; i < 100; i++) { /* ... */ }
+    for (let i = 0; i < 100; i++) {
+      /* ... */
+    }
     // Tenant B should be unaffected
     const result = await checkReportRateLimit('tenant_b', '10.0.0.4');
     expect(result.allowed).toBe(true);
@@ -595,6 +611,7 @@ describe('Report Rate Limiter', () => {
 ```
 
 **Expected outcome for the Express setup:**
+
 - Tenant hammering the endpoint hits the burst limit after 10 rapid requests and receives clear `Retry-After` guidance
 - Power users with spread-out usage are unaffected -- they never come close to 5/min sustained
 - A tenant who uses 80 of their 100 daily reports starts seeing the `X-RateLimit-Warning` header and can implement client-side budget management

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot budgeting stress-management checklist template guide python"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced iot budgeting stress-management checklist template guide python'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # PCB Designer
 
 You are an expert PCB designer. You guide engineers through the complete PCB design workflow including KiCad schematic capture, component selection, board layout, signal integrity considerations, design rule compliance, fabrication file generation, and manufacturing preparation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pcb designer techniques or best practices
 - User needs guidance on pcb designer concepts
 - User wants to implement or improve their approach to pcb designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of pcb designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,16 +53,16 @@ You are an expert PCB designer. You guide engineers through the complete PCB des
 
 ### Schematic Best Practices
 
-| Practice | Reason |
-|----------|--------|
-| One function per sheet | Readability and modularity |
+| Practice                               | Reason                             |
+| -------------------------------------- | ---------------------------------- |
+| One function per sheet                 | Readability and modularity         |
 | Power symbols at top, ground at bottom | Natural current flow visualization |
-| Signal flow left to right | Intuitive reading order |
-| Label all nets | Enables cross-sheet references |
-| Add decoupling caps near IC symbols | Visual association with IC |
-| Include test points | Debug and production testing |
-| Document values and tolerances | Manufacturing clarity |
-| Use hierarchical sheets | Manage complexity |
+| Signal flow left to right              | Intuitive reading order            |
+| Label all nets                         | Enables cross-sheet references     |
+| Add decoupling caps near IC symbols    | Visual association with IC         |
+| Include test points                    | Debug and production testing       |
+| Document values and tolerances         | Manufacturing clarity              |
+| Use hierarchical sheets                | Manage complexity                  |
 
 ### Common Subcircuit Patterns
 
@@ -110,32 +111,32 @@ Power Budget Template:
 
 ### Passive Component Selection
 
-| Component | Key Parameters | Selection Priority |
-|-----------|---------------|-------------------|
-| Resistor | Tolerance, power, package | 1% for signal, 5% for pull-up |
-| Capacitor | Capacitance, voltage, ESR, temp coefficient | X5R/X7R for bypass, C0G for precision |
-| Inductor | Inductance, DCR, saturation current, SRF | Saturation > 1.3x max current |
-| Ferrite bead | Impedance at freq, current rating | Match impedance to noise frequency |
+| Component    | Key Parameters                              | Selection Priority                    |
+| ------------ | ------------------------------------------- | ------------------------------------- |
+| Resistor     | Tolerance, power, package                   | 1% for signal, 5% for pull-up         |
+| Capacitor    | Capacitance, voltage, ESR, temp coefficient | X5R/X7R for bypass, C0G for precision |
+| Inductor     | Inductance, DCR, saturation current, SRF    | Saturation > 1.3x max current         |
+| Ferrite bead | Impedance at freq, current rating           | Match impedance to noise frequency    |
 
 ### Capacitor Technology Comparison
 
-| Type | Range | Temp Stability | Voltage Derating | Use |
-|------|-------|----------------|-------------------|-----|
-| C0G/NP0 | 1pF - 10nF | Excellent | None needed | Timing, filters |
-| X5R | 100nF - 22uF | Fair (-55 to 85C) | Use 2x rated | Bypass, bulk |
-| X7R | 100nF - 10uF | Good (-55 to 125C) | Use 2x rated | General bypass |
-| Electrolytic | 1uF - 10000uF | Poor | Use 1.5x rated | Bulk power |
-| Tantalum | 100nF - 1000uF | Good | Use 2x rated | Compact bulk |
+| Type         | Range          | Temp Stability     | Voltage Derating | Use             |
+| ------------ | -------------- | ------------------ | ---------------- | --------------- |
+| C0G/NP0      | 1pF - 10nF     | Excellent          | None needed      | Timing, filters |
+| X5R          | 100nF - 22uF   | Fair (-55 to 85C)  | Use 2x rated     | Bypass, bulk    |
+| X7R          | 100nF - 10uF   | Good (-55 to 125C) | Use 2x rated     | General bypass  |
+| Electrolytic | 1uF - 10000uF  | Poor               | Use 1.5x rated   | Bulk power      |
+| Tantalum     | 100nF - 1000uF | Good               | Use 2x rated     | Compact bulk    |
 
 ### Package Size Reference
 
-| Imperial | Metric | Size (mm) | Power (typ) | Best For |
-|----------|--------|-----------|-------------|----------|
-| 0201 | 0603 | 0.6 x 0.3 | 1/20W | High density, auto assembly |
-| 0402 | 1005 | 1.0 x 0.5 | 1/16W | Compact designs |
-| 0603 | 1608 | 1.6 x 0.8 | 1/10W | General purpose, hand solderable |
-| 0805 | 2012 | 2.0 x 1.25 | 1/8W | Easy hand solder |
-| 1206 | 3216 | 3.2 x 1.6 | 1/4W | Power, easy hand solder |
+| Imperial | Metric | Size (mm)  | Power (typ) | Best For                         |
+| -------- | ------ | ---------- | ----------- | -------------------------------- |
+| 0201     | 0603   | 0.6 x 0.3  | 1/20W       | High density, auto assembly      |
+| 0402     | 1005   | 1.0 x 0.5  | 1/16W       | Compact designs                  |
+| 0603     | 1608   | 1.6 x 0.8  | 1/10W       | General purpose, hand solderable |
+| 0805     | 2012   | 2.0 x 1.25 | 1/8W        | Easy hand solder                 |
+| 1206     | 3216   | 3.2 x 1.6  | 1/4W        | Power, easy hand solder          |
 
 ## Board Layout
 
@@ -217,16 +218,16 @@ def trace_width_external(
 
 ### Placement Rules
 
-| Rule | Guideline |
-|------|-----------|
-| Decoupling caps | Within 3mm of IC power pin, via to ground plane |
-| Crystal | As close to MCU as possible, guard ring ground |
-| Antenna | Keep clear zone (no copper pour, no traces) |
-| Power input | Near board edge, close to connector |
-| High-current paths | Short, wide traces, thermal relief |
-| Sensitive analog | Separate from digital, dedicated ground area |
-| Connectors | Board edges, consider mechanical stress |
-| Thermal pads | Connect to ground plane with thermal vias |
+| Rule               | Guideline                                       |
+| ------------------ | ----------------------------------------------- |
+| Decoupling caps    | Within 3mm of IC power pin, via to ground plane |
+| Crystal            | As close to MCU as possible, guard ring ground  |
+| Antenna            | Keep clear zone (no copper pour, no traces)     |
+| Power input        | Near board edge, close to connector             |
+| High-current paths | Short, wide traces, thermal relief              |
+| Sensitive analog   | Separate from digital, dedicated ground area    |
+| Connectors         | Board edges, consider mechanical stress         |
+| Thermal pads       | Connect to ground plane with thermal vias       |
 
 ### Routing Guidelines
 
@@ -305,17 +306,17 @@ Net Classes:
 
 ### Gerber File Generation Checklist
 
-| File | Layer | Extension | Content |
-|------|-------|-----------|---------|
-| Front Copper | F.Cu | .GTL | Top copper traces |
-| Back Copper | B.Cu | .GBL | Bottom copper traces |
-| Front Solder Mask | F.Mask | .GTS | Top mask openings |
-| Back Solder Mask | B.Mask | .GBS | Bottom mask openings |
-| Front Silkscreen | F.SilkS | .GTO | Top markings |
-| Back Silkscreen | B.SilkS | .GBO | Bottom markings |
-| Board Outline | Edge.Cuts | .GKO | Board shape |
-| Drill File | PTH + NPTH | .DRL | Drill locations |
-| Drill Map | - | .DRL (map) | Visual drill reference |
+| File              | Layer      | Extension  | Content                |
+| ----------------- | ---------- | ---------- | ---------------------- |
+| Front Copper      | F.Cu       | .GTL       | Top copper traces      |
+| Back Copper       | B.Cu       | .GBL       | Bottom copper traces   |
+| Front Solder Mask | F.Mask     | .GTS       | Top mask openings      |
+| Back Solder Mask  | B.Mask     | .GBS       | Bottom mask openings   |
+| Front Silkscreen  | F.SilkS    | .GTO       | Top markings           |
+| Back Silkscreen   | B.SilkS    | .GBO       | Bottom markings        |
+| Board Outline     | Edge.Cuts  | .GKO       | Board shape            |
+| Drill File        | PTH + NPTH | .DRL       | Drill locations        |
+| Drill Map         | -          | .DRL (map) | Visual drill reference |
 
 ### BOM (Bill of Materials) Template
 
@@ -355,16 +356,16 @@ Impedance Control (if needed):
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Missing decoupling caps | Noise, instability, crashes | 100nF per power pin, close placement |
-| No ground plane | Poor EMC, crosstalk | Dedicate a full layer to ground |
-| Trace too thin for current | Overheating, failure | Calculate with IPC-2221 formula |
-| Crystal too far from MCU | Oscillator fails to start | Place within 5mm, guard ground |
-| Via in pad (without fill) | Solder wicking, cold joints | Use via-in-pad with fill, or move via |
-| Acid traps | Etching residue, shorts | Avoid acute angles in traces |
-| Missing thermal relief | Difficult soldering | Use 4-spoke thermal relief on ground |
-| Wrong footprint | Component does not fit | Always verify 3D model before order |
+| Mistake                    | Impact                      | Solution                              |
+| -------------------------- | --------------------------- | ------------------------------------- |
+| Missing decoupling caps    | Noise, instability, crashes | 100nF per power pin, close placement  |
+| No ground plane            | Poor EMC, crosstalk         | Dedicate a full layer to ground       |
+| Trace too thin for current | Overheating, failure        | Calculate with IPC-2221 formula       |
+| Crystal too far from MCU   | Oscillator fails to start   | Place within 5mm, guard ground        |
+| Via in pad (without fill)  | Solder wicking, cold joints | Use via-in-pad with fill, or move via |
+| Acid traps                 | Etching residue, shorts     | Avoid acute angles in traces          |
+| Missing thermal relief     | Difficult soldering         | Use 4-spoke thermal relief on ground  |
+| Wrong footprint            | Component does not fit      | Always verify 3D model before order   |
 
 ## Exercises
 
@@ -374,7 +375,6 @@ Impedance Control (if needed):
 4. **Impedance Controlled**: Route a USB 2.0 differential pair with correct impedance on a 4-layer stackup
 5. **Design for Manufacturing**: Take an existing design through full DRC, generate Gerbers, BOM, and pick-and-place files for JLCPCB
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -382,7 +382,6 @@ Impedance Control (if needed):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -403,14 +402,12 @@ Impedance Control (if needed):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

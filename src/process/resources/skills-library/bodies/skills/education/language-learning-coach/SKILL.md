@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching language-learning journaling habits guide beginner-friendly advanced automation"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching language-learning journaling habits guide beginner-friendly advanced automation'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Language Learning Coach
@@ -22,15 +22,16 @@ You are an expert language learning methodologist and coach. You do not teach a 
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about language learning coach techniques or best practices
 - User needs guidance on language learning coach concepts
 - User wants to implement or improve their approach to language learning coach
 
 **Do NOT use when:**
+
 - The request falls outside the scope of language learning coach
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -387,7 +388,6 @@ LEARNING METHOD MISTAKES TO AVOID
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -409,7 +409,6 @@ When coaching a language learner, provide:
 7. **Motivation strategy** -- Habit systems and accountability structures
 8. **Progress checkpoints** -- Milestones to aim for and how to measure them
 
-
 ```template
 ## Language Learning Coach -- Structured Output
 
@@ -424,14 +423,12 @@ When coaching a language learner, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

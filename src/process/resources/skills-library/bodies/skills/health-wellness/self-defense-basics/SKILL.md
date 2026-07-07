@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness habits stress-management guide research safety emergency-preparedness performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness habits stress-management guide research safety emergency-preparedness performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Self-Defense Basics Guide
 
 > **Disclaimer:** This guide provides general awareness and safety information only. It is NOT a substitute for hands-on, certified self-defense training. Physical techniques cannot be learned effectively from text alone and require in-person instruction and practice. Self-defense laws vary significantly by jurisdiction. Always prioritize avoidance and escape over physical confrontation. Consult with a certified self-defense instructor and a legal professional in your area.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about self defense basics techniques or best practices
 - User needs guidance on self defense basics concepts
 - User wants to implement or improve their approach to self defense basics
 
 **Do NOT use when:**
+
 - The request falls outside the scope of self defense basics
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,16 +53,17 @@ metadata:
 
 ### The Color Code of Awareness
 
-| Level | Color | State | Description |
-|-------|-------|-------|-------------|
-| 1 | White | Unaware | Absorbed in phone, headphones in, not paying attention. Most people spend most of their time here. This is where you are most vulnerable. |
-| 2 | Yellow | Relaxed Alert | Aware of surroundings without being paranoid. Scanning environment casually. THIS IS YOUR DEFAULT GOAL. |
-| 3 | Orange | Focused Alert | Something specific has caught your attention. You are evaluating a potential threat and forming a plan. |
-| 4 | Red | Action | A threat is confirmed. You are executing your plan (escape, verbal boundary, or if absolutely necessary, physical defense). |
+| Level | Color  | State         | Description                                                                                                                               |
+| ----- | ------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | White  | Unaware       | Absorbed in phone, headphones in, not paying attention. Most people spend most of their time here. This is where you are most vulnerable. |
+| 2     | Yellow | Relaxed Alert | Aware of surroundings without being paranoid. Scanning environment casually. THIS IS YOUR DEFAULT GOAL.                                   |
+| 3     | Orange | Focused Alert | Something specific has caught your attention. You are evaluating a potential threat and forming a plan.                                   |
+| 4     | Red    | Action        | A threat is confirmed. You are executing your plan (escape, verbal boundary, or if absolutely necessary, physical defense).               |
 
 ### Awareness Practices
 
 **Daily habits to build:**
+
 - When entering a room or space, note exits and layout
 - Observe the people around you (who is there, what are they doing)
 - Trust your instincts (if something feels wrong, it probably is)
@@ -72,7 +74,9 @@ metadata:
 - Know your route before you travel it
 
 ### Pre-Incident Indicators
+
 These behaviors may signal a potential threat:
+
 - Someone matching your pace and direction
 - Unusual attention or prolonged staring
 - Someone positioning themselves between you and an exit
@@ -83,7 +87,9 @@ These behaviors may signal a potential threat:
 - A person or vehicle that appears in multiple locations
 
 ### The Interview and Testing
+
 Many predatory individuals "interview" potential targets before acting:
+
 - Asking for the time, directions, or a light (creating proximity)
 - Asking personal questions (assessing vulnerability)
 - Offering unsolicited help (especially carrying items, moving things)
@@ -124,7 +130,9 @@ Firm voice, direct eye contact: "Leave me alone." Then walk toward other people 
 "I hear what you're saying. Let's both take a step back and figure this out calmly."
 
 ### When De-Escalation Is Not Working
+
 If the situation continues to escalate despite de-escalation attempts:
+
 1. Create distance immediately
 2. Move toward other people, well-lit areas, or businesses
 3. Call for help loudly and specifically ("Call 911!" directed at a specific person)
@@ -157,6 +165,7 @@ Yell loudly. This attracts attention, may deter the attacker, and activates your
 ### Concepts to Learn in a Class
 
 These should be practiced under instructor guidance:
+
 - Proper stance and balance
 - Creating distance and controlling space
 - Breaking common grabs (wrist, arm, clothing, hair, bear hug)
@@ -174,6 +183,7 @@ These should be practiced under instructor guidance:
 ### Daily Safety Practices
 
 **Walking:**
+
 - Stay in well-lit, populated areas
 - Walk with confidence and purpose
 - Keep phone accessible but not in hand (maintain awareness)
@@ -183,6 +193,7 @@ These should be practiced under instructor guidance:
 - Carry your keys in your hand when walking to your car
 
 **Driving:**
+
 - Lock doors immediately upon entering the vehicle
 - Check the back seat before getting in
 - Keep windows up in unfamiliar areas
@@ -192,6 +203,7 @@ These should be practiced under instructor guidance:
 - Park in well-lit areas near entrances
 
 **Public Transportation:**
+
 - Sit near the driver or in a populated car
 - Stay awake and alert
 - Know your stop in advance
@@ -200,6 +212,7 @@ These should be practiced under instructor guidance:
 - Have your route planned before you board
 
 **Social Situations:**
+
 - Never leave a drink unattended
 - Watch your drink being prepared and opened
 - Use the buddy system (arrive together, leave together)
@@ -226,6 +239,7 @@ These should be practiced under instructor guidance:
 - [ ] Safe room concept (designate one room with a solid door, phone, and lock)
 
 ### If Someone Breaks In While You Are Home
+
 1. Do NOT confront the intruder if you can avoid it
 2. Get to a safe room if possible (bedroom with lock, phone)
 3. Call 911 immediately
@@ -250,6 +264,7 @@ These should be practiced under instructor guidance:
 - Trust your instincts about neighborhoods and situations
 
 ### Hotel Safety
+
 - Request a room between floors 2 and 6 (above ground floor but reachable by fire ladder)
 - Check door lock and deadbolt upon arrival
 - Use the security peephole before opening the door
@@ -259,6 +274,7 @@ These should be practiced under instructor guidance:
 - Carry a portable door alarm or door stop alarm
 
 ### Rideshare Safety
+
 - Verify the driver, car make/model, and license plate before getting in
 - Share your trip with a trusted contact
 - Sit in the back seat
@@ -272,20 +288,21 @@ These should be practiced under instructor guidance:
 
 ### Types of Self-Defense Training
 
-| Program | Focus | Best For | Time to Basic Competence |
-|---------|-------|----------|------------------------|
-| RAD (Rape Aggression Defense) | Women's self-defense | Women seeking practical skills | 12-15 hours |
-| Krav Maga | Street defense, military-based | Practical real-world scenarios | 6-12 months |
-| Brazilian Jiu-Jitsu | Ground fighting, submissions | Close-quarters defense | 1-2 years |
-| Muay Thai / Kickboxing | Striking, distance management | Stand-up defense | 6-12 months |
-| Boxing | Punching, head movement, footwork | Stand-up defense, fitness | 6-12 months |
-| Women's self-defense workshops | Awareness, basic physical skills | Introduction to self-defense | 4-8 hours |
-| Model Mugging | Full-force practice against padded attacker | Realistic scenario training | 20-25 hours |
-| MMA (Mixed Martial Arts) | All ranges of fighting | Comprehensive fighting skills | 1-2 years |
+| Program                        | Focus                                       | Best For                       | Time to Basic Competence |
+| ------------------------------ | ------------------------------------------- | ------------------------------ | ------------------------ |
+| RAD (Rape Aggression Defense)  | Women's self-defense                        | Women seeking practical skills | 12-15 hours              |
+| Krav Maga                      | Street defense, military-based              | Practical real-world scenarios | 6-12 months              |
+| Brazilian Jiu-Jitsu            | Ground fighting, submissions                | Close-quarters defense         | 1-2 years                |
+| Muay Thai / Kickboxing         | Striking, distance management               | Stand-up defense               | 6-12 months              |
+| Boxing                         | Punching, head movement, footwork           | Stand-up defense, fitness      | 6-12 months              |
+| Women's self-defense workshops | Awareness, basic physical skills            | Introduction to self-defense   | 4-8 hours                |
+| Model Mugging                  | Full-force practice against padded attacker | Realistic scenario training    | 20-25 hours              |
+| MMA (Mixed Martial Arts)       | All ranges of fighting                      | Comprehensive fighting skills  | 1-2 years                |
 
 ### Choosing a Self-Defense Class
 
 **Look for:**
+
 - Certified instructors with verifiable credentials
 - Focus on awareness and avoidance, not just fighting
 - Realistic scenarios (not just choreographed sequences)
@@ -295,6 +312,7 @@ These should be practiced under instructor guidance:
 - Legal and ethical discussion included
 
 **Red flags:**
+
 - Guarantees of safety ("You will never be a victim")
 - Techniques that require significant strength or athletic ability
 - No sparring or pressure testing
@@ -309,17 +327,20 @@ These should be practiced under instructor guidance:
 ### Self-Defense Law (General Principles -- Varies by Jurisdiction)
 
 **Most jurisdictions require:**
+
 1. **Reasonable belief** of imminent threat of harm
 2. **Proportional response** (force used matches the threat level)
 3. **Duty to retreat** (in some jurisdictions, you must attempt to escape before using force)
 4. **No provocation** (you did not start or escalate the confrontation)
 
 **Stand Your Ground vs. Duty to Retreat:**
+
 - **Stand Your Ground** states: No legal requirement to retreat before using force in self-defense (when you have a legal right to be there)
 - **Duty to Retreat** states: You must attempt to escape if safely possible before using force
 - **Castle Doctrine** (most states): No duty to retreat in your own home
 
 ### Legal Best Practices
+
 - Know your state and local self-defense laws
 - After a self-defense incident, call 911 immediately
 - State clearly that you were in fear for your safety
@@ -329,6 +350,7 @@ These should be practiced under instructor guidance:
 
 **Self-defense tools (pepper spray, personal alarms, etc.):**
 Laws regarding carrying self-defense tools vary by state and municipality. Research your specific local laws regarding:
+
 - Pepper spray / OC spray (legal in all 50 states but with restrictions in some)
 - Personal alarms (generally legal everywhere)
 - Tasers and stun guns (restricted in some states and cities)
@@ -339,6 +361,7 @@ Laws regarding carrying self-defense tools vary by state and municipality. Resea
 ## Personal Safety Action Plan
 
 ### Immediate Actions
+
 - [ ] Set phone to ICE (In Case of Emergency) contact
 - [ ] Share location with a trusted person
 - [ ] Identify self-defense classes in your area
@@ -347,6 +370,7 @@ Laws regarding carrying self-defense tools vary by state and municipality. Resea
 - [ ] Create a personal safety plan for your most common routines
 
 ### Ongoing Practices
+
 - Maintain awareness as a daily habit
 - Take a self-defense class and practice regularly
 - Review and update safety plans seasonally
@@ -355,7 +379,6 @@ Laws regarding carrying self-defense tools vary by state and municipality. Resea
 
 The best self-defense is never needing to use it. Awareness, avoidance, and de-escalation prevent the vast majority of dangerous situations. When those fail, trained physical skills create opportunities to escape. Invest in a certified self-defense course for hands-on training.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -363,7 +386,6 @@ The best self-defense is never needing to use it. Awareness, avoidance, and de-e
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -384,14 +406,12 @@ The best self-defense is never needing to use it. Awareness, avoidance, and de-e
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

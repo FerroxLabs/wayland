@@ -24,10 +24,13 @@ import type { AddressInfo } from 'net';
 import express from 'express';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setupBasicMiddleware } from '@process/webserver/setup';
+import { CSRF_COOKIE_NAME } from '@process/webserver/config/constants';
 
 type FetchResult = {
   status: number;
   headers: Record<string, string>;
+  /** Raw, unjoined Set-Cookie entries (one per cookie) - Node keeps these as an array. */
+  setCookies: string[];
   body: string;
 };
 
@@ -59,9 +62,11 @@ function request(
               flatHeaders[k] = v;
             }
           }
+          const rawSetCookie = res.headers['set-cookie'];
           resolve({
             status: res.statusCode ?? 0,
             headers: flatHeaders,
+            setCookies: Array.isArray(rawSetCookie) ? rawSetCookie : rawSetCookie ? [rawSetCookie] : [],
             body: Buffer.concat(chunks).toString('utf8'),
           });
         });
@@ -98,9 +103,7 @@ describe('CSRF middleware - cookie-parser secret wiring (P0 regression)', () => 
 
   afterEach(async () => {
     delete process.env.CSRF_SECRET;
-    await new Promise<void>((resolve, reject) =>
-      server.close((err) => (err ? reject(err) : resolve()))
-    );
+    await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
   });
 
   it('signed CSRF cookie + matching _csrf body field allows POST through', async () => {
@@ -153,5 +156,39 @@ describe('CSRF middleware - cookie-parser secret wiring (P0 regression)', () => 
     // surfaces it as 5xx. We assert "not 2xx" to stay handler-agnostic.
     expect(blocked.status, 'missing _csrf must NOT succeed').not.toBe(200);
     expect(blocked.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it('seeds a JS-readable CSRF cookie a browser client can echo back as _csrf (#681)', async () => {
+    // Regression for #681: attachCsrfToken used to expose the token ONLY via
+    // the x-csrf-token response header, which nothing ever read back into a
+    // follow-up request. A real browser client (csrfClient.ts's
+    // getCsrfToken()) reads a plain cookie, not a response header from a
+    // previous unrelated request - so it always sent an empty `_csrf` and
+    // tiny-csrf rejected every WebUI/headless POST.
+    const seed = await request(port, 'GET', '/csrf-seed');
+    const token = seed.headers['x-csrf-token'];
+
+    const plainCookie = seed.setCookies.find((c) => c.startsWith(`${CSRF_COOKIE_NAME}=`));
+    expect(plainCookie, 'a plain (non-signed) CSRF_COOKIE_NAME cookie must be set').toBeTruthy();
+    expect(plainCookie).not.toMatch(/HttpOnly/i);
+
+    const cookieValue = plainCookie!.split(';')[0].split('=')[1];
+    expect(cookieValue, 'the cookie must carry the same raw token as the header').toBe(token);
+
+    // Simulate the browser client: the browser sends every cookie for the
+    // origin (HttpOnly only blocks JS *reads*, never transmission), while the
+    // client JS itself only ever learns the token via the plain cookie above.
+    const cookieHeader = seed.setCookies.map((c) => c.split(';')[0]).join('; ');
+    const ok = await request(
+      port,
+      'POST',
+      '/protected',
+      {
+        cookie: cookieHeader,
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      `_csrf=${encodeURIComponent(cookieValue)}`
+    );
+    expect(ok.status, 'a POST using the JS-readable cookie value as _csrf must succeed').toBe(200);
   });
 });

@@ -11,14 +11,15 @@ description: >-
   Do NOT use for editing an existing live listing or a single pricing question.
 license: Apache-2.0
 type: workflow
-skills: "funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow"
+skills: 'funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow'
 metadata:
   author: wayland
   version: 1.0.0
   tags: commerce ecommerce sku-launch pricing listing upsell step-by-step
   category: marketing
-  depends: "funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow"
+  depends: 'funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow'
 ---
+
 # SKU Launch
 
 **Estimated time:** 30-45 minutes

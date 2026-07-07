@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks nutrition habits stress-management template beginner-friendly advanced"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management frameworks nutrition habits stress-management template beginner-friendly advanced'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Fitness Periodizer
@@ -22,15 +22,16 @@ You are an expert in exercise programming and periodization who helps users desi
 
 **IMPORTANT DISCLAIMER: This skill provides general fitness education and programming frameworks. It is NOT medical advice and does NOT replace guidance from qualified fitness professionals, certified personal trainers, physical therapists, or physicians. Before starting any exercise program, consult your healthcare provider, especially if you have pre-existing conditions, injuries, or have been sedentary. Improper exercise technique can cause injury. When in doubt, work with a certified trainer in person. Stop any exercise that causes pain (not discomfort - pain).**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about fitness periodizer techniques or best practices
 - User needs guidance on fitness periodizer concepts
 - User wants to implement or improve their approach to fitness periodizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of fitness periodizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,17 +64,18 @@ PHASE 4: RECOVERY     - Strategic deload to allow adaptation and prevent burnout
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Progressive Overload (foundational principle) | All goals; the universal driver of adaptation | The body adapts to demands placed on it; gradually increase demands to continue improving | Does not specify HOW to organize progression; not a complete system alone |
-| Linear Periodization (Matveyev) | Beginners; simple strength programs; peaking for events | Systematically vary volume and intensity across training phases | Too rigid for advanced trainees; does not handle multiple qualities well |
-| NASM OPT Model (Clark) | Beginners; general population; corrective exercise | Progress through stability -> strength -> power phases; address imbalances first | Conservative; can keep people in corrective phases too long; less suited for experienced lifters |
-| Starting Strength (Rippetoe) | Novice strength development; barbell training | Compound barbell movements + linear progression = fastest novice strength gains | Narrow exercise selection; limited conditioning; not designed for non-strength goals |
-| Conjugate Method (Simmons/Westside) | Advanced strength athletes; overcoming plateaus | Rotate exercises frequently; train max effort and dynamic effort on separate days | Very advanced; high injury risk if applied incorrectly; requires extensive equipment and experience |
+| Approach                                      | Best For                                                | Key Insight                                                                               | Limitation                                                                                          |
+| --------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Progressive Overload (foundational principle) | All goals; the universal driver of adaptation           | The body adapts to demands placed on it; gradually increase demands to continue improving | Does not specify HOW to organize progression; not a complete system alone                           |
+| Linear Periodization (Matveyev)               | Beginners; simple strength programs; peaking for events | Systematically vary volume and intensity across training phases                           | Too rigid for advanced trainees; does not handle multiple qualities well                            |
+| NASM OPT Model (Clark)                        | Beginners; general population; corrective exercise      | Progress through stability -> strength -> power phases; address imbalances first          | Conservative; can keep people in corrective phases too long; less suited for experienced lifters    |
+| Starting Strength (Rippetoe)                  | Novice strength development; barbell training           | Compound barbell movements + linear progression = fastest novice strength gains           | Narrow exercise selection; limited conditioning; not designed for non-strength goals                |
+| Conjugate Method (Simmons/Westside)           | Advanced strength athletes; overcoming plateaus         | Rotate exercises frequently; train max effort and dynamic effort on separate days         | Very advanced; high injury risk if applied incorrectly; requires extensive equipment and experience |
 
 ## Phase 1: Foundation (Weeks 1-4)
 
 ### Goals
+
 - Establish movement quality and correct form
 - Build work capacity (the ability to handle training volume)
 - Address any muscle imbalances or mobility limitations
@@ -327,16 +329,16 @@ Anything noteworthy: _______________
 
 ### Common Training Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| No structured program | Going to the gym and "doing stuff" | Follow a written program with planned progression |
-| Too much too soon | Motivation exceeds preparation | Phase 1 Foundation first; progressive overload, not aggressive overload |
-| Skipping warm-up | Time pressure; impatience | 10 minutes of warm-up prevents weeks of injury recovery |
-| Never deloading | Thinking more is always better | Programmed deloads allow adaptation; they make you stronger |
-| Program hopping | Boredom; impatience; social media influence | Commit to a program for 8-12 weeks minimum before changing |
-| Ignoring recovery | Training 7 days/week; sleeping 5 hours | Muscles grow during rest, not during training; sleep and rest days are essential |
-| Only doing what you like | Skipping legs, skipping cardio, avoiding weaknesses | A balanced program addresses all movement patterns and fitness components |
-| Comparing to others | Social media; gym culture | Your progress vs. your last session is the only comparison that matters |
+| Mistake                  | Why It Happens                                      | Fix                                                                              |
+| ------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------- |
+| No structured program    | Going to the gym and "doing stuff"                  | Follow a written program with planned progression                                |
+| Too much too soon        | Motivation exceeds preparation                      | Phase 1 Foundation first; progressive overload, not aggressive overload          |
+| Skipping warm-up         | Time pressure; impatience                           | 10 minutes of warm-up prevents weeks of injury recovery                          |
+| Never deloading          | Thinking more is always better                      | Programmed deloads allow adaptation; they make you stronger                      |
+| Program hopping          | Boredom; impatience; social media influence         | Commit to a program for 8-12 weeks minimum before changing                       |
+| Ignoring recovery        | Training 7 days/week; sleeping 5 hours              | Muscles grow during rest, not during training; sleep and rest days are essential |
+| Only doing what you like | Skipping legs, skipping cardio, avoiding weaknesses | A balanced program addresses all movement patterns and fitness components        |
+| Comparing to others      | Social media; gym culture                           | Your progress vs. your last session is the only comparison that matters          |
 
 ## Further Reading
 
@@ -350,7 +352,6 @@ For deeper exploration of the source methodologies:
 
 The Adaptive Training System gives you a structured, progressive framework for training that adapts to your goals, experience, and available resources while minimizing injury risk and maximizing long-term results.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -358,7 +359,6 @@ The Adaptive Training System gives you a structured, progressive framework for t
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -379,14 +379,12 @@ The Adaptive Training System gives you a structured, progressive framework for t
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

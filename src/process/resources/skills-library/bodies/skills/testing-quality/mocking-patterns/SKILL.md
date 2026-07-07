@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing tdd design-patterns"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing tdd design-patterns'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Mocking Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to mock external dependencies (APIs, databases, file systems, message queues) in unit or integration tests
 - The user wants to isolate a unit under test from collaborators that have side effects or non-deterministic behavior
 - The user is experiencing flaky tests caused by real network calls, timing issues, or shared state
@@ -30,6 +32,7 @@ metadata:
 - The user wants to verify that a unit interacts correctly with its collaborators -- not just that it returns the right value
 
 **Do NOT use this skill when:**
+
 - The user needs help writing integration or contract tests against real services -- see the integration-testing skill
 - The user is asking about test data factories or fixture generation -- see the test-data-management skill
 - The user wants end-to-end browser or UI automation -- see the e2e-testing skill
@@ -212,6 +215,7 @@ When working with legacy code that uses `new` expressions or static factory call
 ### Mocking HTTP boundaries -- the MSW/WireMock approach
 
 Do not mock `fetch`, `axios`, `requests.get`, or `HttpClient` directly. These are library internals, not your abstractions. Instead:
+
 - In JavaScript/TypeScript: use `msw` (Mock Service Worker) to intercept HTTP at the network level. Define handlers that match URL patterns and return controlled responses. This works identically in Node.js tests and browser tests.
 - In Java: use WireMock as an embedded HTTP server in tests. Use `@WireMockTest` annotation and define stubs via `stubFor(get(urlEqualTo("/api/user/1")).willReturn(aResponse().withBody(json).withStatus(200)))`.
 - In Python: use the `responses` library with `@responses.activate` decorator. Add responses with `responses.add(responses.GET, 'http://api.example.com/user/1', json=user_data, status=200)`.
@@ -235,10 +239,10 @@ If stubbing collaborator A requires an instance of collaborator B, and stubbing 
 
 **Step 1 -- Classify the test doubles needed:**
 
-| Collaborator | Type | Rationale |
-|---|---|---|
+| Collaborator              | Type        | Rationale                                                                                                     |
+| ------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
 | `PaymentGateway` (Stripe) | Stub + Fake | Returns charge result; no interaction verification needed for happy-path test; use Fake for failure scenarios |
-| `EmailService` (SMTP) | Spy | Must verify that the correct email was sent with correct content |
+| `EmailService` (SMTP)     | Spy         | Must verify that the correct email was sent with correct content                                              |
 
 ---
 
@@ -325,7 +329,7 @@ from app.interfaces import PaymentGateway, ChargeResult
 
 class FakePaymentGateway(PaymentGateway):
     """In-memory payment gateway for testing.
-    
+
     NOTE: does not validate card numbers or tokens.
     NOTE: does not simulate network latency.
     """
@@ -348,7 +352,7 @@ from app.interfaces import EmailService, EmailMessage
 
 class FakeEmailService(EmailService):
     """In-memory email spy for testing.
-    
+
     Records all sent messages for assertion.
     """
 

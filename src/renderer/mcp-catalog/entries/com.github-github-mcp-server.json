@@ -7,9 +7,7 @@
   "websiteUrl": "https://github.com/github/github-mcp-server",
   "repository": { "url": "https://github.com/github/github-mcp-server", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://api.githubcopilot.com/mcp" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://api.githubcopilot.com/mcp" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "code"],

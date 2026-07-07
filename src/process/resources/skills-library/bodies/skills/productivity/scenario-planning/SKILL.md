@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making planning analysis"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'decision-making planning analysis'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Scenario Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user faces a decision or situation with meaningful uncertainty and wants to prepare for multiple possible futures -- career transitions, major purchases, relationship decisions, relocation, launching a side project, educational choices, or health-related planning
 - The user asks explicitly about best-case, worst-case, or most-likely outcomes and wants more than a list of possibilities -- they want a structured, actionable plan for each
 - The user needs to calibrate their preparation across an uncertain future: they know something significant is coming but cannot predict how it will go (a job search, a medical diagnosis, a contract negotiation, a business launch)
@@ -28,6 +30,7 @@ metadata:
 - The user explicitly asks about contingency planning, preparing for the unexpected, or thinking through "what if" variations on a decision
 
 **Do NOT use when:**
+
 - The user needs organizational or corporate strategic scenario planning with stakeholder mapping, industry analysis, and multi-year strategy documents -- use business strategy skills instead
 - The user wants a formal project risk register with likelihood/impact matrices, risk owners, and mitigation controls -- use `risk-assessment` for that structured format
 - The user wants to compare two specific defined options head-to-head -- use `pro-con-analysis`, which is designed for known alternatives rather than uncertain futures
@@ -75,6 +78,7 @@ Each scenario is a coherent narrative, not a list of independent best-case or wo
 - **Scenario 3 -- Pessimistic ("Headwind"):** Primary driving forces trend unfavorably. Something meaningful goes wrong -- not a catastrophe, but a realistic setback. One or two key variables underperform; the rest are flat. Probability is typically 15%-35%.
 
 For each scenario, define all of the following:
+
 - **Distinctive name**: not "Best Case/Most Likely/Worst Case" -- use a short, evocative label that captures the character of the scenario and makes it memorable in conversation (e.g., "Runway to Revenue," "Slow Build," "Dry Pipeline"). Good names stick in the user's mind and make trigger-based planning feel natural.
 - **Driving assumptions**: the 3-5 specific conditions that must be true for this scenario to unfold. These are the "if-then" foundations. Each assumption should be falsifiable -- you can observe whether it is occurring.
 - **Key event timeline**: 4-6 milestone events in chronological sequence. These make the scenario tangible and show the causal chain from starting conditions to final outcome. Each event should be specific enough that the user would recognize it if it happened.
@@ -333,6 +337,7 @@ The planning question shifts from "should I do this?" to "how do I navigate this
 ## Scenario Planning: Joining an Early-Stage Startup as Employee #8
 
 ### Planning Parameters
+
 - **Situation:** Leaving $165K senior software engineering role at a large tech company to join an early-stage startup as employee #8, accepting $120K base + 0.5% equity with 4-year vest
 - **Time horizon:** 36 months from start date at startup
 - **Key planning question:** How should I prepare for, and respond to, the three most plausible ways this decision plays out?
@@ -342,20 +347,23 @@ The planning question shifts from "should I do this?" to "how do I navigate this
 ---
 
 ### Driving Forces
-| # | Variable | Current State | Optimistic Value | Base Value | Pessimistic Value | Controllability |
-|---|----------|---------------|-----------------|------------|-------------------|----------------|
-| 1 | Startup growth trajectory | Pre-revenue, seed-stage | Series A closed by month 12, strong revenue traction | Series A closes by month 18 with moderate traction | Fundraising fails, runway burns out by month 15-20 | External |
-| 2 | Equity value at exit/liquidity | $0 (unvested) | $600K-$1.2M at Series B or acquisition by year 3 | $150K-$400K if startup reaches Series A | $0 if startup fails before liquidity event | External |
-| 3 | Personal compensation gap | $45K annual gap vs. current job | Gap narrows to $20K after year-1 raise; bonus closes remainder | Gap remains $35-45K through all 3 years | Gap widens if startup cannot afford raises |  Partial |
-| 4 | Engineering ownership and role growth | Employee #8, IC role | Principal engineer or VP Eng by year 2 | Senior engineer with meaningful scope growth | Scope diminishes as senior hires join above you | Partial |
-| 5 | Personal financial runway | [user's current savings -- assumed 6 months expenses] | Runway extended by side income or partner income | Runway sufficient for 2 years at reduced salary | Runway depleted if startup fails and job search takes 3+ months | High |
+
+| #   | Variable                              | Current State                                         | Optimistic Value                                               | Base Value                                         | Pessimistic Value                                               | Controllability |
+| --- | ------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------- | --------------- |
+| 1   | Startup growth trajectory             | Pre-revenue, seed-stage                               | Series A closed by month 12, strong revenue traction           | Series A closes by month 18 with moderate traction | Fundraising fails, runway burns out by month 15-20              | External        |
+| 2   | Equity value at exit/liquidity        | $0 (unvested)                                         | $600K-$1.2M at Series B or acquisition by year 3               | $150K-$400K if startup reaches Series A            | $0 if startup fails before liquidity event                      | External        |
+| 3   | Personal compensation gap             | $45K annual gap vs. current job                       | Gap narrows to $20K after year-1 raise; bonus closes remainder | Gap remains $35-45K through all 3 years            | Gap widens if startup cannot afford raises                      | Partial         |
+| 4   | Engineering ownership and role growth | Employee #8, IC role                                  | Principal engineer or VP Eng by year 2                         | Senior engineer with meaningful scope growth       | Scope diminishes as senior hires join above you                 | Partial         |
+| 5   | Personal financial runway             | [user's current savings -- assumed 6 months expenses] | Runway extended by side income or partner income               | Runway sufficient for 2 years at reduced salary    | Runway depleted if startup fails and job search takes 3+ months | High            |
 
 ---
 
 ### Scenario 1: "Rocket Trajectory" -- Tailwind (Optimistic)
+
 **Probability:** 20% | **Character:** The startup executes well, raises its Series A on schedule, and your early equity position becomes genuinely valuable within 3 years.
 
 **Driving Assumptions:**
+
 - The startup's core product achieves product-market fit within 9 months, producing measurable revenue traction (MRR $100K+ by month 12)
 - A Series A of $8M-$15M closes by month 12-14 at a valuation that makes your 0.5% worth $500K+ pre-dilution
 - You are recognized as a founding technical leader and given a VP Engineering or Principal Engineer title with commensurate comp increase ($145K-$160K) by year 2
@@ -375,11 +383,13 @@ The planning question shifts from "should I do this?" to "how do I navigate this
 You are a core technical leader at a company with real revenue, institutional investors, and a credible path to exit. Your total comp (base + equity value at current valuation) substantially exceeds what you would have earned staying at your former employer. Your resume now carries founder-adjacent credibility that opens both future startup and senior IC opportunities. You have 75% of your original grant vested and have likely received a refresh grant. The $45K annual salary sacrifice has cost approximately $90K over 2 years, but paper equity value has recovered and then significantly exceeded that gap.
 
 **Early Indicators (observable within 30-90 days):**
+
 - The startup ships a meaningful product update or feature within your first 60 days -- execution velocity is high
 - Founders share board meeting materials and financial dashboards with you -- transparency culture is intact
 - At least one inbound customer conversation is happening without heavy founder sales involvement by month 2
 
 **Upside Capture Actions:**
+
 - Request equity refresh conversations at month 12 and month 24 -- early employees often miss refresh grants by not asking
 - Establish yourself as the technical decision-maker before senior hires arrive; document architectural decisions formally
 - Build relationships with Series A investors directly -- these become references for future opportunities
@@ -387,9 +397,11 @@ You are a core technical leader at a company with real revenue, institutional in
 ---
 
 ### Scenario 2: "Long Slog" -- Steady State (Base)
+
 **Probability:** 50% | **Character:** The startup makes genuine progress but more slowly than hoped -- fundraising is harder, your salary stays below market for longer, and equity upside is real but modest and distant.
 
 **Driving Assumptions:**
+
 - Product iteration takes 12-15 months to find clear product-market fit; MRR grows to $40K-$60K by month 12
 - Series A fundraising takes 20-24 months and closes at a lower valuation ($18M-$22M), making your pre-dilution 0.5% worth $90K-$110K
 - Salary remains at $120K-$128K through year 2 due to cash conservation pressure; raise possible in year 3
@@ -409,11 +421,13 @@ You are a core technical leader at a company with real revenue, institutional in
 The startup is alive and growing, but the trajectory is more modest than hoped. You have learned an enormous amount, worked on meaningful problems, and built a strong network. Your equity is worth something on paper but illiquid and dependent on future fundraising rounds and dilution. Total compensation over 3 years is approximately $90K-$135K below what you would have earned at your former employer. The bet has a reasonable chance of paying off but requires patience for another 2-4 years. The decision is neither a success nor a failure at the 3-year mark -- it is unresolved.
 
 **Early Indicators (observable within 30-90 days):**
+
 - Fundraising conversations are happening but founders describe investor interest as "lukewarm" or "they want to see more traction first"
 - Customer acquisition is happening but requires heavy founder involvement in every deal
 - Burn rate discussions arise in team meetings before month 3
 
 **Maintenance Actions:**
+
 - Maintain your technical skills and external network actively -- keep your LinkedIn updated and attend 1-2 external technical events per quarter
 - Have an explicit financial plan for operating on $120K for 3 years; identify discretionary expenses to reduce and rebuild savings
 - Negotiate for a small equity refresh at the bridge financing round to maintain alignment
@@ -421,9 +435,11 @@ The startup is alive and growing, but the trajectory is more modest than hoped. 
 ---
 
 ### Scenario 3: "Failed Runway" -- Headwind (Pessimistic)
+
 **Probability:** 30% | **Character:** The startup cannot raise its Series A, burns through its runway within 18-24 months, and either shuts down or is acqui-hired at a price that produces little or no return on your equity.
 
 **Driving Assumptions:**
+
 - Product iteration does not produce clear revenue traction; MRR is below $25K at month 12
 - Series A fundraising fails; bridge financing is either unavailable or insufficient; runway runs out by month 18-22
 - The company either shuts down or accepts an acqui-hire at a valuation that wipes out equity holders (common acquisition structure acqui-hires the team but pays nothing to common stockholders)
@@ -443,6 +459,7 @@ The startup is alive and growing, but the trajectory is more modest than hoped. 
 You are back in a senior individual contributor role, likely earning $155K-$175K -- roughly recovered to where you were. The financial cost of the experiment is approximately $60K-$90K in forgone salary over 18-24 months, plus the opportunity cost of unvested equity at your former employer. The experience has real professional value: startup experience is currency for future founding or joining roles, and the skills learned are genuine. However, if financial reserves were thin when you joined, the runway burn may have created stress or debt during the job search period.
 
 **Early Indicators (observable within 30-90 days):**
+
 - Founders are evasive or vague when directly asked about runway and fundraising timeline in your first 60 days
 - The company has no customers or active trials by the end of month 2
 - Two or more early employees leave within your first 90 days
@@ -453,16 +470,19 @@ If by Month 12 the company has not reached $40K MRR and has not received a forma
 ---
 
 ### Preparation Actions Summary
-| Scenario | Act Now (before knowing which unfolds) | Trigger to Watch | Response If Triggered |
-|----------|----------------------------------------|-----------------|----------------------|
-| Rocket Trajectory | Build internal visibility; document architectural work; request equity refresh at series close | Inbound customer traction, product-market signal by month 6, Series A interest | Negotiate VP title + refresh grant; accelerate savings with comp increase |
-| Long Slog | Reduce monthly expenses by $800-$1,000 before starting; increase savings rate now; maintain external network actively | Bridge financing, slow Series A timeline, salary freeze past month 18 | Negotiate equity refresh at bridge; explore contract work nights/weekends to rebuild financial cushion |
-| Failed Runway | Build 9+ months of expenses in liquid savings BEFORE starting; do not burn the bridge with your current employer until Day 90 | Evasive fundraising answers, zero customer traction by month 2, early employee departures | Activate job search by month 12 if traction signals are absent; do not wait for official announcement |
+
+| Scenario          | Act Now (before knowing which unfolds)                                                                                        | Trigger to Watch                                                                          | Response If Triggered                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Rocket Trajectory | Build internal visibility; document architectural work; request equity refresh at series close                                | Inbound customer traction, product-market signal by month 6, Series A interest            | Negotiate VP title + refresh grant; accelerate savings with comp increase                              |
+| Long Slog         | Reduce monthly expenses by $800-$1,000 before starting; increase savings rate now; maintain external network actively         | Bridge financing, slow Series A timeline, salary freeze past month 18                     | Negotiate equity refresh at bridge; explore contract work nights/weekends to rebuild financial cushion |
+| Failed Runway     | Build 9+ months of expenses in liquid savings BEFORE starting; do not burn the bridge with your current employer until Day 90 | Evasive fundraising answers, zero customer traction by month 2, early employee departures | Activate job search by month 12 if traction signals are absent; do not wait for official announcement  |
 
 ---
 
 ### Robust Actions (highest priority -- work across all scenarios)
+
 Listed in priority order:
+
 1. **Build 9 months of liquid expenses ($52,200) before your start date** -- In the Headwind scenario, this is your survival buffer during job search. In the Steady State, it eliminates financial stress during the long runway. In the Tailwind, it is simply good financial hygiene you will never regret.
 2. **Do not formally resign from your current employer until you have completed 90 days at the startup** -- Many companies have a "return offer" window or at minimum will be more receptive to rehiring someone who left recently if approached within 6 months. This option has asymmetric value: it costs nothing to preserve and is invaluable in the Headwind scenario.
 3. **Maintain and actively invest in your external engineering network throughout** -- Attend 1-2 external technical talks or meetups per quarter; keep your GitHub active on open source; accept speaking invitations. This is free insurance in all three scenarios: in Tailwind, it brings credibility; in Steady State, it keeps optionality alive; in Headwind, it dramatically shortens job search time.
@@ -471,12 +491,13 @@ Listed in priority order:
 ---
 
 ### Review and Update Schedule
-| Checkpoint | Date | Activity |
-|------------|------|----------|
-| 30-day indicator check | [Day 30 of employment] | Are founders transparent with financials? Is there customer traction signal? Note which scenario indicators are appearing |
-| 60-day indicator check | [Day 60 of employment] | Are customers in active trials or paying? Is Series A fundraising in motion? Update scenario probability weighting |
-| Probability re-weighting | [Month 6] | Based on MRR, fundraising progress, and team stability -- which scenario is most consistent with evidence? Shift preparation resources accordingly |
-| Mid-horizon full review | [Month 18] | Full scenario rebuild if base conditions have shifted materially (new CEO, pivot, acquisition offer, Series A closed) |
-| End-of-horizon assessment | [Month 36] | Document which scenario materialized and what the plan got right or wrong. Use as input for next planning cycle. |
+
+| Checkpoint                | Date                   | Activity                                                                                                                                           |
+| ------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 30-day indicator check    | [Day 30 of employment] | Are founders transparent with financials? Is there customer traction signal? Note which scenario indicators are appearing                          |
+| 60-day indicator check    | [Day 60 of employment] | Are customers in active trials or paying? Is Series A fundraising in motion? Update scenario probability weighting                                 |
+| Probability re-weighting  | [Month 6]              | Based on MRR, fundraising progress, and team stability -- which scenario is most consistent with evidence? Shift preparation resources accordingly |
+| Mid-horizon full review   | [Month 18]             | Full scenario rebuild if base conditions have shifted materially (new CEO, pivot, acquisition offer, Series A closed)                              |
+| End-of-horizon assessment | [Month 36]             | Document which scenario materialized and what the plan got right or wrong. Use as input for next planning cycle.                                   |
 
 **Scenario Reset Trigger:** If the company announces a pivot that changes the fundamental product or market (not iteration -- full pivot), or if founding team changes dramatically (CEO departure, co-founder exit), discard this scenario set and rebuild. The driving forces are different enough that the original scenarios no longer apply.

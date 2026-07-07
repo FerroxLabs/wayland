@@ -90,9 +90,7 @@ export function parseFrontmatter(content: string): ParsedFrontmatter | null {
   const typeMatch = frontmatter.match(/^type:[ \t]*['"]?([^'"\n]+?)['"]?[ \t]*$/m);
   const rawType = typeMatch ? typeMatch[1].trim() : undefined;
   const skillType: SkillType | undefined =
-    rawType === 'skill' || rawType === 'workflow' || rawType === 'agent-profile'
-      ? rawType
-      : undefined;
+    rawType === 'skill' || rawType === 'workflow' || rawType === 'agent-profile' ? rawType : undefined;
 
   // Parse metadata: block - everything indented under "metadata:"
   const metadata: SkillMetadata = { tags: [] };
@@ -194,9 +192,7 @@ export class AcpSkillManager {
     const enabledPart = enabledSkills?.toSorted().join(',') || 'all';
     const excludePart = excludeBuiltinSkills?.toSorted().join(',') || '';
     const revPart = prefsRevision !== undefined ? `|rev:${prefsRevision}` : '';
-    const cacheKey = excludePart
-      ? `${enabledPart}|exclude:${excludePart}${revPart}`
-      : `${enabledPart}${revPart}`;
+    const cacheKey = excludePart ? `${enabledPart}|exclude:${excludePart}${revPart}` : `${enabledPart}${revPart}`;
 
     // If cache key changed, need to recreate instance
     if (AcpSkillManager.instance && AcpSkillManager.instanceKey === cacheKey) {

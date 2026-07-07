@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist javascript typescript api-design testing automation"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist javascript typescript api-design testing automation'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Web3 dApp Builder
 
 You are an expert in building decentralized application frontends that interact with blockchain networks. You specialize in wallet connection, smart contract interaction, transaction management, on-chain data reading, and the full stack of tools needed to build production-quality web3 user experiences.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about web3 dapp builder techniques or best practices
 - User needs guidance on web3 dapp builder concepts
 - User wants to implement or improve their approach to web3 dapp builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of web3 dapp builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,14 +60,14 @@ Stack:
 
 ### Comparison
 
-| Feature | viem + wagmi | ethers.js v6 |
-|---------|-------------|-------------|
-| TypeScript | First-class, ABI type inference | Good, but less ABI inference |
-| Bundle size | Smaller (tree-shakeable) | Larger |
-| React integration | wagmi hooks (excellent) | Manual or third-party |
-| Error handling | Detailed, typed errors | Generic error types |
-| Documentation | Excellent (viem docs, wagmi docs) | Excellent (ethers docs) |
-| Framework support | Any (viem) / React (wagmi) | Any framework |
+| Feature           | viem + wagmi                      | ethers.js v6                 |
+| ----------------- | --------------------------------- | ---------------------------- |
+| TypeScript        | First-class, ABI type inference   | Good, but less ABI inference |
+| Bundle size       | Smaller (tree-shakeable)          | Larger                       |
+| React integration | wagmi hooks (excellent)           | Manual or third-party        |
+| Error handling    | Detailed, typed errors            | Generic error types          |
+| Documentation     | Excellent (viem docs, wagmi docs) | Excellent (ethers docs)      |
+| Framework support | Any (viem) / React (wagmi)        | Any framework                |
 
 Use ethers.js when: existing codebase uses ethers, non-React frameworks, simple backend scripts.
 
@@ -83,12 +84,12 @@ add the package dependency wagmi viem@2.x @tanstack/react-query @rainbow-me/rain
 
 ```typescript
 // wagmi.config.ts
-import { http } from "wagmi";
-import { mainnet, arbitrum, base, optimism } from "wagmi/chains";
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { http } from 'wagmi';
+import { mainnet, arbitrum, base, optimism } from 'wagmi/chains';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 
 export const config = getDefaultConfig({
-  appName: "My dApp",
+  appName: 'My dApp',
   projectId: CONFIG.NEXT_PUBLIC_WC_PROJECT_ID!,
   chains: [mainnet, arbitrum, base, optimism],
   transports: {
@@ -185,16 +186,16 @@ const { data } = useReadContracts({
 ### Using viem directly (non-React / backend)
 
 ```typescript
-import { createPublicClient, http, parseAbi } from "viem";
-import { mainnet } from "viem/chains";
+import { createPublicClient, http, parseAbi } from 'viem';
+import { mainnet } from 'viem/chains';
 
 const client = createPublicClient({ chain: mainnet, transport: http() });
 
 const balance = await client.readContract({
-  address: "0x...",
-  abi: parseAbi(["function balanceOf(address) view returns (uint256)"]),
-  functionName: "balanceOf",
-  args: ["0xUser..."],
+  address: '0x...',
+  abi: parseAbi(['function balanceOf(address) view returns (uint256)']),
+  functionName: 'balanceOf',
+  args: ['0xUser...'],
 });
 ```
 
@@ -256,26 +257,33 @@ Many DeFi interactions require a two-step flow: approve token spending, then exe
 
 ```typescript
 // Real-time events
-import { useWatchContractEvent } from "wagmi";
+import { useWatchContractEvent } from 'wagmi';
 
 useWatchContractEvent({
-  address: "0xToken...",
-  abi: [{ name: "Transfer", type: "event",
-    inputs: [
-      { name: "from", type: "address", indexed: true },
-      { name: "to", type: "address", indexed: true },
-      { name: "value", type: "uint256", indexed: false },
-    ]}] as const,
-  eventName: "Transfer",
-  onLogs(logs) { console.log("New transfers:", logs); },
+  address: '0xToken...',
+  abi: [
+    {
+      name: 'Transfer',
+      type: 'event',
+      inputs: [
+        { name: 'from', type: 'address', indexed: true },
+        { name: 'to', type: 'address', indexed: true },
+        { name: 'value', type: 'uint256', indexed: false },
+      ],
+    },
+  ] as const,
+  eventName: 'Transfer',
+  onLogs(logs) {
+    console.log('New transfers:', logs);
+  },
 });
 
 // Historical events (viem)
 const logs = await client.getLogs({
-  address: "0xToken...",
-  event: parseAbiItem("event Transfer(address indexed, address indexed, uint256)"),
+  address: '0xToken...',
+  event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
   fromBlock: 18000000n,
-  toBlock: "latest",
+  toBlock: 'latest',
 });
 ```
 
@@ -284,27 +292,25 @@ const logs = await client.getLogs({
 ## Error Handling
 
 ```typescript
-import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from "viem";
+import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from 'viem';
 
 function handleTransactionError(error: Error): string {
   if (error instanceof BaseError) {
-    if (error.walk((e) => e instanceof UserRejectedRequestError))
-      return "Transaction rejected by user.";
+    if (error.walk((e) => e instanceof UserRejectedRequestError)) return 'Transaction rejected by user.';
 
     const revertError = error.walk((e) => e instanceof ContractFunctionRevertedError);
     if (revertError instanceof ContractFunctionRevertedError) {
       const messages: Record<string, string> = {
-        InsufficientBalance: "Not enough tokens.",
-        ExceedsMaxSupply: "Max supply reached.",
-        SlippageExceeded: "Price moved too much. Increase slippage.",
+        InsufficientBalance: 'Not enough tokens.',
+        ExceedsMaxSupply: 'Max supply reached.',
+        SlippageExceeded: 'Price moved too much. Increase slippage.',
       };
-      return messages[revertError.data?.errorName ?? ""] ?? `Contract error: ${revertError.data?.errorName}`;
+      return messages[revertError.data?.errorName ?? ''] ?? `Contract error: ${revertError.data?.errorName}`;
     }
 
-    if (error.message.includes("insufficient funds"))
-      return "Insufficient ETH for gas.";
+    if (error.message.includes('insufficient funds')) return 'Insufficient ETH for gas.';
   }
-  return "Unexpected error. Please try again.";
+  return 'Unexpected error. Please try again.';
 }
 ```
 
@@ -312,20 +318,20 @@ function handleTransactionError(error: Error): string {
 
 ## Common Hooks Reference
 
-| Pattern | Hook | Use Case |
-|---------|------|----------|
-| Connect wallet | `<ConnectButton />` | User authentication |
-| Read balance | `useBalance()` | Display ETH/token balance |
-| Read contract | `useReadContract()` | Any view/pure function call |
-| Batch reads | `useReadContracts()` | Multiple reads in one RPC call |
-| Write transaction | `useWriteContract()` | State-changing contract call |
-| Wait for receipt | `useWaitForTransactionReceipt()` | Confirm tx in block |
-| Watch events | `useWatchContractEvent()` | Real-time event feed |
-| Send ETH | `useSendTransaction()` | Simple ETH transfer |
-| Sign message | `useSignMessage()` | Off-chain signature (login) |
-| Switch chain | `useSwitchChain()` | Change active network |
-| ENS lookup | `useEnsName()` / `useEnsAddress()` | Resolve ENS names |
-| Gas estimation | `useEstimateGas()` | Show estimated gas |
+| Pattern           | Hook                               | Use Case                       |
+| ----------------- | ---------------------------------- | ------------------------------ |
+| Connect wallet    | `<ConnectButton />`                | User authentication            |
+| Read balance      | `useBalance()`                     | Display ETH/token balance      |
+| Read contract     | `useReadContract()`                | Any view/pure function call    |
+| Batch reads       | `useReadContracts()`               | Multiple reads in one RPC call |
+| Write transaction | `useWriteContract()`               | State-changing contract call   |
+| Wait for receipt  | `useWaitForTransactionReceipt()`   | Confirm tx in block            |
+| Watch events      | `useWatchContractEvent()`          | Real-time event feed           |
+| Send ETH          | `useSendTransaction()`             | Simple ETH transfer            |
+| Sign message      | `useSignMessage()`                 | Off-chain signature (login)    |
+| Switch chain      | `useSwitchChain()`                 | Change active network          |
+| ENS lookup        | `useEnsName()` / `useEnsAddress()` | Resolve ENS names              |
+| Gas estimation    | `useEstimateGas()`                 | Show estimated gas             |
 
 ---
 
@@ -333,18 +339,18 @@ function handleTransactionError(error: Error): string {
 
 ```typescript
 // config/contracts.ts -- Map contract addresses per chain
-import { mainnet, arbitrum, base } from "wagmi/chains";
+import { mainnet, arbitrum, base } from 'wagmi/chains';
 
 export const CONTRACTS = {
   token: {
-    [mainnet.id]: "0xMainnet...",
-    [arbitrum.id]: "0xArbitrum...",
-    [base.id]: "0xBase...",
+    [mainnet.id]: '0xMainnet...',
+    [arbitrum.id]: '0xArbitrum...',
+    [base.id]: '0xBase...',
   },
 } as const;
 
 // hooks/useContractAddress.ts
-import { useChainId } from "wagmi";
+import { useChainId } from 'wagmi';
 
 export function useContractAddress(name: keyof typeof CONTRACTS) {
   const chainId = useChainId();
@@ -375,6 +381,7 @@ src/
 ## Production Checklist
 
 ### Security
+
 - [ ] Private RPC endpoints (Alchemy, Infura) -- never expose API keys in client code
 - [ ] All sensitive config in environment variables, not committed to git
 - [ ] Contract addresses verified against official sources
@@ -385,6 +392,7 @@ src/
 - [ ] Transaction simulation before submission when possible
 
 ### User Experience
+
 - [ ] Loading states for all async operations
 - [ ] Human-readable error messages (not raw contract reverts)
 - [ ] Transaction lifecycle feedback (pending, confirming, confirmed)
@@ -394,6 +402,7 @@ src/
 - [ ] ENS names displayed where available
 
 ### Performance
+
 - [ ] RPC calls batched with multicall / useReadContracts
 - [ ] TanStack Query caching (built into wagmi) with appropriate stale times
 - [ ] Tree-shaken imports (unused ABIs and chains removed from bundle)
@@ -401,12 +410,12 @@ src/
 - [ ] WebSocket transport for real-time data instead of polling
 
 ### Testing
+
 - [ ] Wagmi mock connector for unit tests
 - [ ] Anvil (Foundry) for local forked blockchain testing
 - [ ] E2E tests with Synpress or similar wallet automation
 - [ ] Test on multiple wallets (MetaMask, Coinbase Wallet, WalletConnect)
 - [ ] Test on multiple chains (mainnet behavior can differ from testnet)
-
 
 ## Process
 
@@ -415,7 +424,6 @@ src/
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -436,14 +444,12 @@ src/
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

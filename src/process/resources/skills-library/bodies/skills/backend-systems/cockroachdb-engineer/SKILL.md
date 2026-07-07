@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql guide"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'database sql guide'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # CockroachDB Engineer
@@ -107,14 +107,14 @@ ALTER TABLE countries SET LOCALITY GLOBAL;
 
 ### Multi-Region Decision Matrix
 
-| Table Type | Locality | Write Latency | Local Read | Remote Read |
-|-----------|----------|--------------|-----------|-------------|
-| User profiles | REGIONAL BY ROW | Low (home region) | Low | High |
-| Orders | REGIONAL BY ROW | Low (home region) | Low | High |
-| Product catalog | GLOBAL | High (all regions) | Low | Low |
-| Config/settings | GLOBAL | High (all regions) | Low | Low |
-| Audit logs | REGIONAL BY TABLE | Low (single region) | Low (home) | High |
-| Analytics | REGIONAL BY TABLE | Low (single region) | Low (home) | High |
+| Table Type      | Locality          | Write Latency       | Local Read | Remote Read |
+| --------------- | ----------------- | ------------------- | ---------- | ----------- |
+| User profiles   | REGIONAL BY ROW   | Low (home region)   | Low        | High        |
+| Orders          | REGIONAL BY ROW   | Low (home region)   | Low        | High        |
+| Product catalog | GLOBAL            | High (all regions)  | Low        | Low         |
+| Config/settings | GLOBAL            | High (all regions)  | Low        | Low         |
+| Audit logs      | REGIONAL BY TABLE | Low (single region) | Low (home) | High        |
+| Analytics       | REGIONAL BY TABLE | Low (single region) | Low (home) | High        |
 
 ## Schema Design for Distribution
 
@@ -397,6 +397,7 @@ Operations:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cockroachdb engineer solutions
 - Reviewing or improving existing cockroachdb engineer approaches
 - Making architectural or implementation decisions about cockroachdb engineer
@@ -404,6 +405,7 @@ Operations:
 - Troubleshooting cockroachdb engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -414,21 +416,26 @@ Operations:
 # Cockroachdb Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

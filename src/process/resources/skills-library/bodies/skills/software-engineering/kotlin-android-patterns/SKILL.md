@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "kotlin mobile frameworks"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'kotlin mobile frameworks'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kotlin Android Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure a Kotlin Android app using MVVM, MVI, or Clean Architecture and needs guidance on which fits their project size and team
 - User wants to implement coroutines and Flow for async operations in an Android ViewModel or Repository layer
 - User needs to design a dependency injection setup using Hilt or Koin with Kotlin-specific idioms
@@ -29,6 +31,7 @@ metadata:
 - User is designing a multi-module Android project with Kotlin and needs module boundary definitions and API surface control
 
 **Do NOT use this skill when:**
+
 - User asks about Kotlin Multiplatform Mobile (KMM/KMP) -- that is a distinct architecture concern with its own shared module patterns
 - User needs Flutter or React Native guidance -- different technology stack entirely
 - User asks about Kotlin backend (Ktor, Spring Boot with Kotlin) -- check backend-specific skills
@@ -400,13 +403,13 @@ When minification is enabled, Kotlin-specific constructs can be stripped or rena
 
 ### Context Assessment
 
-| Dimension | Project Profile | Recommendation |
-|-----------|----------------|----------------|
-| Team size | 4 engineers | MVVM -- lower boilerplate than MVI, sufficient for this scope |
-| App complexity | Medium (3 core features) | 3-layer Clean Architecture with feature modules |
-| Test requirements | Standard production | 70% unit, 20% integration, 10% UI |
-| Offline support | Required | Room + Retrofit + offline-first Repository pattern |
-| Lifecycle stage | Greenfield | Start strict -- enforce patterns from commit 1 |
+| Dimension         | Project Profile          | Recommendation                                                |
+| ----------------- | ------------------------ | ------------------------------------------------------------- |
+| Team size         | 4 engineers              | MVVM -- lower boilerplate than MVI, sufficient for this scope |
+| App complexity    | Medium (3 core features) | 3-layer Clean Architecture with feature modules               |
+| Test requirements | Standard production      | 70% unit, 20% integration, 10% UI                             |
+| Offline support   | Required                 | Room + Retrofit + offline-first Repository pattern            |
+| Lifecycle stage   | Greenfield               | Start strict -- enforce patterns from commit 1                |
 
 ### Recommended Pattern: MVVM with Clean Architecture Layers
 
@@ -645,12 +648,12 @@ object DatabaseModule {
 
 ## Testing Strategy
 
-| Layer | Tool | Pattern | Target |
-|-------|------|---------|--------|
-| FeedViewModel | kotlinx-coroutines-test 1.7+, turbine | `runTest` + `FakeArticleRepository` | >85% |
-| ArticleRepositoryImpl | Room in-memory DB, MockWebServer | Full integration -- no mocks | >75% |
-| GetFeedUseCase | Pure JUnit5 | Input/output assertion | 100% |
-| FeedFragment | Compose Test or Espresso | Critical path: load, bookmark, navigate | Top 3 flows |
+| Layer                 | Tool                                  | Pattern                                 | Target      |
+| --------------------- | ------------------------------------- | --------------------------------------- | ----------- |
+| FeedViewModel         | kotlinx-coroutines-test 1.7+, turbine | `runTest` + `FakeArticleRepository`     | >85%        |
+| ArticleRepositoryImpl | Room in-memory DB, MockWebServer      | Full integration -- no mocks            | >75%        |
+| GetFeedUseCase        | Pure JUnit5                           | Input/output assertion                  | 100%        |
+| FeedFragment          | Compose Test or Espresso              | Critical path: load, bookmark, navigate | Top 3 flows |
 
 **ViewModel test example:**
 

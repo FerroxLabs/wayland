@@ -59,7 +59,7 @@ describe('providerCatalog.generated.json', () => {
 
   it('is sorted by id (determinism guard)', () => {
     const ids = catalog.map((entry) => entry.id);
-    expect(ids).toEqual([...ids].sort());
+    expect(ids).toEqual([...ids].toSorted());
   });
 
   it('has unique ids', () => {

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career guide step-by-step"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career guide step-by-step'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Executive Presence Coach
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about executive presence coach
 - User needs guidance on executive presence coach topics
 - User wants a structured approach to executive presence coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -38,6 +40,7 @@ Executive presence is the ability to project confidence, credibility, and compos
 Research from the Center for Talent Innovation identifies three core components:
 
 **1. Gravitas (67%)** - The weight of your words and presence
+
 - Confidence without arrogance
 - Decisiveness under uncertainty
 - Emotional composure under pressure
@@ -45,6 +48,7 @@ Research from the Center for Talent Innovation identifies three core components:
 - Demonstrating integrity and substance
 
 **2. Communication (28%)** - How you convey ideas
+
 - Clear, concise articulation
 - Commanding attention when speaking
 - Active and visible listening
@@ -52,6 +56,7 @@ Research from the Center for Talent Innovation identifies three core components:
 - Storytelling that resonates
 
 **3. Appearance (5%)** - How you show up visually
+
 - Polished and appropriate for context
 - Consistent with your personal brand
 - Body language alignment with message
@@ -67,13 +72,14 @@ Research from the Center for Talent Innovation identifies three core components:
 
 Executives do not want to follow your thought process. They want the conclusion first, then supporting evidence.
 
-| Junior Communication | Executive Communication |
-|---------------------|----------------------|
-| "We analyzed the data from Q3 and found several trends including..." | "We should invest in Product X. Here's why." |
-| "There are several options we could consider..." | "I recommend Option B. Here are the trade-offs." |
-| "I've been thinking about this problem and..." | "The core issue is X. I propose we do Y." |
+| Junior Communication                                                 | Executive Communication                          |
+| -------------------------------------------------------------------- | ------------------------------------------------ |
+| "We analyzed the data from Q3 and found several trends including..." | "We should invest in Product X. Here's why."     |
+| "There are several options we could consider..."                     | "I recommend Option B. Here are the trade-offs." |
+| "I've been thinking about this problem and..."                       | "The core issue is X. I propose we do Y."        |
 
 **The SCR Framework** (Situation, Complication, Resolution):
+
 1. **Situation**: Brief context (1-2 sentences)
 2. **Complication**: The problem or tension (1-2 sentences)
 3. **Resolution**: Your recommendation (1-2 sentences)
@@ -82,6 +88,7 @@ Executives do not want to follow your thought process. They want the conclusion 
 ### Speaking with Authority
 
 **Voice Techniques**
+
 - End sentences with a downward inflection (statements, not questions)
 - Avoid uptalk (rising intonation at end of declarative sentences)
 - Pause before and after key points (silence conveys confidence)
@@ -91,21 +98,22 @@ Executives do not want to follow your thought process. They want the conclusion 
 
 **Language Upgrades**
 
-| Weak Language | Strong Alternative |
-|--------------|-------------------|
-| "I think maybe we should..." | "I recommend we..." |
-| "I'm not sure, but..." | "Based on the data, my assessment is..." |
-| "Does that make sense?" | "What questions do you have?" |
-| "Sorry, but..." | State your point directly |
-| "I just wanted to say..." | Say it without the qualifier |
-| "We could potentially try..." | "We should do X. Here's the plan." |
-| "I feel like..." | "I believe..." or "The evidence shows..." |
+| Weak Language                 | Strong Alternative                        |
+| ----------------------------- | ----------------------------------------- |
+| "I think maybe we should..."  | "I recommend we..."                       |
+| "I'm not sure, but..."        | "Based on the data, my assessment is..."  |
+| "Does that make sense?"       | "What questions do you have?"             |
+| "Sorry, but..."               | State your point directly                 |
+| "I just wanted to say..."     | Say it without the qualifier              |
+| "We could potentially try..." | "We should do X. Here's the plan."        |
+| "I feel like..."              | "I believe..." or "The evidence shows..." |
 
 ### Conciseness
 
 **The Elevator Test**: Can you explain your point in 30 seconds? If not, you have not distilled it enough.
 
 **Practice**:
+
 - Before any meeting or presentation, write your core message in one sentence
 - For every supporting point, ask: "Is this necessary for the decision?"
 - Remove 30% of your slides, talking points, or email content
@@ -116,6 +124,7 @@ Executives do not want to follow your thought process. They want the conclusion 
 Stories make data memorable and ideas actionable.
 
 **The Executive Story Structure**:
+
 1. **Anchor**: A specific, relatable moment ("Last month, a client told me...")
 2. **Tension**: The challenge or conflict ("But we discovered that...")
 3. **Turning point**: The insight or decision ("That's when we realized...")
@@ -126,6 +135,7 @@ Stories make data memorable and ideas actionable.
 ### Power Posture
 
 **Standing**
+
 - Feet shoulder-width apart, weight evenly distributed
 - Shoulders back and relaxed (not tense)
 - Hands visible (not in pockets, not behind back)
@@ -133,6 +143,7 @@ Stories make data memorable and ideas actionable.
 - Gestures that support your words (open, purposeful)
 
 **Seated**
+
 - Sit fully in the chair (do not perch on the edge)
 - Lean slightly forward for engagement
 - Hands on the table (visible, not hidden)
@@ -140,6 +151,7 @@ Stories make data memorable and ideas actionable.
 - Take up appropriate space (do not shrink)
 
 **Walking**
+
 - Deliberate pace (not hurried)
 - Head up, eyes forward
 - Purposeful stride
@@ -152,6 +164,7 @@ Stories make data memorable and ideas actionable.
 - In presentations, connect with individuals across the room
 
 ### The Handshake and Greeting
+
 - Firm (not crushing) grip
 - Web-to-web contact
 - 2-3 pumps
@@ -163,6 +176,7 @@ Stories make data memorable and ideas actionable.
 ### Before the Meeting
 
 **Agenda Control**
+
 - Send an agenda in advance with specific items and time allocations
 - Define the meeting purpose: Decision, Discussion, or Information
 - Invite only necessary participants
@@ -171,6 +185,7 @@ Stories make data memorable and ideas actionable.
 ### During the Meeting
 
 **Commanding the Room**
+
 - Arrive early (setup and greet arrivals)
 - Open with a clear statement of purpose: "We're here to decide X by the end of this meeting"
 - Manage time actively: "We have 10 minutes left on this topic"
@@ -179,6 +194,7 @@ Stories make data memorable and ideas actionable.
 - Summarize and assign actions: "To confirm, [name] will do X by [date]"
 
 **Participation Techniques**
+
 - Bring quiet voices in: "[Name], what's your perspective?"
 - Redirect dominators: "Good point. Let's hear other views."
 - Use silence strategically: After posing a question, wait 5-7 seconds before filling the void
@@ -201,6 +217,7 @@ Stories make data memorable and ideas actionable.
 Presence without visibility is invisible leadership. You must be known beyond your immediate team.
 
 **Internal Visibility**
+
 - Volunteer for cross-functional projects
 - Present at all-hands or town halls
 - Author internal thought leadership (blog, newsletter, brown bag sessions)
@@ -208,6 +225,7 @@ Presence without visibility is invisible leadership. You must be known beyond yo
 - Attend and contribute to leadership meetings (even as an observer initially)
 
 **External Visibility**
+
 - Speak at industry events or conferences
 - Publish articles or blog posts
 - Participate in panels
@@ -219,6 +237,7 @@ Presence without visibility is invisible leadership. You must be known beyond yo
 A mentor gives advice. A **sponsor** puts their reputation on the line to advocate for you.
 
 **How to earn sponsors**:
+
 1. Deliver exceptional, visible results
 2. Make your sponsor's job easier
 3. Seek challenging assignments that showcase your capability
@@ -229,6 +248,7 @@ A mentor gives advice. A **sponsor** puts their reputation on the line to advoca
 ### Managing Up
 
 **Give your leaders what they need**:
+
 - Proactive updates (do not make them ask)
 - Problems paired with proposed solutions
 - Clear, concise communication (respect their time)
@@ -240,17 +260,20 @@ A mentor gives advice. A **sponsor** puts their reputation on the line to advoca
 ### Composure Under Pressure
 
 **The 3-Second Rule**: When surprised, challenged, or provoked, pause for 3 seconds before responding. This brief pause:
+
 - Prevents reactive statements you may regret
 - Projects confidence and thoughtfulness
 - Gives your brain time to formulate a clear response
 - Signals that you are in control
 
 **When You Do Not Know the Answer**:
+
 - "That's a great question. Let me think about that and get back to you by [specific time]."
 - "I don't have the exact numbers on that, but I'll follow up after this meeting."
 - Never bluff. Acknowledging a gap with a plan to fill it builds more trust than a weak guess.
 
 **When Challenged Publicly**:
+
 - Stay calm (this is the test)
 - Acknowledge the challenge: "That's a fair point"
 - Respond with data or reasoning, not emotion
@@ -267,18 +290,19 @@ A mentor gives advice. A **sponsor** puts their reputation on the line to advoca
 
 ### Building Trust and Credibility
 
-| Trust Builder | How to Practice |
-|--------------|----------------|
-| Follow through | Do what you say. Every time. |
-| Consistency | Same person in every room (authentic) |
-| Transparency | Share your reasoning, not just conclusions |
+| Trust Builder  | How to Practice                                 |
+| -------------- | ----------------------------------------------- |
+| Follow through | Do what you say. Every time.                    |
+| Consistency    | Same person in every room (authentic)           |
+| Transparency   | Share your reasoning, not just conclusions      |
 | Accountability | Own mistakes before anyone else points them out |
-| Generosity | Give credit to others, share opportunities |
-| Competence | Know your subject matter deeply |
+| Generosity     | Give credit to others, share opportunities      |
+| Competence     | Know your subject matter deeply                 |
 
 ## Executive Presence Action Plan
 
 ### 30-Day Quick Wins
+
 - [ ] Eliminate one filler word (track with a friend or recording)
 - [ ] Practice BLUF in all emails and communications
 - [ ] Arrive 5 minutes early to every meeting
@@ -286,6 +310,7 @@ A mentor gives advice. A **sponsor** puts their reputation on the line to advoca
 - [ ] Improve one aspect of virtual meeting presence
 
 ### 90-Day Development
+
 - [ ] Volunteer for a high-visibility project
 - [ ] Seek feedback on your communication from a trusted colleague
 - [ ] Practice a 2-minute professional story (your value proposition)
@@ -293,11 +318,11 @@ A mentor gives advice. A **sponsor** puts their reputation on the line to advoca
 - [ ] Present to a group at least once
 
 ### Ongoing
+
 - [ ] Record yourself in meetings (review body language, filler words, clarity)
 - [ ] Seek a mentor who exemplifies executive presence
 - [ ] Read widely beyond your functional expertise
 - [ ] Develop a signature leadership style (authentic to you)
-
 
 ## Output Format
 

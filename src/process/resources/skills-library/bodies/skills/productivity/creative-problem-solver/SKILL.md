@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making strategy frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'decision-making strategy frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Creative Problem Solver
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on creative problem solver
 - User asks about creative problem solver best practices or techniques
 - User wants a structured approach to creative problem solver
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of creative problem solver
 
@@ -161,11 +162,12 @@ RESOLVING PHYSICAL CONTRADICTIONS:
 
 ### Parallel Thinking (Multi-Perspective Analysis)
 
-Edward de Bono developed a structured approach to parallel thinking that uses distinct thinking modes to explore a problem from all angles. His Six Thinking Hats framework assigns different cognitive roles -- such as factual analysis, emotional response, risk assessment, optimistic evaluation, creative generation, and process management -- to ensure a group examines every dimension of a problem before converging on solutions. For the complete framework, see de Bono's *Six Thinking Hats*.
+Edward de Bono developed a structured approach to parallel thinking that uses distinct thinking modes to explore a problem from all angles. His Six Thinking Hats framework assigns different cognitive roles -- such as factual analysis, emotional response, risk assessment, optimistic evaluation, creative generation, and process management -- to ensure a group examines every dimension of a problem before converging on solutions. For the complete framework, see de Bono's _Six Thinking Hats_.
 
 **The core principle:** Instead of everyone thinking differently at the same time (which leads to arguments), everyone thinks in the same mode at the same time, then switches together. This prevents the common problem of one person generating ideas while another simultaneously critiques them.
 
 **Practical application:**
+
 - Dedicate 5-10 minutes to each thinking mode
 - Separate fact-gathering from emotional reaction from creative ideation from risk analysis
 - Have one mode dedicated to managing the process itself
@@ -470,26 +472,32 @@ DOMAINS RICH IN ANALOGIES:
 ## Practice Exercises
 
 ### Exercise 1: SCAMPER Sprint
+
 Take any product you use daily. Apply all 7 SCAMPER prompts. Generate at least 2 ideas per prompt (14+ ideas in 15 minutes).
 
 ### Exercise 2: Random Entry
+
 Open a dictionary to a random page. Pick the first noun. Set a timer for 10 minutes. Force at least 8 connections between that word and a current problem you're working on.
 
 ### Exercise 3: Constraint Challenge
+
 Take a current project and impose one extreme constraint (zero budget, 1 day instead of 1 month, must fit on a single page). See what solutions emerge.
 
 ### Exercise 4: Cross-Domain Analogy
+
 Abstract a current problem. Find 3 domains that have solved a similar abstract problem. Study their solutions and translate at least one back to your domain.
 
 ### Exercise 5: Six Hats Session
+
 Gather 2-4 people. Spend 5 minutes in each hat (30 minutes total) on a real problem. Notice how the structured approach produces different results than free-form discussion.
 
 ### Exercise 6: Reverse Brainstorm
+
 Take your biggest current challenge. Spend 10 minutes generating the worst possible ideas. Then invert each one. Identify the 2-3 most promising inverted solutions.
 
 ### Exercise 7: Provocation Exercise
-Write 5 deliberately absurd "Po" statements about your industry. For each, extract at least one genuinely useful idea. The more absurd the provocation, the more innovative the extraction.
 
+Write 5 deliberately absurd "Po" statements about your industry. For each, extract at least one genuinely useful idea. The more absurd the provocation, the more innovative the extraction.
 
 ## Output Format
 
@@ -503,13 +511,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with creative problem solver for a mid-size project."
 
 **Output:** A complete creative problem solver framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

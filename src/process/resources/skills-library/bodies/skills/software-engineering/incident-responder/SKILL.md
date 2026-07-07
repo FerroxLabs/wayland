@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices devops guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices devops guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Incident Responder
@@ -88,6 +88,7 @@ IMMEDIATE ACTIONS:
 
 ```markdown
 # Incident: [Short Description]
+
 **Severity**: SEV-[1-4]
 **Status**: Investigating | Identified | Monitoring | Resolved
 **Incident Commander**: [Name]
@@ -96,11 +97,12 @@ IMMEDIATE ACTIONS:
 **Resolved**: [Timestamp UTC]
 
 ## Timeline
-| Time (UTC) | Action | Who |
-|------------|--------|-----|
-| HH:MM | Alert fired: [alert name] | System |
-| HH:MM | IC acknowledged, opened war room | [Name] |
-| HH:MM | Initial assessment: [summary] | [Name] |
+
+| Time (UTC) | Action                           | Who    |
+| ---------- | -------------------------------- | ------ |
+| HH:MM      | Alert fired: [alert name]        | System |
+| HH:MM      | IC acknowledged, opened war room | [Name] |
+| HH:MM      | Initial assessment: [summary]    | [Name] |
 ```
 
 ### Phase 2: Investigation (5-30 minutes)
@@ -182,14 +184,16 @@ Can you enable a circuit breaker or rate limit?
 
 ```markdown
 ## Incident Update - [Timestamp UTC]
+
 **Severity**: SEV-[N]
 **Status**: [Investigating | Identified | Monitoring | Resolved]
 **Impact**: [User-facing description of what is broken]
 **Current Theory**: [What we think is causing it]
 **Actions in Progress**:
+
 - [Action 1] - [Owner] - [ETA]
 - [Action 2] - [Owner] - [ETA]
-**Next Update**: [Timestamp UTC]
+  **Next Update**: [Timestamp UTC]
 ```
 
 #### External Customer Communication Template
@@ -248,6 +252,7 @@ AGENDA:
 
 ```markdown
 # Post-Incident Review: [Title]
+
 **Date**: [Date of incident]
 **Severity**: SEV-[N]
 **Duration**: [Time from detection to resolution]
@@ -255,39 +260,47 @@ AGENDA:
 **Reviewers**: [Names]
 
 ## Summary
+
 [2-3 sentence description: what happened, impact, resolution]
 
 ## Impact
+
 - **Duration**: [X hours Y minutes]
 - **Users affected**: [Number or percentage]
 - **Revenue impact**: [Estimated or "not quantified"]
 - **SLA impact**: [Was SLA breached? By how much?]
 
 ## Root Cause
+
 [Detailed technical explanation of the root cause. Be specific.]
 
 ## Contributing Factors
+
 - [Factor 1: e.g., "No automated rollback for this service"]
 - [Factor 2: e.g., "Alert threshold was too permissive"]
 - [Factor 3: e.g., "Runbook was outdated"]
 
 ## Timeline
+
 [Detailed timeline from the incident document]
 
 ## What Went Well
+
 - [Thing 1: e.g., "Detection was fast, alert fired within 2 minutes"]
 - [Thing 2: e.g., "Cross-team collaboration was smooth"]
 
 ## What Could Be Improved
+
 - [Thing 1: e.g., "Rollback took 20 minutes due to manual process"]
 - [Thing 2: e.g., "Customer communication was delayed"]
 
 ## Action Items
-| Action | Owner | Priority | Due Date |
-|--------|-------|----------|----------|
-| Add automated rollback | [Name] | P1 | [Date] |
-| Update runbook for [service] | [Name] | P2 | [Date] |
-| Add monitoring for [signal] | [Name] | P2 | [Date] |
+
+| Action                       | Owner  | Priority | Due Date |
+| ---------------------------- | ------ | -------- | -------- |
+| Add automated rollback       | [Name] | P1       | [Date]   |
+| Update runbook for [service] | [Name] | P2       | [Date]   |
+| Add monitoring for [signal]  | [Name] | P2       | [Date]   |
 ```
 
 ### Blameless Culture Principles
@@ -417,6 +430,7 @@ HOW TO ESCALATE:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing incident responder solutions
 - Reviewing or improving existing incident responder approaches
 - Making architectural or implementation decisions about incident responder
@@ -424,6 +438,7 @@ HOW TO ESCALATE:
 - Troubleshooting incident responder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -434,21 +449,26 @@ HOW TO ESCALATE:
 # Incident Responder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

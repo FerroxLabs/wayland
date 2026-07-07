@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability checklist planning guide"
-  category: "sustainability"
-  subcategory: "home-sustainability"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'sustainability checklist planning guide'
+  category: 'sustainability'
+  subcategory: 'home-sustainability'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Water Conservation Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks about reducing household water usage, lowering water bills, or cutting water consumption at home
 - A user mentions a high water bill and wants to understand where the waste is coming from
 - A user wants a room-by-room audit of water consumption and a prioritized action list with savings estimates
@@ -30,6 +32,7 @@ metadata:
 - A user wants to know what changes they can make as a renter versus what requires homeowner approval
 
 **Do NOT use when:**
+
 - The user manages a commercial facility, restaurant, hotel, or industrial operation -- commercial water management involves greywater recycling at scale, cooling tower treatment, and process water optimization that are outside this skill's scope
 - The user needs agricultural irrigation system design or farm-level water management -- crop evapotranspiration calculations, irrigation scheduling, and soil moisture monitoring are separate domains
 - The user is asking about water purification, filtration, or treatment systems for drinking water quality -- contaminant removal, reverse osmosis sizing, and water softener chemistry are outside this scope
@@ -54,6 +57,7 @@ Before auditing, collect these six data points. Ask for them together in a singl
 - **Current bill or usage:** Monthly water bill in dollars OR usage in gallons or CCF (1 CCF = 748 gallons; 1 HCF = same as CCF; 1 kgal = 1,000 gallons). If the user doesn't know their usage, estimate from household size: 82 gallons per person per day indoor baseline (EPA WaterSense average), with outdoor multiplier of 1.3x (temperate) to 2.5x (arid with turf lawn)
 
 **If the user cannot provide a bill:** Estimate their baseline using the formula:
+
 - Estimated daily use = (number of adults × 80 gal) + (number of children × 50 gal) + outdoor adjustment
 - Outdoor adjustment: 0 gal/day (apartment), 50-100 gal/day (small garden, temperate), 150-300 gal/day (lawn, arid)
 
@@ -66,6 +70,7 @@ Before auditing, collect these six data points. Ask for them together in a singl
 The single most important variable determining baseline consumption is fixture age. Guide the user to identify which generation of fixtures they have:
 
 **Toilet generations (the most impactful single fixture):**
+
 - Pre-1980: 5.0-7.0 gallons per flush (GPF) -- these are rare but occasionally found in older homes
 - 1980-1993: 3.5 GPF -- still common in housing built before 1994 federal mandate
 - 1994-2005: 1.6 GPF -- mandated by the Energy Policy Act of 1992; flush quality was inconsistent in early models
@@ -73,12 +78,14 @@ The single most important variable determining baseline consumption is fixture a
 - High-efficiency dual-flush: 0.8 GPF (liquid) / 1.28 GPF (solid) -- optimal choice for replacement
 
 **Showerhead generations:**
+
 - Pre-1992: 3.0-5.5 GPM (gallons per minute) -- uncommon but still found in unrenovated homes
 - 1992-present federal standard: 2.5 GPM maximum
 - WaterSense certified: 2.0 GPM or less -- significant savings with minimal perceived difference
 - High-performance low-flow: 1.5-1.8 GPM -- best-in-class; air-infused models maintain pressure sensation
 
 **Faucet aerator flow rates:**
+
 - Kitchen faucets without aerator: 2.2 GPM
 - Kitchen faucet with WaterSense aerator: 1.5 GPM
 - Bathroom faucet without aerator: 2.2 GPM
@@ -86,6 +93,7 @@ The single most important variable determining baseline consumption is fixture a
 - Aerators are universally retrofittable and cost $2-8 each -- this is the highest ROI intervention in the plan
 
 **Washing machine generations:**
+
 - Top-loading non-HE (pre-2011 in most households): 40-45 gallons per load
 - Top-loading HE (2011-present): 25-35 gallons per load
 - Front-loading HE: 14-25 gallons per load -- typically 40-50% less water than top-loaders
@@ -99,7 +107,8 @@ Work through each area systematically. Calculate current usage AND potential sav
 
 **Bathroom -- typically 58-65% of indoor water use:**
 
-*Toilets:*
+_Toilets:_
+
 - Identify GPF using the stamp on the toilet bowl underside or inside the tank lid
 - Calculate daily household toilet use: (number of people × 5.5 flushes/day × GPF)
 - A household of 4 with 3.5 GPF toilets (2 toilets): 4 × 5.5 × 3.5 = 77 gallons/day
@@ -107,7 +116,8 @@ Work through each area systematically. Calculate current usage AND potential sav
 - Savings: 49 gallons/day -- this is often the single largest indoor savings opportunity
 - Leak check: put 5 drops of food coloring in the tank; if color appears in the bowl within 15 minutes without flushing, the flapper is leaking. A slow toilet leak wastes 30-200 gallons per day; a running toilet wastes 200-1,000+ gallons per day
 
-*Showers:*
+_Showers:_
+
 - Measure actual showerhead flow rate: fill a 1-gallon bucket under the running shower and time it. If it fills in under 24 seconds, flow is above 2.5 GPM
 - Calculate daily shower water: (number of showers per day × average shower length in minutes × GPM)
 - Example: 4 showers/day × 8 minutes × 2.5 GPM = 80 gallons/day
@@ -115,29 +125,34 @@ Work through each area systematically. Calculate current usage AND potential sav
 - Reducing shower length by 2 minutes per person: 4 × 2 × 2.5 = 20 gallons/day saved at zero cost
 - Shower timers (suction-cup style, $3-10) increase compliance by making the target visible
 
-*Bathroom faucets:*
+_Bathroom faucets:_
+
 - Turn off tap while brushing teeth: running faucet at 2.2 GPM for 2 minutes = 4.4 gallons wasted, twice per day per person
 - Household of 4: 35 gallons/day saved by turning off tap while brushing -- this behavioral change alone is meaningful
 - Installing 0.5 GPM aerators reduces hands-washing and face-washing flow while maintaining adequate rinsing
 
-*Bathtubs:*
+_Bathtubs:_
+
 - A full tub holds 35-50 gallons; a half-filled tub 18-25 gallons
 - A shower under 10 minutes at 2.0 GPM (20 gallons) is more efficient than most baths; this is a useful comparison for families with children who bath daily
 
 **Kitchen -- typically 10-15% of indoor water use:**
 
-*Dishwasher vs. hand washing:*
+_Dishwasher vs. hand washing:_
+
 - This is the most counterintuitive finding in household water conservation: a full load in a modern dishwasher (manufactured post-2013) uses 3-5 gallons total
 - Hand washing the equivalent load with running water uses 20-27 gallons
 - Pre-1994 dishwashers use 8-14 gallons per cycle -- still more efficient than hand washing with running water but significantly worse than modern models
 - Scraping dishes instead of pre-rinsing saves 6,000+ gallons per year for a household running the dishwasher daily -- modern dishwashers do not need pre-rinsing; the detergent enzymes require food particles to activate properly
 - Running only full loads saves 320-450 gallons per month versus running half-loads
 
-*Kitchen faucet:*
+_Kitchen faucet:_
+
 - Installing a 1.5 GPM kitchen aerator (WaterSense) instead of 2.2 GPM saves 0.7 GPM; at 10 minutes of daily faucet use, that is 7 gallons/day saved per household
 - Keep a pitcher of water in the refrigerator; running the tap until cold before drinking wastes 1-2 gallons per draw. A household of 4 drawing water 4 times per day wastes 16-32 gallons/day this way
 
-*Food preparation:*
+_Food preparation:_
+
 - Thawing food under running water: 1-2 gallons per minute. Alternative: thaw overnight in refrigerator (zero water use)
 - Rinsing produce in a bowl rather than under running water: saves 5-10 gallons per day for households that cook fresh produce daily
 
@@ -151,7 +166,8 @@ Work through each area systematically. Calculate current usage AND potential sav
 
 **Outdoor -- typically 30-70% of total use depending on climate and landscape type:**
 
-*Lawn irrigation:*
+_Lawn irrigation:_
+
 - A standard pop-up sprinkler zone uses 12-25 gallons per minute depending on head type and zone size
 - Watering a 1,000 sq ft lawn twice weekly for 20 minutes: approximately 300-600 gallons per session, 2,400-4,800 gallons per month during irrigation season
 - Evapotranspiration (ET) scheduling: watering based on actual plant water demand rather than a fixed schedule. Most irrigation controllers have ET or "smart" mode; enabling this typically reduces irrigation use by 15-30%
@@ -159,17 +175,20 @@ Work through each area systematically. Calculate current usage AND potential sav
 - Cycle-and-soak programming: instead of one 20-minute run, set three 7-minute cycles with 30-minute breaks; water soaks into soil rather than running off, reducing run time needed by 10-20%
 - Soil type matters: clay soils absorb water slowly (max 0.2 inches per hour); sandy soils absorb quickly. Runoff from clay soil during a single long sprinkler cycle can waste 20-40% of applied water
 
-*Garden beds and trees:*
+_Garden beds and trees:_
+
 - Drip irrigation vs. sprinklers: drip systems deliver water directly to the root zone at 0.5-2.0 GPH per emitter; they eliminate evaporation and overspray losses, using 30-50% less water than sprinkler irrigation for the same plants
 - Three inches of organic mulch (wood chips, bark) reduces soil evaporation by 50-70% and can reduce irrigation frequency by 30-50% -- this is a high-impact, low-cost intervention ($20-60 for a typical garden bed)
 - Grouping plants by water need (hydrozoning) eliminates overwatering of drought-tolerant plants placed on the same zone as thirsty annuals
 
-*Swimming pools:*
+_Swimming pools:_
+
 - A standard residential pool (15,000-20,000 gallons) loses 1,000-1,500 gallons per week to evaporation in arid and hot climates, adding up to 50,000-75,000 gallons per year
 - A pool cover reduces evaporation by 90-95% (saves 45,000-70,000 gallons per year) and reduces chemical consumption by 35-60%
 - Pool leak detection: the bucket test -- fill a bucket with pool water, place it on the pool step with weight to keep it submerged, and mark water levels inside and outside the bucket. After 24 hours, evaporation affects both equally; if the pool level drops more than the bucket, there is a structural leak. Pool leaks can waste 500-1,000 gallons per day
 
-*Car washing:*
+_Car washing:_
+
 - Running garden hose: 5-10 gallons per minute; a 10-minute car wash uses 50-100 gallons
 - Two-bucket method (one soap, one rinse): 8-15 gallons total
 - Automatic car wash facilities recycle water and typically use 15-45 gallons per wash -- commercial car washes are often more water-efficient than driveway washing for homeowners without water-recycling equipment
@@ -179,6 +198,7 @@ Work through each area systematically. Calculate current usage AND potential sav
 ### Step 4: Calculate and Rank Savings
 
 For each identified opportunity, calculate three numbers:
+
 1. **Gallons saved per day** (the primary metric -- concrete and motivating)
 2. **Annual gallons saved** (daily × 365)
 3. **Annual cost savings** -- use the user's actual water rate if known, or the range $3-15 per 1,000 gallons (national range; the U.S. average is approximately $5-7 per 1,000 gallons as of 2024)
@@ -188,6 +208,7 @@ To convert gallons saved to dollars: (annual gallons saved ÷ 1,000) × local ra
 **Sewer/wastewater billing note:** Most municipal water bills include sewer charges at 1.0-1.5x the water rate. Every gallon of water saved typically saves $1.50-2.50 in combined water and sewer charges. Always factor this into savings calculations -- it often doubles the apparent financial benefit.
 
 Rank actions in four tiers:
+
 - **Free:** Behavioral changes with zero equipment purchase
 - **Low cost:** Under $50 total; typically under 3-month payback
 - **Moderate cost:** $50-500; typically 6-18 month payback
@@ -200,6 +221,7 @@ Rank actions in four tiers:
 Apply this filter to every single recommendation before presenting it:
 
 **Renters CAN do without landlord approval:**
+
 - All behavioral changes (shower length, full loads, tap-off while brushing)
 - Installing faucet aerators on standard threaded faucets (these are hand-removable with no damage)
 - Installing a removable low-flow showerhead (keep the original; reinstall before moving out)
@@ -209,6 +231,7 @@ Apply this filter to every single recommendation before presenting it:
 - Adding mulch to patio containers or small garden areas if permitted
 
 **Renters typically CANNOT do without landlord approval:**
+
 - Toilet replacement
 - Any in-wall or under-sink plumbing modifications
 - Landscaping changes
@@ -247,6 +270,7 @@ Structure the recommendations as a time-phased action sequence rather than a fla
 ### Step 8: Validate the Plan Against the Household Profile
 
 Before finalizing output, cross-check:
+
 - Total projected daily usage after all actions should be within 20-30% of the EPA WaterSense indoor efficiency goal of 52 gallons per person per day for indoor use
 - If projected savings exceed 60% of current usage, recalculate -- there may be double-counting
 - Confirm every recommendation is tagged renter/owner correctly
@@ -436,16 +460,17 @@ Even in high-rainfall regions, indoor conservation reduces two costs that never 
 ## Water Conservation Plan
 
 ### Household Profile
-| Parameter              | Value                                                         |
-|------------------------|---------------------------------------------------------------|
-| Household size         | 3 (2 adults, 1 child age 11)                                  |
-| Housing type           | Single-family house                                           |
-| Ownership              | Owner                                                         |
-| Climate zone           | Arid (Tucson, AZ -- avg. annual rainfall ~12 inches)          |
-| Estimated daily use    | 400-500 gallons/day (based on $120 bill, Tucson rates ~$5-7/1,000 gal water + sewer) |
-| Current monthly cost   | $120/month                                                    |
-| Outdoor water use      | Yes: medium front lawn + desert garden beds in back           |
-| Fixture generation     | Likely 1989-vintage (pre-1994 plumbing standard) -- 3.5 GPF toilets highly probable |
+
+| Parameter            | Value                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| Household size       | 3 (2 adults, 1 child age 11)                                                         |
+| Housing type         | Single-family house                                                                  |
+| Ownership            | Owner                                                                                |
+| Climate zone         | Arid (Tucson, AZ -- avg. annual rainfall ~12 inches)                                 |
+| Estimated daily use  | 400-500 gallons/day (based on $120 bill, Tucson rates ~$5-7/1,000 gal water + sewer) |
+| Current monthly cost | $120/month                                                                           |
+| Outdoor water use    | Yes: medium front lawn + desert garden beds in back                                  |
+| Fixture generation   | Likely 1989-vintage (pre-1994 plumbing standard) -- 3.5 GPF toilets highly probable  |
 
 **Baseline context:** The EPA indoor efficiency target is 82 gallons per person per day; your estimated household of 3 should use approximately 246 gallons per day indoors if fixtures are average. Your $120 bill suggests 400-500 gallons per day total, meaning roughly 150-250 gallons per day is going to outdoor irrigation -- typical for a Tucson home with turf lawn in summer. Your 1989 build date is a critical flag: that home almost certainly has 3.5 GPF toilets installed before the 1994 federal 1.6 GPF mandate, which are likely your single largest indoor waste source. Address the lawn and the toilets and you will capture 70%+ of your total savings potential.
 
@@ -465,84 +490,88 @@ Before any other action, perform these two checks. Hidden leaks routinely add 50
 
 #### Bathroom (estimated 110-130 gallons/day for 3 people with 1989 fixtures)
 
-| Fixture / Habit                  | Est. Current Use       | Potential Savings         | Priority     |
-|----------------------------------|------------------------|---------------------------|--------------|
-| Toilets (likely 3.5 GPF, 2 toilets) | 57-63 gal/day (3 people × 5.5 flushes × 3.5 GPF) | 38-45 gal/day replacing with 1.28 GPF | **Highest** |
-| Showers (3 showers/day, ~8 min, 2.5 GPM) | 60 gal/day          | 12-24 gal/day (low-flow head + 2 min shorter) | High |
-| Bathroom faucets (tap-on habits) | 18-26 gal/day         | 10-18 gal/day (aerators + behavior) | Medium |
-| Toilet leak check                | Unknown               | Up to 200+ gal/day if leaking | **Immediate** |
+| Fixture / Habit                          | Est. Current Use                                 | Potential Savings                             | Priority      |
+| ---------------------------------------- | ------------------------------------------------ | --------------------------------------------- | ------------- |
+| Toilets (likely 3.5 GPF, 2 toilets)      | 57-63 gal/day (3 people × 5.5 flushes × 3.5 GPF) | 38-45 gal/day replacing with 1.28 GPF         | **Highest**   |
+| Showers (3 showers/day, ~8 min, 2.5 GPM) | 60 gal/day                                       | 12-24 gal/day (low-flow head + 2 min shorter) | High          |
+| Bathroom faucets (tap-on habits)         | 18-26 gal/day                                    | 10-18 gal/day (aerators + behavior)           | Medium        |
+| Toilet leak check                        | Unknown                                          | Up to 200+ gal/day if leaking                 | **Immediate** |
 
 #### Kitchen (estimated 25-35 gallons/day)
 
-| Fixture / Habit                  | Est. Current Use       | Potential Savings         | Priority     |
-|----------------------------------|------------------------|---------------------------|--------------|
-| Kitchen faucet                   | 15-20 gal/day         | 5-7 gal/day (1.5 GPM aerator) | Medium     |
-| Pre-rinsing dishes before dishwasher | 8-15 gal/day       | 8-15 gal/day (stop pre-rinsing entirely) | High |
-| Running tap until cold for drinking | 5-8 gal/day         | 5-8 gal/day (use refrigerator pitcher) | Medium  |
+| Fixture / Habit                      | Est. Current Use | Potential Savings                        | Priority |
+| ------------------------------------ | ---------------- | ---------------------------------------- | -------- |
+| Kitchen faucet                       | 15-20 gal/day    | 5-7 gal/day (1.5 GPM aerator)            | Medium   |
+| Pre-rinsing dishes before dishwasher | 8-15 gal/day     | 8-15 gal/day (stop pre-rinsing entirely) | High     |
+| Running tap until cold for drinking  | 5-8 gal/day      | 5-8 gal/day (use refrigerator pitcher)   | Medium   |
 
 #### Laundry (estimated 25-40 gallons/day assuming top-loader)
 
-| Fixture / Habit                  | Est. Current Use       | Potential Savings         | Priority     |
-|----------------------------------|------------------------|---------------------------|--------------|
-| Washer type (est. top-loading, 1989 vintage) | 40-45 gal/load | 15-25 gal/load if replaced with HE front-loader | Low (only at end of machine life) |
-| Load optimization (running full loads only) | Varies         | 5-15 gal/week if any partial loads | Medium  |
+| Fixture / Habit                              | Est. Current Use | Potential Savings                               | Priority                          |
+| -------------------------------------------- | ---------------- | ----------------------------------------------- | --------------------------------- |
+| Washer type (est. top-loading, 1989 vintage) | 40-45 gal/load   | 15-25 gal/load if replaced with HE front-loader | Low (only at end of machine life) |
+| Load optimization (running full loads only)  | Varies           | 5-15 gal/week if any partial loads              | Medium                            |
 
 #### Outdoor (estimated 150-250 gallons/day during Tucson irrigation season -- April through October)
 
-| Usage                            | Est. Current Use       | Potential Savings         | Priority     |
-|----------------------------------|------------------------|---------------------------|--------------|
-| Front lawn sprinkler irrigation  | 120-200 gal/day (season avg.) | 90-170 gal/day (xeriscape conversion) | **Highest** |
-| Irrigation timing (watering mid-day) | Adds 30-40% waste to above | 40-80 gal/day (shift to pre-7 AM) | **High -- free** |
-| Desert garden beds (overhead spray vs. drip) | 20-40 gal/day | 10-20 gal/day (convert to drip + mulch) | High |
-| Evaporation from unmulched soil  | Included above         | 5-10 gal/day (3" mulch on beds) | High         |
+| Usage                                        | Est. Current Use              | Potential Savings                       | Priority         |
+| -------------------------------------------- | ----------------------------- | --------------------------------------- | ---------------- |
+| Front lawn sprinkler irrigation              | 120-200 gal/day (season avg.) | 90-170 gal/day (xeriscape conversion)   | **Highest**      |
+| Irrigation timing (watering mid-day)         | Adds 30-40% waste to above    | 40-80 gal/day (shift to pre-7 AM)       | **High -- free** |
+| Desert garden beds (overhead spray vs. drip) | 20-40 gal/day                 | 10-20 gal/day (convert to drip + mulch) | High             |
+| Evaporation from unmulched soil              | Included above                | 5-10 gal/day (3" mulch on beds)         | High             |
 
 ---
 
 ### Prioritized Action Plan
 
 #### Phase 1 -- This Week (Free, Behavioral Changes)
-| Action                                    | Gal Saved/Day | Annual Savings            | Renter OK? |
-|-------------------------------------------|---------------|---------------------------|------------|
-| Shift all lawn watering to before 7 AM    | 40-80 gal     | 14,600-29,200 gal / $73-$204 | Owner only |
-| Shorten each shower by 2 minutes          | 10-15 gal     | 3,650-5,475 gal / $18-$38 | Yes        |
-| Turn off tap while brushing teeth (3 people) | 13-18 gal  | 4,745-6,570 gal / $24-$46 | Yes        |
-| Stop pre-rinsing dishes before dishwasher | 8-15 gal      | 2,920-5,475 gal / $15-$38 | Yes        |
-| Refrigerator pitcher for drinking water   | 5-8 gal       | 1,825-2,920 gal / $9-$20  | Yes        |
-| Run only full dishwasher and laundry loads | 5-12 gal     | 1,825-4,380 gal / $9-$31  | Yes        |
+
+| Action                                       | Gal Saved/Day | Annual Savings               | Renter OK? |
+| -------------------------------------------- | ------------- | ---------------------------- | ---------- |
+| Shift all lawn watering to before 7 AM       | 40-80 gal     | 14,600-29,200 gal / $73-$204 | Owner only |
+| Shorten each shower by 2 minutes             | 10-15 gal     | 3,650-5,475 gal / $18-$38    | Yes        |
+| Turn off tap while brushing teeth (3 people) | 13-18 gal     | 4,745-6,570 gal / $24-$46    | Yes        |
+| Stop pre-rinsing dishes before dishwasher    | 8-15 gal      | 2,920-5,475 gal / $15-$38    | Yes        |
+| Refrigerator pitcher for drinking water      | 5-8 gal       | 1,825-2,920 gal / $9-$20     | Yes        |
+| Run only full dishwasher and laundry loads   | 5-12 gal      | 1,825-4,380 gal / $9-$31     | Yes        |
 
 **Phase 1 Total: approximately 81-148 gallons/day saved, $148-$377/year, at zero cost.**
 
 ---
 
 #### Phase 2 -- This Month (Low Cost, Under $50)
-| Action                                    | Gal Saved/Day | Cost        | Payback      | Renter OK? |
-|-------------------------------------------|---------------|-------------|--------------|------------|
-| Low-flow showerhead (1.8 GPM) -- 2 bathrooms | 14-21 gal  | $30-60      | 1-2 months   | Yes (removable) |
-| Faucet aerators on all 4-5 faucets        | 10-18 gal     | $10-25      | Under 1 month| Yes (removable) |
-| Toilet leak dye test + flapper replacement if needed | Up to 200 gal/day if leak | $5-10 per flapper | Immediate | Yes (report to landlord; owner repairs own) |
-| Shower timer (suction-cup, 5-min)         | Behavioral reinforcement | $5-10 | Immediate  | Yes        |
-| 3-inch mulch layer on all desert garden beds | 10-15 gal  | $20-40      | 1-2 months   | Owner      |
+
+| Action                                               | Gal Saved/Day             | Cost              | Payback       | Renter OK?                                  |
+| ---------------------------------------------------- | ------------------------- | ----------------- | ------------- | ------------------------------------------- |
+| Low-flow showerhead (1.8 GPM) -- 2 bathrooms         | 14-21 gal                 | $30-60            | 1-2 months    | Yes (removable)                             |
+| Faucet aerators on all 4-5 faucets                   | 10-18 gal                 | $10-25            | Under 1 month | Yes (removable)                             |
+| Toilet leak dye test + flapper replacement if needed | Up to 200 gal/day if leak | $5-10 per flapper | Immediate     | Yes (report to landlord; owner repairs own) |
+| Shower timer (suction-cup, 5-min)                    | Behavioral reinforcement  | $5-10             | Immediate     | Yes                                         |
+| 3-inch mulch layer on all desert garden beds         | 10-15 gal                 | $20-40            | 1-2 months    | Owner                                       |
 
 **Phase 2 Total: approximately 34-54 gallons/day additional savings (excluding leak), $40-$95 investment, payback under 2 months.**
 
 ---
 
 #### Phase 3 -- This Quarter (Moderate Cost, $50-$500)
-| Action                                    | Gal Saved/Day | Cost        | Payback      | Renter OK? |
-|-------------------------------------------|---------------|-------------|--------------|------------|
-| Replace both toilets with WaterSense 1.28 GPF | 38-45 gal | $300-700 installed | 8-18 months (6-10 months after Tucson Water rebate of $75-150/toilet) | Owner only |
-| Convert back garden beds to drip irrigation | 10-20 gal  | $80-200     | 4-8 months   | Owner only |
-| Upgrade irrigation controller to smart/ET model | 20-40 gal (season) | $100-200 | 4-8 months | Owner only |
+
+| Action                                          | Gal Saved/Day      | Cost               | Payback                                                               | Renter OK? |
+| ----------------------------------------------- | ------------------ | ------------------ | --------------------------------------------------------------------- | ---------- |
+| Replace both toilets with WaterSense 1.28 GPF   | 38-45 gal          | $300-700 installed | 8-18 months (6-10 months after Tucson Water rebate of $75-150/toilet) | Owner only |
+| Convert back garden beds to drip irrigation     | 10-20 gal          | $80-200            | 4-8 months                                                            | Owner only |
+| Upgrade irrigation controller to smart/ET model | 20-40 gal (season) | $100-200           | 4-8 months                                                            | Owner only |
 
 **Tucson Water Rebate Note:** Tucson Water offers rebates for WaterSense toilets ($75-150 per toilet) and smart irrigation controllers. Check tucsonaz.gov/water or call (520) 791-3242 before purchasing -- these rebates often cover 30-50% of equipment cost and significantly accelerate payback.
 
 ---
 
 #### Phase 4 -- This Year (Investment, $500+)
-| Action                                    | Gal Saved/Day | Est. Cost     | Payback     | Rebate Available?    |
-|-------------------------------------------|---------------|---------------|-------------|----------------------|
-| Convert front lawn to desert-adapted xeriscape | 90-170 gal | $1,500-4,000 | 2-5 years   | **Yes -- Tucson Water pays $1.00-2.00/sq ft turf removed** |
-| Replace top-loading washer with HE front-loader at end of life | 15-25 gal/load | $600-1,200 | 3-5 years | Check APS/TEP rebates |
+
+| Action                                                         | Gal Saved/Day  | Est. Cost    | Payback   | Rebate Available?                                          |
+| -------------------------------------------------------------- | -------------- | ------------ | --------- | ---------------------------------------------------------- |
+| Convert front lawn to desert-adapted xeriscape                 | 90-170 gal     | $1,500-4,000 | 2-5 years | **Yes -- Tucson Water pays $1.00-2.00/sq ft turf removed** |
+| Replace top-loading washer with HE front-loader at end of life | 15-25 gal/load | $600-1,200   | 3-5 years | Check APS/TEP rebates                                      |
 
 **Xeriscape rebate math:** If your front lawn is 400 square feet, Tucson Water may pay $400-800 toward the conversion. Native plants (palo verde, desert willow, brittlebush, agave) require minimal supplemental irrigation after establishment (typically 2-3 years) and then survive on Tucson's natural rainfall. This eliminates 90-170 gallons per day of irrigation demand for 6-7 months per year.
 
@@ -550,14 +579,14 @@ Before any other action, perform these two checks. Hidden leaks routinely add 50
 
 ### Total Savings Potential Summary
 
-| Metric                     | Current Estimate     | After Full Plan      | Total Savings            |
-|----------------------------|----------------------|----------------------|--------------------------|
-| Daily indoor use           | ~245 gal/day         | ~120 gal/day         | ~125 gal/day (51%)       |
-| Daily outdoor use (season avg.) | ~175 gal/day   | ~25 gal/day          | ~150 gal/day (86%)       |
-| **Total daily use**        | **~420 gal/day**     | **~145 gal/day**     | **~275 gal/day (65%)**   |
-| Monthly cost (water + sewer) | $120/month         | ~$40-50/month        | **~$70-80/month**        |
-| Annual cost savings        |                      |                      | **$840-960/year**        |
-| Annual water saved         |                      |                      | **~100,000 gallons/year** |
+| Metric                          | Current Estimate | After Full Plan  | Total Savings             |
+| ------------------------------- | ---------------- | ---------------- | ------------------------- |
+| Daily indoor use                | ~245 gal/day     | ~120 gal/day     | ~125 gal/day (51%)        |
+| Daily outdoor use (season avg.) | ~175 gal/day     | ~25 gal/day      | ~150 gal/day (86%)        |
+| **Total daily use**             | **~420 gal/day** | **~145 gal/day** | **~275 gal/day (65%)**    |
+| Monthly cost (water + sewer)    | $120/month       | ~$40-50/month    | **~$70-80/month**         |
+| Annual cost savings             |                  |                  | **$840-960/year**         |
+| Annual water saved              |                  |                  | **~100,000 gallons/year** |
 
 **Phase 1 (free behavioral changes) alone will save approximately $148-377/year starting immediately.**
 
@@ -566,4 +595,4 @@ Before any other action, perform these two checks. Hidden leaks routinely add 50
 ### Your Sequential Next Steps
 
 1. **Today:** Perform toilet dye test and water meter test. A running toilet in a 1989 home is common and could be adding $15-30/month to your bill alone. Fix any leaking flapper before anything else.
-2. **This week:** Shift all irrigation to before 7 AM. Start 2-minute-shorter showers. Stop pre-rinsing dishes. These three changes cost nothing and save an estimated 55-110 
+2. **This week:** Shift all irrigation to before 7 AM. Start 2-minute-shorter showers. Stop pre-rinsing dishes. These three changes cost nothing and save an estimated 55-110

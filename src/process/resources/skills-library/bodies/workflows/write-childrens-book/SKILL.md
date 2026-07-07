@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "childrens-book-creator character-architect digital-illustrator self-publishing-guide book-marketing"
+skills: 'childrens-book-creator character-architect digital-illustrator self-publishing-guide book-marketing'
 trigger_phrases: >-
   I want to write a children's book help me create a picture book write a kids
   book children's book illustration publish a book for kids how to write for
@@ -26,8 +26,9 @@ metadata:
     parenting creative-writing writing design content-marketing study-skills
     step-by-step planning
   category: creative-project
-  depends: "childrens-book-creator character-architect digital-illustrator self-publishing-guide book-marketing"
+  depends: 'childrens-book-creator character-architect digital-illustrator self-publishing-guide book-marketing'
 ---
+
 # Write Childrens Book
 
 **Estimated time:** 3-6 months
@@ -172,6 +173,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

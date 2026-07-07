@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching entrepreneurship guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching entrepreneurship guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Young Entrepreneur
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on young entrepreneur
 - User asks about young entrepreneur best practices or techniques
 - User wants a structured approach to young entrepreneur
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of young entrepreneur
 
@@ -72,6 +73,7 @@ metadata:
 | Tutoring younger students | $0 | Teaching, communication |
 
 **Key principles for ages 8-12:**
+
 - Start very small (one product, one service)
 - Parent supervision for all customer interactions
 - Short time commitment (a few hours per week)
@@ -176,12 +178,14 @@ Date: _________________________________
 Add these sections to the basic plan:
 
 **Market Research:**
+
 - Who are your competitors?
 - What do they charge?
 - What do they do well? Where do they fall short?
 - How many potential customers are in your area?
 
 **Financial Projections (Simple):**
+
 ```
 MONTHLY FINANCIAL PROJECTION
 ==============================
@@ -200,6 +204,7 @@ PROFIT MARGIN (Profit / Revenue x 100): _________%
 ```
 
 **Growth Plan:**
+
 - What is the next step after the business is running?
 - How could you serve more customers?
 - What new products or services could you add?
@@ -212,6 +217,7 @@ PROFIT MARGIN (Profit / Revenue x 100): _________%
 ### How to Set Prices
 
 **Step 1: Calculate Your Costs**
+
 ```
 Cost per item/service:
   Materials:                $__________
@@ -221,11 +227,13 @@ Cost per item/service:
 ```
 
 **Step 2: Research the Market**
+
 - What do competitors charge for similar products/services?
 - What are customers willing to pay?
 - Is this a premium or budget offering?
 
 **Step 3: Set Your Price**
+
 ```
 Cost + Profit Margin = Price
 
@@ -241,16 +249,17 @@ Example (baked goods):
 
 ### Pricing Strategies for Young Entrepreneurs
 
-| Strategy | When to Use | Example |
-|----------|------------|---------|
-| Cost-plus pricing | Standard products | Material cost + desired profit |
-| Competitive pricing | Similar services exist | Match or slightly undercut competitors |
-| Value-based pricing | Unique or premium offering | Price based on what customer values |
-| Bundle pricing | Multiple items/services | 3 bracelets for $10 instead of $4 each |
-| Introductory pricing | New business launch | 20% off first purchase |
-| Tiered pricing | Services with options | Basic car wash $10, Premium $20, Deluxe $30 |
+| Strategy             | When to Use                | Example                                     |
+| -------------------- | -------------------------- | ------------------------------------------- |
+| Cost-plus pricing    | Standard products          | Material cost + desired profit              |
+| Competitive pricing  | Similar services exist     | Match or slightly undercut competitors      |
+| Value-based pricing  | Unique or premium offering | Price based on what customer values         |
+| Bundle pricing       | Multiple items/services    | 3 bracelets for $10 instead of $4 each      |
+| Introductory pricing | New business launch        | 20% off first purchase                      |
+| Tiered pricing       | Services with options      | Basic car wash $10, Premium $20, Deluxe $30 |
 
 ### Common Pricing Mistakes
+
 - Pricing too low (undervaluing your work, unsustainable)
 - Not accounting for all costs (materials, transportation, packaging)
 - Not adjusting prices as costs change
@@ -264,6 +273,7 @@ Example (baked goods):
 ### Marketing by Channel
 
 **Neighborhood Marketing (All Ages):**
+
 - Door-to-door flyers (with parent permission and supervision)
 - Yard signs for service businesses
 - Business cards to hand out
@@ -272,6 +282,7 @@ Example (baked goods):
 - Neighborhood Facebook groups or Nextdoor (parent can post)
 
 **School Marketing (With Permission):**
+
 - School bulletin boards
 - Morning announcements
 - School newspaper or newsletter
@@ -280,6 +291,7 @@ Example (baked goods):
 - Word of mouth among classmates
 
 **Social Media Marketing (Ages 13+, with parental awareness):**
+
 - Instagram (visual products, portfolio showcase)
 - TikTok (behind-the-scenes, process videos, tutorials)
 - YouTube (longer content, tutorials, reviews)
@@ -290,6 +302,7 @@ Example (baked goods):
 ### Creating Marketing Materials
 
 **Business Card Essentials:**
+
 - Business name
 - Your name
 - What you offer (one sentence)
@@ -297,6 +310,7 @@ Example (baked goods):
 - Social media handle (if applicable)
 
 **Flyer Template:**
+
 ```
 [BUSINESS NAME]
 [Eye-catching image]
@@ -315,6 +329,7 @@ CONTACT: [Parent-supervised contact information]
 ```
 
 ### The 30-Second Elevator Pitch
+
 Practice this with the young entrepreneur:
 "Hi, I'm [name] and I run [business name]. I [what you do] for [who you serve]. What makes my [product/service] special is [unique selling point]. Can I tell you more about it?"
 
@@ -352,13 +367,14 @@ PROFIT THIS MONTH:              $________
 
 Teach young entrepreneurs to divide their profits:
 
-| Jar | Percentage | Purpose |
-|-----|-----------|---------|
-| Save | 30-40% | Long-term savings (college, big goal) |
-| Reinvest | 30-40% | Put back into the business (supplies, equipment, marketing) |
-| Spend | 20-30% | Enjoy the fruits of your labor |
+| Jar      | Percentage | Purpose                                                     |
+| -------- | ---------- | ----------------------------------------------------------- |
+| Save     | 30-40%     | Long-term savings (college, big goal)                       |
+| Reinvest | 30-40%     | Put back into the business (supplies, equipment, marketing) |
+| Spend    | 20-30%     | Enjoy the fruits of your labor                              |
 
 **For ages 13+, consider adding:**
+
 - A "Give" category (10% to charity or cause they care about)
 - A checking account (many banks offer youth accounts)
 - A savings account for business reserves
@@ -384,6 +400,7 @@ Profit is how much you made.
 ### General Rules (Vary by Location)
 
 **What minors generally CAN do:**
+
 - Sell goods at reasonable scale (lemonade stands, crafts, baked goods)
 - Provide services (lawn care, pet sitting, tutoring)
 - Open savings accounts (with parent/guardian as joint holder)
@@ -391,6 +408,7 @@ Profit is how much you made.
 - Accept cash and some digital payments
 
 **What typically requires adult involvement:**
+
 - Signing contracts (minors generally cannot enter binding contracts)
 - Opening business bank accounts
 - Registering a business (parent/guardian must sign)
@@ -400,6 +418,7 @@ Profit is how much you made.
 - Accepting credit card payments (merchant accounts require age 18)
 
 ### Tax Basics for Young Entrepreneurs
+
 - Income from self-employment may be taxable above certain thresholds
 - Keep all receipts and records from the start
 - Business expenses can offset income
@@ -408,6 +427,7 @@ Profit is how much you made.
 - Self-employment tax applies to net earnings above the threshold
 
 ### Food Business Considerations
+
 - Check local cottage food laws (many states allow home baking with limitations)
 - Food safety certifications may be required
 - Allergen labeling requirements
@@ -415,6 +435,7 @@ Profit is how much you made.
 - Health department regulations vary by state and municipality
 
 ### Insurance Considerations
+
 - Parent's homeowner's or renter's insurance may cover some liability
 - For service businesses (lawn care, pet sitting), consider additional coverage
 - For events or larger operations, general liability insurance may be advisable
@@ -425,6 +446,7 @@ Profit is how much you made.
 ## Phase 7: Scaling the Business
 
 ### Signs You Are Ready to Grow
+
 - More demand than you can handle alone
 - Consistent income for 3+ months
 - Clear processes that could be taught to someone else
@@ -433,17 +455,18 @@ Profit is how much you made.
 
 ### Growth Strategies for Young Businesses
 
-| Strategy | Example | Complexity |
-|----------|---------|-----------|
-| Increase prices | Raise from $8 to $10 per service | Low |
-| Add complementary products | Lawn care + leaf removal + snow shoveling | Medium |
-| Expand geographic area | Serve more neighborhoods | Medium |
-| Bring on a partner or helper | Pay a friend to help with orders | Medium |
-| Move to online sales | Open Etsy shop (parent's account) | Medium |
-| Create packages or subscriptions | Monthly lawn care plan | Medium-High |
-| Wholesale to local shops | Sell crafts to a boutique | High |
+| Strategy                         | Example                                   | Complexity  |
+| -------------------------------- | ----------------------------------------- | ----------- |
+| Increase prices                  | Raise from $8 to $10 per service          | Low         |
+| Add complementary products       | Lawn care + leaf removal + snow shoveling | Medium      |
+| Expand geographic area           | Serve more neighborhoods                  | Medium      |
+| Bring on a partner or helper     | Pay a friend to help with orders          | Medium      |
+| Move to online sales             | Open Etsy shop (parent's account)         | Medium      |
+| Create packages or subscriptions | Monthly lawn care plan                    | Medium-High |
+| Wholesale to local shops         | Sell crafts to a boutique                 | High        |
 
 ### When Growing, Maintain Quality
+
 - Do not take on more than you can deliver well
 - Customer satisfaction is more important than customer count
 - One unhappy customer tells more people than ten happy ones
@@ -478,6 +501,7 @@ Successful entrepreneurs build networks. Mentors, family, teachers, other busine
 School comes first. A business should enhance your education and life, not replace it.
 
 ### Entrepreneurship and Education Connection
+
 - Math: Pricing, profit calculations, budgeting, percentages
 - Language Arts: Marketing copy, business communication, pitching
 - Social Studies: Economics, supply and demand, market forces
@@ -486,6 +510,7 @@ School comes first. A business should enhance your education and life, not repla
 - Technology: Digital tools, social media, website building
 
 ### Resources for Young Entrepreneurs
+
 - NFTE (Network for Teaching Entrepreneurship) -- youth programs
 - Junior Achievement -- business education programs
 - Lemonade Day -- national program for young entrepreneurs
@@ -498,6 +523,7 @@ School comes first. A business should enhance your education and life, not repla
 ## Parent/Guardian Role
 
 ### How to Support Without Taking Over
+
 - Help with safety and legal compliance, but let the young person make business decisions
 - Ask guiding questions instead of giving answers
 - Let them experience small failures in safe contexts
@@ -509,7 +535,6 @@ School comes first. A business should enhance your education and life, not repla
 - Be the "silent partner" -- available but not running the show
 
 The goal is not to build a successful business (though that is great). The goal is to build a capable, confident, financially literate young person who understands how value is created and exchanged in the world.
-
 
 ## Output Format
 
@@ -523,13 +548,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with young entrepreneur for a mid-size project."
 
 **Output:** A complete young entrepreneur framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

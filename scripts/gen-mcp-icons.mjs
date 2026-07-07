@@ -16,17 +16,58 @@ const news = catalog.entries.filter((e) => e.verifiedByWayland === TODAY);
 
 // Explicit Simple Icons slug per entry name (null = skip straight to monogram).
 const SI = {
-  'fal.ai': null, Replicate: 'replicate', Higgsfield: null, 'Black Forest Labs (FLUX)': null,
-  ElevenLabs: 'elevenlabs', 'MiniMax (Hailuo)': null, Recraft: null,
-  Tavily: null, 'Jina AI': null, Apify: 'apify', Ref: null, 'You.com': null, Linkup: null,
-  Perplexity: 'perplexity', AgentQL: null, Wikipedia: 'wikipedia', arXiv: 'arxiv', DuckDuckGo: 'duckduckgo',
-  Grafana: 'grafana', Railway: 'railway', Airtable: 'airtable', 'New Relic': 'newrelic',
-  DigitalOcean: 'digitalocean', Render: 'render', Heroku: 'heroku', Netlify: 'netlify',
-  Prisma: 'prisma', PlanetScale: 'planetscale', ClickHouse: 'clickhouse', Redis: 'redis',
-  Convex: 'convex', Pinecone: 'pinecone', Qdrant: 'qdrant', Chroma: null, Browserbase: null,
-  Daytona: null, CircleCI: 'circleci', Buildkite: 'buildkite', Axiom: null, Upstash: 'upstash', 'Jam.dev': null,
-  PayPal: 'paypal', Square: 'square', Canva: 'canva', Plaid: null, Webflow: 'webflow',
-  Resend: 'resend', 'Customer.io': null, Twilio: 'twilio', Dropbox: 'dropbox', Typeform: 'typeform', Coda: null,
+  'fal.ai': null,
+  Replicate: 'replicate',
+  Higgsfield: null,
+  'Black Forest Labs (FLUX)': null,
+  ElevenLabs: 'elevenlabs',
+  'MiniMax (Hailuo)': null,
+  Recraft: null,
+  Tavily: null,
+  'Jina AI': null,
+  Apify: 'apify',
+  Ref: null,
+  'You.com': null,
+  Linkup: null,
+  Perplexity: 'perplexity',
+  AgentQL: null,
+  Wikipedia: 'wikipedia',
+  arXiv: 'arxiv',
+  DuckDuckGo: 'duckduckgo',
+  Grafana: 'grafana',
+  Railway: 'railway',
+  Airtable: 'airtable',
+  'New Relic': 'newrelic',
+  DigitalOcean: 'digitalocean',
+  Render: 'render',
+  Heroku: 'heroku',
+  Netlify: 'netlify',
+  Prisma: 'prisma',
+  PlanetScale: 'planetscale',
+  ClickHouse: 'clickhouse',
+  Redis: 'redis',
+  Convex: 'convex',
+  Pinecone: 'pinecone',
+  Qdrant: 'qdrant',
+  Chroma: null,
+  Browserbase: null,
+  Daytona: null,
+  CircleCI: 'circleci',
+  Buildkite: 'buildkite',
+  Axiom: null,
+  Upstash: 'upstash',
+  'Jam.dev': null,
+  PayPal: 'paypal',
+  Square: 'square',
+  Canva: 'canva',
+  Plaid: null,
+  Webflow: 'webflow',
+  Resend: 'resend',
+  'Customer.io': null,
+  Twilio: 'twilio',
+  Dropbox: 'dropbox',
+  Typeform: 'typeform',
+  Coda: null,
 };
 
 const fileFor = (e) => path.join(ICONS, e.iconUrl.replace('icons/', ''));
@@ -51,7 +92,8 @@ async function fetchSI(slug) {
   }
 }
 
-let real = 0, mono = 0;
+let real = 0,
+  mono = 0;
 for (const e of news) {
   const dest = fileFor(e);
   const brand = '#888888';
@@ -64,7 +106,12 @@ for (const e of news) {
   const slug = SI[e.name];
   let svg = null;
   if (slug) svg = await fetchSI(slug);
-  if (svg) { real++; } else { svg = monogram(fg, e.name); mono++; }
+  if (svg) {
+    real++;
+  } else {
+    svg = monogram(fg, e.name);
+    mono++;
+  }
   fs.writeFileSync(dest, svg.endsWith('\n') ? svg : svg + '\n');
 }
 console.log(`icons written: ${real} real (Simple Icons), ${mono} monogram fallback, total ${news.length}`);

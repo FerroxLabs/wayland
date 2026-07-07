@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing journaling guide beginner-friendly advanced performing-arts contracts"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance investing journaling guide beginner-friendly advanced performing-arts contracts'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Options Basics Trainer
@@ -24,15 +24,16 @@ You are a patient options education instructor who helps users understand the me
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about options basics trainer techniques or best practices
 - User needs guidance on options basics trainer concepts
 - User wants to implement or improve their approach to options basics trainer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of options basics trainer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -136,10 +137,10 @@ EXAMPLE:
 
 ## Option Moneyness
 
-| Status | Call | Put |
-|--------|------|-----|
-| In-the-Money (ITM) | Stock price > Strike price | Stock price < Strike price |
-| At-the-Money (ATM) | Stock price = Strike price | Stock price = Strike price |
+| Status                 | Call                       | Put                        |
+| ---------------------- | -------------------------- | -------------------------- |
+| In-the-Money (ITM)     | Stock price > Strike price | Stock price < Strike price |
+| At-the-Money (ATM)     | Stock price = Strike price | Stock price = Strike price |
 | Out-of-the-Money (OTM) | Stock price < Strike price | Stock price > Strike price |
 
 ```
@@ -161,13 +162,13 @@ $110      OTM           ITM ($10)
 
 ### Overview Table
 
-| Greek | Measures | Range | Buyer Wants | Seller Wants |
-|-------|----------|-------|-------------|-------------|
-| Delta | Price sensitivity to stock move | 0 to 1 (calls) / -1 to 0 (puts) | High delta | Low delta |
-| Theta | Time decay per day | Negative for buyers | Slow theta | Fast theta |
-| Gamma | Rate of delta change | Highest ATM, near expiration | High gamma | Low gamma |
-| Vega | Sensitivity to volatility change | Positive for long options | Rising IV | Falling IV |
-| Rho | Sensitivity to interest rate change | Small effect for short-dated | -- | -- |
+| Greek | Measures                            | Range                           | Buyer Wants | Seller Wants |
+| ----- | ----------------------------------- | ------------------------------- | ----------- | ------------ |
+| Delta | Price sensitivity to stock move     | 0 to 1 (calls) / -1 to 0 (puts) | High delta  | Low delta    |
+| Theta | Time decay per day                  | Negative for buyers             | Slow theta  | Fast theta   |
+| Gamma | Rate of delta change                | Highest ATM, near expiration    | High gamma  | Low gamma    |
+| Vega  | Sensitivity to volatility change    | Positive for long options       | Rising IV   | Falling IV   |
+| Rho   | Sensitivity to interest rate change | Small effect for short-dated    | --          | --           |
 
 ### Delta in Detail
 
@@ -352,28 +353,28 @@ If risk exceeds your max --> reduce contract count or choose a cheaper option
 
 ## Common Beginner Mistakes
 
-| Mistake | Why It Happens | How to Avoid |
-|---------|---------------|-------------|
-| Buying far OTM options | Cheap premium is tempting | Low delta = low probability of profit |
-| Ignoring time decay | Not understanding theta | Buy options with 45+ days to expiration |
-| Holding to expiration | Hoping for recovery | Set exit rules and follow them |
-| Oversizing positions | Greed or overconfidence | Never exceed 5% portfolio risk per trade |
-| Trading earnings | IV crush destroys value | Understand IV and volatility crush first |
-| Selling naked calls | Attracted by premium income | Use covered calls or spreads instead |
-| Not paper trading | Impatience | Commit to 30 days paper trading minimum |
-| Ignoring liquidity | Trading illiquid options | Check bid-ask spread; wide spread = expensive |
+| Mistake                | Why It Happens              | How to Avoid                                  |
+| ---------------------- | --------------------------- | --------------------------------------------- |
+| Buying far OTM options | Cheap premium is tempting   | Low delta = low probability of profit         |
+| Ignoring time decay    | Not understanding theta     | Buy options with 45+ days to expiration       |
+| Holding to expiration  | Hoping for recovery         | Set exit rules and follow them                |
+| Oversizing positions   | Greed or overconfidence     | Never exceed 5% portfolio risk per trade      |
+| Trading earnings       | IV crush destroys value     | Understand IV and volatility crush first      |
+| Selling naked calls    | Attracted by premium income | Use covered calls or spreads instead          |
+| Not paper trading      | Impatience                  | Commit to 30 days paper trading minimum       |
+| Ignoring liquidity     | Trading illiquid options    | Check bid-ask spread; wide spread = expensive |
 
 ---
 
 ## Options Order Types
 
-| Order Type | When to Use | Notes |
-|-----------|-------------|-------|
-| Limit Order | Always for options | Never use market orders on options |
-| GTC (Good Till Cancelled) | When you are patient | Set your price and wait |
-| Day Order | When you need to fill today | Cancels at market close |
-| Stop Loss | To limit losses | May gap through your stop in volatile markets |
-| Trailing Stop | To lock in gains | Follows the option price up |
+| Order Type                | When to Use                 | Notes                                         |
+| ------------------------- | --------------------------- | --------------------------------------------- |
+| Limit Order               | Always for options          | Never use market orders on options            |
+| GTC (Good Till Cancelled) | When you are patient        | Set your price and wait                       |
+| Day Order                 | When you need to fill today | Cancels at market close                       |
+| Stop Loss                 | To limit losses             | May gap through your stop in volatile markets |
+| Trailing Stop             | To lock in gains            | Follows the option price up                   |
 
 ---
 
@@ -404,7 +405,6 @@ Month 3: Review and Real Trading
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -425,7 +425,6 @@ When discussing options with users, provide:
 6. **Exit plan** -- Profit target, stop loss, time-based exit
 7. **Disclaimer** -- Remind users this is education, not a trade recommendation
 
-
 ```template
 ## Options Basics Trainer -- Structured Output
 
@@ -440,14 +439,12 @@ When discussing options with users, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -1192,8 +1192,20 @@ describe('WorkflowSessionService - run-state machine (Phase 1)', () => {
   it('backtrackToStep() re-runs from N, re-arms run_mode, returns a snapshot, emits telemetry', async () => {
     const { parts, sessionId } = await startDemo();
     // Drive both steps to done.
-    await parts.service.applyStepTransition(sessionId, { step_n: 1, status: 'done', source: 'user', dispatch_id: null, timestamp: 1 });
-    await parts.service.applyStepTransition(sessionId, { step_n: 2, status: 'done', source: 'user', dispatch_id: null, timestamp: 2 });
+    await parts.service.applyStepTransition(sessionId, {
+      step_n: 1,
+      status: 'done',
+      source: 'user',
+      dispatch_id: null,
+      timestamp: 1,
+    });
+    await parts.service.applyStepTransition(sessionId, {
+      step_n: 2,
+      status: 'done',
+      source: 'user',
+      dispatch_id: null,
+      timestamp: 2,
+    });
     await parts.service.pause(sessionId);
 
     const { session, snapshot } = await parts.service.backtrackToStep(sessionId, 1);
@@ -1202,15 +1214,25 @@ describe('WorkflowSessionService - run-state machine (Phase 1)', () => {
     expect(session.current_step).toBe(1);
     expect(session.run_mode).toBe('running'); // re-armed
     expect(snapshot[0].status).toBe('done'); // pre-backtrack snapshot
-    expect(parts.telemetry.record).toHaveBeenCalledWith(
-      expect.objectContaining({ eventType: 'workflow.backtrack' })
-    );
+    expect(parts.telemetry.record).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'workflow.backtrack' }));
   });
 
   it('continueRun() returns complete and finalizes when all steps are terminal', async () => {
     const { parts, sessionId } = await startDemo();
-    await parts.service.applyStepTransition(sessionId, { step_n: 1, status: 'done', source: 'user', dispatch_id: null, timestamp: 1 });
-    await parts.service.applyStepTransition(sessionId, { step_n: 2, status: 'done', source: 'user', dispatch_id: null, timestamp: 2 });
+    await parts.service.applyStepTransition(sessionId, {
+      step_n: 1,
+      status: 'done',
+      source: 'user',
+      dispatch_id: null,
+      timestamp: 1,
+    });
+    await parts.service.applyStepTransition(sessionId, {
+      step_n: 2,
+      status: 'done',
+      source: 'user',
+      dispatch_id: null,
+      timestamp: 2,
+    });
     const { decision, directive, session } = await parts.service.continueRun(sessionId);
     expect(decision).toBe('complete');
     expect(directive).toBeNull();

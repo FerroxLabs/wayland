@@ -92,16 +92,12 @@ export const WorkflowCompleteCard: React.FC<WorkflowCompleteCardProps> = ({
         <CheckCircle2 size={36} strokeWidth={2} />
       </div>
 
-      <h2 className={styles.headline}>
-        {t('workflow.complete.headline', 'Workflow Complete')}
-      </h2>
+      <h2 className={styles.headline}>{t('workflow.complete.headline', 'Workflow Complete')}</h2>
 
       <div className={styles.stats} data-testid='workflow-complete-stats'>
         <span>{duration}</span>
         <span className={styles.statSep}>·</span>
-        <span>
-          {t('workflow.complete.steps', '{{n}} steps', { n: stepCount }).replace('{{n}}', String(stepCount))}
-        </span>
+        <span>{t('workflow.complete.steps', '{{n}} steps', { n: stepCount }).replace('{{n}}', String(stepCount))}</span>
         {typeof totalTokens === 'number' ? (
           <>
             <span className={styles.statSep}>·</span>
@@ -128,11 +124,7 @@ export const WorkflowCompleteCard: React.FC<WorkflowCompleteCardProps> = ({
           </div>
           <div className={styles.outputs}>
             {outputs.map((md, i) => (
-              <div
-                key={i}
-                className={styles.outputCard}
-                data-testid='workflow-complete-output'
-              >
+              <div key={i} className={styles.outputCard} data-testid='workflow-complete-output'>
                 <MarkdownView>{md}</MarkdownView>
               </div>
             ))}

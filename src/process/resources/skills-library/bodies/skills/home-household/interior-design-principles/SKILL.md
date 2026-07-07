@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design planning budgeting"
-  category: "home-household"
-  subcategory: "interior-organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design planning budgeting'
+  category: 'home-household'
+  subcategory: 'interior-organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Interior Design Principles
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user describes a room and asks how to arrange or rearrange furniture, including which pieces to keep, move, or eliminate
 - A user wants a color palette, color scheme, or paint color direction for a specific room (including guidance on which walls to treat, how many colors to use, and how colors interact with their light conditions)
 - A user says a room feels "off," "cold," "too big," "cramped," "dark," "boring," "sterile," or "chaotic" and cannot identify why
@@ -29,6 +31,7 @@ metadata:
 - A user wants to understand design principles so they can make their own decisions about a room -- the educational application of this skill
 
 **Do NOT use when:**
+
 - The user needs to calculate renovation costs, select contractors, or plan a construction sequence -- use `renovation-budget` instead
 - The user is ready to purchase specific paint products and needs step-by-step application guidance -- use `paint-a-room` for execution
 - The user is selecting flooring materials for a renovation project -- use `flooring-selection`
@@ -60,6 +63,7 @@ Before applying any principle, collect the following information. Incomplete dat
 Scale is the relationship between furniture size and room size. Proportion is the relationship between furniture pieces relative to each other. Both must be correct for a room to feel balanced.
 
 **Scale analysis -- absolute rules with measurements:**
+
 - Sofa length should be 2/3 to 3/4 the length of the wall it sits against. A sofa on a 14-foot wall should be 9.3 to 10.5 feet -- either a large sectional or a sofa plus a loveseat grouped together. A 6-foot sofa in that position reads as undersized regardless of how it is arranged.
 - Coffee table length should be 1/2 to 2/3 the sofa length, and height should be within 2 inches of the sofa seat height (typically 16-18 inches). A coffee table that is too small for the sofa creates the "floating island" problem.
 - Area rugs are the single most common scale error. In a living room, use an 8x10 or 9x12 rug as the default. A 5x8 rug in a standard living room is almost always too small. The rug should either have all front furniture legs on it (minimum) or all four legs of every piece on it (preferred).
@@ -68,6 +72,7 @@ Scale is the relationship between furniture size and room size. Proportion is th
 - Art placement: center of artwork should sit at 57-60 inches from the floor -- this is the standard gallery hanging height and the average human eye level. Over a sofa, artwork should be 2/3 to 3/4 the width of the sofa and hung 6-8 inches above the sofa back.
 
 **Proportion analysis -- relative rules:**
+
 - The 60-30-10 color rule governs color proportion: 60% dominant (walls, large upholstery, flooring), 30% secondary (curtains, secondary furniture, bedding), 10% accent (pillows, art, decorative objects). Violating this rule -- for example, 50-25-25 -- eliminates hierarchy and creates visual noise.
 - Vary furniture heights deliberately. A room where every piece of furniture tops out at 32-36 inches (sofa arm height) reads as flat and monotonous. Introduce at least one tall element -- a bookcase, floor lamp, or tall plant -- that reaches 60+ inches and anchors vertical space.
 - In rooms under 150 square feet, cap major furniture at 4 pieces. Every additional piece after the fourth compounds the cramped feeling exponentially, not linearly.
@@ -82,28 +87,29 @@ Color selection is governed by light physics, not preference alone. A user who l
 
 **Step 3a: Determine the room's light character:**
 
-| Window Direction | Natural Light Quality | Dominant Color Cast | Design Implication |
-|-----------------|----------------------|--------------------|--------------------|
-| North-facing | Consistent, cool, diffuse -- no direct sun | Blue-gray cast throughout the day | Warm tones essential to compensate; avoid cool grays and blue-whites, which amplify the chill |
-| South-facing | Warm, golden, direct -- floods the room most of the day | Amber/gold cast in afternoon | Highly versatile; cool tones stay balanced; deep colors work here because they receive enough light |
-| East-facing | Warm golden light until ~11am, then cool and neutral all afternoon | Shifts from warm to cool daily | Use neutral-warm tones that read consistently under both light conditions; avoid strong cool tones |
-| West-facing | Cool and dim in the morning, intensely warm and orange from 3pm onward | Strong orange-red cast in late afternoon | Cool to neutral tones prevent afternoon overheating; warm tones can become overpowering at 4-6pm |
+| Window Direction | Natural Light Quality                                                  | Dominant Color Cast                      | Design Implication                                                                                  |
+| ---------------- | ---------------------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| North-facing     | Consistent, cool, diffuse -- no direct sun                             | Blue-gray cast throughout the day        | Warm tones essential to compensate; avoid cool grays and blue-whites, which amplify the chill       |
+| South-facing     | Warm, golden, direct -- floods the room most of the day                | Amber/gold cast in afternoon             | Highly versatile; cool tones stay balanced; deep colors work here because they receive enough light |
+| East-facing      | Warm golden light until ~11am, then cool and neutral all afternoon     | Shifts from warm to cool daily           | Use neutral-warm tones that read consistently under both light conditions; avoid strong cool tones  |
+| West-facing      | Cool and dim in the morning, intensely warm and orange from 3pm onward | Strong orange-red cast in late afternoon | Cool to neutral tones prevent afternoon overheating; warm tones can become overpowering at 4-6pm    |
 
 **Step 3b: Build the palette using the 60-30-10 framework:**
+
 - **Dominant color (60%):** This is the visual "ground" of the room -- walls, large area rug, or dominant upholstery. Choose based on the room's light character above. The dominant color sets the emotional tone: warm tones (cream, terracotta, warm taupe, sage) create comfort; cool tones (slate, soft gray-blue, greige) create calm.
 - **Secondary color (30%):** This appears in upholstery, curtains, the second-largest furniture piece, or bedding. It should either harmonize with the dominant (analogous -- within 60 degrees on the color wheel) or contrast it (complementary -- 150-180 degrees on the color wheel). A complementary secondary creates energy; an analogous secondary creates flow.
 - **Accent color (10%):** This is the "voice" of the room and should be the highest-saturation color in the palette. It appears in pillows, art, small decorative objects, lamp shades, and trim details. In a room with muted dominant and secondary colors, the accent can be bold -- cobalt, saffron, rust, emerald -- without overwhelming.
 
 **Step 3c: Apply color to perceived room dimensions:**
 
-| Technique | Effect | Specific Application |
-|-----------|--------|---------------------|
-| Monochromatic wall and trim (same color family) | Walls appear to recede; room reads as larger | Paint trim 1-2 shades lighter than the wall color instead of stark white trim on colored walls |
-| Dark accent wall on the far wall from entry | Adds depth; draws the eye; makes room feel longer | Use a color 3-4 LRV (Light Reflectance Value) points darker than adjacent walls |
-| Low LRV (<30) on all 4 walls | Room closes in; creates cozy effect | Use in large rooms (300+ sqft) or rooms with very high ceilings (10ft+) deliberately |
-| High LRV (>70) on walls and ceiling | Maximizes perceived size | Ceiling color should be 1 shade lighter than walls, not stark white, to avoid "floating lid" look |
-| Ceiling painted darker than walls | Lowers perceived ceiling height by 1-2 feet visually | Use in rooms with ceilings over 9 feet to create intimacy |
-| Horizontal color banding or two-tone walls | Makes walls appear wider | Color break at 36-48 inches from floor; lower half darker, upper half lighter |
+| Technique                                       | Effect                                               | Specific Application                                                                              |
+| ----------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Monochromatic wall and trim (same color family) | Walls appear to recede; room reads as larger         | Paint trim 1-2 shades lighter than the wall color instead of stark white trim on colored walls    |
+| Dark accent wall on the far wall from entry     | Adds depth; draws the eye; makes room feel longer    | Use a color 3-4 LRV (Light Reflectance Value) points darker than adjacent walls                   |
+| Low LRV (<30) on all 4 walls                    | Room closes in; creates cozy effect                  | Use in large rooms (300+ sqft) or rooms with very high ceilings (10ft+) deliberately              |
+| High LRV (>70) on walls and ceiling             | Maximizes perceived size                             | Ceiling color should be 1 shade lighter than walls, not stark white, to avoid "floating lid" look |
+| Ceiling painted darker than walls               | Lowers perceived ceiling height by 1-2 feet visually | Use in rooms with ceilings over 9 feet to create intimacy                                         |
+| Horizontal color banding or two-tone walls      | Makes walls appear wider                             | Color break at 36-48 inches from floor; lower half darker, upper half lighter                     |
 
 **Step 3d: Undertone matching is non-negotiable:**
 Every white, gray, and beige has an undertone (pink, purple, green, yellow, blue). The dominant color's undertone must harmonize with the fixed elements of the room -- flooring color, existing furniture finishes, tile, brick, and woodwork. A gray with purple undertones next to warm honey-oak flooring creates an invisible but persistent visual discomfort. Identify undertones by comparing the color chip to a pure white card: whatever color the chip appears to "lean toward" is its undertone.
@@ -116,11 +122,11 @@ Lighting is the most underutilized design tool in residential spaces. Most rooms
 
 **The three lighting layers:**
 
-| Layer | Function | Fixture Examples | Placement Logic |
-|-------|---------|----------------|----------------|
-| Ambient (General) | Overall room brightness; replaces daylight | Ceiling fixtures, recessed downlights, semi-flush mount, chandelier, cove lighting | Centered, evenly distributed; avoid placing recessed lights directly over seating (creates unflattering downlight on faces) |
-| Task | Focused light for specific activities | Desk lamp, pharmacy lamp, reading floor lamp, under-cabinet strip, pendant over island | Positioned to illuminate the work surface without casting shadow from the user's own body |
-| Accent | Highlights objects, adds depth and drama | Wall sconces, picture lights, uplights, LED strip behind TV or floating shelves, candles, battery-operated puck lights | Aimed at art, architectural features, bookcases, or plants to create visual hierarchy |
+| Layer             | Function                                   | Fixture Examples                                                                                                       | Placement Logic                                                                                                             |
+| ----------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Ambient (General) | Overall room brightness; replaces daylight | Ceiling fixtures, recessed downlights, semi-flush mount, chandelier, cove lighting                                     | Centered, evenly distributed; avoid placing recessed lights directly over seating (creates unflattering downlight on faces) |
+| Task              | Focused light for specific activities      | Desk lamp, pharmacy lamp, reading floor lamp, under-cabinet strip, pendant over island                                 | Positioned to illuminate the work surface without casting shadow from the user's own body                                   |
+| Accent            | Highlights objects, adds depth and drama   | Wall sconces, picture lights, uplights, LED strip behind TV or floating shelves, candles, battery-operated puck lights | Aimed at art, architectural features, bookcases, or plants to create visual hierarchy                                       |
 
 **Lighting measurements and specifications:**
 
@@ -139,17 +145,18 @@ A beautiful room that cannot be navigated comfortably fails at its primary funct
 
 **Required clearances:**
 
-| Pathway Type | Minimum | Comfortable | Notes |
-|-------------|---------|-------------|-------|
-| Primary traffic path (main route through room) | 36 inches | 42-48 inches | This is a building code standard for accessibility |
-| Secondary path (occasional passage) | 24 inches | 30 inches | Acceptable behind a secondary chair, between bookcase and wall |
-| Sofa to coffee table | 14 inches | 16-18 inches | Under 14 inches forces knees-together awkwardness; over 20 inches requires leaning forward uncomfortably |
-| Dining chair to wall or adjacent furniture | 30 inches (absolute min) | 36-48 inches | 36 inches allows chair pullout + comfortable passage; 48 inches allows two people to pass |
-| Bed to wall (walking side) | 24 inches | 30-36 inches | 24 inches is the minimum for dressing without turning sideways |
-| Bed to wall (non-walking/window side) | 12 inches | 18-24 inches | Allows bed-making but not regular passage |
-| Around a desk chair | 30 inches (behind) | 36 inches | Allows rolling back and standing without obstruction |
+| Pathway Type                                   | Minimum                  | Comfortable  | Notes                                                                                                    |
+| ---------------------------------------------- | ------------------------ | ------------ | -------------------------------------------------------------------------------------------------------- |
+| Primary traffic path (main route through room) | 36 inches                | 42-48 inches | This is a building code standard for accessibility                                                       |
+| Secondary path (occasional passage)            | 24 inches                | 30 inches    | Acceptable behind a secondary chair, between bookcase and wall                                           |
+| Sofa to coffee table                           | 14 inches                | 16-18 inches | Under 14 inches forces knees-together awkwardness; over 20 inches requires leaning forward uncomfortably |
+| Dining chair to wall or adjacent furniture     | 30 inches (absolute min) | 36-48 inches | 36 inches allows chair pullout + comfortable passage; 48 inches allows two people to pass                |
+| Bed to wall (walking side)                     | 24 inches                | 30-36 inches | 24 inches is the minimum for dressing without turning sideways                                           |
+| Bed to wall (non-walking/window side)          | 12 inches                | 18-24 inches | Allows bed-making but not regular passage                                                                |
+| Around a desk chair                            | 30 inches (behind)       | 36 inches    | Allows rolling back and standing without obstruction                                                     |
 
 **Focal point principles:**
+
 - Every room must have exactly one primary focal point. Multiple competing focal points create visual chaos. In a room with both a fireplace and a large TV, decide which is primary and position seating toward it; subordinate the other.
 - The focal point should be visible from the room's entry point. The first thing a person sees when entering establishes the room's identity.
 - If no architectural focal point exists (no fireplace, no significant window, no architectural feature), create one: a gallery wall sized to fill 2/3 to 3/4 of the wall width it occupies, a large-scale artwork (minimum 30x40 inches in a standard living room), or a bold paint treatment on the primary wall.
@@ -165,17 +172,20 @@ Pushing all furniture against the walls creates a "conversation pit" effect with
 These are the "invisible" principles that distinguish a room that "looks like a magazine" from one that merely has good furniture.
 
 **Types of balance:**
+
 - **Symmetrical balance:** Identical or near-identical elements on either side of a central axis (matching nightstands, matching lamps flanking a sofa, twin chairs on either side of a fireplace). Creates formality and calm. Works best in traditional and transitional styles.
 - **Asymmetrical balance:** Different objects of similar visual weight on either side of an axis (a tall lamp on one side balanced by a lower console with a grouping of objects on the other). Creates dynamism and is more forgiving of mismatched existing furniture. More difficult to execute but more interesting.
 - **Radial balance:** Elements arranged around a central point (round dining table with chairs, circular rug centered under a chandelier). Creates a natural focal energy. Often underused in residential design.
 
 **Visual weight principles:**
+
 - Dark, heavy textures (leather, velvet, solid wood) carry more visual weight than light, airy materials (linen, glass, lucite).
 - Tall vertical elements carry visual weight upward; horizontal elements spread weight across a surface.
 - A cluster of small objects can visually balance one large object -- group in odd numbers (3 or 5 objects) for the most natural-looking arrangement.
 - Balance visual weight across the room diagonally as well as side-to-side. If the heaviest visual element is in one corner, introduce something with comparable visual presence in the opposite corner.
 
 **Rhythm and repetition:**
+
 - Repeat a color, shape, or material at least 3 times in a room to create intentional rhythm. A single orange throw pillow reads as an accident; orange in the pillow, echoed in a ceramic vase, and picked up in a print on the wall reads as a design decision.
 - Vary the scale of repeated elements: the same color in a large rug, a medium pillow, and a small decorative object creates rhythm without monotony.
 
@@ -334,25 +344,26 @@ A room with three or four doorways has almost no uninterrupted wall runs, which 
 ## Interior Design Plan: Primary Bedroom (12x15, 8ft ceilings, East-facing window)
 
 ### Room Assessment
-| Design Parameter   | Current Status                          | Core Problem                               | Recommendation                                  |
-|--------------------|-----------------------------------------|--------------------------------------------|------------------------------------------------|
-| Scale              | Queen bed is appropriately scaled for 12x15; white dresser likely undersized if below 48 inches wide | Dresser may read as too small on the 12-foot wall | Assess dresser width -- if under 48 inches, layer a large mirror above it to increase visual mass |
-| Proportion         | Two mismatched nightstands (dark walnut + white) create asymmetrical imbalance | The mismatch is creating visual noise rather than intentional asymmetry | Unify with matching lamps and coordinating accessories to create visual rhythm across the mismatch |
-| Color              | Cool gray walls in an east-facing room -- cool morning light + cool afternoon light double down on the gray's cool cast | The gray is selecting for its blue/purple undertone all day in east-facing light, creating the hospital feel | Replace with a warm, mid-value color: warm taupe, soft terracotta-adjacent beige, or warm sand |
-| Lighting           | Likely one overhead fixture only | Single overhead light at 8 feet creates institutional flatness with no warmth in the evening | Add task layer (reading lamps on nightstands) and accent layer (warm LED strip behind bed or uplight behind dresser mirror) |
-| Traffic Flow       | 12-foot wide room with queen bed (60 inches wide) leaves 36 inches total for both walking sides -- workable but tight | If dresser is on the 12-foot wall opposite the bed, verify 24-inch minimum clearance on both bed sides | Center the bed on the 15-foot wall to maximize walking clearance; aim for 28-30 inches on each walking side |
-| Focal Point        | No clear focal point identified -- mismatched nightstands pull attention to the mismatch | The bed should be the obvious focal point in a bedroom; it currently competes with visual clutter | Create a statement bed wall with warm tone paint treatment, artwork above headboard, and symmetrical lamp placement |
-| Balance            | Currently asymmetrical (mismatched nightstands) without intentional design | Unintentional asymmetry reads as incomplete rather than dynamic | Convert to working asymmetrical balance: use the walnut nightstand's warmth and the white one's lightness as anchors, tied together by matching lamps |
+
+| Design Parameter | Current Status                                                                                                          | Core Problem                                                                                                 | Recommendation                                                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scale            | Queen bed is appropriately scaled for 12x15; white dresser likely undersized if below 48 inches wide                    | Dresser may read as too small on the 12-foot wall                                                            | Assess dresser width -- if under 48 inches, layer a large mirror above it to increase visual mass                                                     |
+| Proportion       | Two mismatched nightstands (dark walnut + white) create asymmetrical imbalance                                          | The mismatch is creating visual noise rather than intentional asymmetry                                      | Unify with matching lamps and coordinating accessories to create visual rhythm across the mismatch                                                    |
+| Color            | Cool gray walls in an east-facing room -- cool morning light + cool afternoon light double down on the gray's cool cast | The gray is selecting for its blue/purple undertone all day in east-facing light, creating the hospital feel | Replace with a warm, mid-value color: warm taupe, soft terracotta-adjacent beige, or warm sand                                                        |
+| Lighting         | Likely one overhead fixture only                                                                                        | Single overhead light at 8 feet creates institutional flatness with no warmth in the evening                 | Add task layer (reading lamps on nightstands) and accent layer (warm LED strip behind bed or uplight behind dresser mirror)                           |
+| Traffic Flow     | 12-foot wide room with queen bed (60 inches wide) leaves 36 inches total for both walking sides -- workable but tight   | If dresser is on the 12-foot wall opposite the bed, verify 24-inch minimum clearance on both bed sides       | Center the bed on the 15-foot wall to maximize walking clearance; aim for 28-30 inches on each walking side                                           |
+| Focal Point      | No clear focal point identified -- mismatched nightstands pull attention to the mismatch                                | The bed should be the obvious focal point in a bedroom; it currently competes with visual clutter            | Create a statement bed wall with warm tone paint treatment, artwork above headboard, and symmetrical lamp placement                                   |
+| Balance          | Currently asymmetrical (mismatched nightstands) without intentional design                                              | Unintentional asymmetry reads as incomplete rather than dynamic                                              | Convert to working asymmetrical balance: use the walnut nightstand's warmth and the white one's lightness as anchors, tied together by matching lamps |
 
 ---
 
 ### Color Palette
 
-| Role            | Color Description            | LRV Range  | Undertone     | Where to Apply                                |
-|-----------------|------------------------------|------------|---------------|----------------------------------------------|
-| Dominant (60%)  | Warm sand / soft linen beige | 65-72      | Yellow-cream  | All four walls -- this is a full-room change, not an accent |
-| Secondary (30%) | Warm ivory / natural linen   | 78-84      | Cream/yellow  | Bedding (duvet, sheets), curtain panels, any upholstered bench if present |
-| Accent (10%)    | Burnt sienna / rust-adjacent terracotta | 28-38 | Orange-red | Throw pillows (3-4), one or two ceramics on dresser top, artwork mat |
+| Role            | Color Description                       | LRV Range | Undertone    | Where to Apply                                                            |
+| --------------- | --------------------------------------- | --------- | ------------ | ------------------------------------------------------------------------- |
+| Dominant (60%)  | Warm sand / soft linen beige            | 65-72     | Yellow-cream | All four walls -- this is a full-room change, not an accent               |
+| Secondary (30%) | Warm ivory / natural linen              | 78-84     | Cream/yellow | Bedding (duvet, sheets), curtain panels, any upholstered bench if present |
+| Accent (10%)    | Burnt sienna / rust-adjacent terracotta | 28-38     | Orange-red   | Throw pillows (3-4), one or two ceramics on dresser top, artwork mat      |
 
 **Special treatment:** Ceiling -- paint 1-2 shades lighter than the wall color (LRV 75-78) rather than stark white. This keeps the ceiling warm and maintains the cozy feel without the clinical white-lid effect. Trim can remain white or shift to a warm off-white (avoid pure blue-white trim, which will conflict with the new warm wall). No accent wall needed -- the warm sand will read uniformly warm in east-facing light and provide enough shift from the current cool gray.
 
@@ -363,16 +374,19 @@ A room with three or four doorways has almost no uninterrupted wall runs, which 
 ### Furniture Layout
 
 **Anchor placement (largest piece first):**
+
 - Queen bed (60 inches wide): Center the headboard on the 15-foot wall that is opposite the entry door or the primary sightline from the doorway. This makes the bed the first thing seen when entering -- correct for bedroom focal point. Pulled 2 inches from the wall (not floating, but not hard against it).
 - Dark walnut nightstand (existing): Left side of bed, positioned so its top surface is within 2 inches of mattress surface height. If it is significantly taller or shorter than the mattress surface, add or remove a tray to adjust perceived height.
 - White nightstand (existing): Right side of bed. The mismatch is redeemed by placing matching table lamps on both -- the eye reads "matching lamps over different tables" as an intentional collected look rather than an oversight.
 - White dresser: Place on the 12-foot wall perpendicular to the bed wall, rather than directly opposite the bed (which can feel confrontational in small bedrooms). Position a mirror above it -- vertically oriented, at least 24 inches wide, hung so the bottom of the mirror is 6-8 inches above the dresser top. This adds vertical height and reflects the window light back into the room.
 
 **Traffic paths:**
+
 - Primary path (entry door to bed walking side): Target 32-36 inches clear -- achievable by centering the bed on the 15-foot wall (15 feet = 180 inches; queen bed = 60 inches + 2 nightstands at approximately 20 inches each = 100 inches total, leaving 80 inches / 2 sides = 40 inches each side including nightstand width)
 - Secondary path (dresser access): 30 inches minimum from dresser face to bed frame or any footboard
 
 **Clearance checks:**
+
 - Bed to wall (each walking side): approximately 28-30 inches with centered placement -- adequate for dressing and bed-making
 - Dresser to bed: confirm 30+ inches for drawer opening clearance
 - Door swing clearance: verify no furniture intersects the door's 90-degree swing arc
@@ -381,11 +395,11 @@ A room with three or four doorways has almost no uninterrupted wall runs, which 
 
 ### Lighting Plan
 
-| Layer   | Fixture Type              | Location                        | Color Temp | Lumens      | Notes                                      |
-|---------|--------------------------|----------------------------------|------------|-------------|-------------------------------------------|
-| Ambient | Existing ceiling fixture  | Center of room                  | 2700K      | 800-1000 lm | Replace any bulb over 3000K immediately; add dimmer switch |
-| Task    | 2 matching table lamps    | One on each nightstand          | 2700K      | 400-500 lm each | Bottom of shade at ~40-42 inches from floor; shade diameter should be 2/3 of lamp base height |
-| Accent  | LED warm strip light or single uplight | Behind dresser mirror, or a battery LED strip along the back of a shelf | 2700K | 200-300 lm | Creates warm glow effect; dramatically reduces harsh shadow cast by overhead |
+| Layer   | Fixture Type                           | Location                                                                | Color Temp | Lumens          | Notes                                                                                         |
+| ------- | -------------------------------------- | ----------------------------------------------------------------------- | ---------- | --------------- | --------------------------------------------------------------------------------------------- |
+| Ambient | Existing ceiling fixture               | Center of room                                                          | 2700K      | 800-1000 lm     | Replace any bulb over 3000K immediately; add dimmer switch                                    |
+| Task    | 2 matching table lamps                 | One on each nightstand                                                  | 2700K      | 400-500 lm each | Bottom of shade at ~40-42 inches from floor; shade diameter should be 2/3 of lamp base height |
+| Accent  | LED warm strip light or single uplight | Behind dresser mirror, or a battery LED strip along the back of a shelf | 2700K      | 200-300 lm      | Creates warm glow effect; dramatically reduces harsh shadow cast by overhead                  |
 
 **Total estimated ambient lumens:** Target 1,200-1,800 lumens for 180 sqft at 10 lumens/sqft (bedroom intimacy standard). One overhead at 800-1,000 lm + two nightstand lamps at 400-500 lm each = 1,600-2,000 lm total. On-target or slightly generous, which is appropriate given the single east window providing limited natural light depth in the afternoon.
 
@@ -402,31 +416,31 @@ A room with three or four doorways has almost no uninterrupted wall runs, which 
 
 ### Priority Action Plan
 
-| Priority | Change                                          | Design Principle Applied                  | Budget Impact  |
-|----------|------------------------------------------------|-------------------------------------------|----------------|
-| 1        | Repaint all four walls to warm sand/linen beige | Color temperature + undertone matching for east-facing light | $40-$70 (1-2 gallons + supplies) |
-| 2        | Add 2 matching table lamps to nightstands       | Lighting layers (task); visual unification of mismatched nightstands | $60-$140        |
-| 3        | Add new bedding in warm ivory/linen + rust accent pillows | 60-30-10 secondary and accent colors; texture and warmth | $80-$180        |
-| 4        | Add a vertically oriented mirror above dresser  | Scale (dresser visual mass); light reflection; perceived ceiling height | $40-$100        |
-| 5        | Add dimmer switch to existing overhead          | Lighting control; mood modulation          | $15-$30         |
+| Priority | Change                                                    | Design Principle Applied                                                | Budget Impact                    |
+| -------- | --------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------- |
+| 1        | Repaint all four walls to warm sand/linen beige           | Color temperature + undertone matching for east-facing light            | $40-$70 (1-2 gallons + supplies) |
+| 2        | Add 2 matching table lamps to nightstands                 | Lighting layers (task); visual unification of mismatched nightstands    | $60-$140                         |
+| 3        | Add new bedding in warm ivory/linen + rust accent pillows | 60-30-10 secondary and accent colors; texture and warmth                | $80-$180                         |
+| 4        | Add a vertically oriented mirror above dresser            | Scale (dresser visual mass); light reflection; perceived ceiling height | $40-$100                         |
+| 5        | Add dimmer switch to existing overhead                    | Lighting control; mood modulation                                       | $15-$30                          |
 
 ---
 
 ### Estimated Budget
 
-| Item                                          | Cost Range      | Priority     |
-|-----------------------------------------------|-----------------|--------------|
-| Paint -- warm sand/linen, 2 gallons + supplies | $45-$75         | Essential    |
-| 2 matching table lamps                        | $60-$140        | Essential    |
-| Duvet cover + 2 pillowcases (linen or cotton) | $50-$120        | Essential    |
-| 3-4 accent throw pillows (burnt sienna + warm tones) | $40-$90  | High         |
-| Vertical mirror (24x36 minimum)               | $40-$100        | High         |
-| Dimmer switch                                 | $15-$25         | High         |
-| Warm-toned artwork above headboard            | $30-$80         | Medium       |
-| LED accent strip or single uplight            | $15-$40         | Nice-to-have |
-| **Total Range**                               | **$295-$670**   |              |
+| Item                                                 | Cost Range    | Priority     |
+| ---------------------------------------------------- | ------------- | ------------ |
+| Paint -- warm sand/linen, 2 gallons + supplies       | $45-$75       | Essential    |
+| 2 matching table lamps                               | $60-$140      | Essential    |
+| Duvet cover + 2 pillowcases (linen or cotton)        | $50-$120      | Essential    |
+| 3-4 accent throw pillows (burnt sienna + warm tones) | $40-$90       | High         |
+| Vertical mirror (24x36 minimum)                      | $40-$100      | High         |
+| Dimmer switch                                        | $15-$25       | High         |
+| Warm-toned artwork above headboard                   | $30-$80       | Medium       |
+| LED accent strip or single uplight                   | $15-$40       | Nice-to-have |
+| **Total Range**                                      | **$295-$670** |              |
 
-*This plan lands within budget at the lower end of the estimate and at the high end if the mirror and artwork skew toward the upper price range. Priority 1-3 alone (paint + lamps + bedding) for approximately $155-$385 will resolve the "cold and hospital-like" problem statement completely.*
+_This plan lands within budget at the lower end of the estimate and at the high end if the mirror and artwork skew toward the upper price range. Priority 1-3 alone (paint + lamps + bedding) for approximately $155-$385 will resolve the "cold and hospital-like" problem statement completely._
 
 ---
 

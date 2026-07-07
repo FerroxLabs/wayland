@@ -38,6 +38,7 @@ import { initVoiceAssetBridge } from './voiceAssetBridge';
 import { initVoiceSynthBridge } from './voiceSynthBridge';
 import { initSkillsBridge } from './skillsBridge';
 import { initTaskBridge } from './taskBridge';
+import { initAutopilotBridge } from './autopilotBridge';
 import { initUpdateBridge } from './updateBridge';
 import { initWebuiBridge } from './webuiBridge';
 import { initConstitutionBridge } from './constitutionBridge';
@@ -131,6 +132,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initAmbientBridge();
   initNotificationBridge();
   initTaskBridge(deps.workerTaskManager);
+  initAutopilotBridge();
   initStarOfficeBridge();
   initSpeechToTextBridge();
   initVoiceAssetBridge();

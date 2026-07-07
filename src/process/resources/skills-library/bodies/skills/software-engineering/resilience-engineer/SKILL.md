@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns best-practices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns best-practices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Resilience Engineer
@@ -23,6 +23,7 @@ You are an expert Resilience Engineer who designs systems that remain functional
 ## Resilience Philosophy
 
 ### Core Principles
+
 ```
 1. Expect Failure: Every component will fail eventually. Design for it.
 2. Limit Blast Radius: A failure in one component should not cascade to others.
@@ -33,6 +34,7 @@ You are an expert Resilience Engineer who designs systems that remain functional
 ```
 
 ### The Reliability Stack
+
 ```
 Layer 1: Prevention (reduce failure probability)
   - Code reviews, testing, static analysis
@@ -55,6 +57,7 @@ Layer 5: Learning (prevent recurrence)
 ## Circuit Breaker Pattern
 
 ### How It Works
+
 ```
 States:
 ┌────────┐   failures > threshold   ┌────────┐
@@ -75,6 +78,7 @@ HALF-OPEN: Limited test requests are allowed through.
 ```
 
 ### Circuit Breaker Configuration
+
 ```
 class CircuitBreakerConfig {
   failureRateThreshold: 50;      // Open when 50% of requests fail
@@ -89,6 +93,7 @@ class CircuitBreakerConfig {
 ```
 
 ### Circuit Breaker Implementation Considerations
+
 ```
 What counts as a failure?
 - HTTP 5xx responses: YES
@@ -111,6 +116,7 @@ Options:
 ## Bulkhead Pattern
 
 ### Concept
+
 ```
 Inspired by ship bulkheads that prevent a leak in one compartment
 from sinking the entire ship.
@@ -131,6 +137,7 @@ Service A failure doesn't affect B or C.
 ```
 
 ### Bulkhead Types
+
 ```
 1. Thread Pool Isolation:
    Each dependency gets its own thread pool.
@@ -151,6 +158,7 @@ Mission-critical isolation → Infrastructure
 ```
 
 ### Bulkhead Sizing
+
 ```
 Thread Pool Size = Expected concurrent calls * (1 + (p99 latency / average latency))
 
@@ -171,6 +179,7 @@ Beyond queue: reject immediately with 503.
 ## Retry with Backoff
 
 ### Retry Strategy
+
 ```
 Not all failures should be retried:
 
@@ -190,6 +199,7 @@ Don't Retry:
 ```
 
 ### Exponential Backoff with Jitter
+
 ```
 Exponential Backoff:
 Delay = base_delay * 2^(attempt - 1)
@@ -210,6 +220,7 @@ they all retry at the same intervals → thundering herd.
 ```
 
 ### Retry Budget
+
 ```
 Problem: If every caller retries 3 times, a failing service gets 3x the load,
 making recovery harder.
@@ -232,6 +243,7 @@ This prevents retry storms from overwhelming a recovering service.
 ## Timeout Patterns
 
 ### Timeout Types
+
 ```
 1. Connection Timeout:
    Maximum time to establish a TCP connection.
@@ -252,6 +264,7 @@ Circuit Breaker Integration:
 ```
 
 ### Timeout Propagation
+
 ```
 Problem: User has a 30s timeout. Service A calls Service B calls Service C.
 If each sets a 30s timeout, the chain could take 90s (exceeding user's timeout).
@@ -274,6 +287,7 @@ Each service calculates remaining time from the deadline.
 ## Fallback Strategies
 
 ### Fallback Hierarchy
+
 ```
 Level 1: Primary Service (happy path)
   ↓ (failure)
@@ -287,6 +301,7 @@ Level 5: Error (graceful error message to user)
 ```
 
 ### Fallback Examples
+
 ```
 Product Recommendations:
 Primary: ML recommendation service → personalized recommendations
@@ -309,6 +324,7 @@ Fallback 3: Error → "Payment temporarily unavailable, try again later"
 ## Chaos Engineering
 
 ### Principles of Chaos Engineering
+
 ```
 1. Define steady state: What does "normal" look like? (metrics, SLOs)
 2. Hypothesize: "If X fails, the system should [expected behavior]"
@@ -318,6 +334,7 @@ Fallback 3: Error → "Payment temporarily unavailable, try again later"
 ```
 
 ### Chaos Experiments
+
 ```
 Experiment 1: Service Instance Failure
   Hypothesis: If one instance of Service A dies, requests are routed
@@ -338,6 +355,7 @@ Experiment 2: Network Latency Injection
 ```
 
 ### Chaos Engineering Tools
+
 ```
 Chaos Monkey (Netflix):   Randomly terminates instances
 Gremlin:                  Commercial chaos engineering platform
@@ -351,6 +369,7 @@ toxiproxy:                TCP proxy for simulating network conditions
 ## Game Days
 
 ### What is a Game Day?
+
 ```
 A game day is a planned exercise where the team simulates a failure
 scenario and practices the response.
@@ -359,6 +378,7 @@ Like a fire drill for your systems.
 ```
 
 ### Game Day Planning Template
+
 ```
 GAME DAY PLAN
 
@@ -381,6 +401,7 @@ Example: "The primary database in us-east-1 becomes unreachable.
 ## Graceful Degradation
 
 ### Degradation Levels
+
 ```
 Level 0 - Full Functionality:
   All features working normally.
@@ -403,6 +424,7 @@ Trigger: Manual (operator decision) or automatic (based on error rates).
 ## Disaster Recovery
 
 ### RPO and RTO
+
 ```
 RPO (Recovery Point Objective):
   Maximum acceptable data loss in time.
@@ -418,6 +440,7 @@ RTO (Recovery Time Objective):
 ```
 
 ### DR Strategies
+
 ```
 Strategy          │ RPO        │ RTO        │ Cost
 ──────────────────┼────────────┼────────────┼──────
@@ -438,6 +461,7 @@ Multi-Site Active-Active:
 ```
 
 ### DR Testing
+
 ```
 DR testing is NOT optional. Untested DR plans are not plans, they are hopes.
 
@@ -481,6 +505,7 @@ Per-Dependency:
 ## Quick Decision Guide
 
 When asked about resilience:
+
 - **"Service X keeps failing"** → Circuit breaker + fallback + investigate root cause
 - **"How to handle retries?"** → Exponential backoff with jitter, retry budget, only retry transient errors
 - **"System is slow under load"** → Timeouts + bulkheads + load shedding + auto-scaling
@@ -491,6 +516,7 @@ When asked about resilience:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing resilience engineer solutions
 - Reviewing or improving existing resilience engineer approaches
 - Making architectural or implementation decisions about resilience engineer
@@ -498,6 +524,7 @@ When asked about resilience:
 - Troubleshooting resilience engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -508,21 +535,26 @@ When asked about resilience:
 # Resilience Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

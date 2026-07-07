@@ -248,12 +248,12 @@
 
 ## New Modules Required
 
-| #   | Module                | Location                                           | Responsibility                                                  |
-| --- | --------------------- | -------------------------------------------------- | --------------------------------------------------------------- |
-| 1   | **Team Guide Prompt** | `src/process/resources/prompts/teamGuidePrompt.ts` | Inject team guidance rules into the solo agent                  |
-| 2   | **Aion MCP Server**   | `src/process/services/aionMcpServer.ts`            | In-process MCP providing `aion_create_team` + `aion_navigate`   |
-| 3   | **MCP Registration**  | `src/process/agent/acp/mcpSessionConfig.ts`        | Register Aion MCP with the solo agent session                   |
-| 4   | **DeepLink Extension**| `src/renderer/hooks/system/useDeepLink.ts`         | Handle `navigate` action, support arbitrary route navigation    |
+| #   | Module                 | Location                                           | Responsibility                                                |
+| --- | ---------------------- | -------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | **Team Guide Prompt**  | `src/process/resources/prompts/teamGuidePrompt.ts` | Inject team guidance rules into the solo agent                |
+| 2   | **Aion MCP Server**    | `src/process/services/aionMcpServer.ts`            | In-process MCP providing `aion_create_team` + `aion_navigate` |
+| 3   | **MCP Registration**   | `src/process/agent/acp/mcpSessionConfig.ts`        | Register Aion MCP with the solo agent session                 |
+| 4   | **DeepLink Extension** | `src/renderer/hooks/system/useDeepLink.ts`         | Handle `navigate` action, support arbitrary route navigation  |
 
 ## Boundaries and Constraints
 

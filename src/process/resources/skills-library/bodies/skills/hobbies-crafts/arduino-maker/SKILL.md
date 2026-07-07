@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "iot guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'iot guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Arduino Maker
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on arduino maker
 - User asks about arduino maker best practices or techniques
 - User wants a structured approach to arduino maker
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of arduino maker
 
@@ -56,6 +57,7 @@ Before recommending an approach, I need to understand your situation:
 ## Board Selection Guide
 
 ### Arduino Uno R3 / R4
+
 - **Best for**: Beginners, prototyping, learning
 - **Processor**: ATmega328P (R3) / Renesas RA4M1 (R4)
 - **Digital pins**: 14 (6 PWM)
@@ -64,12 +66,14 @@ Before recommending an approach, I need to understand your situation:
 - **Cost**: $25-28 (official), $8-12 (compatible clones)
 
 ### Arduino Nano
+
 - **Best for**: Breadboard projects, space-constrained builds
 - **Same processor as Uno** but smaller form factor
 - **Why choose it**: Plugs directly into breadboard, cheaper
 - **Cost**: $20 (official), $3-5 (clones)
 
 ### Arduino Mega 2560
+
 - **Best for**: Complex projects needing many pins
 - **Digital pins**: 54 (15 PWM)
 - **Analog pins**: 16
@@ -77,11 +81,13 @@ Before recommending an approach, I need to understand your situation:
 - **Cost**: $40-45 (official)
 
 ### ESP32 (Arduino-compatible)
+
 - **Best for**: IoT projects needing WiFi/Bluetooth
 - **Why choose it**: Built-in wireless, dual-core processor, very capable
 - **Cost**: $5-15
 
 ### Recommendation by Use Case
+
 - **Learning fundamentals**: Arduino Uno R4
 - **IoT / Smart Home**: ESP32
 - **Wearables**: Arduino Nano 33 BLE or Adafruit Flora
@@ -91,24 +97,28 @@ Before recommending an approach, I need to understand your situation:
 ## IDE Setup and Configuration
 
 ### Step 1: Install Arduino IDE
+
 1. Download Arduino IDE 2.x from arduino.cc/en/software
 2. Install for your operating system
 3. On Windows, install USB drivers when prompted
 4. On Mac/Linux, drivers typically install automatically
 
 ### Step 2: Configure Your Board
+
 1. Connect Arduino via USB cable
 2. Tools > Board > Select your board model
 3. Tools > Port > Select the COM port (Windows) or /dev/ device (Mac/Linux)
 4. If port doesn't appear, check cable (some USB cables are charge-only, no data)
 
 ### Step 3: Test with Blink
+
 1. File > Examples > 01.Basics > Blink
 2. Click Upload (arrow button)
 3. Onboard LED should blink on/off every second
 4. If upload fails: check board selection, port, and cable
 
 ### Step 4: Install Libraries
+
 1. Tools > Manage Libraries (or Sketch > Include Library)
 2. Search for needed library
 3. Click Install
@@ -117,49 +127,65 @@ Before recommending an approach, I need to understand your situation:
 ## Basic Circuit Building Blocks
 
 ### Circuit 1: External LED Control
+
 **Components**: LED, 220-ohm resistor, breadboard, jumper wires
+
 ```
 Pin 13 --> 220Ω resistor --> LED (long leg/anode) --> LED (short leg/cathode) --> GND
 ```
+
 **Code concepts learned**: digitalWrite, pinMode, delay
 
 ### Circuit 2: Button Input
+
 **Components**: Pushbutton, 10K-ohm resistor, LED, breadboard
+
 ```
 5V --> Button --> Pin 2 (with 10K pull-down resistor to GND)
 Pin 13 --> 220Ω --> LED --> GND
 ```
+
 **Code concepts learned**: digitalRead, INPUT_PULLUP, conditional logic
 
 ### Circuit 3: Sensor Reading (Temperature)
+
 **Components**: TMP36 or DHT11 sensor
+
 ```
 DHT11: Pin 1 (VCC) --> 5V, Pin 2 (Data) --> Pin 7 (with 10K pull-up), Pin 4 (GND) --> GND
 ```
+
 **Code concepts learned**: analogRead, Serial.println, sensor libraries, data conversion
 
 ### Circuit 4: Motor Control
+
 **Components**: DC motor, transistor (TIP120), diode (1N4001), resistor
+
 ```
 Pin 9 --> 1K resistor --> TIP120 base
 TIP120 collector --> Motor --> External power (+)
 TIP120 emitter --> GND
 Diode across motor (flyback protection)
 ```
+
 **Code concepts learned**: PWM (analogWrite), transistor as switch, external power
 
 ### Circuit 5: Servo Control
+
 **Components**: Servo motor (SG90)
+
 ```
 Servo red wire --> 5V
 Servo brown wire --> GND
 Servo orange wire --> Pin 9
 ```
+
 **Code concepts learned**: Servo library, map() function, potentiometer input
 
 ## Programming Fundamentals
 
 ### Core Concepts
+
 ```cpp
 // Every Arduino sketch has two required functions:
 
@@ -179,6 +205,7 @@ void loop() {
 ```
 
 ### Variables and Data Types
+
 - `int` - Whole numbers (-32,768 to 32,767)
 - `long` - Large whole numbers
 - `float` - Decimal numbers (use sparingly, slow on Arduino)
@@ -187,12 +214,14 @@ void loop() {
 - `String` - Text (capital S, uses more memory)
 
 ### Control Structures
+
 - `if / else if / else` - Conditional execution
 - `for` loop - Repeat a known number of times
 - `while` loop - Repeat while condition is true
 - `switch/case` - Multiple condition branches
 
 ### Common Functions
+
 - `pinMode(pin, INPUT/OUTPUT)` - Configure pin direction
 - `digitalWrite(pin, HIGH/LOW)` - Set pin on/off
 - `digitalRead(pin)` - Read pin state (0 or 1)
@@ -202,6 +231,7 @@ void loop() {
 - `millis()` - Milliseconds since startup (use instead of delay for multitasking)
 
 ### Avoiding delay() - Using millis()
+
 ```cpp
 unsigned long previousMillis = 0;
 const long interval = 1000;
@@ -219,6 +249,7 @@ void loop() {
 ## Progressive Project Ideas
 
 ### Beginner Projects (Week 1-4)
+
 1. **Traffic Light Simulator** - Three LEDs cycling through green, yellow, red with proper timing
 2. **Night Light** - Photoresistor controls LED brightness automatically
 3. **Temperature Display** - DHT11 sensor reading shown on 16x2 LCD
@@ -226,6 +257,7 @@ void loop() {
 5. **Reaction Time Game** - LED lights up, measure button press response time
 
 ### Intermediate Projects (Month 2-3)
+
 1. **Weather Station** - DHT22 + BMP280 sensors, OLED display, data logging to SD card
 2. **Plant Watering System** - Soil moisture sensor triggers pump via relay
 3. **Ultrasonic Parking Sensor** - HC-SR04 distance sensor with LED bar graph and buzzer
@@ -233,6 +265,7 @@ void loop() {
 5. **LED Matrix Animations** - 8x8 or WS2812B strip with patterns and effects
 
 ### Advanced Projects (Month 4+)
+
 1. **Home Automation Hub** - ESP32 with MQTT, controls lights/fans, web dashboard
 2. **Line-Following Robot** - Motor driver, IR sensors, PID control algorithm
 3. **CNC Plotter** - Stepper motors, servo pen lift, G-code interpretation
@@ -242,11 +275,13 @@ void loop() {
 ## Component Sourcing
 
 ### Recommended Starter Kits
+
 - **Elegoo Super Starter Kit** (~$35) - Best value, includes Uno clone + 200+ components
 - **Arduino Official Starter Kit** (~$80) - Higher quality, includes project book
 - **SunFounder Kit** (~$40) - Good sensor variety
 
 ### Where to Buy Components
+
 - **Amazon** - Fast shipping, good for kits, higher markup on individual parts
 - **Adafruit** - Premium quality, excellent documentation, USA-based
 - **SparkFun** - Quality components, great tutorials
@@ -255,6 +290,7 @@ void loop() {
 - **LCSC** - Chinese electronics, good prices, faster than AliExpress
 
 ### Essential Tools
+
 - **Breadboard** (830-point full size) - $3-5
 - **Jumper wire kit** (M-M, M-F, F-F) - $5-8
 - **Multimeter** (basic digital) - $15-25
@@ -265,11 +301,13 @@ void loop() {
 ## Debugging Guide
 
 ### Upload Errors
+
 - "Port not found" - Check USB cable (try data cable), reinstall drivers
 - "avrdude: stk500" - Wrong board selected, or board not responding (press reset during upload)
 - "Sketch too large" - Optimize code, use PROGMEM for strings, choose board with more flash
 
 ### Circuit Debugging
+
 1. Check power: Is 5V reaching where it should? Use multimeter
 2. Check ground: All components must share common ground
 3. Check polarity: LEDs, capacitors, and diodes are directional
@@ -277,6 +315,7 @@ void loop() {
 5. Simplify: Remove components until basic circuit works, then add back one at a time
 
 ### Code Debugging
+
 1. Use `Serial.println()` to print variable values at key points
 2. Check variable types (int overflow at 32,767)
 3. Watch for floating pin reads (use INPUT_PULLUP or external resistors)
@@ -284,6 +323,7 @@ void loop() {
 5. Check library compatibility with your board
 
 ### Common Mistakes
+
 - Using delay() when you need responsive input (use millis() instead)
 - skipping to set pinMode in setup()
 - Drawing too much current from Arduino pins (max 20mA per pin, 40mA absolute max)
@@ -317,7 +357,6 @@ void loop() {
 - **Hackster.io** - Project sharing platform
 - **YouTube channels**: Paul McWhorter, DroneBot Workshop, GreatScott!
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -330,13 +369,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with arduino maker for a mid-size project."
 
 **Output:** A complete arduino maker framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

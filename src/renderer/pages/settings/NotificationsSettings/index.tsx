@@ -100,9 +100,11 @@ const NotificationsSettings: React.FC = () => {
   const persistQuiet = useCallback((field: 'start' | 'end', value: string) => {
     setState((s) => {
       const next = { ...s, [field === 'start' ? 'quietStart' : 'quietEnd']: value };
-      void ConfigStorage.set('notifications.quietHours', { start: next.quietStart, end: next.quietEnd }).catch((err) => {
-        console.error('[NotificationsSettings] quiet hours persist failed:', err);
-      });
+      void ConfigStorage.set('notifications.quietHours', { start: next.quietStart, end: next.quietEnd }).catch(
+        (err) => {
+          console.error('[NotificationsSettings] quiet hours persist failed:', err);
+        }
+      );
       return next;
     });
   }, []);
@@ -131,11 +133,7 @@ const NotificationsSettings: React.FC = () => {
             'Fires when a long-running task or team launcher completes.'
           )}
         >
-          <Switch
-            checked={state.agentFinished}
-            disabled={disabled}
-            onChange={(v) => persist('agentFinished', v)}
-          />
+          <Switch checked={state.agentFinished} disabled={disabled} onChange={(v) => persist('agentFinished', v)} />
         </PreferenceRow>
         <PreferenceRow
           label={t('settings.notificationsPage.scheduledTask', 'Notify on scheduled task fire')}
@@ -156,11 +154,7 @@ const NotificationsSettings: React.FC = () => {
             'Telegram / Lark / DingTalk / WeChat messages from connected channels.'
           )}
         >
-          <Switch
-            checked={state.channelMessage}
-            disabled={disabled}
-            onChange={(v) => persist('channelMessage', v)}
-          />
+          <Switch checked={state.channelMessage} disabled={disabled} onChange={(v) => persist('channelMessage', v)} />
         </PreferenceRow>
       </Card>
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Budget Builder
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to create a personal or household budget from scratch
 - User needs help choosing a budgeting framework (50/30/20, zero-based, envelope)
 - User wants to analyze and restructure their current spending
 - User needs budget templates for specific income patterns (biweekly, irregular)
 
 **Do NOT use this skill when:**
+
 - User needs investment portfolio advice -- use investment-related skills
 - User wants business budgeting or P&L analysis -- use business finance skills
 - User needs tax planning -- use tax-assistant skill
@@ -68,15 +70,16 @@ Before building any budget, gather the following information through conversatio
 
 The simplest starting point. Allocate after-tax income into three buckets:
 
-| Category | Percentage | Examples |
-|----------|-----------|----------|
-| **Needs** | 50% | Housing, utilities, groceries, insurance, minimum debt payments, transportation |
-| **Wants** | 30% | Dining out, entertainment, subscriptions, hobbies, travel |
-| **Savings & Debt** | 20% | Emergency fund, retirement contributions, extra debt payments, investments |
+| Category           | Percentage | Examples                                                                        |
+| ------------------ | ---------- | ------------------------------------------------------------------------------- |
+| **Needs**          | 50%        | Housing, utilities, groceries, insurance, minimum debt payments, transportation |
+| **Wants**          | 30%        | Dining out, entertainment, subscriptions, hobbies, travel                       |
+| **Savings & Debt** | 20%        | Emergency fund, retirement contributions, extra debt payments, investments      |
 
 **When to use:** Best for beginners or those who want a low-maintenance framework. Works well for stable, predictable incomes.
 
 **Adjustment guidance:**
+
 - High cost-of-living area: Needs may require 55-60%; reduce Wants to 20-25%
 - Aggressive debt payoff: Shift to 50/20/30 (Needs/Wants/Savings+Debt)
 - High income earners: Consider 40/20/40 to accelerate wealth building
@@ -86,6 +89,7 @@ The simplest starting point. Allocate after-tax income into three buckets:
 Every dollar of income is assigned a job. Income minus all allocated expenses equals exactly zero.
 
 **Steps:**
+
 1. Write down total monthly take-home income
 2. List every expense category
 3. Assign a dollar amount to each category
@@ -100,6 +104,7 @@ Every dollar of income is assigned a job. Income minus all allocated expenses eq
 A cash-based or virtual-envelope approach where each spending category gets a fixed allocation.
 
 **Steps:**
+
 1. Identify variable spending categories (groceries, dining, entertainment, clothing, personal care)
 2. Set a monthly limit for each
 3. Place cash in physical envelopes or set up virtual envelopes in an app
@@ -132,6 +137,7 @@ TOTAL MONTHLY TAKE-HOME:          $__________
 ```
 
 **For irregular income (freelancers, gig workers):**
+
 - Calculate average of last 6-12 months
 - OR budget based on your lowest-earning month for safety
 - Place surplus months' income into a buffer account
@@ -204,6 +210,7 @@ Savings target (20%):              $__________ | Actual: $__________ | Diff: $__
 ### Step 4: Identify Adjustments
 
 If categories are over-target, use this priority order for cuts:
+
 1. Cancel unused subscriptions
 2. Reduce dining out frequency
 3. Optimize recurring bills (negotiate, switch providers)
@@ -292,17 +299,20 @@ REMAINING:                 $__________
 ## Tracking Methods
 
 ### Method 1: Spreadsheet Tracking
+
 - Update weekly (pick a day, make it a habit)
 - Use conditional formatting to flag over-budget categories
 - Keep a running total vs. planned amounts
 
 ### Method 2: App-Based Tracking
+
 - **YNAB (You Need A Budget):** Best for zero-based budgeting, $14.99/mo
 - **Mint (Credit Karma):** Free, auto-categorization, 50/30/20 friendly
 - **EveryDollar:** Dave Ramsey's tool, free basic version
 - **Goodbudget:** Digital envelope system
 
 ### Method 3: Cash Envelope Tracking
+
 - Withdraw cash for variable categories at the start of each period
 - Physical envelopes labeled by category
 - When the cash is gone, the spending stops
@@ -311,29 +321,32 @@ REMAINING:                 $__________
 
 ## Budget Review Cadence
 
-| Frequency | Action |
-|-----------|--------|
-| **Daily** (first month only) | Check account balances, log any spending |
-| **Weekly** | Compare actual spending to plan for each category; adjust if needed |
-| **Monthly** | Full reconciliation; calculate actual percentages; note wins and problem areas |
-| **Quarterly** | Review goals progress; adjust category amounts for life changes; renegotiate bills |
-| **Annually** | Full financial review; update income figures; set new annual goals; review insurance and subscriptions |
+| Frequency                    | Action                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Daily** (first month only) | Check account balances, log any spending                                                               |
+| **Weekly**                   | Compare actual spending to plan for each category; adjust if needed                                    |
+| **Monthly**                  | Full reconciliation; calculate actual percentages; note wins and problem areas                         |
+| **Quarterly**                | Review goals progress; adjust category amounts for life changes; renegotiate bills                     |
+| **Annually**                 | Full financial review; update income figures; set new annual goals; review insurance and subscriptions |
 
 ---
 
 ## Adjustment Strategies
 
 ### When You Overspend a Category
+
 1. Identify the cause (one-time event vs. recurring pattern)
 2. If one-time: borrow from another discretionary category this month
 3. If recurring: increase that category's allocation and decrease another
 4. Never borrow from savings categories to fund wants
 
 ### When Income Changes
+
 - **Income increase:** Do not inflate lifestyle. Apply 50% of the raise to savings/debt, 50% to quality-of-life improvements
 - **Income decrease:** Cut wants first, then optimize needs. Contact creditors proactively if debt payments are at risk
 
 ### When Life Changes
+
 - **New baby:** Add childcare, diapers, medical costs; reduce dining and entertainment
 - **Job loss:** Immediately switch to bare-bones budget (needs only); pause extra debt payments; preserve cash
 - **Marriage:** Combine or coordinate budgets; discuss financial values; align on shared goals
@@ -408,13 +421,15 @@ Start here. Track for one month. Adjust from there.
 **Monthly take-home:** $4,500
 
 ### Allocation
-| Category | Target | Amount | Items |
-|----------|--------|--------|-------|
-| **Needs (50%)** | $2,250 | $2,250 | Rent, utilities, groceries, insurance, loan minimums |
-| **Wants (30%)** | $1,350 | $1,350 | Dining, entertainment, subscriptions, hobbies |
-| **Save/Debt (20%)** | $900 | $900 | Emergency fund + extra loan payments |
+
+| Category            | Target | Amount | Items                                                |
+| ------------------- | ------ | ------ | ---------------------------------------------------- |
+| **Needs (50%)**     | $2,250 | $2,250 | Rent, utilities, groceries, insurance, loan minimums |
+| **Wants (30%)**     | $1,350 | $1,350 | Dining, entertainment, subscriptions, hobbies        |
+| **Save/Debt (20%)** | $900   | $900   | Emergency fund + extra loan payments                 |
 
 ### Detailed Needs Breakdown
+
 - Rent: $1,200 (27% of income -- within healthy range)
 - Utilities: $150
 - Groceries: $300
@@ -425,12 +440,15 @@ Start here. Track for one month. Adjust from there.
 - NEEDS TOTAL: $2,050 (leaves $200 buffer)
 
 ### Month 1-6 Priority: Emergency Fund
+
 Direct $500/month to emergency fund until you reach $5,000 (roughly 1 month expenses). Put remaining $400 toward extra student loan payments.
 
 ### Month 7+: Debt Acceleration
+
 Once emergency fund is set, redirect the full $900 to student loans. At $900/month extra (plus $200 minimum), the $15,000 balance clears in approximately 14 months.
 
 ### Tracking Method
+
 Start with a free app (Mint or EveryDollar). Check spending every Sunday for 10 minutes. Adjust categories monthly based on actual spending.
 
 ## Edge Cases

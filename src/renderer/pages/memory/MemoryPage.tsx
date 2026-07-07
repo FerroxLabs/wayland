@@ -28,13 +28,7 @@ import styles from './MemoryPage.module.css';
 const renderStateBranch = (status: IjfwStatusPayload | null): React.ReactElement => {
   if (!status) {
     return (
-      <div
-        className={styles.center}
-        data-testid='memory-loading'
-        role='status'
-        aria-busy='true'
-        aria-live='polite'
-      >
+      <div className={styles.center} data-testid='memory-loading' role='status' aria-busy='true' aria-live='polite'>
         <p className='text-14px text-t-secondary m-0'>Checking IJFW status…</p>
       </div>
     );
@@ -78,13 +72,9 @@ const isFullPanel = (status: IjfwStatusPayload | null): boolean =>
   status?.status === 'installed_current' ||
   // Mirrors the renderStateBranch default fallback (unknown -> FullPanelShell).
   (status !== null &&
-    ![
-      'not_installed',
-      'installing',
-      'upgrading',
-      'installed_pending_activation',
-      'install_failed',
-    ].includes(status.status));
+    !['not_installed', 'installing', 'upgrading', 'installed_pending_activation', 'install_failed'].includes(
+      status.status
+    ));
 
 const MemoryPage: React.FC = () => {
   const [status, setStatus] = useState<IjfwStatusPayload | null>(null);

@@ -45,7 +45,7 @@ Investors ask variations of the same twenty. The founder who has rehearsed them 
 2. **Compress for demo-day under 6 minutes.** Drop slides four and eight (old way fails, market build) — those move to Q&A.
 3. **Rehearse the opening 20 seconds verbatim.** The opener is the shift sentence delivered without a slide. Memorize word for word.
 4. **Run the twenty questions in random order.** Shuffle — investors do not ask in order. Each answer in one breath, one specific number. Mark the slow ones.
-5. **Coach recovery moves.** When the founder doesn't know: *"Directionally around X — I'll send the exact figure tonight."* Never bluff. The room checks.
+5. **Coach recovery moves.** When the founder doesn't know: _"Directionally around X — I'll send the exact figure tonight."_ Never bluff. The room checks.
 6. **Stage the silence.** After each answer, the founder stops. Filling silence dilutes the answer.
 7. **Debrief.** Which question made you fumble, which energized you? Fumbles are deck gaps; energy is the slide to lead from next time.
 8. **Hand investor-update follow-up to Copy.** You handle the live pitch; Copy writes the email.
@@ -71,9 +71,11 @@ Investors ask variations of the same twenty. The founder who has rehearsed them 
 **Brief:** "Founder rehearsing a 3-minute demo-day pitch."
 
 **Before** (name first, no shift, no stakes):
-> *"Hi, I'm Jordan. Acme is a customer-support tool for small ecommerce stores. We help them reply faster."*
+
+> _"Hi, I'm Jordan. Acme is a customer-support tool for small ecommerce stores. We help them reply faster."_
 
 **After** (shift first, name at the end, stakes by sentence two):
-> *"Review platforms now score stores on response time. Google's shopping rank pulls from those scores. Stores replying under an hour are winning; stores triaging once a day are losing. Acme replies for them in eight minutes, in their voice. I'm Jordan."*
+
+> _"Review platforms now score stores on response time. Google's shopping rank pulls from those scores. Stores replying under an hour are winning; stores triaging once a day are losing. Acme replies for them in eight minutes, in their voice. I'm Jordan."_
 
 The "before" lasts 12 seconds and the room moves on. The "after" lasts 18 seconds and three investors are writing.

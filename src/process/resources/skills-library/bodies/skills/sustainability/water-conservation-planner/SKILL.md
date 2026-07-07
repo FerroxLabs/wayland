@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability checklist guide beginner-friendly advanced testing planning safety"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability checklist guide beginner-friendly advanced testing planning safety'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Water Conservation Planner
@@ -22,15 +22,16 @@ You are a water conservation planner who helps homeowners, property managers, an
 
 > **DISCLAIMER**: This skill provides general educational guidance about water conservation practices. It is not a substitute for professional plumbing, engineering, or landscape design consultation. Water regulations, codes, and best practices vary significantly by jurisdiction. Rainwater harvesting and greywater use are regulated differently across states, counties, and municipalities. Always verify local regulations and consult qualified professionals before installing plumbing, greywater, or rainwater systems.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about water conservation planner techniques or best practices
 - User needs guidance on water conservation planner concepts
 - User wants to implement or improve their approach to water conservation planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of water conservation planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,6 +52,7 @@ You are a water conservation planner who helps homeowners, property managers, an
 ### Household Water Audit
 
 **Step 1: Gather baseline data**
+
 - Collect 12 months of water bills
 - Calculate average monthly and annual usage (gallons or CCF)
 - Compare to benchmarks (US average: ~80-100 gallons per person per day)
@@ -58,16 +60,17 @@ You are a water conservation planner who helps homeowners, property managers, an
 
 **Step 2: Identify major uses**
 
-| Use Category | Typical % of Indoor Use | Typical Flow Rate |
-|-------------|------------------------|------------------|
-| Toilets | 24-30% | 1.6-3.5 gal/flush (old: 3.5-7) |
-| Showers | 20-25% | 2.0-2.5 gpm (old: 3-5 gpm) |
-| Faucets | 15-20% | 1.0-2.2 gpm |
-| Clothes washer | 15-20% | 15-45 gal/load |
-| Dishwasher | 1-2% | 4-6 gal/cycle |
-| Leaks | 10-15% | Varies (often hidden) |
+| Use Category   | Typical % of Indoor Use | Typical Flow Rate              |
+| -------------- | ----------------------- | ------------------------------ |
+| Toilets        | 24-30%                  | 1.6-3.5 gal/flush (old: 3.5-7) |
+| Showers        | 20-25%                  | 2.0-2.5 gpm (old: 3-5 gpm)     |
+| Faucets        | 15-20%                  | 1.0-2.2 gpm                    |
+| Clothes washer | 15-20%                  | 15-45 gal/load                 |
+| Dishwasher     | 1-2%                    | 4-6 gal/cycle                  |
+| Leaks          | 10-15%                  | Varies (often hidden)          |
 
 **Step 3: Check for leaks**
+
 - [ ] Read water meter, wait 2 hours (no water use), read again
 - [ ] Check all toilets with dye test (food coloring in tank, check bowl in 15 min)
 - [ ] Inspect visible pipes, faucets, and hose bibs for drips
@@ -76,6 +79,7 @@ You are a water conservation planner who helps homeowners, property managers, an
 - [ ] Look for unexplained wet spots in yard or foundation
 
 **Step 4: Calculate savings potential**
+
 - Compare current fixtures to WaterSense-rated equivalents
 - Estimate irrigation savings from schedule and system improvements
 - Identify behavioral changes with quantifiable impact
@@ -85,16 +89,17 @@ You are a water conservation planner who helps homeowners, property managers, an
 
 **Fixture upgrades (highest impact):**
 
-| Upgrade | Water Saved | Cost | Payback |
-|---------|------------|------|---------|
-| Low-flow showerhead (2.0 gpm) | 2,000-5,000 gal/yr per person | $15-50 | Months |
-| Faucet aerators (1.0-1.5 gpm) | 500-2,000 gal/yr per faucet | $5-15 | Weeks |
-| High-efficiency toilet (1.28 gpf) | 4,000-8,000 gal/yr per toilet | $150-400 | 1-3 years |
-| Dual-flush toilet (0.8/1.6 gpf) | 5,000-10,000 gal/yr per toilet | $200-500 | 1-3 years |
-| Efficient clothes washer | 5,000-10,000 gal/yr | $600-1,200 | 3-7 years |
-| Efficient dishwasher | 1,000-2,000 gal/yr | $400-800 | 3-7 years |
+| Upgrade                           | Water Saved                    | Cost       | Payback   |
+| --------------------------------- | ------------------------------ | ---------- | --------- |
+| Low-flow showerhead (2.0 gpm)     | 2,000-5,000 gal/yr per person  | $15-50     | Months    |
+| Faucet aerators (1.0-1.5 gpm)     | 500-2,000 gal/yr per faucet    | $5-15      | Weeks     |
+| High-efficiency toilet (1.28 gpf) | 4,000-8,000 gal/yr per toilet  | $150-400   | 1-3 years |
+| Dual-flush toilet (0.8/1.6 gpf)   | 5,000-10,000 gal/yr per toilet | $200-500   | 1-3 years |
+| Efficient clothes washer          | 5,000-10,000 gal/yr            | $600-1,200 | 3-7 years |
+| Efficient dishwasher              | 1,000-2,000 gal/yr             | $400-800   | 3-7 years |
 
 **Behavioral changes:**
+
 - Shorter showers (each minute saved = ~2 gallons)
 - Turn off faucet while brushing teeth, soaping hands
 - Run dishwasher and clothes washer only with full loads
@@ -116,6 +121,7 @@ You are a water conservation planner who helps homeowners, property managers, an
 ### System Types
 
 **Simple collection (rain barrels):**
+
 - 50-100 gallon barrels connected to downspouts
 - Gravity-fed for garden watering
 - Low cost ($50-200 per barrel)
@@ -123,6 +129,7 @@ You are a water conservation planner who helps homeowners, property managers, an
 - Requires overflow management
 
 **Intermediate systems (above-ground tanks):**
+
 - 200-2,500 gallon capacity
 - Can serve larger landscapes
 - May include pump for pressure
@@ -130,6 +137,7 @@ You are a water conservation planner who helps homeowners, property managers, an
 - Requires proper foundation
 
 **Advanced systems (cisterns):**
+
 - 2,500-50,000+ gallon capacity
 - Underground or above-ground
 - Can supply significant irrigation or (with treatment) indoor use
@@ -142,12 +150,14 @@ You are a water conservation planner who helps homeowners, property managers, an
 Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collection efficiency
 
 **Collection efficiency factors:**
+
 - Asphalt shingles: 75-80%
 - Metal roofing: 90-95%
 - Tile roofing: 80-85%
 - Flat/membrane roofing: 85-90%
 
 **Example calculation:**
+
 - 1,500 sq ft roof catchment area
 - 30 inches of annual rainfall
 - Metal roof (90% efficiency)
@@ -191,18 +201,21 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 ### Plant Selection by Water Need
 
 **Zone 1 - Oasis (near house, high visibility):**
+
 - Moderate water plants for small, high-impact areas
 - Group together for efficient irrigation
 - Include edibles, herbs, and favorite ornamentals
 - Use container gardens for flexibility
 
 **Zone 2 - Transition:**
+
 - Low to moderate water plants
 - Native and well-adapted species
 - Less frequent irrigation than Zone 1
 - Group plants by water needs
 
 **Zone 3 - Arid (away from house, large areas):**
+
 - Very low water or no supplemental irrigation
 - Native plants adapted to local rainfall
 - Groundcovers, native grasses, wildflowers
@@ -210,12 +223,12 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 
 ### Lawn Reduction Strategies
 
-| Approach | Description | Effort Level |
-|----------|-------------|-------------|
-| Sheet mulching | Smother lawn with cardboard + mulch | Low labor, wait 3-6 months |
-| Sod removal | Cut and remove existing turf | High labor, immediate |
-| Solarization | Cover with clear plastic in summer heat | Low labor, wait 4-6 weeks |
-| Gradual conversion | Replace sections over time | Moderate, spread over years |
+| Approach                 | Description                                 | Effort Level                  |
+| ------------------------ | ------------------------------------------- | ----------------------------- |
+| Sheet mulching           | Smother lawn with cardboard + mulch         | Low labor, wait 3-6 months    |
+| Sod removal              | Cut and remove existing turf                | High labor, immediate         |
+| Solarization             | Cover with clear plastic in summer heat     | Low labor, wait 4-6 weeks     |
+| Gradual conversion       | Replace sections over time                  | Moderate, spread over years   |
 | Overseeding with natives | Introduce native grasses into existing lawn | Low labor, gradual transition |
 
 ### Mulching Guide
@@ -232,14 +245,14 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 
 ### System Selection
 
-| System Type | Efficiency | Best For | Cost |
-|-------------|-----------|---------|------|
-| Drip irrigation | 90-95% | Beds, trees, shrubs, vegetables | Medium |
-| Micro-sprinklers | 80-90% | Groundcovers, small areas | Medium |
-| Rotary nozzles | 70-80% | Turf areas (if kept) | Medium |
-| Pop-up sprinklers | 50-70% | Turf areas (less efficient) | Low-Medium |
-| Hand watering | Varies | Small areas, containers | Low |
-| Soaker hoses | 80-90% | Garden rows, beds | Low |
+| System Type       | Efficiency | Best For                        | Cost       |
+| ----------------- | ---------- | ------------------------------- | ---------- |
+| Drip irrigation   | 90-95%     | Beds, trees, shrubs, vegetables | Medium     |
+| Micro-sprinklers  | 80-90%     | Groundcovers, small areas       | Medium     |
+| Rotary nozzles    | 70-80%     | Turf areas (if kept)            | Medium     |
+| Pop-up sprinklers | 50-70%     | Turf areas (less efficient)     | Low-Medium |
+| Hand watering     | Varies     | Small areas, containers         | Low        |
+| Soaker hoses      | 80-90%     | Garden rows, beds               | Low        |
 
 ### Irrigation Best Practices
 
@@ -275,6 +288,7 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 ### Simple Greywater Options
 
 **Laundry-to-landscape:**
+
 - Diverts washing machine water directly to landscape
 - No treatment needed in many jurisdictions
 - Uses existing pump in washing machine
@@ -284,6 +298,7 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 - Cost: $200-500 DIY, $500-1,500 professional
 
 **Branched drain:**
+
 - Gravity-fed system from shower/tub to landscape
 - Splits flow to multiple basins in the landscape
 - Requires grade (plumbing below landscape level)
@@ -327,15 +342,15 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 
 ### On-Site Strategies
 
-| Strategy | Description | Benefits |
-|----------|-------------|---------|
-| Rain garden | Planted depression that captures runoff | Filters pollutants, recharges groundwater |
-| Bioswale | Vegetated channel that conveys and filters runoff | Slows flow, reduces erosion |
-| Permeable paving | Allows water to infiltrate through surface | Reduces runoff volume |
-| French drain | Gravel-filled trench that redirects water | Moves water away from structures |
-| Dry well | Underground chamber that collects and infiltrates | Hidden, captures roof runoff |
-| Green roof | Vegetated roof that absorbs rainfall | Reduces runoff, insulates building |
-| Tree planting | Canopy intercepts rain, roots absorb water | Multiple co-benefits |
+| Strategy         | Description                                       | Benefits                                  |
+| ---------------- | ------------------------------------------------- | ----------------------------------------- |
+| Rain garden      | Planted depression that captures runoff           | Filters pollutants, recharges groundwater |
+| Bioswale         | Vegetated channel that conveys and filters runoff | Slows flow, reduces erosion               |
+| Permeable paving | Allows water to infiltrate through surface        | Reduces runoff volume                     |
+| French drain     | Gravel-filled trench that redirects water         | Moves water away from structures          |
+| Dry well         | Underground chamber that collects and infiltrates | Hidden, captures roof runoff              |
+| Green roof       | Vegetated roof that absorbs rainfall              | Reduces runoff, insulates building        |
+| Tree planting    | Canopy intercepts rain, roots absorb water        | Multiple co-benefits                      |
 
 ### Rain Garden Design Basics
 
@@ -386,13 +401,12 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 
 ## Seasonal Water Conservation Calendar
 
-| Season | Actions |
-|--------|---------|
-| Spring | Inspect and repair irrigation, adjust schedule, mulch beds, check rain barrels |
-| Summer | Monitor irrigation closely, water early morning, harvest rainwater, check for leaks |
-| Fall | Reduce irrigation, plant drought-tolerant species, drain rain barrels if freezing, mulch |
+| Season | Actions                                                                                           |
+| ------ | ------------------------------------------------------------------------------------------------- |
+| Spring | Inspect and repair irrigation, adjust schedule, mulch beds, check rain barrels                    |
+| Summer | Monitor irrigation closely, water early morning, harvest rainwater, check for leaks               |
+| Fall   | Reduce irrigation, plant drought-tolerant species, drain rain barrels if freezing, mulch          |
 | Winter | Turn off irrigation if dormant, insulate outdoor pipes, plan spring projects, fix indoor fixtures |
-
 
 ## Process
 
@@ -401,7 +415,6 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -422,14 +435,12 @@ Collection (gallons) = Roof area (sq ft) x Rainfall (inches) x 0.623 x Collectio
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -135,9 +135,9 @@ describe('IrcPlugin.sendMessage - error when not connected', () => {
   it('throws when the client is disconnected', async () => {
     const plugin = await startPlugin();
     mockClientInstance.connected = false;
-    await expect(
-      plugin.sendMessage('#wayland-bots', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/not connected/i);
+    await expect(plugin.sendMessage('#wayland-bots', { type: 'text', text: 'hello' })).rejects.toThrow(
+      /not connected/i
+    );
     await plugin.stop();
   });
 });
@@ -213,34 +213,32 @@ describe('IrcPlugin inbound message emission', () => {
 describe('IrcPlugin.sendMessage - target sanitisation', () => {
   it('throws if chatId contains CRLF + smuggled IRC command', async () => {
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('#wayland-bots\r\nQUIT', { type: 'text', text: 'pwn' }),
-    ).rejects.toThrow(/Invalid IRC target/);
+    await expect(plugin.sendMessage('#wayland-bots\r\nQUIT', { type: 'text', text: 'pwn' })).rejects.toThrow(
+      /Invalid IRC target/
+    );
     expect(mockClientInstance.say).not.toHaveBeenCalled();
     await plugin.stop();
   });
 
   it('throws for target with whitespace', async () => {
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('#wayland bots', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/Invalid IRC target/);
+    await expect(plugin.sendMessage('#wayland bots', { type: 'text', text: 'hello' })).rejects.toThrow(
+      /Invalid IRC target/
+    );
     await plugin.stop();
   });
 
   it('throws for target with embedded colon', async () => {
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('#bad:target', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/Invalid IRC target/);
+    await expect(plugin.sendMessage('#bad:target', { type: 'text', text: 'hello' })).rejects.toThrow(
+      /Invalid IRC target/
+    );
     await plugin.stop();
   });
 
   it('throws for empty target', async () => {
     const plugin = await startPlugin();
-    await expect(plugin.sendMessage('', { type: 'text', text: 'hello' })).rejects.toThrow(
-      /required/,
-    );
+    await expect(plugin.sendMessage('', { type: 'text', text: 'hello' })).rejects.toThrow(/required/);
     await plugin.stop();
   });
 });

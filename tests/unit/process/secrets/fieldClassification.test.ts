@@ -5,10 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  SENSITIVE_FIELD_NAMES,
-  isSensitiveField,
-} from '@process/secrets/fieldClassification';
+import { SENSITIVE_FIELD_NAMES, isSensitiveField } from '@process/secrets/fieldClassification';
 
 describe('secrets/fieldClassification', () => {
   it('exports a non-empty list of sensitive field names', () => {

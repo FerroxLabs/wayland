@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care guide meal-planning"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'elder-care guide meal-planning'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Senior Resource Navigation Guide
@@ -27,6 +27,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about finding community resources for an aging parent or relative
 - User wants to know what services are available for seniors in their area
 - User asks about senior centers, meal delivery, or transportation for seniors
@@ -34,6 +35,7 @@ metadata:
 - User asks about PACE programs, Area Agency on Aging, or senior assistance programs
 
 **Do NOT use this skill when:**
+
 - User wants a specific facility recommendation by name (this skill teaches how to find resources, not which specific ones to use)
 - User needs medical care guidance (physician consultation required)
 - User asks about Medicare or Medicaid enrollment or claims (benefits counselor needed)
@@ -44,18 +46,18 @@ metadata:
 
 1. **Identify the senior's needs.** Determine which resource categories are relevant:
 
-   | Need Category | Examples | Priority |
-   |--------------|----------|----------|
-   | Daily living assistance | Meal preparation, bathing, dressing, housekeeping | [High/Med/Low] |
-   | Nutrition | Meal delivery, congregate meals, grocery assistance | [High/Med/Low] |
-   | Transportation | Medical appointments, grocery store, social activities | [High/Med/Low] |
-   | Health monitoring | Wellness checks, chronic disease management support | [High/Med/Low] |
-   | Social engagement | Companionship, activity groups, classes | [High/Med/Low] |
-   | Financial assistance | Utility help, prescription assistance, tax preparation | [High/Med/Low] |
-   | Legal assistance | Power of attorney, advance directives, benefits appeals | [High/Med/Low] |
-   | Home modifications | Safety equipment, ramp installation, grab bars | [High/Med/Low] |
-   | Caregiver support | Respite care, support groups, training | [High/Med/Low] |
-   | Information and referral | General guidance on available programs | [High/Med/Low] |
+   | Need Category            | Examples                                                | Priority       |
+   | ------------------------ | ------------------------------------------------------- | -------------- |
+   | Daily living assistance  | Meal preparation, bathing, dressing, housekeeping       | [High/Med/Low] |
+   | Nutrition                | Meal delivery, congregate meals, grocery assistance     | [High/Med/Low] |
+   | Transportation           | Medical appointments, grocery store, social activities  | [High/Med/Low] |
+   | Health monitoring        | Wellness checks, chronic disease management support     | [High/Med/Low] |
+   | Social engagement        | Companionship, activity groups, classes                 | [High/Med/Low] |
+   | Financial assistance     | Utility help, prescription assistance, tax preparation  | [High/Med/Low] |
+   | Legal assistance         | Power of attorney, advance directives, benefits appeals | [High/Med/Low] |
+   | Home modifications       | Safety equipment, ramp installation, grab bars          | [High/Med/Low] |
+   | Caregiver support        | Respite care, support groups, training                  | [High/Med/Low] |
+   | Information and referral | General guidance on available programs                  | [High/Med/Low] |
 
 2. **Start with the Area Agency on Aging (AAA).** This is the single most important entry point:
 
@@ -83,53 +85,53 @@ metadata:
 
    **Nutrition Resources:**
 
-   | Resource Type | What It Provides | Who Qualifies | How to Access |
-   |--------------|-----------------|---------------|---------------|
-   | Home-delivered meals (Meals on Wheels model) | Daily meals delivered to homebound seniors | Generally age 60+, homebound, unable to prepare meals | Contact AAA or local meal delivery program |
-   | Congregate meal sites | Free or low-cost meals at senior centers and community centers | Generally age 60+, no income requirement for federally funded sites | Contact local senior center |
-   | Grocery assistance | Grocery shopping help or delivery | Varies by program | AAA, volunteer organizations, faith communities |
-   | Supplemental nutrition program (SNAP) | Monthly food benefit | Income-based eligibility | Contact local Department of Social Services |
-   | Food pantries | Emergency food supplies | Open to anyone in need | 211 helpline, faith communities, local food bank network |
+   | Resource Type                                | What It Provides                                               | Who Qualifies                                                       | How to Access                                            |
+   | -------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
+   | Home-delivered meals (Meals on Wheels model) | Daily meals delivered to homebound seniors                     | Generally age 60+, homebound, unable to prepare meals               | Contact AAA or local meal delivery program               |
+   | Congregate meal sites                        | Free or low-cost meals at senior centers and community centers | Generally age 60+, no income requirement for federally funded sites | Contact local senior center                              |
+   | Grocery assistance                           | Grocery shopping help or delivery                              | Varies by program                                                   | AAA, volunteer organizations, faith communities          |
+   | Supplemental nutrition program (SNAP)        | Monthly food benefit                                           | Income-based eligibility                                            | Contact local Department of Social Services              |
+   | Food pantries                                | Emergency food supplies                                        | Open to anyone in need                                              | 211 helpline, faith communities, local food bank network |
 
    **Transportation Resources:**
 
-   | Resource Type | What It Provides | Who Qualifies | How to Access |
-   |--------------|-----------------|---------------|---------------|
-   | Paratransit services | Door-to-door rides for those unable to use fixed-route transit | Certification required (disability-based, not age-based) | Apply through local transit authority |
-   | Senior shuttle programs | Scheduled routes to common destinations (medical, shopping) | Generally age 60+ in service area | Contact AAA or local senior center |
-   | Volunteer driver programs | Individual rides provided by trained volunteers | Varies by program | AAA, faith communities, local nonprofits |
-   | Medical transportation | Rides specifically to medical appointments | Often covered by insurance or Medicaid | Contact insurance provider or Medicaid managed care plan |
-   | Ride-share assistance | Subsidized rides through commercial ride-share platforms | Varies by program | Some AAAs and nonprofits offer ride-share vouchers |
+   | Resource Type             | What It Provides                                               | Who Qualifies                                            | How to Access                                            |
+   | ------------------------- | -------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
+   | Paratransit services      | Door-to-door rides for those unable to use fixed-route transit | Certification required (disability-based, not age-based) | Apply through local transit authority                    |
+   | Senior shuttle programs   | Scheduled routes to common destinations (medical, shopping)    | Generally age 60+ in service area                        | Contact AAA or local senior center                       |
+   | Volunteer driver programs | Individual rides provided by trained volunteers                | Varies by program                                        | AAA, faith communities, local nonprofits                 |
+   | Medical transportation    | Rides specifically to medical appointments                     | Often covered by insurance or Medicaid                   | Contact insurance provider or Medicaid managed care plan |
+   | Ride-share assistance     | Subsidized rides through commercial ride-share platforms       | Varies by program                                        | Some AAAs and nonprofits offer ride-share vouchers       |
 
    **Home and Community-Based Services:**
 
-   | Resource Type | What It Provides | Who Qualifies | How to Access |
-   |--------------|-----------------|---------------|---------------|
-   | In-home aide services | Personal care and homemaking assistance | Varies: some income-based, some Medicaid-funded | AAA, state Medicaid waiver programs |
-   | Adult day programs | Structured daytime activities, supervision, socialization | Generally any senior who needs daytime supervision | AAA, local senior centers, health organizations |
-   | PACE programs | Comprehensive medical and social services for nursing-home-eligible seniors living at home | Age 55+, nursing home eligible, living in PACE service area | Find local PACE program through AAA |
-   | Friendly visitor programs | Regular companionship visits from volunteers | Generally age 60+ or homebound | AAA, faith communities, volunteer organizations |
-   | Telephone reassurance | Daily check-in calls to verify wellbeing | Generally homebound seniors | AAA, local police departments (some offer this), volunteer organizations |
-   | Home modification programs | Funding or labor for safety modifications | Income-based eligibility in most programs | AAA, local housing authority, nonprofit organizations |
+   | Resource Type              | What It Provides                                                                           | Who Qualifies                                               | How to Access                                                            |
+   | -------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+   | In-home aide services      | Personal care and homemaking assistance                                                    | Varies: some income-based, some Medicaid-funded             | AAA, state Medicaid waiver programs                                      |
+   | Adult day programs         | Structured daytime activities, supervision, socialization                                  | Generally any senior who needs daytime supervision          | AAA, local senior centers, health organizations                          |
+   | PACE programs              | Comprehensive medical and social services for nursing-home-eligible seniors living at home | Age 55+, nursing home eligible, living in PACE service area | Find local PACE program through AAA                                      |
+   | Friendly visitor programs  | Regular companionship visits from volunteers                                               | Generally age 60+ or homebound                              | AAA, faith communities, volunteer organizations                          |
+   | Telephone reassurance      | Daily check-in calls to verify wellbeing                                                   | Generally homebound seniors                                 | AAA, local police departments (some offer this), volunteer organizations |
+   | Home modification programs | Funding or labor for safety modifications                                                  | Income-based eligibility in most programs                   | AAA, local housing authority, nonprofit organizations                    |
 
    **Financial Assistance Resources:**
 
-   | Resource Type | What It Provides | Who Qualifies | How to Access |
-   |--------------|-----------------|---------------|---------------|
-   | Utility assistance programs | Help with heating, cooling, and electric bills | Income-based eligibility | Local Department of Social Services, utility company |
-   | Property tax relief | Reduced property taxes for qualifying seniors | Age and income-based (varies by jurisdiction) | Local tax assessor's office |
-   | Prescription assistance | Discounted or free prescription medications | Program-specific (manufacturer, state, nonprofit) | Physician's office, AAA, state pharmaceutical assistance program |
-   | Free tax preparation | Tax filing assistance for seniors | Generally age 60+ with simple tax situations | AARP Tax-Aide program (seasonal), VITA sites |
-   | Benefit enrollment assistance | Help applying for benefits the senior may qualify for | Anyone who needs help navigating applications | AAA, local Department of Social Services, hospital social workers |
+   | Resource Type                 | What It Provides                                      | Who Qualifies                                     | How to Access                                                     |
+   | ----------------------------- | ----------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+   | Utility assistance programs   | Help with heating, cooling, and electric bills        | Income-based eligibility                          | Local Department of Social Services, utility company              |
+   | Property tax relief           | Reduced property taxes for qualifying seniors         | Age and income-based (varies by jurisdiction)     | Local tax assessor's office                                       |
+   | Prescription assistance       | Discounted or free prescription medications           | Program-specific (manufacturer, state, nonprofit) | Physician's office, AAA, state pharmaceutical assistance program  |
+   | Free tax preparation          | Tax filing assistance for seniors                     | Generally age 60+ with simple tax situations      | AARP Tax-Aide program (seasonal), VITA sites                      |
+   | Benefit enrollment assistance | Help applying for benefits the senior may qualify for | Anyone who needs help navigating applications     | AAA, local Department of Social Services, hospital social workers |
 
    **Caregiver Support Resources:**
 
-   | Resource Type | What It Provides | Who Qualifies | How to Access |
-   |--------------|-----------------|---------------|---------------|
-   | Respite care programs | Temporary relief for primary caregivers | Family caregivers (some programs income-based) | AAA, National Family Caregiver Support Program |
-   | Caregiver support groups | Peer support and shared experience | Any family caregiver | AAA, disease-specific organizations, online platforms |
-   | Caregiver training | Skills training for home care tasks | Family caregivers | AAA, home health agencies, hospital discharge programs |
-   | Counseling services | Individual counseling for caregiver stress | Family caregivers | AAA referral, community mental health centers |
+   | Resource Type            | What It Provides                           | Who Qualifies                                  | How to Access                                          |
+   | ------------------------ | ------------------------------------------ | ---------------------------------------------- | ------------------------------------------------------ |
+   | Respite care programs    | Temporary relief for primary caregivers    | Family caregivers (some programs income-based) | AAA, National Family Caregiver Support Program         |
+   | Caregiver support groups | Peer support and shared experience         | Any family caregiver                           | AAA, disease-specific organizations, online platforms  |
+   | Caregiver training       | Skills training for home care tasks        | Family caregivers                              | AAA, home health agencies, hospital discharge programs |
+   | Counseling services      | Individual counseling for caregiver stress | Family caregivers                              | AAA referral, community mental health centers          |
 
 4. **Navigate the 211 system.** 211 is a national helpline that connects callers to local services:
 
@@ -263,21 +265,23 @@ metadata:
 
 ### Needs Assessment Summary
 
-| Need | Priority | Resource Type | Status |
-|------|----------|--------------|--------|
-| Transportation | HIGH | Senior shuttle, paratransit, volunteer drivers | Searching |
-| Social engagement | HIGH | Senior center programs, friendly visitors | Searching |
-| Nutrition | MEDIUM | Congregate meals (at senior center), grocery delivery | Searching |
-| Wellness check | MEDIUM | Telephone reassurance, friendly visitor | Searching |
-| Financial | LOW | Assess if any assistance programs applicable | Not started |
+| Need              | Priority | Resource Type                                         | Status      |
+| ----------------- | -------- | ----------------------------------------------------- | ----------- |
+| Transportation    | HIGH     | Senior shuttle, paratransit, volunteer drivers        | Searching   |
+| Social engagement | HIGH     | Senior center programs, friendly visitors             | Searching   |
+| Nutrition         | MEDIUM   | Congregate meals (at senior center), grocery delivery | Searching   |
+| Wellness check    | MEDIUM   | Telephone reassurance, friendly visitor               | Searching   |
+| Financial         | LOW      | Assess if any assistance programs applicable          | Not started |
 
 ### Step 1: Contact the Area Agency on Aging (This Week)
 
 **How to find your local AAA:**
+
 - Call the Eldercare Locator national helpline
 - Or search online for "[Dad's county] Area Agency on Aging"
 
 **What to ask:**
+
 1. "My father is 75, lives alone, and can no longer drive. What transportation programs are available in [county]?"
 2. "Are there senior center programs near [address] that include transportation to the center?"
 3. "Does the county have a friendly visitor or telephone check-in program?"
@@ -288,13 +292,13 @@ metadata:
 
 #### Transportation (Top Priority)
 
-| Resource Type | What to Look For | How to Find |
-|--------------|-----------------|------------|
-| Senior shuttle/bus | Scheduled routes to medical, shopping, senior center | AAA, local transit authority, senior center |
-| Volunteer driver program | Individual rides by trained volunteers | AAA, faith communities, local nonprofits |
-| Paratransit service | Door-to-door rides (may require ADA eligibility certification) | Local transit authority |
-| Medical transportation | Rides to doctor appointments (may be covered by insurance) | Dad's health insurance provider |
-| Ride-share vouchers | Subsidized commercial rides | Some AAAs and nonprofits offer voucher programs |
+| Resource Type            | What to Look For                                               | How to Find                                     |
+| ------------------------ | -------------------------------------------------------------- | ----------------------------------------------- |
+| Senior shuttle/bus       | Scheduled routes to medical, shopping, senior center           | AAA, local transit authority, senior center     |
+| Volunteer driver program | Individual rides by trained volunteers                         | AAA, faith communities, local nonprofits        |
+| Paratransit service      | Door-to-door rides (may require ADA eligibility certification) | Local transit authority                         |
+| Medical transportation   | Rides to doctor appointments (may be covered by insurance)     | Dad's health insurance provider                 |
+| Ride-share vouchers      | Subsidized commercial rides                                    | Some AAAs and nonprofits offer voucher programs |
 
 **Interim solution while researching:** Ask family, friends, or neighbors to help with essential trips (grocery, pharmacy, medical). Create a list of errands that can be batched into one trip per week.
 
@@ -302,44 +306,45 @@ metadata:
 
 Losing the ability to drive often leads to social isolation, which has significant health impacts for seniors. Prioritize reconnecting your dad with regular social contact.
 
-| Resource Type | What to Look For | How to Find |
-|--------------|-----------------|------------|
-| Senior center programs | Daily activities, classes, social events, meals | AAA, local parks and recreation department |
-| Friendly visitor program | Volunteer visits 1-2 times per week | AAA, faith communities, local nonprofits |
-| Telephone reassurance | Daily check-in calls | AAA, some local police departments |
-| Library programs | Senior-focused classes, book groups, computer classes | Local public library |
-| Faith community groups | Social groups, meal programs, volunteer visitors | Local faith communities in Dad's area |
+| Resource Type            | What to Look For                                      | How to Find                                |
+| ------------------------ | ----------------------------------------------------- | ------------------------------------------ |
+| Senior center programs   | Daily activities, classes, social events, meals       | AAA, local parks and recreation department |
+| Friendly visitor program | Volunteer visits 1-2 times per week                   | AAA, faith communities, local nonprofits   |
+| Telephone reassurance    | Daily check-in calls                                  | AAA, some local police departments         |
+| Library programs         | Senior-focused classes, book groups, computer classes | Local public library                       |
+| Faith community groups   | Social groups, meal programs, volunteer visitors      | Local faith communities in Dad's area      |
 
 #### Nutrition
 
-| Resource Type | What to Look For | How to Find |
-|--------------|-----------------|------------|
-| Congregate meals at senior center | Daily lunch in a social setting (often free or by donation) | Local senior center |
-| Home-delivered meals | Daily meal delivery for homebound seniors | AAA, local meal delivery program |
-| Grocery delivery assistance | Volunteer grocery shoppers or delivery service | AAA, faith communities, volunteer organizations |
+| Resource Type                     | What to Look For                                            | How to Find                                     |
+| --------------------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| Congregate meals at senior center | Daily lunch in a social setting (often free or by donation) | Local senior center                             |
+| Home-delivered meals              | Daily meal delivery for homebound seniors                   | AAA, local meal delivery program                |
+| Grocery delivery assistance       | Volunteer grocery shoppers or delivery service              | AAA, faith communities, volunteer organizations |
 
 ### Action Plan
 
-| # | Action | Timeline | Who |
-|---|--------|----------|-----|
-| 1 | Call the Area Agency on Aging | This week | [User] |
-| 2 | Visit the nearest senior center in person with Dad | This week | [User] + Dad |
-| 3 | Research transportation options from AAA referrals | Week 2 | [User] |
-| 4 | Sign Dad up for at least one recurring weekly activity | Week 2-3 | [User] + Dad |
-| 5 | Apply for transportation programs identified by AAA | Week 2-3 | [User] |
-| 6 | Set up telephone check-in if available | Week 3-4 | [User] |
-| 7 | Assess whether meal delivery or congregate meals would help | Week 3-4 | [User] + Dad |
-| 8 | Follow up on all applications | Monthly | [User] |
+| #   | Action                                                      | Timeline  | Who          |
+| --- | ----------------------------------------------------------- | --------- | ------------ |
+| 1   | Call the Area Agency on Aging                               | This week | [User]       |
+| 2   | Visit the nearest senior center in person with Dad          | This week | [User] + Dad |
+| 3   | Research transportation options from AAA referrals          | Week 2    | [User]       |
+| 4   | Sign Dad up for at least one recurring weekly activity      | Week 2-3  | [User] + Dad |
+| 5   | Apply for transportation programs identified by AAA         | Week 2-3  | [User]       |
+| 6   | Set up telephone check-in if available                      | Week 3-4  | [User]       |
+| 7   | Assess whether meal delivery or congregate meals would help | Week 3-4  | [User] + Dad |
+| 8   | Follow up on all applications                               | Monthly   | [User]       |
 
 ### Application Tracker
 
-| Program | Date Applied | Status | Follow-Up |
-|---------|-------------|--------|-----------|
-| AAA intake | [Date of first call] | [Status] | [Date] |
-| Senior center registration | [Date] | [Status] | [Date] |
-| Transportation program | [Date] | [Status] | [Date] |
+| Program                    | Date Applied         | Status   | Follow-Up |
+| -------------------------- | -------------------- | -------- | --------- |
+| AAA intake                 | [Date of first call] | [Status] | [Date]    |
+| Senior center registration | [Date]               | [Status] | [Date]    |
+| Transportation program     | [Date]               | [Status] | [Date]    |
 
 ### Follow-Up Schedule
+
 - Week 2: Check in with Dad about how he is managing daily tasks
 - Week 4: Review all applications and follow up on pending items
 - Month 2: Assess whether current resources are sufficient or if additional support is needed

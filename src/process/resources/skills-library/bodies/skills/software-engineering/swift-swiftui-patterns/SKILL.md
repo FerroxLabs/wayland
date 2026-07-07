@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "swift mobile frameworks"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'swift mobile frameworks'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Swift SwiftUI Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is building a new iOS, macOS, watchOS, or visionOS app with SwiftUI and needs architectural guidance (MVVM, TCA, MV pattern)
 - User wants to implement reactive data flow in SwiftUI using Combine, async/await, or the Observation framework
 - User is designing reusable SwiftUI components and needs guidance on view composition, environment propagation, or custom layout
@@ -30,6 +32,7 @@ metadata:
 - User needs a production-ready navigation architecture using NavigationStack, NavigationSplitView, or a coordinator pattern
 
 **Do NOT use this skill when:**
+
 - User needs UIKit-specific patterns (UIViewController lifecycle, Auto Layout, UITableView delegate patterns) -- use a UIKit skill instead
 - User is asking about Swift language fundamentals (generics, protocols, actors) without a SwiftUI context -- use a Swift language skill
 - User needs React Native, Flutter, or Kotlin Multiplatform cross-platform patterns -- use the relevant cross-platform skill
@@ -130,7 +133,7 @@ SwiftUI is cross-platform but not uniform across Apple platforms:
 
 When responding to a user's SwiftUI pattern question, structure the output as follows:
 
-```
+````
 ## SwiftUI Pattern Recommendation: [Pattern Name]
 
 ### Context Assessment
@@ -153,27 +156,32 @@ When responding to a user's SwiftUI pattern question, structure the output as fo
 #### [Component Name] -- ViewModel
 ```swift
 // Full, runnable Swift code here
-```
+````
 
 #### [Component Name] -- View
+
 ```swift
 // Full, runnable Swift code here
 ```
 
 #### [Component Name] -- Supporting Types
+
 ```swift
 // Route enum, LoadState enum, custom modifiers, etc.
 ```
 
 ### Trade-off Notes
+
 - [Specific trade-off 1 with reasoning]
 - [Specific trade-off 2 with reasoning]
 
 ### Testing Approach
+
 - [Unit test targets in the ViewModel]
 - [Preview configurations to validate]
 - [XCUITest scenarios if applicable]
-```
+
+````
 
 ---
 
@@ -300,7 +308,7 @@ enum LoadState<T> {
         return false
     }
 }
-```
+````
 
 #### Service Protocol -- Enables Mock Injection for Tests and Previews
 
@@ -735,11 +743,13 @@ final class ArticleListViewModelTests: XCTestCase {
 ---
 
 ### Trade-off Notes
+
 - **ObservableObject vs @Observable:** This app targets iOS 16, so @Observable is unavailable. When you raise the minimum to iOS 17, migrate ViewModels to the @Observable macro -- it eliminates the need for explicit @Published and reduces unnecessary re-renders because SwiftUI only re-renders views that access specific changed properties, not the entire view tree whenever any @Published property changes.
 - **UserDefaults for bookmarks vs SwiftData:** For a small set of UUIDs (typically < 1,000), UserDefaults with JSON encoding is appropriate and adds no dependency. If bookmarks need to store full article content for offline reading, migrate to SwiftData with a `ModelContainer` and `@Query` in the list view.
 - **Coordinator in the view tree vs external class:** This implementation keeps the coordinator logic inside `ArticleCoordinatorView` to minimize complexity for a UIKit-background team. For flows with 5+ destinations or complex programmatic navigation needs (push notification navigation, universal links), extract the `navigationPath` and navigation methods into a dedicated `@MainActor` `NavigationCoordinator` class injected as @StateObject.
 
 ### Testing Approach
+
 - Unit test all state transitions in `ArticleListViewModel` (load success, load failure, bookmark toggle, bookmark persistence)
 - Write `#Preview` configurations for: loading state, error state, empty list, populated list, row with and without bookmark indicator, row with missing image
 - XCUITest the critical path: launch -> see article list -> tap article -> bookmark -> navigate to bookmarks -> verify article appears. Use `.accessibilityIdentifier` values as stable selectors.

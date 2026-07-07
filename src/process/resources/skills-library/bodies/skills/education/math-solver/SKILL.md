@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills academic-writing guide"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills academic-writing guide'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Math Solver
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs help solving a math problem with step-by-step explanation
 - User wants to understand a mathematical concept or formula
 - User needs help with algebra, calculus, statistics, or other math topics
 - User wants to check their work and understand where they went wrong
 
 **Do NOT use this skill when:**
+
 - User wants a pure numerical answer without understanding -- this skill teaches the process
 - User needs data analysis or statistics on a dataset -- use data analysis skills
 - User needs financial calculations -- use personal finance skills with built-in formulas
@@ -504,38 +506,43 @@ When solving math problems, provide:
 
 ## Example
 
-**Input:** "Solve this integral: the integral of x^2 * e^x dx. I keep getting stuck on integration by parts."
+**Input:** "Solve this integral: the integral of x^2 \* e^x dx. I keep getting stuck on integration by parts."
 
 **Output:**
 
-## Solution: Integral of x^2 * e^x dx
+## Solution: Integral of x^2 \* e^x dx
 
 **Method:** Integration by parts (applied twice)
 **Formula:** integral of u dv = uv - integral of v du
 
 ### Step 1: First application of integration by parts
+
 Let u = x^2, dv = e^x dx
 Then du = 2x dx, v = e^x
 
-integral of x^2 * e^x dx = x^2 * e^x - integral of 2x * e^x dx
+integral of x^2 _ e^x dx = x^2 _ e^x - integral of 2x \* e^x dx
 
 ### Step 2: Second application (on the remaining integral)
+
 Let u = 2x, dv = e^x dx
 Then du = 2 dx, v = e^x
 
-integral of 2x * e^x dx = 2x * e^x - integral of 2 * e^x dx = 2x * e^x - 2e^x
+integral of 2x _ e^x dx = 2x _ e^x - integral of 2 _ e^x dx = 2x _ e^x - 2e^x
 
 ### Step 3: Combine
-integral of x^2 * e^x dx = x^2 * e^x - (2x * e^x - 2e^x) + C
-= x^2 * e^x - 2x * e^x + 2e^x + C
+
+integral of x^2 _ e^x dx = x^2 _ e^x - (2x _ e^x - 2e^x) + C
+= x^2 _ e^x - 2x \* e^x + 2e^x + C
 = e^x(x^2 - 2x + 2) + C
 
 ### Verification
+
 Differentiate the answer: d/dx [e^x(x^2 - 2x + 2)]
-= e^x(x^2 - 2x + 2) + e^x(2x - 2) = e^x(x^2 - 2x + 2 + 2x - 2) = x^2 * e^x. Confirmed.
+= e^x(x^2 - 2x + 2) + e^x(2x - 2) = e^x(x^2 - 2x + 2 + 2x - 2) = x^2 \* e^x. Confirmed.
 
 ### Pattern to Remember
-When integrating x^n * e^x, apply integration by parts n times. Each time, the power of x decreases by 1 until you reach a pure e^x integral.
+
+When integrating x^n \* e^x, apply integration by parts n times. Each time, the power of x decreases by 1 until you reach a pure e^x integral.
 
 ## Edge Cases
 

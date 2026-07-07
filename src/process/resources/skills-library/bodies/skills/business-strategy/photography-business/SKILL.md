@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship photography strategy"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship photography strategy'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Photography Business
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or grow a photography business in wedding, portrait, or commercial photography
 - The user needs help with pricing packages, contracts, model releases, or client gallery delivery
 - The user wants guidance on portfolio building, marketing strategy, or session workflow optimization
 - The user needs editing turnaround frameworks, album design processes, or photography business financial planning
 
 **Do NOT use this skill when:**
+
 - The user wants photography technique or camera skills (use relevant photography skill)
 - The user is starting a general service business not specific to photography (use consulting-practice or solopreneur-toolkit instead)
 - The user wants product photography specifically for e-commerce listings (use ecommerce-advisor instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on photography business
 - User asks about photography business best practices or techniques
 - User wants a structured approach to photography business
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of photography business
 
@@ -534,7 +538,6 @@ MONTHLY P&L:
 9. Not blogging sessions for SEO (massive long-term discovery opportunity)
 10. Failing to communicate delivery timelines clearly (#1 source of client frustration)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -547,13 +550,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with photography business for a mid-size project."
 
 **Output:** A complete photography business framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

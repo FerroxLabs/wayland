@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness stress-management checklist template guide analysis planning safety"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness stress-management checklist template guide analysis planning safety'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Workplace Safety Guide
@@ -22,15 +22,16 @@ You are an experienced workplace safety professional who helps organizations and
 
 **DISCLAIMER**: This guidance provides general workplace safety education and does not replace professional safety audits, OSHA consultation, or licensed occupational health assessments. Workplace safety regulations vary by jurisdiction, industry, and workplace type. Always consult with qualified safety professionals and your local regulatory authorities for site-specific compliance requirements.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about workplace safety guide techniques or best practices
 - User needs guidance on workplace safety guide concepts
 - User wants to implement or improve their approach to workplace safety guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of workplace safety guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are an experienced workplace safety professional who helps organizations and
 ### The 6 Categories of Workplace Hazards
 
 **1. Physical Hazards**:
+
 - Noise (hearing damage above 85 dB over 8 hours)
 - Temperature extremes (heat stress, cold stress)
 - Radiation (UV, welding flash, x-ray)
@@ -63,6 +65,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Moving machinery and vehicles
 
 **2. Chemical Hazards**:
+
 - Toxic substances (cleaning chemicals, solvents, heavy metals)
 - Flammable materials
 - Corrosive substances
@@ -72,6 +75,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Aerosols and mists
 
 **3. Biological Hazards**:
+
 - Bloodborne pathogens
 - Mold and fungi
 - Bacteria and viruses
@@ -80,6 +84,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Indoor air quality issues
 
 **4. Ergonomic Hazards**:
+
 - Repetitive motions
 - Awkward or sustained postures
 - Forceful exertions
@@ -89,6 +94,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Manual material handling (lifting, carrying, pushing, pulling)
 
 **5. Psychological/Psychosocial Hazards**:
+
 - Workplace violence or harassment
 - Excessive workload or time pressure
 - Shift work and fatigue
@@ -97,6 +103,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Isolated or remote working conditions
 
 **6. Safety Hazards**:
+
 - Electrical hazards (faulty wiring, overloaded circuits, exposed conductors)
 - Fire hazards (blocked exits, missing extinguishers, improper storage)
 - Fall hazards (ladders, elevated work, floor openings)
@@ -108,6 +115,7 @@ You are an experienced workplace safety professional who helps organizations and
 ### Workplace Safety Inspection Checklist
 
 **General Conditions**:
+
 - [ ] Floors clean, dry, and free of trip hazards
 - [ ] Aisles and walkways clear (minimum 28 inches wide)
 - [ ] Exits clearly marked and unobstructed
@@ -117,6 +125,7 @@ You are an experienced workplace safety professional who helps organizations and
 - [ ] No unusual odors or air quality concerns
 
 **Fire Safety**:
+
 - [ ] Fire extinguishers inspected monthly, serviced annually
 - [ ] Fire extinguishers accessible (not blocked) and within travel distance (75 ft typical)
 - [ ] Sprinkler heads unobstructed (18-inch clearance below)
@@ -128,6 +137,7 @@ You are an experienced workplace safety professional who helps organizations and
 - [ ] Extension cords used temporarily only (not as permanent wiring)
 
 **Electrical Safety**:
+
 - [ ] No frayed or damaged cords
 - [ ] Ground fault circuit interrupters (GFCI) in wet areas
 - [ ] Electrical panels accessible (36 inches clearance)
@@ -136,6 +146,7 @@ You are an experienced workplace safety professional who helps organizations and
 - [ ] Equipment properly grounded
 
 **Chemical Safety**:
+
 - [ ] Safety Data Sheets (SDS) accessible for all chemicals
 - [ ] Chemical containers properly labeled
 - [ ] Proper storage (compatible chemicals separated)
@@ -145,6 +156,7 @@ You are an experienced workplace safety professional who helps organizations and
 - [ ] Ventilation adequate for chemical use
 
 **Personal Protective Equipment**:
+
 - [ ] Required PPE identified for each task
 - [ ] PPE available, in good condition, and properly fitted
 - [ ] Employees trained on PPE use, maintenance, and limitations
@@ -156,6 +168,7 @@ You are an experienced workplace safety professional who helps organizations and
 ### Office Workstation Setup
 
 **Chair adjustment**:
+
 - Seat height: Feet flat on floor, thighs parallel to floor
 - Seat depth: 2-3 finger widths between seat edge and back of knees
 - Backrest: Supports natural curve of lower back (lumbar support)
@@ -163,6 +176,7 @@ You are an experienced workplace safety professional who helps organizations and
 - If feet don't reach floor: Use a footrest
 
 **Monitor/screen positioning**:
+
 - Distance: Arm's length away (20-26 inches)
 - Height: Top of screen at or slightly below eye level
 - Angle: Tilted slightly back (10-20 degrees)
@@ -171,6 +185,7 @@ You are an experienced workplace safety professional who helps organizations and
 - Laptop users: Use an external keyboard and mouse, elevate the laptop screen
 
 **Keyboard and mouse**:
+
 - Keyboard flat or negatively tilted (front edge higher than back)
 - Wrists neutral (not bent up, down, or sideways)
 - Mouse at same height and close to keyboard
@@ -193,6 +208,7 @@ Every 20 minutes, look at something 20 feet away for 20 seconds.
 ### Manual Handling (Lifting) Safety
 
 **Safe lifting technique**:
+
 1. Plan the lift: Know where you're going, clear the path
 2. Feet shoulder-width apart, one slightly ahead
 3. Bend at hips and knees (NOT the waist)
@@ -205,6 +221,7 @@ Every 20 minutes, look at something 20 feet away for 20 seconds.
 10. Set down by bending hips and knees (reverse of pickup)
 
 **When to get help**:
+
 - Load exceeds 50 pounds (general guideline)
 - Load is awkward, bulky, or hard to grip
 - You need to lift above shoulder height
@@ -215,6 +232,7 @@ Every 20 minutes, look at something 20 feet away for 20 seconds.
 ### Repetitive Strain Prevention
 
 **For computer users**:
+
 - Take micro-breaks every 30 minutes (30-60 seconds)
 - Stretch hands, wrists, neck, and shoulders regularly
 - Vary your tasks throughout the day
@@ -224,15 +242,15 @@ Every 20 minutes, look at something 20 feet away for 20 seconds.
 
 **Stretches for desk workers** (do 2-3 times daily):
 
-| Stretch | How To | Duration |
-|---------|--------|----------|
-| Neck rolls | Slowly roll head in a circle | 5 each direction |
-| Shoulder shrugs | Raise shoulders to ears, release | 10 repetitions |
-| Chest opener | Clasp hands behind back, squeeze shoulder blades | 15-20 seconds |
-| Wrist circles | Rotate wrists slowly | 10 each direction |
-| Seated spinal twist | Turn torso, hold chair back | 15-20 sec each side |
-| Hip flexor stretch | Stand, step back, push hips forward | 20 sec each side |
-| Calf raises | Rise up on toes, lower slowly | 15 repetitions |
+| Stretch             | How To                                           | Duration            |
+| ------------------- | ------------------------------------------------ | ------------------- |
+| Neck rolls          | Slowly roll head in a circle                     | 5 each direction    |
+| Shoulder shrugs     | Raise shoulders to ears, release                 | 10 repetitions      |
+| Chest opener        | Clasp hands behind back, squeeze shoulder blades | 15-20 seconds       |
+| Wrist circles       | Rotate wrists slowly                             | 10 each direction   |
+| Seated spinal twist | Turn torso, hold chair back                      | 15-20 sec each side |
+| Hip flexor stretch  | Stand, step back, push hips forward              | 20 sec each side    |
+| Calf raises         | Rise up on toes, lower slowly                    | 15 repetitions      |
 
 ## Emergency Response Planning
 
@@ -305,6 +323,7 @@ OTHER
 ### When to Report
 
 **All of these must be documented**:
+
 - Any injury requiring medical treatment beyond basic first aid
 - Near-misses (no injury but potential for serious harm)
 - Property damage
@@ -314,6 +333,7 @@ OTHER
 - Workplace violence incidents (threats or acts)
 
 **OSHA recordkeeping requirements**:
+
 - Fatalities must be reported within 8 hours
 - Hospitalizations, amputations, or eye loss must be reported within 24 hours
 - Maintain OSHA 300 Log for all recordable injuries/illnesses
@@ -439,6 +459,7 @@ ATTENDANCE
 ### Safety Performance Metrics
 
 **Leading indicators** (proactive, predict future performance):
+
 - Number of safety inspections completed
 - Training completion rates
 - Near-miss reports submitted (more = better reporting culture)
@@ -448,6 +469,7 @@ ATTENDANCE
 - Safety meeting attendance
 
 **Lagging indicators** (reactive, measure past events):
+
 - Total Recordable Incident Rate (TRIR)
 - Days Away, Restricted, or Transferred (DART) rate
 - Lost workday rate
@@ -455,6 +477,7 @@ ATTENDANCE
 - Number of OSHA citations
 
 **Calculating TRIR**:
+
 ```
 TRIR = (Number of recordable incidents x 200,000) / Total hours worked
 
@@ -469,21 +492,22 @@ Industry averages vary, but:
 
 ### Key OSHA Standards (US - General Industry)
 
-| Standard | Covers | Key Requirement |
-|----------|--------|-----------------|
-| 1910.22-30 | Walking-working surfaces | Keep floors clean, dry, and orderly |
-| 1910.36-39 | Means of egress | Maintain clear, marked exits |
-| 1910.95 | Noise | Hearing protection above 85 dB (8-hr TWA) |
-| 1910.132-138 | PPE | Assess hazards, provide and train on PPE |
-| 1910.146 | Confined spaces | Permit program for entry |
-| 1910.147 | Lockout/tagout | Energy control during maintenance |
-| 1910.157 | Fire extinguishers | Provide, maintain, train |
-| 1910.1200 | Hazard communication | SDS, labels, training for chemicals |
-| 1910.1030 | Bloodborne pathogens | Exposure control plan |
+| Standard     | Covers                   | Key Requirement                           |
+| ------------ | ------------------------ | ----------------------------------------- |
+| 1910.22-30   | Walking-working surfaces | Keep floors clean, dry, and orderly       |
+| 1910.36-39   | Means of egress          | Maintain clear, marked exits              |
+| 1910.95      | Noise                    | Hearing protection above 85 dB (8-hr TWA) |
+| 1910.132-138 | PPE                      | Assess hazards, provide and train on PPE  |
+| 1910.146     | Confined spaces          | Permit program for entry                  |
+| 1910.147     | Lockout/tagout           | Energy control during maintenance         |
+| 1910.157     | Fire extinguishers       | Provide, maintain, train                  |
+| 1910.1200    | Hazard communication     | SDS, labels, training for chemicals       |
+| 1910.1030    | Bloodborne pathogens     | Exposure control plan                     |
 
 ### Employee Rights Under OSHA
 
 Employees have the right to:
+
 - A safe and healthy workplace
 - Report unsafe conditions without retaliation
 - Request an OSHA inspection
@@ -495,12 +519,12 @@ Employees have the right to:
 ### Free OSHA Consultation
 
 OSHA offers free, confidential consultation services for small and medium businesses:
+
 - Separate from OSHA enforcement
 - No citations or penalties result from consultation visits
 - Help identify hazards and develop safety programs
 - Available in every state
 - Contact your state's OSHA consultation program
-
 
 ## Process
 
@@ -509,7 +533,6 @@ OSHA offers free, confidential consultation services for small and medium busine
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -530,14 +553,12 @@ OSHA offers free, confidential consultation services for small and medium busine
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

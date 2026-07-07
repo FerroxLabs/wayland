@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices design-patterns guide"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices design-patterns guide'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Design Patterns
@@ -44,23 +44,33 @@ interface Logger {
 }
 
 class ConsoleLogger implements Logger {
-  log(message: string) { console.log(message); }
+  log(message: string) {
+    console.log(message);
+  }
 }
 
 class FileLogger implements Logger {
-  log(message: string) { fs.addToFileSync("app.log", message + "\n"); }
+  log(message: string) {
+    fs.addToFileSync('app.log', message + '\n');
+  }
 }
 
 class CloudLogger implements Logger {
-  log(message: string) { cloudService.send(message); }
+  log(message: string) {
+    cloudService.send(message);
+  }
 }
 
 function createLogger(env: string): Logger {
   switch (env) {
-    case "development": return new ConsoleLogger();
-    case "production": return new CloudLogger();
-    case "test": return new FileLogger();
-    default: throw new Error(`Unknown environment: ${env}`);
+    case 'development':
+      return new ConsoleLogger();
+    case 'production':
+      return new CloudLogger();
+    case 'test':
+      return new FileLogger();
+    default:
+      throw new Error(`Unknown environment: ${env}`);
   }
 }
 ```
@@ -118,7 +128,10 @@ query, params = (QueryBuilder("users")
 ```typescript
 // Prefer: dependency injection
 class App {
-  constructor(private db: Database, private logger: Logger) {}
+  constructor(
+    private db: Database,
+    private logger: Logger
+  ) {}
 }
 
 // If you must: module-level instance (JavaScript/TypeScript)
@@ -267,11 +280,15 @@ interface PricingStrategy {
 }
 
 class RegularPricing implements PricingStrategy {
-  calculate(basePrice: number): number { return basePrice; }
+  calculate(basePrice: number): number {
+    return basePrice;
+  }
 }
 
 class PremiumPricing implements PricingStrategy {
-  calculate(basePrice: number): number { return basePrice * 0.9; } // 10% off
+  calculate(basePrice: number): number {
+    return basePrice * 0.9;
+  } // 10% off
 }
 
 class BulkPricing implements PricingStrategy {
@@ -284,7 +301,7 @@ class BulkPricing implements PricingStrategy {
 const strategies = {
   regular: (price: number) => price,
   premium: (price: number) => price * 0.9,
-  bulk: (price: number, customer: Customer) => customer.orderCount > 100 ? price * 0.8 : price,
+  bulk: (price: number, customer: Customer) => (customer.orderCount > 100 ? price * 0.8 : price),
 };
 ```
 
@@ -306,16 +323,16 @@ class OrderEvents {
   }
 
   emit(event: string, data: unknown): void {
-    this.handlers.get(event)?.forEach(handler => handler(data));
+    this.handlers.get(event)?.forEach((handler) => handler(data));
   }
 }
 
 // Usage
 const events = new OrderEvents();
-const unsub = events.on("order.created", (order) => sendConfirmationEmail(order));
-events.on("order.created", (order) => updateInventory(order));
-events.on("order.created", (order) => notifyWarehouse(order));
-events.emit("order.created", order);
+const unsub = events.on('order.created', (order) => sendConfirmationEmail(order));
+events.on('order.created', (order) => updateInventory(order));
+events.on('order.created', (order) => notifyWarehouse(order));
+events.emit('order.created', order);
 unsub(); // remove email listener
 ```
 
@@ -368,68 +385,75 @@ class CommandHistory:
 ## Anti-Patterns to Avoid
 
 ### Pattern Overuse
+
 - **Symptom**: Every class has an interface, factory, and strategy even when there is only one implementation.
 - **Fix**: Apply YAGNI. Add patterns when a second use case appears, not before.
 
 ### God Object
+
 - **Symptom**: One class that knows and does everything.
 - **Fix**: Extract responsibilities into focused classes.
 
 ### Spaghetti Code
+
 - **Symptom**: No discernible structure. Control flow jumps everywhere.
 - **Fix**: Apply Extract Method, then organize into modules.
 
 ### Golden Hammer
+
 - **Symptom**: Using the same pattern/tool for every problem.
 - **Fix**: Learn multiple patterns and choose based on the problem.
 
 ### Premature Abstraction
+
 - **Symptom**: Creating complex hierarchies before understanding the domain.
 - **Fix**: Wait until you have 3+ concrete cases before abstracting. Rule of Three.
 
 ### Lava Flow
+
 - **Symptom**: Dead code and obsolete patterns left in because nobody understands them.
 - **Fix**: Delete dead code. Version control remembers.
 
 ## Pattern Selection by Problem
 
-| Problem | Pattern |
-|---------|---------|
-| Need to create objects without specifying class | Factory Method |
-| Object has many optional configuration options | Builder |
-| Need families of related objects | Abstract Factory |
-| Integrate incompatible interfaces | Adapter |
-| Add behavior without modifying class | Decorator |
-| Simplify complex subsystem | Facade |
-| Control access to an object | Proxy |
-| Choose algorithm at runtime | Strategy |
-| Decouple event producers from consumers | Observer |
-| Need undo/redo | Command |
-| Multiple handlers for a request | Chain of Responsibility |
-| Traverse a collection without exposing internals | Iterator |
-| Define a skeleton algorithm with customizable steps | Template Method |
-| Manage complex state transitions | State |
+| Problem                                             | Pattern                 |
+| --------------------------------------------------- | ----------------------- |
+| Need to create objects without specifying class     | Factory Method          |
+| Object has many optional configuration options      | Builder                 |
+| Need families of related objects                    | Abstract Factory        |
+| Integrate incompatible interfaces                   | Adapter                 |
+| Add behavior without modifying class                | Decorator               |
+| Simplify complex subsystem                          | Facade                  |
+| Control access to an object                         | Proxy                   |
+| Choose algorithm at runtime                         | Strategy                |
+| Decouple event producers from consumers             | Observer                |
+| Need undo/redo                                      | Command                 |
+| Multiple handlers for a request                     | Chain of Responsibility |
+| Traverse a collection without exposing internals    | Iterator                |
+| Define a skeleton algorithm with customizable steps | Template Method         |
+| Manage complex state transitions                    | State                   |
 
 ## Modern Alternatives
 
 Many GoF patterns exist because of language limitations in 1994. Modern languages offer simpler alternatives:
 
-| Pattern | Modern Alternative |
-|---------|-------------------|
-| Strategy | First-class functions, lambdas |
-| Observer | Reactive streams (RxJS), event emitters |
-| Command | Closures, first-class functions |
-| Template Method | Higher-order functions |
-| Iterator | Language-native iterators, generators |
-| Singleton | Module-scoped instances, DI containers |
-| Factory | Constructor functions, DI containers |
-| Visitor | Pattern matching (Rust, Kotlin, Scala) |
+| Pattern         | Modern Alternative                      |
+| --------------- | --------------------------------------- |
+| Strategy        | First-class functions, lambdas          |
+| Observer        | Reactive streams (RxJS), event emitters |
+| Command         | Closures, first-class functions         |
+| Template Method | Higher-order functions                  |
+| Iterator        | Language-native iterators, generators   |
+| Singleton       | Module-scoped instances, DI containers  |
+| Factory         | Constructor functions, DI containers    |
+| Visitor         | Pattern matching (Rust, Kotlin, Scala)  |
 
 Prefer the modern alternative when available in your language. Use the classic pattern when the language lacks the feature or when the pattern provides additional structure needed at scale.
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing design patterns solutions
 - Reviewing or improving existing design patterns approaches
 - Making architectural or implementation decisions about design patterns
@@ -437,6 +461,7 @@ Prefer the modern alternative when available in your language. Use the classic p
 - Troubleshooting design patterns-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -447,21 +472,26 @@ Prefer the modern alternative when available in your language. Use the classic p
 # Design Patterns Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

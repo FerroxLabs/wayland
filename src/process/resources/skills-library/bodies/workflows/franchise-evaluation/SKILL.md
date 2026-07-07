@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "swot-analyzer contract-reviewer budget-builder market-researcher business-planner"
+skills: 'swot-analyzer contract-reviewer budget-builder market-researcher business-planner'
 trigger_phrases: >-
   I want to buy a franchise help me evaluate a franchise how to become a
   franchisee franchise investment analysis is this franchise worth buying
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship step-by-step planning
   category: business-operations
-  depends: "swot-analyzer contract-reviewer budget-builder market-researcher business-planner"
+  depends: 'swot-analyzer contract-reviewer budget-builder market-researcher business-planner'
 ---
+
 # Franchise Evaluation
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -164,6 +165,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

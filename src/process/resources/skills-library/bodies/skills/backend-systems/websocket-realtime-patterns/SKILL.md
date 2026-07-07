@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend web-development frameworks"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend web-development frameworks'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # WebSocket Realtime Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to implement bidirectional real-time communication between a browser client and server (chat, live dashboards, collaborative editing, multiplayer games, live notifications)
 - User is deciding whether to use WebSockets vs. Server-Sent Events (SSE) vs. long polling vs. HTTP/2 push for a specific feature
 - User needs to design a WebSocket server that handles thousands to millions of concurrent connections with fan-out messaging
@@ -31,6 +33,7 @@ metadata:
 - User is debugging WebSocket issues in production (high memory, slow fan-out, proxy timeouts, message ordering bugs)
 
 **Do NOT use this skill when:**
+
 - User needs general REST API design -- use the REST API design skill instead
 - User needs GraphQL subscriptions exclusively and does not need to understand the underlying transport -- use the GraphQL subscriptions skill
 - User is asking about HTTP caching, CDN configuration, or static asset delivery -- those are different concerns
@@ -53,16 +56,16 @@ Before writing any code, identify which real-time pattern best fits the requirem
 
 **Transport decision matrix:**
 
-| Requirement | WebSocket | SSE | Long Polling |
-|---|---|---|---|
-| Bidirectional messaging | ✅ Native | ❌ No | ❌ Simulated |
-| Server-to-client only | ✅ Overkill | ✅ Ideal | ✅ Acceptable |
-| Browser support | ✅ Universal | ✅ Universal | ✅ Universal |
-| Works through HTTP proxies | ⚠️ Needs config | ✅ Always | ✅ Always |
-| Binary frames | ✅ Yes | ❌ Text only | ❌ Text only |
-| Auto-reconnect built in | ❌ Manual | ✅ Built in | ❌ Manual |
-| Connection overhead | High | Medium | Low |
-| Messages per second | Very high | High | < 1/sec practical |
+| Requirement                | WebSocket       | SSE          | Long Polling      |
+| -------------------------- | --------------- | ------------ | ----------------- |
+| Bidirectional messaging    | ✅ Native       | ❌ No        | ❌ Simulated      |
+| Server-to-client only      | ✅ Overkill     | ✅ Ideal     | ✅ Acceptable     |
+| Browser support            | ✅ Universal    | ✅ Universal | ✅ Universal      |
+| Works through HTTP proxies | ⚠️ Needs config | ✅ Always    | ✅ Always         |
+| Binary frames              | ✅ Yes          | ❌ Text only | ❌ Text only      |
+| Auto-reconnect built in    | ❌ Manual       | ✅ Built in  | ❌ Manual         |
+| Connection overhead        | High            | Medium       | Low               |
+| Messages per second        | Very high       | High         | < 1/sec practical |
 
 Choose WebSockets when: bidirectional messaging is required OR message rate exceeds 1 per second OR latency must be under 100ms consistently.
 
@@ -133,7 +136,7 @@ Address the operational concerns that cause production WebSocket deployments to 
 
 When responding to WebSocket implementation questions, structure your output as follows:
 
-```
+````
 ## WebSocket Implementation Plan: [Feature Name]
 
 ### Transport Selection
@@ -153,16 +156,18 @@ When responding to WebSocket implementation questions, structure your output as 
   "v": 1,
   "payload": { }
 }
-```
+````
 
 #### Message Types
-| Type | Direction | Payload | Ack Required |
-|------|-----------|---------|--------------|
-| [type] | S→C / C→S / Both | [fields] | Yes/No |
+
+| Type   | Direction        | Payload  | Ack Required |
+| ------ | ---------------- | -------- | ------------ |
+| [type] | S→C / C→S / Both | [fields] | Yes/No       |
 
 ### Connection Lifecycle
 
 **Server-side handler pseudocode:**
+
 ```
 onUpgrade(req):
   token = req.headers['authorization'] || req.query.token
@@ -186,26 +191,31 @@ onClose(connectionId, code, reason):
 ```
 
 ### Room / Channel Architecture
+
 - Room implementation: [in-memory Map / Redis adapter]
 - Cross-instance fan-out: [Redis Pub/Sub channel names]
 - Presence storage: [Redis sorted set / in-memory]
 
 ### Reliability Settings
+
 - Sequence numbers: [Yes/No]
 - Replay buffer: [N messages / TTL]
 - Client retry policy: [backoff formula]
 - Idempotency key TTL: [seconds]
 
 ### Scaling Configuration
+
 - Max connections per instance: [N]
 - Load balancer sticky sessions: [Yes/No, configuration notes]
 - Heartbeat interval: [N seconds]
 - Proxy read timeout: [N seconds]
 
 ### Key Metrics to Monitor
+
 - [metric name]: [threshold and alert condition]
 
 ### Implementation Checklist
+
 - [ ] Authentication at upgrade (not post-connect)
 - [ ] Heartbeat with configurable interval and timeout
 - [ ] Connection registry with userId → [connectionId] mapping
@@ -216,7 +226,8 @@ onClose(connectionId, code, reason):
 - [ ] Sequence numbers on server-to-client messages
 - [ ] Reconnect replay endpoint / message buffer
 - [ ] Metrics instrumentation
-```
+
+````
 
 ---
 
@@ -341,23 +352,24 @@ When multiple clients edit shared state concurrently (documents, whiteboards, co
   "v": 1,
   "payload": { }
 }
-```
+````
 
 #### Message Types
-| Type | Direction | Payload | Ack Required |
-|---|---|---|---|
-| `session.init` | C→S | `{ boardId, token, lastSeq }` | Yes |
-| `session.ready` | S→C | `{ connectionId, seq, snapshot }` | No |
-| `cursor.move` | C→S | `{ x, y }` | No |
-| `cursor.update` | S→C | `{ userId, x, y, color }` | No |
-| `draw.stroke` | C→S | `{ points[], color, width, tool }` | Yes |
-| `draw.op` | S→C | `{ userId, seq, points[], color, width, tool }` | No |
-| `draw.undo` | C→S | `{ opId }` | Yes |
-| `presence.join` | S→C | `{ userId, displayName, color, cursor }` | No |
-| `presence.leave` | S→C | `{ userId }` | No |
-| `ack` | S→C | `{ id, status, seq? }` | No |
-| `error.rate_limit` | S→C | `{ retryAfter }` | No |
-| `server.shutdown` | S→C | `{ reconnectDelay }` | No |
+
+| Type               | Direction | Payload                                         | Ack Required |
+| ------------------ | --------- | ----------------------------------------------- | ------------ |
+| `session.init`     | C→S       | `{ boardId, token, lastSeq }`                   | Yes          |
+| `session.ready`    | S→C       | `{ connectionId, seq, snapshot }`               | No           |
+| `cursor.move`      | C→S       | `{ x, y }`                                      | No           |
+| `cursor.update`    | S→C       | `{ userId, x, y, color }`                       | No           |
+| `draw.stroke`      | C→S       | `{ points[], color, width, tool }`              | Yes          |
+| `draw.op`          | S→C       | `{ userId, seq, points[], color, width, tool }` | No           |
+| `draw.undo`        | C→S       | `{ opId }`                                      | Yes          |
+| `presence.join`    | S→C       | `{ userId, displayName, color, cursor }`        | No           |
+| `presence.leave`   | S→C       | `{ userId }`                                    | No           |
+| `ack`              | S→C       | `{ id, status, seq? }`                          | No           |
+| `error.rate_limit` | S→C       | `{ retryAfter }`                                | No           |
+| `server.shutdown`  | S→C       | `{ reconnectDelay }`                            | No           |
 
 **Size limits:** cursor messages max 128 bytes, draw operations max 32 KB, reject anything larger.
 
@@ -384,8 +396,8 @@ const RATE_LIMIT_WINDOW_MS = 10000;
 
 // Called from HTTP server upgrade event
 function handleUpgrade(req, socket, head) {
-  const token = req.headers['authorization']?.replace('Bearer ', '')
-               || new URL(req.url, 'ws://x').searchParams.get('token');
+  const token =
+    req.headers['authorization']?.replace('Bearer ', '') || new URL(req.url, 'ws://x').searchParams.get('token');
 
   const user = verifyToken(token);
   if (!user) {
@@ -401,10 +413,10 @@ function handleUpgrade(req, socket, head) {
 
 wss.on('connection', (ws, req, user) => {
   const connectionId = crypto.randomUUID();
-  
+
   // Register connection
   registry.add(user.id, connectionId, ws);
-  
+
   // Start heartbeat -- server-initiated to survive ALB idle timeout
   const pingTimer = setInterval(() => {
     if (ws.readyState !== WebSocket.OPEN) return;
@@ -427,7 +439,7 @@ wss.on('connection', (ws, req, user) => {
 
     // Rate limiting: sliding window per connection
     const now = Date.now();
-    ws._msgTimestamps = (ws._msgTimestamps || []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+    ws._msgTimestamps = (ws._msgTimestamps || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
     if (ws._msgTimestamps.length >= RATE_LIMIT_MAX) {
       send(ws, { type: 'error.rate_limit', retryAfter: RATE_LIMIT_WINDOW_MS });
       return;
@@ -463,10 +475,13 @@ async function cleanup(userId, connectionId) {
     registry.remove(connectionId);
     if (boardId) {
       rooms.leave(boardId, connectionId);
-      await redis.publish(`board:${boardId}`, JSON.stringify({
-        type: 'presence.leave',
-        payload: { userId }
-      }));
+      await redis.publish(
+        `board:${boardId}`,
+        JSON.stringify({
+          type: 'presence.leave',
+          payload: { userId },
+        })
+      );
       await redis.zrem('presence:' + boardId, userId);
     }
   } catch (err) {
@@ -477,7 +492,8 @@ async function cleanup(userId, connectionId) {
 function send(ws, msg) {
   if (ws.readyState !== WebSocket.OPEN) return;
   // Backpressure check
-  if (ws.bufferedAmount > 1024 * 1024) { // 1 MB threshold
+  if (ws.bufferedAmount > 1024 * 1024) {
+    // 1 MB threshold
     if (msg.type === 'cursor.update') return; // Drop low-priority, never drop critical
     console.warn('send buffer full, dropping:', msg.type);
     return;
@@ -501,37 +517,40 @@ const subscriber = redis.duplicate(); // separate connection for subscriptions
 // Each instance subscribes to board channels for boards it has active connections
 async function joinBoard(boardId, connectionId, ws, userId, lastSeq) {
   const channelKey = `board:${boardId}`;
-  
+
   // Subscribe this instance to the board channel if not already subscribed
   if (!activeSubscriptions.has(boardId)) {
     await subscriber.subscribe(channelKey);
     activeSubscriptions.add(boardId);
   }
-  
+
   rooms.join(boardId, connectionId);
-  
+
   // Load snapshot + replay missed messages
   const [snapshot, missedOps] = await Promise.all([
     redis.get(`board:${boardId}:snapshot`),
-    replayFrom(boardId, lastSeq)
+    replayFrom(boardId, lastSeq),
   ]);
-  
+
   // Send current state to the joining client
   send(ws, {
     type: 'session.ready',
     connectionId,
     seq: await getCurrentSeq(boardId),
     snapshot: snapshot ? JSON.parse(snapshot) : null,
-    missedOps
+    missedOps,
   });
-  
+
   // Announce presence to room
   const presentUsers = await redis.zrange(`presence:${boardId}`, 0, -1);
   await redis.zadd(`presence:${boardId}`, Date.now(), userId);
-  await redis.publish(channelKey, JSON.stringify({
-    type: 'presence.join',
-    payload: { userId, displayName: user.displayName, color: user.color }
-  }));
+  await redis.publish(
+    channelKey,
+    JSON.stringify({
+      type: 'presence.join',
+      payload: { userId, displayName: user.displayName, color: user.color },
+    })
+  );
 }
 
 // When Redis delivers a message, fan out to all local connections in the room
@@ -539,7 +558,7 @@ subscriber.on('message', (channel, data) => {
   const boardId = channel.replace('board:', '');
   const msg = JSON.parse(data);
   const connections = rooms.getConnections(boardId);
-  
+
   for (const connectionId of connections) {
     const ws = registry.getSocket(connectionId);
     if (ws) send(ws, msg);
@@ -567,19 +586,19 @@ idempotency:{msgId}             STRING  -- "1", TTL 5 minutes
 
 async function handleDrawStroke(ws, user, connectionId, msg) {
   const { boardId } = registry.getMeta(connectionId);
-  
+
   // Idempotency check
   const dedupKey = `idempotency:${msg.id}`;
-  const isDuplicate = await redis.set(dedupKey, '1', 'EX', 300, 'NX') === null;
+  const isDuplicate = (await redis.set(dedupKey, '1', 'EX', 300, 'NX')) === null;
   if (isDuplicate) {
     // Resend original ack, do not reprocess
     send(ws, { type: 'ack', id: msg.id, status: 'ok' });
     return;
   }
-  
+
   // Assign server-side sequence number
   const seq = await redis.incr(`board:${boardId}:seq`);
-  
+
   const op = {
     type: 'draw.op',
     id: msg.id,
@@ -587,25 +606,26 @@ async function handleDrawStroke(ws, user, connectionId, msg) {
     ts: Date.now(),
     payload: {
       userId: user.id,
-      ...msg.payload // points, color, width, tool
-    }
+      ...msg.payload, // points, color, width, tool
+    },
   };
-  
+
   // Persist to replay buffer
   const opJson = JSON.stringify(op);
-  await redis.pipeline()
+  await redis
+    .pipeline()
     .rpush(`board:${boardId}:ops`, opJson)
     .ltrim(`board:${boardId}:ops`, -500, -1) // keep last 500
     .exec();
-  
+
   // Snapshot every 50 operations
   if (seq % 50 === 0) {
     await updateSnapshot(boardId);
   }
-  
+
   // Fan out to all room members via Redis
   await redis.publish(`board:${boardId}`, opJson);
-  
+
   // Ack to originating client
   send(ws, { type: 'ack', id: msg.id, status: 'ok', seq });
 }
@@ -613,10 +633,13 @@ async function handleDrawStroke(ws, user, connectionId, msg) {
 // Cursor moves: no ack, no persistence, high frequency
 async function handleCursorMove(ws, user, connectionId, msg) {
   const { boardId } = registry.getMeta(connectionId);
-  await redis.publish(`board:${boardId}`, JSON.stringify({
-    type: 'cursor.update',
-    payload: { userId: user.id, x: msg.payload.x, y: msg.payload.y }
-  }));
+  await redis.publish(
+    `board:${boardId}`,
+    JSON.stringify({
+      type: 'cursor.update',
+      payload: { userId: user.id, x: msg.payload.x, y: msg.payload.y },
+    })
+  );
 }
 ```
 
@@ -635,21 +658,23 @@ class WhiteboardSocket {
     this.attempt = 0;
     this.connect();
   }
-  
+
   connect() {
     this.ws = new WebSocket(`wss://api.example.com/ws?token=${this.token}`);
-    
+
     this.ws.onopen = () => {
       this.attempt = 0;
-      this.ws.send(JSON.stringify({
-        type: 'session.init',
-        id: crypto.randomUUID(),
-        ts: Date.now(),
-        v: 1,
-        payload: { boardId: this.boardId, lastSeq: this.lastSeq }
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'session.init',
+          id: crypto.randomUUID(),
+          ts: Date.now(),
+          v: 1,
+          payload: { boardId: this.boardId, lastSeq: this.lastSeq },
+        })
+      );
     };
-    
+
     this.ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       if (msg.seq) {
@@ -658,7 +683,7 @@ class WhiteboardSocket {
       }
       this.onMessage(msg);
     };
-    
+
     this.ws.onclose = (event) => {
       // Do not reconnect on policy violations -- indicates a client bug
       if (event.code === 1008 || event.code === 1009) {
@@ -668,12 +693,12 @@ class WhiteboardSocket {
       }
       this.scheduleReconnect();
     };
-    
+
     this.ws.onerror = (err) => {
       console.error('WebSocket error:', err);
       // onclose fires next -- reconnect logic is there
     };
-    
+
     // Handle backgrounded tab
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && this.ws.readyState !== WebSocket.OPEN) {
@@ -681,7 +706,7 @@ class WhiteboardSocket {
       }
     });
   }
-  
+
   scheduleReconnect() {
     const delay = Math.min(1000 * Math.pow(1.5, this.attempt), 30000);
     const jitter = delay * (0.8 + 0.4 * Math.random());
@@ -695,16 +720,16 @@ class WhiteboardSocket {
 
 ### Scaling Configuration
 
-| Parameter | Value | Rationale |
-|---|---|---|
-| Max connections per instance | 15,000 | ~200 KB/conn with Yjs doc state; 3 GB reserved for connections on 4 GB instance |
-| Heartbeat interval | 25 seconds | AWS ALB idle timeout is 60 seconds; this provides 2x margin |
-| Pong timeout | 10 seconds | Total dead detection: 35 seconds |
-| Proxy read timeout (nginx) | 3,600 seconds | 1-hour max session without requiring reconnect |
-| Replay buffer | 500 ops per board | Covers ~60 seconds of heavy drawing at max rate |
-| Snapshot frequency | Every 50 ops | Caps replay time on join to < 50 ops at all times |
-| Idempotency key TTL | 300 seconds | Covers any realistic retransmit window |
-| Rate limit | 100 messages / 10 seconds | ~10 msg/sec sustained; burst allows fast strokes |
+| Parameter                    | Value                     | Rationale                                                                       |
+| ---------------------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| Max connections per instance | 15,000                    | ~200 KB/conn with Yjs doc state; 3 GB reserved for connections on 4 GB instance |
+| Heartbeat interval           | 25 seconds                | AWS ALB idle timeout is 60 seconds; this provides 2x margin                     |
+| Pong timeout                 | 10 seconds                | Total dead detection: 35 seconds                                                |
+| Proxy read timeout (nginx)   | 3,600 seconds             | 1-hour max session without requiring reconnect                                  |
+| Replay buffer                | 500 ops per board         | Covers ~60 seconds of heavy drawing at max rate                                 |
+| Snapshot frequency           | Every 50 ops              | Caps replay time on join to < 50 ops at all times                               |
+| Idempotency key TTL          | 300 seconds               | Covers any realistic retransmit window                                          |
+| Rate limit                   | 100 messages / 10 seconds | ~10 msg/sec sustained; burst allows fast strokes                                |
 
 ---
 
@@ -722,6 +747,7 @@ class WhiteboardSocket {
 ---
 
 ### Implementation Checklist
+
 - [x] Authentication at upgrade via `Authorization` header or `token` query param
 - [x] HTTP 401 returned for invalid token -- socket never opened
 - [x] Server-initiated ping every 25 seconds with 10-second pong deadline

@@ -9,6 +9,7 @@ import { downloadFileFromPath } from '@/renderer/utils/file/download';
 import type { IDirOrFile } from '@/common/adapter/ipcBridge';
 import type { PreviewContentType } from '@/common/types/preview';
 import { emitter } from '@/renderer/utils/emitter';
+import type { PreviewMetadata } from '@/renderer/pages/conversation/Preview/context/PreviewContext';
 import {
   LARGE_TEXT_PREVIEW_MAX_LENGTH,
   LARGE_TEXT_PREVIEW_THRESHOLD,
@@ -46,7 +47,7 @@ interface UseWorkspaceFileOpsOptions {
   setDeleteModal: React.Dispatch<React.SetStateAction<DeleteModalState>>;
 
   // Dependencies from preview context
-  openPreview: (content: string, type: PreviewContentType, metadata?: any) => void;
+  openPreview: (content: string, type: PreviewContentType, metadata?: PreviewMetadata) => void;
 }
 
 /**

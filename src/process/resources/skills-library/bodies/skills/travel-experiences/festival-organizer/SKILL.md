@@ -5,14 +5,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning guide"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning guide'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Festival Organizer
 
 ## When to Use
@@ -20,6 +21,7 @@ metadata:
 Use this skill when a user needs structured, actionable guidance for planning and executing a festival or multi-day event. This skill covers the full production lifecycle -- from initial concept through post-event wrap-up.
 
 **Trigger this skill when the user:**
+
 - Is planning a new music, food, arts, cultural, film, or community festival from scratch and needs a comprehensive roadmap
 - Has an existing festival and needs help with a specific operational domain (permits, programming, vendor management, safety, or marketing)
 - Needs a budget framework, revenue model analysis, or break-even calculation for a proposed event
@@ -32,6 +34,7 @@ Use this skill when a user needs structured, actionable guidance for planning an
 - Is applying for grants, sponsorships, or city partnerships and needs to articulate the event's structure and impact
 
 **Do NOT use this skill when:**
+
 - The user is planning a private party, wedding, or corporate event with fewer than 150 attendees -- use a general event planning skill instead
 - The request is specifically about conference or trade show production, which has distinct exhibitor logistics, registration systems, and A/V requirements
 - The user needs help with artist contract law, music licensing (ASCAP/BMI/SESAC), or intellectual property -- defer to a legal domain skill
@@ -540,3 +543,4 @@ Viability Assessment: CONDITIONAL GO
   -- Viable if parks permit is obtained and sponsorship target is met.
   -- Recommend a firm go/no-go decision at 6 months (2 months from now)
      based on permit status, early bird ticket sales,
+```

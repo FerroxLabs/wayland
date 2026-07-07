@@ -55,28 +55,19 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
   const handleTestAndEnable = async () => {
     if (!serverUrl.trim()) {
       Message.warning(
-        t(
-          'settings.channels.nextcloudTalk.credentials.serverUrl.required',
-          'Please enter the Nextcloud server URL',
-        ),
+        t('settings.channels.nextcloudTalk.credentials.serverUrl.required', 'Please enter the Nextcloud server URL')
       );
       return;
     }
     if (!username.trim()) {
       Message.warning(
-        t(
-          'settings.channels.nextcloudTalk.credentials.username.required',
-          'Please enter your Nextcloud username',
-        ),
+        t('settings.channels.nextcloudTalk.credentials.username.required', 'Please enter your Nextcloud username')
       );
       return;
     }
     if (!appPassword.trim()) {
       Message.warning(
-        t(
-          'settings.channels.nextcloudTalk.credentials.appPassword.required',
-          'Please enter an app password',
-        ),
+        t('settings.channels.nextcloudTalk.credentials.appPassword.required', 'Please enter an app password')
       );
       return;
     }
@@ -95,17 +86,12 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
           testResult.data?.error ??
-            t(
-              'settings.channels.nextcloudTalk.connectionFailed',
-              'Nextcloud Talk connection failed',
-            ),
+            t('settings.channels.nextcloudTalk.connectionFailed', 'Nextcloud Talk connection failed')
         );
         return;
       }
 
-      Message.success(
-        t('settings.channels.nextcloudTalk.connectionSuccess', 'Nextcloud Talk connected'),
-      );
+      Message.success(t('settings.channels.nextcloudTalk.connectionSuccess', 'Nextcloud Talk connected'));
 
       const enableResult = await channel.enablePlugin.invoke({
         pluginId: 'nextcloud-talk_default',
@@ -117,20 +103,13 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.nextcloudTalk.pluginEnabled', 'Nextcloud Talk plugin enabled'),
-        );
+        Message.success(t('settings.channels.nextcloudTalk.pluginEnabled', 'Nextcloud Talk plugin enabled'));
         const statusResult = await channel.getPluginStatus.invoke();
         if (statusResult.success && statusResult.data) {
-          onStatusChange(
-            statusResult.data.find((p) => p.type === 'nextcloud-talk') ?? null,
-          );
+          onStatusChange(statusResult.data.find((p) => p.type === 'nextcloud-talk') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.nextcloudTalk.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.nextcloudTalk.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -147,20 +126,17 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
           <span className='text-12px'>
             {t(
               'settings.channels.nextcloudTalk.replaceWarning',
-              'Connecting a new account will replace your existing Nextcloud Talk connection.',
+              'Connecting a new account will replace your existing Nextcloud Talk connection.'
             )}
           </span>
         </div>
       )}
 
       <PreferenceRow
-        label={t(
-          'settings.channels.nextcloudTalk.credentials.serverUrl.label',
-          'Server URL',
-        )}
+        label={t('settings.channels.nextcloudTalk.credentials.serverUrl.label', 'Server URL')}
         description={t(
           'settings.channels.nextcloudTalk.credentials.serverUrl.help',
-          'Base URL of your Nextcloud instance, e.g. https://cloud.example.com',
+          'Base URL of your Nextcloud instance, e.g. https://cloud.example.com'
         )}
       >
         <Input
@@ -168,41 +144,29 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
           onChange={setServerUrl}
           placeholder={t(
             'settings.channels.nextcloudTalk.credentials.serverUrl.placeholder',
-            'https://cloud.example.com',
+            'https://cloud.example.com'
           )}
           style={{ width: 280 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.nextcloudTalk.credentials.username.label',
-          'Username',
-        )}
-        description={t(
-          'settings.channels.nextcloudTalk.credentials.username.help',
-          'Your Nextcloud login name.',
-        )}
+        label={t('settings.channels.nextcloudTalk.credentials.username.label', 'Username')}
+        description={t('settings.channels.nextcloudTalk.credentials.username.help', 'Your Nextcloud login name.')}
       >
         <Input
           value={username}
           onChange={setUsername}
-          placeholder={t(
-            'settings.channels.nextcloudTalk.credentials.username.placeholder',
-            'youruser',
-          )}
+          placeholder={t('settings.channels.nextcloudTalk.credentials.username.placeholder', 'youruser')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.nextcloudTalk.credentials.appPassword.label',
-          'App Password',
-        )}
+        label={t('settings.channels.nextcloudTalk.credentials.appPassword.label', 'App Password')}
         description={t(
           'settings.channels.nextcloudTalk.credentials.appPassword.help',
-          'Generate under Personal → Security → Devices & sessions in your Nextcloud settings.',
+          'Generate under Personal → Security → Devices & sessions in your Nextcloud settings.'
         )}
       >
         <Input.Password
@@ -211,10 +175,7 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.nextcloudTalk.credentials.appPassword.placeholder',
-                  'xxxx-xxxx-xxxx-xxxx',
-                )
+              : t('settings.channels.nextcloudTalk.credentials.appPassword.placeholder', 'xxxx-xxxx-xxxx-xxxx')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -224,7 +185,7 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.nextcloudTalk.appPasswordHowTo',
-          'How to create an app password: open Nextcloud → top-right avatar → Personal settings → Security → Devices & sessions → Create new app password.',
+          'How to create an app password: open Nextcloud → top-right avatar → Personal settings → Security → Devices & sessions → Create new app password.'
         )}
       </div>
 
@@ -234,7 +195,6 @@ const NextcloudTalkConfigForm: React.FC<NextcloudTalkConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='nextcloud-talk' modelSelection={modelSelection} />
-
     </div>
   );
 };

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # JavaScript Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to modernize legacy JavaScript code with null/undefined guards using optional chaining (?.) or nullish coalescing (??)
 - The user asks how to write idiomatic ES2020+ or ES2022+ JavaScript -- shorthand syntax, newer built-ins, pattern improvements
 - The user wants to use destructuring beyond basic extraction -- renaming, defaults, nested patterns, function parameter shapes
@@ -31,6 +33,7 @@ metadata:
 - The user wants to understand the difference between nullish (??) and falsy (||) coalescing semantics
 
 **Do NOT use this skill when:**
+
 - The user asks about TypeScript-specific type features -- use `typescript-type-patterns` (discriminated unions, conditional types, mapped types, template literal types)
 - The user wants Node.js project scaffolding, package.json setup, or module system configuration -- use `nodejs-project-setup`
 - The user is writing tests or asking about testing patterns -- use `javascript-testing-patterns`
@@ -76,6 +79,7 @@ Optional chaining (?.) short-circuits at the first null or undefined and returns
 - Combining: `obj?.prop?.nested ?? 'fallback'` -- the ?? receives undefined from the short-circuit
 
 **Thresholds and constraints:**
+
 - Limit chains to 3 levels of ?. before extracting an intermediate variable. Beyond 3 levels, the chain is harder to debug because the point of failure is invisible.
 - Do not use ?. when you expect the value to always be present -- use plain dot access so that a programming error throws immediately rather than silently returning undefined
 - The logical nullish assignment `??=` operator conditionally assigns only when the left side is null/undefined: `obj.cache ??= computeExpensiveValue()` -- use this for lazy initialization
@@ -125,6 +129,7 @@ Destructuring is a binding pattern, not a value extraction expression. It create
 These are direct replacements for common verbose patterns. Apply them whenever you see the legacy pattern:
 
 **Object construction:**
+
 - `Object.fromEntries(pairs)` -- converts an array of [key, value] pairs or a Map into a plain object. Replaces reduce-based object assembly.
 - `Object.fromEntries(map)` -- converts a Map directly to an object
 - `Object.fromEntries(Object.entries(obj).filter(...))` -- filter/transform object properties without manual reduce
@@ -133,6 +138,7 @@ These are direct replacements for common verbose patterns. Apply them whenever y
 - `Map.groupBy(iterable, keyFn)` -- ES2024. Like Object.groupBy but returns a Map, preserving non-string key identity (useful when grouping by object references or symbols).
 
 **Array built-ins:**
+
 - `arr.at(-1)` -- last element. `arr.at(-2)` -- second to last. Works on strings and TypedArrays too.
 - `arr.at(0)` -- first element with the same API consistency (prefer arr[0] only when index is definitely non-negative)
 - `Array.from({ length: n }, (_, i) => i)` -- generate a sequence [0..n-1] without new Array(n).fill()
@@ -141,6 +147,7 @@ These are direct replacements for common verbose patterns. Apply them whenever y
 - `arr.toSorted()`, `arr.toReversed()`, `arr.toSpliced()`, `arr.with(index, value)` -- ES2023 non-mutating array methods. Return new arrays. Use instead of sort/reverse/splice when you need to preserve the original.
 
 **Deep cloning:**
+
 - `structuredClone(value)` -- handles Date (preserved as Date, not string), RegExp, Map, Set, ArrayBuffer, TypedArray, Error, URL, and circular references (throws for circular by default in some engines -- test this). Does NOT clone functions, DOM nodes, or WeakMap/WeakRef. Replaces JSON.parse(JSON.stringify(x)) which corrupts Date to string, drops undefined properties, drops functions, and throws on BigInt.
 - For objects containing functions or class instances, structuredClone is insufficient -- write a custom clone or use a library like structuredClone-polyfill with extensions, or reconsider your data model.
 
@@ -151,6 +158,7 @@ These are direct replacements for common verbose patterns. Apply them whenever y
 Iterators and generators enable lazy computation -- values are produced on demand rather than all at once, making them memory-efficient for large or infinite sequences.
 
 **Iterator protocol fundamentals:**
+
 - An object is iterable if it has a `[Symbol.iterator]()` method returning an iterator
 - An iterator is an object with a `next()` method returning `{ value, done }`
 - Built-in iterables: Array, String, Map, Set, arguments, NodeList, generator objects
@@ -195,12 +203,14 @@ function* accumulator() {
 ```
 
 **Async generator patterns:**
+
 - Use `async function*` for sequences that require awaiting each item (paginated API responses, chunked streams, database cursors)
 - Consume with `for await (const item of asyncGen())`
 - Always handle cleanup: `try { ... } finally { closeConnection(); }` inside the generator -- the finally block runs when the iterator is abandoned (return() is called)
 - `Array.fromAsync(asyncGen())` collects the full sequence when you need it all at once
 
 **When to choose generators over arrays:**
+
 - Sequence is large (> 10,000 items) or unbounded
 - Each item is expensive to compute and you may not need all of them
 - You want to pipeline transformations without intermediate arrays
@@ -214,16 +224,16 @@ Proxy intercepts fundamental object operations via "traps." Reflect provides the
 
 **Key traps and their use cases:**
 
-| Trap | Intercepts | Common Use |
-|------|------------|------------|
-| get | Property read: obj.prop | Virtual properties, negative array indices, logging |
-| set | Property write: obj.prop = val | Validation, change notification, immutability enforcement |
-| has | in operator: 'prop' in obj | Hiding implementation details |
-| deleteProperty | delete obj.prop | Preventing deletion of protected keys |
-| apply | Function call: fn() | Timing, logging, argument transformation |
-| construct | new Fn() | Singleton enforcement, argument validation |
-| ownKeys | Object.keys, for...in | Filtering enumerable properties |
-| getOwnPropertyDescriptor | Object.getOwnPropertyDescriptor | Virtualizing property metadata |
+| Trap                     | Intercepts                      | Common Use                                                |
+| ------------------------ | ------------------------------- | --------------------------------------------------------- |
+| get                      | Property read: obj.prop         | Virtual properties, negative array indices, logging       |
+| set                      | Property write: obj.prop = val  | Validation, change notification, immutability enforcement |
+| has                      | in operator: 'prop' in obj      | Hiding implementation details                             |
+| deleteProperty           | delete obj.prop                 | Preventing deletion of protected keys                     |
+| apply                    | Function call: fn()             | Timing, logging, argument transformation                  |
+| construct                | new Fn()                        | Singleton enforcement, argument validation                |
+| ownKeys                  | Object.keys, for...in           | Filtering enumerable properties                           |
+| getOwnPropertyDescriptor | Object.getOwnPropertyDescriptor | Virtualizing property metadata                            |
 
 **Always forward to Reflect in your traps:**
 
@@ -231,20 +241,22 @@ Proxy intercepts fundamental object operations via "traps." Reflect provides the
 const handler = {
   set(target, prop, value, receiver) {
     if (typeof value !== 'number') throw new TypeError(`${prop} must be a number`);
-    return Reflect.set(target, prop, value, receiver);  // forward, return boolean
-  }
+    return Reflect.set(target, prop, value, receiver); // forward, return boolean
+  },
 };
 ```
 
 Forgetting the Reflect.set forward silently drops the write. The return value of set must be a boolean -- return false in strict mode causes a TypeError at the call site.
 
 **Performance constraint -- measure before using:**
+
 - A Proxy get trap adds approximately 2-5x overhead per property access on V8 compared to direct property access
 - On a hot loop running 1 million iterations, this can mean ~50ms vs ~10ms
 - Only use Proxy on configuration objects, user-facing APIs, or low-frequency paths
 - Never wrap performance-critical objects (tight loops, render paths, numeric computation) in Proxy
 
 **Revocable Proxy:**
+
 - `const { proxy, revoke } = Proxy.revocable(target, handler)` -- creates a proxy that can be permanently disabled by calling revoke()
 - After revocation, any trap on the proxy throws a TypeError
 - Useful for scoped access tokens: grant access via proxy, revoke when session ends
@@ -270,7 +282,7 @@ class Cache {
     if (!ref) return undefined;
     const value = ref.deref();
     if (value === undefined) {
-      this.#entries.delete(key);  // clean up stale entry
+      this.#entries.delete(key); // clean up stale entry
       return undefined;
     }
     return value;
@@ -293,6 +305,7 @@ registry.register(obj, 'dataset-token');
 ```
 
 **Critical constraints:**
+
 - The GC callback is called asynchronously and non-deterministically -- never rely on it for correctness, only for best-effort cleanup
 - Do not pass the object itself as the held value -- it defeats the purpose (the registry would hold a strong reference through the held value)
 - WeakRef.deref() may return undefined at any time between GC cycles -- always check before using
@@ -303,6 +316,7 @@ registry.register(obj, 'dataset-token');
 ### Step 8 -- Deliver Code with Context and Comparison
 
 When writing the final output:
+
 - Show the before (legacy pattern) and after (idiomatic) side by side unless the user only shows modern code
 - Add a one-line comment explaining WHY each idiom is better, not just what it does
 - Include edge cases inline when they affect correctness (e.g., "this default won't trigger for null -- use ?? not ||")
@@ -362,7 +376,9 @@ For generator/iterator patterns, additionally show consumption:
 
 ```javascript
 // Producer
-function* patternName(params) { /* ... */ }
+function* patternName(params) {
+  /* ... */
+}
 
 // Consumer
 for (const item of patternName(args)) {
@@ -429,14 +445,19 @@ structuredClone uses the Structured Clone Algorithm, which produces plain object
 
 ```javascript
 class Point {
-  constructor(x, y) { this.x = x; this.y = y; }
-  distanceTo(other) { return Math.hypot(this.x - other.x, this.y - other.y); }
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  distanceTo(other) {
+    return Math.hypot(this.x - other.x, this.y - other.y);
+  }
 }
 
 const p = new Point(1, 2);
 const clone = structuredClone(p);
 clone instanceof Point; // false -- clone is a plain object
-clone.distanceTo;       // undefined -- method not on plain object
+clone.distanceTo; // undefined -- method not on plain object
 ```
 
 When you need to clone class instances, implement a `clone()` method or a static `from()` factory, or use a serialization strategy. Do not rely on structuredClone for class-aware cloning.
@@ -474,19 +495,23 @@ Proxy traps cannot intercept access to private class fields (# syntax). Private 
 ```javascript
 class Counter {
   #count = 0;
-  increment() { this.#count++; }
-  get value() { return this.#count; }
+  increment() {
+    this.#count++;
+  }
+  get value() {
+    return this.#count;
+  }
 }
 
 const proxy = new Proxy(new Counter(), {
   get(target, prop, receiver) {
     console.log('get:', prop);
     return Reflect.get(target, prop, receiver);
-  }
+  },
 });
 
-proxy.increment();  // get trap fires for 'increment', but #count access inside is direct
-proxy.value;        // get trap fires for 'value', then #count is accessed directly
+proxy.increment(); // get trap fires for 'increment', but #count access inside is direct
+proxy.value; // get trap fires for 'value', then #count is accessed directly
 ```
 
 This is a spec-level restriction. If you need to intercept private state, use WeakMap-based private storage instead of # fields, so that access goes through Proxy-visible property lookups.
@@ -499,11 +524,11 @@ Object.groupBy coerces all keys to strings via toString(). This means grouping b
 
 ```javascript
 // These produce the same key "1":
-Object.groupBy([{ type: 1 }, { type: '1' }], item => item.type);
+Object.groupBy([{ type: 1 }, { type: '1' }], (item) => item.type);
 // Result: { '1': [{ type: 1 }, { type: '1' }] }
 
 // When key identity matters, use Map.groupBy instead:
-Map.groupBy([{ type: 1 }, { type: '1' }], item => item.type);
+Map.groupBy([{ type: 1 }, { type: '1' }], (item) => item.type);
 // Result: Map { 1 => [{ type: 1 }], '1' => [{ type: '1' }] }
 ```
 
@@ -542,7 +567,7 @@ This is especially common with APIs that return explicit null for cleared/unset 
 Optional chaining is NOT valid on the left side of an assignment. This is a syntax error:
 
 ```javascript
-obj?.prop = value;  // SyntaxError: Invalid left-hand side in assignment
+obj?.prop = value; // SyntaxError: Invalid left-hand side in assignment
 ```
 
 If obj might be null and you want to conditionally set a property:
@@ -585,18 +610,18 @@ function useRef(weakRef) {
 
 ```javascript
 // Legacy version
-var processRecords = function(records, options) {
-  var limit = options && options.limit || 100;
-  var filter = options && options.filter || null;
+var processRecords = function (records, options) {
+  var limit = (options && options.limit) || 100;
+  var filter = (options && options.filter) || null;
   var grouped = {};
   var results = [];
 
   for (var i = 0; i < records.length; i++) {
     var record = records[i];
-    var name = record && record.user && record.user.profile && record.user.profile.displayName || 'Anonymous';
-    var dept = record && record.org && record.org.department || 'Unknown';
+    var name = (record && record.user && record.user.profile && record.user.profile.displayName) || 'Anonymous';
+    var dept = (record && record.org && record.org.department) || 'Unknown';
     var lastLogin = record && record.sessions && record.sessions[record.sessions.length - 1];
-    var settings = JSON.parse(JSON.stringify(record && record.settings || {}));
+    var settings = JSON.parse(JSON.stringify((record && record.settings) || {}));
 
     if (filter && !filter(record)) continue;
 
@@ -646,11 +671,11 @@ function processRecords(records, { limit = 100, filter = null } = {}) {
   // IMPORTANT: using ?? not || so an explicit limit of 0 (no results) is respected.
 
   const results = records
-    .filter(record => filter == null || filter(record))
+    .filter((record) => filter == null || filter(record))
     // filter == null catches both null and undefined,
     // allowing filter: null to mean "no filter applied"
     .slice(0, limit)
-    .map(record => {
+    .map((record) => {
       // Optional chaining: short-circuits at the first null/undefined.
       // We stop at 3 levels (record?.user?.profile?.displayName) -- within the limit.
       const name = record?.user?.profile?.displayName ?? 'Anonymous';
@@ -676,7 +701,7 @@ function processRecords(records, { limit = 100, filter = null } = {}) {
   // Object.groupBy groups the results array into an object keyed by dept.
   // Each value is an array of entries with that dept.
   // Requires Node 21+ / Chrome 117+. See edge case note on key coercion.
-  const grouped = Object.groupBy(results, entry => entry.dept);
+  const grouped = Object.groupBy(results, (entry) => entry.dept);
 
   return { results, grouped, total: results.length };
 }
@@ -685,12 +710,11 @@ function processRecords(records, { limit = 100, filter = null } = {}) {
 
 const { results, grouped, total } = processRecords(rawRecords, {
   limit: 50,
-  filter: record => record?.status === 'active',
+  filter: (record) => record?.status === 'active',
 });
 
 console.log(`Processed ${total} active records`);
 console.log('Engineering dept:', grouped['Engineering']?.length ?? 0);
-
 
 // ─── BONUS: ASYNC GENERATOR VERSION FOR PAGINATED API ────────────────────────
 // When records come from a paginated API rather than an in-memory array,
@@ -732,7 +756,7 @@ async function processAllPages(fetchPage, options = {}) {
     results.push({ name, dept, lastLogin, settings });
   }
 
-  const grouped = Object.groupBy(results, entry => entry.dept);
+  const grouped = Object.groupBy(results, (entry) => entry.dept);
   return { results, grouped, total: results.length };
 }
 

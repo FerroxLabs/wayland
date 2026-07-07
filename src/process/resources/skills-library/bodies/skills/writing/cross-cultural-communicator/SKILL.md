@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "business-writing writing guide"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'business-writing writing guide'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Cross Cultural Communicator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on cross cultural communicator
 - User asks about cross cultural communicator best practices or techniques
 - User wants a structured approach to cross cultural communicator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of cross cultural communicator
 
@@ -500,20 +501,24 @@ MISTAKE 6: TREATING AN ENTIRE REGION AS ONE CULTURE
 ## Practice Exercises
 
 ### Exercise 1: Cultural Self-Assessment
+
 Score yourself on each of Hofstede's 6 dimensions. Then score a culture you frequently interact with. Identify the biggest gaps and how they affect your interactions.
 
 ### Exercise 2: Communication Style Shift
+
 In your next cross-cultural interaction, consciously adjust one communication behavior (directness level, pace, formality). Note the response.
 
 ### Exercise 3: Perspective Taking
+
 Read a news article about a cross-cultural misunderstanding. Analyze it from both cultures' perspectives using the frameworks above.
 
 ### Exercise 4: Dining Simulation
+
 Before your next international dinner, research the specific dining etiquette of the culture. Practice any unfamiliar protocols.
 
 ### Exercise 5: Feedback Translation
-Write the same piece of constructive feedback in a high-context style and a low-context style. Note how the message and tone change while the content remains the same.
 
+Write the same piece of constructive feedback in a high-context style and a low-context style. Note how the message and tone change while the content remains the same.
 
 ## Output Format
 
@@ -527,13 +532,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with cross cultural communicator for a mid-size project."
 
 **Output:** A complete cross cultural communicator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -56,16 +56,12 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
 
   const handleTestAndEnable = async () => {
     if (!botUsername.trim()) {
-      Message.warning(
-        t('settings.channels.twitch.credentials.botUsername.required', 'Please enter the bot username'),
-      );
+      Message.warning(t('settings.channels.twitch.credentials.botUsername.required', 'Please enter the bot username'));
       return;
     }
 
     if (!oauthToken.trim()) {
-      Message.warning(
-        t('settings.channels.twitch.credentials.oauthToken.required', 'Please enter the OAuth token'),
-      );
+      Message.warning(t('settings.channels.twitch.credentials.oauthToken.required', 'Please enter the OAuth token'));
       return;
     }
 
@@ -76,7 +72,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
 
     if (channelList.length === 0) {
       Message.warning(
-        t('settings.channels.twitch.credentials.channels.required', 'Please enter at least one channel to join'),
+        t('settings.channels.twitch.credentials.channels.required', 'Please enter at least one channel to join')
       );
       return;
     }
@@ -108,7 +104,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
           testResult.data?.error ??
-            t('settings.channels.twitch.connectionFailed', 'Twitch connection failed - check token and username'),
+            t('settings.channels.twitch.connectionFailed', 'Twitch connection failed - check token and username')
         );
         return;
       }
@@ -132,9 +128,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
           onStatusChange(statusResult.data.find((p) => p.type === 'twitch') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.twitch.enableFailed', 'Failed to enable Twitch plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.twitch.enableFailed', 'Failed to enable Twitch plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -151,7 +145,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
           <span className='text-12px'>
             {t(
               'settings.channels.twitch.replaceWarning',
-              'Connecting a new Twitch bot will replace your existing credentials.',
+              'Connecting a new Twitch bot will replace your existing credentials.'
             )}
           </span>
         </div>
@@ -161,7 +155,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.twitch.credentials.botUsername.label', 'Bot Username')}
         description={t(
           'settings.channels.twitch.credentials.botUsername.help',
-          'The Twitch login name of your bot account (lowercase).',
+          'The Twitch login name of your bot account (lowercase).'
         )}
       >
         <Input
@@ -176,7 +170,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.twitch.credentials.oauthToken.label', 'OAuth Token')}
         description={t(
           'settings.channels.twitch.credentials.oauthToken.help',
-          'Bot OAuth token with chat:read + chat:edit scopes. Get one at twitchtokengenerator.com.',
+          'Bot OAuth token with chat:read + chat:edit scopes. Get one at twitchtokengenerator.com.'
         )}
       >
         <Input.Password
@@ -192,21 +186,16 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.twitch.credentials.channels.label', 'Channels')}
         description={t(
           'settings.channels.twitch.credentials.channels.help',
-          'Comma-separated channel names to join (e.g. mychannel, otherchannel). The # prefix is optional.',
+          'Comma-separated channel names to join (e.g. mychannel, otherchannel). The # prefix is optional.'
         )}
       >
-        <Input
-          value={channels}
-          onChange={setChannels}
-          placeholder='mychannel, otherchannel'
-          style={{ width: 280 }}
-        />
+        <Input value={channels} onChange={setChannels} placeholder='mychannel, otherchannel' style={{ width: 280 }} />
       </PreferenceRow>
 
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.twitch.tokenHowTo',
-          'Use a dedicated bot account - never use your personal Twitch account. Generate a token at twitchtokengenerator.com and select the chat:read and chat:edit scopes.',
+          'Use a dedicated bot account - never use your personal Twitch account. Generate a token at twitchtokengenerator.com and select the chat:read and chat:edit scopes.'
         )}
       </div>
 
@@ -227,7 +216,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
           <div className='text-12px text-t-tertiary'>
             {t(
               'settings.channels.twitch.advanced.help',
-              'Optional: provide a Twitch app Client ID + Client Secret + Refresh Token to enable automatic token refresh. When set, the static OAuth Token above is ignored and a fresh access token is minted before each connect.',
+              'Optional: provide a Twitch app Client ID + Client Secret + Refresh Token to enable automatic token refresh. When set, the static OAuth Token above is ignored and a fresh access token is minted before each connect.'
             )}
           </div>
 
@@ -235,22 +224,17 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
             label={t('settings.channels.twitch.credentials.clientId.label', 'Client ID')}
             description={t(
               'settings.channels.twitch.credentials.clientId.help',
-              'Twitch app Client ID (dev.twitch.tv → Console → Apps).',
+              'Twitch app Client ID (dev.twitch.tv → Console → Apps).'
             )}
           >
-            <Input
-              value={clientId}
-              onChange={setClientId}
-              placeholder='abcd1234...'
-              style={{ width: 280 }}
-            />
+            <Input value={clientId} onChange={setClientId} placeholder='abcd1234...' style={{ width: 280 }} />
           </PreferenceRow>
 
           <PreferenceRow
             label={t('settings.channels.twitch.credentials.clientSecret.label', 'Client Secret')}
             description={t(
               'settings.channels.twitch.credentials.clientSecret.help',
-              'Twitch app Client Secret - never share this value.',
+              'Twitch app Client Secret - never share this value.'
             )}
           >
             <Input.Password
@@ -266,7 +250,7 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
             label={t('settings.channels.twitch.credentials.refreshToken.label', 'Refresh Token')}
             description={t(
               'settings.channels.twitch.credentials.refreshToken.help',
-              'Refresh token obtained via the Authorization Code grant flow.',
+              'Refresh token obtained via the Authorization Code grant flow.'
             )}
           >
             <Input.Password
@@ -286,7 +270,6 @@ const TwitchConfigForm: React.FC<TwitchConfigFormProps> = ({ pluginStatus, model
         </Button>
       </div>
       <ChannelAgentModelSelector platform='twitch' modelSelection={modelSelection} />
-
     </div>
   );
 };

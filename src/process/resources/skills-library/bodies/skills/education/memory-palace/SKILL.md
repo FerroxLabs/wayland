@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills active-recall step-by-step guide"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills active-recall step-by-step guide'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Memory Palace
 
 ## When to Use
@@ -30,7 +31,7 @@ Use this skill when the learner's need matches one of these specific scenarios:
 
 **Do NOT use when:**
 
-- The learner needs to understand *why* something works, not just recall it -- this is conceptual learning; use the Feynman technique or concept mapping instead (see `concept-mapping`).
+- The learner needs to understand _why_ something works, not just recall it -- this is conceptual learning; use the Feynman technique or concept mapping instead (see `concept-mapping`).
 - The learner needs to schedule review sessions over time for already-encoded material -- use `spaced-repetition` for that scheduling work.
 - The learner needs to build flashcard decks for self-quizzing -- use `flashcard-generation`.
 - The learner needs to map relationships between concepts (cause-effect, hierarchy, analogy) -- use `concept-mapping`.
@@ -313,20 +314,20 @@ Walk direction: Enter through front door, turn left, move clockwise through each
 
 ### Palace Construction Table
 
-| Locus # | Location | Nerve (Type) | Core Image | Full Image Description |
-|---------|----------|-------------|------------|----------------------|
-| 1 | Front door | CN I -- Olfactory (S) | Nose sniffing door | You approach your front door and it has an enormous human nose attached to it, violently sniffing the air. The nose is twitching, flaring, and dripping. It is SENSING -- it cannot push or pull the door open, only smell it. The door smells like old perfume and gym socks. |
-| 2 | Entryway coat rack | CN II -- Optic (S) | Giant eyeball on rack | Hanging on your coat rack is a single enormous eyeball -- the size of a basketball -- instead of a coat. It rotates slowly to stare at you as you enter. It is glistening and bloodshot. It can only SEE (sense), not move. It has no eyelid and never blinks. |
-| 3 | Entryway mirror | CN III -- Oculomotor (M) | Eye MOVING in mirror | You look in the entryway mirror and your reflection's eyes are spinning in wild circles, darting left-right-up-down at full speed, like a slot machine. The eyes are MOVING under motor control -- the motor is running so hot that sparks fly from the eye sockets. "Oculomotor" -- the MOTOR that moves the eye. |
-| 4 | Couch left armrest | CN IV -- Trochlear (M) | Trochlear = pulley on armrest | Attached to the left armrest is an old-fashioned rope PULLEY (a trochlea is Latin for pulley). The rope of the pulley runs through a tiny eye that rotates downward and inward. A weightlifter is cranking the pulley, straining. The motion is always DOWN and IN. Motor only. |
-| 5 | Couch right armrest | CN V -- Trigeminal (B) | Three faces biting/feeling armrest | Three faces (TRIgeminal = three) are embedded in the right armrest. One face is BITING the armrest (motor -- chewing). The other two faces are pressing their cheeks against the armrest and reporting textures back with exaggerated facial expressions (sensory -- touch and pain). All three feel AND act. BOTH. |
-| 6 | Living room TV | CN VI -- Abducens (M) | TV screen abducted, pulled sideways | The TV screen is being physically ABDUCTED -- yanked violently to the far side by a kidnapper who keeps pulling it lateral, away from center. "Abducens" means to abduct/pull away. The screen can only move outward (lateral eye movement). Motor only. The kidnapper wears a ransom note as a hat. |
-| 7 | Kitchen sink | CN VII -- Facial (B) | Face on faucet smiling/moving | The kitchen faucet has sprouted a giant FACE. The face is making exaggerated expressions -- it smiles enormously (motor: facial muscles), then frowns, then it tastes the water coming out and reacts to the flavor with disgust (sensory: taste from anterior 2/3 of tongue). BOTH motor and sensory. The face is crying water instead of tears. |
-| 8 | Kitchen stove | CN VIII -- Vestibulocochlear (S) | Enormous ear on stove, wobbling | Sitting on the stove burners is an enormous ear -- the size of a dinner plate -- spinning and wobbling like an unbalanced top. It HEARS the burners hissing (cochlear = hearing) and DETECTS BALANCE by spinning (vestibular = balance). It cannot move anything, only sense. SENSORY only. Flames are going into the ear canal. |
-| 9 | Kitchen refrigerator | CN IX -- Glossopharyngeal (B) | Tongue licking fridge + swallowing | A giant detached tongue is pressed against the refrigerator door, tasting the surface (sensory: taste from posterior 1/3 of tongue, gag reflex). Then the tongue FLEXES and moves to swallow -- it can sense AND motor-control the pharynx. BOTH. The fridge releases a gag reflex alarm every few seconds. "Glosso" = tongue, "pharyngeal" = throat. |
-| 10 | Bathroom toilet | CN X -- Vagus (B) | Vagabond wandering into organs in toilet | The toilet is a PORTAL from which a vagabond (VAGUS = wandering) climbs out, having wandered through the heart, lungs, and gut. The vagabond reports back what the organs feel (sensory) and then cranks a dial that slows the heart rate (motor -- parasympathetic). The vagabond is wearing a backpack labeled "Heart, Lungs, Stomach." BOTH. |
-| 11 | Bathroom sink | CN XI -- Accessory (M) | Shoulder-shrugging accessory at sink | At the bathroom sink, a mannequin is wearing an enormous accessory -- a gaudy necklace -- and shrugging its shoulders dramatically, over and over (trapezius and sternocleidomastoid). That is ALL it does. No sensing -- pure motor. The accessory is a giant rhinestone SCM (sternocleidomastoid) bone as a pendant. MOTOR only. |
-| 12 | Bedroom bed | CN XII -- Hypoglossal (M) | Tongue pushing out of bed | In the bed lies a giant tongue that keeps pushing itself straight out -- it cannot rest, it keeps extending out of the bed and then retracting (motor control of tongue movement -- "hypoglossal" = under the tongue). MOTOR only. The tongue is trying to make the bed but has no hands, only extension and retraction. |
+| Locus # | Location             | Nerve (Type)                     | Core Image                               | Full Image Description                                                                                                                                                                                                                                                                                                                                |
+| ------- | -------------------- | -------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | Front door           | CN I -- Olfactory (S)            | Nose sniffing door                       | You approach your front door and it has an enormous human nose attached to it, violently sniffing the air. The nose is twitching, flaring, and dripping. It is SENSING -- it cannot push or pull the door open, only smell it. The door smells like old perfume and gym socks.                                                                        |
+| 2       | Entryway coat rack   | CN II -- Optic (S)               | Giant eyeball on rack                    | Hanging on your coat rack is a single enormous eyeball -- the size of a basketball -- instead of a coat. It rotates slowly to stare at you as you enter. It is glistening and bloodshot. It can only SEE (sense), not move. It has no eyelid and never blinks.                                                                                        |
+| 3       | Entryway mirror      | CN III -- Oculomotor (M)         | Eye MOVING in mirror                     | You look in the entryway mirror and your reflection's eyes are spinning in wild circles, darting left-right-up-down at full speed, like a slot machine. The eyes are MOVING under motor control -- the motor is running so hot that sparks fly from the eye sockets. "Oculomotor" -- the MOTOR that moves the eye.                                    |
+| 4       | Couch left armrest   | CN IV -- Trochlear (M)           | Trochlear = pulley on armrest            | Attached to the left armrest is an old-fashioned rope PULLEY (a trochlea is Latin for pulley). The rope of the pulley runs through a tiny eye that rotates downward and inward. A weightlifter is cranking the pulley, straining. The motion is always DOWN and IN. Motor only.                                                                       |
+| 5       | Couch right armrest  | CN V -- Trigeminal (B)           | Three faces biting/feeling armrest       | Three faces (TRIgeminal = three) are embedded in the right armrest. One face is BITING the armrest (motor -- chewing). The other two faces are pressing their cheeks against the armrest and reporting textures back with exaggerated facial expressions (sensory -- touch and pain). All three feel AND act. BOTH.                                   |
+| 6       | Living room TV       | CN VI -- Abducens (M)            | TV screen abducted, pulled sideways      | The TV screen is being physically ABDUCTED -- yanked violently to the far side by a kidnapper who keeps pulling it lateral, away from center. "Abducens" means to abduct/pull away. The screen can only move outward (lateral eye movement). Motor only. The kidnapper wears a ransom note as a hat.                                                  |
+| 7       | Kitchen sink         | CN VII -- Facial (B)             | Face on faucet smiling/moving            | The kitchen faucet has sprouted a giant FACE. The face is making exaggerated expressions -- it smiles enormously (motor: facial muscles), then frowns, then it tastes the water coming out and reacts to the flavor with disgust (sensory: taste from anterior 2/3 of tongue). BOTH motor and sensory. The face is crying water instead of tears.     |
+| 8       | Kitchen stove        | CN VIII -- Vestibulocochlear (S) | Enormous ear on stove, wobbling          | Sitting on the stove burners is an enormous ear -- the size of a dinner plate -- spinning and wobbling like an unbalanced top. It HEARS the burners hissing (cochlear = hearing) and DETECTS BALANCE by spinning (vestibular = balance). It cannot move anything, only sense. SENSORY only. Flames are going into the ear canal.                      |
+| 9       | Kitchen refrigerator | CN IX -- Glossopharyngeal (B)    | Tongue licking fridge + swallowing       | A giant detached tongue is pressed against the refrigerator door, tasting the surface (sensory: taste from posterior 1/3 of tongue, gag reflex). Then the tongue FLEXES and moves to swallow -- it can sense AND motor-control the pharynx. BOTH. The fridge releases a gag reflex alarm every few seconds. "Glosso" = tongue, "pharyngeal" = throat. |
+| 10      | Bathroom toilet      | CN X -- Vagus (B)                | Vagabond wandering into organs in toilet | The toilet is a PORTAL from which a vagabond (VAGUS = wandering) climbs out, having wandered through the heart, lungs, and gut. The vagabond reports back what the organs feel (sensory) and then cranks a dial that slows the heart rate (motor -- parasympathetic). The vagabond is wearing a backpack labeled "Heart, Lungs, Stomach." BOTH.       |
+| 11      | Bathroom sink        | CN XI -- Accessory (M)           | Shoulder-shrugging accessory at sink     | At the bathroom sink, a mannequin is wearing an enormous accessory -- a gaudy necklace -- and shrugging its shoulders dramatically, over and over (trapezius and sternocleidomastoid). That is ALL it does. No sensing -- pure motor. The accessory is a giant rhinestone SCM (sternocleidomastoid) bone as a pendant. MOTOR only.                    |
+| 12      | Bedroom bed          | CN XII -- Hypoglossal (M)        | Tongue pushing out of bed                | In the bed lies a giant tongue that keeps pushing itself straight out -- it cannot rest, it keeps extending out of the bed and then retracting (motor control of tongue movement -- "hypoglossal" = under the tongue). MOTOR only. The tongue is trying to make the bed but has no hands, only extension and retraction.                              |
 
 ---
 
@@ -347,6 +348,7 @@ Finally, in the bedroom, a giant tongue lies in the bed, unable to rest -- it ke
 ### Image Design Notes
 
 **Sound-alike substitutions used:**
+
 - "Trochlear" (CN IV): Encoded as "trochlea" = pulley (the anatomical trochlea is literally a pulley-like structure). Accurate and imageable.
 - "Glossopharyngeal" (CN IX): Split into "glosso" (tongue) + "pharyngeal" (throat/pharynx). Two body parts are both visible in the scene.
 - "Vestibulocochlear" (CN VIII): Split into vestibular (balance/spinning) + cochlear (hearing/ear). Both functions are represented in the single image.
@@ -354,6 +356,7 @@ Finally, in the bedroom, a giant tongue lies in the bed, unable to rest -- it ke
 - "Hypoglossal" (CN XII): "Hypo" (under) + "glossal" (tongue). The tongue image is the direct encoding; the motor function is shown through what the tongue cannot do without motor control.
 
 **Encoding the S/M/B distinction:**
+
 - Sensory-only nerves (I, II, VIII): Their images can only perceive -- they cannot move, act, or change anything. They observe, detect, taste, hear.
 - Motor-only nerves (III, IV, VI, XI, XII): Their images perform repetitive physical actions but have no sensory feedback -- they cannot react to what they encounter, only act.
 - Both (V, VII, IX, X): Their images both act AND respond to sensory information within the same scene. Look for the dual-action structure in each description.
@@ -363,12 +366,14 @@ Finally, in the bedroom, a giant tongue lies in the bed, unable to rest -- it ke
 ### Self-Check Protocol
 
 **Locus-to-Item retrieval (forward):**
+
 - What is happening at your kitchen stove? → Should retrieve: CN VIII Vestibulocochlear -- Sensory
 - What is at your couch right armrest? → Should retrieve: CN V Trigeminal -- Both
 - What climbs out of your toilet? → Should retrieve: CN X Vagus -- Both
 - What is your bedroom bed occupied by? → Should retrieve: CN XII Hypoglossal -- Motor
 
 **Item-to-Locus retrieval (reverse):**
+
 - Where is the facial nerve? What is it doing? → Should place: Locus 7, Kitchen sink -- face on faucet expressing and tasting
 - Where is CN XI? What is the S/M/B status? → Should place: Locus 11, Bathroom sink -- Motor only, shoulder shrugging
 - Which nerve is at the entryway coat rack, and why is it only Sensory? → Should retrieve: CN II Optic -- the eyeball can only see, not move or act
@@ -379,13 +384,13 @@ Finally, in the bedroom, a giant tongue lies in the bed, unable to rest -- it ke
 
 ### 7-Day Practice Schedule
 
-| Day | Activity | Duration | Success Criterion |
-|-----|----------|----------|-------------------|
-| 0 (today) | 3 guided walks with table open | 20 min | Complete all 12 names and types without notes on 3rd pass |
-| 1 | Forward walk, then backward walk (XII to I) | 12 min | Fewer than 3 errors on backward walk |
-| 2 | Spot-quiz: Ask yourself "What is at Locus 5? Locus 9? Locus 3?" in random order | 8 min | Any locus retrieved in under 4 seconds |
-| 3 | Write out all 12 nerves from memory without the palace -- just the list | 10 min | 10+ correct; rework images for any failures |
-| 7 | Full cold recall: name, number, and type for all 12 | 15 min | 11/12 or better (one error acceptable) |
+| Day       | Activity                                                                        | Duration | Success Criterion                                         |
+| --------- | ------------------------------------------------------------------------------- | -------- | --------------------------------------------------------- |
+| 0 (today) | 3 guided walks with table open                                                  | 20 min   | Complete all 12 names and types without notes on 3rd pass |
+| 1         | Forward walk, then backward walk (XII to I)                                     | 12 min   | Fewer than 3 errors on backward walk                      |
+| 2         | Spot-quiz: Ask yourself "What is at Locus 5? Locus 9? Locus 3?" in random order | 8 min    | Any locus retrieved in under 4 seconds                    |
+| 3         | Write out all 12 nerves from memory without the palace -- just the list         | 10 min   | 10+ correct; rework images for any failures               |
+| 7         | Full cold recall: name, number, and type for all 12                             | 15 min   | 11/12 or better (one error acceptable)                    |
 
 **Pre-exam rapid review (morning of exam):** Walk through the palace once, deliberately, touching each locus and seeing the image clearly. This takes approximately 3 minutes and refreshes recency without overwriting consolidation.
 

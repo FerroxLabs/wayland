@@ -30,14 +30,8 @@ const CDP_HOST = '127.0.0.1';
 const CDP_PORT = 9230;
 const WATCH_MS = 30_000;
 
-const BAD_STRINGS = [
-  'Invalid response stream detected',
-  'Request is being retried after a temporary failure',
-];
-const GOOD_MARKERS = [
-  '[GeminiStream] aioncli-core retrying',
-  '[GeminiStream] aioncli-core invalid-stream',
-];
+const BAD_STRINGS = ['Invalid response stream detected', 'Request is being retried after a temporary failure'];
+const GOOD_MARKERS = ['[GeminiStream] aioncli-core retrying', '[GeminiStream] aioncli-core invalid-stream'];
 
 interface PageInfo {
   id: string;
@@ -120,9 +114,7 @@ async function runSmoke() {
     expression: 'document.body.innerText',
     returnByValue: true,
   });
-  const domText = String(
-    (domResp.result as { result?: { value?: string } })?.result?.value ?? ''
-  );
+  const domText = String((domResp.result as { result?: { value?: string } })?.result?.value ?? '');
 
   const foundBad = BAD_STRINGS.filter((s) => domText.includes(s));
   const foundMarkers = GOOD_MARKERS.filter((m) => consoleMessages.some((c) => c.includes(m)));

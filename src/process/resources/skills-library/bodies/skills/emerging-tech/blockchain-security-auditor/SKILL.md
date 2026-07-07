@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist template testing analysis emergency-preparedness performing-arts"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist template testing analysis emergency-preparedness performing-arts'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Blockchain Security Auditor
@@ -22,15 +22,16 @@ You are an expert smart contract security auditor with extensive experience revi
 
 > **IMPORTANT DISCLAIMER:** Security auditing is not a guarantee of safety. Even thoroughly audited contracts have been exploited. This skill provides educational guidance on audit methodology. Critical deployments should engage multiple independent audit firms and maintain bug bounty programs.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about blockchain security auditor techniques or best practices
 - User needs guidance on blockchain security auditor concepts
 - User wants to implement or improve their approach to blockchain security auditor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of blockchain security auditor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -138,6 +139,7 @@ function getPrice() public view returns (uint256) {
 ```
 
 **Detection checklist:**
+
 - [ ] Any external call followed by state update?
 - [ ] Any view function called by other protocols during state transition?
 - [ ] Shared state accessed across multiple contracts during external calls?
@@ -160,6 +162,7 @@ Common Targets:
 ```
 
 **Audit questions for flash loan resistance:**
+
 - Does any pricing depend on instantaneous reserve ratios?
 - Can governance actions execute in a single transaction?
 - Are there minimum holding periods for governance tokens?
@@ -212,13 +215,13 @@ function deposit(uint256 assets) external returns (uint256 shares) {
 
 ### Medium (Access Control / Logic Errors)
 
-| Issue | Pattern | Mitigation |
-|-------|---------|------------|
-| Missing access control | Public/external function modifies critical state | Add `onlyOwner` / role check |
-| Privilege escalation | Admin can upgrade to arbitrary implementation | Timelock + governance approval |
-| Initialization front-running | `initialize()` callable by anyone | Deploy + init in same tx, or use factory |
-| Signature replay | No nonce/chainId in signed message | EIP-712 typed data with nonce and chainId |
-| Denial of service | Unbounded array iteration | Pagination, pull-over-push pattern |
+| Issue                        | Pattern                                          | Mitigation                                |
+| ---------------------------- | ------------------------------------------------ | ----------------------------------------- |
+| Missing access control       | Public/external function modifies critical state | Add `onlyOwner` / role check              |
+| Privilege escalation         | Admin can upgrade to arbitrary implementation    | Timelock + governance approval            |
+| Initialization front-running | `initialize()` callable by anyone                | Deploy + init in same tx, or use factory  |
+| Signature replay             | No nonce/chainId in signed message               | EIP-712 typed data with nonce and chainId |
+| Denial of service            | Unbounded array iteration                        | Pagination, pull-over-push pattern        |
 
 ### Low (Best Practice Violations)
 
@@ -250,11 +253,11 @@ testMode: assertion
 testLimit: 50000
 shrinkLimit: 5000
 seqLen: 100
-deployer: "0x10000"
-sender: ["0x20000", "0x30000"]
+deployer: '0x10000'
+sender: ['0x20000', '0x30000']
 balanceAddr: 0xffffffff
 balanceContract: 0xffffffff
-cryticArgs: ["--solc-remaps", "@openzeppelin=node_modules/@openzeppelin"]
+cryticArgs: ['--solc-remaps', '@openzeppelin=node_modules/@openzeppelin']
 ```
 
 ### Foundry Invariant Test Template
@@ -295,6 +298,7 @@ contract InvariantTest is Test {
 ## Audit Report Template
 
 ### Executive Summary
+
 - Protocol name, version, commit hash
 - Audit scope (contracts, lines of code)
 - Audit period and methodology
@@ -320,6 +324,7 @@ Complete loss of all deposited funds.
 [Include attack contract code or Foundry test demonstrating the exploit]
 
 **Recommendation:**
+
 1. Apply Checks-Effects-Interactions pattern
 2. Add OpenZeppelin ReentrancyGuard
 3. Update balance before external call
@@ -330,35 +335,39 @@ Fixed in commit abc1234 by applying CEI pattern and adding nonReentrant.
 
 ### Severity Classification Matrix
 
-| | Funds at Risk | No Direct Fund Risk |
-|---|---|---|
-| **High Likelihood** | Critical | Medium |
-| **Medium Likelihood** | High | Medium |
-| **Low Likelihood** | Medium | Low |
+|                       | Funds at Risk | No Direct Fund Risk |
+| --------------------- | ------------- | ------------------- |
+| **High Likelihood**   | Critical      | Medium              |
+| **Medium Likelihood** | High          | Medium              |
+| **Low Likelihood**    | Medium        | Low                 |
 
 ---
 
 ## Common DeFi Audit Patterns
 
 ### Lending Protocol Checks
+
 - Liquidation math: can positions become insolvent?
 - Interest rate model: edge cases at 0% and 100% utilization
 - Collateral factor changes: can existing positions be instantly liquidatable?
 - Bad debt socialization: what happens when liquidation is unprofitable?
 
 ### DEX/AMM Checks
+
 - Slippage protection on all swap paths
 - LP share calculation: first depositor attack?
 - Fee accounting: do fees accrue correctly over time?
 - Multi-hop swap atomicity
 
 ### Vault/Yield Aggregator Checks
+
 - Share price manipulation via direct token transfer
 - Harvest sandwich attacks (front-run harvest, inflate share price)
 - Strategy migration: can funds be moved to malicious strategy?
 - Emergency withdrawal: does it bypass normal share calculation?
 
 ### Bridge/Cross-chain Checks
+
 - Message replay across chains
 - Finality assumptions: is source chain finality respected?
 - Relayer trust model: what if relayer is compromised?
@@ -369,6 +378,7 @@ Fixed in commit abc1234 by applying CEI pattern and adding nonReentrant.
 ## Post-Audit Recommendations
 
 ### Ongoing Security Practices
+
 1. **Bug bounty program:** Immunefi or HackerOne, minimum 10% of TVL for critical
 2. **Monitoring:** Forta bots, Tenderly alerts for unusual transactions
 3. **Incident response plan:** Documented pause procedures, key holder availability
@@ -376,12 +386,12 @@ Fixed in commit abc1234 by applying CEI pattern and adding nonReentrant.
 5. **Dependency tracking:** Monitor OpenZeppelin, Chainlink, and other dependency updates
 
 ### When to Re-audit
+
 - Any logic change to fund-handling functions
 - New external integration (oracle, DEX, lending)
 - Upgrade to new Solidity version
 - Addition of new privileged roles
 - Significant parameter changes (fees, thresholds, limits)
-
 
 ## Process
 
@@ -390,7 +400,6 @@ Fixed in commit abc1234 by applying CEI pattern and adding nonReentrant.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +420,12 @@ Fixed in commit abc1234 by applying CEI pattern and adding nonReentrant.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

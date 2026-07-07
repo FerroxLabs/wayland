@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "freelancing career template writing proposal"
-  category: "career-development"
-  subcategory: "freelancing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'freelancing career template writing proposal'
+  category: 'career-development'
+  subcategory: 'freelancing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Freelance Proposal Writer
 
 ## When to Use
@@ -453,15 +454,16 @@ CloudVault is entering its most significant growth phase following a Series A ra
 
 **Deliverables:**
 
-| # | Deliverable | Description | Format / Files Delivered |
-|---|------------|-------------|--------------------------|
-| 1 | Logo system | Primary logo mark plus alternate lockups (horizontal, stacked, icon-only); developed from 3 initial concepts refined to 1 selected direction across 2 revision rounds | SVG, PNG (transparent background, white, dark), EPS, PDF; brand usage guide included |
-| 2 | Brand color palette | Primary and secondary color system with accessibility-tested contrast ratios (WCAG AA minimum); includes HEX, RGB, CMYK, and Pantone (PMS) values | Brand guidelines document (see item 3) |
-| 3 | Brand guidelines document | Comprehensive 25-35 page document covering logo usage rules, color system, typography system (primary and secondary typefaces with hierarchy), photography and imagery direction, tone of voice guidelines, and do/don't usage examples | PDF (print-ready); InDesign source file |
-| 4 | Homepage redesign | Full desktop and mobile layout redesign: hero section, value proposition messaging, social proof section, feature highlights, and primary CTA design; copywriting direction provided, final copy written by client or quoted separately | Figma file (developer-ready with annotated specs); PNG previews at 1x and 2x |
-| 5 | Icon set (10 icons) | Custom icon set aligned to the new brand system, covering the 10 core product features/concepts identified in the discovery session | SVG (individual files + sprite sheet); PNG at 24px, 48px, and 96px |
+| #   | Deliverable               | Description                                                                                                                                                                                                                             | Format / Files Delivered                                                             |
+| --- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | Logo system               | Primary logo mark plus alternate lockups (horizontal, stacked, icon-only); developed from 3 initial concepts refined to 1 selected direction across 2 revision rounds                                                                   | SVG, PNG (transparent background, white, dark), EPS, PDF; brand usage guide included |
+| 2   | Brand color palette       | Primary and secondary color system with accessibility-tested contrast ratios (WCAG AA minimum); includes HEX, RGB, CMYK, and Pantone (PMS) values                                                                                       | Brand guidelines document (see item 3)                                               |
+| 3   | Brand guidelines document | Comprehensive 25-35 page document covering logo usage rules, color system, typography system (primary and secondary typefaces with hierarchy), photography and imagery direction, tone of voice guidelines, and do/don't usage examples | PDF (print-ready); InDesign source file                                              |
+| 4   | Homepage redesign         | Full desktop and mobile layout redesign: hero section, value proposition messaging, social proof section, feature highlights, and primary CTA design; copywriting direction provided, final copy written by client or quoted separately | Figma file (developer-ready with annotated specs); PNG previews at 1x and 2x         |
+| 5   | Icon set (10 icons)       | Custom icon set aligned to the new brand system, covering the 10 core product features/concepts identified in the discovery session                                                                                                     | SVG (individual files + sprite sheet); PNG at 24px, 48px, and 96px                   |
 
 **Not included in this scope:**
+
 - Website development or coding (this proposal covers design files only; development can be quoted as a Phase 2 engagement or handed off to CloudVault's development team with developer-ready Figma specs)
 - Copywriting for the homepage (messaging direction and headline frameworks are included; final approved copy is written by CloudVault's team or a copywriter; copy must be provided before homepage design begins in Phase 3)
 - Brand application to additional marketing assets beyond the homepage -- email templates, social media templates, pitch decks, and other collateral can be quoted as a Phase 2 package after brand guidelines are finalized
@@ -472,25 +474,25 @@ CloudVault is entering its most significant growth phase following a Series A ra
 
 ### Timeline
 
-| Phase | Dates / Duration | Activities | Deliverable |
-|-------|-----------------|-----------|-------------|
-| Phase 1: Discovery & Strategy | Week 1 | Brand audit of current identity; competitor landscape review (8-10 direct and adjacent competitors); stakeholder alignment interview with VP of Marketing and CEO; brand positioning workshop (2 hours); identification of core brand attributes, target audience archetypes, and competitive differentiation | Brand strategy brief (10-15 pages): positioning statement, brand attributes, audience profiles, tone of voice direction, visual direction moodboards (3 options) |
-| Phase 2: Logo Development | Weeks 2-3 | 3 initial logo concepts developed based on approved strategy brief; internal review; first presentation to CloudVault; Round 1 revisions on selected direction; Round 2 refinements; final logo approval | Approved final logo system (all formats listed above) |
-| Phase 3: Brand Guidelines | Weeks 4-5 | Color system development and accessibility testing; typography selection and hierarchy system; brand guidelines document design and writing; icon set development (10 icons); first presentation and Round 1 revisions; Round 2 refinements and final approval | Approved brand guidelines document (PDF + source file) + icon set (all formats) |
-| Phase 4: Homepage Redesign | Weeks 6-7 | Homepage layout concepts (2 directions); copy placeholder with messaging framework; integration of new brand system into design; first presentation and Round 1 revisions; Round 2 refinements and developer handoff preparation | Approved homepage design (Figma file + PNG previews) |
-| Final: Handoff & QA | Week 8 | Final file organization and packaging; developer spec annotations; assets export; final review call; delivery of all project files | Complete project file package; 30-minute handoff call |
+| Phase                         | Dates / Duration | Activities                                                                                                                                                                                                                                                                                                    | Deliverable                                                                                                                                                      |
+| ----------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1: Discovery & Strategy | Week 1           | Brand audit of current identity; competitor landscape review (8-10 direct and adjacent competitors); stakeholder alignment interview with VP of Marketing and CEO; brand positioning workshop (2 hours); identification of core brand attributes, target audience archetypes, and competitive differentiation | Brand strategy brief (10-15 pages): positioning statement, brand attributes, audience profiles, tone of voice direction, visual direction moodboards (3 options) |
+| Phase 2: Logo Development     | Weeks 2-3        | 3 initial logo concepts developed based on approved strategy brief; internal review; first presentation to CloudVault; Round 1 revisions on selected direction; Round 2 refinements; final logo approval                                                                                                      | Approved final logo system (all formats listed above)                                                                                                            |
+| Phase 3: Brand Guidelines     | Weeks 4-5        | Color system development and accessibility testing; typography selection and hierarchy system; brand guidelines document design and writing; icon set development (10 icons); first presentation and Round 1 revisions; Round 2 refinements and final approval                                                | Approved brand guidelines document (PDF + source file) + icon set (all formats)                                                                                  |
+| Phase 4: Homepage Redesign    | Weeks 6-7        | Homepage layout concepts (2 directions); copy placeholder with messaging framework; integration of new brand system into design; first presentation and Round 1 revisions; Round 2 refinements and developer handoff preparation                                                                              | Approved homepage design (Figma file + PNG previews)                                                                                                             |
+| Final: Handoff & QA           | Week 8           | Final file organization and packaging; developer spec annotations; assets export; final review call; delivery of all project files                                                                                                                                                                            | Complete project file package; 30-minute handoff call                                                                                                            |
 
 **Total project duration:** 8 weeks from receipt of signed proposal and initial payment
 **Key milestone:** Brand strategy brief approval (end of Week 1) -- all visual work is built on the approved strategy brief. If the brief requires significant rework, subsequent phase timelines will shift accordingly.
 
 **Client-provided inputs and deadlines:**
 
-| Input Required | Needed By | Impact if Late |
-|---------------|-----------|----------------|
-| Existing brand assets (current logo files, any existing brand documents, current website access) | Day 1 of project | Delays Phase 1 audit and postpones strategy brief delivery |
-| VP of Marketing and CEO availability for 2-hour brand positioning workshop | Week 1 | Phase 1 cannot be completed without this session; all subsequent phases shift |
-| Approved homepage copy (final or near-final text) | Start of Week 6 | Homepage design cannot proceed without copy; Phase 4 start date will shift by the duration of the copy delay |
-| Designated primary point of contact for all feedback and approvals | Day 1 | Consolidated feedback requires a single decision-maker to be identified in advance |
+| Input Required                                                                                   | Needed By        | Impact if Late                                                                                               |
+| ------------------------------------------------------------------------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| Existing brand assets (current logo files, any existing brand documents, current website access) | Day 1 of project | Delays Phase 1 audit and postpones strategy brief delivery                                                   |
+| VP of Marketing and CEO availability for 2-hour brand positioning workshop                       | Week 1           | Phase 1 cannot be completed without this session; all subsequent phases shift                                |
+| Approved homepage copy (final or near-final text)                                                | Start of Week 6  | Homepage design cannot proceed without copy; Phase 4 start date will shift by the duration of the copy delay |
+| Designated primary point of contact for all feedback and approvals                               | Day 1            | Consolidated feedback requires a single decision-maker to be identified in advance                           |
 
 **Feedback turnaround:** CloudVault will provide consolidated written feedback within 3 business days of each deliverable presentation. All stakeholder input must be compiled into a single document -- the freelancer will not consolidate feedback from multiple sources independently. Delays in feedback will shift subsequent phase start dates by an equivalent duration.
 
@@ -500,15 +502,15 @@ CloudVault is entering its most significant growth phase following a Series A ra
 
 **Project fee:** $22,000
 
-*Context: Full-service branding agencies typically charge $45,000-$80,000 for an equivalent brand identity engagement with comparable deliverables. This proposal provides the same strategic rigor and professional output with a dedicated senior specialist working directly on your account throughout.*
+_Context: Full-service branding agencies typically charge $45,000-$80,000 for an equivalent brand identity engagement with comparable deliverables. This proposal provides the same strategic rigor and professional output with a dedicated senior specialist working directly on your account throughout._
 
 **Payment schedule:**
 
-| Milestone | Amount | % | Due |
-|-----------|--------|---|-----|
-| Project kickoff | $8,800 | 40% | Upon acceptance of this proposal |
+| Milestone                 | Amount | %   | Due                                                                                  |
+| ------------------------- | ------ | --- | ------------------------------------------------------------------------------------ |
+| Project kickoff           | $8,800 | 40% | Upon acceptance of this proposal                                                     |
 | Brand guidelines approval | $6,600 | 30% | Upon CloudVault's written approval of the brand guidelines document (end of Phase 3) |
-| Final delivery | $6,600 | 30% | Upon delivery of the complete project file package (end of Week 8) |
+| Final delivery            | $6,600 | 30% | Upon delivery of the complete project file package (end of Week 8)                   |
 
 **Payment method:** ACH bank transfer or check preferred. Credit card payments available via Stripe (3% processing fee applies).
 

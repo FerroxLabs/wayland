@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # EV Advisor
 
 > **NOTE:** EV technology, tax incentives, available models, and charging infrastructure evolve rapidly. Verify current pricing, incentive eligibility, and specifications at the time of purchase. Federal and state incentives have income limits, assembly requirements, and MSRP caps that change with legislation. Model-year specifications used throughout this skill reflect typical 2024-2025 values.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user is actively considering buying or leasing an EV, PHEV, or hybrid and needs structured guidance to evaluate their real-world fit
 - A user already owns an EV and needs help with charging setup, battery care, cold-weather strategy, or cost optimization
 - A user wants a side-by-side cost comparison between keeping a gas vehicle, buying a hybrid, or switching to electric
@@ -33,6 +35,7 @@ metadata:
 - A user is a fleet manager or household with multiple vehicles weighing electrification priorities
 
 **Do NOT use when:**
+
 - The user needs a licensed electrician's assessment of their home electrical panel -- refer them to a qualified electrician for panel upgrades or load calculations
 - The user is asking about EV insurance valuation disputes or warranty claims -- these require licensed adjusters or consumer protection resources
 - The user wants detailed DIY battery repair or high-voltage system work -- high-voltage systems require certified EV technician training; redirect to a dealership or certified repair shop
@@ -125,12 +128,14 @@ The charging situation determines EV viability more than any other single factor
 Never compare sticker prices. Always build a full 5-year total cost of ownership (TCO) comparison.
 
 **Fuel cost framework:**
+
 - Gas vehicle: (Annual miles ÷ MPG) × average gas price/gallon
 - EV: (Annual miles ÷ mi/kWh) × average electricity cost/kWh
 - Use 3.5-4.0 mi/kWh for most EVs under normal conditions; 3.0 for large trucks/SUVs; 4.0-5.5 for compact efficient EVs
 - Example: 15,000 mi/year, 30 MPG gas, $3.60/gal = $1,800/year fuel. Same miles, EV at 3.8 mi/kWh, $0.13/kWh off-peak = $513/year. Annual savings: $1,287. 5-year fuel savings: $6,435.
 
 **Maintenance cost framework:**
+
 - Gas vehicle typical 5-year maintenance (oil changes, filters, brake pads, tire rotation, transmission service, potential spark plugs and coolant): $4,500-8,000 depending on vehicle type and mileage
 - BEV 5-year maintenance (tire rotation, cabin air filter, brake fluid flush, wiper blades, 12V battery): $1,200-2,500
 - PHEV 5-year maintenance: $2,500-4,500 (still needs oil changes but less frequently; brakes last longer)
@@ -158,6 +163,7 @@ At 8 years, total savings = $13,096 -- $6,500 = $6,596 net ahead.
 Incentives can reduce net purchase price by $5,000-20,000+. Work through all four layers.
 
 **Layer 1 -- Federal New EV Tax Credit (IRA Section 30D):**
+
 - Up to $7,500 for new qualifying BEVs and PHEVs
 - Vehicle must be final assembled in North America
 - Battery component sourcing rules apply (percentage thresholds increase each year through 2029)
@@ -167,6 +173,7 @@ Incentives can reduce net purchase price by $5,000-20,000+. Work through all fou
 - Not all vehicles qualify -- check the official IRS or Department of Energy list at time of purchase
 
 **Layer 2 -- Federal Used EV Tax Credit (Section 25E):**
+
 - Up to $4,000 or 30% of sale price (whichever is less)
 - Vehicle must be at least 2 model years old at time of sale
 - Sale price must be $25,000 or less
@@ -175,17 +182,20 @@ Incentives can reduce net purchase price by $5,000-20,000+. Work through all fou
 - Buyer cannot have claimed this credit in the prior 3 years
 
 **Layer 3 -- Federal Home Charging Credit (Section 30C):**
+
 - 30% of EVSE hardware + installation cost, up to $1,000 tax credit
 - Applies to installation at primary residence
 - Must be claimed on tax return (not transferable at point of sale)
 
 **Layer 4 -- State and Utility Incentives:**
+
 - State rebates vary dramatically: California Clean Vehicle Rebate Project (up to $7,500 for qualifying income), Colorado ($5,000 state tax credit), New York (up to $2,000 rebate), Texas (no state credit -- buyer bears full cost)
 - Utility rebates: Many utilities offer $250-1,500 rebates for EVSE installation plus reduced TOU rates for EV charging
 - State sales tax exemptions: Washington, Oregon, and several other states exempt EVs from sales tax -- on a $45,000 vehicle, this saves $3,600-4,500
 - HOV lane access with clean air vehicle stickers (California, Virginia, Utah, others) has a real economic value for daily commuters -- California stickers are limited but other states are more accessible
 
 **Stacking example:** Colorado buyer purchasing a $52,000 qualifying EV SUV:
+
 - Federal credit: $7,500
 - Colorado state tax credit: $5,000
 - Xcel Energy EVSE rebate: $500
@@ -201,6 +211,7 @@ Battery longevity is the #1 concern for most EV prospects. Address it with data.
 **Warranty baseline:** All major manufacturers provide 8-year/100,000-mile battery warranty (whichever comes first). Most warrant to at least 70% remaining capacity; some (Hyundai, Kia) warrant to 70% at 10 years/100,000 miles. Tesla's warranty covers 70% capacity retention.
 
 **Real-world degradation data:** Based on fleet studies:
+
 - Year 1-2: 2-4% capacity loss (chemistry stabilization)
 - Year 3-5: 1-2% per year
 - Year 5-8: 0.5-1.5% per year
@@ -208,6 +219,7 @@ Battery longevity is the #1 concern for most EV prospects. Address it with data.
 - Extreme heat (Phoenix, Las Vegas) accelerates degradation by 1.5-2× vs. moderate climates
 
 **Daily charging protocol:**
+
 - Set charge limit to 80% for daily use. Every major EV manufacturer recommends this in their app settings.
 - Charge to 100% only when needed for a long trip, and begin the trip within a few hours -- do not sit at 100% overnight regularly
 - The bottom 10% is also stressful for lithium chemistry -- avoid routine trips to under 15%
@@ -223,17 +235,20 @@ Battery longevity is the #1 concern for most EV prospects. Address it with data.
 This is the most common area of unpleasant surprise for new EV owners in northern climates. Provide concrete, actionable strategies.
 
 **Range impact quantified:**
+
 - 32°F (0°C): -15 to -25% range
 - 14°F (-10°C): -25 to -35% range
 - -4°F (-20°C): -35 to -45% range
 - -22°F (-30°C): -40 to -55% range
 
 **Heat pump vs. resistance heating -- this matters enormously:**
+
 - Resistance heating (older/cheaper EVs): Draws 4,000-7,000 watts from the battery to heat the cabin. At highway speed in -10°F weather, this alone can consume 30% of total energy draw.
 - Heat pump heating (Tesla Model 3/Y 2021+, Hyundai Ioniq 5/6, Ford Mustang Mach-E, Kia EV6, BMW iX, Rivian R1): Moves heat rather than generating it, using 1,500-2,500 watts for the same cabin temperature. Preserves 15-25% additional range in cold conditions vs. resistance-only heating.
 - **Recommendation:** In climates below 20°F regularly, prioritize heat pump equipped vehicles. The range difference is the equivalent of 40-80 miles on a winter highway drive.
 
 **Preconditioning strategy:**
+
 - Set a departure time in the vehicle's app (Tesla, Hyundai, Kia, GM all support this)
 - The car warms the cabin AND the battery pack while still plugged in, drawing from grid power instead of battery
 - Benefits: Full range available when you leave; battery is at optimal temperature for maximum regen and charging speed; steering wheel and seats pre-warmed
@@ -250,12 +265,14 @@ This is the most common area of unpleasant surprise for new EV owners in norther
 Only after steps 1-7 are complete, make specific model recommendations. Organize by use case category.
 
 **Compact/Midsize Sedan and Hatchback (best efficiency, lowest cost):**
+
 - Tesla Model 3 Long Range AWD: 333 mi EPA, NACS, heat pump, 0-60 in 4.2s, ~$42,990 before credits
 - Hyundai Ioniq 6 SE Long Range AWD: 266 mi EPA, CCS/NACS adapter, heat pump, 800V architecture for 18-min 10-80% charge, ~$41,450 before credits
 - Chevrolet Equinox EV LT: 319 mi EPA (2WD), CCS + NACS adapter, ~$34,995 before credits -- one of the strongest value propositions in the segment
 - Nissan Ariya Evolve+ AWD: 265 mi EPA, CHAdeMO being phased to CCS, ~$53,990
 
 **Midsize SUV/Crossover (most popular category):**
+
 - Tesla Model Y Long Range AWD: 320 mi EPA, NACS, heat pump, massive Supercharger network advantage, ~$47,990 before credits
 - Hyundai Ioniq 5 XRT AWD: 266 mi EPA, 800V architecture, heat pump, exceptional interior space, ~$47,450 before credits
 - Ford Mustang Mach-E Premium AWD Extended Range: 290 mi EPA, BlueOval Charge Network (Electrify America + Ford app), heat pump, ~$44,995 before credits
@@ -263,11 +280,13 @@ Only after steps 1-7 are complete, make specific model recommendations. Organize
 - Volkswagen ID.4 Pro S AWD: 255 mi EPA, Electrify America (2 years free charging included), ~$46,995 before credits
 
 **Pickup Trucks:**
+
 - Ford F-150 Lightning Pro: 240 mi EPA (standard range), 320 mi (extended range), 240V Pro Power Onboard for jobsite/camping, ~$49,995 (standard range) before credits
 - Rivian R1T Adventure: 314 mi EPA, quad-motor option, exceptional off-road capability, ~$69,900 before credits -- note: MSRP may exceed SUV/truck cap for credits
 - Chevrolet Silverado EV RST: 450 mi EPA (Work Truck trim), GM Ultium platform, NACS + DC charging up to 350 kW, ~$74,800 before credits
 
 **PHEVs (for users needing gas backup or apartment living):**
+
 - Toyota RAV4 Prime SE: 42 mi EV range, then 38 MPG hybrid, ~$43,390, no federal credit (Japanese assembly)
 - Ford Escape PHEV: 37 mi EV range, then 41 MPG, ~$35,790, may qualify for federal credit depending on model year
 - Jeep Wrangler 4xe: 22 mi EV range, capable off-road, ~$55,695, eligible for $3,750 credit
@@ -393,14 +412,18 @@ TOP 3 ACTION ITEMS
 ## Edge Cases
 
 ### User Lives in an Apartment Without Home Charging
+
 This is the most common scenario where the default BEV recommendation breaks down. Do not dismiss the EV option, but restructure the solution:
+
 - First, determine if workplace or nearby residential Level 2 charging is available -- even 8 hours at Level 2 at work fills most EVs' daily needs
 - If only DCFC is available, calculate the true cost: 4,286 kWh/year at $0.35/kWh DCFC = $1,500/year -- still cheaper than gas but eliminating Level 2 home charging savings
 - Check right-to-charge laws in the user's state -- California, Colorado, Florida, Connecticut, and others require landlords to allow EVSE installation at the tenant's expense in dedicated parking spots
 - Recommend PHEVs seriously for apartment dwellers -- Level 1 at a standard outlet (if available in parking garage) provides 32-40 miles overnight, covering most daily driving electrically without requiring a charging infrastructure build-out
 
 ### User Wants to Tow Regularly (Weekly or Bi-Weekly)
+
 Range calculations for regular towing require a fundamentally different framework:
+
 - Effective range while towing = EPA range × 0.45-0.55 (most trucks/SUVs)
 - Plan charging stops every 120-160 miles when towing, not the usual 200-250
 - Battery heating from frequent DCFC stops while towing can compound thermal stress -- ensure the vehicle has active liquid cooling and at least 15 minutes between consecutive DCFC sessions
@@ -408,7 +431,9 @@ Range calculations for regular towing require a fundamentally different framewor
 - If the user tows 3+ times per week over 100 miles one-way, a PHEV truck may deliver more practical value than a BEV truck at current infrastructure levels
 
 ### User Is in an Extreme Cold Climate (Regularly Below 0°F)
+
 Normal range buffers are insufficient. Additional guidance required:
+
 - Apply 0.55-0.60 efficiency factor for range estimates in sustained sub-zero conditions
 - Minimum EPA range recommendation increases to: (peak daily miles × 1.5) ÷ 0.60
 - Heat pump is not merely "preferred" but essentially required -- for a Minnesota driver, eliminate air-cooled heat vehicles and resistance-only heating vehicles from consideration
@@ -417,7 +442,9 @@ Normal range buffers are insufficient. Additional guidance required:
 - Keep winter emergency kit in vehicle: wool blanket, portable USB battery bank (for 12V dead situations), jumper cables, and a small 12V jump starter rated to -20°F
 
 ### User Is Evaluating a Used EV
+
 Used EVs introduce battery health uncertainty that must be quantified before any recommendation:
+
 - Request or conduct a State of Health (SoH) check. For Tesla, this is visible in the vehicle's energy app and reported by many independent diagnostic tools. For other makes, OBD-II tools with brand-specific apps (Leaf Spy for Nissan, EVBatMon for others) can read SoH from the BMS
 - A vehicle at 80% SoH has 80% of its original EPA range available -- a 300-mile car becomes a 240-mile car. This is within warranty coverage threshold for most brands but means charging stop planning must account for reduced range
 - Check if the original battery warranty is transferable -- most manufacturers (Tesla, GM, Hyundai, Kia, Ford) honor the battery warranty for subsequent owners within the 8-year/100K-mile window
@@ -425,7 +452,9 @@ Used EVs introduce battery health uncertainty that must be quantified before any
 - For used Teslas specifically, the battery degradation rate can be estimated by looking at the "Rated Range" displayed at 100% charge in the vehicle -- compare to original EPA spec to calculate SoH
 
 ### User Has Both a Long Commute and Frequent Long Trips (Over 150 Miles)
+
 This profile requires a long-range BEV but a robust charging plan to avoid anxiety:
+
 - Minimum 300-mile EPA range for users in this profile
 - Verify DCFC network density along all regular long-trip corridors using ABRP or PlugShare before purchase
 - If one or more regular routes pass through areas with DCFC gaps over 150 miles, PHEV may be more practical regardless of home charging availability
@@ -433,7 +462,9 @@ This profile requires a long-range BEV but a robust charging plan to avoid anxie
 - Consider a DC fast charge membership plan (Tesla app, Electrify America Pass+, EVgo Membership) for high-mileage users -- flat monthly fees reduce per-session costs significantly for frequent users
 
 ### User Is Considering Leasing Instead of Buying
+
 Leasing changes the financial framework significantly:
+
 - The federal $7,500 credit goes to the leasing company (as commercial leaner), not the buyer. Reputable dealers and leasing companies are now required to pass this through as a "capitalized cost reduction" -- verify this explicitly in the lease agreement. Some manufacturers (notably Tesla in certain configurations) do pass through the full credit; others pass through only a portion
 - Leasing avoids the MSRP cap issue -- a $60,000 sedan that exceeds the $55,000 federal credit cap for purchases may be eligible for the credit through leasing if the leasing company can claim it
 - Leasing also bypasses the income eligibility limit entirely for high earners
@@ -442,7 +473,9 @@ Leasing changes the financial framework significantly:
 - Lease mileage limits (typically 10,000-12,000 miles/year) are a real constraint -- high-mileage drivers (15,000+/year) should either negotiate higher mileage allowances or buy rather than lease
 
 ### User Asks About Solar + EV Integration
+
 This is increasingly common and worth addressing with specifics:
+
 - A 6 kW rooftop solar array generates approximately 7,200-9,000 kWh/year in a good solar climate (California, Arizona, Texas) -- enough to cover 25,000-32,000 miles of EV driving with surplus for the home
 - The economics are strongest when solar feeds into net metering at retail electricity rates and the EV charges during peak solar production hours, avoiding grid draw
 - Smart EVSE units (Wallbox Quasar 2, Tesla Wall Connector paired with Powerwall, Emporia Vue) can be configured to charge only when excess solar generation is available, maximizing self-consumption
@@ -571,3 +604,4 @@ INCENTIVES AVAILABLE
   Income eligibility check:        At $150K-$300K joint / $150K single,
                                    you likely qualify for the federal credit.
                                    Confirm your M
+```

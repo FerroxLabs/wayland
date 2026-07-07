@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices version-control guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices version-control guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Release Engineering
@@ -24,12 +24,12 @@ You are a release engineer who ensures software gets from "code complete" to "ru
 
 ### Choosing a Release Model
 
-| Model | Cadence | Best For | Risk Profile |
-|-------|---------|----------|-------------|
-| **Continuous Deployment** | Every merged PR | SaaS products, small teams | Low per-release, high automation needed |
-| **Release Trains** | Fixed schedule (weekly/biweekly) | Medium teams, B2B SaaS | Medium, predictable |
-| **Feature-Based** | When feature complete | Mobile apps, embedded | Higher per-release, thorough testing |
-| **LTS + Current** | Dual track | Libraries, frameworks, platforms | Complex, two active branches |
+| Model                     | Cadence                          | Best For                         | Risk Profile                            |
+| ------------------------- | -------------------------------- | -------------------------------- | --------------------------------------- |
+| **Continuous Deployment** | Every merged PR                  | SaaS products, small teams       | Low per-release, high automation needed |
+| **Release Trains**        | Fixed schedule (weekly/biweekly) | Medium teams, B2B SaaS           | Medium, predictable                     |
+| **Feature-Based**         | When feature complete            | Mobile apps, embedded            | Higher per-release, thorough testing    |
+| **LTS + Current**         | Dual track                       | Libraries, frameworks, platforms | Complex, two active branches            |
 
 ### Release Train Model
 
@@ -179,22 +179,27 @@ npx changeset publish     # Publishes to npm
 ## [3.2.0] - 2025-01-15
 
 ### Added
+
 - OAuth2 authentication support (#342)
 - Bulk import API for user management (#356)
 - Rate limiting configuration per API key (#361)
 
 ### Changed
+
 - Improved error messages for validation failures (#358)
 - Upgraded PostgreSQL driver to v8.x (#360)
 
 ### Fixed
+
 - Fixed race condition in concurrent order creation (#355)
 - Fixed memory leak in WebSocket connection pool (#359)
 
 ### Deprecated
+
 - Session-based authentication (will be removed in v4.0.0)
 
 ### Security
+
 - Updated dependencies to patch CVE-2025-1234 (#363)
 ```
 
@@ -246,15 +251,18 @@ main (always deployable)
 ## Release v3.2.0 Feature Freeze
 
 ### Freeze Date: [DATE]
+
 ### Release Date: [DATE + 5 business days]
 
 ### Pre-Freeze (1 day before)
+
 - [ ] All feature PRs merged or deferred to next release
 - [ ] Feature flags: incomplete features disabled in release config
 - [ ] Release branch cut from main
 - [ ] CI pipeline configured for release branch
 
 ### During Freeze
+
 - [ ] Only bug fixes merged to release branch
 - [ ] Each fix requires release manager approval
 - [ ] Fix categories allowed:
@@ -263,6 +271,7 @@ main (always deployable)
   - [ ] NOT allowed: P3 bugs, improvements, refactoring
 
 ### Release Candidate Validation
+
 - [ ] RC1 build successful
 - [ ] Automated test suite passes (unit, integration, E2E)
 - [ ] Manual QA sign-off on critical paths
@@ -293,35 +302,40 @@ INCIDENT DETECTED
 
 ### Rollback Types
 
-| Type | Speed | Data Impact | Use When |
-|------|-------|-------------|----------|
-| **Revert deployment** | Fast (minutes) | None if stateless | Application-only change, no DB migration |
-| **Feature flag disable** | Fastest (seconds) | None | Feature is behind a flag |
-| **Database rollback** | Slow (varies) | Possible data loss | Migration was destructive (last resort) |
-| **Blue-green switch** | Fast (seconds) | None | Previous version still running |
-| **Canary stop** | Fast (seconds) | Minimal | Caught during canary rollout |
+| Type                     | Speed             | Data Impact        | Use When                                 |
+| ------------------------ | ----------------- | ------------------ | ---------------------------------------- |
+| **Revert deployment**    | Fast (minutes)    | None if stateless  | Application-only change, no DB migration |
+| **Feature flag disable** | Fastest (seconds) | None               | Feature is behind a flag                 |
+| **Database rollback**    | Slow (varies)     | Possible data loss | Migration was destructive (last resort)  |
+| **Blue-green switch**    | Fast (seconds)    | None               | Previous version still running           |
+| **Canary stop**          | Fast (seconds)    | Minimal            | Caught during canary rollout             |
 
 ### Rollback Runbook Template
 
-```markdown
+````markdown
 ## Rollback Runbook: v3.2.0
 
 ### Prerequisites
+
 - [ ] Previous version (v3.1.2) artifact available in registry
 - [ ] Database migration is reversible (down migration exists and tested)
 - [ ] Rollback has been tested in staging
 
 ### Application Rollback
+
 1. Set deployment target to v3.1.2:
    ```shell
    kubectl set image deployment/api api=registry.com/api:v3.1.2
    # OR
    aws ecs update-service --cluster prod --service api --task-definition api:v3.1.2
    ```
+````
+
 2. Monitor: Watch error rates for 5 minutes
 3. Verify: Hit health check endpoints, run smoke tests
 
 ### Database Rollback (if needed)
+
 1. STOP: Confirm data loss implications with on-call lead
 2. Run down migration:
    ```shell
@@ -330,6 +344,7 @@ INCIDENT DETECTED
 3. WARNING: Data written to new columns/tables since deploy will be lost
 
 ### Feature Flag Rollback (preferred)
+
 1. Disable flag in LaunchDarkly/Unleash/config:
    ```shell
    HTTP client request -X PATCH [reference URL] \
@@ -338,10 +353,12 @@ INCIDENT DETECTED
 2. No deployment needed. Change takes effect in < 60 seconds.
 
 ### Post-Rollback
+
 - [ ] Notify stakeholders: "v3.2.0 rolled back due to [reason]"
 - [ ] Create incident ticket
 - [ ] Schedule post-mortem within 48 hours
-```
+
+````
 
 ## Release Notes
 
@@ -384,23 +401,23 @@ Write different notes for different audiences:
 **Known Issues:**
 - CSV import timeout for files > 50MB (fix planned for v3.2.1)
 - Rate limiting metrics not yet visible in Grafana (dashboard PR pending)
-```
+````
 
 ## Release Readiness Checklist
 
 ### Go/No-Go Decision Matrix
 
-| Criterion | Go | No-Go |
-|-----------|-----|-------|
-| Automated tests | All pass | Any failure in critical path |
-| Performance | Within 10% of baseline | >20% regression |
-| Security scan | No new Critical/High | Any new Critical |
-| Staging validation | All scenarios pass | Any P0/P1 scenario fails |
-| Database migration | Tested on staging | Not tested or irreversible |
-| Rollback tested | Verified on staging | Not verified |
-| Documentation | Updated for breaking changes | Breaking changes undocumented |
-| Monitoring | Alerts configured for new features | No monitoring for new code paths |
-| On-call | Engineer available for 4 hours post-deploy | No one available |
+| Criterion          | Go                                         | No-Go                            |
+| ------------------ | ------------------------------------------ | -------------------------------- |
+| Automated tests    | All pass                                   | Any failure in critical path     |
+| Performance        | Within 10% of baseline                     | >20% regression                  |
+| Security scan      | No new Critical/High                       | Any new Critical                 |
+| Staging validation | All scenarios pass                         | Any P0/P1 scenario fails         |
+| Database migration | Tested on staging                          | Not tested or irreversible       |
+| Rollback tested    | Verified on staging                        | Not verified                     |
+| Documentation      | Updated for breaking changes               | Breaking changes undocumented    |
+| Monitoring         | Alerts configured for new features         | No monitoring for new code paths |
+| On-call            | Engineer available for 4 hours post-deploy | No one available                 |
 
 ## Release Automation Pipeline
 
@@ -452,7 +469,7 @@ jobs:
 
   deploy-production:
     needs: deploy-staging
-    environment: production  # Requires manual approval in GitHub
+    environment: production # Requires manual approval in GitHub
     runs-on: ubuntu-latest
     steps:
       - run: kubectl set image deployment/api api=registry.com/api:${{ github.ref_name }}
@@ -500,6 +517,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing release engineering solutions
 - Reviewing or improving existing release engineering approaches
 - Making architectural or implementation decisions about release engineering
@@ -507,6 +525,7 @@ jobs:
 - Troubleshooting release engineering-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -517,21 +536,26 @@ jobs:
 # Release Engineering Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

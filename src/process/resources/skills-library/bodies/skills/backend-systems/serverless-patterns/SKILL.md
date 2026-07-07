@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend cloud architecture"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend cloud architecture'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Serverless Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing or refactoring a cloud function architecture and needs to choose between event-driven, fan-out, saga, or aggregator patterns
 - User is experiencing cold start latency, timeout cascades, or function chaining bottlenecks and needs targeted remediation patterns
 - User is building a system with functions that need to coordinate state across multiple invocations (orchestration vs. choreography decision)
@@ -30,6 +32,7 @@ metadata:
 - User is hitting AWS Lambda concurrency limits, GCP Cloud Functions quota walls, or Azure Functions plan restrictions and needs architectural remediation
 
 **Do NOT use this skill when:**
+
 - User needs container orchestration decisions (Kubernetes, ECS task definitions) -- use the container-orchestration skill
 - User needs API gateway configuration specifics (rate limiting, authentication, routing rules) without the broader serverless pattern context -- use the api-gateway skill
 - User is asking about serverless databases (DynamoDB table design, Firestore data modeling) as a primary concern -- use the serverless-data-modeling skill
@@ -112,7 +115,7 @@ Serverless error handling is topological -- the retry behavior depends on where 
 Before finalizing the design, quantify these dimensions:
 
 - **Cold start impact** -- measure cold start frequency as a percentage of total invocations. If cold starts exceed 5% of invocations for a user-facing function, apply provisioned concurrency or minimum instances. Calculate the cost of provisioned concurrency vs. the revenue impact of cold start latency degradation
-- **Cost modeling** -- serverless cost = (invocation count * per-invocation price) + (GB-seconds * GB-second price) + (data transfer). For AWS Lambda: $0.20 per 1M requests + $0.0000166667 per GB-second. A function running 100ms at 512MB costs $0.0000000083 per invocation. At 10M invocations/day, monthly cost is ~$2,490 for compute alone. Model at realistic p50 duration, not worst-case
+- **Cost modeling** -- serverless cost = (invocation count _ per-invocation price) + (GB-seconds _ GB-second price) + (data transfer). For AWS Lambda: $0.20 per 1M requests + $0.0000166667 per GB-second. A function running 100ms at 512MB costs $0.0000000083 per invocation. At 10M invocations/day, monthly cost is ~$2,490 for compute alone. Model at realistic p50 duration, not worst-case
 - **Concurrency limit planning** -- AWS default regional Lambda concurrency is 1,000 (soft limit, increasable). Reserve 200 for critical functions, distribute the remainder. A single SQS queue with batch size 10 processing at maximum can consume 100 concurrent Lambda invocations per second. Calculate peak concurrency requirements and request limit increases before launching
 - **Observability baseline** -- establish these four signals before going to production: (1) invocation count, (2) error rate %, (3) duration p50/p95/p99, (4) throttle count. Set alarms on error rate > 1% and throttle count > 0 for user-facing functions
 
@@ -151,11 +154,13 @@ Produce a concise ADR (Architecture Decision Record) capturing:
 
 ### Architecture Diagram (ASCII)
 ```
+
 [Trigger] --> [Function A] --> [Queue/Stream] --> [Function B] --> [State Store]
-                    |                                    |
-                    v                                    v
-                  [DLQ]                              [DLQ]
-```
+| |
+v v
+[DLQ] [DLQ]
+
+````
 
 ### Implementation Template
 
@@ -209,9 +214,10 @@ async function acquireIdempotencyLock(key: string): Promise<void> {
     ConditionExpression: 'attribute_not_exists(pk)',
   }));
 }
-```
+````
 
 #### Infrastructure Configuration (AWS CDK TypeScript)
+
 ```typescript
 const processorFn = new lambda.Function(this, 'RecordProcessor', {
   runtime: lambda.Runtime.NODEJS_20_X,
@@ -231,43 +237,47 @@ const eventSourceMapping = processorFn.addEventSource(
   new SqsEventSource(sourceQueue, {
     batchSize: 10,
     maxBatchingWindow: cdk.Duration.seconds(5),
-    reportBatchItemFailures: true,  // Critical: enables partial batch failure
+    reportBatchItemFailures: true, // Critical: enables partial batch failure
   })
 );
 
 processorFn.addEventSource(
-  new SqsEventSource(dlq, { batchSize: 1 })  // DLQ processor -- one at a time
+  new SqsEventSource(dlq, { batchSize: 1 }) // DLQ processor -- one at a time
 );
 ```
 
 ### Configuration Reference
-| Parameter                    | Value          | Reasoning                                        |
-|------------------------------|----------------|--------------------------------------------------|
-| Function timeout             | 60s            | p99 execution + 10s buffer                       |
-| SQS visibility timeout       | 65s            | Function timeout + 5s                            |
-| Batch size                   | 10             | Balanced throughput vs. blast radius             |
-| Memory                       | 512 MB         | Validated via power tuning                       |
-| Reserved concurrency         | 50             | Protects downstream DB from thundering herd      |
-| Max receive count (SQS)      | 3              | 3 attempts before DLQ                            |
-| DLQ alarm threshold          | > 0 messages   | Immediate alert on any dead letter               |
-| Idempotency TTL              | 10 days        | Covers SQS max retention (4 days) * 2.5x buffer |
+
+| Parameter               | Value        | Reasoning                                        |
+| ----------------------- | ------------ | ------------------------------------------------ |
+| Function timeout        | 60s          | p99 execution + 10s buffer                       |
+| SQS visibility timeout  | 65s          | Function timeout + 5s                            |
+| Batch size              | 10           | Balanced throughput vs. blast radius             |
+| Memory                  | 512 MB       | Validated via power tuning                       |
+| Reserved concurrency    | 50           | Protects downstream DB from thundering herd      |
+| Max receive count (SQS) | 3            | 3 attempts before DLQ                            |
+| DLQ alarm threshold     | > 0 messages | Immediate alert on any dead letter               |
+| Idempotency TTL         | 10 days      | Covers SQS max retention (4 days) \* 2.5x buffer |
 
 ### Cost Estimate
-| Metric                  | Value               |
-|-------------------------|---------------------|
-| Est. daily invocations  | [X]                 |
-| Avg duration            | [X ms]              |
-| Memory                  | [X MB]              |
-| Monthly compute cost    | ~$[X]               |
-| Monthly request cost    | ~$[X]               |
-| Provisioned concurrency | $[X] (if applicable)|
-| **Total monthly est.**  | **~$[X]**           |
+
+| Metric                  | Value                |
+| ----------------------- | -------------------- |
+| Est. daily invocations  | [X]                  |
+| Avg duration            | [X ms]               |
+| Memory                  | [X MB]               |
+| Monthly compute cost    | ~$[X]                |
+| Monthly request cost    | ~$[X]                |
+| Provisioned concurrency | $[X] (if applicable) |
+| **Total monthly est.**  | **~$[X]**            |
 
 ### ADR Summary
+
 **Context:** [One sentence describing workload]
 **Decision:** [Selected pattern with one-sentence rationale]
 **Alternatives Rejected:** [Alt 1 -- reason]; [Alt 2 -- reason]
 **Review Trigger:** [Specific threshold metric]
+
 ```
 
 ---
@@ -372,41 +382,42 @@ API Gateway has a 29-second integration timeout that cannot be increased. Lambda
 
 ### Architecture Diagram (ASCII)
 ```
-POST /orders
-      |
-      v
-[API Gateway] --> [OrderEntry Lambda]
-                       |
-                       +--> [DynamoDB: Create order record, status=PENDING]
-                       |
-                       +--> [Step Functions: Start execution (async)]
-                       |
-                       +--> Return 202 Accepted {orderId, status: "processing"}
-                             
-[Step Functions Standard Workflow]
-      |
-      v
-[ValidatePaymentState] --> [PaymentAPI Lambda] --> Stripe/Adyen API
-      |
-      | SUCCESS                              FAILURE
-      v                                         |
-[ReserveInventoryState] --> [InventoryLambda] --> RDS PostgreSQL
-      |                                          |
-      | SUCCESS                              FAILURE
-      v                                         v
-[SendConfirmationState] --> [EmailLambda] --> SendGrid   [CompensatePaymentState] --> Refund
-      |
-      v
-[PublishOrderEventState] --> [EventBridge: order.created]
-      |                                (fan-out to analytics, fulfillment)
-      v
-[UpdateOrderStatusState] --> [DynamoDB: status=CONFIRMED]
 
+POST /orders
+|
+v
+[API Gateway] --> [OrderEntry Lambda]
+|
++--> [DynamoDB: Create order record, status=PENDING]
+|
++--> [Step Functions: Start execution (async)]
+|
++--> Return 202 Accepted {orderId, status: "processing"}
+
+[Step Functions Standard Workflow]
+|
+v
+[ValidatePaymentState] --> [PaymentAPI Lambda] --> Stripe/Adyen API
+|
+| SUCCESS FAILURE
+v |
+[ReserveInventoryState] --> [InventoryLambda] --> RDS PostgreSQL
+| |
+| SUCCESS FAILURE
+v v
+[SendConfirmationState] --> [EmailLambda] --> SendGrid [CompensatePaymentState] --> Refund
+|
+v
+[PublishOrderEventState] --> [EventBridge: order.created]
+| (fan-out to analytics, fulfillment)
+v
+[UpdateOrderStatusState] --> [DynamoDB: status=CONFIRMED]
 
 Compensation path (Step Functions Catch):
 ReserveInventoryState FAIL --> CompensatePaymentState --> UpdateOrderStatus(FAILED)
 SendConfirmationState FAIL --> (no compensation needed -- order is confirmed, email is retry-only)
-```
+
+````
 
 ### Implementation Template
 
@@ -510,9 +521,10 @@ SendConfirmationState FAIL --> (no compensation needed -- order is confirmed, em
     }
   }
 }
-```
+````
 
 #### OrderEntry Lambda Handler (TypeScript)
+
 ```typescript
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
@@ -533,17 +545,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   // Create order record atomically -- conditional write prevents duplicate processing
   try {
-    await dynamo.send(new PutItemCommand({
-      TableName: process.env.ORDERS_TABLE!,
-      Item: {
-        pk: { S: orderId },
-        idempotencyKey: { S: idempotencyKey },
-        status: { S: 'PENDING' },
-        order: { S: JSON.stringify(order) },
-        ttl: { N: String(Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60) },
-      },
-      ConditionExpression: 'attribute_not_exists(idempotencyKey)',
-    }));
+    await dynamo.send(
+      new PutItemCommand({
+        TableName: process.env.ORDERS_TABLE!,
+        Item: {
+          pk: { S: orderId },
+          idempotencyKey: { S: idempotencyKey },
+          status: { S: 'PENDING' },
+          order: { S: JSON.stringify(order) },
+          ttl: { N: String(Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60) },
+        },
+        ConditionExpression: 'attribute_not_exists(idempotencyKey)',
+      })
+    );
   } catch (err: any) {
     if (err.name === 'ConditionalCheckFailedException') {
       // Idempotent -- return existing order
@@ -552,11 +566,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     throw err;
   }
 
-  await sfn.send(new StartExecutionCommand({
-    stateMachineArn: process.env.ORDER_STATE_MACHINE_ARN!,
-    name: `order-${orderId}`,   // Unique name prevents duplicate SF executions
-    input: JSON.stringify({ order }),
-  }));
+  await sfn.send(
+    new StartExecutionCommand({
+      stateMachineArn: process.env.ORDER_STATE_MACHINE_ARN!,
+      name: `order-${orderId}`, // Unique name prevents duplicate SF executions
+      input: JSON.stringify({ order }),
+    })
+  );
 
   return {
     statusCode: 202,
@@ -566,33 +582,36 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 ```
 
 ### Configuration Reference
-| Parameter                           | Value          | Reasoning                                                    |
-|-------------------------------------|----------------|--------------------------------------------------------------|
-| OrderEntry Lambda timeout           | 10s            | DynamoDB + SFN start call; 10s is generous                   |
-| OrderEntry Lambda memory            | 256 MB         | No CPU-intensive work; I/O bound                             |
-| OrderEntry reserved concurrency     | 50             | 2x Black Friday peak; protects DynamoDB on-demand scaling lag|
-| ValidatePayment Lambda timeout      | 8s             | Stripe/Adyen p99 < 3s; 8s gives 2.5x headroom               |
-| ReserveInventory Lambda timeout     | 15s            | RDS query + Lambda + 5s buffer; set RDS Proxy keepalive < 15s|
-| Step Functions type                 | Standard       | Long-running potential (retries); audit trail required       |
-| SFN execution name format           | `order-{uuid}` | Unique name prevents duplicate SF executions on API retry    |
-| EventBridge bus                     | Custom bus     | Isolates order events from default bus; dedicated IAM policy |
-| DynamoDB orders table billing       | On-demand      | Bursty Black Friday traffic; no capacity planning required   |
-| RDS reserved concurrency (Inventory)| 20             | RDS Proxy max connections / safety factor                    |
+
+| Parameter                            | Value          | Reasoning                                                     |
+| ------------------------------------ | -------------- | ------------------------------------------------------------- |
+| OrderEntry Lambda timeout            | 10s            | DynamoDB + SFN start call; 10s is generous                    |
+| OrderEntry Lambda memory             | 256 MB         | No CPU-intensive work; I/O bound                              |
+| OrderEntry reserved concurrency      | 50             | 2x Black Friday peak; protects DynamoDB on-demand scaling lag |
+| ValidatePayment Lambda timeout       | 8s             | Stripe/Adyen p99 < 3s; 8s gives 2.5x headroom                 |
+| ReserveInventory Lambda timeout      | 15s            | RDS query + Lambda + 5s buffer; set RDS Proxy keepalive < 15s |
+| Step Functions type                  | Standard       | Long-running potential (retries); audit trail required        |
+| SFN execution name format            | `order-{uuid}` | Unique name prevents duplicate SF executions on API retry     |
+| EventBridge bus                      | Custom bus     | Isolates order events from default bus; dedicated IAM policy  |
+| DynamoDB orders table billing        | On-demand      | Bursty Black Friday traffic; no capacity planning required    |
+| RDS reserved concurrency (Inventory) | 20             | RDS Proxy max connections / safety factor                     |
 
 ### Cost Estimate (Monthly, Normal Operations)
-| Metric                              | Value                     |
-|-------------------------------------|---------------------------|
-| Est. daily orders (non-peak)        | 50,000 orders/day         |
-| Step Functions state transitions    | ~8 per order * 1.5M = 12M |
-| SFN Standard cost                   | ~$0.30 (12M * $0.025/1K)  |
-| Lambda invocations (5 per order)    | 7.5M invocations          |
-| Lambda compute (avg 500ms @ 256MB)  | ~$3.13/month              |
-| DynamoDB on-demand reads/writes     | ~$4.50/month              |
-| EventBridge events                  | ~$0.15/month              |
-| **Total monthly est. (non-peak)**   | **~$8.08/month**          |
-| **Black Friday week (10x volume)**  | **~$20 additional**       |
+
+| Metric                             | Value                      |
+| ---------------------------------- | -------------------------- |
+| Est. daily orders (non-peak)       | 50,000 orders/day          |
+| Step Functions state transitions   | ~8 per order \* 1.5M = 12M |
+| SFN Standard cost                  | ~$0.30 (12M \* $0.025/1K)  |
+| Lambda invocations (5 per order)   | 7.5M invocations           |
+| Lambda compute (avg 500ms @ 256MB) | ~$3.13/month               |
+| DynamoDB on-demand reads/writes    | ~$4.50/month               |
+| EventBridge events                 | ~$0.15/month               |
+| **Total monthly est. (non-peak)**  | **~$8.08/month**           |
+| **Black Friday week (10x volume)** | **~$20 additional**        |
 
 ### ADR Summary
+
 **Context:** E-commerce order placement requires four sequential steps with external side effects, peak load of 500 orders/minute, and zero tolerance for double-charges.
 
 **Decision:** Step Functions Standard Workflow as saga orchestrator with synchronous API returning 202 after order record creation; customer experience decoupled from backend processing duration.

@@ -54,14 +54,17 @@ Produce + maintain `quiet-money/generational.md`:
 
 ```markdown
 # Generational Plan
+
 _Last updated: YYYY-MM-DD by Generational Planner_
 _Jurisdiction: [from position.md]_
 
 ## Dependents
+
 - [Name + age + relationship]
 - ...
 
 ## G.1 Basics — status
+
 - [ ] Term life: $X benefit, expires YYYY / not in place — ACTION + DEADLINE
 - [ ] Will with named guardians: in place / not in place — ACTION + DEADLINE
 - [ ] Education vehicle: [type], $X funded / not in place — ACTION + DEADLINE
@@ -69,11 +72,13 @@ _Jurisdiction: [from position.md]_
 - [ ] Disability insurance for primary earner: in place ([type]) / not in place — ACTION + DEADLINE
 
 ## G.2 Deeper questions
+
 - How much to leave: [user's framing in their own words]
 - When to disclose: [user's decision + age]
 - What to model: [user's named behavior]
 
 ## G.3 Aging parents
+
 - The honest conversation: [completed YYYY-MM-DD / scheduled / not yet]
 - Parents' financial position: [user's understanding / unknown]
 - Parents' will + directives: [confirmed / unknown / non-existent]

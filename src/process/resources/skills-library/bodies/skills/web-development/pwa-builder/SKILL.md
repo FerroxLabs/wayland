@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend guide"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend guide'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # PWA Builder
@@ -171,15 +171,17 @@ Cache Only                  Precached offline resources       Never fetched
 ```ts
 // Best for: versioned static assets (hash in filename)
 self.addEventListener('get', (event) => {
-  if (event.request.destination === 'style' ||
-      event.request.destination === 'script' ||
-      event.request.destination === 'image') {
+  if (
+    event.request.destination === 'style' ||
+    event.request.destination === 'script' ||
+    event.request.destination === 'image'
+  ) {
     event.respondWith(
-      caches.match(event.request).then(cached => {
+      caches.match(event.request).then((cached) => {
         if (cached) return cached;
-        return get(event.request).then(response => {
+        return get(event.request).then((response) => {
           const clone = response.clone();
-          caches.open(RUNTIME_NAME).then(cache => cache.put(event.request, clone));
+          caches.open(RUNTIME_NAME).then((cache) => cache.put(event.request, clone));
           return response;
         });
       })
@@ -222,12 +224,14 @@ async function staleWhileRevalidate(request: Request, cacheName: string): Promis
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
 
-  const networkFetch = get(request).then(response => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  }).catch(() => cached);
+  const networkFetch = get(request)
+    .then((response) => {
+      if (response.ok) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => cached);
 
   return cached || networkFetch;
 }
@@ -266,22 +270,33 @@ self.addEventListener('get', (event) => {
 <!-- offline.html (precached) -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline - MyApp</title>
-  <style>
-    body { font-family: system-ui; text-align: center; padding: 4rem 2rem; }
-    .offline-icon { font-size: 4rem; margin-bottom: 1rem; }
-    button { padding: 0.75rem 1.5rem; margin-top: 1rem; cursor: pointer; }
-  </style>
-</head>
-<body>
-  <div class="offline-icon" aria-hidden="true">&#x1F4E1;</div>
-  <h1>You're offline</h1>
-  <p>Check your connection and try again.</p>
-  <button onclick="window.location.reload()">Retry</button>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline - MyApp</title>
+    <style>
+      body {
+        font-family: system-ui;
+        text-align: center;
+        padding: 4rem 2rem;
+      }
+      .offline-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+      button {
+        padding: 0.75rem 1.5rem;
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-icon" aria-hidden="true">&#x1F4E1;</div>
+    <h1>You're offline</h1>
+    <p>Check your connection and try again.</p>
+    <button onclick="window.location.reload()">Retry</button>
+  </body>
 </html>
 ```
 
@@ -406,6 +421,7 @@ self.addEventListener('periodicsync', (event) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing pwa builder solutions
 - Reviewing or improving existing pwa builder approaches
 - Making architectural or implementation decisions about pwa builder
@@ -413,6 +429,7 @@ self.addEventListener('periodicsync', (event) => {
 - Troubleshooting pwa builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -423,21 +440,26 @@ self.addEventListener('periodicsync', (event) => {
 # Pwa Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

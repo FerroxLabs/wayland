@@ -182,7 +182,9 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
               <div
                 key={index}
                 className='p-3'
-                style={index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined}
+                style={
+                  index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined
+                }
               >
                 <div className='font-medium text-t-primary'>{server.name}</div>
                 {server.description && <div className='text-sm text-t-secondary mt-1'>{server.description}</div>}
@@ -212,7 +214,9 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
               <div
                 key={index}
                 className='p-3'
-                style={index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined}
+                style={
+                  index < importableServers.length - 1 ? { borderBottom: '1px solid var(--color-border-1)' } : undefined
+                }
               >
                 <div className='font-medium text-t-primary'>{server.name}</div>
                 {server.description && <div className='text-sm text-t-secondary mt-1'>{server.description}</div>}

@@ -8,7 +8,7 @@ The user is about to hire, has just hired and the seat isn't producing, or is as
 
 Six moves, in order.
 
-**1. Name the missing outcome before naming the role.** *What specific result is the business currently failing to deliver, that would start being delivered once this seat is filled?* "Marketing" is a function, not an outcome. Push for the result: "five qualified demos a week," "three releases a quarter," "support tickets answered within four hours." Specific enough that a reader can tell whether the seat is working.
+**1. Name the missing outcome before naming the role.** _What specific result is the business currently failing to deliver, that would start being delivered once this seat is filled?_ "Marketing" is a function, not an outcome. Push for the result: "five qualified demos a week," "three releases a quarter," "support tickets answered within four hours." Specific enough that a reader can tell whether the seat is working.
 
 **2. Diagnose the gap type.** Three diagnoses, each routing to a different work-structure (see `hiring-structure.md`):
 
@@ -18,7 +18,7 @@ Six moves, in order.
 
 **3. Write the seat's twelve-month outcome doc.** One page. Five required sections:
 
-- **Outcomes.** Three to five results the person is accountable for in twelve months. Numeric where possible. *"Inbound qualified leads from 20 to 80 per month by month nine."*
+- **Outcomes.** Three to five results the person is accountable for in twelve months. Numeric where possible. _"Inbound qualified leads from 20 to 80 per month by month nine."_
 - **Scope owned.** What this seat owns end-to-end.
 - **Scope not owned.** What this seat does not own. The section founders skip; prevents seat-vs-seat conflict later.
 - **Decision rights.** Decisions this seat makes alone. Decisions that escalate.
@@ -26,9 +26,9 @@ Six moves, in order.
 
 If the page can't be written, the role isn't ready to hire for. Stop and write it. Don't outsource the writing to the candidate — that's the job you're hiring.
 
-**4. Match outcome density to seniority.** Three outcomes that are mostly *execute the known playbook* is a mid-level seat. Three outcomes that are mostly *define the playbook* is senior. A seat with both is two seats — or a senior seat with a junior under them in six months. Most founders write senior-shaped scope at mid-level price; the seat fails because the work was always senior.
+**4. Match outcome density to seniority.** Three outcomes that are mostly _execute the known playbook_ is a mid-level seat. Three outcomes that are mostly _define the playbook_ is senior. A seat with both is two seats — or a senior seat with a junior under them in six months. Most founders write senior-shaped scope at mid-level price; the seat fails because the work was always senior.
 
-**5. Pressure-test against current bench.** *Could anyone on the team deliver this if their other work was taken off their plate?* If yes, the hire may be a reassignment plus a junior backfill — faster and cheaper. If no, name what specifically the current team can't do. That's the seniority bar.
+**5. Pressure-test against current bench.** _Could anyone on the team deliver this if their other work was taken off their plate?_ If yes, the hire may be a reassignment plus a junior backfill — faster and cheaper. If no, name what specifically the current team can't do. That's the seniority bar.
 
 **6. Sign-off and stamp.** User signs off on the doc before sourcing. Stamp in `TEAM_MEMORY.md` under `## Talent`. The doc feeds `candidate-evaluation.md` (scorecard) and `hiring-structure.md` (work-structure).
 
@@ -37,7 +37,7 @@ If the page can't be written, the role isn't ready to hire for. Stop and write i
 - **No outcome doc, no sourcing.** Hard rule. Sourcing without a doc produces candidate funnels you can't evaluate.
 - **Decision-making gaps don't get hired.** They get decided. Route to Helm.
 - **One seat, one accountability scope.** A seat with "owns marketing and sales" is two seats.
-- **Seniority is justified by ambiguity, not by ego.** Senior is for *what should we do*; mid-level is for *how should we do the known thing*.
+- **Seniority is justified by ambiguity, not by ego.** Senior is for _what should we do_; mid-level is for _how should we do the known thing_.
 - **If the team could do it with a reassignment, do the reassignment first.** Hiring is the most expensive option; reorg before recruit.
 
 ## Anti-patterns
@@ -51,6 +51,6 @@ If the page can't be written, the role isn't ready to hire for. Stop and write i
 
 ## Before / after
 
-**Before:** *Founder says "we need a head of growth." Posts a job. Hires someone with a great pitch. Six months in, the person has launched five experiments, none of them moved a number, and the founder isn't sure what they were supposed to move.*
+**Before:** _Founder says "we need a head of growth." Posts a job. Hires someone with a great pitch. Six months in, the person has launched five experiments, none of them moved a number, and the founder isn't sure what they were supposed to move._
 
-**After:** *Same founder writes the outcome doc first. Three outcomes: monthly trials from 200 to 600 by month nine, trial-to-paid from 4% to 8%, and a documented growth playbook by month twelve. Doc says the seat doesn't own product or pricing. Scorecard interviews against those three outcomes. The hire arrives knowing what success looks like; the founder knows what to expect.*
+**After:** _Same founder writes the outcome doc first. Three outcomes: monthly trials from 200 to 600 by month nine, trial-to-paid from 4% to 8%, and a documented growth playbook by month twelve. Doc says the seat doesn't own product or pricing. Scorecard interviews against those three outcomes. The hire arrives knowing what success looks like; the founder knows what to expect._

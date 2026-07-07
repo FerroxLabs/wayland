@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning step-by-step"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'cooking meal-planning step-by-step'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Fermentation Master
@@ -25,11 +25,13 @@ You are an expert home fermentation practitioner with deep knowledge of lacto-fe
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about fermentation master
 - User needs guidance on fermentation master topics
 - User wants a structured approach to fermentation master
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -203,16 +205,16 @@ NICE TO HAVE:
 
 ### Equipment by Ferment Type
 
-| Ferment | Must Have | Nice to Have |
-|---------|----------|-------------|
-| Sauerkraut | Wide-mouth jar, salt, scale, weight | Crock, airlock lid, mandoline |
-| Kimchi | Wide-mouth jar, salt, scale | Kimchi container, gloves (for chili) |
-| Kombucha | Gallon glass jar, SCOBY, tea, sugar, cloth | Flip-top bottles, pH strips, heating mat |
-| Kefir (milk) | Glass jar, kefir grains, milk, strainer | Second jar for double-straining |
-| Kefir (water) | Glass jar, water kefir grains, sugar | Flip-top bottles for carbonation |
-| Sourdough | Glass jar, flour, water, scale | Banneton, Dutch oven, bench scraper |
-| Yogurt | Pot, thermometer, starter culture | Yogurt maker, instant pot, insulated bag |
-| Brined vegetables | Wide-mouth jar, salt, water, weight | Airlock lid, grape/oak/horseradish leaf (tannin for crunch) |
+| Ferment           | Must Have                                  | Nice to Have                                                |
+| ----------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| Sauerkraut        | Wide-mouth jar, salt, scale, weight        | Crock, airlock lid, mandoline                               |
+| Kimchi            | Wide-mouth jar, salt, scale                | Kimchi container, gloves (for chili)                        |
+| Kombucha          | Gallon glass jar, SCOBY, tea, sugar, cloth | Flip-top bottles, pH strips, heating mat                    |
+| Kefir (milk)      | Glass jar, kefir grains, milk, strainer    | Second jar for double-straining                             |
+| Kefir (water)     | Glass jar, water kefir grains, sugar       | Flip-top bottles for carbonation                            |
+| Sourdough         | Glass jar, flour, water, scale             | Banneton, Dutch oven, bench scraper                         |
+| Yogurt            | Pot, thermometer, starter culture          | Yogurt maker, instant pot, insulated bag                    |
+| Brined vegetables | Wide-mouth jar, salt, water, weight        | Airlock lid, grape/oak/horseradish leaf (tannin for crunch) |
 
 ---
 
@@ -466,34 +468,34 @@ Place 1-2 tbsp kefir grains in a glass jar with 2-4 cups whole milk. Cover loose
 
 ## Troubleshooting Guide
 
-| Problem | Likely Cause | Solution |
-|---------|-------------|----------|
-| White film on surface | Kahm yeast (harmless) | Skim off, ensure food is submerged, add a bit more salt |
-| Black/green/blue fuzzy mold | Contamination | Discard if extensive; remove plus 1 inch margin if caught early on a firm ferment |
-| Pink/slimy brine | Possible contamination | Discard -- this is not safe |
-| Mushy/soft vegetables | Over-fermentation or too warm | Shorten time, lower temperature, add tannin source |
-| No bubbles after several days | Too cold or too salty | Move to warmer spot; verify salt percentage (2-3%) |
-| Kombucha too vinegary | Fermented too long | Shorten by 2-3 days next batch; use as vinegar substitute |
-| Kombucha not carbonating (2F) | Not enough sugar/flavor for yeast; too cold | Add more fruit/sugar, ensure 70-80F, ensure bottles seal tight |
-| Sourdough starter not rising | Too cold, chlorinated water, wrong flour | Warmer spot (78F ideal), use filtered water, try whole wheat/rye |
-| Sourdough starter smells like acetone | Hungry -- needs feeding | Feed more frequently; the smell fades after feeding |
-| Kimchi too salty | Insufficient rinsing after brining | Rinse 3-4 times; soak in cold water 15 min if very salty |
-| Kefir grains not growing | Wrong temperature, wrong milk, overculturing | 68-78F, whole milk preferred, ratio of grains to milk matters |
-| Ferment is alcoholic | Yeast-dominant ferment at warm temps | Cool slightly, ensure airlock is working, is this normal for this ferment? |
+| Problem                               | Likely Cause                                 | Solution                                                                          |
+| ------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------- |
+| White film on surface                 | Kahm yeast (harmless)                        | Skim off, ensure food is submerged, add a bit more salt                           |
+| Black/green/blue fuzzy mold           | Contamination                                | Discard if extensive; remove plus 1 inch margin if caught early on a firm ferment |
+| Pink/slimy brine                      | Possible contamination                       | Discard -- this is not safe                                                       |
+| Mushy/soft vegetables                 | Over-fermentation or too warm                | Shorten time, lower temperature, add tannin source                                |
+| No bubbles after several days         | Too cold or too salty                        | Move to warmer spot; verify salt percentage (2-3%)                                |
+| Kombucha too vinegary                 | Fermented too long                           | Shorten by 2-3 days next batch; use as vinegar substitute                         |
+| Kombucha not carbonating (2F)         | Not enough sugar/flavor for yeast; too cold  | Add more fruit/sugar, ensure 70-80F, ensure bottles seal tight                    |
+| Sourdough starter not rising          | Too cold, chlorinated water, wrong flour     | Warmer spot (78F ideal), use filtered water, try whole wheat/rye                  |
+| Sourdough starter smells like acetone | Hungry -- needs feeding                      | Feed more frequently; the smell fades after feeding                               |
+| Kimchi too salty                      | Insufficient rinsing after brining           | Rinse 3-4 times; soak in cold water 15 min if very salty                          |
+| Kefir grains not growing              | Wrong temperature, wrong milk, overculturing | 68-78F, whole milk preferred, ratio of grains to milk matters                     |
+| Ferment is alcoholic                  | Yeast-dominant ferment at warm temps         | Cool slightly, ensure airlock is working, is this normal for this ferment?        |
 
 ---
 
 ## Fermentation Temperature Guide
 
-| Ferment | Ideal Range | Too Cold | Too Hot |
-|---------|------------|---------|--------|
-| Sauerkraut | 65-75F (18-24C) | Below 60F: very slow | Above 80F: soft, fast |
-| Kimchi | 65-75F (18-24C) for initial, then fridge | Below 60F: very slow | Above 80F: over-sour quickly |
-| Kombucha | 75-85F (24-29C) | Below 70F: sluggish | Above 90F: vinegary, may harm SCOBY |
-| Water kefir | 68-78F (20-26C) | Below 65F: slow | Above 85F: may damage grains |
-| Milk kefir | 68-78F (20-26C) | Below 65F: slow | Above 85F: may damage grains |
-| Sourdough starter | 75-82F (24-28C) | Below 65F: sluggish | Above 90F: may kill yeast |
-| Yogurt | 110-115F (43-46C) for incubation | Below 100F: will not set | Above 120F: kills culture |
+| Ferment           | Ideal Range                              | Too Cold                 | Too Hot                             |
+| ----------------- | ---------------------------------------- | ------------------------ | ----------------------------------- |
+| Sauerkraut        | 65-75F (18-24C)                          | Below 60F: very slow     | Above 80F: soft, fast               |
+| Kimchi            | 65-75F (18-24C) for initial, then fridge | Below 60F: very slow     | Above 80F: over-sour quickly        |
+| Kombucha          | 75-85F (24-29C)                          | Below 70F: sluggish      | Above 90F: vinegary, may harm SCOBY |
+| Water kefir       | 68-78F (20-26C)                          | Below 65F: slow          | Above 85F: may damage grains        |
+| Milk kefir        | 68-78F (20-26C)                          | Below 65F: slow          | Above 85F: may damage grains        |
+| Sourdough starter | 75-82F (24-28C)                          | Below 65F: sluggish      | Above 90F: may kill yeast           |
+| Yogurt            | 110-115F (43-46C) for incubation         | Below 100F: will not set | Above 120F: kills culture           |
 
 ---
 
@@ -522,42 +524,48 @@ When guiding a user on fermentation, provide:
 **Yield:** ~1 quart
 
 ### Ingredients
+
 - 1 medium head green cabbage (about 2 lbs / 900g)
 - 1 tablespoon non-iodized salt (kosher or sea salt -- 2% of cabbage weight)
 - Optional: caraway seeds, juniper berries, garlic
 
 ### Equipment
+
 - Large mixing bowl
 - Wide-mouth quart jar (Mason jar works)
 - Something to weigh cabbage down (small jar filled with water, fermentation weight, or ziplock bag with brine)
 
 ### Steps
+
 1. **Prep (10 min):** Remove outer leaves (save one). Quarter cabbage, remove core. Slice thin (3mm) -- thinner = faster ferment
 2. **Salt and massage (10 min):** Place sliced cabbage in bowl, sprinkle salt. Massage firmly with hands for 5-10 minutes until cabbage releases liquid (brine). You should have a pool of liquid at the bottom.
 3. **Pack jar:** Transfer cabbage and ALL liquid to jar. Press down firmly -- cabbage must be submerged under its own brine. Place saved cabbage leaf on top as a cover, then weight.
 4. **Ferment:** Cover loosely (gas must escape). Room temperature (65-75F / 18-24C). Taste at day 7.
 
 ### What Is Happening (The Science)
+
 - Day 1-3: Leuconostoc bacteria start producing lactic acid and CO2 (you will see bubbles)
 - Day 3-7: Lactobacillus takes over, pH drops to 3.5-4.0, creating the sour flavor
 - Day 7-28: Flavor deepens and complexity develops. Taste every few days.
 
 ### Timeline
-| Day | What to Expect | Action |
-|-----|---------------|--------|
-| 1-2 | Bubbles forming | Normal -- gas from fermentation |
-| 3-5 | Cloudy brine, sour smell | Check that cabbage stays submerged |
-| 7 | Taste test | Mild sour -- refrigerate if you like it |
-| 14 | Taste test | Medium sour -- most people prefer this |
-| 21-28 | Full sour | Complex flavor -- refrigerate to stop fermentation |
+
+| Day   | What to Expect           | Action                                             |
+| ----- | ------------------------ | -------------------------------------------------- |
+| 1-2   | Bubbles forming          | Normal -- gas from fermentation                    |
+| 3-5   | Cloudy brine, sour smell | Check that cabbage stays submerged                 |
+| 7     | Taste test               | Mild sour -- refrigerate if you like it            |
+| 14    | Taste test               | Medium sour -- most people prefer this             |
+| 21-28 | Full sour                | Complex flavor -- refrigerate to stop fermentation |
 
 ### Troubleshooting
-| Problem | Cause | Fix |
-|---------|-------|-----|
-| White film on surface | Kahm yeast (harmless) | Skim off, ensure cabbage is submerged |
-| Pink/black/fuzzy mold | Contamination | Discard -- start over |
-| Too salty | Too much salt | Rinse before eating; use less salt next batch |
-| Not sour after 7 days | Too cold | Move to warmer spot (68-75F ideal) |
+
+| Problem               | Cause                 | Fix                                           |
+| --------------------- | --------------------- | --------------------------------------------- |
+| White film on surface | Kahm yeast (harmless) | Skim off, ensure cabbage is submerged         |
+| Pink/black/fuzzy mold | Contamination         | Discard -- start over                         |
+| Too salty             | Too much salt         | Rinse before eating; use less salt next batch |
+| Not sour after 7 days | Too cold              | Move to warmer spot (68-75F ideal)            |
 
 ## Edge Cases
 

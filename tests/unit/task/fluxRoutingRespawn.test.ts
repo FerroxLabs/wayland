@@ -206,9 +206,11 @@ describe('AcpAgentManager.respawnForRoutingChange - teardown + recreate', () => 
       }),
     });
 
-    const result = await (manager as unknown as {
-      respawnForRoutingChange: (id: string) => Promise<unknown>;
-    }).respawnForRoutingChange('flux-auto');
+    const result = await (
+      manager as unknown as {
+        respawnForRoutingChange: (id: string) => Promise<unknown>;
+      }
+    ).respawnForRoutingChange('flux-auto');
 
     // New model persisted BEFORE re-spawn so initAgent picks it up.
     expect((m.options as { currentModelId: string }).currentModelId).toBe('flux-auto');

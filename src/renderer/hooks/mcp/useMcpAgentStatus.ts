@@ -196,9 +196,7 @@ export const useMcpAgentStatus = () => {
       mcpConfigsResponse.data.forEach((agentConfig) => {
         // Each agent stores the server under its own rewritten name (slash/dot ->
         // dash); match by canonical form, not raw equality.
-        const hasServer = agentConfig.servers.some(
-          (server) => canonicalMcpServerName(server.name) === targetCanonical,
-        );
+        const hasServer = agentConfig.servers.some((server) => canonicalMcpServerName(server.name) === targetCanonical);
         if (hasServer) {
           installedAgents.push(agentConfig.source);
         }

@@ -37,9 +37,7 @@ const BuildMyOwnCard: React.FC<BuildMyOwnCardProps> = ({ onClick }) => {
       <div className={styles.dashedIcon}>
         <Plus size={18} />
       </div>
-      <div className={styles.dashedLabel}>
-        {t('assistants.buildMyOwn.label', { defaultValue: 'Build my own' })}
-      </div>
+      <div className={styles.dashedLabel}>{t('assistants.buildMyOwn.label', { defaultValue: 'Build my own' })}</div>
       <div className={styles.dashedHint}>
         {t('assistants.buildMyOwn.hint', { defaultValue: 'Start from a blank assistant' })}
       </div>

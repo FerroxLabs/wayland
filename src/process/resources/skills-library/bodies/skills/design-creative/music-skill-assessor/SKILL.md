@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment design template guide performing-arts cleaning"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'assessment design template guide performing-arts cleaning'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Music Skill Assessor
@@ -22,15 +22,16 @@ You are an experienced music educator and skill evaluator with expertise in inst
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about music skill assessor techniques or best practices
 - User needs guidance on music skill assessor concepts
 - User wants to implement or improve their approach to music skill assessor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of music skill assessor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,6 +39,7 @@ You are an experienced music educator and skill evaluator with expertise in inst
 ## Questions to Ask First
 
 ### Musical Background
+
 1. What instrument(s) or voice do you play/sing? Which is your primary focus?
 2. How long have you been playing or singing?
 3. How did you learn? (Self-taught, private lessons, school programs, online courses, mix)
@@ -45,6 +47,7 @@ You are an experienced music educator and skill evaluator with expertise in inst
 5. What genre(s) do you play most? (Classical, jazz, rock, pop, country, electronic, other)
 
 ### Technique Assessment
+
 6. What technical exercises or fundamentals do you practice regularly? (Scales, arpeggios, etudes, warmups)
 7. What is the most technically demanding piece you can play competently?
 8. What aspect of your technique feels strongest?
@@ -52,6 +55,7 @@ You are an experienced music educator and skill evaluator with expertise in inst
 10. Can you play at a range of tempos (slow to fast) with control?
 
 ### Music Theory Knowledge
+
 11. Can you read standard music notation fluently, partially, or not at all?
 12. Do you understand key signatures and how many can you identify quickly?
 13. Can you build and name major, minor, and seventh chords?
@@ -59,6 +63,7 @@ You are an experienced music educator and skill evaluator with expertise in inst
 15. Can you analyze a chord progression and identify the key and function of each chord?
 
 ### Ear Training
+
 16. Can you identify intervals by ear? (E.g., hear two notes and name the distance)
 17. Can you learn a song or melody by listening without written music?
 18. Can you hear a chord and identify whether it is major, minor, or dominant?
@@ -66,6 +71,7 @@ You are an experienced music educator and skill evaluator with expertise in inst
 20. Can you tune your instrument by ear (without a tuner)?
 
 ### Performance & Musicianship
+
 21. How often do you perform for others? (Never, occasionally, regularly, professionally)
 22. Can you play with other musicians effectively? (Keeping time, following form, listening)
 23. How do you handle mistakes during performance?
@@ -78,39 +84,39 @@ You are an experienced music educator and skill evaluator with expertise in inst
 
 ### Dimension 1: Technical Proficiency (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Fundamental technique | 0-8 | Posture, hand position, tone production, breathing (voice), basic control |
-| Scale and pattern fluency | 0-7 | Major/minor scales, arpeggios, and common patterns at reasonable tempos |
-| Repertoire difficulty | 0-5 | Complexity level of pieces that can be performed competently |
-| Speed and control | 0-5 | Ability to play at various tempos with accuracy and expression |
+| Factor                    | Score Range | Criteria                                                                  |
+| ------------------------- | ----------- | ------------------------------------------------------------------------- |
+| Fundamental technique     | 0-8         | Posture, hand position, tone production, breathing (voice), basic control |
+| Scale and pattern fluency | 0-7         | Major/minor scales, arpeggios, and common patterns at reasonable tempos   |
+| Repertoire difficulty     | 0-5         | Complexity level of pieces that can be performed competently              |
+| Speed and control         | 0-5         | Ability to play at various tempos with accuracy and expression            |
 
 ### Dimension 2: Theory Knowledge (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Notation literacy | 0-7 | Ability to read and write standard music notation |
-| Harmony understanding | 0-7 | Knowledge of chords, progressions, keys, and harmonic function |
-| Rhythm literacy | 0-6 | Understanding of time signatures, subdivisions, and rhythmic patterns |
-| Form and structure | 0-5 | Knowledge of song forms, arrangement, and compositional structures |
+| Factor                | Score Range | Criteria                                                              |
+| --------------------- | ----------- | --------------------------------------------------------------------- |
+| Notation literacy     | 0-7         | Ability to read and write standard music notation                     |
+| Harmony understanding | 0-7         | Knowledge of chords, progressions, keys, and harmonic function        |
+| Rhythm literacy       | 0-6         | Understanding of time signatures, subdivisions, and rhythmic patterns |
+| Form and structure    | 0-5         | Knowledge of song forms, arrangement, and compositional structures    |
 
 ### Dimension 3: Ear Training (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Interval recognition | 0-7 | Ability to identify pitch distances by ear |
-| Chord identification | 0-7 | Recognizing chord types and qualities by sound |
-| Melodic recall | 0-6 | Ability to hear and reproduce melodies accurately |
-| Pitch accuracy | 0-5 | General pitch perception, tuning ability, intonation awareness |
+| Factor               | Score Range | Criteria                                                       |
+| -------------------- | ----------- | -------------------------------------------------------------- |
+| Interval recognition | 0-7         | Ability to identify pitch distances by ear                     |
+| Chord identification | 0-7         | Recognizing chord types and qualities by sound                 |
+| Melodic recall       | 0-6         | Ability to hear and reproduce melodies accurately              |
+| Pitch accuracy       | 0-5         | General pitch perception, tuning ability, intonation awareness |
 
 ### Dimension 4: Performance & Musicianship (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Ensemble skills | 0-7 | Playing with others: time-keeping, listening, dynamics, following form |
-| Performance presence | 0-6 | Comfort and effectiveness performing for an audience |
-| Improvisation | 0-6 | Ability to create music spontaneously within a harmonic or stylistic framework |
-| Musical expression | 0-6 | Dynamics, phrasing, emotion, and personal interpretation in playing |
+| Factor               | Score Range | Criteria                                                                       |
+| -------------------- | ----------- | ------------------------------------------------------------------------------ |
+| Ensemble skills      | 0-7         | Playing with others: time-keeping, listening, dynamics, following form         |
+| Performance presence | 0-6         | Comfort and effectiveness performing for an audience                           |
+| Improvisation        | 0-6         | Ability to create music spontaneously within a harmonic or stylistic framework |
+| Musical expression   | 0-6         | Dynamics, phrasing, emotion, and personal interpretation in playing            |
 
 ---
 
@@ -166,19 +172,20 @@ Performance & Musicianship
 
 ## Results Interpretation
 
-| Score Range | Level | Interpretation |
-|-------------|-------|---------------|
-| 85-100 | Advanced | Strong command across all dimensions. Focus on artistry, specialization, and professional opportunities. |
-| 70-84 | Intermediate-Advanced | Solid skills with areas to deepen. Ready for advanced repertoire and performance opportunities. |
-| 55-69 | Intermediate | Good foundation with notable gaps. Structured practice targeting weak dimensions will accelerate growth. |
-| 40-54 | Beginner-Intermediate | Basic skills in place. Focus on fundamentals, consistent practice habits, and building theory knowledge. |
-| Below 40 | Beginner | Early in the journey. Prioritize fundamentals, regular practice, and enjoying the process. |
+| Score Range | Level                 | Interpretation                                                                                           |
+| ----------- | --------------------- | -------------------------------------------------------------------------------------------------------- |
+| 85-100      | Advanced              | Strong command across all dimensions. Focus on artistry, specialization, and professional opportunities. |
+| 70-84       | Intermediate-Advanced | Solid skills with areas to deepen. Ready for advanced repertoire and performance opportunities.          |
+| 55-69       | Intermediate          | Good foundation with notable gaps. Structured practice targeting weak dimensions will accelerate growth. |
+| 40-54       | Beginner-Intermediate | Basic skills in place. Focus on fundamentals, consistent practice habits, and building theory knowledge. |
+| Below 40    | Beginner              | Early in the journey. Prioritize fundamentals, regular practice, and enjoying the process.               |
 
 ---
 
 ## Recommendations Based on Scores
 
 ### For Technical Issues (below 15)
+
 - Practice fundamentals daily: scales, arpeggios, and basic patterns for 15-20 minutes before repertoire
 - Use a metronome consistently -- start slow and increase tempo only when clean
 - Focus on one technical challenge at a time rather than trying to fix everything
@@ -186,6 +193,7 @@ Performance & Musicianship
 - Consider lessons with a qualified teacher for your instrument
 
 ### For Theory Gaps (below 15)
+
 - Learn the major scale formula and build all 12 major scales
 - Study the number system (Nashville or Roman numeral) for chord progressions
 - Practice identifying key signatures and their relative minors
@@ -193,6 +201,7 @@ Performance & Musicianship
 - Use a theory workbook or app for 10-15 minutes of daily study
 
 ### For Ear Training Weakness (below 15)
+
 - Practice interval recognition daily with an ear training app
 - Learn to sing or hum melodies before playing them on your instrument
 - Transcribe simple melodies by ear (start with children's songs, then progress)
@@ -200,6 +209,7 @@ Performance & Musicianship
 - Listen to music actively -- try to identify chords, keys, and form while listening
 
 ### For Performance and Musicianship Gaps (below 15)
+
 - Play with other musicians regularly, even informally
 - Perform for friends or family to build comfort before larger audiences
 - Start improvising within a simple framework (pentatonic scale over a blues progression)
@@ -272,7 +282,6 @@ NEXT ASSESSMENT DATE: ____________
 5. Encourage enjoyment alongside discipline. Musicians who enjoy practicing improve faster.
 6. Adapt level expectations to the instrument. Different instruments have different learning curves.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -280,7 +289,6 @@ NEXT ASSESSMENT DATE: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -301,14 +309,12 @@ NEXT ASSESSMENT DATE: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

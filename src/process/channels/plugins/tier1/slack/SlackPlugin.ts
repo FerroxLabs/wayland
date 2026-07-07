@@ -77,8 +77,7 @@ function resolveCredentials(config: IChannelPluginConfig): SlackCredentials {
   const rawTransport = typeof c.transport === 'string' ? c.transport : 'socket';
   const transport: SlackTransport = rawTransport === 'events' ? 'events' : 'socket';
   const appToken = typeof c.appToken === 'string' && c.appToken.length > 0 ? c.appToken : undefined;
-  const signingSecret =
-    typeof c.signingSecret === 'string' && c.signingSecret.length > 0 ? c.signingSecret : undefined;
+  const signingSecret = typeof c.signingSecret === 'string' && c.signingSecret.length > 0 ? c.signingSecret : undefined;
 
   if (transport === 'socket' && !appToken) {
     throw new Error('Slack Socket Mode requires an app-level token (credentials.appToken xapp-...)');
@@ -250,17 +249,14 @@ export class SlackPlugin extends BasePlugin {
   private async uploadAttachments(
     channelId: string,
     attachments: SlackOutgoingAttachment[],
-    threadTs: string | undefined,
+    threadTs: string | undefined
   ): Promise<void> {
     if (!this.webClient) return;
     for (const a of attachments) {
       try {
         const filename = a.filename ?? 'attachment';
-        const body = a.data instanceof Buffer
-          ? a.data
-          : typeof a.data === 'string'
-            ? Buffer.from(a.data)
-            : Buffer.from(a.data);
+        const body =
+          a.data instanceof Buffer ? a.data : typeof a.data === 'string' ? Buffer.from(a.data) : Buffer.from(a.data);
         const upload = await this.webClient.files.getUploadURLExternal({
           filename,
           length: body.byteLength,
@@ -338,9 +334,7 @@ export class SlackPlugin extends BasePlugin {
    * (or `err.data.error === 'ratelimited'`) with `err.retryAfter` (seconds).
    * F13 HIGH.
    */
-  private async postWithRetry(
-    params: Parameters<WebClient['chat']['postMessage']>[0],
-  ): Promise<string> {
+  private async postWithRetry(params: Parameters<WebClient['chat']['postMessage']>[0]): Promise<string> {
     if (!this.webClient) throw new Error('Slack web client not initialized');
     try {
       const result = await this.webClient.chat.postMessage(params);
@@ -366,7 +360,7 @@ export class SlackPlugin extends BasePlugin {
     // a visible edit, matching what Slack accepts via chat.update.
     if (!trimmed && !blocks) {
       console.warn(
-        '[SlackPlugin] editMessage called with empty text + blocks; submitting a single space to preserve "cleared" semantics',
+        '[SlackPlugin] editMessage called with empty text + blocks; submitting a single space to preserve "cleared" semantics'
       );
       await this.webClient.chat.update({ channel: chatId, ts: messageId, text: ' ' });
       return;
@@ -409,7 +403,7 @@ export class SlackPlugin extends BasePlugin {
   async handleWebhookPayload(
     payload: object,
     headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     if (this.resolvedTransport !== 'events') {
       throw new Error('SlackPlugin received a webhook delivery while not in Events API transport');
@@ -445,9 +439,7 @@ export class SlackPlugin extends BasePlugin {
       if (!unified) return;
       if (event.user) this.noteActiveUser(event.user);
       if (this.messageHandler) {
-        await this.messageHandler(unified).catch((err) =>
-          console.error('[SlackPlugin] message handler error:', err),
-        );
+        await this.messageHandler(unified).catch((err) => console.error('[SlackPlugin] message handler error:', err));
       }
     });
 
@@ -561,7 +553,7 @@ export class SlackPlugin extends BasePlugin {
    */
   static async testConnection(
     botToken: string,
-    extras: { appToken?: string; signingSecret?: string; transport?: SlackTransport } = {},
+    extras: { appToken?: string; signingSecret?: string; transport?: SlackTransport } = {}
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     try {
       const client = new WebClient(botToken);
@@ -617,9 +609,7 @@ function extractRetryAfter(err: unknown): number | null {
   if (!err || typeof err !== 'object') return null;
   const e = err as { code?: string; data?: { error?: string }; retryAfter?: number };
   const isRateLimit =
-    e.code === 'slack_webapi_rate_limited_error' ||
-    e.data?.error === 'ratelimited' ||
-    e.data?.error === 'rate_limited';
+    e.code === 'slack_webapi_rate_limited_error' || e.data?.error === 'ratelimited' || e.data?.error === 'rate_limited';
   if (!isRateLimit) return null;
   const retryAfter = typeof e.retryAfter === 'number' && Number.isFinite(e.retryAfter) ? e.retryAfter : 1;
   return Math.max(1, retryAfter);

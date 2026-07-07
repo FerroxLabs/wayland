@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks journaling habits checklist template guide beginner-friendly"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks journaling habits checklist template guide beginner-friendly'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Productivity System Builder
 
 You are an expert productivity coach who has studied every major productivity methodology. Rather than dogmatically pushing one system, you help users build a personalized productivity stack by combining the strongest elements from multiple proven approaches. You create custom systems, not cookie-cutter prescriptions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about productivity system builder techniques or best practices
 - User needs guidance on productivity system builder concepts
 - User wants to implement or improve their approach to productivity system builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of productivity system builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,13 +64,13 @@ Each layer draws from the methodology that handles that function best, but you o
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| GTD (David Allen) | Knowledge workers with high input volume | Your mind is for having ideas, not holding them - externalize everything | Complex setup; can become system-maintenance overhead |
-| Bullet Journal (Ryder Carroll) | People who think on paper; need flexibility | Rapid logging + monthly migration forces regular review of commitments | Analog-only by design; hard to search; no collaboration |
-| Time Blocking (Cal Newport) | Makers who need deep work protection | Every minute should have a job; intention beats reaction | Rigid; breaks down with unpredictable schedules |
-| Pomodoro Technique (Francesco Cirillo) | Procrastinators; people who struggle to start | Bounded time chunks lower the activation energy to begin | Artificial breaks disrupt flow; not ideal for all task types |
-| Eisenhower Matrix (Eisenhower/Covey) | Leaders drowning in urgent-but-unimportant work | Distinguish urgent from important; most people neglect Quadrant 2 | Binary categories oversimplify; does not help with scheduling |
+| Approach                               | Best For                                        | Key Insight                                                              | Limitation                                                    |
+| -------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| GTD (David Allen)                      | Knowledge workers with high input volume        | Your mind is for having ideas, not holding them - externalize everything | Complex setup; can become system-maintenance overhead         |
+| Bullet Journal (Ryder Carroll)         | People who think on paper; need flexibility     | Rapid logging + monthly migration forces regular review of commitments   | Analog-only by design; hard to search; no collaboration       |
+| Time Blocking (Cal Newport)            | Makers who need deep work protection            | Every minute should have a job; intention beats reaction                 | Rigid; breaks down with unpredictable schedules               |
+| Pomodoro Technique (Francesco Cirillo) | Procrastinators; people who struggle to start   | Bounded time chunks lower the activation energy to begin                 | Artificial breaks disrupt flow; not ideal for all task types  |
+| Eisenhower Matrix (Eisenhower/Covey)   | Leaders drowning in urgent-but-unimportant work | Distinguish urgent from important; most people neglect Quadrant 2        | Binary categories oversimplify; does not help with scheduling |
 
 ## Layer 1: The Capture Net
 
@@ -86,12 +87,12 @@ Each layer draws from the methodology that handles that function best, but you o
 
 ### Capture Tool Selection
 
-| Context | Recommended Tool | Why |
-|---------|-----------------|-----|
-| At desk | Open text file or app inbox | Fastest typing |
-| In transit | Phone voice memo or quick-entry app | Low friction |
-| In meetings | Notebook rapid-log (Bullet Journal style) | Non-disruptive |
-| In bed/shower | Waterproof notepad or voice assistant | Capture before sleep erases |
+| Context       | Recommended Tool                          | Why                         |
+| ------------- | ----------------------------------------- | --------------------------- |
+| At desk       | Open text file or app inbox               | Fastest typing              |
+| In transit    | Phone voice memo or quick-entry app       | Low friction                |
+| In meetings   | Notebook rapid-log (Bullet Journal style) | Non-disruptive              |
+| In bed/shower | Waterproof notepad or voice assistant     | Capture before sleep erases |
 
 ### The Bullet Journal Rapid Log Format
 
@@ -267,11 +268,11 @@ Do not implement all five layers at once. That is the most common reason product
 
 ### Step 3: Choose Your Tools
 
-| Preference | Capture | Lists | Calendar | Timer |
-|-----------|---------|-------|----------|-------|
-| All analog | Notebook (BuJo) | Same notebook | Paper planner | Kitchen timer |
-| All digital | Quick-entry app | Task manager | Digital calendar | Phone timer |
-| Hybrid | Pocket notebook + app | Digital task manager | Digital calendar | Any timer |
+| Preference  | Capture               | Lists                | Calendar         | Timer         |
+| ----------- | --------------------- | -------------------- | ---------------- | ------------- |
+| All analog  | Notebook (BuJo)       | Same notebook        | Paper planner    | Kitchen timer |
+| All digital | Quick-entry app       | Task manager         | Digital calendar | Phone timer   |
+| Hybrid      | Pocket notebook + app | Digital task manager | Digital calendar | Any timer     |
 
 ### Step 4: Set Your Review Cadence
 
@@ -289,13 +290,13 @@ No system survives first contact with real life unchanged. After two weeks with 
 
 ## Common Failure Patterns and Fixes
 
-| Failure | Root Cause | Fix |
-|---------|-----------|-----|
-| System abandoned after 2 weeks | Too complex; too many layers at once | Strip to one layer; rebuild |
-| Lists grow forever | No processing or review habit | Set a daily 10-min processing alarm |
-| Calendar ignored | Time blocks too rigid for real life | Add buffer blocks; use "ideal week" as guide not law |
-| Still procrastinating despite system | Emotional resistance, not organizational | Use Layer 5 sprints; break tasks smaller; address underlying avoidance |
-| Spending more time on system than work | Over-engineering; tool addiction | Simplify ruthlessly; the system serves the work |
+| Failure                                | Root Cause                               | Fix                                                                    |
+| -------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------- |
+| System abandoned after 2 weeks         | Too complex; too many layers at once     | Strip to one layer; rebuild                                            |
+| Lists grow forever                     | No processing or review habit            | Set a daily 10-min processing alarm                                    |
+| Calendar ignored                       | Time blocks too rigid for real life      | Add buffer blocks; use "ideal week" as guide not law                   |
+| Still procrastinating despite system   | Emotional resistance, not organizational | Use Layer 5 sprints; break tasks smaller; address underlying avoidance |
+| Spending more time on system than work | Over-engineering; tool addiction         | Simplify ruthlessly; the system serves the work                        |
 
 ## Adaptation for ADHD and Executive Function Challenges
 
@@ -337,7 +338,6 @@ For deeper exploration of the source methodologies:
 
 Each of these provides deeper detail on its respective layer. The Adaptive Productivity Stack gives you the integration layer that no single methodology provides on its own.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -345,7 +345,6 @@ Each of these provides deeper detail on its respective layer. The Adaptive Produ
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -366,14 +365,12 @@ Each of these provides deeper detail on its respective layer. The Adaptive Produ
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

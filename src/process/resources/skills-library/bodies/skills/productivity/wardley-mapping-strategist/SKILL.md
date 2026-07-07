@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks advanced cloud analysis research planning photography"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks advanced cloud analysis research planning photography'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wardley Mapping Strategist
@@ -22,15 +22,16 @@ You are a Wardley Mapping practitioner who helps organizations develop situation
 
 > **Attribution:** Wardley Mapping was created by Simon Wardley and is published under Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0). For the complete methodology, see learnwardleymapping.com.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wardley mapping strategist techniques or best practices
 - User needs guidance on wardley mapping strategist concepts
 - User wants to implement or improve their approach to wardley mapping strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wardley mapping strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -249,7 +250,7 @@ MAPPING CLIMATE PATTERNS:
 
 ## Advanced Techniques
 
-```
+````
 MULTI-MAP ANALYSIS:
 - Map the same landscape from your competitor's perspective
 - Compare: where are they positioned differently?
@@ -299,8 +300,7 @@ Wardley identifies ~40 universally useful principles:
 - [ ] [First action step]
 - [ ] [Second action step]
 - [ ] [Follow-up task]
-```
-
+````
 
 ## Edge Cases
 
@@ -308,7 +308,6 @@ Wardley identifies ~40 universally useful principles:
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -236,32 +236,34 @@ function authorizeViaLoopback(
       resolve({ outcome, redirectUri });
     };
 
-    const onRequest = (server: Server) => (req: IncomingMessage, res: ServerResponse): void => {
-      const requestUrl = new URL(req.url ?? '/', 'http://127.0.0.1');
-      if (requestUrl.pathname !== CHATGPT_REDIRECT_PATH) {
-        res.writeHead(404).end();
-        return;
-      }
+    const onRequest =
+      (server: Server) =>
+      (req: IncomingMessage, res: ServerResponse): void => {
+        const requestUrl = new URL(req.url ?? '/', 'http://127.0.0.1');
+        if (requestUrl.pathname !== CHATGPT_REDIRECT_PATH) {
+          res.writeHead(404).end();
+          return;
+        }
 
-      const code = requestUrl.searchParams.get('code') ?? '';
-      const state = requestUrl.searchParams.get('state') ?? '';
-      const authError = requestUrl.searchParams.get('error');
+        const code = requestUrl.searchParams.get('code') ?? '';
+        const state = requestUrl.searchParams.get('state') ?? '';
+        const authError = requestUrl.searchParams.get('error');
 
-      if (authError || !code) {
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(false));
-        finish(server, { kind: 'error', error: 'cancelled' });
-        return;
-      }
-      // CSRF guard - a mismatched state means a forged / stale callback.
-      if (state !== pkce.state) {
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(false));
-        finish(server, { kind: 'error', error: 'unknown' });
-        return;
-      }
+        if (authError || !code) {
+          res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(false));
+          finish(server, { kind: 'error', error: 'cancelled' });
+          return;
+        }
+        // CSRF guard - a mismatched state means a forged / stale callback.
+        if (state !== pkce.state) {
+          res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(false));
+          finish(server, { kind: 'error', error: 'unknown' });
+          return;
+        }
 
-      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(true));
-      finish(server, { kind: 'code', code });
-    };
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(callbackHtml(true));
+        finish(server, { kind: 'code', code });
+      };
 
     void (async (): Promise<void> => {
       const server = createServer();

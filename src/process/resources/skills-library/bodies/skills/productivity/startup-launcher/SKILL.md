@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks step-by-step testing research planning networking waste-reduction"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks step-by-step testing research planning networking waste-reduction'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Startup Launcher
 
 You are an expert in venture creation methodology who helps founders and aspiring entrepreneurs systematically validate and launch new businesses. You understand that most startups fail not because of bad ideas but because of poor validation and premature scaling. You combine the strongest elements from multiple proven frameworks to minimize waste and maximize learning speed.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about startup launcher techniques or best practices
 - User needs guidance on startup launcher concepts
 - User wants to implement or improve their approach to startup launcher
 
 **Do NOT use when:**
+
 - The request falls outside the scope of startup launcher
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,13 +63,13 @@ STAGE 5: SCALE      - Grow what works; kill what does not
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Lean Startup (Eric Ries) | Tech startups; rapid iteration | Build-Measure-Learn loop; minimize waste through validated learning | Can lead to small, iterative thinking; may miss big opportunities |
-| Jobs-to-be-Done (Christensen) | Product innovation; understanding demand | People hire products to do a job; understand the job, not the person | Theoretical; less prescriptive about execution |
-| Design Thinking (IDEO/Stanford d.school) | Human-centered innovation; complex problems | Empathy first; prototype rapidly; iterate based on human response | Can get stuck in ideation; less focused on business viability |
-| Blue Ocean Strategy (Kim/Mauborgne) | Market positioning; differentiation | Create uncontested market space rather than competing in crowded ones | Strategic framework; lighter on tactical execution |
-| Business Model Canvas (Osterwalder) | Business model design; visual planning | Map all nine components of a business model on one page | Descriptive, not prescriptive; does not tell you what to do first |
+| Approach                                 | Best For                                    | Key Insight                                                           | Limitation                                                        |
+| ---------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Lean Startup (Eric Ries)                 | Tech startups; rapid iteration              | Build-Measure-Learn loop; minimize waste through validated learning   | Can lead to small, iterative thinking; may miss big opportunities |
+| Jobs-to-be-Done (Christensen)            | Product innovation; understanding demand    | People hire products to do a job; understand the job, not the person  | Theoretical; less prescriptive about execution                    |
+| Design Thinking (IDEO/Stanford d.school) | Human-centered innovation; complex problems | Empathy first; prototype rapidly; iterate based on human response     | Can get stuck in ideation; less focused on business viability     |
+| Blue Ocean Strategy (Kim/Mauborgne)      | Market positioning; differentiation         | Create uncontested market space rather than competing in crowded ones | Strategic framework; lighter on tactical execution                |
+| Business Model Canvas (Osterwalder)      | Business model design; visual planning      | Map all nine components of a business model on one page               | Descriptive, not prescriptive; does not tell you what to do first |
 
 ## Stage 1: Discover - Find Problems Worth Solving
 
@@ -343,14 +344,14 @@ STAGE 5 - SCALE: [ ] Complete / [ ] In Progress
 
 ### Common Startup Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Building before validating | "If I build it, they will come" | Run the Validation Hierarchy; talk to customers first |
-| Asking "Would you use this?" | People say yes to be polite | Ask about past behavior: "How do you handle X today?" |
-| Solving your own problem without checking | Assumes others share your problem | Validate frequency and willingness to pay with target customers |
-| Feature creep in MVP | Fear that the product is not enough | One feature. One value proposition. Ship it. Learn. Iterate. |
-| Scaling before product-market fit | Pressure to grow; confusing activity for progress | Run the Sean Ellis test; fix retention before growth |
-| Ignoring unit economics | Revenue feels like validation | If you lose money on every customer, volume makes it worse |
+| Mistake                                   | Why It Happens                                    | Fix                                                             |
+| ----------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------- |
+| Building before validating                | "If I build it, they will come"                   | Run the Validation Hierarchy; talk to customers first           |
+| Asking "Would you use this?"              | People say yes to be polite                       | Ask about past behavior: "How do you handle X today?"           |
+| Solving your own problem without checking | Assumes others share your problem                 | Validate frequency and willingness to pay with target customers |
+| Feature creep in MVP                      | Fear that the product is not enough               | One feature. One value proposition. Ship it. Learn. Iterate.    |
+| Scaling before product-market fit         | Pressure to grow; confusing activity for progress | Run the Sean Ellis test; fix retention before growth            |
+| Ignoring unit economics                   | Revenue feels like validation                     | If you lose money on every customer, volume makes it worse      |
 
 ## Further Reading
 
@@ -364,7 +365,6 @@ For deeper exploration of the source methodologies:
 
 The Venture Validation Engine gives you a structured path from idea to launch, ensuring you validate before you build and learn before you scale.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -372,7 +372,6 @@ The Venture Validation Engine gives you a structured path from idea to launch, e
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -393,14 +392,12 @@ The Venture Validation Engine gives you a structured path from idea to launch, e
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

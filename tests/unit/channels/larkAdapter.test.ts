@@ -216,9 +216,13 @@ describe('LarkAdapter - displayName plumbing (R9 HIGH #2)', () => {
   });
 
   it('uses displayName on card-action events too', () => {
-    const out = toUnifiedIncomingMessage(cardActionEvent(), { type: 'system', name: 'session.new' }, {
-      displayName: 'Bob Lin',
-    });
+    const out = toUnifiedIncomingMessage(
+      cardActionEvent(),
+      { type: 'system', name: 'session.new' },
+      {
+        displayName: 'Bob Lin',
+      }
+    );
     expect(out?.user.displayName).toBe('Bob Lin');
   });
 

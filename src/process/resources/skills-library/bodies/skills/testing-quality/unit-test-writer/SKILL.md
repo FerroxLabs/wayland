@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices tdd"
-  category: "testing-quality"
-  subcategory: "test-methodology"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices tdd'
+  category: 'testing-quality'
+  subcategory: 'test-methodology'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Unit Test Writer
@@ -44,16 +44,16 @@ def test_calculate_discount_for_premium_member():
 ```javascript
 // JavaScript/Jest example
 test('calculates discount for premium member', () => {
-    // Arrange
-    const member = new Member({ tier: 'premium', joinedDate: '2020-01-01' });
-    const order = new Order({ items: [{ price: 100 }, { price: 50 }] });
-    const calculator = new DiscountCalculator();
+  // Arrange
+  const member = new Member({ tier: 'premium', joinedDate: '2020-01-01' });
+  const order = new Order({ items: [{ price: 100 }, { price: 50 }] });
+  const calculator = new DiscountCalculator();
 
-    // Act
-    const discount = calculator.calculate(order, member);
+  // Act
+  const discount = calculator.calculate(order, member);
 
-    // Assert
-    expect(discount).toBe(22.50);
+  // Assert
+  expect(discount).toBe(22.5);
 });
 ```
 
@@ -94,10 +94,10 @@ class TestWithdrawal:
 ```javascript
 // JavaScript/Jest with describe/it
 describe('AccountService.withdraw', () => {
-    it('should deduct amount from balance', () => { });
-    it('should throw OverdraftError when balance is insufficient', () => { });
-    it('should record transaction in history', () => { });
-    it('should not modify balance when transaction fails', () => { });
+  it('should deduct amount from balance', () => {});
+  it('should throw OverdraftError when balance is insufficient', () => {});
+  it('should record transaction in history', () => {});
+  it('should not modify balance when transaction fails', () => {});
 });
 ```
 
@@ -373,24 +373,24 @@ def test_email_validation(input_email, expected_valid):
 ```javascript
 // JavaScript: Jest each
 describe.each([
-    { input: 'alice@example.com', expected: true },
-    { input: 'bob@test.co.uk', expected: true },
-    { input: '', expected: false },
-    { input: 'no-at-sign.com', expected: false },
+  { input: 'alice@example.com', expected: true },
+  { input: 'bob@test.co.uk', expected: true },
+  { input: '', expected: false },
+  { input: 'no-at-sign.com', expected: false },
 ])('validateEmail($input)', ({ input, expected }) => {
-    it(`returns ${expected}`, () => {
-        expect(validateEmail(input)).toBe(expected);
-    });
+  it(`returns ${expected}`, () => {
+    expect(validateEmail(input)).toBe(expected);
+  });
 });
 
 // Table syntax
 test.each`
-    a    | b    | expected
-    ${1} | ${2} | ${3}
-    ${3} | ${4} | ${7}
-    ${0} | ${0} | ${0}
+  a    | b    | expected
+  ${1} | ${2} | ${3}
+  ${3} | ${4} | ${7}
+  ${0} | ${0} | ${0}
 `('add($a, $b) returns $expected', ({ a, b, expected }) => {
-    expect(add(a, b)).toBe(expected);
+  expect(add(a, b)).toBe(expected);
 });
 ```
 
@@ -484,6 +484,7 @@ def reset_singletons():
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing unit test writer solutions
 - Reviewing or improving existing unit test writer approaches
 - Making architectural or implementation decisions about unit test writer
@@ -491,6 +492,7 @@ def reset_singletons():
 - Troubleshooting unit test writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -501,21 +503,26 @@ def reset_singletons():
 # Unit Test Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

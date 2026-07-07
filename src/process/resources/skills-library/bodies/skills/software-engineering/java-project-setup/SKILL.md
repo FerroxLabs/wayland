@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "java best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'java best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Java Project Setup
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Is initializing a new Java project and needs to choose between Maven and Gradle, configure a build file, or establish project structure from scratch
 - Asks about configuring Maven (`pom.xml`, plugins, BOMs, profiles, lifecycle phases) or Gradle (`build.gradle`, `build.gradle.kts`, `settings.gradle.kts`, convention plugins)
 - Needs to set up a multi-module project with a parent POM or Gradle settings hierarchy, including shared dependency management and build logic
@@ -30,6 +32,7 @@ metadata:
 - Asks about publishing artifacts to Maven Central, GitHub Packages, or a private Nexus/Artifactory instance
 
 **Do NOT use this skill when:**
+
 - The user asks about modern Java language idioms like records, sealed classes, pattern matching, or text blocks -- use `java-modern-idioms`
 - The user asks about testing strategy, JUnit 5 configuration, Mockito, Testcontainers, or test lifecycle -- use `java-testing-patterns`
 - The user asks about Spring Boot application structure, Spring dependency injection, or Spring auto-configuration -- use `java-spring-patterns`
@@ -58,6 +61,7 @@ Gather these facts before generating any configuration. Wrong assumptions here c
 Apply this framework rigorously. Do not default to Maven for familiarity or Gradle for novelty without justification.
 
 **Choose Gradle (with Kotlin DSL) when:**
+
 - The project has 3 or more modules -- Gradle's incremental build and build caching give dramatic speedups (commonly 40--80% reduction in CI build time on large projects)
 - Build logic needs to be customized: custom tasks, code generation, conditional compilation, or complex dependency resolution
 - The team is comfortable with or willing to learn a programming-language-based DSL -- Kotlin DSL gives full IDE completion in IntelliJ
@@ -65,15 +69,18 @@ Apply this framework rigorously. Do not default to Maven for familiarity or Grad
 - The project uses Android modules alongside server modules (Gradle is mandatory for Android)
 
 **Choose Maven when:**
+
 - The organization has a mature Maven infrastructure with enforced corporate BOMs, existing Nexus mirrors, and established Maven Enforcer rules -- migration cost exceeds benefit
 - The team is small (1--3 people), the project is a single module, and the build has no unusual requirements
 - The project must publish to Maven Central and the team wants the simplest possible publishing setup (maven-publish via Gradle works fine but Maven's release plugin workflow is more widely documented)
 - Regulated enterprise environments have mandated Maven and auditing hooks are built around it
 
 **Prefer neither Maven nor Gradle:**
+
 - If the project is a script, prototype, or purely academic -- a single `javac` invocation or a minimal shell script suffices
 
 **Version selection:**
+
 - Gradle: Use the latest stable release at time of setup. Pin it via the Gradle Wrapper (`gradle/wrapper/gradle-wrapper.properties`). Never use a system-installed Gradle; always use the wrapper
 - Maven: Use 3.9.x. Use the Maven Wrapper (`mvnw`) for the same reason
 
@@ -82,12 +89,14 @@ Apply this framework rigorously. Do not default to Maven for familiarity or Grad
 Java version management is the most common source of "works on my machine" failures. Be explicit at every layer.
 
 **JDK version selection:**
+
 - Java 21 is the current Long-Term Support (LTS) release and should be the default choice for new production projects as of 2024
 - Java 17 remains appropriate for organizations with a slower upgrade cycle, legacy framework constraints, or where Java 21 is not yet certified by their cloud platform
 - Java 11 is end-of-life on most distributions and should only be targeted if you have a hard runtime constraint you cannot change
 - Never target Java 8 for new code unless integrating with a system that has a hard Java 8 runtime constraint
 
 **Gradle toolchain configuration (strongly preferred over hard-coding JAVA_HOME):**
+
 ```kotlin
 // build.gradle.kts
 java {
@@ -97,9 +106,11 @@ java {
     }
 }
 ```
+
 This allows Gradle to auto-provision the correct JDK regardless of what the developer has installed, using Foojay Toolchain API by default.
 
 **Maven toolchain configuration (`.mvn/jvm.config` and `toolchains.xml`):**
+
 ```xml
 <!-- .mvn/toolchains.xml or ~/.m2/toolchains.xml -->
 <toolchains>
@@ -117,10 +128,12 @@ This allows Gradle to auto-provision the correct JDK regardless of what the deve
 ```
 
 **Local version pinning for developers:**
+
 - Add a `.java-version` file containing `21` to the repo root for use with SDKMAN (`sdk env`) and jEnv
 - Add `.sdkmanrc` if the team standardizes on SDKMAN: `java=21.0.3-tem`
 
 **Compiler flags:**
+
 - Always use `--release N` (not `-source N -target N`) -- `--release` also restricts API usage to the target release's bootstrap classpath
 - Enable all recommended warnings: `-Xlint:all -Werror` in CI, `-Xlint:all` locally
 
@@ -129,6 +142,7 @@ This allows Gradle to auto-provision the correct JDK regardless of what the deve
 Project layout is a social contract for the team. Follow the Maven Standard Directory Layout even in Gradle projects -- deviating from it creates unnecessary friction.
 
 **Standard single-module layout:**
+
 ```
 project-root/
 ├── .gitignore
@@ -155,6 +169,7 @@ project-root/
 ```
 
 **Multi-module Gradle layout:**
+
 ```
 platform-root/
 ├── settings.gradle.kts       # Declares all subprojects
@@ -178,6 +193,7 @@ platform-root/
 ```
 
 **Multi-module Maven layout:**
+
 ```
 platform-root/
 ├── pom.xml                   # Parent POM with <modules> list and <dependencyManagement>
@@ -196,6 +212,7 @@ platform-root/
 Uncontrolled transitive dependencies are the leading cause of classpath conflicts and security vulnerabilities in Java projects.
 
 **Gradle version catalog (`gradle/libs.versions.toml`):**
+
 ```toml
 [versions]
 junit-jupiter = "5.10.2"
@@ -217,6 +234,7 @@ shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 ```
 
 **Maven BOM (Bill of Materials) usage:**
+
 ```xml
 <dependencyManagement>
   <dependencies>
@@ -232,18 +250,21 @@ shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 ```
 
 **Dependency scope hygiene:**
+
 - Never use `compile` scope for test libraries -- use `testImplementation` (Gradle) or `test` scope (Maven)
 - Use `compileOnly` (Gradle) or `provided` scope (Maven) for APIs that the runtime container provides (servlet API, Jakarta EE APIs)
 - Use `runtimeOnly` for JDBC drivers, SLF4J implementations, and other runtime-only bindings -- keeping them off the compile classpath prevents accidental coupling
 - Prefer `api` over `implementation` in Gradle for published library modules only -- `implementation` prevents compile classpath leakage for consumers
 
 **Dependency locking (Gradle):**
+
 ```kotlin
 // build.gradle.kts
 dependencyLocking {
     lockAllConfigurations()
 }
 ```
+
 Run `./gradlew dependencies --write-locks` to generate lock files. Commit them. This ensures reproducible builds.
 
 ### 6. Configure Code Quality Tooling
@@ -251,12 +272,15 @@ Run `./gradlew dependencies --write-locks` to generate lock files. Commit them. 
 Quality tooling must be configured from the first commit. Retrofitting it to an existing codebase with thousands of violations is painful.
 
 **Static analysis:**
+
 - **SpotBugs** (successor to FindBugs): Catches null dereferences, resource leaks, incorrect `equals`/`hashCode`, and security vulnerabilities at the bytecode level. Add the `spotbugs` Gradle plugin or the `spotbugs-maven-plugin`. Configure effort level `max` and threshold `low` for new projects
 - **PMD**: Source-level rules for code smells: overly complex methods, empty catch blocks, unused variables. Use the built-in `java-bestpractices`, `java-errorprone`, and `java-codestyle` rulesets
 - **Checkstyle**: Enforces naming conventions, import ordering, Javadoc presence on public API, and whitespace. Use Google Java Style or Sun Coding Conventions as the base and customize minimally
 
 **Formatting:**
+
 - **google-java-format**: Deterministic, non-negotiable formatting. Zero configuration debates. Integrate via the Spotless Gradle plugin (`com.diffplug.spotless`):
+
 ```kotlin
 spotless {
     java {
@@ -269,9 +293,11 @@ spotless {
 ```
 
 **Pre-commit hooks:**
+
 - Use the `pre-commit` framework with a `.pre-commit-config.yaml`, or configure a Gradle task that runs `./gradlew spotlessCheck checkstyleMain pmdMain` as a Git hook via the `com.github.jakemarsden.git-hooks` plugin
 
 **Null safety:**
+
 - Add JSpecify or `org.jetbrains:annotations` for `@Nullable` / `@NonNull` annotations on public APIs
 - Configure NullAway (a SpotBugs plugin) to enforce null safety at compile time: catches null dereferences that SpotBugs misses
 
@@ -280,6 +306,7 @@ spotless {
 Build speed directly affects developer productivity. Address it proactively.
 
 **Gradle-specific optimizations:**
+
 ```properties
 # gradle.properties
 org.gradle.daemon=true
@@ -295,6 +322,7 @@ org.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8
 - **Incremental compilation:** Enabled by default in Gradle 6+; ensure annotation processors declare their inputs/outputs correctly or they break incrementality
 
 **Maven-specific optimizations:**
+
 - Use `mvn -T 1C` (one thread per CPU core) for parallel module builds
 - Enable the Maven Daemon (`mvnd`) for persistent JVM and warm class loading
 - Use `--no-transfer-progress` in CI to reduce log noise and slightly improve throughput
@@ -372,11 +400,13 @@ When responding to a Java project setup request, structure the output as follows
 5. **Always separate API from implementation in library modules.** Use Gradle's `api` configuration only for dependencies that appear in the library's public API signatures. Use `implementation` for everything else. This prevents compile classpath pollution for consumers and reduces their recompilation surface area.
 
 6. **Never allow compiler warnings in CI.** Configure `-Werror` in CI builds to treat all warnings as errors. Warnings are deferred bugs. Use a `compileJava` task configuration:
+
    ```kotlin
    tasks.withType<JavaCompile>().configureEach {
        options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
    }
    ```
+
    If a warning cannot be fixed, suppress it with a `@SuppressWarnings` annotation with a documented reason, not by disabling the flag globally.
 
 7. **Always configure `sourceCompatibility` and `targetCompatibility` via toolchains, not raw properties.** Setting `sourceCompatibility = JavaVersion.VERSION_21` in Gradle does not guarantee that JDK 21 is actually used to compile -- it only sets the `--source` flag. Toolchain configuration (`java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }`) actually resolves and uses the correct JDK.
@@ -411,10 +441,12 @@ Some libraries need to compile against Java 8 source compatibility while using J
 
 **Reproducible builds for artifact publishing:**
 When publishing to Maven Central or a private repository, byte-identical artifacts across builds are important for verifiability. In Gradle, add to every `jar` task block:
+
 ```kotlin
 isPreserveFileTimestamps = false
 isReproducibleFileOrder = true
 ```
+
 Also exclude the `META-INF/MANIFEST.MF` `Created-By` entry or normalize it. Use `./gradlew jar && ./gradlew jar && diff build/libs/project.jar build/libs/project.jar.bak` (built twice) to verify. Maven enforces this via the `artifact:compare` goal or the `reproducible-build-maven-plugin`.
 
 ---
@@ -429,16 +461,17 @@ Also exclude the `META-INF/MANIFEST.MF` `Created-By` entry or normalize it. Use 
 
 ## Project Context Summary
 
-| Dimension           | Value                              | Notes                                              |
-|---------------------|------------------------------------|----------------------------------------------------|
-| Build tool          | Gradle 8.8 (Kotlin DSL)            | Multi-module + performance + custom build logic     |
-| Java version        | 21 (LTS)                           | Toolchain auto-provisioned via Foojay              |
-| Project type        | Hybrid: libraries + application    | api, core, persistence are libs; app is executable |
-| Module count        | 4                                  | Structured dependency graph enforced               |
-| Deployment target   | Fat JAR (shadow plugin)            | Standalone executable, no external runtime         |
-| Quality enforcement | Checkstyle + SpotBugs + PMD + Spotless | All enforced in check task, CI blocks on failure |
+| Dimension           | Value                                  | Notes                                              |
+| ------------------- | -------------------------------------- | -------------------------------------------------- |
+| Build tool          | Gradle 8.8 (Kotlin DSL)                | Multi-module + performance + custom build logic    |
+| Java version        | 21 (LTS)                               | Toolchain auto-provisioned via Foojay              |
+| Project type        | Hybrid: libraries + application        | api, core, persistence are libs; app is executable |
+| Module count        | 4                                      | Structured dependency graph enforced               |
+| Deployment target   | Fat JAR (shadow plugin)                | Standalone executable, no external runtime         |
+| Quality enforcement | Checkstyle + SpotBugs + PMD + Spotless | All enforced in check task, CI blocks on failure   |
 
 ## Build Tool Decision
+
 Gradle 8.8 with Kotlin DSL is the clear choice: 4 modules with distinct roles (library vs. application), a team of 6 requiring consistent builds, and fat JAR packaging all benefit from Gradle's incremental build, build caching, and convention plugin system. The Kotlin DSL gives developers full IDE completion in IntelliJ IDEA, reducing build script errors.
 
 ---

@@ -403,6 +403,28 @@ describe('CronService', () => {
     expect(executor.executeJob).not.toHaveBeenCalled();
   });
 
+  it('skips an overlapping run when a job is still executing from its previous fire (#163)', async () => {
+    const job = makeJob({
+      id: 'j1',
+      schedule: { kind: 'every', everyMs: 1000, description: 'every 1s' },
+    });
+    vi.mocked(repo.listEnabled).mockReturnValue([job]);
+    vi.mocked(executor.isConversationBusy).mockReturnValue(false);
+    // Never resolves within this test - simulates a long-running task still in flight.
+    vi.mocked(executor.executeJob).mockReturnValue(new Promise(() => {}));
+
+    await service.init();
+
+    // First interval fire starts a run that never completes.
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(executor.executeJob).toHaveBeenCalledTimes(1);
+
+    // Second interval fire while the first run is still in flight - must be skipped,
+    // not started as a concurrent second run.
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(executor.executeJob).toHaveBeenCalledTimes(1);
+  });
+
   // --- handleSystemResume ---
 
   it('handleSystemResume inserts missed-job messages for jobs that fired while system was asleep', async () => {
@@ -485,8 +507,7 @@ describe('CronService', () => {
     // emitJobUpdated may still be called by startTimer; only assert NO missed-status update.
     const updateCalls = vi.mocked(repo.update).mock.calls;
     const missedUpdate = updateCalls.find(
-      ([, updates]) =>
-        updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
+      ([, updates]) => updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
     );
     expect(missedUpdate).toBeUndefined();
   });

@@ -20,4 +20,5 @@
       - any-glob-to-any-file: ['docs/**', '**/*.md']
 'area:packaging':
   - changed-files:
-      - any-glob-to-any-file: ['.github/workflows/**', 'electron-builder*', 'scripts/*sign*', 'scripts/*notar*', 'build/**']
+      - any-glob-to-any-file:
+          ['.github/workflows/**', 'electron-builder*', 'scripts/*sign*', 'scripts/*notar*', 'build/**']

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend design-patterns"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend design-patterns'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # State Management Architect
@@ -26,14 +26,14 @@ Before choosing a library, categorize your state. Different categories need diff
 
 ### The State Taxonomy
 
-| Category | Examples | Lifecycle | Best Approach |
-|----------|---------|-----------|---------------|
-| **Server state** | User data, products, orders | Lives in DB, cached locally | React Query / SWR / RTK Query |
-| **Client state** | UI preferences, sidebar open/closed | Lives in memory | useState, Zustand, Jotai |
-| **URL state** | Current page, filters, search query | Lives in URL | Router params, useSearchParams |
-| **Form state** | Input values, validation errors | Lives in form | React Hook Form, native forms |
-| **Computed state** | Derived from other state | No separate storage | useMemo, selectors, computed |
-| **Transient state** | Animation progress, hover state | Ephemeral | CSS, refs, local state |
+| Category            | Examples                            | Lifecycle                   | Best Approach                  |
+| ------------------- | ----------------------------------- | --------------------------- | ------------------------------ |
+| **Server state**    | User data, products, orders         | Lives in DB, cached locally | React Query / SWR / RTK Query  |
+| **Client state**    | UI preferences, sidebar open/closed | Lives in memory             | useState, Zustand, Jotai       |
+| **URL state**       | Current page, filters, search query | Lives in URL                | Router params, useSearchParams |
+| **Form state**      | Input values, validation errors     | Lives in form               | React Hook Form, native forms  |
+| **Computed state**  | Derived from other state            | No separate storage         | useMemo, selectors, computed   |
+| **Transient state** | Animation progress, hover state     | Ephemeral                   | CSS, refs, local state         |
 
 ### The Critical Insight: Server State vs Client State
 
@@ -94,17 +94,17 @@ How much client state do you actually have?
 
 ### Feature Matrix
 
-| Feature | Redux Toolkit | Zustand | Jotai | Signals | XState |
-|---------|--------------|---------|-------|---------|--------|
-| **Bundle size** | ~11KB | ~1KB | ~3KB | ~2KB | ~16KB |
-| **Boilerplate** | Medium | Low | Very Low | Very Low | Medium |
-| **DevTools** | Excellent | Good (Redux DevTools) | Good | Basic | Excellent (visual) |
-| **Learning curve** | Medium | Low | Low | Low | High |
-| **TypeScript** | Good | Good | Excellent | Good | Excellent |
-| **Re-render optimization** | Manual (selectors) | Auto (selectors) | Auto (atomic) | Auto (fine-grained) | Manual |
-| **Middleware/effects** | Built-in | Built-in | Basic | None | Built-in (actions) |
-| **SSR support** | Good | Good | Good | Varies | Good |
-| **Best for** | Large teams, complex flows | Most applications | Granular shared state | Performance-critical | Complex workflows |
+| Feature                    | Redux Toolkit              | Zustand               | Jotai                 | Signals              | XState             |
+| -------------------------- | -------------------------- | --------------------- | --------------------- | -------------------- | ------------------ |
+| **Bundle size**            | ~11KB                      | ~1KB                  | ~3KB                  | ~2KB                 | ~16KB              |
+| **Boilerplate**            | Medium                     | Low                   | Very Low              | Very Low             | Medium             |
+| **DevTools**               | Excellent                  | Good (Redux DevTools) | Good                  | Basic                | Excellent (visual) |
+| **Learning curve**         | Medium                     | Low                   | Low                   | Low                  | High               |
+| **TypeScript**             | Good                       | Good                  | Excellent             | Good                 | Excellent          |
+| **Re-render optimization** | Manual (selectors)         | Auto (selectors)      | Auto (atomic)         | Auto (fine-grained)  | Manual             |
+| **Middleware/effects**     | Built-in                   | Built-in              | Basic                 | None                 | Built-in (actions) |
+| **SSR support**            | Good                       | Good                  | Good                  | Varies               | Good               |
+| **Best for**               | Large teams, complex flows | Most applications     | Granular shared state | Performance-critical | Complex workflows  |
 
 ## Zustand (Recommended Default)
 
@@ -133,9 +133,7 @@ const useCartStore = create<CartStore>((set, get) => ({
       const existing = state.items.find((i) => i.id === item.id);
       if (existing) {
         return {
-          items: state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-          ),
+          items: state.items.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)),
         };
       }
       return { items: [...state.items, { ...item, quantity: 1 }] };
@@ -148,8 +146,7 @@ const useCartStore = create<CartStore>((set, get) => ({
 
   clearCart: () => set({ items: [] }),
 
-  totalPrice: () =>
-    get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+  totalPrice: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
 }));
 ```
 
@@ -160,21 +157,24 @@ import { create } from 'zustand';
 import { persist, devtools, immer } from 'zustand/middleware';
 
 const useStore = create<StoreState>()(
-  devtools(                    // Redux DevTools integration
-    persist(                   // Persist to localStorage
-      immer((set) => ({        // Immer for mutable-style updates
+  devtools(
+    // Redux DevTools integration
+    persist(
+      // Persist to localStorage
+      immer((set) => ({
+        // Immer for mutable-style updates
         items: [],
         addItem: (item) =>
           set((state) => {
-            state.items.push(item);  // Mutable syntax thanks to immer
+            state.items.push(item); // Mutable syntax thanks to immer
           }),
       })),
       {
-        name: 'cart-storage',  // localStorage key
+        name: 'cart-storage', // localStorage key
         partialize: (state) => ({ items: state.items }), // Only persist items
       }
     ),
-    { name: 'CartStore' }      // DevTools label
+    { name: 'CartStore' } // DevTools label
   )
 );
 ```
@@ -312,13 +312,13 @@ function Counter() {
 
 ### When to Use Signals vs React State
 
-| Scenario | Signals | React State |
-|----------|---------|-------------|
-| Performance-critical lists (1000+ items) | Excellent | Can be slow |
-| Simple component-local state | Overkill | Perfect |
-| Shared state across distant components | Good | Context or library |
-| Forms with many fields | Excellent | Acceptable with controlled components |
-| Integration with React ecosystem | Limited | Full |
+| Scenario                                 | Signals   | React State                           |
+| ---------------------------------------- | --------- | ------------------------------------- |
+| Performance-critical lists (1000+ items) | Excellent | Can be slow                           |
+| Simple component-local state             | Overkill  | Perfect                               |
+| Shared state across distant components   | Good      | Context or library                    |
+| Forms with many fields                   | Excellent | Acceptable with controlled components |
+| Integration with React ecosystem         | Limited   | Full                                  |
 
 ## Redux Toolkit (When You Need It)
 
@@ -358,8 +358,12 @@ const uiSlice = createSlice({
     theme: 'light' as 'light' | 'dark',
   },
   reducers: {
-    toggleSidebar: (state) => { state.sidebarOpen = !state.sidebarOpen; },
-    setTheme: (state, action) => { state.theme = action.payload; },
+    toggleSidebar: (state) => {
+      state.sidebarOpen = !state.sidebarOpen;
+    },
+    setTheme: (state, action) => {
+      state.theme = action.payload;
+    },
   },
 });
 ```
@@ -368,16 +372,16 @@ const uiSlice = createSlice({
 
 ### React Query vs SWR vs RTK Query
 
-| Feature | React Query | SWR | RTK Query |
-|---------|------------|-----|-----------|
-| **Bundle size** | ~13KB | ~4KB | ~11KB (with Redux) |
-| **Caching** | Excellent | Good | Excellent |
-| **Devtools** | Excellent | Basic | Excellent (Redux DevTools) |
-| **Mutations** | Built-in | Manual | Built-in |
-| **Optimistic updates** | Built-in | Manual | Built-in |
-| **Infinite queries** | Built-in | Built-in | Manual |
-| **Auto refetch** | Focus, reconnect, interval | Focus, reconnect, interval | Polling |
-| **Best for** | Most React apps | Simple needs | Already using Redux |
+| Feature                | React Query                | SWR                        | RTK Query                  |
+| ---------------------- | -------------------------- | -------------------------- | -------------------------- |
+| **Bundle size**        | ~13KB                      | ~4KB                       | ~11KB (with Redux)         |
+| **Caching**            | Excellent                  | Good                       | Excellent                  |
+| **Devtools**           | Excellent                  | Basic                      | Excellent (Redux DevTools) |
+| **Mutations**          | Built-in                   | Manual                     | Built-in                   |
+| **Optimistic updates** | Built-in                   | Manual                     | Built-in                   |
+| **Infinite queries**   | Built-in                   | Built-in                   | Manual                     |
+| **Auto refetch**       | Focus, reconnect, interval | Focus, reconnect, interval | Polling                    |
+| **Best for**           | Most React apps            | Simple needs               | Already using Redux        |
 
 ```typescript
 // React Query: handles ALL server state
@@ -483,6 +487,7 @@ const checkoutMachine = createMachine({
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing state management architect solutions
 - Reviewing or improving existing state management architect approaches
 - Making architectural or implementation decisions about state management architect
@@ -490,6 +495,7 @@ const checkoutMachine = createMachine({
 - Troubleshooting state management architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -500,21 +506,26 @@ const checkoutMachine = createMachine({
 # State Management Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

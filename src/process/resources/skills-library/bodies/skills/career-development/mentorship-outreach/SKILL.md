@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career writing template"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'career writing template'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Mentorship Outreach
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's primary goal is to establish a guidance relationship or learning conversation with a more experienced professional -- not to get a job, not to network broadly, but specifically to learn from someone's experience and expertise.
 
 **Trigger scenarios:**
+
 - User wants to write a message asking a specific person to serve as a mentor, formal or informal
 - User needs to request a 20-30 minute informational conversation with a senior professional they have not met before
 - User wants to reach out to someone they met briefly (conference, workshop, webinar) to continue a specific professional conversation
@@ -36,6 +38,7 @@ Use this skill when the user's primary goal is to establish a guidance relations
 - User needs to write a follow-up message after a first mentorship conversation to maintain the relationship
 
 **Do NOT use this skill when:**
+
 - User wants to ask for a job referral or introduction to a hiring manager -- use `cold-outreach-email` instead, which is designed for transactional professional asks
 - User is following up after a networking event where cards were exchanged or connections were made in a social context -- use `networking-message-writer` instead
 - User is reaching out to a recruiter or talent acquisition professional -- use `recruiter-outreach` instead
@@ -67,18 +70,21 @@ If any of these elements are missing and cannot be inferred, ask the user before
 Not all mentorship outreach is the same. The appropriate message tone, length, and ask size depends on the relationship distance between the user and the recipient. Apply this framework:
 
 **Tier 1 -- Warm connection (former colleague, former professor, referred by a mutual friend who knows both parties well):**
+
 - Lead immediately with the mutual connection or shared history
 - Can ask for slightly more time (30 minutes vs. 20) without seeming presumptuous
 - Can be slightly more personal in tone
 - Word count ceiling: 200 words (email), 175 words (LinkedIn)
 
 **Tier 2 -- Semi-warm connection (met briefly at an event, interacted online, has read the person's public work, same professional community):**
+
 - Reference the specific point of contact immediately -- the event, the article, the comment thread
 - Stick to 20-minute ask
 - Moderate formality
 - Word count ceiling: 175 words (email), 150 words (LinkedIn)
 
 **Tier 3 -- Cold outreach (no prior contact, found via LinkedIn search, referenced in an article, prominent public figure):**
+
 - Reference the most specific and credible piece of their public work you can find
 - Ask for the smallest viable commitment (15-20 minutes, or even a single email response to one question)
 - Maximum brevity and precision
@@ -96,30 +102,30 @@ Every mentorship outreach message follows this five-component structure, in this
 **Component 1 -- The Credibility Bridge (1-2 sentences, first priority):**
 This answers the recipient's first question: "Why is this person writing to me specifically?" Lead with the mutual connection name if one exists. If no mutual connection, open with the specific reference point -- the talk, article, or career move -- not with who the user is. Opening with "My name is X and I work at Y" is a wasted first sentence on a senior person who gets 50 messages a week.
 
-*Strong:* "I read your piece in [Publication] on zero-trust architecture and your argument about identity perimeters replacing network perimeters changed how I presented our security roadmap to our board."
-*Weak:* "My name is Alex and I'm a security engineer who really admires your work."
+_Strong:_ "I read your piece in [Publication] on zero-trust architecture and your argument about identity perimeters replacing network perimeters changed how I presented our security roadmap to our board."
+_Weak:_ "My name is Alex and I'm a security engineer who really admires your work."
 
 **Component 2 -- The User's Situation (2-3 sentences, second priority):**
 Give the recipient enough context to understand who is asking and why the specific guidance topic matters to this specific person right now. Include: current role, relevant experience level, and the precise challenge or decision they are facing. Do not include resume details, educational history, or past accomplishments unless directly relevant to the ask.
 
-*Strong:* "I'm a security engineer three years in, currently leading the first formal security program at a 150-person SaaS company. We're about to migrate to a cloud-native architecture and I'm trying to decide how to sequence the identity and access management rollout."
-*Weak:* "I'm a security engineer with experience in several environments looking to grow my career."
+_Strong:_ "I'm a security engineer three years in, currently leading the first formal security program at a 150-person SaaS company. We're about to migrate to a cloud-native architecture and I'm trying to decide how to sequence the identity and access management rollout."
+_Weak:_ "I'm a security engineer with experience in several environments looking to grow my career."
 
 **Component 3 -- The Specific Ask (1-2 sentences, third priority):**
 Name exactly what you are requesting. Include: the format (call, email exchange), the time commitment in minutes, and the specific topic -- stated as a concrete question if possible. The ask must be the smallest viable commitment that would genuinely help the user. This signals respect and gives the recipient a clear, low-friction decision to make.
 
-*Strong:* "Would you have 20 minutes for a call about how you approached sequencing the IAM rollout at [Company] -- specifically the decision of whether to tackle workforce identity or customer identity first?"
-*Weak:* "I'd love to pick your brain about security architecture if you have time."
+_Strong:_ "Would you have 20 minutes for a call about how you approached sequencing the IAM rollout at [Company] -- specifically the decision of whether to tackle workforce identity or customer identity first?"
+_Weak:_ "I'd love to pick your brain about security architecture if you have time."
 
 Never use "pick your brain." It signals that the user has not thought carefully about what they actually want. Replace it with the specific question.
 
 **Component 4 -- The Easy Off-Ramp (1 sentence, fourth priority):**
 Every message must include a sentence that makes it genuinely easy to decline. This is not a polite formality -- it is a strategic choice. Recipients who feel they can easily say no are more likely to say yes. Recipients who feel pressured or trapped by a request often simply ignore it.
 
-*Strong:* "If your schedule doesn't allow it, I completely understand and appreciate you reading this far."
-*Acceptable:* "No pressure at all if the timing isn't right."
-*Never:* "I'll follow up next week if I don't hear back." (deadline pressure)
-*Never:* "I know you're busy but..." (self-undermining and sycophantic)
+_Strong:_ "If your schedule doesn't allow it, I completely understand and appreciate you reading this far."
+_Acceptable:_ "No pressure at all if the timing isn't right."
+_Never:_ "I'll follow up next week if I don't hear back." (deadline pressure)
+_Never:_ "I know you're busy but..." (self-undermining and sycophantic)
 
 **Component 5 -- The Close (1 sentence maximum):**
 A simple expression of appreciation. Not effusive, not self-deprecating. "Thank you for your time." or "I appreciate you considering it." is sufficient. Nothing more.
@@ -145,6 +151,7 @@ If the user's provided information fails any of these tests, ask follow-up quest
 Apply channel-specific constraints:
 
 **LinkedIn message:**
+
 - Hard ceiling: 150 words (300-character subject field if using InMail, but standard messages have no subject line)
 - Tone: Professional but conversational -- LinkedIn is a social platform
 - No formal salutation like "Dear [Name]" -- use "Hi [Name]"
@@ -153,6 +160,7 @@ Apply channel-specific constraints:
 - Do not attach anything -- LinkedIn does not support attachments in standard messages
 
 **Email:**
+
 - Hard ceiling: 200 words (body text)
 - Subject line required -- see subject line formula below
 - Slightly more formal than LinkedIn but still approachable
@@ -161,6 +169,7 @@ Apply channel-specific constraints:
 
 **Subject line formula for email:**
 The subject line serves one purpose: getting the email opened. Three formulas that work for mentorship outreach:
+
 - **Mutual connection lead:** "[Name] suggested I reach out -- [specific topic]" -- highest open rates
 - **Specific content reference:** "Question about your [Article/Talk] on [Specific Topic]"
 - **Direct role-specific subject:** "[User's role] seeking 20 minutes on [specific topic you covered]"
@@ -168,6 +177,7 @@ The subject line serves one purpose: getting the email opened. Three formulas th
 Never use: "Quick question" (vague), "Hi!" (unprofessional), "[User's name] -- mentorship request" (makes the ask before establishing value), or anything that sounds like a mass email subject line.
 
 **Twitter/X DM or similar platforms:**
+
 - Maximum 100 words
 - Often appropriate to reference a specific tweet or thread they posted
 - Acknowledge the unusual nature of the outreach briefly: "I know this is an unusual channel..."
@@ -203,6 +213,7 @@ If a subject line is needed, produce it separately above the message. Do not emb
 ### Step 8: Anticipate Follow-Up Needs
 
 After producing the message, briefly note:
+
 - If the user asks about following up after no response: wait 7-10 days minimum, send one follow-up under 60 words that adds a new reference point, never send a third message to the same person within a 90-day window
 - If the user asks what to do if the person responds positively: offer to help them prepare for the actual conversation (goals, questions to ask, how to make the call valuable for both parties)
 - If the user reports receiving a "no" or no response: this is expected at a 20-40% response rate even for well-crafted messages; encourage them to send to additional contacts and treat each message as a skill they are developing
@@ -334,6 +345,7 @@ This is beyond the scope of drafting the outreach message itself, but commonly f
 "I want to reach out to Sarah Chen, VP of Engineering at Meridian Financial. I saw her give a talk at a local ProductCraft meetup about scaling engineering teams from 20 to 100 people. She specifically talked about the transition from a single autonomous team to a multi-team structure and made a point about how most companies hire for the team they have today rather than the team they'll need in six months. I'm an engineering manager leading a 6-person team at a Series B fintech startup and we just got approval to grow to 20 engineers over the next 18 months. I want to send her a LinkedIn message."
 
 **Skill assessment:**
+
 - Relationship tier: Semi-warm (attended her public talk, not a mutual introduction)
 - Specific hook: Strong (named talk topic, specific idea about hiring timing)
 - Ask: One-time 20-minute call about early-stage scaling
@@ -368,6 +380,7 @@ Thank you for your time.
 No bracketed items require filling in -- all specific details were provided. Confirm the meetup name is "ProductCraft" and that this was the correct event.
 
 **Message stats:**
+
 - Word count: 148 words (limit for LinkedIn: 150 words)
 - Relationship tier: Semi-warm
 - Credibility bridge: Named the specific meetup, quoted the specific concept about hiring timing
@@ -385,6 +398,7 @@ No bracketed items require filling in -- all specific details were provided. Con
 "My former colleague David Kim suggested I reach out to Maria Rodriguez, Director of Product at a health tech startup called Veridian Health. He said she made the transition from general B2B SaaS product management into health tech about three years ago and that she's been open about how hard the regulatory learning curve was. I'm a PM with four years of experience in B2B SaaS -- enterprise HR software specifically -- and I'm seriously considering a move into health tech. I want to understand how HIPAA and FDA constraints actually change the day-to-day PM workflow and what she would have learned earlier if she could. I want to send an email."
 
 **Skill assessment:**
+
 - Relationship tier: Warm (mutual connection suggested outreach, knows both parties)
 - Specific hook: Mutual connection name + recipient's personal career transition + specific regulatory topic (HIPAA, FDA)
 - Ask: 20-minute call about health tech PM transition
@@ -421,6 +435,7 @@ Best regards,
 No bracketed items require filling in beyond your own name, title, and company in the signature.
 
 **Message stats:**
+
 - Word count: 183 words (limit for email: 200 words)
 - Relationship tier: Warm
 - Credibility bridge: David Kim's direct referral, specific reference to Maria's personal transition timeline and public candor about the regulatory learning curve
@@ -438,6 +453,7 @@ No bracketed items require filling in beyond your own name, title, and company i
 "I want to reach out to James Okafor. He's a well-known engineering leadership coach who wrote a book called 'The Leverage Point' about how senior engineers build organizational influence without becoming managers. I'm a staff engineer at a 400-person company and I've been stuck trying to get traction on a major architectural proposal. His chapter on 'pre-wiring' decisions before the formal meeting -- getting each stakeholder aligned individually before the room convenes -- is something I tried last month and it actually worked. I want to reach out via LinkedIn."
 
 **Skill assessment:**
+
 - Relationship tier: Cold (no prior contact, prominent public figure, author)
 - Specific hook: Very strong (named book, named specific chapter concept, described applying it with success)
 - Ask: Must be minimal -- this person receives high message volume. Target a single question or 15-minute call maximum.
@@ -471,6 +487,7 @@ Would you have 15 minutes, or even a brief reply if a call isn't feasible? I com
 No bracketed items require filling in beyond your name.
 
 **Message stats:**
+
 - Word count: 118 words (target for prominent figure: 100-120 words -- slightly above but justified by the strength of the specific reference)
 - Relationship tier: Cold -- prominent public figure
 - Credibility bridge: Named the book, named the specific concept (pre-wiring), described applying it with a concrete outcome (first yes after three months)
@@ -488,6 +505,7 @@ No bracketed items require filling in beyond your name.
 "I sent the LinkedIn message to Sarah Chen 10 days ago and haven't heard back. I want to follow up. Since I sent the original message, I wrote an internal post-mortem on our team's failed Q2 hiring sprint that my company's engineering blog picked up and published externally."
 
 **Skill assessment:**
+
 - Days since original message: 10 days -- follow-up is appropriate (7-10 day minimum met)
 - New reference point available: Yes -- published post-mortem on failed hiring sprint (directly relevant to Sarah's expertise)
 - This is Follow-Up Attempt 1
@@ -514,6 +532,7 @@ Following up briefly on my note from last week. Since then, I published a post-m
 Replace [Company] with your company's name. If the blog post has a title, consider naming it: "...a post-mortem titled '[Title]'..." -- this adds one more element of specificity and gives Sarah something she could read before responding.
 
 **Message stats:**
+
 - Word count: 62 words
 - New reference point added: Published post-mortem on failed hiring sprint -- relevant to Sarah's scaling expertise and shows forward momentum
 - Follow-up attempt: 1 of 2 maximum

@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide step-by-step"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide step-by-step'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Probate Process Explainer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on any specific legal matter affecting you.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks what probate is, how it works, or why it exists -- including someone who just experienced a death and is trying to understand what happens next
 - A user wants to understand the sequence, timeline, and cost range for a typical probate proceeding
 - A user asks which assets go through probate and which bypass it (the most common source of confusion in estate administration)
@@ -39,6 +41,7 @@ metadata:
 - A user received a notice from a probate court (notice to creditors, notice to beneficiaries) and does not understand what it means or what to do with it
 
 **Do NOT use when:**
+
 - A user is currently navigating an active probate case and needs guidance on specific decisions -- direct them to a licensed probate attorney in their jurisdiction
 - A user asks about specific executor duties, executor liability, or the mechanics of administering an estate (use `executor-responsibilities-guide`)
 - A user asks about trust administration -- what trustees do, how trusts are wound down, or how a trust compares to a will as a planning document (use `trust-basics-explainer`)
@@ -70,19 +73,20 @@ A probate asset is one that (a) was owned solely by the deceased at the time of 
 
 **Walk through the asset-by-asset analysis using this framework:**
 
-| Asset Class | Probate Trigger | Non-Probate Trigger |
-|---|---|---|
-| Real property | Titled solely in decedent's name | Joint tenancy with right of survivorship (JTWROS), tenancy by the entirety, community property with right of survivorship, or held in trust |
-| Bank accounts | Solely owned, no POD designation | Joint account with survivorship, POD (payable-on-death) designation, or in trust |
-| Brokerage/investment accounts | Solely owned, no TOD designation | TOD (transfer-on-death) designation, JTWROS, or in trust |
-| Retirement accounts (IRA, 401k, 403b) | No named beneficiary, or estate is named beneficiary | Named individual beneficiary (passes by contract, not probate) |
-| Life insurance proceeds | Estate is named beneficiary | Named individual beneficiary (pays directly) |
-| Vehicles | Titled solely to decedent | Varies by state -- some have TOD title options |
-| Business interests (LLC, partnership, corporation) | No buy-sell agreement or succession mechanism | Buy-sell agreement, operating agreement with succession clause, or interest held in trust |
-| Personal property (furniture, jewelry, art) | No specific transfer mechanism | Held in trust; some states allow transfer-on-death for specific items |
+| Asset Class                                        | Probate Trigger                                      | Non-Probate Trigger                                                                                                                         |
+| -------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Real property                                      | Titled solely in decedent's name                     | Joint tenancy with right of survivorship (JTWROS), tenancy by the entirety, community property with right of survivorship, or held in trust |
+| Bank accounts                                      | Solely owned, no POD designation                     | Joint account with survivorship, POD (payable-on-death) designation, or in trust                                                            |
+| Brokerage/investment accounts                      | Solely owned, no TOD designation                     | TOD (transfer-on-death) designation, JTWROS, or in trust                                                                                    |
+| Retirement accounts (IRA, 401k, 403b)              | No named beneficiary, or estate is named beneficiary | Named individual beneficiary (passes by contract, not probate)                                                                              |
+| Life insurance proceeds                            | Estate is named beneficiary                          | Named individual beneficiary (pays directly)                                                                                                |
+| Vehicles                                           | Titled solely to decedent                            | Varies by state -- some have TOD title options                                                                                              |
+| Business interests (LLC, partnership, corporation) | No buy-sell agreement or succession mechanism        | Buy-sell agreement, operating agreement with succession clause, or interest held in trust                                                   |
+| Personal property (furniture, jewelry, art)        | No specific transfer mechanism                       | Held in trust; some states allow transfer-on-death for specific items                                                                       |
 
 **Identify the threshold for "small estate" procedures:**
 Every state has some form of simplified administration for small estates. The threshold varies dramatically. The user should check their specific jurisdiction, but the general landscape is:
+
 - Very low threshold states (under $50,000): typically requires a small estate affidavit signed under oath by an heir; no court appearance needed; creditor wait period still often applies
 - Mid-range threshold states ($50,000-$100,000): may allow summary administration or a simplified probate petition with reduced court oversight
 - High threshold states ($100,000-$200,000+): California's threshold was raised to $184,500 (indexed for inflation); allows affidavit procedure 40 days after death
@@ -94,6 +98,7 @@ Every state has some form of simplified administration for small estates. The th
 Present the process as a linear sequence with realistic time estimates. Be explicit that steps overlap in practice.
 
 **Step 1 -- Filing the petition (Week 1 to 4):**
+
 - The named executor (or any interested party if there is no will) files a petition for probate with the probate division of the superior or district court in the county where the decedent was domiciled at death
 - Filing fees vary by jurisdiction: typically $150 to $400 for initial filing, with additional fees for publication, certified copies, and final accounting
 - The petition includes: the death certificate, the original will (if one exists), a preliminary asset list, and information about heirs and beneficiaries
@@ -101,18 +106,21 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - In some jurisdictions, if a named executor does not file within 30 days of the death, any interested party may petition the court and priority rules determine who the court appoints
 
 **Step 2 -- Validating the will (Weeks 2 to 6):**
+
 - The court examines whether the will was executed with the formalities required by state law: typically two disinterested witnesses who signed in the testator's presence, the testator's signature, and in some states a notary
 - A "self-proving affidavit" attached to the will (signed before a notary at the time of execution) allows the court to validate the will without calling witnesses -- this is why estate planning attorneys recommend it
 - If there is no will, the court declares the estate intestate and applies the state's intestate succession statute to determine who inherits
 - Holographic wills (handwritten, unwitnessed) are valid in about 25 states including Texas, California, and Virginia, but are more vulnerable to challenge
 
 **Step 3 -- Appointing the executor or administrator (Weeks 2 to 8):**
+
 - The court issues Letters Testamentary (with a valid will) or Letters of Administration (without a will, appointing an administrator)
 - These letters are the executor's legal power of attorney -- without them, banks, title companies, and financial institutions will not act on the executor's instructions
 - The executor typically must obtain a surety bond unless the will waives the bond requirement (most attorney-drafted wills include this waiver to save the estate money -- bond premiums typically run 0.5% to 1.0% of the bonded amount annually)
 - Order 10 to 15 certified copies of the Letters -- each institution typically requires its own original certified copy
 
 **Step 4 -- Notifying creditors and beneficiaries (Month 1 to 3):**
+
 - The executor must publish a notice to creditors in a newspaper of general circulation in the county -- this is a legal requirement in virtually every jurisdiction
 - Publication cost: typically $50 to $300 for a 3-to-6 week run
 - The creditor claim period runs from the date of first publication: typically 3 months (California: 4 months from appointment or 60 days from actual notice to creditor, whichever is later; Florida: 3 months; New York: 7 months; Texas: 4 months)
@@ -120,6 +128,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - Named beneficiaries and legal heirs must be individually notified of the probate proceeding within a specific window (30 to 60 days of appointment in most states)
 
 **Step 5 -- Inventorying and appraising assets (Months 2 to 5):**
+
 - The executor compiles a complete inventory of all probate assets as of the date of death, with fair market value (date-of-death valuations, not current value)
 - Real property: typically requires a certified appraisal by a licensed real estate appraiser (appraisal fees: $300 to $600 for residential, more for commercial)
 - Investment accounts: date-of-death statement from custodian
@@ -129,6 +138,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - The stepped-up basis rule under IRC Section 1014 means that inherited assets receive a new cost basis equal to fair market value at the date of death -- this is why accurate date-of-death appraisals matter for eventual capital gains tax purposes when heirs sell
 
 **Step 6 -- Paying debts and expenses (Months 3 to 9):**
+
 - Debts are paid in a statutory priority order -- the order varies by state, but the general hierarchy is:
   1. Costs of administration (attorney fees, executor compensation, court costs)
   2. Funeral and burial expenses (typically capped at a reasonable amount)
@@ -142,6 +152,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - Secured debts (mortgage, car loan) are handled differently: the executor can pay them off, allow the beneficiary to assume them, or sell the asset and pay the lender from proceeds
 
 **Step 7 -- Filing tax returns (Months 4 to 15):**
+
 - Final individual income tax return (Form 1040): due April 15 of the year after death (or October 15 with extension), covering income from January 1 through date of death
 - Estate income tax return (Form 1041, Fiduciary Income Tax): required if the estate earns $600 or more in income during administration (interest, rent, dividends from estate assets)
 - Federal estate tax return (Form 706): required only if the gross estate exceeds the federal exemption amount ($13.61 million per individual in 2024 -- this amount is scheduled to drop by approximately half in 2026 when the Tax Cuts and Jobs Act provisions sunset unless Congress acts)
@@ -149,6 +160,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - Inheritance tax: 6 states (Iowa, Kentucky, Maryland, Nebraska, New Jersey, Pennsylvania) impose inheritance tax -- paid by the beneficiary, not the estate, and typically exempt spouses and children in full
 
 **Step 8 -- Distributing assets to beneficiaries (Months 6 to 18):**
+
 - Distribution cannot happen until the creditor claim period has closed and all known debts are paid or provided for
 - Specific bequests are distributed first (e.g., "I give my diamond ring to my daughter Sarah"), then the residuary estate is distributed
 - Real property transfers require a deed executed by the executor -- an executor's deed -- which is recorded in the county where the property is located
@@ -156,6 +168,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 - Each beneficiary should sign a receipt and release acknowledging distribution and releasing the executor from further claims
 
 **Step 9 -- Closing the estate (Months 9 to 24):**
+
 - The executor files a final accounting with the court showing every dollar that came in (asset inventory) and every dollar that went out (expenses, debts, distributions)
 - Beneficiaries receive a copy and have an opportunity to object
 - The court reviews and issues an order approving the accounting, releasing the executor from liability, and formally closing the estate
@@ -166,6 +179,7 @@ Present the process as a linear sequence with realistic time estimates. Be expli
 Users need realistic expectations to plan. Frame these as ranges with the key drivers of variance.
 
 **Timeline drivers:**
+
 - Creditor notification period length (set by statute -- cannot be shortened regardless of whether creditors actually appear)
 - Whether real property must be sold (adds 2 to 6 months)
 - Tax return deadlines that do not align with the probate schedule
@@ -175,18 +189,19 @@ Users need realistic expectations to plan. Frame these as ranges with the key dr
 
 **Cost structure and ranges:**
 
-| Cost Component | Typical Range | Notes |
-|---|---|---|
-| Court filing fees | $150 -- $1,000 | Varies by state and sometimes by estate value |
-| Publication fees | $50 -- $300 | Required creditor notice publication |
-| Attorney fees | 1% -- 4% of estate value, or hourly at $200 -- $500/hr | Some states allow "statutory fees" as a percentage; others require hourly |
-| Executor compensation | 1% -- 4% of estate value, or as set by will | Most states have a statutory fee schedule; family members often waive compensation |
-| Appraisal fees | $300 -- $10,000+ | Depends on asset types |
-| Surety bond (if required) | 0.5% -- 1.0% annually | Often waived in the will |
-| CPA/tax professional | $500 -- $5,000+ | Depends on complexity |
-| Total (rough estimate) | 2% -- 8% of estate value | Simple estates trend lower; complex, contested, or high-value estates higher |
+| Cost Component            | Typical Range                                          | Notes                                                                              |
+| ------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Court filing fees         | $150 -- $1,000                                         | Varies by state and sometimes by estate value                                      |
+| Publication fees          | $50 -- $300                                            | Required creditor notice publication                                               |
+| Attorney fees             | 1% -- 4% of estate value, or hourly at $200 -- $500/hr | Some states allow "statutory fees" as a percentage; others require hourly          |
+| Executor compensation     | 1% -- 4% of estate value, or as set by will            | Most states have a statutory fee schedule; family members often waive compensation |
+| Appraisal fees            | $300 -- $10,000+                                       | Depends on asset types                                                             |
+| Surety bond (if required) | 0.5% -- 1.0% annually                                  | Often waived in the will                                                           |
+| CPA/tax professional      | $500 -- $5,000+                                        | Depends on complexity                                                              |
+| Total (rough estimate)    | 2% -- 8% of estate value                               | Simple estates trend lower; complex, contested, or high-value estates higher       |
 
 Note for states with statutory attorney and executor fees (California Probate Code Section 10800-10810 as an example):
+
 - California's statutory attorney fee: 4% of first $100,000; 3% of next $100,000; 2% of next $800,000; 1% on next $9 million -- applies to both attorney AND executor
 - A $500,000 California estate triggers a statutory attorney fee of approximately $13,000 and an equivalent executor fee -- before any "extraordinary services" add-ons
 - This is why California estates with significant real property often warrant trust-based planning
@@ -196,6 +211,7 @@ Note for states with statutory attorney and executor fees (California Probate Co
 Do not present a glossary in isolation. When a user asks about a term, anchor it to the process context where it appears.
 
 **Core procedural terms:**
+
 - **Probate estate:** The collection of assets subject to court-supervised administration -- only assets without automatic transfer mechanisms
 - **Gross estate (for tax purposes):** A broader concept that includes probate and non-probate assets for estate tax calculation -- life insurance, retirement accounts, and jointly held property are included even though they bypass probate
 - **Decedent:** The person who died
@@ -210,6 +226,7 @@ Do not present a glossary in isolation. When a user asks about a term, anchor it
 - **Letters of Special Administration:** Limited authority issued on an emergency basis before full probate is complete -- used to secure assets or continue a business
 
 **Succession terms:**
+
 - **Heir:** A person who inherits by operation of intestate succession law (a legal designation based on relationship, not named in a will)
 - **Beneficiary:** A person named in a will or trust to receive assets
 - **Devisee:** Specifically, a beneficiary of real property under a will
@@ -221,6 +238,7 @@ Do not present a glossary in isolation. When a user asks about a term, anchor it
 - **Elective share (forced share):** A surviving spouse's right to claim a minimum share of the estate regardless of what the will says -- typically one-third to one-half; prevents disinheritance of a spouse
 
 **Document and procedural terms:**
+
 - **Holographic will:** A handwritten, unwitnessed will valid in approximately 25 states
 - **Nuncupative will:** An oral will; valid only in very limited circumstances (imminent death, limited property value) in a small number of states
 - **Codicil:** An amendment to an existing will; must be executed with the same formalities as the original
@@ -239,6 +257,7 @@ When a user mentions no will exists, explain intestate succession clearly.
 **The core principle:** When a person dies intestate, state law imposes a distribution scheme that reflects the legislature's best guess at what most people would want. It does not reflect anyone's actual wishes.
 
 **Typical intestate succession hierarchy (varies by state):**
+
 1. Surviving spouse (note: the spouse's share depends on whether there are children, whether the children are also the spouse's children, and the state's specific statute -- ranges from 100% to one-third)
 2. Descendants (children, grandchildren) -- if no surviving spouse
 3. Parents -- if no surviving spouse or descendants
@@ -248,6 +267,7 @@ When a user mentions no will exists, explain intestate succession clearly.
 7. Escheat to the state if no heirs are found
 
 **Key misconceptions to address:**
+
 - A long-term unmarried partner receives NOTHING under intestate succession unless the state recognizes common law marriage (only about 9 states do) -- this is one of the most devastating consequences of dying without a will or trust
 - Stepchildren do not automatically inherit from a stepparent who never legally adopted them
 - Half-siblings inherit in intestate succession in most states but may receive different shares than full siblings depending on the state
@@ -258,6 +278,7 @@ When a user mentions no will exists, explain intestate succession clearly.
 After presenting the process overview, generate a tailored question list for the user to bring to a probate attorney. The questions should be specific to the user's situation -- not generic. If the user has mentioned specific assets, a will or no will, and a state, incorporate those details.
 
 The question list should cover:
+
 - Whether the estate qualifies for simplified or expedited procedures in the jurisdiction
 - The specific statutory creditor claim period and how it interacts with the timeline
 - Whether any assets require an appraisal and at what standard (fair market value vs. assessed value)
@@ -418,6 +439,7 @@ Verify the current threshold with a local probate attorney.
 When the deceased died without a valid will, the core process is the same but two things change fundamentally: the court appoints an administrator instead of an executor, and distribution follows the state's intestate succession statute rather than the deceased's wishes.
 
 **Key handling points:**
+
 - Explain the priority of appointment for administrator: surviving spouse is typically first in priority, then adult children, then parents, then siblings -- varies by state
 - Explain that "intestate" does not mean the estate avoids probate -- it goes through the same (or even more intensive) court oversight precisely because there is no will to guide the process
 - Address the long-term partner situation explicitly: an unmarried partner has no intestate rights in states that do not recognize common law marriage. This is one of the most devastating situations in estate administration and requires prompt consultation with an attorney to understand any legal claims (equitable claims, co-ownership of property, etc.) the partner may have outside of intestate succession
@@ -429,6 +451,7 @@ When the deceased died without a valid will, the core process is the same but tw
 When the decedent owned real property in states other than their domicile, probate must be opened in each additional state where real property exists. This is called ancillary probate.
 
 **Key handling points:**
+
 - The primary (domiciliary) probate proceeds in the state where the decedent lived; ancillary proceedings are filed in each state with real property
 - Each ancillary probate has its own filing fees, its own attorney, its own creditor notification rules, and its own timeline -- costs multiply accordingly
 - Ancillary probate can be avoided prospectively by holding out-of-state real property in a trust or in an LLC (the LLC interest is personal property subject to domiciliary probate, not ancillary probate -- though LLCs have their own complications)
@@ -438,6 +461,7 @@ When the decedent owned real property in states other than their domicile, proba
 ### The Estate Qualifies for a Small Estate Procedure
 
 **Key handling points:**
+
 - Small estate thresholds are measured differently across states: some measure total probate assets, some measure total estate assets, some exclude real property from the calculation
 - Two common mechanisms: (1) small estate affidavit -- a sworn statement signed by the heir that allows them to claim assets directly from financial institutions without any court involvement; and (2) summary or simplified probate -- a streamlined court process faster than full probate
 - The affidavit procedure typically has a waiting period of 30 to 45 days from date of death before it can be used (California: 40 days; Washington: 10 days; Texas: no formal waiting period but 30-day "small estate affidavit" procedure under Estates Code Section 205)
@@ -449,6 +473,7 @@ When the decedent owned real property in states other than their domicile, proba
 When a user mentions conflict about the will's validity or the fairness of its terms, provide factual information but redirect any strategic or case-specific questions to a probate litigation attorney.
 
 **Key handling points:**
+
 - Explain the legal grounds for a will contest: (1) lack of testamentary capacity -- the testator did not understand the nature of making a will, the extent of their property, or who their natural heirs were; (2) undue influence -- someone exerted such pressure on the testator that the will reflects their wishes, not the testator's; (3) fraud or duress; (4) improper execution -- the will was not signed or witnessed correctly; (5) revocation -- a later will supersedes the one filed
 - A will contest is an adversarial legal proceeding within the probate case -- it requires specialized probate litigation counsel, not just a general estate attorney
 - Contest deadlines are jurisdictionally specific and strict: California allows a contest before or within 120 days after the will is admitted to probate; Texas allows a contest within 2 years of probate; New York allows a contest within the time set by the court's order to show cause. Missing the deadline forecloses the right to contest
@@ -460,6 +485,7 @@ When a user mentions conflict about the will's validity or the fairness of its t
 Business interests create some of the most complex probate scenarios. The estate may include a majority ownership stake in an LLC, a partnership interest, or shares in a closely held corporation.
 
 **Key handling points:**
+
 - The operating agreement of an LLC, the partnership agreement, or the shareholder agreement of a corporation may govern what happens to the interest -- it may restrict transfer, require a buyout, or give other owners a right of first refusal. These contractual provisions interact with (and sometimes override) the probate process
 - A business interest must be valued as of the date of death -- this almost always requires a formal business valuation by a credentialed appraiser (Certified Valuation Analyst or Accredited Senior Appraiser) -- a process that takes 4 to 8 weeks and costs $3,000 to $15,000 for a small business
 - The executor may need to actively manage or wind down the business during probate -- this creates liability exposure and ongoing operational decisions that require legal and business guidance beyond estate administration
@@ -471,6 +497,7 @@ Business interests create some of the most complex probate scenarios. The estate
 When the will disinherits or substantially limits the surviving spouse's share, the elective share (forced share) becomes critical.
 
 **Key handling points:**
+
 - All U.S. states except Georgia provide some form of spousal protection -- the surviving spouse has the right to claim a minimum share of the estate regardless of the will's terms
 - The elective share varies: one-third in most states, one-half in others; some states use the Uniform Probate Code's "augmented estate" approach, which includes both probate and non-probate assets in calculating the elective share -- this prevents circumventing the elective share by transferring assets to trusts or using beneficiary designations
 - The spouse must actively elect to take the elective share -- it is not automatic. In most states, the election must be filed within 6 months to 9 months of the executor's appointment; missing the deadline means the spouse is bound by the will
@@ -482,6 +509,7 @@ When the will disinherits or substantially limits the surviving spouse's share, 
 An increasingly common situation that probate courts are still developing rules to handle.
 
 **Key handling points:**
+
 - Digital assets include: cryptocurrency (Bitcoin, Ethereum, etc.), online brokerage accounts, digital photos, domain names, social media accounts, NFTs, loyalty points, subscription services, and online businesses
 - Cryptocurrency held in a self-custody wallet (where the decedent controlled the private keys) is inaccessible without those private keys -- if no one knows the seed phrase or private key, the assets are permanently lost. There is no "customer service" for decentralized cryptocurrency
 - The Revised Uniform Fiduciary Access to Digital Assets Act (RUFADAA) has been adopted in 47 states -- it provides a framework for executors to access digital accounts but requires a specific grant of authority in the will, a power of attorney, or a trust. Without it, Terms of Service agreements typically prohibit access and tech companies will not cooperate
@@ -507,13 +535,13 @@ An increasingly common situation that probate courts are still developing rules 
 
 ### Section 1: Asset Analysis -- Probate vs. Non-Probate
 
-| Asset | Probate? | Reason | Immediate Action Needed |
-|---|---|---|---|
-| House (solely in her name) | **Yes** | Real property titled to the deceased requires probate to transfer title to you and your brother | Continue paying the mortgage from estate funds; maintain homeowner's insurance |
-| Checking account (no POD designation assumed) | **Yes -- verify** | If no payable-on-death designation on file, this is a probate asset | Call the bank to ask whether a POD designation exists on the account |
-| IRA | **Most likely No** | IRAs pass by beneficiary designation, not through probate | Contact the IRA custodian immediately -- verify who is named as beneficiary; if it is you and your brother, request claim forms |
-| Life insurance policy | **Most likely No** | Life insurance with a named individual beneficiary pays directly to that person | Contact the insurance company -- if you and your brother are named beneficiaries, file the death claim now (outside of probate) |
-| Personal belongings (furniture, clothing, etc.) | **Yes** | Personal property without a transfer mechanism | Inventory and secure; distribute after executor is appointed and debts are paid |
+| Asset                                           | Probate?           | Reason                                                                                          | Immediate Action Needed                                                                                                         |
+| ----------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| House (solely in her name)                      | **Yes**            | Real property titled to the deceased requires probate to transfer title to you and your brother | Continue paying the mortgage from estate funds; maintain homeowner's insurance                                                  |
+| Checking account (no POD designation assumed)   | **Yes -- verify**  | If no payable-on-death designation on file, this is a probate asset                             | Call the bank to ask whether a POD designation exists on the account                                                            |
+| IRA                                             | **Most likely No** | IRAs pass by beneficiary designation, not through probate                                       | Contact the IRA custodian immediately -- verify who is named as beneficiary; if it is you and your brother, request claim forms |
+| Life insurance policy                           | **Most likely No** | Life insurance with a named individual beneficiary pays directly to that person                 | Contact the insurance company -- if you and your brother are named beneficiaries, file the death claim now (outside of probate) |
+| Personal belongings (furniture, clothing, etc.) | **Yes**            | Personal property without a transfer mechanism                                                  | Inventory and secure; distribute after executor is appointed and debts are paid                                                 |
 
 **Estimated Probate Assets:** Likely the house and checking account -- the two largest items to address through probate.
 
@@ -529,6 +557,6 @@ The will needs to be admitted to probate in Texas within **4 years of the date o
 
 **The Texas Probate Sequence for Your Mother's Estate:**
 
-| Step | Action | Who | Estimated Timeframe | Texas-Specific Notes |
-|---|---|---|---|---|
-| 1 | File application
+| Step | Action           | Who | Estimated Timeframe | Texas-Specific Notes |
+| ---- | ---------------- | --- | ------------------- | -------------------- |
+| 1    | File application |

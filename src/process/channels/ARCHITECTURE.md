@@ -4,11 +4,11 @@
 
 Channels is Wayland's multi-platform AI assistant framework, exposing Wayland's AI capabilities (Gemini, Claude, Codex) to remote users via instant messaging platforms. Three platforms are currently supported:
 
-| Platform             | SDK                     | Connection Mode          | Message Updates                     |
-| -------------------- | ----------------------- | ------------------------ | ----------------------------------- |
-| **Telegram**         | grammY                  | Long Polling             | Edit message text                   |
-| **Lark**             | @larksuiteoapi/node-sdk | WebSocket persistent     | Edit interactive card               |
-| **DingTalk**         | dingtalk-stream         | WebSocket Stream         | AI Card streaming updates           |
+| Platform     | SDK                     | Connection Mode      | Message Updates           |
+| ------------ | ----------------------- | -------------------- | ------------------------- |
+| **Telegram** | grammY                  | Long Polling         | Edit message text         |
+| **Lark**     | @larksuiteoapi/node-sdk | WebSocket persistent | Edit interactive card     |
+| **DingTalk** | dingtalk-stream         | WebSocket Stream     | AI Card streaming updates |
 
 Core design principle: **platform-agnostic unified message protocol** - all platform plugins convert native messages into `IUnifiedIncomingMessage`, and all replies are sent via `IUnifiedOutgoingMessage`, which each platform adapter converts back to the native format.
 
@@ -342,23 +342,23 @@ Special handling for the first streaming message: it is always applied as an edi
 
 Three action categories and their handlers:
 
-| Category     | Name                              | Handler                | Description                                      |
-| ------------ | --------------------------------- | ---------------------- | ------------------------------------------------ |
+| Category     | Name                              | Handler                | Description                                        |
+| ------------ | --------------------------------- | ---------------------- | -------------------------------------------------- |
 | **system**   | `session.new`                     | `handleSessionNew`     | Create new session (clean up old session + worker) |
-|              | `session.status`                  | `handleSessionStatus`  | Show current session status                      |
-|              | `help.show/features/pairing/tips` | `handleHelp*`          | Help information                                 |
-|              | `settings.show`                   | `handleSettingsShow`   | Settings guide                                   |
-|              | `agent.show`                      | `handleAgentShow`      | Show available agent list                        |
-|              | `agent.select`                    | `handleAgentSelect`    | Switch agent type                                |
-| **platform** | `pairing.show`                    | `handlePairingShow`    | Generate and display pairing code                |
-|              | `pairing.refresh`                 | `handlePairingRefresh` | Refresh pairing code                             |
-|              | `pairing.check`                   | `handlePairingCheck`   | Check pairing status                             |
-|              | `pairing.help`                    | `handlePairingHelp`    | Pairing help                                     |
-| **chat**     | `chat.send`                       | `handleChatSend`       | Placeholder (actually handled by ActionExecutor) |
-|              | `chat.regenerate`                 | `handleChatRegenerate` | Regenerate reply                                 |
-|              | `chat.continue`                   | `handleChatContinue`   | Continue generation                              |
-|              | `action.copy`                     | `handleCopy`           | Copy prompt                                      |
-|              | `system.confirm`                  | `handleToolConfirm`    | Tool confirmation                                |
+|              | `session.status`                  | `handleSessionStatus`  | Show current session status                        |
+|              | `help.show/features/pairing/tips` | `handleHelp*`          | Help information                                   |
+|              | `settings.show`                   | `handleSettingsShow`   | Settings guide                                     |
+|              | `agent.show`                      | `handleAgentShow`      | Show available agent list                          |
+|              | `agent.select`                    | `handleAgentSelect`    | Switch agent type                                  |
+| **platform** | `pairing.show`                    | `handlePairingShow`    | Generate and display pairing code                  |
+|              | `pairing.refresh`                 | `handlePairingRefresh` | Refresh pairing code                               |
+|              | `pairing.check`                   | `handlePairingCheck`   | Check pairing status                               |
+|              | `pairing.help`                    | `handlePairingHelp`    | Pairing help                                       |
+| **chat**     | `chat.send`                       | `handleChatSend`       | Placeholder (actually handled by ActionExecutor)   |
+|              | `chat.regenerate`                 | `handleChatRegenerate` | Regenerate reply                                   |
+|              | `chat.continue`                   | `handleChatContinue`   | Continue generation                                |
+|              | `action.copy`                     | `handleCopy`           | Copy prompt                                        |
+|              | `system.confirm`                  | `handleToolConfirm`    | Tool confirmation                                  |
 
 ### 5.4 Tool Confirmation Flow
 
@@ -401,11 +401,11 @@ Credential encryption uses Base64 encoding (`utils/credentialCrypto.ts`):
 
 Credential fields per platform:
 
-| Platform | Credential Fields                                                     |
-| -------- | --------------------------------------------------------------------- |
-| Telegram | `token` (Bot Token)                                                   |
-| Lark     | `appId`, `appSecret`, `encryptKey`(?), `verificationToken`(?)         |
-| DingTalk | `clientId`, `clientSecret`                                            |
+| Platform | Credential Fields                                             |
+| -------- | ------------------------------------------------------------- |
+| Telegram | `token` (Bot Token)                                           |
+| Lark     | `appId`, `appSecret`, `encryptKey`(?), `verificationToken`(?) |
+| DingTalk | `clientId`, `clientSecret`                                    |
 
 ### 6.2 User Authorization: Pairing Code Mechanism
 
@@ -518,15 +518,15 @@ created → initializing → ready → starting → running → stopping → sto
 
 **Abstract methods (implemented by subclasses):**
 
-| Method                                    | Description                                                   |
-| ----------------------------------------- | ------------------------------------------------------------- |
+| Method                                    | Description                                                                |
+| ----------------------------------------- | -------------------------------------------------------------------------- |
 | `onInitialize(config)`                    | Platform-specific initialization (validate credentials, create SDK client) |
-| `onStart()`                               | Connect to platform (start polling / WebSocket)               |
-| `onStop()`                               | Disconnect and clean up resources                             |
-| `sendMessage(chatId, message)`            | Send a message, returns the platform message ID               |
-| `editMessage(chatId, messageId, message)` | Edit a previously sent message (streaming updates)            |
-| `getActiveUserCount()`                    | Return the active user count                                  |
-| `getBotInfo()`                            | Return bot information                                        |
+| `onStart()`                               | Connect to platform (start polling / WebSocket)                            |
+| `onStop()`                                | Disconnect and clean up resources                                          |
+| `sendMessage(chatId, message)`            | Send a message, returns the platform message ID                            |
+| `editMessage(chatId, messageId, message)` | Edit a previously sent message (streaming updates)                         |
+| `getActiveUserCount()`                    | Return the active user count                                               |
+| `getBotInfo()`                            | Return bot information                                                     |
 
 **Callback registration:**
 
@@ -555,7 +555,7 @@ created → initializing → ready → starting → running → stopping → sto
   - `card.action.trigger` - card button click (must respond within 3 seconds, so handled asynchronously)
   - `application.bot.menu_v6` - bot custom menu click
 - **Message limit**: 4000 characters
-- **ID type detection**: `ou_` → open_id, `oc_` → chat_id, `on_` → union_id
+- **ID type detection**: `ou_` → open*id, `oc*`→ chat_id,`on\_` → union_id
 
 ### 7.4 DingTalkPlugin
 
@@ -598,11 +598,11 @@ created → initializing → ready → starting → running → stopping → sto
 
 **Event push (Emitter):**
 
-| Event                           | Direction | Description                              |
-| ------------------------------- | --------- | ---------------------------------------- |
-| `channel.pairing-requested`     | Main → UI | New pairing request (show notification)  |
+| Event                           | Direction | Description                                 |
+| ------------------------------- | --------- | ------------------------------------------- |
+| `channel.pairing-requested`     | Main → UI | New pairing request (show notification)     |
 | `channel.plugin-status-changed` | Main → UI | Plugin status changed (real-time UI update) |
-| `channel.user-authorized`       | Main → UI | User authorization succeeded             |
+| `channel.user-authorized`       | Main → UI | User authorization succeeded                |
 
 IPC handlers are registered in the `initChannelBridge()` function in `src/process/bridge/channelBridge.ts`, called on app startup.
 
@@ -610,15 +610,15 @@ IPC handlers are registered in the `initChannelBridge()` function in `src/proces
 
 ## 9. Key Design Patterns Summary
 
-| Pattern              | Where Applied                                                                          | Description                                                                 |
-| -------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| **Singleton**        | `ChannelManager`, `ChannelMessageService`, `PairingService`, `channelEventBus`         | Single global instance, accessed via `getInstance()` or `get*()`            |
-| **Strategy**         | `BasePlugin` + three concrete plugins                                                  | Unified interface, different platform implementations                       |
-| **Registry**         | `PluginManager.pluginRegistry`, `ActionExecutor.actionRegistry`                        | Dynamically register handlers, look up by name/type                         |
-| **Observer**         | `ChannelEventBus` (extends `EventEmitter`)                                             | Decoupled message passing from Agent → Channel                              |
-| **Adapter**          | `TelegramAdapter`, `LarkAdapter`, `DingTalkAdapter`                                    | Platform native format ↔ unified format conversion                          |
-| **State Machine**    | `BasePlugin` lifecycle                                                                 | `created→initializing→ready→starting→running→stopping→stopped`              |
-| **Composite Key**    | `SessionManager.buildKey(userId, chatId)`                                              | Supports per-chat session isolation                                         |
-| **Throttle**         | `ActionExecutor.handleChatMessage()`                                                   | 500ms timer throttle for streaming message updates                          |
-| **Fallback Strategy**| `DingTalkPlugin.sendMessage()`                                                         | AI Card → sessionWebhook → Open API three-tier fallback                     |
-| **Event Dedup**      | `LarkPlugin`, `DingTalkPlugin`                                                         | `processedEvents` Map + TTL cleanup                                         |
+| Pattern               | Where Applied                                                                  | Description                                                      |
+| --------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| **Singleton**         | `ChannelManager`, `ChannelMessageService`, `PairingService`, `channelEventBus` | Single global instance, accessed via `getInstance()` or `get*()` |
+| **Strategy**          | `BasePlugin` + three concrete plugins                                          | Unified interface, different platform implementations            |
+| **Registry**          | `PluginManager.pluginRegistry`, `ActionExecutor.actionRegistry`                | Dynamically register handlers, look up by name/type              |
+| **Observer**          | `ChannelEventBus` (extends `EventEmitter`)                                     | Decoupled message passing from Agent → Channel                   |
+| **Adapter**           | `TelegramAdapter`, `LarkAdapter`, `DingTalkAdapter`                            | Platform native format ↔ unified format conversion               |
+| **State Machine**     | `BasePlugin` lifecycle                                                         | `created→initializing→ready→starting→running→stopping→stopped`   |
+| **Composite Key**     | `SessionManager.buildKey(userId, chatId)`                                      | Supports per-chat session isolation                              |
+| **Throttle**          | `ActionExecutor.handleChatMessage()`                                           | 500ms timer throttle for streaming message updates               |
+| **Fallback Strategy** | `DingTalkPlugin.sendMessage()`                                                 | AI Card → sessionWebhook → Open API three-tier fallback          |
+| **Event Dedup**       | `LarkPlugin`, `DingTalkPlugin`                                                 | `processedEvents` Map + TTL cleanup                              |

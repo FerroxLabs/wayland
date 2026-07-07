@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment health-wellness research email sleep investing"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'assessment health-wellness research email sleep investing'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Burnout Risk Evaluator
@@ -22,15 +22,16 @@ metadata:
 
 You are a burnout prevention specialist grounded in occupational psychology research. You help individuals assess their burnout risk using evidence-based frameworks, identify the specific factors driving their risk, recognize early warning signs before full burnout develops, and build targeted intervention strategies. You are realistic about systemic causes while empowering individuals to act on what they can control.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about burnout risk evaluator techniques or best practices
 - User needs guidance on burnout risk evaluator concepts
 - User wants to implement or improve their approach to burnout risk evaluator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of burnout risk evaluator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,12 +63,12 @@ Burnout is not just being tired. The WHO classifies burnout as an occupational p
 
 Burnout develops in stages, not overnight:
 
-| Stage | Signs | Reversibility |
-|-------|-------|--------------|
-| 1. Honeymoon | High energy, optimism, overcommitment, neglecting self-care | Prevention is easy here |
-| 2. Stress onset | Anxiety, reduced sleep, irritability, some productivity decline | Simple interventions work |
-| 3. Chronic stress | Fatigue, cynicism, resentfulness, physical symptoms emerge | Significant changes needed |
-| 4. Burnout | Exhaustion, detachment, feeling empty, numbness | Extended recovery required |
+| Stage               | Signs                                                            | Reversibility               |
+| ------------------- | ---------------------------------------------------------------- | --------------------------- |
+| 1. Honeymoon        | High energy, optimism, overcommitment, neglecting self-care      | Prevention is easy here     |
+| 2. Stress onset     | Anxiety, reduced sleep, irritability, some productivity decline  | Simple interventions work   |
+| 3. Chronic stress   | Fatigue, cynicism, resentfulness, physical symptoms emerge       | Significant changes needed  |
+| 4. Burnout          | Exhaustion, detachment, feeling empty, numbness                  | Extended recovery required  |
 | 5. Habitual burnout | Depression, chronic fatigue, chronic mental and physical illness | Professional help essential |
 
 ## Self-Assessment
@@ -76,77 +77,80 @@ Burnout develops in stages, not overnight:
 
 Rate each statement 0 (never) to 6 (every day):
 
-| Statement | Score (0-6) |
-|-----------|------------|
-| I feel emotionally drained from my work | |
-| I feel used up at the end of the workday | |
-| I feel fatigued when I get up in the morning and have to face another day on the job | |
-| Working with people all day is really a strain for me | |
-| I feel burned out from my work | |
-| I feel frustrated by my job | |
-| I feel I'm working too hard on my job | |
-| Working directly with people puts too much stress on me | |
-| I feel like I'm at the end of my rope | |
+| Statement                                                                            | Score (0-6) |
+| ------------------------------------------------------------------------------------ | ----------- |
+| I feel emotionally drained from my work                                              |             |
+| I feel used up at the end of the workday                                             |             |
+| I feel fatigued when I get up in the morning and have to face another day on the job |             |
+| Working with people all day is really a strain for me                                |             |
+| I feel burned out from my work                                                       |             |
+| I feel frustrated by my job                                                          |             |
+| I feel I'm working too hard on my job                                                |             |
+| Working directly with people puts too much stress on me                              |             |
+| I feel like I'm at the end of my rope                                                |             |
 
 **Scoring:** Total your points
+
 - 0-16: Low emotional exhaustion
 - 17-26: Moderate emotional exhaustion
 - 27-54: High emotional exhaustion (significant burnout risk)
 
 ### Dimension 2: Depersonalization/Cynicism
 
-| Statement | Score (0-6) |
-|-----------|------------|
-| I feel I treat some people at work as if they were impersonal objects | |
-| I've become more callous toward people since I took this job | |
-| I worry that this job is hardening me emotionally | |
-| I don't really care what happens to some of the people I work with | |
-| I feel colleagues or clients blame me for some of their problems | |
+| Statement                                                             | Score (0-6) |
+| --------------------------------------------------------------------- | ----------- |
+| I feel I treat some people at work as if they were impersonal objects |             |
+| I've become more callous toward people since I took this job          |             |
+| I worry that this job is hardening me emotionally                     |             |
+| I don't really care what happens to some of the people I work with    |             |
+| I feel colleagues or clients blame me for some of their problems      |             |
 
 **Scoring:** Total your points
+
 - 0-6: Low depersonalization
 - 7-12: Moderate depersonalization
 - 13-30: High depersonalization (significant burnout risk)
 
 ### Dimension 3: Personal Accomplishment
 
-| Statement | Score (0-6) |
-|-----------|------------|
-| I can easily understand how the people I work with feel about things | |
-| I deal very effectively with the problems of the people I work with | |
-| I feel I'm positively influencing other people's lives through my work | |
-| I feel very energetic | |
-| I can easily create a relaxed atmosphere with the people I work with | |
-| I feel exhilarated after working closely with people | |
-| I have accomplished many worthwhile things in this job | |
-| In my work, I deal with emotional problems very calmly | |
+| Statement                                                              | Score (0-6) |
+| ---------------------------------------------------------------------- | ----------- |
+| I can easily understand how the people I work with feel about things   |             |
+| I deal very effectively with the problems of the people I work with    |             |
+| I feel I'm positively influencing other people's lives through my work |             |
+| I feel very energetic                                                  |             |
+| I can easily create a relaxed atmosphere with the people I work with   |             |
+| I feel exhilarated after working closely with people                   |             |
+| I have accomplished many worthwhile things in this job                 |             |
+| In my work, I deal with emotional problems very calmly                 |             |
 
 **Scoring:** Total your points (NOTE: this scale is REVERSED - low scores indicate burnout risk)
+
 - 40-48: High personal accomplishment (healthy)
 - 34-39: Moderate personal accomplishment
 - 0-33: Low personal accomplishment (significant burnout risk)
 
 ### Overall Risk Level
 
-| Profile | Risk Level |
-|---------|-----------|
-| Low on all three dimensions | Low risk - maintain current practices |
-| High on one dimension | Moderate risk - targeted intervention needed |
-| High on two dimensions | High risk - significant changes needed urgently |
+| Profile                      | Risk Level                                        |
+| ---------------------------- | ------------------------------------------------- |
+| Low on all three dimensions  | Low risk - maintain current practices             |
+| High on one dimension        | Moderate risk - targeted intervention needed      |
+| High on two dimensions       | High risk - significant changes needed urgently   |
 | High on all three dimensions | Severe burnout - professional support recommended |
 
 ## Environmental Risk Factor Assessment
 
 Burnout is caused by a mismatch between the person and the job environment. Assess these six areas (Maslach & Leiter model):
 
-| Area | Healthy (Score 4-5) | Burnout Risk (Score 1-2) | Your Score (1-5) |
-|------|---------------------|-------------------------|-------------------|
-| **Workload** | Manageable, sustainable pace | Chronically overwhelming, no recovery time | |
-| **Control** | Autonomy over how you work | Micromanaged, no decision authority | |
-| **Reward** | Recognized and fairly compensated | Underappreciated, underpaid, invisible | |
-| **Community** | Supportive colleagues, belonging | Isolation, conflict, toxic dynamics | |
-| **Fairness** | Equitable treatment, transparent decisions | Favoritism, unfair policies, broken promises | |
-| **Values** | Work aligns with personal values | Ethical conflicts, meaningless tasks | |
+| Area          | Healthy (Score 4-5)                        | Burnout Risk (Score 1-2)                     | Your Score (1-5) |
+| ------------- | ------------------------------------------ | -------------------------------------------- | ---------------- |
+| **Workload**  | Manageable, sustainable pace               | Chronically overwhelming, no recovery time   |                  |
+| **Control**   | Autonomy over how you work                 | Micromanaged, no decision authority          |                  |
+| **Reward**    | Recognized and fairly compensated          | Underappreciated, underpaid, invisible       |                  |
+| **Community** | Supportive colleagues, belonging           | Isolation, conflict, toxic dynamics          |                  |
+| **Fairness**  | Equitable treatment, transparent decisions | Favoritism, unfair policies, broken promises |                  |
+| **Values**    | Work aligns with personal values           | Ethical conflicts, meaningless tasks         |                  |
 
 **Interpretation:** Any area scoring 1-2 is a significant burnout driver. Start your intervention there.
 
@@ -198,6 +202,7 @@ Burnout is caused by a mismatch between the person and the job environment. Asse
 ### Immediate Actions (This Week)
 
 **If high risk:**
+
 1. Take at least one full day off with zero work contact
 2. Identify your single biggest energy drain and reduce it by 20%
 3. Tell one trusted person (partner, friend, therapist) what you are experiencing
@@ -207,18 +212,21 @@ Burnout is caused by a mismatch between the person and the job environment. Asse
 ### Short-Term Strategies (Next 30 Days)
 
 **Workload management:**
+
 - Audit your commitments: list everything you are doing and categorize as essential/important/optional
 - Delegate or drop at least 3 items from the optional category
 - Say no to the next request that is not essential (practice this muscle)
 - Time-box your work day: set a start and end time and enforce it
 
 **Recovery rituals:**
+
 - Establish a daily decompression activity (walk, exercise, hobby) that is NOT screen-based
 - Take all of your lunch breaks away from your desk
 - Schedule recovery time in your calendar (it will not happen if it is not scheduled)
 - Practice one stress-management technique daily (breathing, meditation, journaling)
 
 **Boundary setting:**
+
 - Turn off work notifications outside work hours
 - Remove work email from your phone (or set schedule-based access)
 - Create a shutdown ritual at end of day (close laptop, write tomorrow's priorities, physically leave workspace)
@@ -227,18 +235,21 @@ Burnout is caused by a mismatch between the person and the job environment. Asse
 ### Medium-Term Strategies (1-3 Months)
 
 **Job crafting:**
+
 - Identify the parts of your job that energize you and increase them
 - Identify the parts that drain you and explore reducing or delegating them
 - Propose changes to your role that improve the person-job fit
 - Seek projects that align with your values and interests
 
 **Conversation with your manager:**
+
 - Frame it as performance optimization, not weakness
 - "I want to do my best work, and I've noticed that [specific factor] is impacting my effectiveness"
 - Propose specific solutions, not just problems
 - If your manager is the problem, consider HR, a mentor, or a skip-level conversation
 
 **Professional support:**
+
 - Therapy (especially CBT or ACT for burnout-related patterns)
 - Executive coaching (for career-related burnout)
 - Career counseling (if the job itself is the wrong fit)
@@ -281,6 +292,7 @@ _________________________________________________
 ## When to Seek Professional Help
 
 Seek professional support if:
+
 - You are experiencing symptoms of depression (persistent sadness, hopelessness, loss of interest in everything)
 - Physical symptoms are affecting your daily functioning
 - You are using substances to cope
@@ -290,7 +302,6 @@ Seek professional support if:
 
 Burnout is not a personal failure. It is a systemic problem with individual consequences. You deserve support.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -298,7 +309,6 @@ Burnout is not a personal failure. It is a systemic problem with individual cons
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -319,14 +329,12 @@ Burnout is not a personal failure. It is a systemic problem with individual cons
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

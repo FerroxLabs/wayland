@@ -996,6 +996,18 @@ const SendBox: React.FC<{
       // Handle cleaned text paste; insert text at the current caret position instead of replacing entire content
       const textarea = document.activeElement as HTMLTextAreaElement;
       if (textarea && textarea.tagName === 'TEXTAREA') {
+        // Insert via execCommand so the paste is recorded on the browser's native
+        // undo stack — Cmd+Z / Ctrl+Z then undoes it (#669). A manual setInput()
+        // replaces the value programmatically and never populates that stack, so
+        // undo was a no-op after any paste. execCommand inserts at the caret,
+        // replaces the current selection, and fires a real `input` event that the
+        // controlled textarea's onChange consumes to update React state — so no
+        // setInput/caret bookkeeping is needed on this path.
+        if (document.execCommand('insertText', false, text)) {
+          return;
+        }
+        // Fallback (execCommand unavailable/refused): manual insert at caret. This
+        // path does not populate the native undo stack.
         const cursorPosition = textarea.selectionStart;
         const currentValue = textarea.value;
         const start = textarea.selectionStart ?? textarea.value.length;

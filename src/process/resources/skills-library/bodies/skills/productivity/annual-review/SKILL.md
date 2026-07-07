@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting planning template"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting planning template'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Annual Review
@@ -230,49 +230,53 @@ Next year is a 9/10 or 10/10 if:
 ### Achievement Audit
 
 #### Career & Work
-| Achievement | When | Impact |
-|-------------|------|--------|
-| Left previous job and accepted new role | May | Major career shift, 20% salary increase, new industry |
-| Completed onboarding and passed probation | August | Established at new company, positive first review |
-| Led first project at new company | November | Built credibility with new team |
+
+| Achievement                               | When     | Impact                                                |
+| ----------------------------------------- | -------- | ----------------------------------------------------- |
+| Left previous job and accepted new role   | May      | Major career shift, 20% salary increase, new industry |
+| Completed onboarding and passed probation | August   | Established at new company, positive first review     |
+| Led first project at new company          | November | Built credibility with new team                       |
 
 #### Health & Fitness
-| Achievement | When | Impact |
-|-------------|------|--------|
-| Started running program (Couch to 5K) | February | Completed 5K in April, best cardio fitness in years |
-| Ran first 10K | June | Proved commitment to running beyond the initial program |
+
+| Achievement                           | When     | Impact                                                  |
+| ------------------------------------- | -------- | ------------------------------------------------------- |
+| Started running program (Couch to 5K) | February | Completed 5K in April, best cardio fitness in years     |
+| Ran first 10K                         | June     | Proved commitment to running beyond the initial program |
 
 #### Learning & Growth
-| Achievement | When | Impact |
-|-------------|------|--------|
+
+| Achievement                               | When       | Impact                                                |
+| ----------------------------------------- | ---------- | ----------------------------------------------------- |
 | Read 18 books (12 non-fiction, 6 fiction) | Year-round | Deepened knowledge in leadership and systems thinking |
-| Completed online UX design course | March | Added design thinking skills to toolkit |
+| Completed online UX design course         | March      | Added design thinking skills to toolkit               |
 
 #### Financial
-| Achievement | When | Impact |
-|-------------|------|--------|
-| Negotiated 20% salary increase with job change | May | Significant income improvement |
-| Maxed out retirement contributions | December | On track for long-term financial goals |
+
+| Achievement                                    | When     | Impact                                 |
+| ---------------------------------------------- | -------- | -------------------------------------- |
+| Negotiated 20% salary increase with job change | May      | Significant income improvement         |
+| Maxed out retirement contributions             | December | On track for long-term financial goals |
 
 ---
 
 ### Unfinished & Abandoned
 
-| Item | Status | Reason |
-|------|--------|--------|
+| Item                      | Status            | Reason                                                                           |
+| ------------------------- | ----------------- | -------------------------------------------------------------------------------- |
 | Side project (newsletter) | Abandoned in July | Job transition consumed all creative energy; deprioritized after missing 4 weeks |
-| Running routine | Declined Sept-Dec | Shorter daylight hours + job stress led to skipping runs; gained back 8 lbs |
-| Spanish learning goal | Never started | Planned for Q3 but job ramp-up took priority |
+| Running routine           | Declined Sept-Dec | Shorter daylight hours + job stress led to skipping runs; gained back 8 lbs      |
+| Spanish learning goal     | Never started     | Planned for Q3 but job ramp-up took priority                                     |
 
 ---
 
 ### Year Themes
 
-| Theme | Pattern | Evidence |
-|-------|---------|----------|
-| Career reinvention | The job change dominated the year, redirecting energy from personal projects to professional establishment | Job search (Jan-Apr), onboarding (May-Aug), proving ground (Sep-Dec) |
-| Second-half energy crash | Strong starts in H1 faded in H2 as the new job consumed bandwidth | Running, side project, and reading all declined after August |
-| Learning compounds | Knowledge from books and UX course directly improved work performance at new role | Leadership books informed management approach; UX course helped in product discussions |
+| Theme                    | Pattern                                                                                                    | Evidence                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Career reinvention       | The job change dominated the year, redirecting energy from personal projects to professional establishment | Job search (Jan-Apr), onboarding (May-Aug), proving ground (Sep-Dec)                   |
+| Second-half energy crash | Strong starts in H1 faded in H2 as the new job consumed bandwidth                                          | Running, side project, and reading all declined after August                           |
+| Learning compounds       | Knowledge from books and UX course directly improved work performance at new role                          | Leadership books informed management approach; UX course helped in product discussions |
 
 ---
 
@@ -290,14 +294,14 @@ Next year is a 9/10 or 10/10 if:
 
 **Overall satisfaction:** 7/10
 
-| Area | Rating | Notes |
-|------|--------|-------|
-| Career | 9/10 | Successful transition, strong start at new role |
-| Health | 5/10 | Great H1, significant regression in H2 |
-| Relationships | 6/10 | Maintained but did not deepen; transition consumed social energy |
-| Learning | 8/10 | Strong reading year, useful course completion |
-| Financial | 8/10 | Salary jump + maxed retirement = solid year |
-| Personal | 4/10 | Side project abandoned, Spanish never started |
+| Area          | Rating | Notes                                                            |
+| ------------- | ------ | ---------------------------------------------------------------- |
+| Career        | 9/10   | Successful transition, strong start at new role                  |
+| Health        | 5/10   | Great H1, significant regression in H2                           |
+| Relationships | 6/10   | Maintained but did not deepen; transition consumed social energy |
+| Learning      | 8/10   | Strong reading year, useful course completion                    |
+| Financial     | 8/10   | Salary jump + maxed retirement = solid year                      |
+| Personal      | 4/10   | Side project abandoned, Spanish never started                    |
 
 **Best moment:** Finishing the first 10K race in June, feeling genuinely fit for the first time in years
 **Hardest moment:** Realizing in October that the side project was dead and accepting the need to let it go
@@ -309,32 +313,36 @@ Next year is a 9/10 or 10/10 if:
 ### 12-Month Forward Projection: 2026
 
 #### Continue (keep doing)
+
 - Reading habit (30 min before bed) -- target 20 books
 - Retirement contributions at maximum level
 - Active learning through courses (1 per quarter)
 
 #### Start (new for next year)
+
 - Morning exercise routine (not dependent on daylight or evening energy)
 - Side project with calendar-protected time (Saturday 9-11 AM, non-negotiable)
 - Spanish learning (attach to existing habit: 15 min during lunch)
 
 #### Stop (deliberately eliminate)
+
 - Evening exercise plans (proven failure mode -- mornings only)
 - Saying yes to optional social obligations during high-stress work periods
 - Planning goals that require "leftover time" -- if it does not have a calendar slot, it does not happen
 
 #### Quarterly Rough Allocation
 
-| Quarter | Focus Areas | Key Goals |
-|---------|------------|-----------|
-| Q1 | Health + Learning | Re-establish morning running (3x/week), start Spanish |
-| Q2 | Career + Side project | Lead major initiative at work, launch side project MVP |
-| Q3 | Health + Financial | Train for half marathon, mid-year financial review |
-| Q4 | Career + Personal | Push for year-end promotion conversation, complete side project v1 |
+| Quarter | Focus Areas           | Key Goals                                                          |
+| ------- | --------------------- | ------------------------------------------------------------------ |
+| Q1      | Health + Learning     | Re-establish morning running (3x/week), start Spanish              |
+| Q2      | Career + Side project | Lead major initiative at work, launch side project MVP             |
+| Q3      | Health + Financial    | Train for half marathon, mid-year financial review                 |
+| Q4      | Career + Personal     | Push for year-end promotion conversation, complete side project v1 |
 
 #### Annual Success Criteria
 
 Next year is a 9/10 or 10/10 if:
+
 1. Exercise at least 150 days out of 365 (41% adherence, realistic given 2025's H2 drop)
 2. Ship a working version of the side project (any scope, but live and usable)
 3. Read 20 books

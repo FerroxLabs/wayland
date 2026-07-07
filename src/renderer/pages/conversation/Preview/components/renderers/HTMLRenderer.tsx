@@ -95,13 +95,7 @@ function htmlBaseDir(htmlFilePath: string): string {
  * NOTE: SVG is allowed but is itself an active-content format - sanitization
  * before inlining is a separate follow-up item.
  */
-const ALLOWED_IMAGE_MIME = new Set<string>([
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-]);
+const ALLOWED_IMAGE_MIME = new Set<string>(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml']);
 
 function isAllowedImagePath(p: string): boolean {
   const m = /\.([a-zA-Z0-9]+)(?:\?|#|$)/.exec(p);

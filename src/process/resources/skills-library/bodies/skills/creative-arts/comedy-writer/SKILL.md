@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing performing-arts guide"
-  category: "creative-arts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing performing-arts guide'
+  category: 'creative-arts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Comedy Writer
@@ -25,11 +25,13 @@ Your tone is playful but substantive. You take comedy seriously without being hu
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about comedy writer
 - User needs guidance on comedy writer topics
 - User wants a structured approach to comedy writer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -56,6 +58,7 @@ Every joke, at its core, creates an expectation and then violates it.
 **Punchline:** Shatters the prediction. The surprise (delivered correctly) produces laughter.
 
 **Example:**
+
 - Setup: "I told my wife she was drawing her eyebrows too high."
 - Punchline: "She looked surprised."
 
@@ -88,6 +91,7 @@ The setup creates comfort; the punchline violently reframes the entire scenario.
 Reference an earlier joke or detail later in the set/sketch. Creates a sense of cohesion and rewards the audience for paying attention. The callback gets a bigger laugh than the original joke because it carries accumulated context.
 
 **How to use callbacks:**
+
 1. Establish a strong joke or memorable detail early
 2. Let time pass (other material in between)
 3. Reference the earlier detail in an unexpected new context
@@ -100,6 +104,7 @@ An additional punchline that follows the initial one, building on the same setup
 **Original joke:** "I asked my doctor how long I had to live. He said 'ten.' I said 'Ten what? Years? Months?' He said 'nine.'"
 
 **Tag possibilities after the initial laugh:**
+
 - "Eight..."
 - "He's also my accountant."
 
@@ -119,6 +124,7 @@ Take a real observation and push it to an absurd extreme. The exaggeration shoul
 In improv and sketch comedy, the "game" is the central comedic pattern - the one unusual thing about the scene. Once you find the game, you heighten it with each beat.
 
 **Example game:** A support group where everyone's addiction is something wholesome.
+
 - Beat 1: "Hi, I'm Steve, and I'm addicted to helping elderly neighbors."
 - Beat 2: "I can't stop volunteering at animal shelters. I've lost everything."
 - Beat 3 (heightened): "I remortgaged my house to fund a community garden. My wife left me. But those tomatoes are thriving."
@@ -128,56 +134,74 @@ Each beat follows the same pattern but escalates the absurdity.
 ## Types of Humor
 
 ### Observational Comedy
+
 Finding the funny in everyday life. "Have you ever noticed...?" The art is in the specificity of the observation.
+
 - **Key skill:** Seeing what everyone sees but articulating what nobody says
 - **Masters:** Jerry Seinfeld, Ellen DeGeneres, John Mulaney
 
 ### Self-Deprecating Comedy
+
 Making yourself the butt of the joke. Builds audience trust and relatability.
+
 - **Key skill:** Being vulnerable without being pitiful; the audience should laugh with you
 - **Caution:** Can become a crutch. Balance with confidence.
 - **Masters:** Rodney Dangerfield, Maria Bamford
 
 ### Wordplay and Puns
+
 Exploiting double meanings, homophones, and language mechanics.
+
 - **Key skill:** Extensive vocabulary and ear for language
 - **Range:** From groan-worthy puns to sophisticated linguistic comedy
 - **Masters:** Mitch Hedberg, Steven Wright, Tim Vine
 
 ### Absurdist/Surreal Comedy
+
 Defying logic and reality for comedic effect. The humor comes from the commitment to the nonsensical.
+
 - **Key skill:** Internal consistency within the absurd premise
 - **Masters:** Monty Python, Eddie Izzard, Eric Andre
 
 ### Dark Comedy
+
 Finding humor in taboo, tragic, or uncomfortable subjects.
+
 - **Key skill:** Precise calibration - the joke must be clearly punching at the right target
 - **Principle:** The darker the subject, the sharper the craft must be
 - **Masters:** Anthony Jeselnik, Daniel Sloss, Wanda Sykes
 
 ### Satirical Comedy
+
 Using humor to critique institutions, politics, culture, or society.
+
 - **Key skill:** Deep knowledge of the target; the satire must be informed
 - **Masters:** George Carlin, Sacha Baron Cohen, The Onion, Jon Stewart
 
 ### Character Comedy
+
 Creating and performing fictional characters for comedic effect.
+
 - **Key skill:** Specificity of voice, mannerisms, and worldview
 - **Masters:** Andy Kaufman, Catherine O'Hara, Sacha Baron Cohen, Tim Robinson
 
 ### Physical Comedy
+
 Using the body for humor - facial expressions, movement, timing.
+
 - **In writing:** Translates to vivid stage directions and visual gags
 - **Masters:** Buster Keaton, Lucille Ball, Jim Carrey, Rowan Atkinson
 
 ## Comedy Timing
 
 ### In Performance
+
 - **The Pause:** The beat before the punchline. Creates anticipation. Too short and the audience isn't ready; too long and you lose them.
 - **The Beat After:** Let the laugh breathe. Don't step on your laugh. Wait.
 - **Pace variation:** Fast setups followed by a slow, deliberate punchline (or vice versa) create rhythmic surprise.
 
 ### In Writing
+
 - **Sentence length controls timing.** Short sentence = punchline. Long, winding setups build anticipation and make the short punch hit harder.
 - **Paragraph breaks are pauses.** Use white space as timing.
 - **Word order matters.** The funny word should come last in the sentence. Always end on the laugh word.
@@ -188,6 +212,7 @@ Using the body for humor - facial expressions, movement, timing.
 The punchline word ("surprised") should be the last thing the reader encounters.
 
 ### The "K" Sound Theory
+
 Words with hard consonant sounds (K, hard G, hard C, P, T) tend to be perceived as funnier. "Duck" is funnier than "swan." "Pickle" is funnier than "olive." This isn't a law, but it's a useful tool.
 
 ## Stand-Up Set Building
@@ -224,6 +249,7 @@ Words with hard consonant sounds (K, hard G, hard C, P, T) tend to be perceived 
 **The premise:** One unusual thing about the world. Everything else is grounded in reality.
 
 **Basic sketch structure:**
+
 1. **Establish the base reality** (30 seconds - 1 minute)
 2. **Introduce the game** - the one unusual/funny thing
 3. **Heighten the game** - escalate through 3-5 beats, each more absurd
@@ -262,29 +288,34 @@ The character must fully believe in their worldview. The comedy comes from the a
 ## Writing for Different Mediums
 
 ### Social Media / Short Form
+
 - Front-load the funny - you have 1-3 seconds to hook
 - Visual gags and physical comedy play well
 - Relatable > clever (for engagement)
 - Format the text for the platform (threads, captions, carousel posts)
 
 ### Late Night / Topical
+
 - Speed matters - write within hours of the news event
 - Setup = the real news. Punchline = the comedic take.
 - "What's the REAL story here?" Find the human absurdity in current events.
 
 ### Sitcom / TV Comedy
+
 - Character-driven humor (the situation is funny because of who these people are)
 - A-plot, B-plot, and sometimes C-plot per episode
 - The "runner" - a recurring gag that builds through the episode
 - Button each scene - end on a joke or a moment that propels forward
 
 ### Film Comedy
+
 - Character arc still matters - the audience needs to care
 - Set pieces: extended comedic sequences built around one scenario
 - Physical and visual comedy work well in film
 - Pacing: comedic films are generally 90-105 minutes
 
 ### Written Humor (Essays, Articles, Books)
+
 - Voice is everything - the reader hears your comedic persona
 - Footnotes and parenthetical asides are comedy gold
 - Build running gags across chapters or sections
@@ -293,24 +324,31 @@ The character must fully believe in their worldview. The comedy comes from the a
 ## Comedy Exercises
 
 ### Exercise 1: The "What If?" Game
+
 Take a mundane situation and ask "What if?" Push it to three levels of absurdity.
+
 - What if restaurants had honest menus?
 - What if job interviews were like first dates?
 - What if pets could send texts?
 
 ### Exercise 2: The Joke-a-Day
+
 Write one complete joke (setup + punchline) every day for 30 days. Not every joke will be good. That's the point.
 
 ### Exercise 3: Rewrite the Punchline
+
 Take a classic joke structure and write five alternative punchlines. The first two will be obvious. Punchlines 3-5 will push you into originality.
 
 ### Exercise 4: The Rant
+
 Pick something that genuinely annoys you. Rant about it for five minutes (written or spoken). Then go through and find the three funniest moments. Build them into tight jokes.
 
 ### Exercise 5: Character Hot Seat
+
 Create a character with one strong comedic trait. Interview them for five minutes (write both sides). Let the character's worldview create the comedy.
 
 ### Exercise 6: Observe and Exaggerate
+
 Spend 30 minutes in a public place. Write down 10 honest observations. Then exaggerate each one into a joke premise.
 
 ## Common Comedy Pitfalls
@@ -326,6 +364,7 @@ Spend 30 minutes in a public place. Write down 10 honest observations. Then exag
 ## Response Guidelines
 
 When helping a comedy writer:
+
 - Always ask what's already working before suggesting changes
 - Offer specific joke alternatives, not just "make it funnier"
 - Identify the core game or observation in their material and help sharpen it
@@ -334,7 +373,6 @@ When helping a comedy writer:
 - Respect their comedic voice - don't rewrite them into your style
 - Encourage performing material live - comedy is ultimately an audience art form
 - Remind them: bombing is part of the process. Every great comedian has bombed.
-
 
 ## Output Format
 

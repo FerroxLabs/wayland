@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales proposal planning template"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales proposal planning template'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sales Proposal
@@ -272,6 +272,7 @@ We propose [Product] automated scheduling to eliminate manual schedule building,
 ### Your Challenge
 
 **Current Situation:**
+
 - 5 GMs spend 5+ hours each per week building and adjusting paper schedules
 - 3 overtime violations last quarter, averaging $800 per violation in penalties
 - No visibility into labor costs until after payroll runs
@@ -279,30 +280,32 @@ We propose [Product] automated scheduling to eliminate manual schedule building,
 
 **Cost of Inaction:**
 
-| Factor | Current Cost | Annual Impact |
-|--------|-------------|---------------|
-| GM scheduling time (25 hrs/week at $28/hr) | 25 hrs/week | $36,400/year |
-| Overtime violations (~12/year at $800) | 3/quarter | $9,600/year |
-| Shift swap coordination (est. 5 hrs/week) | 5 hrs/week | $7,280/year |
-| **Total** | | **$53,280/year** |
+| Factor                                     | Current Cost | Annual Impact    |
+| ------------------------------------------ | ------------ | ---------------- |
+| GM scheduling time (25 hrs/week at $28/hr) | 25 hrs/week  | $36,400/year     |
+| Overtime violations (~12/year at $800)     | 3/quarter    | $9,600/year      |
+| Shift swap coordination (est. 5 hrs/week)  | 5 hrs/week   | $7,280/year      |
+| **Total**                                  |              | **$53,280/year** |
 
 ---
 
 ### Proposed Solution
 
-| Component | What It Solves | Deliverable |
-|-----------|---------------|-------------|
-| Auto-scheduling engine | Manual schedule creation | Compliant schedules generated in minutes based on availability, skills, and labor rules |
-| Labor law compliance module | Overtime violations | Automatic enforcement of overtime limits, break requirements, and minor labor rules |
-| Employee mobile app | Shift swap interruptions | Self-service schedule viewing, shift swap requests, and availability management |
+| Component                   | What It Solves           | Deliverable                                                                             |
+| --------------------------- | ------------------------ | --------------------------------------------------------------------------------------- |
+| Auto-scheduling engine      | Manual schedule creation | Compliant schedules generated in minutes based on availability, skills, and labor rules |
+| Labor law compliance module | Overtime violations      | Automatic enforcement of overtime limits, break requirements, and minor labor rules     |
+| Employee mobile app         | Shift swap interruptions | Self-service schedule viewing, shift swap requests, and availability management         |
 
 **In Scope:**
+
 - Software licenses for all 5 locations (120 employees)
 - Initial configuration and labor rule setup
 - 2-hour training session for all 5 GMs
 - 30-day onboarding support
 
 **Out of Scope:**
+
 - Payroll integration (available as add-on at $1/employee/month)
 - Custom reporting beyond standard dashboards
 
@@ -310,12 +313,12 @@ We propose [Product] automated scheduling to eliminate manual schedule building,
 
 ### Investment
 
-| Item | Price |
-|------|-------|
-| [Product] scheduling (120 employees at $3/employee/month) | $4,320/year |
-| Setup and configuration (one-time) | $0 (included) |
-| Training (one-time) | $0 (included) |
-| **Total Annual Investment** | **$4,320/year** |
+| Item                                                      | Price           |
+| --------------------------------------------------------- | --------------- |
+| [Product] scheduling (120 employees at $3/employee/month) | $4,320/year     |
+| Setup and configuration (one-time)                        | $0 (included)   |
+| Training (one-time)                                       | $0 (included)   |
+| **Total Annual Investment**                               | **$4,320/year** |
 
 **Payment Terms:** Monthly billing ($360/month), cancel anytime after initial 12-month term.
 
@@ -323,16 +326,16 @@ We propose [Product] automated scheduling to eliminate manual schedule building,
 
 ### ROI Projection
 
-| Metric | Calculation | Value |
-|--------|------------|-------|
-| Annual cost of current problem | Management time + violations + coordination | $53,280 |
-| Projected improvement (80% reduction) | $53,280 x 80% | $42,624 |
-| Annual investment | 120 employees x $3 x 12 months | $4,320 |
-| **Net annual benefit** | $42,624 - $4,320 | **$38,304** |
-| **ROI** | $38,304 / $4,320 | **8.9:1** |
-| **Payback period** | $4,320 / ($42,624 / 12) | **1.2 months** |
+| Metric                                | Calculation                                 | Value          |
+| ------------------------------------- | ------------------------------------------- | -------------- |
+| Annual cost of current problem        | Management time + violations + coordination | $53,280        |
+| Projected improvement (80% reduction) | $53,280 x 80%                               | $42,624        |
+| Annual investment                     | 120 employees x $3 x 12 months              | $4,320         |
+| **Net annual benefit**                | $42,624 - $4,320                            | **$38,304**    |
+| **ROI**                               | $38,304 / $4,320                            | **8.9:1**      |
+| **Payback period**                    | $4,320 / ($42,624 / 12)                     | **1.2 months** |
 
-*Assumptions: 80% time reduction based on average of similar restaurant deployments. Overtime violations eliminated within 60 days of go-live. GM hourly cost estimated at $28/hr loaded.*
+_Assumptions: 80% time reduction based on average of similar restaurant deployments. Overtime violations eliminated within 60 days of go-live. GM hourly cost estimated at $28/hr loaded._
 
 ---
 

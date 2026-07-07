@@ -14,7 +14,12 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "FIRECRAWL_API_KEY", "description": "API key from your Firecrawl dashboard.", "isRequired": true, "isSecret": true }
+        {
+          "name": "FIRECRAWL_API_KEY",
+          "description": "API key from your Firecrawl dashboard.",
+          "isRequired": true,
+          "isSecret": true
+        }
       ]
     }
   ],

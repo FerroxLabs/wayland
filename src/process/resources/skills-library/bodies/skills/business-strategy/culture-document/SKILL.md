@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template strategy planning guide branding"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template strategy planning guide branding'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Culture Document
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to create a company culture document, values statement, or cultural manifesto from scratch
 - A user needs to define or redefine organizational values with concrete behavioral definitions and examples
 - A user wants to produce do/don't behavioral examples for each company value to use in hiring, onboarding, or performance conversations
@@ -28,6 +30,7 @@ metadata:
 - A user is building out a People Operations function and needs the culture document as a foundational artifact
 
 **Do NOT use this skill when:**
+
 - The user needs a brand voice or tone guide for external communications -- use `voice-tone-guide` instead, which governs how the company speaks to customers, not how employees behave internally
 - The user wants to write a mission, vision, or purpose statement -- use `mission-vision-writing` instead; those are forward-looking declarations, not behavioral definitions
 - The user needs an employee handbook -- that is a legal document requiring HR/legal review covering policies, benefits, and labor law compliance
@@ -131,23 +134,24 @@ Culture documents that are not reviewed die. They become monuments to a past era
 
 ```markdown
 # [Company Name] Culture Document
-*Version [X.X] -- Last Updated [Month Year]*
+
+_Version [X.X] -- Last Updated [Month Year]_
 
 ---
 
 ## Who We Are
 
-[Paragraph 1: 4-6 sentences describing what the company does, who the team is, 
-and what stage the company is at. Write in first-person plural. 
+[Paragraph 1: 4-6 sentences describing what the company does, who the team is,
+and what stage the company is at. Write in first-person plural.
 This is identity, not marketing.]
 
-[Paragraph 2: 4-6 sentences describing who thrives here. 
-Be specific about the work style, communication style, and orientation 
-that succeeds. Name what makes this company's culture distinct from 
+[Paragraph 2: 4-6 sentences describing who thrives here.
+Be specific about the work style, communication style, and orientation
+that succeeds. Name what makes this company's culture distinct from
 the default culture of its industry.]
 
-[Paragraph 3: 3-4 sentences describing who struggles here. 
-This is the most important paragraph in the "Who We Are" section 
+[Paragraph 3: 3-4 sentences describing who struggles here.
+This is the most important paragraph in the "Who We Are" section
 and the one most companies omit. Be honest without being unkind.]
 
 ---
@@ -155,84 +159,92 @@ and the one most companies omit. Be honest without being unkind.]
 ## Our Values
 
 ### [Value 1 Name: Written as a Phrase or Directive]
-**Definition:** [One sentence. Specific to this company. Not interchangeable 
+
+**Definition:** [One sentence. Specific to this company. Not interchangeable
 with any other company's version of this value.]
 
 **What this means in practice:**
+
 - [Observable behavioral indicator 1]
 - [Observable behavioral indicator 2]
 - [Observable behavioral indicator 3]
 - [Observable behavioral indicator 4, if relevant]
 
-| Do | Don't |
-|----|-------|
+| Do                                              | Don't                                                        |
+| ----------------------------------------------- | ------------------------------------------------------------ |
 | [Specific scenario showing the value in action] | [Specific scenario showing behavior that violates the value] |
-| [Second scenario] | [Second violation scenario] |
-| [Third scenario, if needed] | [Third violation scenario, if needed] |
+| [Second scenario]                               | [Second violation scenario]                                  |
+| [Third scenario, if needed]                     | [Third violation scenario, if needed]                        |
 
-**Decision test:** "[A question that uses this value to resolve a real 
+**Decision test:** "[A question that uses this value to resolve a real
 dilemma this company actually faces]"
 
-**This does not mean:** [One sentence clarifying the most common 
+**This does not mean:** [One sentence clarifying the most common
 misapplication or misreading of this value]
 
 ---
 
 ### [Value 2 Name]
-*(same structure as above)*
+
+_(same structure as above)_
 
 ---
 
 ### [Value 3 Name]
-*(same structure as above)*
+
+_(same structure as above)_
 
 ---
 
 ### [Value 4 Name]
-*(same structure as above)*
+
+_(same structure as above)_
 
 ---
 
-*(Repeat for Values 5 and 6 if applicable)*
+_(Repeat for Values 5 and 6 if applicable)_
 
 ---
 
 ## When Our Values Conflict
 
-*Real values create real tensions. Here is how we navigate the most common conflicts.*
+_Real values create real tensions. Here is how we navigate the most common conflicts._
 
 ### [Value A] vs. [Value B]
-**The tension:** [2-3 sentences describing when and why these two values 
+
+**The tension:** [2-3 sentences describing when and why these two values
 pull in opposite directions. Give a real scenario.]
 
-**How we resolve it:** [Which value takes priority under which conditions. 
-Be specific. "It depends" is not an answer. Name the condition that 
+**How we resolve it:** [Which value takes priority under which conditions.
+Be specific. "It depends" is not an answer. Name the condition that
 tips the balance.]
 
-**Worked example:** [A concrete situation and the decision the team made 
+**Worked example:** [A concrete situation and the decision the team made
 or would make, and why.]
 
 ---
 
 ### [Value C] vs. [Value D]
-*(same structure)*
+
+_(same structure)_
 
 ---
 
-### [Value E] vs. [Value F] *(if applicable)*
-*(same structure)*
+### [Value E] vs. [Value F] _(if applicable)_
+
+_(same structure)_
 
 ---
 
 ## How We Live These Values
 
-| Practice | What This Looks Like in Action |
-|----------|-------------------------------|
-| **Hiring** | [Specific interview practice, exercise, or signal for each value. Name the method, not just the intent.] |
-| **Week One Onboarding** | [Specific experience or assignment that introduces new hires to the values through practice, not lecture.] |
+| Practice                | What This Looks Like in Action                                                                                                   |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Hiring**              | [Specific interview practice, exercise, or signal for each value. Name the method, not just the intent.]                         |
+| **Week One Onboarding** | [Specific experience or assignment that introduces new hires to the values through practice, not lecture.]                       |
 | **Performance Reviews** | [How values-aligned behavior is evaluated. Is it a separate dimension? What does "meets expectations" look like for each value?] |
-| **Recognition** | [Named recognition mechanism tied explicitly to values-aligned behavior. What is it called? How often does it happen?] |
-| **Accountability** | [What happens when behavior consistently violates values. Who has the conversation? What is the process? What is the threshold?] |
+| **Recognition**         | [Named recognition mechanism tied explicitly to values-aligned behavior. What is it called? How often does it happen?]           |
+| **Accountability**      | [What happens when behavior consistently violates values. Who has the conversation? What is the process? What is the threshold?] |
 
 ---
 
@@ -351,7 +363,8 @@ Separate the founder's personal operating style from the organizational values. 
 ---
 
 # Meridian Culture Document
-*Version 1.0 -- Last Updated January 2025*
+
+_Version 1.0 -- Last Updated January 2025_
 
 ---
 
@@ -368,18 +381,20 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ## Our Values
 
 ### 1. Write It Down, Write It Well
+
 **Definition:** We default to written communication because it scales across time zones, creates a decision record, and forces clarity of thought that verbal communication rarely requires.
 
 **What this means in practice:**
+
 - Major proposals are written as 1-pagers before a meeting is scheduled, not after
 - Decisions are documented in Notion within 24 hours of being made, even when everyone in the room already agreed
 - Meeting notes with specific action items and owners are posted in the relevant Slack channel by the person who called the meeting
 - "Let me set up a call" is not the default response to complexity -- the default is a written async update with a specific question at the end
 
-| Do | Don't |
-|----|-------|
-| Write a 300-word Notion doc summarizing a product decision before you Slack the team about it | Make a significant architectural or product decision in a DM thread that the rest of the team cannot find in six months |
-| Post a written status update on a long-running project every Monday, even when nothing has changed -- "no change, still on track for Friday" is useful information | Schedule a 30-minute team meeting to share information that could have been a 200-word async update |
+| Do                                                                                                                                                                                                                                        | Don't                                                                                                                           |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Write a 300-word Notion doc summarizing a product decision before you Slack the team about it                                                                                                                                             | Make a significant architectural or product decision in a DM thread that the rest of the team cannot find in six months         |
+| Post a written status update on a long-running project every Monday, even when nothing has changed -- "no change, still on track for Friday" is useful information                                                                        | Schedule a 30-minute team meeting to share information that could have been a 200-word async update                             |
 | When you disagree with a proposal in a Slack thread, write your objection as a complete argument -- not "I'm not sure about this" but "I think this approach creates a compliance documentation problem because X, here's an alternative" | Take important feedback to a verbal conversation and then let it disappear without a written record of what was said and agreed |
 
 **Decision test:** "If someone joins Meridian in 18 months and needs to understand why we made this decision, can they find a written record that explains the reasoning -- not just the outcome?"
@@ -389,18 +404,20 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### 2. Ship to Learn, Not to Polish
+
 **Definition:** We ship working software into the hands of real customers to generate learning, not to demonstrate perfection, because customer feedback is more reliable than internal conviction.
 
 **What this means in practice:**
+
 - A feature in front of 10 customers for one week teaches us more than 3 weeks of internal review
 - Known non-critical issues (cosmetic bugs, edge cases that affect fewer than 5% of use cases, copy that is "good enough") do not block a release
 - Every significant feature has a defined success metric agreed before shipping, so we know within two weeks whether the learning was positive or negative
 - "Let's test it" is a legitimate answer to product debates that data cannot resolve in advance
 
-| Do | Don't |
-|----|-------|
+| Do                                                                                                                                                                                                                     | Don't                                                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Ship an audit log feature to 20% of customers on Thursday with a known UI inconsistency that does not affect functionality, measure engagement over 5 days, and use the data to decide whether to invest in refinement | Spend three weeks perfecting a compliance dashboard before any customer has seen it, then discover in user research that they navigate from a different entry point |
-| Release a beta invite to your three most engaged customers for a feature you are 70% confident in, with an explicit "we want your feedback before we finalize this" framing | Hold a launch because the error message copy is not finalized or the empty state illustration is not ready |
+| Release a beta invite to your three most engaged customers for a feature you are 70% confident in, with an explicit "we want your feedback before we finalize this" framing                                            | Hold a launch because the error message copy is not finalized or the empty state illustration is not ready                                                          |
 
 **Decision test:** "Is this good enough for a real customer to use and give us honest feedback on? If yes, ship it. If no, what is the one thing blocking that threshold?"
 
@@ -409,19 +426,21 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### 3. Say It Directly
+
 **Definition:** We communicate disagreement, concern, and critical feedback directly to the person who needs to hear it, in a way that respects them as a professional capable of handling honesty.
 
 **What this means in practice:**
+
 - Feedback is given to the person, not about them to a third party
 - "I think this is a mistake and here's why" is a complete, professional sentence -- it does not require softening into ambiguity
 - Disagreement in a meeting is expressed in the meeting, not in a separate conversation afterward
 - "Diplomatic but honest" is the target -- directness is not license for unkindness, condescension, or public humiliation
 
-| Do | Don't |
-|----|-------|
-| In a product review, say "I think we're solving the wrong problem here -- our customers have told us X is the friction point, not Y. Can we talk about pivoting this sprint?" | Nod along in the product review, then message a colleague afterward: "I really don't think that's going to work" |
-| Tell a candidate during hiring debrief "I don't think they can do this job at the level we need -- here are the three specific things that gave me that signal" | Say "I have some concerns" without naming them, or let a weak hire through because you did not want to create friction in the debrief |
-| When a customer asks for a feature that you think is the wrong solution to their problem, say "We could build exactly what you're asking for, but I think it will create a different problem. Can I show you what we're seeing from customers with the same underlying issue?" | Build what the customer asked for without raising the concern, then be surprised when they do not use it |
+| Do                                                                                                                                                                                                                                                                             | Don't                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| In a product review, say "I think we're solving the wrong problem here -- our customers have told us X is the friction point, not Y. Can we talk about pivoting this sprint?"                                                                                                  | Nod along in the product review, then message a colleague afterward: "I really don't think that's going to work"                      |
+| Tell a candidate during hiring debrief "I don't think they can do this job at the level we need -- here are the three specific things that gave me that signal"                                                                                                                | Say "I have some concerns" without naming them, or let a weak hire through because you did not want to create friction in the debrief |
+| When a customer asks for a feature that you think is the wrong solution to their problem, say "We could build exactly what you're asking for, but I think it will create a different problem. Can I show you what we're seeing from customers with the same underlying issue?" | Build what the customer asked for without raising the concern, then be surprised when they do not use it                              |
 
 **Decision test:** "Am I saying this to the person who can act on it, and am I saying it clearly enough that they understand specifically what I am concerned about and why?"
 
@@ -430,17 +449,19 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### 4. Customers Are Collaborators
+
 **Definition:** We treat customers as partners who hold knowledge about their domain that we do not have, and we build in genuine dialogue with them -- not for them, not at them.
 
 **What this means in practice:**
+
 - Every product manager and engineer has at least two customer conversations per month -- not handed off to Sales or Customer Success, direct
 - Customer objections and complaints are treated as product intelligence, not as support tickets to be closed
 - When a customer asks for something, the first question is "what outcome are you trying to achieve?" before the second question is "how would you build it?"
 - Beta customers receive early access with an explicit request for critical feedback, not a polished preview designed to impress them
 
-| Do | Don't |
-|----|-------|
-| When three customers ask for the same feature, schedule a working session with all three to map the underlying workflow problem before writing a single line of spec | Take three identical feature requests, build the feature as literally described, ship it, and wonder why adoption is low |
+| Do                                                                                                                                                                                                                                                | Don't                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| When three customers ask for the same feature, schedule a working session with all three to map the underlying workflow problem before writing a single line of spec                                                                              | Take three identical feature requests, build the feature as literally described, ship it, and wonder why adoption is low                       |
 | When a customer reports a compliance edge case your software handles incorrectly, treat it as critical product intelligence -- schedule a call that week, understand the regulatory context, fix it, and share the learning with the product team | Classify the report as a support ticket, assign it to a queue, resolve the technical issue without investigating the underlying regulatory gap |
 
 **Decision test:** "Would our three most engaged customers be surprised by this decision, and if yes, have we given them the chance to weigh in before we committed to it?"
@@ -450,18 +471,20 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### 5. Take Pride in the Craft
+
 **Definition:** We hold ourselves to a quality standard that goes beyond "does it work" to "does it reflect the level of precision and care our customers trust us to apply to their compliance programs."
 
 **What this means in practice:**
+
 - Code review comments address not just correctness but clarity -- is this code that the next engineer will understand in 18 months?
 - Documentation written for customers is held to the same standard as documentation written for regulators -- because for our customers, they may be the same thing
 - When you find a problem adjacent to the one you were assigned to fix, you fix it or flag it -- you do not close the ticket and move on
 - "Good enough to ship" (Value 2) and "take pride in the craft" are both true: we ship fast on scope, but we do not compromise on quality within that scope
 
-| Do | Don't |
-|----|-------|
-| Spend 20 extra minutes to refactor a brittle function while you are already in that part of the codebase, because you know it will break in six months when the compliance logic expands | Merge code that you know has a structural problem because "we can fix it in the next sprint" -- and the next sprint comes and the fix never does |
-| When you receive a customer-facing error message in a bug report, fix the underlying bug and improve the error message copy so the next customer understands what happened and what to do | Fix the bug, close the ticket, and leave the error message as "Unexpected error occurred" |
+| Do                                                                                                                                                                                        | Don't                                                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Spend 20 extra minutes to refactor a brittle function while you are already in that part of the codebase, because you know it will break in six months when the compliance logic expands  | Merge code that you know has a structural problem because "we can fix it in the next sprint" -- and the next sprint comes and the fix never does |
+| When you receive a customer-facing error message in a bug report, fix the underlying bug and improve the error message copy so the next customer understands what happened and what to do | Fix the bug, close the ticket, and leave the error message as "Unexpected error occurred"                                                        |
 
 **Decision test:** "If a compliance officer at one of our customers saw how we built this -- not just what it produces but how we built it -- would they trust us more or less?"
 
@@ -471,9 +494,10 @@ People who thrive at Meridian write before they talk, ship before they are certa
 
 ## When Our Values Conflict
 
-*These are the tensions we actually navigate. The resolutions below are our defaults -- not rules, but the starting point for decision-making.*
+_These are the tensions we actually navigate. The resolutions below are our defaults -- not rules, but the starting point for decision-making._
 
 ### Shipping Fast (Value 2) vs. Taking Pride in the Craft (Value 5)
+
 **The tension:** Moving fast to generate learning sometimes means shipping with known rough edges. Taking pride in craft means holding to a quality standard. These two values are in direct tension on almost every feature we build.
 
 **How we resolve it:** The distinction is between scope and quality. We ship fast on scope -- we cut features, reduce surface area, limit the initial use cases. We do not compromise on quality within the scope we commit to. A feature with half the functionality built precisely is better than a feature with all the functionality built sloppily. When in doubt, ship less -- not worse.
@@ -483,6 +507,7 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### Say It Directly (Value 3) vs. Customers Are Collaborators (Value 4)
+
 **The tension:** Direct communication means telling customers when they are wrong -- that their feature request solves the wrong problem, that their compliance interpretation is off, that what they are asking us to build will not achieve what they want. But treating customers as collaborators means honoring their domain expertise and building in genuine partnership. These values conflict when the customer is wrong about something they believe they know.
 
 **How we resolve it:** Directness comes before deference, but always paired with genuine curiosity. "I think you might be approaching this from the wrong angle -- here's what I'm seeing from your workflow. Can you help me understand if I'm missing something?" This is direct (we are raising a challenge) and collaborative (we are inviting their expertise to correct us). We never stay silent about a disagreement with a customer to preserve the relationship. We raise it. We do it respectfully.
@@ -492,6 +517,7 @@ People who thrive at Meridian write before they talk, ship before they are certa
 ---
 
 ### Write It Down (Value 1) vs. Ship to Learn (Value 2)
+
 **The tension:** Thorough written documentation before shipping -- decision records, proposal docs, post-mortems -- takes time that slows down the learning cycle. Sometimes the fastest way to learn is to just ship and observe.
 
 **How we resolve it:** Documentation is required for decisions (what we chose and why) but not for explorations (what we tried to see if it worked). The rule: if a decision will be hard to reverse or will affect more than five people, write it down before you execute. If you are running an experiment to generate learning, ship first, document the learnings after. The writing requirement applies to the decision layer, not the exploration layer.
@@ -500,13 +526,13 @@ People who thrive at Meridian write before they talk, ship before they are certa
 
 ## How We Live These Values
 
-| Practice | What This Looks Like at Meridian |
-|----------|----------------------------------|
-| **Hiring** | Every candidate for any role submits a written work sample as part of the application -- a writing prompt relevant to the role. We do not advance candidates who cannot produce clear, precise writing regardless of their verbal performance in interviews. During debrief, we require each interviewer to state a specific "yes" signal and a specific "concern" signal -- "they seem great" is not a valid debrief contribution. |
-| **Week One Onboarding** | Every new hire -- engineer, designer, PM, and GTM -- joins two customer calls in their first 10 days. Not to observe Sales, but to listen to customers describe their compliance problems in their own words. New hires also write a "First Impressions" Notion doc in week two: what was unclear, what surprised them, what seemed off. This is a core input into improving onboarding. |
-| **Performance Reviews** | We evaluate on two dimensions separately: what you delivered (output) and how you worked (values). A high performer who consistently delivers but violates values -- especially directness and craft -- does not receive a full performance rating. The values dimension uses specific behavioral evidence gathered over the review period, not impressions. |
-| **Recognition** | Monthly "Craft Moment" spotlight in the all-hands: one example per month of someone demonstrating a value in a specific, observable way. Nominated by peers, described with behavioral specificity. "Sarah gets this month's Craft Moment for rewriting three customer-facing error messages the same week she resolved the underlying bugs -- the kind of detail that doesn't make the sprint notes but matters to our customers." |
-| **Accountability** | When behavior consistently violates a value -- especially Say It Directly (passive aggression, political behavior) or Take Pride in the Craft (repeated cutting of corners) -- the manager has a direct conversation within one week of identifying the pattern, naming the specific behaviors. If the pattern continues after two documented conversations, it becomes part of the formal performance process. High output does not protect against values accountability. |
+| Practice                | What This Looks Like at Meridian                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hiring**              | Every candidate for any role submits a written work sample as part of the application -- a writing prompt relevant to the role. We do not advance candidates who cannot produce clear, precise writing regardless of their verbal performance in interviews. During debrief, we require each interviewer to state a specific "yes" signal and a specific "concern" signal -- "they seem great" is not a valid debrief contribution.                                         |
+| **Week One Onboarding** | Every new hire -- engineer, designer, PM, and GTM -- joins two customer calls in their first 10 days. Not to observe Sales, but to listen to customers describe their compliance problems in their own words. New hires also write a "First Impressions" Notion doc in week two: what was unclear, what surprised them, what seemed off. This is a core input into improving onboarding.                                                                                    |
+| **Performance Reviews** | We evaluate on two dimensions separately: what you delivered (output) and how you worked (values). A high performer who consistently delivers but violates values -- especially directness and craft -- does not receive a full performance rating. The values dimension uses specific behavioral evidence gathered over the review period, not impressions.                                                                                                                |
+| **Recognition**         | Monthly "Craft Moment" spotlight in the all-hands: one example per month of someone demonstrating a value in a specific, observable way. Nominated by peers, described with behavioral specificity. "Sarah gets this month's Craft Moment for rewriting three customer-facing error messages the same week she resolved the underlying bugs -- the kind of detail that doesn't make the sprint notes but matters to our customers."                                         |
+| **Accountability**      | When behavior consistently violates a value -- especially Say It Directly (passive aggression, political behavior) or Take Pride in the Craft (repeated cutting of corners) -- the manager has a direct conversation within one week of identifying the pattern, naming the specific behaviors. If the pattern continues after two documented conversations, it becomes part of the formal performance process. High output does not protect against values accountability. |
 
 ---
 

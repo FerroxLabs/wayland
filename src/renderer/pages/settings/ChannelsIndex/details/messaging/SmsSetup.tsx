@@ -46,7 +46,11 @@ const SmsSetup: React.FC = () => {
       displayName='SMS (Twilio)'
       pluginId={pluginStatus?.id ?? 'sms-twilio_default'}
     >
-      <SmsTwilioConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <SmsTwilioConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

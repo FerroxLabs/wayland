@@ -53,11 +53,7 @@ const LocalImageView: React.FC<{
   if (loading)
     return (
       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <Loader2
-          className='loading'
-          style={{ display: 'flex' }} size={14} color={iconColors.primary}
-          strokeWidth={2}
-        />
+        <Loader2 className='loading' style={{ display: 'flex' }} size={14} color={iconColors.primary} strokeWidth={2} />
         <span>{alt}</span>
       </span>
     );

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment design template testing marketing performing-arts podcast cleaning"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'assessment design template testing marketing performing-arts podcast cleaning'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Podcast Production Assessment
@@ -22,15 +22,16 @@ You are a podcast production consultant with expertise in audio engineering, con
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about podcast production assessment techniques or best practices
 - User needs guidance on podcast production assessment concepts
 - User wants to implement or improve their approach to podcast production assessment
 
 **Do NOT use when:**
+
 - The request falls outside the scope of podcast production assessment
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,6 +39,7 @@ You are a podcast production consultant with expertise in audio engineering, con
 ## Questions to Ask First
 
 ### Podcast Profile
+
 1. What is your podcast about? Describe the concept in 1-2 sentences.
 2. How many episodes have you published?
 3. What is your typical episode length?
@@ -45,6 +47,7 @@ You are a podcast production consultant with expertise in audio engineering, con
 5. What is your publishing schedule? How consistently do you maintain it?
 
 ### Audio Quality
+
 6. What microphone(s) do you use?
 7. Where do you record? (Home studio, treated room, office, variable locations)
 8. What recording software do you use? (Audacity, GarageBand, Adobe Audition, Riverside, Zencastr, other)
@@ -52,6 +55,7 @@ You are a podcast production consultant with expertise in audio engineering, con
 10. Have you treated your recording space for acoustics? (Foam, blankets, closet, professional treatment)
 
 ### Content & Delivery
+
 11. How do you prepare for each episode? (Full script, bullet points, wing it)
 12. How do you select topics for episodes?
 13. Who is your target listener? Can you describe them specifically?
@@ -59,6 +63,7 @@ You are a podcast production consultant with expertise in audio engineering, con
 15. Share 2-3 episodes you consider your best. What makes them stand out?
 
 ### Growth & Distribution
+
 16. Where is your podcast available? (Apple, Spotify, YouTube, other)
 17. How do you promote new episodes?
 18. What is your current download or listen count per episode?
@@ -66,6 +71,7 @@ You are a podcast production consultant with expertise in audio engineering, con
 20. What are your growth goals for the next 6-12 months?
 
 ### Monetization (if applicable)
+
 21. Are you currently earning revenue from the podcast? How?
 22. What monetization methods interest you? (Sponsorships, Patreon, merch, services, events)
 23. Do you have a media kit or sponsorship deck?
@@ -78,39 +84,39 @@ You are a podcast production consultant with expertise in audio engineering, con
 
 ### Dimension 1: Audio Quality (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Recording clarity | 0-8 | Clean, clear vocal capture free from distortion, clipping, or muffling |
-| Background noise | 0-7 | Minimal room noise, echo, hum, or environmental interference |
-| Audio consistency | 0-5 | Even volume levels between speakers, segments, and episodes |
-| Production polish | 0-5 | Intro/outro, music beds, transitions, and overall audio finish |
+| Factor            | Score Range | Criteria                                                               |
+| ----------------- | ----------- | ---------------------------------------------------------------------- |
+| Recording clarity | 0-8         | Clean, clear vocal capture free from distortion, clipping, or muffling |
+| Background noise  | 0-7         | Minimal room noise, echo, hum, or environmental interference           |
+| Audio consistency | 0-5         | Even volume levels between speakers, segments, and episodes            |
+| Production polish | 0-5         | Intro/outro, music beds, transitions, and overall audio finish         |
 
 ### Dimension 2: Content Quality (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Topic relevance | 0-7 | Episodes address topics the target audience cares about |
-| Delivery quality | 0-7 | Host communication: clarity, energy, pacing, confidence, engagement |
-| Episode structure | 0-6 | Clear format, effective openings, organized flow, satisfying conclusions |
-| Unique value | 0-5 | Content offers something listeners cannot easily find elsewhere |
+| Factor            | Score Range | Criteria                                                                 |
+| ----------------- | ----------- | ------------------------------------------------------------------------ |
+| Topic relevance   | 0-7         | Episodes address topics the target audience cares about                  |
+| Delivery quality  | 0-7         | Host communication: clarity, energy, pacing, confidence, engagement      |
+| Episode structure | 0-6         | Clear format, effective openings, organized flow, satisfying conclusions |
+| Unique value      | 0-5         | Content offers something listeners cannot easily find elsewhere          |
 
 ### Dimension 3: Consistency & Workflow (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Publishing consistency | 0-8 | Regular, predictable release schedule maintained over time |
-| Quality consistency | 0-7 | Audio and content quality is reliable across episodes |
-| Workflow efficiency | 0-5 | Sustainable production process from recording to publishing |
-| Show identity | 0-5 | Consistent branding, format, and listener experience |
+| Factor                 | Score Range | Criteria                                                    |
+| ---------------------- | ----------- | ----------------------------------------------------------- |
+| Publishing consistency | 0-8         | Regular, predictable release schedule maintained over time  |
+| Quality consistency    | 0-7         | Audio and content quality is reliable across episodes       |
+| Workflow efficiency    | 0-5         | Sustainable production process from recording to publishing |
+| Show identity          | 0-5         | Consistent branding, format, and listener experience        |
 
 ### Dimension 4: Growth & Sustainability (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Discovery optimization | 0-7 | Titles, descriptions, show notes, and SEO that help new listeners find the show |
-| Promotion strategy | 0-7 | Active marketing, social media presence, cross-promotion, guest strategy |
-| Listener engagement | 0-6 | Community building, listener interaction, audience relationship |
-| Monetization readiness | 0-5 | Infrastructure and audience size to support revenue generation |
+| Factor                 | Score Range | Criteria                                                                        |
+| ---------------------- | ----------- | ------------------------------------------------------------------------------- |
+| Discovery optimization | 0-7         | Titles, descriptions, show notes, and SEO that help new listeners find the show |
+| Promotion strategy     | 0-7         | Active marketing, social media presence, cross-promotion, guest strategy        |
+| Listener engagement    | 0-6         | Community building, listener interaction, audience relationship                 |
+| Monetization readiness | 0-5         | Infrastructure and audience size to support revenue generation                  |
 
 ---
 
@@ -166,19 +172,20 @@ Growth & Sustainability
 
 ## Results Interpretation
 
-| Score Range | Rating | Interpretation |
-|-------------|--------|---------------|
-| 85-100 | Professional | Podcast is polished, consistent, and positioned for significant growth. |
-| 70-84 | Strong | Good podcast with specific areas to refine. Quality supports audience growth. |
-| 55-69 | Developing | Promising show with gaps in quality, consistency, or strategy. Targeted improvements will accelerate progress. |
-| 40-54 | Emerging | Core concept exists but production or consistency needs significant attention. |
-| Below 40 | Starting | Focus on establishing fundamentals: audio quality, consistent publishing, and content clarity. |
+| Score Range | Rating       | Interpretation                                                                                                 |
+| ----------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| 85-100      | Professional | Podcast is polished, consistent, and positioned for significant growth.                                        |
+| 70-84       | Strong       | Good podcast with specific areas to refine. Quality supports audience growth.                                  |
+| 55-69       | Developing   | Promising show with gaps in quality, consistency, or strategy. Targeted improvements will accelerate progress. |
+| 40-54       | Emerging     | Core concept exists but production or consistency needs significant attention.                                 |
+| Below 40    | Starting     | Focus on establishing fundamentals: audio quality, consistent publishing, and content clarity.                 |
 
 ---
 
 ## Recommendations Based on Scores
 
 ### For Audio Quality Issues (below 15)
+
 - Upgrade your microphone if using a built-in laptop mic (USB dynamic mics are affordable and effective)
 - Treat your room: hang blankets, use a closet, or add foam panels to reduce echo
 - Record a test episode, listen on headphones, and identify the most distracting audio issue
@@ -186,6 +193,7 @@ Growth & Sustainability
 - Use noise reduction tools sparingly -- fix the source rather than over-processing
 
 ### For Content Issues (below 15)
+
 - Define your listener avatar: who are they, what do they need, what brings them back?
 - Create an episode structure template: hook (30 sec), topic intro (1 min), body (main content), takeaway (1 min), outro
 - Prepare talking points for every episode -- even conversational shows need a roadmap
@@ -193,6 +201,7 @@ Growth & Sustainability
 - Study podcasts you admire and note their structural and delivery techniques
 
 ### For Consistency Issues (below 15)
+
 - Choose a sustainable publishing cadence (weekly is ideal, biweekly if time-constrained) and commit for 12 weeks
 - Batch record: produce 2-4 episodes in one session and schedule releases
 - Build a content calendar with topics planned 4-8 weeks ahead
@@ -200,6 +209,7 @@ Growth & Sustainability
 - Establish a consistent workflow: record day, edit day, publish day
 
 ### For Growth Issues (below 15)
+
 - Optimize episode titles and descriptions with searchable keywords
 - Write detailed show notes with timestamps for each episode
 - Create an audiogram or short clip for each episode to share on social media
@@ -281,7 +291,6 @@ NEXT ASSESSMENT DATE: ____________
 5. Acknowledge that growth is slow for most podcasts. Set realistic expectations about timeline.
 6. Celebrate consistency. Publishing reliably for months is a genuine achievement in podcasting.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -289,7 +298,6 @@ NEXT ASSESSMENT DATE: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -310,14 +318,12 @@ NEXT ASSESSMENT DATE: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

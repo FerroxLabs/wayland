@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills checklist guide testing automation networking safety"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills checklist guide testing automation networking safety'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Online Safety for Seniors
 
 You are a trusted, patient guide helping someone stay safe online. Explain risks clearly without being frightening. The goal is confidence, not fear. Help people enjoy the internet while knowing how to recognize and avoid common dangers. Use plain language, real-world analogies, and concrete examples. Never blame someone who has been tricked. Scammers are professionals, and falling for a scam is not a sign of weakness.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about online safety for seniors techniques or best practices
 - User needs guidance on online safety for seniors concepts
 - User wants to implement or improve their approach to online safety for seniors
 
 **Do NOT use when:**
+
 - The request falls outside the scope of online safety for seniors
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,6 +48,7 @@ You are a trusted, patient guide helping someone stay safe online. Explain risks
 ### Why Scammers Target Older Adults
 
 This is not about intelligence. Scammers target older adults because:
+
 - Older adults tend to be more polite and trusting (scammers exploit good manners)
 - They may be less familiar with how technology works behind the scenes
 - They are more likely to answer the phone or respond to messages
@@ -60,9 +62,11 @@ This is not about intelligence. Scammers target older adults because:
 ### The Most Common Scams
 
 #### The Urgent Warning Scam
+
 **What it looks like:** A pop-up on your computer screen, a phone call, or a text message saying your computer has a virus, your bank account has been compromised, or you owe money to the government.
 
 **How to spot it:**
+
 - Creates a sense of **panic and urgency** ("Act NOW or you will lose everything")
 - Asks you to **call a phone number** on the screen
 - Asks you to **download software** or give someone remote access to your computer
@@ -77,6 +81,7 @@ This is not about intelligence. Scammers target older adults because:
 **What it looks like:** An email or text that appears to come from a company you know (Amazon, your bank, Netflix, the post office) asking you to click a link.
 
 **How to spot it:**
+
 - The sender's email address looks **slightly wrong** (amazonsupport@gmail.com instead of @amazon.com)
 - Contains **spelling or grammar mistakes**
 - Says "Dear Customer" instead of using your actual name
@@ -93,6 +98,7 @@ This is not about intelligence. Scammers target older adults because:
 **What it looks like:** A phone call from someone claiming to be your grandchild (or a police officer, lawyer, or bail bondsman). They say your grandchild is in trouble (car accident, arrested, in the hospital) and needs money immediately.
 
 **How to spot it:**
+
 - Caller asks you to **keep it a secret** from other family members
 - Asks for money via **wire transfer, gift cards, or cryptocurrency**
 - Creates extreme urgency: "They need bail money RIGHT NOW"
@@ -105,6 +111,7 @@ This is not about intelligence. Scammers target older adults because:
 **What it looks like:** Someone you meet on a dating site or social media who quickly becomes very affectionate. After building a relationship (usually weeks to months), they ask for money.
 
 **How to spot it:**
+
 - They are **unable to video call** (always an excuse)
 - Their profile photos look like **professional model shots**
 - They claim to be a **doctor, engineer, or military officer** working overseas
@@ -151,6 +158,7 @@ Examples:
 These are easy to remember but very hard for hackers to guess.
 
 **Rules for strong passwords:**
+
 - At least 12 characters long (the passphrase method naturally achieves this)
 - Do not use personal information (birthdays, pet names, addresses)
 - Do not use common words like "password," "123456," or "qwerty"
@@ -159,12 +167,14 @@ These are easy to remember but very hard for hackers to guess.
 ### Managing Your Passwords
 
 **Option 1: The Password Notebook (simple approach)**
+
 - Buy a small notebook and keep it in a secure place at home (not next to your computer)
 - Write down each website, your username, and your password
 - NEVER carry this notebook with you or leave it visible
 - This is better than using the same password everywhere
 
 **Option 2: A Password Manager App (recommended if comfortable)**
+
 - A password manager is like a secure digital vault for all your passwords
 - You remember ONE master password, and the app remembers everything else
 - Recommended apps: 1Password, Bitwarden (both have simple interfaces)
@@ -175,16 +185,19 @@ These are easy to remember but very hard for hackers to guess.
 Two-factor authentication (also called 2FA) adds a second lock to your accounts. Even if someone steals your password, they cannot get in without the second factor.
 
 **How it works:**
+
 1. You enter your password as usual
 2. The website sends a code to your phone (via text message)
 3. You enter that code to prove it is really you
 
 **Where to turn it on:**
+
 - Your email account (very important)
 - Your bank's website
 - Amazon, Facebook, and other accounts with personal information
 
 **How to set it up:**
+
 - Go to the account's Settings or Security section
 - Look for "Two-Factor Authentication," "Two-Step Verification," or "Security"
 - Follow the steps to add your phone number
@@ -195,12 +208,14 @@ Two-factor authentication (also called 2FA) adds a second lock to your accounts.
 ### Recognizing Safe Websites
 
 **Look for these signs that a website is legitimate:**
-- The web address starts with **[external resource] (the "s" means secure)
+
+- The web address starts with \*\*[external resource] (the "s" means secure)
 - There is a **padlock icon** next to the web address
 - The web address matches the company you expect (amazon.com, not amazn-deals.com)
 - The website looks professional without excessive pop-ups
 
 **Be cautious of:**
+
 - Websites with lots of pop-up windows
 - Websites that ask you to download something before you can use them
 - Web addresses with misspellings or extra words
@@ -307,7 +322,6 @@ IF IN DOUBT:
 - **Your local Area Agency on Aging**: eldercare.acl.gov or 1-800-677-1116
 - **National Elder Fraud Hotline**: 1-833-372-8311
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -315,7 +329,6 @@ IF IN DOUBT:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -336,14 +349,12 @@ IF IN DOUBT:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career planning checklist"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'interview-prep career planning checklist'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Interview Prep Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a confirmed interview date and wants a structured, day-by-day preparation schedule with specific tasks and time allocations
 - The user says something like "I have an interview in X days -- how should I prepare?" or "help me organize my interview prep"
 - The user is feeling overwhelmed by the scope of preparation and needs a sequenced plan that breaks work into manageable daily blocks
@@ -34,6 +36,7 @@ metadata:
 - The user is returning to the job market after a long absence (2+ years) and needs a more structured scaffolding because they are unfamiliar with current interview norms
 
 **Do NOT use this skill when:**
+
 - The user wants to write and refine specific behavioral interview answers using the STAR/SOAR framework -- use `behavioral-interview-prep` instead
 - The user needs technical interview coaching including coding problem strategies, system design frameworks, or algorithm practice -- use `technical-interview-prep` instead
 - The user wants help predicting what specific questions will be asked -- use `interview-question-anticipator` instead
@@ -77,6 +80,7 @@ Output of this pillar is a single one-page company brief the candidate can revie
 
 **Pillar 2 -- Answer Preparation (35-40% of total prep time):**
 The number of STAR stories to prepare scales with role level and interview type:
+
 - Entry level behavioral: 4-5 stories minimum
 - Mid-level behavioral: 5-7 stories covering leadership, conflict, failure, data use, cross-functional collaboration
 - Senior/manager behavioral: 7-10 stories including organizational influence, stakeholder management, and hire/fire decisions
@@ -93,6 +97,7 @@ Logistics failures are silent killers of otherwise strong interviews. Assign a d
 
 **Pillar 5 -- Mental Readiness (10-15% of total prep time):**
 This is the most commonly skipped pillar and the most commonly underestimated factor in performance. Schedule these specific practices:
+
 - At least one full mock interview aloud (recording yourself is more effective than a live audience for most people -- you notice your own verbal tics and filler words)
 - Box breathing practice: 4 seconds inhale, 4 seconds hold, 4 seconds exhale, 4 seconds hold. Practice twice daily in the 48 hours before the interview. Two minutes pre-interview reduces cortisol measurably.
 - A "wins journal" entry: 10 minutes writing down 5 specific professional accomplishments in detail. This is evidence-based for increasing performance self-efficacy immediately before high-stakes evaluations.
@@ -103,12 +108,14 @@ This is the most commonly skipped pillar and the most commonly underestimated fa
 Generate a task list for each day. Each day has a primary focus (single theme), 3-6 specific tasks, realistic time estimates, and a completion checkpoint. Checkpoints must be behavioral and observable, not aspirational -- "feel confident" is not a checkpoint; "can deliver each STAR story in under 90 seconds with a quantified result when prompted" is.
 
 **Task specificity rules:**
+
 - Every task starts with a verb: Read, Write, Record, Practice, Confirm, Map, Prepare, Time, Research
 - Every task has a time estimate in the 15-60 minute range. Tasks longer than 60 minutes must be broken into sub-tasks.
 - Every task produces a tangible output (a written summary, a recorded answer, a confirmed calendar item, a printed resume)
 - Never assign a research task and an answer-drafting task to the same day for a 1-hour-per-day prep window -- cognitive load is too high
 
 **Day sequencing rules:**
+
 - Day 1 is always research -- do not begin answer preparation before understanding the company context
 - The day before the interview is always logistics and light review only -- 30 minutes maximum of new content
 - Practice sessions belong in the latter half of the plan, after answer drafts exist
@@ -129,6 +136,7 @@ Every plan ends with a precise morning-of sequence. Candidates who "wing" interv
 **Preparation tracker:** A 5-row table showing each pillar, a completion checkbox, and the key deliverable that marks completion. This serves as a progress dashboard the user can update daily.
 
 **Crash plan:** Always include a minimum viable preparation block for worst-case scenarios (unexpected scheduling compression, illness, work emergency). The crash plan is a 2-hour intensive covering the five highest-leverage activities in strict priority order:
+
 1. 30-minute company overview (website About page + one recent news item)
 2. 30-minute STAR story preparation (2 stories: one achievement, one problem-solving)
 3. 20-minute product/role question preparation (what does this role actually do day-to-day)
@@ -143,21 +151,25 @@ The crash plan is not a fallback to mention in passing -- it is a named section 
 Apply these type-specific modifications before finalizing the plan:
 
 **For technical interviews (software engineering, data science, ML):**
+
 - Add daily coding practice tasks using a structured progression: warm-up problems (easy, 20 min), target problems at the expected difficulty level (medium/hard, 40 min), and verbal walkthrough practice (10 min narrating solution out loud)
 - Include a system design practice session for senior+ roles: whiteboard a system design problem from scratch and narrate every design decision
 - Note that technical interview preparation requires sustained daily practice -- skipping days causes regression in fluency
 
 **For case/consulting interviews:**
+
 - Each day of case prep must include at least one full case practiced aloud from start to finish -- not just reading frameworks. Cases take 30-45 minutes each.
 - Add a "quantitative warm-up" task: 10 minutes of mental math practice daily (market sizing estimates, percentage calculations, back-of-envelope analysis)
 - Prepare a "frameworks inventory": a personal reference of 5-7 frameworks (Profitability = Revenue - Costs, 3C, Porter's Five Forces, Value Chain, Growth = Market Share x Market Size) with one-sentence explanations of when each applies
 
 **For senior/executive interviews:**
+
 - Answer preparation shifts from "what did I do" to "what did I lead, influence, and build at scale" -- every STAR story must include organizational impact and lessons taught to others
 - Add a "narrative thread" task: write a 3-4 sentence leadership philosophy statement that can anchor answers across behavioral questions
 - Include a "strategic alignment" prep task: research the company's strategic priorities and prepare to connect your experience to those priorities explicitly
 
 **For panel interviews:**
+
 - Add a specific practice for addressing a group: practice delivering answers that shift eye contact naturally between 3 different spots in the room at conversation-appropriate intervals (roughly 5-7 seconds per person)
 - Prepare one piece of follow-up for each panelist type you expect (HR, technical, hiring manager, peer) -- show you recognize each person's perspective
 
@@ -455,6 +467,7 @@ Goal: Everything is confirmed and ready. You will not learn anything new tonight
 **INTERVIEW DAY -- Wednesday, [Date], 2:00 PM EST**
 
 Morning Protocol:
+
 - [ ] Wake by 11:30 AM (2.5 hours before interview) (0 min)
 - [ ] 10-minute walk outside or light movement (10 min)
 - [ ] Protein-based meal by 12:00 PM -- no caffeine overload, no heavy meal (20 min)
@@ -464,6 +477,7 @@ Morning Protocol:
 - [ ] Join the call at 1:58-2:00 PM
 
 **Have Ready on Your Desk:**
+
 - [ ] Notepad and 2 pens
 - [ ] Printed questions-to-ask list (7-8 questions)
 - [ ] Water
@@ -476,15 +490,15 @@ Morning Protocol:
 
 ### Preparation Tracker
 
-| Pillar | Status | Key Deliverable | Target Day |
-|---|---|---|---|
-| Research | [ ] Not started | Company one-pager (one page, written) | Day 1 -- Thursday |
-| Answer Prep -- Behavioral | [ ] Not started | 7 STAR stories with quantified results | Days 2 + 3 |
-| Answer Prep -- Product | [ ] Not started | Prioritization framework + product critique + launch narrative | Day 3 |
-| Questions to Ask | [ ] Not started | 7-8 questions in three tiers | Day 4 |
-| Practice | [ ] Not started | Mock interview recorded, one improvement applied | Days 4 + 5 |
-| Logistics | [ ] Not started | Tech tested, environment set, alarms set | Day 6 |
-| Mental Readiness | [ ] Not started | Morning protocol followed, box breathing practiced | Day 5 + Day 6 evening |
+| Pillar                    | Status          | Key Deliverable                                                | Target Day            |
+| ------------------------- | --------------- | -------------------------------------------------------------- | --------------------- |
+| Research                  | [ ] Not started | Company one-pager (one page, written)                          | Day 1 -- Thursday     |
+| Answer Prep -- Behavioral | [ ] Not started | 7 STAR stories with quantified results                         | Days 2 + 3            |
+| Answer Prep -- Product    | [ ] Not started | Prioritization framework + product critique + launch narrative | Day 3                 |
+| Questions to Ask          | [ ] Not started | 7-8 questions in three tiers                                   | Day 4                 |
+| Practice                  | [ ] Not started | Mock interview recorded, one improvement applied               | Days 4 + 5            |
+| Logistics                 | [ ] Not started | Tech tested, environment set, alarms set                       | Day 6                 |
+| Mental Readiness          | [ ] Not started | Morning protocol followed, box breathing practiced             | Day 5 + Day 6 evening |
 
 ---
 

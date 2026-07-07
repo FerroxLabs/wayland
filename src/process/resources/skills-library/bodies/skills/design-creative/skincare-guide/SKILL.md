@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design health-wellness"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'fashion design health-wellness'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Skincare Guide
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about skincare guide
 - User needs guidance on skincare guide topics
 - User wants a structured approach to skincare guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **What is your budget?** (Drugstore / Mid-range / Premium / Luxury)
 9. **How much time do you want to spend on skincare?** (2 minutes / 5 minutes / 10+ minutes)
 10. **Are you currently using any prescription skincare?** (Tretinoin / Antibiotics / Other / None)
+
 ---
+
 ## Phase 1: Skin Type Assessment
 
 ### How to Determine Your Skin Type
+
 ```
 THE BARE-FACE TEST:
 1. Wash your face with a gentle cleanser
@@ -85,17 +91,20 @@ SENSITIVE:
 
 ### Skin Type Product Matching
 
-| Skin Type | Cleanser | Moisturizer | Sunscreen | Actives to Favor |
-|-----------|---------|-------------|-----------|-----------------|
-| Oily | Gel or foam | Lightweight gel | Matte or gel | Niacinamide, salicylic acid, retinol |
-| Dry | Cream or milk | Rich cream | Moisturizing | Hyaluronic acid, ceramides, squalane |
-| Combination | Gentle gel | Lotion (lightweight) | Lightweight | Niacinamide, hyaluronic acid |
-| Normal | Any gentle | Medium-weight | Any preference | Most actives tolerated well |
-| Sensitive | Fragrance-free, cream | Soothing, minimal | Mineral (zinc oxide) | Centella asiatica, aloe, ceramides |
+| Skin Type   | Cleanser              | Moisturizer          | Sunscreen            | Actives to Favor                     |
+| ----------- | --------------------- | -------------------- | -------------------- | ------------------------------------ |
+| Oily        | Gel or foam           | Lightweight gel      | Matte or gel         | Niacinamide, salicylic acid, retinol |
+| Dry         | Cream or milk         | Rich cream           | Moisturizing         | Hyaluronic acid, ceramides, squalane |
+| Combination | Gentle gel            | Lotion (lightweight) | Lightweight          | Niacinamide, hyaluronic acid         |
+| Normal      | Any gentle            | Medium-weight        | Any preference       | Most actives tolerated well          |
+| Sensitive   | Fragrance-free, cream | Soothing, minimal    | Mineral (zinc oxide) | Centella asiatica, aloe, ceramides   |
+
 ---
+
 ## Phase 2: Building Your Routine
 
 ### The Essential 3-Step Routine (Non-Negotiable)
+
 ```
 If you do nothing else, do these three steps:
 
@@ -124,6 +133,7 @@ Everything beyond these three steps is optimization.
 ```
 
 ### The Complete Routine (AM and PM)
+
 ```
 MORNING ROUTINE (Order matters):
 1. Cleanser (or just water if dry/sensitive skin)
@@ -151,6 +161,7 @@ Treatments before moisturizers.
 ```
 
 ### Product Layering Order Visual
+
 ```
 MORNING (lightest to heaviest):
 Water/Cleanser → Toner → Essence → Serum → Eye Cream → Moisturizer → Sunscreen
@@ -160,10 +171,13 @@ Oil Cleanser → Water Cleanser → Exfoliant → Toner → Serum → Eye Cream 
 
 RULE: If a product is watery, it goes before creamy.
 ```
+
 ---
+
 ## Phase 3: Ingredient Guide
 
 ### Key Active Ingredients
+
 ```
 RETINOL / RETINOIDS (Vitamin A):
 What it does: Increases cell turnover, boosts collagen, reduces wrinkles,
@@ -225,6 +239,7 @@ Cautions: Don't mix directly with strong acids (can deactivate)
 ```
 
 ### Ingredient Compatibility Chart
+
 ```
 SAFE TO COMBINE:                 | AVOID COMBINING (same routine):
 Niacinamide + Hyaluronic Acid    | Retinol + AHA/BHA
@@ -243,10 +258,13 @@ Friday: Retinol night
 Saturday: Rest night (hydrating products only)
 Sunday: Rest night
 ```
+
 ---
+
 ## Phase 4: SPF -- The Most Important Step
 
 ### Why Sunscreen is Non-Negotiable
+
 ```
 THE FACTS:
 - Up to 90% of visible skin aging is caused by UV exposure
@@ -286,10 +304,13 @@ APPLICATION RULES:
 - Yes, you need sunscreen in winter
 - Yes, you need sunscreen indoors near windows
 ```
+
 ---
+
 ## Phase 5: Routines by Concern
 
 ### Acne-Prone Skin Routine
+
 ```
 MORNING:
 1. Gentle gel cleanser (salicylic acid 0.5-2% or benzoyl peroxide 2.5%)
@@ -326,6 +347,7 @@ WHEN TO SEE A DERMATOLOGIST:
 ```
 
 ### Anti-Aging Routine
+
 ```
 MORNING:
 1. Gentle cleanser
@@ -370,6 +392,7 @@ AGE-SPECIFIC FOCUS:
 ```
 
 ### Sensitive Skin Routine
+
 ```
 MORNING:
 1. Rinse with lukewarm water (or very gentle cream cleanser)
@@ -405,10 +428,13 @@ INGREDIENTS SAFE FOR SENSITIVE SKIN:
 - Hyaluronic acid
 - Panthenol (vitamin B5)
 ```
+
 ---
+
 ## Phase 6: Seasonal Adjustments
 
 ### Adapting Your Routine to Seasons
+
 ```
 SUMMER (Hot/Humid):
 - Lighter moisturizer (gel or lotion instead of cream)
@@ -438,10 +464,13 @@ FALL (Transition):
 - Good time to introduce retinol (less sun exposure ahead)
 - Hydrating masks weekly
 ```
+
 ---
+
 ## Phase 7: Routine Builder Template
 
 ### Personalized Routine Planner
+
 ```
 SKIN PROFILE:
 Type: _______________
@@ -477,10 +506,13 @@ Mask      |         |           |
 Spot treatment |    |           |
 MONTHLY BUDGET: $___________
 ```
+
 ---
+
 ## Output Format
 
 When providing a skincare routine, present it as:
+
 ```
 SKINCARE ROUTINE
 Skin Type: [Type]

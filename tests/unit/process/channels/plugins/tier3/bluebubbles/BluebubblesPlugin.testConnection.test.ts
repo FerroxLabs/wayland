@@ -71,8 +71,7 @@ describe('BluebubblesPlugin.testConnection - happy path', () => {
   it('falls back to data.name when server_address is absent', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () =>
-        Promise.resolve({ status: 200, data: { name: 'My BB Server' } }),
+      json: () => Promise.resolve({ status: 200, data: { name: 'My BB Server' } }),
     });
 
     const result = await BluebubblesPlugin.testConnection(VALID_TOKEN);
@@ -88,17 +87,13 @@ describe('BluebubblesPlugin.testConnection - credential errors', () => {
   });
 
   it('returns failure when serverUrl is missing', async () => {
-    const result = await BluebubblesPlugin.testConnection(
-      JSON.stringify({ password: 'secret' }),
-    );
+    const result = await BluebubblesPlugin.testConnection(JSON.stringify({ password: 'secret' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/server url/i);
   });
 
   it('returns failure when password is missing', async () => {
-    const result = await BluebubblesPlugin.testConnection(
-      JSON.stringify({ serverUrl: 'https://bb.example.com:1234' }),
-    );
+    const result = await BluebubblesPlugin.testConnection(JSON.stringify({ serverUrl: 'https://bb.example.com:1234' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/password/i);
   });

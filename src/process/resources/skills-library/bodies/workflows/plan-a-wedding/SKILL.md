@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "event-planning planning checklist step-by-step family-events"
-  category: "life-event"
-  depends: "budget-planning milestone-planning family-reunion-planning business-proposal professional-email holiday-planning project-kickoff"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'event-planning planning checklist step-by-step family-events'
+  category: 'life-event'
+  depends: 'budget-planning milestone-planning family-reunion-planning business-proposal professional-email holiday-planning project-kickoff'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Plan a Wedding

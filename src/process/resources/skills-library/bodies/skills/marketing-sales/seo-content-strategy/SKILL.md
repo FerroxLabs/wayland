@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing seo planning strategy"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'marketing seo planning strategy'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # SEO Content Strategy
 
 ## When to Use
@@ -68,10 +69,10 @@ This is the strategic core of the entire plan. The goal is to identify 5-10 pill
 - **Identify pillar topics** by mapping the intersection of: (a) what the business sells or needs to be known for, and (b) what has meaningful aggregate search demand. A pillar topic is not a single keyword -- it is a semantic territory with hundreds of related queries
 - **Build each cluster** with: one primary pillar keyword (typically 1,000--50,000 monthly searches, high commercial or informational value), 8-20 supporting subtopic keywords (often 100--5,000 searches each), and long-tail variants within each subtopic (typically under 500 searches but highly specific intent)
 - **Classify every keyword by the four-part intent taxonomy:**
-  - *Informational* -- user wants to learn ("how to crate train a puppy," "what is keyword difficulty")
-  - *Navigational* -- user is looking for a specific brand or resource ("Ahrefs login," "HubSpot templates")
-  - *Commercial investigation* -- user is evaluating options before buying ("best project management software," "Semrush vs Ahrefs")
-  - *Transactional* -- user is ready to act ("buy dog training course online," "sign up for SEO tool free trial")
+  - _Informational_ -- user wants to learn ("how to crate train a puppy," "what is keyword difficulty")
+  - _Navigational_ -- user is looking for a specific brand or resource ("Ahrefs login," "HubSpot templates")
+  - _Commercial investigation_ -- user is evaluating options before buying ("best project management software," "Semrush vs Ahrefs")
+  - _Transactional_ -- user is ready to act ("buy dog training course online," "sign up for SEO tool free trial")
 - **Assess competitive difficulty** using relative signals: if the top 10 results are all DR 70+ sites with thousands of backlinks and the content has been published for 5+ years, the difficulty is high. If results include Reddit threads, Quora answers, and thin pages from low-DR sites, difficulty is low -- a real opportunity regardless of the tool-reported difficulty score
 - **Apply cluster prioritization logic:** Priority = (Business Value × Search Volume) ÷ Competitive Difficulty × Time-to-Result. Informational clusters with high volume but zero conversion path score lower than medium-volume commercial clusters directly tied to a purchasing decision
 - **Note keyword cannibalization risks:** If two or more existing pages target the same keyword or highly overlapping intent, flag them for consolidation before creating new content targeting the same space
@@ -82,10 +83,10 @@ A gap analysis compares what the site covers against what it should cover, and a
 
 - **Inventory mapping:** List every existing page (or representative sample for large sites) and map it to the keyword clusters defined in Step 2. Identify: (a) clusters with strong existing coverage, (b) clusters with partial coverage (1-2 pages, not a pillar), and (c) clusters with zero coverage
 - **Performance tier classification for existing content:**
-  - *Positions 1-3:* Protect and maintain. Update annually. Build internal links to reinforce
-  - *Positions 4-10:* Optimize aggressively -- these pages are close to major traffic gains. Small improvements in E-E-A-T signals, internal linking, and content depth can move them to positions 1-3
-  - *Positions 11-30 ("the valley"):* Highest ROI optimization targets. These pages have proven the topic is indexable and Google acknowledges the relevance -- they just need improvement to break onto page one
-  - *Positions 31+:* Assess whether the page has any backlinks or traffic. If not, it may be a candidate for consolidation or complete rewrite
+  - _Positions 1-3:_ Protect and maintain. Update annually. Build internal links to reinforce
+  - _Positions 4-10:_ Optimize aggressively -- these pages are close to major traffic gains. Small improvements in E-E-A-T signals, internal linking, and content depth can move them to positions 1-3
+  - _Positions 11-30 ("the valley"):_ Highest ROI optimization targets. These pages have proven the topic is indexable and Google acknowledges the relevance -- they just need improvement to break onto page one
+  - _Positions 31+:_ Assess whether the page has any backlinks or traffic. If not, it may be a candidate for consolidation or complete rewrite
 - **Competitor gap identification:** For each competitor, identify the 5-10 pages driving their highest organic traffic that the user's site does not have equivalent content for. These are the most validated content opportunities in the market
 - **SERP feature opportunities:** Note where the SERP shows featured snippets, People Also Ask boxes, video carousels, or local packs -- these are additional ranking surfaces that require specific content formatting (definition paragraphs under 50 words for snippets, FAQ schema for PAA, YouTube optimization for video carousels)
 - **Content freshness flags:** Identify existing pages covering topics with high query freshness signals (Google dating the result matters, such as "best X tools 2024") -- these require scheduled annual or semi-annual refreshes
@@ -95,11 +96,11 @@ A gap analysis compares what the site covers against what it should cover, and a
 Translate gap analysis findings into an actionable ranked list with scoring logic.
 
 - **Score each content opportunity on five dimensions, each rated 1-3:**
-  - *Search Volume:* 3 = 5,000+ monthly searches for the primary keyword; 2 = 500-4,999; 1 = under 500
-  - *Business Value:* 3 = directly drives the primary conversion action; 2 = drives secondary conversion or builds email list; 1 = brand awareness only
-  - *Competitive Difficulty:* 3 = low difficulty (score ≤40 on Ahrefs/Semrush KD or SERP dominated by weaker sites); 2 = medium (KD 41-70); 1 = high (KD 71+)
-  - *Content Effort:* 3 = low effort (existing content can be updated or a short guide suffices); 2 = medium (2,000-3,500 word comprehensive guide); 1 = high effort (requires original research, data, tool creation, or multimedia)
-  - *Time-to-Rank:* 3 = informational, low competition, likely to show movement in 60-90 days; 2 = medium competition, 3-6 months; 1 = high competition, 6-12+ months
+  - _Search Volume:_ 3 = 5,000+ monthly searches for the primary keyword; 2 = 500-4,999; 1 = under 500
+  - _Business Value:_ 3 = directly drives the primary conversion action; 2 = drives secondary conversion or builds email list; 1 = brand awareness only
+  - _Competitive Difficulty:_ 3 = low difficulty (score ≤40 on Ahrefs/Semrush KD or SERP dominated by weaker sites); 2 = medium (KD 41-70); 1 = high (KD 71+)
+  - _Content Effort:_ 3 = low effort (existing content can be updated or a short guide suffices); 2 = medium (2,000-3,500 word comprehensive guide); 1 = high effort (requires original research, data, tool creation, or multimedia)
+  - _Time-to-Rank:_ 3 = informational, low competition, likely to show movement in 60-90 days; 2 = medium competition, 3-6 months; 1 = high competition, 6-12+ months
 - **Calculate a Priority Score** = (Search Volume + Business Value + Competitive Difficulty + Content Effort + Time-to-Rank) summed. Maximum 15. Rank all opportunities by this score
 - **Define the "minimum viable content specification" for each top-priority page:** target keyword, 3-5 secondary keywords to include, primary search intent, recommended content format (comprehensive guide, comparison page, tool/calculator, case study, FAQ page, landing page), estimated word count range, required media (screenshots, original data, video), and which competitor pages to benchmark against
 - **Separate the matrix into two tracks:** (a) New content creation, and (b) Existing content optimization. Both tracks must be in the calendar. A common mistake is focusing 100% on new content while leaving optimization wins on the table -- optimization typically delivers results 3x faster than new content
@@ -440,15 +441,16 @@ For established sites, the audit and optimization workstream is as important as 
 
 ### Section 1: Topical Authority Map (Keyword Clusters)
 
-| Pillar Topic | Primary Keyword | Est. Monthly Searches | Cluster Subtopics | Avg. Difficulty | Business Value | Priority |
-|---|---|---|---|---|---|---|
-| Employee Onboarding Process | "employee onboarding process" | High (10k-50k) | 14 subtopics | Medium | High | 1 |
-| HR Automation | "HR process automation" | Medium (1k-10k) | 10 subtopics | Medium-High | High | 2 |
-| Remote Onboarding | "remote employee onboarding" | Medium (1k-10k) | 8 subtopics | Low-Medium | High | 3 |
-| Onboarding Checklists & Templates | "employee onboarding checklist" | High (10k-50k) | 12 subtopics | Medium | High | 4 |
-| Onboarding Best Practices by Role | "IT onboarding process" / "sales onboarding" | Medium (varies by role) | 15 subtopics (5 roles × 3 pages) | Low | Medium | 5 |
+| Pillar Topic                      | Primary Keyword                              | Est. Monthly Searches   | Cluster Subtopics                | Avg. Difficulty | Business Value | Priority |
+| --------------------------------- | -------------------------------------------- | ----------------------- | -------------------------------- | --------------- | -------------- | -------- |
+| Employee Onboarding Process       | "employee onboarding process"                | High (10k-50k)          | 14 subtopics                     | Medium          | High           | 1        |
+| HR Automation                     | "HR process automation"                      | Medium (1k-10k)         | 10 subtopics                     | Medium-High     | High           | 2        |
+| Remote Onboarding                 | "remote employee onboarding"                 | Medium (1k-10k)         | 8 subtopics                      | Low-Medium      | High           | 3        |
+| Onboarding Checklists & Templates | "employee onboarding checklist"              | High (10k-50k)          | 12 subtopics                     | Medium          | High           | 4        |
+| Onboarding Best Practices by Role | "IT onboarding process" / "sales onboarding" | Medium (varies by role) | 15 subtopics (5 roles × 3 pages) | Low             | Medium         | 5        |
 
 **Cluster Detail -- Pillar 1: Employee Onboarding Process**
+
 - Primary keyword: "employee onboarding process" | Intent: Informational / Commercial Investigation
 - Subtopics:
   1. "employee onboarding steps" -- Intent: Informational -- Volume: High -- Difficulty: Medium
@@ -465,6 +467,7 @@ For established sites, the audit and optimization workstream is as important as 
 - SERP features present: Featured Snippets (definition + numbered steps), People Also Ask (extensive), Image pack for checklist visuals
 
 **Cluster Detail -- Pillar 2: HR Automation**
+
 - Primary keyword: "HR process automation" | Intent: Commercial Investigation
 - Subtopics:
   1. "HR automation tools" -- Intent: Commercial Investigation -- Volume: Medium -- Difficulty: Medium
@@ -479,6 +482,7 @@ For established sites, the audit and optimization workstream is as important as 
 - SERP features present: Tool comparison carousels, Featured Snippets for definition queries, strong PAA presence
 
 **Cluster Detail -- Pillar 3: Remote Onboarding**
+
 - Primary keyword: "remote employee onboarding" | Intent: Informational / Commercial Investigation
 - Subtopics:
   1. "remote onboarding checklist" -- Intent: Informational -- Volume: Medium -- Difficulty: Low
@@ -491,6 +495,7 @@ For established sites, the audit and optimization workstream is as important as 
 - SERP features present: Numbered list Featured Snippets, strong PAA
 
 **Cluster Detail -- Pillar 4: Onboarding Checklists and Templates**
+
 - Primary keyword: "employee onboarding checklist" | Intent: Informational (high download/template intent)
 - Note: This cluster has extremely high volume and directly generates top-of-funnel leads through content upgrade / gated PDF offers
 - Subtopics:
@@ -504,6 +509,7 @@ For established sites, the audit and optimization workstream is as important as 
 - SERP features present: Heavy Featured Snippet presence for list-format content; Google will often show the checklist directly in the SERP -- format pages with numbered H3s to capture this
 
 **Cluster Detail -- Pillar 5: Role-Specific Onboarding**
+
 - Primary keyword: varies by role | Intent: Informational
 - Subtopics (5 role categories, 3 pages each):
   1. "sales onboarding process" / "sales onboarding plan" / "sales onboarding best practices"
@@ -519,13 +525,13 @@ For established sites, the audit and optimization workstream is as important as 
 
 **Existing Coverage Assessment**
 
-| Cluster | Coverage Status | Page Count | Avg. Position | Performance Verdict | Action |
-|---|---|---|---|---|---|
-| Employee Onboarding Process | Partial | 6 blog posts | Positions 15-35 | Underperforming | Consolidate thin posts; optimize survivors |
-| HR Automation | Partial | 3 blog posts + 2 landing pages | Positions 8-20 | Close to page one | Optimize aggressively |
-| Remote Onboarding | Minimal | 2 blog posts | Positions 22-45 | Underperforming | Create pillar page; upgrade existing posts |
-| Onboarding Checklists | Minimal | 1 blog post (generic) | Position 28 | Underperforming | Expand into full checklist hub |
-| Role-Specific Onboarding | None | 0 pages | Not ranking | Gap | Create from scratch |
+| Cluster                     | Coverage Status | Page Count                     | Avg. Position   | Performance Verdict | Action                                     |
+| --------------------------- | --------------- | ------------------------------ | --------------- | ------------------- | ------------------------------------------ |
+| Employee Onboarding Process | Partial         | 6 blog posts                   | Positions 15-35 | Underperforming     | Consolidate thin posts; optimize survivors |
+| HR Automation               | Partial         | 3 blog posts + 2 landing pages | Positions 8-20  | Close to page one   | Optimize aggressively                      |
+| Remote Onboarding           | Minimal         | 2 blog posts                   | Positions 22-45 | Underperforming     | Create pillar page; upgrade existing posts |
+| Onboarding Checklists       | Minimal         | 1 blog post (generic)          | Position 28     | Underperforming     | Expand into full checklist hub             |
+| Role-Specific Onboarding    | None            | 0 pages                        | Not ranking     | Gap                 | Create from scratch                        |
 
 **Top Content Gaps (High Priority)**
 
@@ -559,16 +565,16 @@ For established sites, the audit and optimization workstream is as important as 
 
 **Optimization Targets (Content Exists, Ranking in Positions 4-30)**
 
-| Page Title | Target Keyword | Current Position | Traffic Opportunity | What to Improve |
-|---|---|---|---|---|
-| "HR Automation Guide" (existing blog) | "HR process automation" | 8 | Estimated 400 additional visits/month if moved to position 2-3 | Expand from estimated 1,200 words to 3,000+; add tool comparison table; add FAQ schema for PAA capture; build 5 internal links from high-authority pages |
-| "New Employee Onboarding Tips" (blog) | "employee onboarding tips" | 14 | Estimated 300 additional visits/month | Restructure with numbered H2s (Featured Snippet eligibility); add expert quotes for E-E-A-T; add internal links from checklist pages once created |
-| "HR Software Landing Page" | "automated onboarding software" | 19 | Estimated 150 additional visits/month | Add social proof section; add comparison table vs manual process; expand keyword coverage to include "automate new hire paperwork" in subheadings |
+| Page Title                            | Target Keyword                  | Current Position | Traffic Opportunity                                            | What to Improve                                                                                                                                          |
+| ------------------------------------- | ------------------------------- | ---------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "HR Automation Guide" (existing blog) | "HR process automation"         | 8                | Estimated 400 additional visits/month if moved to position 2-3 | Expand from estimated 1,200 words to 3,000+; add tool comparison table; add FAQ schema for PAA capture; build 5 internal links from high-authority pages |
+| "New Employee Onboarding Tips" (blog) | "employee onboarding tips"      | 14               | Estimated 300 additional visits/month                          | Restructure with numbered H2s (Featured Snippet eligibility); add expert quotes for E-E-A-T; add internal links from checklist pages once created        |
+| "HR Software Landing Page"            | "automated onboarding software" | 19               | Estimated 150 additional visits/month                          | Add social proof section; add comparison table vs manual process; expand keyword coverage to include "automate new hire paperwork" in subheadings        |
 
 **Competitor Content Not Covered**
 
-| Competitor Type | Their Top Page | Est. Traffic | User's Coverage | Gap Priority |
-|---|---|---|---|---|
-| HR software vendor (Rippling/BambooHR-type) | "What is employee onboarding" definitional guide | High | None | High -- create foundational definitional pillar content |
-| HR software vendor | "New hire onboarding checklist [year]" | High | Minimal (1 weak page) | High -- highest-volume template query |
-| Process documentation tool (Process Street) | "HR onboarding process templates" | Medium |
+| Competitor Type                             | Their Top Page                                   | Est. Traffic | User's Coverage       | Gap Priority                                            |
+| ------------------------------------------- | ------------------------------------------------ | ------------ | --------------------- | ------------------------------------------------------- |
+| HR software vendor (Rippling/BambooHR-type) | "What is employee onboarding" definitional guide | High         | None                  | High -- create foundational definitional pillar content |
+| HR software vendor                          | "New hire onboarding checklist [year]"           | High         | Minimal (1 weak page) | High -- highest-volume template query                   |
+| Process documentation tool (Process Street) | "HR onboarding process templates"                | Medium       |

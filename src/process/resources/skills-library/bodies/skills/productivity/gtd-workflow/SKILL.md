@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management planning automation"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management planning automation'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # GTD Workflow
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks about GTD, Getting Things Done, or David Allen's methodology and wants to implement or overhaul a complete personal productivity system
 - The user describes feeling overwhelmed by open loops -- commitments, ideas, tasks, and obligations that live in their head rather than in a trusted external system
 - The user wants a complete workflow covering all five phases: capture, clarify, organize, reflect, and engage -- not just one piece of the system
@@ -29,6 +31,7 @@ metadata:
 - The user wants to integrate GTD across both work and personal life into a single coherent system
 
 **Do NOT use when:**
+
 - The user only needs a single task or idea captured right now -- use `task-capture-system` instead
 - The user only needs a plan for today's tasks and priorities -- use `daily-planning` instead
 - The user wants to sort a backlog of tasks by urgency and importance -- use `eisenhower-matrix` instead
@@ -158,6 +161,7 @@ A GTD system is a living system. Provide guidance on maintaining it and recogniz
 ---
 
 ### Phase 1: Capture
+
 **Primary inbox:** [tool name and specific location within tool]
 **Physical backup:** [notebook model, in-tray location, or "none"]
 **Capture rule:** Any open loop captured within 60 seconds of recognition
@@ -165,54 +169,55 @@ A GTD system is a living system. Provide guidance on maintaining it and recogniz
 
 **Input Source Map:**
 
-| Input Source | Capture Method | Processing Frequency | Notes |
-|-------------|---------------|---------------------|-------|
-| [source] | [method] | [daily / 2x daily / weekly] | [any routing notes] |
-| [source] | [method] | [frequency] | [notes] |
+| Input Source | Capture Method | Processing Frequency        | Notes               |
+| ------------ | -------------- | --------------------------- | ------------------- |
+| [source]     | [method]       | [daily / 2x daily / weekly] | [any routing notes] |
+| [source]     | [method]       | [frequency]                 | [notes]             |
 
 **Mind sweep status:** [Complete / Pending / Not applicable -- returning user]
 
 ---
 
 ### Phase 2: Clarify (Processing Decision Tree)
-
 ```
+
 INBOX ITEM
-    |
-    v
+|
+v
 Is it actionable?
-    |           |
-   NO          YES
-    |           |
-    v           v
-[Trash /    What is the desired outcome?
+| |
+NO YES
+| |
+v v
+[Trash / What is the desired outcome?
 Reference / What is the next physical action?
-Someday/      |
-Maybe]        v
-          Takes < 2 minutes?
-              |         |
-             YES        NO
-              |         |
-              v         v
-          Do it now  Who does it?
-                         |            |
-                        ME          SOMEONE ELSE
-                         |            |
-                         v            v
-                  More than 1 step?  Waiting For list
-                     |          |    (person + date +
-                    YES         NO    follow-up date)
-                     |          |
-                     v          v
-               Create Project  Specific date/time?
-               (outcome +         |           |
-               next action)      YES          NO
-                                  |           |
-                                  v           v
-                               Calendar    Next Actions
-                               (hard-      (context tag)
-                               landscape
-                               only)
+Someday/ |
+Maybe] v
+Takes < 2 minutes?
+| |
+YES NO
+| |
+v v
+Do it now Who does it?
+| |
+ME SOMEONE ELSE
+| |
+v v
+More than 1 step? Waiting For list
+| | (person + date +
+YES NO follow-up date)
+| |
+v v
+Create Project Specific date/time?
+(outcome + | |
+next action) YES NO
+| |
+v v
+Calendar Next Actions
+(hard- (context tag)
+landscape
+only)
+
 ```
 
 **Processing rules:**
@@ -416,24 +421,31 @@ Review monthly. If 3+ indicators are red, do a system reboot.
 ## Edge Cases
 
 ### The User Has 50+ Active Projects
+
 This is not a problem to solve -- it is normal for experienced professionals and parents with complex lives. Do not encourage them to eliminate projects arbitrarily. Instead: (1) Group projects into Areas of Focus (Career, Health, Finances, Home, Relationships, Community, etc.) with typically 5-15 projects per area. (2) During the weekly review, review projects by area rather than as a monolithic list -- this makes the review tractable. (3) Distinguish between "active" projects (you are moving these forward this week) and "on-hold" projects (temporarily paused waiting for an external condition). On-hold projects do not need a current next action -- they need a trigger condition ("restart when budget is approved"). (4) If project count exceeds 100, this signals that the user is not distinguishing between projects and areas of responsibility. Help them recognize that "maintain physical health" is an area of focus, not a project -- projects within it include "Complete 5K training program by April" and "Schedule annual physical."
 
 ### The User Has No Physical Separation Between Environments (Full Remote Worker)
+
 Classic GTD context tags (@office, @home, @computer, @phone, @errands) were designed for a pre-smartphone era when people moved between distinct locations with distinct tool sets. A remote worker who is always home, always at a computer, with a phone always in their pocket renders most location-based contexts meaningless. Implement energy-based contexts instead: @deep-work (high energy, long blocks, no interruptions), @shallow-work (medium energy, interruptible, 15-30 min tasks), @quick-hits (low energy, under 10 min), @calls-and-messages (any energy, synchronous or asynchronous communication). Supplement with @waiting-on (instead of Waiting For as a separate list, if the tool supports inline context tagging). This context system accurately reflects the real constraints of remote knowledge work.
 
 ### The User Has Previously Tried GTD and Abandoned It
+
 This is extremely common -- GTD has a high abandonment rate among self-implementers because the initial setup burden is significant. Before rebuilding, diagnose which phase failed: (1) If they stopped capturing -- the capture friction was too high. Reduce to one capture point. (2) If the inbox became a backlog -- they stopped processing. Implement a daily processing habit (15 minutes each morning) rather than relying on weekly processing. (3) If the next actions list felt useless -- contexts did not match their reality. Redesign contexts from scratch. (4) If projects proliferated without progress -- next actions were missing or vague. (5) If the weekly review collapsed -- the time slot was not protected or the review felt too long. Implement the Minimum Viable Review and expand later. Do not rebuild the same system. Diagnose and fix the specific failure point.
 
 ### The User Is in an Interruption-Heavy Role (Manager, Parent, Customer-Facing)
+
 For users whose workday is primarily reactive -- back-to-back meetings, constant questions from reports, family emergencies -- the standard GTD model of long next-action lists may feel aspirational but disconnected. Adapt the system: (1) Accept that 60-70% of their work is unplanned and design the system to capture reactive outcomes rather than prevent them. Every reactive task completed should be logged (not planned) for later reflection. (2) Maintain a shorter, higher-leverage next-actions list of 15-20 items maximum -- the things they will push for in the margins. (3) Treat meeting agendas as context-specific next-action lists: before each meeting, review the @agenda-[person] context and bring all relevant items into the meeting as a prepared list. (4) The weekly review becomes even more critical in interruption-heavy roles -- without it, the week's reactive work goes completely unreviewed and patterns of reactive overload never get addressed.
 
 ### The User Wants to Use GTD Across a Team
+
 This is outside the scope of GTD as David Allen defined it -- GTD is explicitly a personal productivity system. Do not try to impose GTD on a team. If the user wants a shared project management system, cross-reference to business project management skills. However: one person on a team can use GTD for their own work within any team structure. Their GTD Waiting For list will contain items delegated to teammates. Their calendar will reflect team meetings. Their projects list will include their personal contributions to team projects. The system is theirs; the deliverables they produce may serve a team.
 
 ### The User Cannot Achieve Inbox Zero in Processing Sessions
+
 If a user has a chronically overwhelming email inbox (1,000+ unprocessed emails), do not attempt to process from oldest to newest. Implement a two-phase rescue: (1) Archive everything currently in the inbox into a folder called "Before [today's date]" and declare the archive off-limits except for intentional retrieval. Start fresh with a clean inbox today. (2) Process the "Before" archive in 15-minute daily sessions, oldest first. This approach, sometimes called the "email bankruptcy" approach, is used by productivity coaches and avoids the paralysis of an insurmountable backlog. The goal is to restore trust in the inbox as a processing queue, not to achieve heroic processing speed.
 
 ### The User Is Building GTD for the First Time and Feeling Overwhelmed by the System Complexity
+
 GTD's full specification is cognitively demanding to implement all at once. Offer a staged implementation: **Week 1** -- establish the inbox only and practice the capture habit. Every open loop gets written down within 60 seconds. No organizing yet. **Week 2** -- add the clarify step. Process the inbox every morning for 15 minutes. Create the Next Actions list and Projects list. **Week 3** -- add context tags and the Waiting For list. Build the Reference system. **Week 4** -- conduct the first weekly review. After the first weekly review, the system is live. Staging reduces the activation energy of starting and builds each habit on a stable foundation. The system does not need to be complete to begin delivering value -- even the capture habit alone reduces cognitive load significantly.
 
 ---
@@ -467,57 +479,58 @@ GTD's full specification is cognitively demanding to implement all at once. Offe
 
 **Input Source Map:**
 
-| Input Source | Capture Method | Processing Frequency | Notes |
-|-------------|---------------|---------------------|-------|
-| Gmail (80-100/day) | Process to Notion GTD Inbox via copy-paste or Gmail label "→ GTD" | 2x daily: 10 AM and 3 PM | Do not process email continuously; batched processing prevents reactive mode |
-| Slack (engineering team) | Copy message URL + summary to Notion GTD Inbox; do not leave Slack as an inbox | Within 2 hours of reading | Use Slack's "save for later" as a temporary staging area only, emptied twice daily |
-| Slack (design team) | Same as above | Within 2 hours | Consider muting non-critical channels and checking on schedule |
-| Paper meeting notebook | Process all notes and commitments into Notion GTD Inbox | Within 24 hours of meeting -- same-day preferred | Use a symbol system: circle = commitment I made, square = waiting for someone else |
-| Ideas throughout the day | Notion quick-add on phone (iOS/Android widget) | Immediately | Voice-to-text for hands-free capture while walking or commuting |
-| Google Calendar invites | Review invite for any prep actions needed; capture prep tasks in GTD Inbox | At time of accepting | Add note to calendar event: "Prep: [what to prepare]" |
+| Input Source             | Capture Method                                                                 | Processing Frequency                             | Notes                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Gmail (80-100/day)       | Process to Notion GTD Inbox via copy-paste or Gmail label "→ GTD"              | 2x daily: 10 AM and 3 PM                         | Do not process email continuously; batched processing prevents reactive mode       |
+| Slack (engineering team) | Copy message URL + summary to Notion GTD Inbox; do not leave Slack as an inbox | Within 2 hours of reading                        | Use Slack's "save for later" as a temporary staging area only, emptied twice daily |
+| Slack (design team)      | Same as above                                                                  | Within 2 hours                                   | Consider muting non-critical channels and checking on schedule                     |
+| Paper meeting notebook   | Process all notes and commitments into Notion GTD Inbox                        | Within 24 hours of meeting -- same-day preferred | Use a symbol system: circle = commitment I made, square = waiting for someone else |
+| Ideas throughout the day | Notion quick-add on phone (iOS/Android widget)                                 | Immediately                                      | Voice-to-text for hands-free capture while walking or commuting                    |
+| Google Calendar invites  | Review invite for any prep actions needed; capture prep tasks in GTD Inbox     | At time of accepting                             | Add note to calendar event: "Prep: [what to prepare]"                              |
 
 **Mind sweep status:** Required before system goes live -- schedule 45-60 minutes to dump every open loop before the first processing session. Use the following categories as prompts: Current product roadmap items not yet formalized; hiring pipeline commitments; cross-functional asks from stakeholders; personal promises made to family or friends; home renovation tasks; trip planning items; professional development commitments; feedback you owe; decisions pending. Target: 50-150 items captured. This is normal.
 
 ---
 
 ### Phase 2: Clarify (Processing Decision Tree)
-
 ```
+
 INBOX ITEM
-    |
-    v
+|
+v
 Is it actionable?
-    |                     |
-   NO                    YES
-    |                     |
-[Trash: irrelevant]      What is the DESIRED OUTCOME?
-[Reference: file in      What is the NEXT PHYSICAL ACTION?
- Notion Reference DB]         |
-[Someday/Maybe: add           v
- to incubation list]     Takes < 2 minutes AND action is obvious?
-                              |                    |
-                             YES                   NO
-                              |                    |
-                          Do it now           Who owns it?
-                                               |            |
-                                              ME         SOMEONE ELSE
-                                               |            |
-                                               v            v
-                                       More than 1 step?  Waiting For
-                                          |          |    (person + date
-                                         YES         NO    + follow-up date)
-                                          |          |
-                                          v          v
-                                    Create Project  Specific date/time?
-                                    in Notion        |           |
-                                    (outcome +       YES         NO
-                                    next action)      |           |
-                                                      v           v
-                                                   Google     Next Actions
-                                                   Calendar   (context tag)
-                                                   (hard-
-                                                   landscape
-                                                   only)
+| |
+NO YES
+| |
+[Trash: irrelevant] What is the DESIRED OUTCOME?
+[Reference: file in What is the NEXT PHYSICAL ACTION?
+Notion Reference DB] |
+[Someday/Maybe: add v
+to incubation list] Takes < 2 minutes AND action is obvious?
+| |
+YES NO
+| |
+Do it now Who owns it?
+| |
+ME SOMEONE ELSE
+| |
+v v
+More than 1 step? Waiting For
+| | (person + date
+YES NO + follow-up date)
+| |
+v v
+Create Project Specific date/time?
+in Notion | |
+(outcome + YES NO
+next action) | |
+v v
+Google Next Actions
+Calendar (context tag)
+(hard-
+landscape
+only)
+
 ```
 
 **Processing discipline for Gmail specifically:** Given 80-100 emails per day, the clarify step is critical. In each 30-40 minute Gmail processing session: (1) Start from the top. (2) For each email, make one decision -- do not read and leave unread. (3) FYI emails with no action: archive immediately. (4) Emails requiring a response under 2 minutes: reply now, then archive. (5) Emails requiring a longer response: copy subject + key context to Notion GTD Inbox, archive the email, then process the Notion item in your next processing session. (6) Target: Gmail inbox at zero after each session.
@@ -542,7 +555,7 @@ Rationale: As a product manager, you are always at a computer with your phone ne
 **PROJECTS LIST (initial -- expand after mind sweep)**
 
 | # | Area of Focus | Project Name | Desired Outcome | Current Next Action | Context |
-|---|--------------|-------------|-----------------|--------------------|---------| 
+|---|--------------|-------------|-----------------|--------------------|---------|
 | 1 | Product | Q3 Roadmap Finalized | Roadmap approved by VP and shared with engineering by Aug 1 | Draft prioritization rationale for top 5 features | @deep-work |
 | 2 | Product | Checkout Flow Redesign | New checkout live in staging by Sept 15, passing all A/B criteria | Write design brief with success metrics | @deep-work |
 | 3 | Hiring | Senior PM Hire | Offer accepted, start date confirmed | Review 3 candidate profiles from recruiter and shortlist 2 | @shallow-work |
@@ -564,3 +577,4 @@ Rationale: As a product manager, you are always at a computer with your phone ne
 | 2 | Legal review of vendor contract | Legal team | [today -3 days] | [today +2 days] | Email thread |
 | 3 | Interview feedback forms from panel | Marcus, Jess, Tomás | [today -1 day] | [today +2 days] | Email |
 | 4 | Budget approval for PM tooling | VP Product | [today -5 days] | [today] | Slack -- OVERDUE: follow up today
+```

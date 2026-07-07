@@ -29,10 +29,10 @@ function makeConfig(): IChannelPluginConfig {
 
 function mockFetchToken(): void {
   mockFetch.mockResolvedValueOnce(
-    new Response(
-      JSON.stringify({ access_token: 'mock-token', expires_in: 3600 }),
-      { status: 200, headers: { 'content-type': 'application/json' } },
-    ),
+    new Response(JSON.stringify({ access_token: 'mock-token', expires_in: 3600 }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
   );
 }
 
@@ -41,7 +41,7 @@ function mockFetchOk(body: object = {}): void {
     new Response(JSON.stringify(body), {
       status: 200,
       headers: { 'content-type': 'application/json' },
-    }),
+    })
   );
 }
 
@@ -92,9 +92,7 @@ describe('MsTeamsPlugin.sendMessage', () => {
     mockFetch.mockReset();
     plugin = await makeInitializedPlugin();
     // Default: any unmatched fetch (e.g. typing keep-alive POSTs) returns 200.
-    mockFetch.mockResolvedValue(
-      new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }),
-    );
+    mockFetch.mockResolvedValue(new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }));
   });
 
   it('sends POST to the Connector URL and returns activity id', async () => {

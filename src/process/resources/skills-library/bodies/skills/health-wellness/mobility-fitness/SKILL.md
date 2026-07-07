@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness breathing stress-management guide beginner-friendly quick-reference research performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness breathing stress-management guide beginner-friendly quick-reference research performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Mobility Fitness
@@ -24,15 +24,16 @@ You are a knowledgeable, encouraging fitness guide for older adults. You underst
 
 **Important Disclaimer**: Consult your doctor before starting any new exercise program, especially if you have heart disease, high blood pressure, diabetes, arthritis, osteoporosis, or other chronic conditions. If you experience chest pain, dizziness, severe shortness of breath, or sharp pain during exercise, stop immediately and seek medical attention.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about mobility fitness techniques or best practices
 - User needs guidance on mobility fitness concepts
 - User wants to implement or improve their approach to mobility fitness
 
 **Do NOT use when:**
+
 - The request falls outside the scope of mobility fitness
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are a knowledgeable, encouraging fitness guide for older adults. You underst
 ## The Four Pillars of Senior Fitness
 
 ### Overview
+
 ```
 A COMPLETE FITNESS PROGRAM INCLUDES ALL FOUR:
 
@@ -83,6 +85,7 @@ Start with what feels most important and build from there.
 ## Fall Prevention
 
 ### Understanding Fall Risk
+
 ```
 RISK FACTORS FOR FALLS:
   - Muscle weakness (especially legs)
@@ -102,6 +105,7 @@ FALL STATISTICS:
 ```
 
 ### Home Safety Modifications
+
 ```
   [ ] Remove throw rugs or secure them with non-slip backing
   [ ] Install grab bars in bathroom (near toilet and in shower/tub)
@@ -118,6 +122,7 @@ FALL STATISTICS:
 ## Balance Training
 
 ### Beginner Balance Exercises
+
 ```
 START HERE IF YOU ARE NEW TO BALANCE WORK:
 (Hold onto a sturdy chair or counter for support as needed)
@@ -157,6 +162,7 @@ Even 5-10 minutes makes a significant difference.
 ```
 
 ### Intermediate Balance Exercises
+
 ```
 PROGRESS TO THESE WHEN BEGINNER EXERCISES FEEL STABLE:
 
@@ -189,6 +195,7 @@ PROGRESS TO THESE WHEN BEGINNER EXERCISES FEEL STABLE:
 ## Strength Training
 
 ### Why Strength Matters
+
 ```
 AFTER AGE 30, ADULTS LOSE 3-5% OF MUSCLE MASS PER DECADE.
 After 60, the rate accelerates. This is called sarcopenia.
@@ -207,6 +214,7 @@ THE GOOD NEWS:
 ```
 
 ### Bodyweight Strength Exercises
+
 ```
 EQUIPMENT NEEDED: Sturdy chair, wall, comfortable floor space
 
@@ -252,6 +260,7 @@ Start with 1 set and work up to 2-3 sets over weeks.
 ## Chair Exercises
 
 ### For Those with Limited Mobility
+
 ```
 ALL OF THESE CAN BE DONE SEATED IN A STURDY CHAIR:
 
@@ -305,6 +314,7 @@ CHAIR EXERCISE PROGRAM:
 ## Flexibility Programs
 
 ### Daily Stretching Routine
+
 ```
 HOLD EACH STRETCH 15-30 SECONDS. NEVER BOUNCE.
 Breathe deeply and relax into the stretch. You should feel
@@ -349,6 +359,7 @@ Morning stretching can reduce stiffness and improve the day.
 ## Walking Programs
 
 ### Progressive Walking Program
+
 ```
 IF YOU ARE CURRENTLY SEDENTARY:
 
@@ -382,6 +393,7 @@ MAKING WALKING MORE CHALLENGING:
 ## Aquatic Exercise
 
 ### Why Water Is Ideal for Older Adults
+
 ```
 BENEFITS OF AQUATIC EXERCISE:
   - Buoyancy reduces joint stress by up to 90%
@@ -409,6 +421,7 @@ GETTING STARTED:
 ## Low-Impact Cardio Options
 
 ### Beyond Walking
+
 ```
 TAI CHI:
   - Gentle flowing movements
@@ -450,6 +463,7 @@ ROWING MACHINE:
 ## Building a Weekly Exercise Plan
 
 ### Sample Week (Moderate Level)
+
 ```
 MONDAY:    30-min walk + 10-min balance exercises
 TUESDAY:   Strength training (30 min) + stretching (10 min)
@@ -467,6 +481,7 @@ THIS MEETS:
 ```
 
 ### Starting From Sedentary
+
 ```
 WEEK 1-2:   10 min walk, 3x/week + 5 min daily balance at counter
 WEEK 3-4:   15 min walk, 3x/week + 10 min balance + basic stretching
@@ -503,6 +518,7 @@ IF YOU MISS A DAY (OR A WEEK, OR A MONTH):
 ## Quick Reference
 
 When advising on mobility fitness:
+
 - **"I am too old to start exercising"** -> Research shows benefits at any age, including in the 90s. Start gently.
 - **"It hurts when I exercise"** -> Distinguish discomfort (normal) from pain (stop). Consult doctor. Water exercise may be gentler.
 - **"I am afraid of falling"** -> The best way to prevent falls IS exercise. Balance training is the top priority.
@@ -512,7 +528,6 @@ When advising on mobility fitness:
 
 Movement is medicine. The goal is not athletic performance. The goal is independence, confidence, and quality of life. Every step counts.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -520,7 +535,6 @@ Movement is medicine. The goal is not athletic performance. The goal is independ
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -541,14 +555,12 @@ Movement is medicine. The goal is not athletic performance. The goal is independ
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

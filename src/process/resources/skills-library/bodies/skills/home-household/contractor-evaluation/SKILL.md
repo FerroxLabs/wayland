@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance decision-making analysis"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance decision-making analysis'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Contractor Evaluation
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when the user presents one of these specific situations:
 - **Contractor communication breakdown:** User is struggling to get clear answers from a contractor about scope, timeline, or costs
 
 **Do NOT use this skill when:**
+
 - User wants DIY repair instructions -- use trade-specific maintenance skills such as `plumbing-basics`, `hvac-maintenance`, `electrical-safety`, or `roof-inspection`
 - User needs legal advice about a contractor dispute, breach of contract, or lien -- recommend consulting a construction attorney or state contractor licensing board
 - User is evaluating contractors for commercial construction, tenant improvement, or property development -- commercial bidding follows entirely different processes (AIA contracts, bonding requirements, public bidding law)
@@ -69,11 +71,11 @@ Vetting is not optional -- it is the step that separates legitimate contractors 
 - **Reference checks -- the right questions:** Ask for 3-5 references from projects similar to yours completed in the last 12-18 months. When calling references, ask: Was the final cost within 10% of the original quote? Was the project completed within the promised timeframe? Were there unexpected change orders? How did the contractor respond when problems arose? Would you hire them again for a larger project? References who give vague, brief answers ("they did fine") are less valuable than those who give specific, detailed responses.
 - **Online reputation analysis:** Check Google reviews, Yelp, the Better Business Bureau (BBB), and Angi/HomeAdvisor (for aggregate ratings, not referrals). Patterns matter more than individual reviews: a 4.2-star contractor with 80 reviews is more reliable than a 5-star contractor with 4 reviews. Look specifically for patterns of: incomplete work, payment disputes, poor cleanup, and unresponsiveness after job completion. Also check your state attorney general's consumer fraud database and the contractor licensing board's discipline records.
 - **Trade-specific vetting additions:**
-  - *Roofing:* Verify they are a certified installer for major shingle brands (GAF Master Elite, CertainTeed SELECT ShingleMaster) -- this affects the warranty tier available to you
-  - *Electrical:* Verify the supervising electrician holds a master electrician license, not just a journeyman license
-  - *HVAC:* Verify EPA Section 608 certification for refrigerant handling; verify NATE certification as a quality indicator
-  - *Plumbing:* Verify the master plumber license; journeyman plumbers can do the work but must be supervised by a master
-  - *General Contractor:* Verify their bonding status (a contractor's bond protects you if they fail to complete work, up to the bond amount -- typically $5,000-$15,000 for residential, which is why it is a minimum protection, not a guarantee)
+  - _Roofing:_ Verify they are a certified installer for major shingle brands (GAF Master Elite, CertainTeed SELECT ShingleMaster) -- this affects the warranty tier available to you
+  - _Electrical:_ Verify the supervising electrician holds a master electrician license, not just a journeyman license
+  - _HVAC:_ Verify EPA Section 608 certification for refrigerant handling; verify NATE certification as a quality indicator
+  - _Plumbing:_ Verify the master plumber license; journeyman plumbers can do the work but must be supervised by a master
+  - _General Contractor:_ Verify their bonding status (a contractor's bond protects you if they fail to complete work, up to the bond amount -- typically $5,000-$15,000 for residential, which is why it is a minimum protection, not a guarantee)
 
 ---
 
@@ -100,6 +102,7 @@ A bid comparison is only valid when bids cover identical scope. This is the most
 Flags are behavioral and documentation signals that predict contractor reliability. Present both categories.
 
 **Red Flags -- each one independently warrants caution; multiple flags together are disqualifying:**
+
 - Demands full payment or deposit over 30% before work begins
 - Pressures for same-day decision or offers a "today only" price
 - No company address (works from a truck, no fixed business location)
@@ -114,6 +117,7 @@ Flags are behavioral and documentation signals that predict contractor reliabili
 - License is in a different trade classification than the work being performed
 
 **Green Flags -- positive indicators of professionalism:**
+
 - Provides detailed written bid with line-item breakdown without being asked
 - Proactively offers COI and provides contact information for their insurance broker
 - Pulls permits and schedules inspections as a standard part of their process
@@ -193,10 +197,10 @@ This step is often overlooked but protects homeowners from a major financial ris
   - For projects over $25,000, consider using joint checks (checks made payable to both the GC and the sub) to guarantee payment reaches the sub
   - In states with preliminary notice requirements (California, Arizona, Nevada, and others), subs must file a 20-day preliminary notice to preserve lien rights -- ask your GC to confirm which subs filed notices
 - **Lien waiver types:**
-  - *Conditional progress waiver:* Waives lien rights through a specific date, conditioned on payment clearing -- use with each progress payment
-  - *Unconditional progress waiver:* Waives lien rights through a specific date, regardless of whether payment has cleared -- only use after payment has verifiably cleared
-  - *Conditional final waiver:* Waives all lien rights upon final payment clearing
-  - *Unconditional final waiver:* Waives all lien rights permanently -- only execute after final payment has cleared the bank
+  - _Conditional progress waiver:_ Waives lien rights through a specific date, conditioned on payment clearing -- use with each progress payment
+  - _Unconditional progress waiver:_ Waives lien rights through a specific date, regardless of whether payment has cleared -- only use after payment has verifiably cleared
+  - _Conditional final waiver:_ Waives all lien rights upon final payment clearing
+  - _Unconditional final waiver:_ Waives all lien rights permanently -- only execute after final payment has cleared the bank
 
 ---
 
@@ -409,16 +413,16 @@ This is a manipulation tactic. No legitimate contractor should require a homeown
 
 Complete every row for all three contractors before comparing prices. Prices mean nothing if a contractor is unlicensed or uninsured.
 
-| Verification Step | How to Check | Contractor A ($4,200) | Contractor B ($6,800) | Contractor C ($8,900) |
-|-------------------|-------------|----------------------|----------------------|----------------------|
-| HVAC contractor license -- active, correct classification | State licensing board website, search by company name and license number | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| EPA Section 608 refrigerant handling certification | Ask for technician certification number; EPA maintains a public lookup | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| General liability insurance ($500K minimum) | Request COI; call carrier to confirm active policy | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| Workers' compensation | Request COI; verify if they have employees | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| Business entity -- registered and active (2+ years) | State Secretary of State lookup | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| NATE certification (quality indicator, not required) | Ask for NATE technician ID; check NATE directory | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| References -- 3 similar HVAC replacements in last 18 months | Direct phone calls | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
-| Online reputation -- pattern check | Google, BBB, state AG consumer database | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail | ☐ Pass / ☐ Fail |
+| Verification Step                                           | How to Check                                                             | Contractor A ($4,200) | Contractor B ($6,800) | Contractor C ($8,900) |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------- | --------------------- | --------------------- |
+| HVAC contractor license -- active, correct classification   | State licensing board website, search by company name and license number | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| EPA Section 608 refrigerant handling certification          | Ask for technician certification number; EPA maintains a public lookup   | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| General liability insurance ($500K minimum)                 | Request COI; call carrier to confirm active policy                       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| Workers' compensation                                       | Request COI; verify if they have employees                               | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| Business entity -- registered and active (2+ years)         | State Secretary of State lookup                                          | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| NATE certification (quality indicator, not required)        | Ask for NATE technician ID; check NATE directory                         | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| References -- 3 similar HVAC replacements in last 18 months | Direct phone calls                                                       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
+| Online reputation -- pattern check                          | Google, BBB, state AG consumer database                                  | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       | ☐ Pass / ☐ Fail       |
 
 **What to say to each contractor:** "Before I make a decision, I need a copy of your contractor's license number and a Certificate of Insurance showing your general liability and workers' comp coverage. Can you send those over?" Any contractor who hesitates, argues, or fails to provide these within 24 hours has disqualified themselves.
 
@@ -428,28 +432,30 @@ Complete every row for all three contractors before comparing prices. Prices mea
 
 HVAC bids vary dramatically based on equipment specification and scope inclusions. The following matrix asks the specific questions that explain your $4,700 price spread.
 
-| Scope Element | Contractor A ($4,200) | Contractor B ($6,800) | Contractor C ($8,900) | Why It Matters |
-|---------------|----------------------|----------------------|----------------------|----------------|
-| **Equipment brand and model** | [Ask for specifics] | [Ask for specifics] | [Ask for specifics] | Brand-tier and model determine efficiency, reliability, and warranty. Budget brands (Goodman, Ameristar) are legitimate but different from mid-tier (Carrier, Trane, Lennox) and carry different warranties. |
-| **Tonnage** | [X ton] | [X ton] | [X ton] | Undersizing saves money at install but strains the system; oversizing wastes money and causes humidity problems. All three should quote the same tonnage -- if they differ, ask how they sized the system. A Manual J load calculation is the professional standard. |
-| **SEER rating (efficiency)** | [X SEER] | [X SEER] | [X SEER] | Federal minimum is 14 SEER (South) / 13 SEER (North) as of 2023; new federal SEER2 standards apply to new equipment. A 16 SEER unit uses ~12% less electricity than a 14 SEER unit -- this has a payback period of approximately 5-7 years on a typical cooling bill. 18+ SEER variable speed units have 10-12 year payback periods. |
-| **Condenser replacement only vs. full system (condenser + coil + handler)** | [Condenser only or full?] | [Full system?] | [Full system?] | If Contractor A is replacing only the outdoor condenser unit while B and C are replacing the entire system (including air handler/evaporator coil), the scope difference fully explains the price gap. Mismatched systems (new condenser with old coil) are inefficient, may void the manufacturer warranty, and can cause premature failure. |
-| **Refrigerant type** | [R-410A or R-454B?] | Same | Same | R-410A is being phased out under EPA regulations; new equipment as of 2025 must use R-454B (Puron Advance) or equivalent low-GWP refrigerant. If Contractor A is quoting an older R-410A unit from existing inventory, verify the equipment is current-production and that parts/refrigerant will remain available. |
-| **Line set replacement vs. reuse** | [New or reuse?] | Same | Same | Copper refrigerant line sets can be reused if they are in good condition, correctly sized for the new equipment, and leak-free. Replacing line sets adds $300-700 but eliminates a common source of efficiency loss and early failures. |
-| **Disconnect box and electrical inspection** | [Included?] | Same | Same | The outdoor disconnect box should be inspected and replaced if it is old, undersized, or corroded. Electrical work on the disconnect requires a licensed electrician in most states -- confirm who does this and whether it is in the bid. |
-| **Permit fees** | [Included?] | Same | Same | Mechanical permits for HVAC replacement typically cost $75-250 depending on jurisdiction. If excluded from one bid, add it to the comparison price. |
-| **Refrigerant charge and startup commissioning** | [Included?] | Same | Same | Proper startup requires charging the system to manufacturer specifications, verifying superheat and subcooling, and documenting equipment performance. This is a 1-2 hour process. A contractor who does a 30-minute install and leaves without commissioning is cutting corners. |
-| **Removal and disposal of old equipment** | [Included?] | Same | Same | Old equipment contains refrigerant (legally required to be recovered, not vented) and must be properly disposed of. Disposal should be in every bid. |
-| **Equipment warranty -- parts** | [X years] | Same | Same | Base manufacturer warranties are typically 5 years parts; registered warranties (requires contractor to register the equipment online within 60-90 days of installation) extend to 10 years on parts for most major brands. Confirm the contractor will register the warranty. |
-| **Workmanship warranty** | [X years] | Same | Same | Standard residential HVAC workmanship warranty is 1-2 years; good contractors offer 5 years. |
+| Scope Element                                                               | Contractor A ($4,200)     | Contractor B ($6,800) | Contractor C ($8,900) | Why It Matters                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------- | ------------------------- | --------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Equipment brand and model**                                               | [Ask for specifics]       | [Ask for specifics]   | [Ask for specifics]   | Brand-tier and model determine efficiency, reliability, and warranty. Budget brands (Goodman, Ameristar) are legitimate but different from mid-tier (Carrier, Trane, Lennox) and carry different warranties.                                                                                                                                  |
+| **Tonnage**                                                                 | [X ton]                   | [X ton]               | [X ton]               | Undersizing saves money at install but strains the system; oversizing wastes money and causes humidity problems. All three should quote the same tonnage -- if they differ, ask how they sized the system. A Manual J load calculation is the professional standard.                                                                          |
+| **SEER rating (efficiency)**                                                | [X SEER]                  | [X SEER]              | [X SEER]              | Federal minimum is 14 SEER (South) / 13 SEER (North) as of 2023; new federal SEER2 standards apply to new equipment. A 16 SEER unit uses ~12% less electricity than a 14 SEER unit -- this has a payback period of approximately 5-7 years on a typical cooling bill. 18+ SEER variable speed units have 10-12 year payback periods.          |
+| **Condenser replacement only vs. full system (condenser + coil + handler)** | [Condenser only or full?] | [Full system?]        | [Full system?]        | If Contractor A is replacing only the outdoor condenser unit while B and C are replacing the entire system (including air handler/evaporator coil), the scope difference fully explains the price gap. Mismatched systems (new condenser with old coil) are inefficient, may void the manufacturer warranty, and can cause premature failure. |
+| **Refrigerant type**                                                        | [R-410A or R-454B?]       | Same                  | Same                  | R-410A is being phased out under EPA regulations; new equipment as of 2025 must use R-454B (Puron Advance) or equivalent low-GWP refrigerant. If Contractor A is quoting an older R-410A unit from existing inventory, verify the equipment is current-production and that parts/refrigerant will remain available.                           |
+| **Line set replacement vs. reuse**                                          | [New or reuse?]           | Same                  | Same                  | Copper refrigerant line sets can be reused if they are in good condition, correctly sized for the new equipment, and leak-free. Replacing line sets adds $300-700 but eliminates a common source of efficiency loss and early failures.                                                                                                       |
+| **Disconnect box and electrical inspection**                                | [Included?]               | Same                  | Same                  | The outdoor disconnect box should be inspected and replaced if it is old, undersized, or corroded. Electrical work on the disconnect requires a licensed electrician in most states -- confirm who does this and whether it is in the bid.                                                                                                    |
+| **Permit fees**                                                             | [Included?]               | Same                  | Same                  | Mechanical permits for HVAC replacement typically cost $75-250 depending on jurisdiction. If excluded from one bid, add it to the comparison price.                                                                                                                                                                                           |
+| **Refrigerant charge and startup commissioning**                            | [Included?]               | Same                  | Same                  | Proper startup requires charging the system to manufacturer specifications, verifying superheat and subcooling, and documenting equipment performance. This is a 1-2 hour process. A contractor who does a 30-minute install and leaves without commissioning is cutting corners.                                                             |
+| **Removal and disposal of old equipment**                                   | [Included?]               | Same                  | Same                  | Old equipment contains refrigerant (legally required to be recovered, not vented) and must be properly disposed of. Disposal should be in every bid.                                                                                                                                                                                          |
+| **Equipment warranty -- parts**                                             | [X years]                 | Same                  | Same                  | Base manufacturer warranties are typically 5 years parts; registered warranties (requires contractor to register the equipment online within 60-90 days of installation) extend to 10 years on parts for most major brands. Confirm the contractor will register the warranty.                                                                |
+| **Workmanship warranty**                                                    | [X years]                 | Same                  | Same                  | Standard residential HVAC workmanship warranty is 1-2 years; good contractors offer 5 years.                                                                                                                                                                                                                                                  |
 
 **Scope-Adjusted Price Analysis (example scenario):**
 Assume the investigation reveals:
+
 - Contractor A ($4,200): condenser-only replacement, reusing 15-year-old air handler, 14 SEER, R-410A inventory unit, permit not included, no commissioning in scope
 - Contractor B ($6,800): full system (condenser + coil + air handler), 16 SEER, new refrigerant type, permit included, full startup commissioning, 5-year workmanship warranty
 - Contractor C ($8,900): full system, 18 SEER variable-speed unit, new line set, permit included, 10-year registered parts warranty, 5-year workmanship warranty
 
 Scope-adjusted comparison:
+
 - Contractor A effective cost for same full-system scope: ~$6,000-6,500 (add air handler $1,500-2,000, permit ~$150, plus risks of mismatched system)
 - Contractor B: $6,800 -- strong value; the apparent "middle" bid is actually the best-specified mid-tier option
 - Contractor C: $8,900 -- premium equipment; justified if you plan to stay in the home 10+ years and value the energy savings and extended warranty
@@ -460,18 +466,19 @@ Scope-adjusted comparison:
 
 ### Red Flag Assessment
 
-| Red Flag | Contractor A ($4,200) | Contractor B ($6,800) | Contractor C ($8,900) |
-|----------|-----------------------|-----------------------|-----------------------|
-| Requires >30% deposit upfront | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Cannot provide license or COI promptly | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Verbal/lump-sum bid only -- no line items | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Cannot confirm EPA 608 certification | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Suggests skipping mechanical permit | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Will not register manufacturer warranty | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| Proposes mismatched system without disclosure | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
-| No references or references don't answer | ☐ Yes ☐ No | ☐ Yes ☐ No | ☐ Yes ☐ No |
+| Red Flag                                      | Contractor A ($4,200) | Contractor B ($6,800) | Contractor C ($8,900) |
+| --------------------------------------------- | --------------------- | --------------------- | --------------------- |
+| Requires >30% deposit upfront                 | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Cannot provide license or COI promptly        | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Verbal/lump-sum bid only -- no line items     | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Cannot confirm EPA 608 certification          | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Suggests skipping mechanical permit           | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Will not register manufacturer warranty       | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| Proposes mismatched system without disclosure | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
+| No references or references don't answer      | ☐ Yes ☐ No            | ☐ Yes ☐ No            | ☐ Yes ☐ No            |
 
 **Notes on HVAC-specific red flags:**
+
 - A contractor who quotes without measuring your home (square footage, insulation levels, window area, ceiling height) and simply matches the tonnage of the old unit is not doing a proper load calculation. Systems are routinely oversized, which reduces dehumidification and increases operating cost. If a contractor quotes over the phone without a site visit, ask how they sized the system.
 - Any contractor who says they do not need to pull a permit is telling you they intend to do unlicensed, uninspected work. HVAC permits exist because improper refrigerant handling is an environmental violation and improper electrical connections are a fire hazard. A permit is approximately $100-200 and is not optional.
 

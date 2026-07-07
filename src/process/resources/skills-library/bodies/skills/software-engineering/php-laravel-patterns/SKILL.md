@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "php frameworks backend"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'php frameworks backend'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PHP Laravel Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure a Laravel application beyond basic MVC -- service layers, repositories, domain organization
 - User wants to implement a specific Laravel pattern such as Repository, Service, Action, DTO, Observer, Policy, or Event-Listener
 - User needs guidance on separating business logic from controllers or Eloquent models
@@ -30,6 +32,7 @@ metadata:
 - User asks about testing patterns specific to Laravel -- factories, fakes, mocking Facades, HTTP tests
 
 **Do NOT use this skill when:**
+
 - User needs raw PHP object-oriented design patterns without Laravel context -- use a general PHP OOP skill
 - User asks about Laravel installation, environment setup, or basic Artisan commands -- those are onboarding topics
 - User is debugging a specific Laravel error unrelated to architecture -- use a debugging skill
@@ -330,12 +333,14 @@ When introducing Data Transfer Objects to replace passing arrays:
 ## Laravel Pattern Recommendation
 
 ### Context Assessment
+
 - Application scale: Medium (SaaS with growing billing complexity)
 - Team size: 4 developers
 - Layer affected: Controller, Service, Events/Listeners, Model
 - Primary problem: Multi-step transactional operation with sync and async side effects mixed inside a controller
 
 ### Recommended Patterns
+
 - **Service Layer** for the orchestration of the upgrade operation (transactional boundary)
 - **Action Class** for the discrete charge step (wraps external payment API call)
 - **Events + Queued Listeners** for email and analytics (decoupled async side effects)
@@ -346,14 +351,14 @@ When introducing Data Transfer Objects to replace passing arrays:
 
 ### Architecture Decision
 
-| Criterion              | Chosen Approach              | Alternative              | Reason for Choice                               |
-|------------------------|------------------------------|--------------------------|--------------------------------------------------|
-| Orchestration          | UpgradeSubscriptionService   | Fat Controller           | Testability, reuse from CLI/webhook contexts     |
-| Payment charge step    | ChargePaymentMethod Action   | Inline in Service        | External API call deserves isolated class        |
-| DB transaction         | DB::transaction()            | No transaction           | 3 writes must be atomic                          |
-| Email delivery         | Queued Listener              | Mail::send() in Service  | Decoupling, retry capability, non-blocking       |
-| Analytics logging      | Queued Listener              | Synchronous DB insert    | Analytics failure must not affect upgrade result |
-| Authorization          | Form Request + Policy        | Inline controller check  | Centralized, testable                            |
+| Criterion           | Chosen Approach            | Alternative             | Reason for Choice                                |
+| ------------------- | -------------------------- | ----------------------- | ------------------------------------------------ |
+| Orchestration       | UpgradeSubscriptionService | Fat Controller          | Testability, reuse from CLI/webhook contexts     |
+| Payment charge step | ChargePaymentMethod Action | Inline in Service       | External API call deserves isolated class        |
+| DB transaction      | DB::transaction()          | No transaction          | 3 writes must be atomic                          |
+| Email delivery      | Queued Listener            | Mail::send() in Service | Decoupling, retry capability, non-blocking       |
+| Analytics logging   | Queued Listener            | Synchronous DB insert   | Analytics failure must not affect upgrade result |
+| Authorization       | Form Request + Policy      | Inline controller check | Centralized, testable                            |
 
 ### File Structure
 

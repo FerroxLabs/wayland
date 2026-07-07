@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics checklist template python javascript testing analysis"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics checklist template python javascript testing analysis'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Visualization Artist
 
 You are an expert data visualization practitioner who selects the right chart for every insight, applies perceptual design principles, and produces publication-quality graphics across matplotlib, plotly, seaborn, and D3.js.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about data visualization artist techniques or best practices
 - User needs guidance on data visualization artist concepts
 - User wants to implement or improve their approach to data visualization artist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of data visualization artist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,28 +38,28 @@ You are an expert data visualization practitioner who selects the right chart fo
 
 ### By Analysis Goal
 
-| Goal | Best Charts | When to Use |
-|------|-------------|-------------|
-| **Comparison** | Bar, Grouped bar, Dot plot | Comparing values across categories |
-| **Distribution** | Histogram, KDE, Box, Violin | Understanding spread and shape |
-| **Relationship** | Scatter, Bubble, Heatmap | Correlation between variables |
-| **Composition** | Stacked bar, Treemap, Waffle | Parts of a whole |
-| **Trend** | Line, Area, Sparkline | Change over time |
-| **Ranking** | Horizontal bar, Lollipop, Bump | Ordered comparisons |
-| **Geospatial** | Choropleth, Bubble map, Hexbin | Location-based data |
-| **Flow** | Sankey, Alluvial, Chord | Movement between states |
+| Goal             | Best Charts                    | When to Use                        |
+| ---------------- | ------------------------------ | ---------------------------------- |
+| **Comparison**   | Bar, Grouped bar, Dot plot     | Comparing values across categories |
+| **Distribution** | Histogram, KDE, Box, Violin    | Understanding spread and shape     |
+| **Relationship** | Scatter, Bubble, Heatmap       | Correlation between variables      |
+| **Composition**  | Stacked bar, Treemap, Waffle   | Parts of a whole                   |
+| **Trend**        | Line, Area, Sparkline          | Change over time                   |
+| **Ranking**      | Horizontal bar, Lollipop, Bump | Ordered comparisons                |
+| **Geospatial**   | Choropleth, Bubble map, Hexbin | Location-based data                |
+| **Flow**         | Sankey, Alluvial, Chord        | Movement between states            |
 
 ### By Data Type
 
-| Data Combination | Recommended Charts |
-|---|---|
-| 1 numeric | Histogram, KDE, Box plot |
-| 1 categorical | Bar chart, Pie (sparingly) |
-| 2 numeric | Scatter, Hexbin, 2D histogram |
-| 1 numeric + 1 categorical | Box, Violin, Strip, Swarm |
-| 2 categorical | Heatmap, Mosaic, Grouped bar |
-| Numeric over time | Line, Area, Candlestick |
-| Many numeric | Parallel coordinates, Radar, Pair plot |
+| Data Combination          | Recommended Charts                     |
+| ------------------------- | -------------------------------------- |
+| 1 numeric                 | Histogram, KDE, Box plot               |
+| 1 categorical             | Bar chart, Pie (sparingly)             |
+| 2 numeric                 | Scatter, Hexbin, 2D histogram          |
+| 1 numeric + 1 categorical | Box, Violin, Strip, Swarm              |
+| 2 categorical             | Heatmap, Mosaic, Grouped bar           |
+| Numeric over time         | Line, Area, Candlestick                |
+| Many numeric              | Parallel coordinates, Radar, Pair plot |
 
 ## Matplotlib Foundation
 
@@ -289,43 +290,44 @@ function createBarChart(data, selector) {
   const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
 
-  const svg = container.append("svg")
-    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+  const svg = container
+    .append('svg')
+    .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    .append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
 
-  const x = d3.scaleBand()
-    .domain(data.map(d => d.category))
+  const x = d3
+    .scaleBand()
+    .domain(data.map((d) => d.category))
     .range([0, width])
     .padding(0.2);
 
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.value) * 1.1])
+  const y = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (d) => d.value) * 1.1])
     .range([height, 0]);
 
   // Bars with transition
-  svg.selectAll("rect")
+  svg
+    .selectAll('rect')
     .data(data)
-    .join("rect")
-    .attr("x", d => x(d.category))
-    .attr("width", x.bandwidth())
-    .attr("y", height)
-    .attr("height", 0)
-    .attr("fill", "#2563eb")
-    .attr("rx", 4)
+    .join('rect')
+    .attr('x', (d) => x(d.category))
+    .attr('width', x.bandwidth())
+    .attr('y', height)
+    .attr('height', 0)
+    .attr('fill', '#2563eb')
+    .attr('rx', 4)
     .transition()
     .duration(800)
     .delay((d, i) => i * 100)
-    .attr("y", d => y(d.value))
-    .attr("height", d => height - y(d.value));
+    .attr('y', (d) => y(d.value))
+    .attr('height', (d) => height - y(d.value));
 
   // Axes
-  svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x));
+  svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x));
 
-  svg.append("g")
-    .call(d3.axisLeft(y).ticks(6));
+  svg.append('g').call(d3.axisLeft(y).ticks(6));
 }
 ```
 
@@ -364,18 +366,18 @@ palettes = {
 
 ## Design Principles Checklist
 
-| Principle | Application |
-|-----------|-------------|
-| Data-ink ratio | Remove gridlines, borders, backgrounds that add no information |
-| Pre-attentive attributes | Use color, size, position to highlight key insights |
-| Gestalt principles | Group related elements, separate unrelated ones |
-| Direct labeling | Label data points directly instead of using legends when possible |
-| Consistent scales | Same metric should use same scale across panels |
-| Zero baseline | Bar charts must start at zero; line charts may not need to |
-| Title as insight | "Revenue grew 23% in Q4" not "Revenue by Quarter" |
-| Annotation | Add context: events, thresholds, benchmarks |
-| White space | Do not crowd the visualization; let it breathe |
-| Sort meaningfully | Sort bars by value, not alphabetically |
+| Principle                | Application                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| Data-ink ratio           | Remove gridlines, borders, backgrounds that add no information    |
+| Pre-attentive attributes | Use color, size, position to highlight key insights               |
+| Gestalt principles       | Group related elements, separate unrelated ones                   |
+| Direct labeling          | Label data points directly instead of using legends when possible |
+| Consistent scales        | Same metric should use same scale across panels                   |
+| Zero baseline            | Bar charts must start at zero; line charts may not need to        |
+| Title as insight         | "Revenue grew 23% in Q4" not "Revenue by Quarter"                 |
+| Annotation               | Add context: events, thresholds, benchmarks                       |
+| White space              | Do not crowd the visualization; let it breathe                    |
+| Sort meaningfully        | Sort bars by value, not alphabetically                            |
 
 ## Export and Output Formats
 
@@ -410,7 +412,6 @@ fig.write_image('chart.png', width=1200, height=800, scale=2)
 9. **Default styling** - Always customize beyond library defaults
 10. **No annotation** - Charts without context force the reader to guess the story
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -418,7 +419,6 @@ fig.write_image('chart.png', width=1200, height=800, scale=2)
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -439,14 +439,12 @@ fig.write_image('chart.png', width=1200, height=800, scale=2)
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

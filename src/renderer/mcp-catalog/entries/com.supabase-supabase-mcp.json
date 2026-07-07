@@ -7,9 +7,7 @@
   "websiteUrl": "https://supabase.com/docs/guides/getting-started/mcp",
   "repository": { "url": "https://github.com/supabase-community/supabase-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.supabase.com/mcp" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.supabase.com/mcp" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["developer", "data", "devops"],

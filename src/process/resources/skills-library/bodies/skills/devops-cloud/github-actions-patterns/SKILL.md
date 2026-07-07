@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ci-cd devops cloud"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ci-cd devops cloud'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # GitHub Actions Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure a GitHub Actions workflow for a real project -- CI pipeline, CD pipeline, or both
 - User wants to implement reusable workflows, composite actions, or matrix builds across multiple repositories
 - User needs to design environment promotion pipelines (dev → staging → production) with approval gates
@@ -31,6 +33,7 @@ metadata:
 - User asks about self-hosted runners, runner scaling, or cost optimization for GitHub Actions usage
 
 **Do NOT use this skill when:**
+
 - User needs Kubernetes deployment patterns -- use the kubernetes-deployment skill in devops-cloud
 - User needs container build optimization (Dockerfile best practices) -- use the docker-containerization skill
 - User needs infrastructure-as-code patterns with Terraform or Pulumi -- use the infrastructure-as-code skill
@@ -146,7 +149,7 @@ When producing GitHub Actions workflow files, use this structure:
 # Triggers: {which events trigger this}
 # Environments: {which environments this touches}
 
-name: {Human Readable Workflow Name}
+name: { Human Readable Workflow Name }
 
 on:
   push:
@@ -243,7 +246,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write  # Required for OIDC
+      id-token: write # Required for OIDC
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build-push.outputs.digest }}
@@ -351,14 +354,14 @@ jobs:
 
 Decision matrix for workflow architecture:
 
-| Factor | Single-file pipeline | Split CI/CD | Reusable workflows |
-|---|---|---|---|
-| Team size | 1-3 engineers | 4-15 engineers | 10+ engineers or 3+ repos |
-| Repository count | 1 repo | 1-3 repos | 3+ repos |
-| Maintenance overhead | Low | Medium | Medium (high initial, low ongoing) |
-| Flexibility | High | High | Medium (contract-bound) |
-| Drift prevention | N/A | Manual | Enforced by shared caller |
-| When to choose | Greenfield / prototype | Standard production app | Platform teams, org standardization |
+| Factor               | Single-file pipeline   | Split CI/CD             | Reusable workflows                  |
+| -------------------- | ---------------------- | ----------------------- | ----------------------------------- |
+| Team size            | 1-3 engineers          | 4-15 engineers          | 10+ engineers or 3+ repos           |
+| Repository count     | 1 repo                 | 1-3 repos               | 3+ repos                            |
+| Maintenance overhead | Low                    | Medium                  | Medium (high initial, low ongoing)  |
+| Flexibility          | High                   | High                    | Medium (contract-bound)             |
+| Drift prevention     | N/A                    | Manual                  | Enforced by shared caller           |
+| When to choose       | Greenfield / prototype | Standard production app | Platform teams, org standardization |
 
 ---
 
@@ -622,13 +625,13 @@ name: Deploy to Staging
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ['CI']
     types: [completed]
     branches: [main]
 
 permissions:
   contents: read
-  id-token: write  # Required for OIDC to AWS
+  id-token: write # Required for OIDC to AWS
 
 jobs:
   deploy-staging:
@@ -772,3 +775,4 @@ jobs:
         with:
           # Separate role from staging -- production role has more restrictive trust policy
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID
+```

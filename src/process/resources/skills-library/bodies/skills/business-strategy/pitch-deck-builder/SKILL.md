@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship presentation strategy"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship presentation strategy'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pitch Deck Builder
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to build an investor pitch deck with narrative architecture and financial slide design
 - The user wants slide-by-slide templates, storytelling techniques, or delivery coaching for fundraising presentations
 - The user needs to version a pitch deck for different audiences (seed, Series A, corporate partners)
 - The user wants to avoid common pitch deck mistakes that undermine fundraising rounds
 
 **Do NOT use this skill when:**
+
 - The user is creating a business plan rather than a pitch deck (use business-planner instead)
 - The user needs startup strategy beyond the pitch (use startup-advisor instead)
 - The user wants presentation design for non-fundraising contexts (use relevant presentation skill)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on pitch deck builder
 - User asks about pitch deck builder best practices or techniques
 - User wants a structured approach to pitch deck builder
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of pitch deck builder
 
@@ -72,6 +76,7 @@ You are a pitch deck strategist who has helped founders raise from pre-seed thro
 Every deck needs a narrative spine. Pick the one that matches your strongest asset.
 
 **Spine A: The Problem Is Massive (Market-Led)**
+
 ```
 The world wastes $X billion on [problem].
 Existing solutions fail because [insight].
@@ -80,9 +85,11 @@ It is working: [traction proof].
 The market is [$size] and growing.
 We need [$amount] to capture it.
 ```
+
 Best for: Large TAM stories, marketplace plays, infrastructure.
 
 **Spine B: We Found Something Others Missed (Insight-Led)**
+
 ```
 Everyone assumes [conventional wisdom].
 But we discovered [contrarian insight].
@@ -91,9 +98,11 @@ Early results prove the thesis: [data].
 This unlocks a [$size] opportunity.
 Here is what we need to scale it.
 ```
+
 Best for: Deep tech, novel approaches, founder-market fit stories.
 
 **Spine C: Look at This Growth (Traction-Led)**
+
 ```
 We are growing at [X]% month over month.
 Here is what we built and why users love it.
@@ -101,9 +110,11 @@ Here is the unit economics that prove the model.
 Here is the market we are capturing.
 Here is how we accelerate with your capital.
 ```
+
 Best for: Series A and beyond, strong revenue or user metrics.
 
 **Spine D: The Team Has Done This Before (Team-Led)**
+
 ```
 We are [team credentials with relevant exits/experience].
 We identified [problem] from our domain expertise.
@@ -111,6 +122,7 @@ We built [solution] leveraging our [unfair advantage].
 Early signals confirm the opportunity.
 With your backing, here is what we achieve.
 ```
+
 Best for: Pre-product companies with exceptional founders.
 
 ### The Emotional Arc
@@ -127,6 +139,7 @@ RESOLUTION (slides 10-12): Clear ask. Defined milestones. Confident close.
 ## Slide-by-Slide Construction
 
 ### Slide 1: Title
+
 ```
 ELEMENTS:
 - Company name and logo
@@ -143,6 +156,7 @@ RULES:
 ```
 
 ### Slide 2: Problem
+
 ```
 STRUCTURE:
 - One clear problem statement (1-2 sentences)
@@ -163,6 +177,7 @@ COMMON MISTAKE: Describing a problem nobody is willing to pay to solve.
 ```
 
 ### Slide 3: Solution
+
 ```
 STRUCTURE:
 - What you built (one sentence)
@@ -182,6 +197,7 @@ The result: [quantified outcome for the user]."
 ```
 
 ### Slide 4: Why Now
+
 ```
 CONVERGING FORCES TEMPLATE:
 - Technology enabler: [new capability that did not exist 3 years ago]
@@ -201,6 +217,7 @@ fundable ones.
 ```
 
 ### Slide 5: Market Size
+
 ```
 BOTTOM-UP METHODOLOGY (preferred):
   Number of target customers: [X]
@@ -223,6 +240,7 @@ CREDIBILITY RULES:
 ```
 
 ### Slide 6: Product / Demo
+
 ```
 OPTION A: Annotated Screenshots (email deck)
   3 screens max. Each with a one-line callout.
@@ -245,6 +263,7 @@ your settings page. Show the one thing that makes users say "wow."
 ```
 
 ### Slide 7: Business Model
+
 ```
 TEMPLATE:
   Revenue model: [SaaS / Marketplace / Transactional / Usage-based]
@@ -266,6 +285,7 @@ STAGE-APPROPRIATE EXPECTATIONS:
 ```
 
 ### Slide 8: Traction
+
 ```
 THE MOST IMPORTANT SLIDE FOR FUNDED COMPANIES.
 
@@ -289,6 +309,7 @@ you do NOT show. Know every number in your business.
 ```
 
 ### Slide 9: Competition
+
 ```
 POSITIONING MATRIX:
   Choose two axes where you clearly differentiate.
@@ -309,6 +330,7 @@ We serve [segment] better because [reason]."
 ```
 
 ### Slide 10: Team
+
 ```
 TEMPLATE (per founder):
   [Name] -- [Title]
@@ -330,6 +352,7 @@ COMMON MISTAKE: Listing every employee. Show 2-4 key people maximum.
 ```
 
 ### Slide 11: Financials
+
 ```
 PROJECTION TABLE:
             Year 1      Year 2      Year 3
@@ -353,6 +376,7 @@ RULES:
 ```
 
 ### Slide 12: The Ask
+
 ```
 TEMPLATE:
   Raising: $[amount] [instrument: SAFE / Convertible Note / Priced Round]
@@ -381,6 +405,7 @@ RULES:
 ## Financial Slide Design
 
 ### Revenue Projections Chart
+
 ```
 BEST PRACTICES:
 - Use bar charts for revenue (easy to read growth)
@@ -392,6 +417,7 @@ BEST PRACTICES:
 ```
 
 ### Unit Economics Visual
+
 ```
 FUNNEL VISUALIZATION:
   Visitors: [X] per month
@@ -411,6 +437,7 @@ Investors immediately see the health of your acquisition engine.
 ## Delivery Coaching
 
 ### Presentation Timing
+
 ```
 3-MINUTE PITCH (demo day, elevator):
   Problem: 30s | Solution: 30s | Traction: 45s | Ask: 30s | Buffer: 45s
@@ -426,6 +453,7 @@ Investors immediately see the health of your acquisition engine.
 ```
 
 ### Delivery Techniques
+
 ```
 OPENING: Start with the problem, not your company history.
   BAD: "Hi, I am [name] and I founded [company] in [year]..."
@@ -524,7 +552,6 @@ BUILD THREE VERSIONS:
 - [ ] One-pager created for cold outreach
 - [ ] Deck reviewed by someone outside the company
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -537,13 +564,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with pitch deck builder for a mid-size project."
 
 **Output:** A complete pitch deck builder framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

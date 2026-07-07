@@ -15,9 +15,24 @@
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "AWS_ACCESS_KEY_ID", "description": "IAM access key ID.", "isRequired": true, "isSecret": false },
-        { "name": "AWS_SECRET_ACCESS_KEY", "description": "IAM secret access key.", "isRequired": true, "isSecret": true },
-        { "name": "AWS_REGION", "description": "Default AWS region (e.g. us-east-1).", "isRequired": false, "default": "us-east-1" },
-        { "name": "AWS_SESSION_TOKEN", "description": "Session token (only required for temporary credentials).", "isRequired": false, "isSecret": true }
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "description": "IAM secret access key.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "AWS_REGION",
+          "description": "Default AWS region (e.g. us-east-1).",
+          "isRequired": false,
+          "default": "us-east-1"
+        },
+        {
+          "name": "AWS_SESSION_TOKEN",
+          "description": "Session token (only required for temporary credentials).",
+          "isRequired": false,
+          "isSecret": true
+        }
       ]
     }
   ],
@@ -29,7 +44,7 @@
     "license": "Apache-2.0",
     "verifiedAt": "2026-05-12",
     "popularityRank": 38,
-    "installRate": 0.20,
+    "installRate": 0.2,
     "iconUrl": "icons/aws.svg",
     "brand": { "logoBackground": "#ffffff", "logoForeground": "#ff9900" },
     "auth": {

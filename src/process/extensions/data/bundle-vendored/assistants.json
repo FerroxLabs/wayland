@@ -1229,9 +1229,7 @@
     "avatar": "icons/quiet-money-standing.svg",
     "presetAgentType": "claude",
     "contextFile": "assistants/launchers/quiet-money-standing.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing Quiet Money - first run + workspace bootstrap.",
       "What did this week's Friday question say?",
@@ -1239,9 +1237,7 @@
     ],
     "category": "office",
     "kind": "team",
-    "teammates": [
-      "quiet-money"
-    ],
+    "teammates": ["quiet-money"],
     "standing": true,
     "rituals": [
       {
@@ -1961,11 +1957,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "copy",
-      "sales"
-    ],
+    "teammates": ["research", "copy", "sales"],
     "standing": false,
     "kickoffs": [
       {
@@ -2034,13 +2026,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "mira",
-      "copy",
-      "beacon",
-      "sales"
-    ],
+    "teammates": ["research", "mira", "copy", "beacon", "sales"],
     "standing": false,
     "kickoffs": [
       {
@@ -2109,11 +2095,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "sales",
-      "forge"
-    ],
+    "teammates": ["research", "sales", "forge"],
     "standing": false,
     "kickoffs": [
       {
@@ -2182,12 +2164,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "spark",
-      "copy",
-      "mira",
-      "beacon"
-    ],
+    "teammates": ["spark", "copy", "mira", "beacon"],
     "standing": false,
     "kickoffs": [
       {
@@ -2256,11 +2233,7 @@
     ],
     "category": "research",
     "kind": "team",
-    "teammates": [
-      "probe",
-      "research",
-      "forge"
-    ],
+    "teammates": ["probe", "research", "forge"],
     "standing": false,
     "kickoffs": [
       {
@@ -2330,12 +2303,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "sales",
-      "copy",
-      "beacon"
-    ],
+    "teammates": ["research", "sales", "copy", "beacon"],
     "standing": false,
     "kickoffs": [
       {
@@ -2404,12 +2372,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "stage",
-      "coin",
-      "mira",
-      "copy"
-    ],
+    "teammates": ["stage", "coin", "mira", "copy"],
     "standing": false,
     "kickoffs": [
       {
@@ -2478,12 +2441,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "sentry",
-      "coin",
-      "mira",
-      "patch"
-    ],
+    "teammates": ["sentry", "coin", "mira", "patch"],
     "standing": false,
     "kickoffs": [
       {
@@ -2552,12 +2510,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "coin",
-      "forge",
-      "beacon",
-      "sales"
-    ],
+    "teammates": ["coin", "forge", "beacon", "sales"],
     "standing": false,
     "kickoffs": [
       {
@@ -2626,12 +2579,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "copy",
-      "beacon",
-      "lens"
-    ],
+    "teammates": ["research", "copy", "beacon", "lens"],
     "standing": false,
     "kickoffs": [
       {
@@ -2700,11 +2648,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "patch",
-      "copy"
-    ],
+    "teammates": ["mend", "patch", "copy"],
     "standing": false,
     "kickoffs": [
       {
@@ -2773,11 +2717,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "lens",
-      "research",
-      "beacon"
-    ],
+    "teammates": ["lens", "research", "beacon"],
     "standing": false,
     "kickoffs": [
       {
@@ -2846,12 +2786,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "copy",
-      "mira",
-      "beacon",
-      "spark"
-    ],
+    "teammates": ["copy", "mira", "beacon", "spark"],
     "standing": false,
     "kickoffs": [
       {
@@ -2927,13 +2862,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "vault",
-      "copy",
-      "beacon",
-      "mira",
-      "mend"
-    ],
+    "teammates": ["vault", "copy", "beacon", "mira", "mend"],
     "standing": false,
     "kickoffs": [
       {
@@ -3002,12 +2931,7 @@
     ],
     "category": "build",
     "kind": "team",
-    "teammates": [
-      "smith",
-      "probe",
-      "copy",
-      "mira"
-    ],
+    "teammates": ["smith", "probe", "copy", "mira"],
     "standing": false,
     "kickoffs": [
       {
@@ -3077,12 +3001,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "beacon",
-      "copy",
-      "mira",
-      "verdict"
-    ],
+    "teammates": ["beacon", "copy", "mira", "verdict"],
     "standing": false,
     "kickoffs": [
       {
@@ -3151,12 +3070,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "research",
-      "sales",
-      "forge",
-      "patch"
-    ],
+    "teammates": ["research", "sales", "forge", "patch"],
     "standing": false,
     "kickoffs": [
       {
@@ -3225,16 +3139,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "mira",
-      "forge",
-      "beacon",
-      "coin",
-      "copy",
-      "lens",
-      "verdict"
-    ],
+    "teammates": ["research", "mira", "forge", "beacon", "coin", "copy", "lens", "verdict"],
     "standing": false,
     "kickoffs": [
       {
@@ -3303,12 +3208,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "research",
-      "sentry",
-      "copy",
-      "mira"
-    ],
+    "teammates": ["research", "sentry", "copy", "mira"],
     "standing": false,
     "kickoffs": [
       {
@@ -3377,9 +3277,7 @@
     "avatar": "icons/marketing-agency.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/marketing-agency.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing marketing agency - first run.",
       "Open the agency - what's new since last week?",
@@ -3387,13 +3285,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "mira",
-      "beacon",
-      "copy",
-      "lens"
-    ],
+    "teammates": ["research", "mira", "beacon", "copy", "lens"],
     "standing": true,
     "rituals": [
       {
@@ -3462,9 +3354,7 @@
     "avatar": "icons/sales-org.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/sales-org.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing sales org - first run.",
       "Open the sales org - what's on the pipeline this week?",
@@ -3472,12 +3362,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "sales",
-      "research",
-      "forge",
-      "lens"
-    ],
+    "teammates": ["sales", "research", "forge", "lens"],
     "standing": true,
     "rituals": [
       {
@@ -3546,9 +3431,7 @@
     "avatar": "icons/customer-success-org.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/customer-success-org.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing CS org - first run.",
       "Open CS - any at-risk accounts since last week?",
@@ -3556,12 +3439,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "sales",
-      "lens",
-      "patch"
-    ],
+    "teammates": ["mend", "sales", "lens", "patch"],
     "standing": true,
     "rituals": [
       {
@@ -3630,9 +3508,7 @@
     "avatar": "icons/editorial-newsroom.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/editorial-newsroom.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing newsroom - first run.",
       "Open the newsroom - what's queued for this week?",
@@ -3640,13 +3516,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "copy",
-      "research",
-      "mira",
-      "beacon",
-      "lens"
-    ],
+    "teammates": ["copy", "research", "mira", "beacon", "lens"],
     "standing": true,
     "rituals": [
       {
@@ -3715,9 +3585,7 @@
     "avatar": "icons/dev-shop.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/dev-shop.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing dev shop - first run.",
       "Open the dev shop - what's shipping this week?",
@@ -3725,12 +3593,7 @@
     ],
     "category": "build",
     "kind": "team",
-    "teammates": [
-      "smith",
-      "patch",
-      "verdict",
-      "sentry"
-    ],
+    "teammates": ["smith", "patch", "verdict", "sentry"],
     "standing": true,
     "rituals": [
       {
@@ -3899,9 +3762,7 @@
     "avatar": "icons/book-publishing-house.svg",
     "presetAgentType": "gemini",
     "contextFile": "assistants/launchers/book-publishing-house.md",
-    "enabledSkills": [
-      "cron"
-    ],
+    "enabledSkills": ["cron"],
     "prompts": [
       "Set up my standing publishing house - first run.",
       "Open the publishing house - where is my book right now?",
@@ -3962,12 +3823,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "beacon",
-      "copy",
-      "lens",
-      "research"
-    ],
+    "teammates": ["beacon", "copy", "lens", "research"],
     "standing": false
   },
   {
@@ -3984,12 +3840,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "forge",
-      "copy",
-      "lens",
-      "beacon"
-    ],
+    "teammates": ["forge", "copy", "lens", "beacon"],
     "standing": false
   },
   {
@@ -4006,12 +3857,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "research",
-      "spark",
-      "lens",
-      "verdict"
-    ],
+    "teammates": ["research", "spark", "lens", "verdict"],
     "standing": false
   },
   {
@@ -4028,12 +3874,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "sales",
-      "research",
-      "copy",
-      "mend"
-    ],
+    "teammates": ["sales", "research", "copy", "mend"],
     "standing": false
   },
   {
@@ -4050,12 +3891,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "research",
-      "copy",
-      "lens",
-      "mend"
-    ],
+    "teammates": ["research", "copy", "lens", "mend"],
     "standing": false
   },
   {
@@ -4072,12 +3908,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "research",
-      "copy",
-      "verdict",
-      "sentry"
-    ],
+    "teammates": ["research", "copy", "verdict", "sentry"],
     "standing": false
   },
   {
@@ -4094,12 +3925,7 @@
     ],
     "category": "research",
     "kind": "team",
-    "teammates": [
-      "research",
-      "coin",
-      "forge",
-      "verdict"
-    ],
+    "teammates": ["research", "coin", "forge", "verdict"],
     "standing": false
   },
   {
@@ -4116,12 +3942,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "research",
-      "copy",
-      "verdict",
-      "smith"
-    ],
+    "teammates": ["research", "copy", "verdict", "smith"],
     "standing": false
   },
   {
@@ -4138,12 +3959,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "lens",
-      "sentry",
-      "verdict",
-      "smith"
-    ],
+    "teammates": ["lens", "sentry", "verdict", "smith"],
     "standing": false
   },
   {
@@ -4160,12 +3976,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "lens",
-      "research",
-      "copy",
-      "verdict"
-    ],
+    "teammates": ["lens", "research", "copy", "verdict"],
     "standing": false
   },
   {
@@ -4182,12 +3993,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "beacon",
-      "research",
-      "copy",
-      "patch"
-    ],
+    "teammates": ["beacon", "research", "copy", "patch"],
     "standing": false
   },
   {
@@ -4204,12 +4010,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "vault",
-      "research",
-      "copy",
-      "verdict"
-    ],
+    "teammates": ["vault", "research", "copy", "verdict"],
     "standing": false
   },
   {
@@ -4226,12 +4027,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "patch",
-      "lens",
-      "coin"
-    ],
+    "teammates": ["mend", "patch", "lens", "coin"],
     "standing": false
   },
   {
@@ -4248,12 +4044,7 @@
     ],
     "category": "research",
     "kind": "team",
-    "teammates": [
-      "research",
-      "lens",
-      "coin",
-      "verdict"
-    ],
+    "teammates": ["research", "lens", "coin", "verdict"],
     "standing": false
   },
   {
@@ -4270,12 +4061,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "copy",
-      "lens",
-      "verdict"
-    ],
+    "teammates": ["mend", "copy", "lens", "verdict"],
     "standing": false
   },
   {
@@ -4292,12 +4078,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "lens",
-      "copy",
-      "forge",
-      "beacon"
-    ],
+    "teammates": ["lens", "copy", "forge", "beacon"],
     "standing": false
   },
   {
@@ -4314,12 +4095,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "copy",
-      "research",
-      "beacon",
-      "humanizer"
-    ],
+    "teammates": ["copy", "research", "beacon", "humanizer"],
     "standing": false
   },
   {
@@ -4336,12 +4112,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "copy",
-      "research",
-      "verdict",
-      "mira"
-    ],
+    "teammates": ["copy", "research", "verdict", "mira"],
     "standing": false
   },
   {
@@ -4358,12 +4129,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "copy",
-      "sales",
-      "research"
-    ],
+    "teammates": ["mend", "copy", "sales", "research"],
     "standing": false
   },
   {
@@ -4380,12 +4146,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "copy",
-      "mira",
-      "sales",
-      "research"
-    ],
+    "teammates": ["copy", "mira", "sales", "research"],
     "standing": false
   },
   {
@@ -4402,12 +4163,7 @@
     ],
     "category": "research",
     "kind": "team",
-    "teammates": [
-      "research",
-      "mira",
-      "copy",
-      "verdict"
-    ],
+    "teammates": ["research", "mira", "copy", "verdict"],
     "standing": false
   },
   {
@@ -4424,12 +4180,7 @@
     ],
     "category": "research",
     "kind": "team",
-    "teammates": [
-      "probe",
-      "research",
-      "copy",
-      "lens"
-    ],
+    "teammates": ["probe", "research", "copy", "lens"],
     "standing": false
   },
   {
@@ -4446,12 +4197,7 @@
     ],
     "category": "write",
     "kind": "team",
-    "teammates": [
-      "research",
-      "mira",
-      "copy",
-      "beacon"
-    ],
+    "teammates": ["research", "mira", "copy", "beacon"],
     "standing": false
   },
   {
@@ -4468,12 +4214,7 @@
     ],
     "category": "build",
     "kind": "team",
-    "teammates": [
-      "spark",
-      "copy",
-      "mira",
-      "sales"
-    ],
+    "teammates": ["spark", "copy", "mira", "sales"],
     "standing": false
   },
   {
@@ -4490,12 +4231,7 @@
     ],
     "category": "build",
     "kind": "team",
-    "teammates": [
-      "spark",
-      "copy",
-      "helm",
-      "humanizer"
-    ],
+    "teammates": ["spark", "copy", "helm", "humanizer"],
     "standing": false
   },
   {
@@ -4512,12 +4248,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "mend",
-      "research",
-      "patch",
-      "helm"
-    ],
+    "teammates": ["mend", "research", "patch", "helm"],
     "standing": false
   },
   {
@@ -4534,12 +4265,7 @@
     ],
     "category": "run",
     "kind": "team",
-    "teammates": [
-      "patch",
-      "beacon",
-      "copy",
-      "lens"
-    ],
+    "teammates": ["patch", "beacon", "copy", "lens"],
     "standing": false
   },
   {
@@ -4556,12 +4282,7 @@
     ],
     "category": "office",
     "kind": "team",
-    "teammates": [
-      "helm",
-      "coin",
-      "sentry",
-      "sales"
-    ],
+    "teammates": ["helm", "coin", "sentry", "sales"],
     "standing": false
   },
   {
@@ -4578,13 +4299,7 @@
     ],
     "category": "office",
     "kind": "team",
-    "teammates": [
-      "helm",
-      "coin",
-      "beacon",
-      "sentry",
-      "sales"
-    ],
+    "teammates": ["helm", "coin", "beacon", "sentry", "sales"],
     "standing": false
   },
   {
@@ -4601,13 +4316,7 @@
     ],
     "category": "build",
     "kind": "team",
-    "teammates": [
-      "sentry",
-      "sales",
-      "beacon",
-      "research",
-      "copy"
-    ],
+    "teammates": ["sentry", "sales", "beacon", "research", "copy"],
     "standing": false
   },
   {
@@ -4624,12 +4333,7 @@
     ],
     "category": "office",
     "kind": "team",
-    "teammates": [
-      "sentry",
-      "coin",
-      "sales",
-      "copy"
-    ],
+    "teammates": ["sentry", "coin", "sales", "copy"],
     "standing": false
   },
   {
@@ -4646,12 +4350,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "forge",
-      "coin",
-      "sales",
-      "mira"
-    ],
+    "teammates": ["forge", "coin", "sales", "mira"],
     "standing": false
   },
   {
@@ -4668,12 +4367,7 @@
     ],
     "category": "sell",
     "kind": "team",
-    "teammates": [
-      "sales",
-      "research",
-      "sentry",
-      "copy"
-    ],
+    "teammates": ["sales", "research", "sentry", "copy"],
     "standing": false
   }
 ]

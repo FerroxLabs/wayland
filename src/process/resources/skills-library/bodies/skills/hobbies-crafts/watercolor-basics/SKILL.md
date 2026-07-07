@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Watercolor Basics
 
 ## When to Use
@@ -82,6 +83,7 @@ Provide the correct tier based on the user's budget. Always explain the reasonin
 **Starter-Plus Tier ($35-70):**
 
 All starter items plus:
+
 - **Artist-grade watercolor tubes (6 colors, split-primary palette):** Warm red (Pyrrol Scarlet or Cadmium Red Hue), cool red (Quinacridone Magenta or Permanent Alizarin Crimson), warm yellow (New Gamboge or Cadmium Yellow Hue), cool yellow (Lemon Yellow or Hansa Yellow), warm blue (Ultramarine Blue), cool blue (Phthalo Blue or Cerulean). Six tubes cover every color in the spectrum via mixing and produce far more vibrant, transparent results than student pans. Approximate cost: $18-28 for 6 tubes.
 - **Watercolor block:** Paper glued on all four sides, no taping or board required. Paint directly on the block; the paper does not buckle. Separate sheets using a palette knife after drying. Approximate cost: $15-22.
 - **Size 12 round or 1-inch flat wash brush:** For painting large areas like skies. Approximate cost: $6-10.
@@ -89,6 +91,7 @@ All starter items plus:
 **Committed Beginner Tier ($70-120):**
 
 All starter-plus items plus:
+
 - Expand to 12 artist-grade tubes including: Burnt Sienna, Raw Umber, Yellow Ochre, Sap Green, Payne's Gray, and a mixing white (Chinese White -- useful for tinting, not traditional watercolor techniques).
 - Add a travel palette with mixing wells and a snap-close lid (useful even for studio painting -- keeps mixes contained).
 - Add a spray bottle to re-wet palette paint between sessions.
@@ -181,16 +184,19 @@ Value is the relative lightness or darkness of a color. In watercolor, value is 
 Color mixing in watercolor has unique considerations compared to other paint media: the paint is transparent, colors applied in layers create optical mixing rather than physical mixing, and mud is produced differently than in oils or acrylics.
 
 **Physical vs. Optical Mixing:**
+
 - Physical mixing on the palette creates predictable, even blends.
 - Optical mixing (wet-on-wet, or glazing transparent layers over each other) creates more luminous, vibrant results because light passes through both pigment layers and reflects from the white paper beneath.
 
 **The Split-Primary System:**
 Every primary color has a warm and cool version. This distinction is essential for clean color mixing:
+
 - Warm red (Pyrrol Scarlet, Cadmium Red): leans orange. Cool red (Quinacridone Magenta, Alizarin Crimson): leans purple-blue.
 - Warm yellow (New Gamboge, Cadmium Yellow): leans orange. Cool yellow (Lemon Yellow, Hansa Yellow): leans green.
 - Warm blue (Ultramarine): leans red-purple. Cool blue (Phthalo Blue, Cerulean): leans green.
 
 **Mixing Rules:**
+
 - Clean oranges: warm red + warm yellow (both lean toward each other on the color wheel).
 - Clean greens: cool yellow + cool blue (both lean toward each other).
 - Clean purples: cool red + warm blue (both lean toward each other). Attempting purple with a warm red and a cool blue produces a brown-red muddiness.
@@ -198,6 +204,7 @@ Every primary color has a warm and cool version. This distinction is essential f
 - Controlled neutrals (useful for shadows, gray skies, muted earths): introduce very small amounts of a complementary color to lower saturation without creating mud. The proportion matters -- a tiny amount of orange de-saturates blue; equal amounts create gray-brown.
 
 **Color Mixing Exercises:**
+
 - Create a physical mixing chart: a grid where each row and column represents a color on the palette, and each intersection shows the mix result. This is a reference the user will use for months.
 - Practice mixing landscape greens using only blue and yellow (avoiding tube greens, which are often too vivid for naturalistic work). Phthalo Blue + New Gamboge produces a bright, transparent green. Ultramarine + Raw Sienna produces a muted olive green.
 - Limit mixes to two colors for the first two weeks of color practice. Three-color mixes require understanding of where each pigment sits on the color wheel.
@@ -209,11 +216,13 @@ Every primary color has a warm and cool version. This distinction is essential f
 The subject should match the user's stated goal. For landscape interest (the most common beginner goal), use a simple three-layer structure: sky, middle ground, foreground. This mirrors the layering logic of real landscapes and trains the user in the correct sequence.
 
 **Pre-painting planning (5 minutes):**
+
 - Identify where the paper's whites will be before painting anything. Whites in watercolor are preserved by leaving the paper unpainted -- there is no white paint to add later (except impractical correction methods). Clouds, highlights on water, light on a building -- mark these with a light pencil circle or a mental note before the brush touches the paper.
 - Determine the value hierarchy: what is the lightest element, what is the darkest, where is the mid-range. The darkest dark in the painting should only appear once or twice, in the most important areas.
 - Keep the pencil sketch minimal -- 3-5 lines establishing horizon placement and major shapes only. Over-sketching creates lines that bleed through watercolor layers and distract from the transparent paint effect.
 
 **Painting sequence:**
+
 1. Sky -- wet-on-wet. Wet the sky area with clean water. Apply blue (or a blue-to-violet gradient for a sunset) while the paper is still shiny. Leave dry paper untouched for cloud shapes -- clouds are the white of the paper, not painted white.
 2. Dry completely. Test with the back of the hand.
 3. Distant background hills or tree line -- light graded wash, cool and low-saturation. Atmospheric perspective: distant objects appear lighter, cooler in temperature, and less detailed than near objects.
@@ -420,6 +429,7 @@ Single sheets of 140 lb paper will buckle under heavy water use even at correct 
 ## Watercolor Learning Plan
 
 ### User Profile
+
 - Experience level: No prior painting experience
 - Available time: 30 minutes per session, 5 days per week
 - Budget: $45 (Starter-Plus Tier)
@@ -428,19 +438,20 @@ Single sheets of 140 lb paper will buckle under heavy water use even at correct 
 ---
 
 ### Materials Checklist (Starter-Plus Tier -- estimated $42)
-| Item                  | Specification                                                   | Est. Cost |
-|-----------------------|-----------------------------------------------------------------|-----------|
-| Watercolor paint      | 12-color student-grade pan set (pans are economical and portable for learning) | $12 |
-| Round brush, size 8   | Synthetic round -- primary brush for washes and most marks     | $6        |
-| Round brush, size 2   | Synthetic round -- detail work, tree branches, foreground grass | $4        |
-| Watercolor paper pad  | 9x12 inch, 140 lb (300 gsm) cold-press, minimum 25-30 sheets  | $12       |
-| Palette               | White ceramic dinner plate from kitchen (free) or lid of pan set | $0       |
-| Water containers      | Two kitchen jars: one rinse jar, one clean water jar (critical -- use two, not one) | $0 |
-| Paper towels          | Or a cotton rag -- for blotting and brush control              | $0        |
-| Painter's tape        | 1-inch low-tack, to tape paper edges to a board before each session | $5    |
-| Rigid board           | A piece of scrap wood, a cutting board, or a hardback book to tape paper to | $0 |
-| Pencil + kneaded eraser | HB pencil for light sketch lines; kneaded eraser to lighten pencil before painting | $3 |
-| **Total**             |                                                                 | **$42**   |
+
+| Item                    | Specification                                                                       | Est. Cost |
+| ----------------------- | ----------------------------------------------------------------------------------- | --------- |
+| Watercolor paint        | 12-color student-grade pan set (pans are economical and portable for learning)      | $12       |
+| Round brush, size 8     | Synthetic round -- primary brush for washes and most marks                          | $6        |
+| Round brush, size 2     | Synthetic round -- detail work, tree branches, foreground grass                     | $4        |
+| Watercolor paper pad    | 9x12 inch, 140 lb (300 gsm) cold-press, minimum 25-30 sheets                        | $12       |
+| Palette                 | White ceramic dinner plate from kitchen (free) or lid of pan set                    | $0        |
+| Water containers        | Two kitchen jars: one rinse jar, one clean water jar (critical -- use two, not one) | $0        |
+| Paper towels            | Or a cotton rag -- for blotting and brush control                                   | $0        |
+| Painter's tape          | 1-inch low-tack, to tape paper edges to a board before each session                 | $5        |
+| Rigid board             | A piece of scrap wood, a cutting board, or a hardback book to tape paper to         | $0        |
+| Pencil + kneaded eraser | HB pencil for light sketch lines; kneaded eraser to lighten pencil before painting  | $3        |
+| **Total**               |                                                                                     | **$42**   |
 
 **Priority note:** The $12 on paper is the most important purchase on this list. 140 lb cold-press watercolor paper will teach you more in 30 minutes than the best brushes in the world on the wrong paper.
 
@@ -449,16 +460,18 @@ Single sheets of 140 lb paper will buckle under heavy water use even at correct 
 ---
 
 ### Technique Progression (Weeks 1-4)
-| # | Technique       | Key Concept                       | Practice Reps      | Success Criteria                        |
-|---|-----------------|-----------------------------------|--------------------|------------------------------------------|
-| 1 | Flat wash       | Even, streak-free color field     | 5 rectangles/session | No visible horizontal lines or value variation |
-| 2 | Graded wash     | Smooth dark-to-light gradient     | 5 rectangles/session | No visible steps between values          |
-| 3 | Wet-on-wet      | Soft edges, bloom control         | 3 sky studies/session | No unintended hard edges in the wet area |
-| 4 | Wet-on-dry      | Crisp, precise edges              | 10 shapes/session  | Clean edges with zero bleed              |
+
+| #   | Technique   | Key Concept                   | Practice Reps         | Success Criteria                               |
+| --- | ----------- | ----------------------------- | --------------------- | ---------------------------------------------- |
+| 1   | Flat wash   | Even, streak-free color field | 5 rectangles/session  | No visible horizontal lines or value variation |
+| 2   | Graded wash | Smooth dark-to-light gradient | 5 rectangles/session  | No visible steps between values                |
+| 3   | Wet-on-wet  | Soft edges, bloom control     | 3 sky studies/session | No unintended hard edges in the wet area       |
+| 4   | Wet-on-dry  | Crisp, precise edges          | 10 shapes/session     | Clean edges with zero bleed                    |
 
 ---
 
 ### Value Study (Week 2, Days 3-4)
+
 - Color used: **Ultramarine Blue** -- the most versatile landscape color on your palette. Has excellent value range from near-transparent to very dark.
 - Subject: A simple sphere first (day 3), then a single tree silhouette (day 4)
 - 5-step value scale:
@@ -473,33 +486,37 @@ Single sheets of 140 lb paper will buckle under heavy water use even at correct 
 ---
 
 ### Color Mixing Reference (Landscape Palette)
-| Mix                           | Result                  | Proportion Note              | Use In Your Landscapes           |
-|-------------------------------|-------------------------|------------------------------|-----------------------------------|
-| Blue + touch of yellow        | Natural green           | More blue = darker, cooler   | Distant hills, pine trees         |
-| Yellow + small amount of blue | Bright lime green       | More yellow = warmer         | Sunlit grass, summer foliage      |
-| Blue + tiny touch of red      | Soft blue-purple        | Tiny red, more blue          | Shadow areas in hills, dusk sky   |
-| Yellow + tiny touch of red    | Warm gold / amber       | Adjust red for orange warmth | Autumn trees, afternoon sunlight  |
-| Blue + raw sienna / burnt sienna (if you can buy one tube) | Muted olive green | Equal parts | Most realistic landscape green    |
-| Blue (very diluted)           | Pale sky blue           | Mostly water                 | Clear sky, distant atmosphere     |
+
+| Mix                                                        | Result            | Proportion Note              | Use In Your Landscapes           |
+| ---------------------------------------------------------- | ----------------- | ---------------------------- | -------------------------------- |
+| Blue + touch of yellow                                     | Natural green     | More blue = darker, cooler   | Distant hills, pine trees        |
+| Yellow + small amount of blue                              | Bright lime green | More yellow = warmer         | Sunlit grass, summer foliage     |
+| Blue + tiny touch of red                                   | Soft blue-purple  | Tiny red, more blue          | Shadow areas in hills, dusk sky  |
+| Yellow + tiny touch of red                                 | Warm gold / amber | Adjust red for orange warmth | Autumn trees, afternoon sunlight |
+| Blue + raw sienna / burnt sienna (if you can buy one tube) | Muted olive green | Equal parts                  | Most realistic landscape green   |
+| Blue (very diluted)                                        | Pale sky blue     | Mostly water                 | Clear sky, distant atmosphere    |
 
 **Mud prevention rule:** Mix only 2 colors together for your first three weeks. If a mix looks brown-gray and flat, you've introduced a third color accidentally (often dirty water from the rinse jar). Replace the rinse water frequently.
 
 ---
 
 ### First Painting Sequence: Simple Landscape (Sky + Hills + Foreground)
-| Step | Technique      | Area            | Detailed Instructions                                                   | Must Dry? |
-|------|----------------|-----------------|-------------------------------------------------------------------------|-----------|
-| 0    | Planning       | Full page       | Draw a single horizontal line at 1/3 from the bottom (horizon). Sketch 1-2 curved hill shapes above it. Mark any cloud shapes with a light circle. 3-5 pencil lines total -- no more. The sky is the white paper; clouds are NOT painted, they are preserved as unpainted paper. | N/A |
-| 1    | Wet-on-wet     | Sky area (top 2/3) | Using your size 8 brush, apply clean water across the entire sky. It should look shiny -- not pooling in puddles, not showing any dry patches. Immediately touch blue paint to the top of the wet area and let it flow downward. The paint will spread softly. Leave the circle areas unpainted for clouds -- they will remain white paper. Add a tiny touch of warmth (yellow or light red) near the horizon for atmosphere. | Yes -- fully dry before step 2 |
-| 2    | Wait           | Full paper      | Touch the back of the paper to your wrist. If it feels even slightly cool, it is still wet. Wait until it feels room temperature. Do not use a hairdryer at this stage -- the sky paint is still mobile and heat can cause streaks. | -- |
-| 3    | Graded wash    | Hill area       | Mix a soft green (blue + tiny yellow). Paint the hills with a graded wash -- darker at the base of each hill, lighter at the top. Overlap the hill shapes slightly to create layers of depth. Farther hills should be lighter and cooler (more blue, less yellow). Nearer hills should be slightly darker and warmer (more yellow). | Yes -- fully dry before step 4 |
-| 4    | Wait           | Full paper      | Touch test again. The hills must be completely dry or the foreground green will blend into them and remove the depth effect. | -- |
-| 5    | Wet-on-dry     | Foreground      | Using your size 8 brush for large areas and size 2 for detail: paint the foreground with your darkest, warmest greens. Add texture strokes -- horizontal dashes for grass, upward flicking strokes for taller plants. Use the tip of the size 2 brush to add a tree or two: paint the trunk first, then stipple foliage with a slightly twisted brush tip. Edges here should be crisp. | Yes |
-| 6    | Final darks    | Shadows only    | Mix your darkest value -- nearly full-strength blue with a touch of brown or red to de-saturate. Apply only at the bases of trees, the ground-level shadow of hills, and any other area that needs the deepest depth. Use sparingly -- dark darks are powerful and only need to appear 2-3 times in a small painting. | Complete |
+
+| Step | Technique   | Area               | Detailed Instructions                                                                                                                                                                                                                                                                                                                                                                                                         | Must Dry?                      |
+| ---- | ----------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| 0    | Planning    | Full page          | Draw a single horizontal line at 1/3 from the bottom (horizon). Sketch 1-2 curved hill shapes above it. Mark any cloud shapes with a light circle. 3-5 pencil lines total -- no more. The sky is the white paper; clouds are NOT painted, they are preserved as unpainted paper.                                                                                                                                              | N/A                            |
+| 1    | Wet-on-wet  | Sky area (top 2/3) | Using your size 8 brush, apply clean water across the entire sky. It should look shiny -- not pooling in puddles, not showing any dry patches. Immediately touch blue paint to the top of the wet area and let it flow downward. The paint will spread softly. Leave the circle areas unpainted for clouds -- they will remain white paper. Add a tiny touch of warmth (yellow or light red) near the horizon for atmosphere. | Yes -- fully dry before step 2 |
+| 2    | Wait        | Full paper         | Touch the back of the paper to your wrist. If it feels even slightly cool, it is still wet. Wait until it feels room temperature. Do not use a hairdryer at this stage -- the sky paint is still mobile and heat can cause streaks.                                                                                                                                                                                           | --                             |
+| 3    | Graded wash | Hill area          | Mix a soft green (blue + tiny yellow). Paint the hills with a graded wash -- darker at the base of each hill, lighter at the top. Overlap the hill shapes slightly to create layers of depth. Farther hills should be lighter and cooler (more blue, less yellow). Nearer hills should be slightly darker and warmer (more yellow).                                                                                           | Yes -- fully dry before step 4 |
+| 4    | Wait        | Full paper         | Touch test again. The hills must be completely dry or the foreground green will blend into them and remove the depth effect.                                                                                                                                                                                                                                                                                                  | --                             |
+| 5    | Wet-on-dry  | Foreground         | Using your size 8 brush for large areas and size 2 for detail: paint the foreground with your darkest, warmest greens. Add texture strokes -- horizontal dashes for grass, upward flicking strokes for taller plants. Use the tip of the size 2 brush to add a tree or two: paint the trunk first, then stipple foliage with a slightly twisted brush tip. Edges here should be crisp.                                        | Yes                            |
+| 6    | Final darks | Shadows only       | Mix your darkest value -- nearly full-strength blue with a touch of brown or red to de-saturate. Apply only at the bases of trees, the ground-level shadow of hills, and any other area that needs the deepest depth. Use sparingly -- dark darks are powerful and only need to appear 2-3 times in a small painting.                                                                                                         | Complete                       |
 
 ---
 
 ### Weekly Practice Schedule (30 min/day, 5 days/week)
-| Week | Focus Area                     | Session Breakdown                                                                                                          | Paper Needed |
-|------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
+
+| Week | Focus Area | Session Breakdown | Paper Needed |
+| ---- | ---------- | ----------------- | ------------ |
+
 | 1

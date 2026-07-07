@@ -12,14 +12,15 @@ description: >-
   atomic skill can answer without designing the full funnel.
 license: Apache-2.0
 type: workflow
-skills: "sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch"
+skills: 'sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing funnels webinar conviction step-by-step high-ticket
   category: marketing
-  depends: "sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch"
+  depends: 'sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch'
 ---
+
 # Webinar Funnel
 
 **Estimated time:** 30-40 minutes

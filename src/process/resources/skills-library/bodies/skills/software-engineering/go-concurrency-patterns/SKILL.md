@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Concurrency Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to coordinate multiple goroutines -- fan-out, fan-in, pipelines, worker pools, or scatter-gather patterns
 - The user asks about channel direction, buffering strategy, or closing semantics in Go
 - The user asks about `select` statements, including priority selection, non-blocking operations, or timeout handling
@@ -32,6 +34,7 @@ metadata:
 - The user asks about channel vs. mutex trade-offs for a specific coordination problem
 
 **Do NOT use this skill when:**
+
 - The user asks about Go naming conventions, receiver types, or interface design -- use `go-idioms`
 - The user asks about Go application profiling, pprof, escape analysis, or memory allocation tuning -- use `go-performance`
 - The user asks about `errors.Is`, `errors.As`, sentinel errors, or wrapping error chains -- use `go-error-handling`
@@ -160,7 +163,7 @@ Armed with the above analysis, select from these concrete patterns. Each has a c
 
 When responding to a Go concurrency question, structure the response as follows:
 
-```
+````
 ## Concurrency Classification
 
 **Problem category:** [Coordination | Communication | Shared state | Resource limiting | Fan-out/in | Rate limiting | Duplicate suppression]
@@ -190,14 +193,14 @@ import (
 )
 
 // [Complete implementation]
-```
+````
 
 ### Key Design Decisions
 
-| Decision | Choice Made | Alternative | Reason |
-|----------|-------------|-------------|--------|
-| [e.g., Buffer size] | [e.g., Unbuffered] | [e.g., Buffered 1] | [e.g., Backpressure required] |
-| [e.g., Error aggregation] | [e.g., errgroup] | [e.g., WaitGroup + error channel] | [e.g., Automatic cancellation] |
+| Decision                  | Choice Made        | Alternative                       | Reason                         |
+| ------------------------- | ------------------ | --------------------------------- | ------------------------------ |
+| [e.g., Buffer size]       | [e.g., Unbuffered] | [e.g., Buffered 1]                | [e.g., Backpressure required]  |
+| [e.g., Error aggregation] | [e.g., errgroup]   | [e.g., WaitGroup + error channel] | [e.g., Automatic cancellation] |
 
 ### Goroutine Lifecycle
 
@@ -217,7 +220,8 @@ import (
 - [Specific pitfall #1 for this exact pattern]
 - [Specific pitfall #2]
 - [Specific pitfall #3]
-```
+
+````
 
 ## Rules
 
@@ -253,7 +257,7 @@ case resultCh <- result:
 case <-ctx.Done():
     return ctx.Err()
 }
-```
+````
 
 Additionally, use `goleak.VerifyNone(t)` in tests and expose `/debug/pprof/goroutine` in staging with alerting when goroutine count exceeds a threshold (typical production services should have a stable goroutine count -- a leak will appear as a monotonically increasing metric).
 
@@ -275,6 +279,7 @@ In Go 1.22+, loop variables are scoped per iteration by default, making the shad
 ### Deadlock from Circular Channel Dependencies
 
 A deadlock occurs when goroutine A sends on channel X waiting for goroutine B to receive, while goroutine B sends on channel Y waiting for goroutine A to receive. Neither can proceed. The Go runtime detects this only if ALL goroutines are blocked. To prevent:
+
 - Draw the goroutine topology as a directed graph. Cycles in this graph indicate potential deadlock.
 - Always introduce context cancellation with a timeout at the outermost level: if a pipeline does not complete within its deadline, the timeout fires and cancels all goroutines.
 - Use select with `default` or `ctx.Done()` on every blocking send/receive in pipeline stages where a deadlock cycle could form.
@@ -497,14 +502,14 @@ func AggregateHandler(w http.ResponseWriter, r *http.Request) {
 
 ### Key Design Decisions
 
-| Decision | Choice Made | Alternative | Reason |
-|----------|-------------|-------------|--------|
-| Error handling | Per-result error in `APIResult` struct | `errgroup` with fail-fast | Partial results required; errgroup cancels on first error |
-| Channel buffer size | 3 (equal to goroutine count) | Unbuffered | Prevents goroutine leak if aggregator exits before reading all results |
-| Context source | `r.Context()` with additional timeout | Fresh `context.WithTimeout` | Inherits client deadline; additional cap prevents runaway backend calls |
-| Channel close ownership | Dedicated closer goroutine after `wg.Wait()` | Close in individual goroutines | Only one entity closes the channel; prevents double-close panic |
-| Loop variable capture | `call := call` shadow | Closure over outer variable | Pre-1.22 safety; harmless in 1.22+ |
-| Send path | `select` with `ctx.Done()` | Bare send `results <- result` | Prevents goroutine leak if context is cancelled mid-send |
+| Decision                | Choice Made                                  | Alternative                    | Reason                                                                  |
+| ----------------------- | -------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------- |
+| Error handling          | Per-result error in `APIResult` struct       | `errgroup` with fail-fast      | Partial results required; errgroup cancels on first error               |
+| Channel buffer size     | 3 (equal to goroutine count)                 | Unbuffered                     | Prevents goroutine leak if aggregator exits before reading all results  |
+| Context source          | `r.Context()` with additional timeout        | Fresh `context.WithTimeout`    | Inherits client deadline; additional cap prevents runaway backend calls |
+| Channel close ownership | Dedicated closer goroutine after `wg.Wait()` | Close in individual goroutines | Only one entity closes the channel; prevents double-close panic         |
+| Loop variable capture   | `call := call` shadow                        | Closure over outer variable    | Pre-1.22 safety; harmless in 1.22+                                      |
+| Send path               | `select` with `ctx.Done()`                   | Bare send `results <- result`  | Prevents goroutine leak if context is cancelled mid-send                |
 
 ### Goroutine Lifecycle
 

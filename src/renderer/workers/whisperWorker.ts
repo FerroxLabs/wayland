@@ -67,7 +67,7 @@ self.onmessage = async (event: MessageEvent<IncomingMessage>) => {
       const output = await asr(msg.audio, { return_timestamps: false });
       const text = Array.isArray(output)
         ? output.map((o) => o.text).join(' ')
-        : (output as { text?: string }).text ?? '';
+        : ((output as { text?: string }).text ?? '');
       self.postMessage({ type: 'result', requestId: msg.requestId, text: text.trim() });
     } catch (err) {
       self.postMessage({

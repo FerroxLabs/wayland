@@ -66,8 +66,7 @@ test.describe('Constitution wiring', () => {
     test.setTimeout(30_000);
 
     const result = await page.evaluate(async () => {
-      const api = (window as unknown as { electronAPI?: { readConstitution?: () => Promise<string> } })
-        .electronAPI;
+      const api = (window as unknown as { electronAPI?: { readConstitution?: () => Promise<string> } }).electronAPI;
       if (!api?.readConstitution) {
         return { error: 'readConstitution not exposed on electronAPI - preload binding missing' };
       }
@@ -97,8 +96,7 @@ test.describe('Constitution wiring', () => {
       ).electronAPI;
       if (typeof api?.readConstitutionWithOverlay !== 'function') {
         return {
-          error:
-            'readConstitutionWithOverlay not exposed on electronAPI - preload binding missing',
+          error: 'readConstitutionWithOverlay not exposed on electronAPI - preload binding missing',
         };
       }
       // No `~/.wayland/specialists/e2e-nonexistent-specialist-xyz.md` exists,

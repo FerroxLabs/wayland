@@ -3,7 +3,7 @@ name: legal-contractor
 description: Generate an independent contractor / consulting agreement template - with worker-classification gate (IRS 20-factor + ABC + IR35), 1099 vs W-2 framing, IP assignment, payment terms, and exclusivity. Templates only - not legal advice. Misclassification carries six-figure exposure; have an attorney review before signing.
 slash_command: false
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [contractor, ic-agreement, abc-test, legal, smb, business]
@@ -75,6 +75,7 @@ Failing any prong → employee classification.
 #### IR35 (UK)
 
 If contractor is UK-based:
+
 - Working through a PSC?
 - Right of substitution (can they send someone else)?
 - Mutuality of obligation (must the company offer work and the worker accept)?
@@ -91,6 +92,7 @@ Record the gating decision (questions asked, answers given, decision rationale) 
 ### Step 2: Confirm tax framing
 
 US: this is a **1099-NEC** relationship. Tell the user:
+
 - Company will issue Form 1099-NEC if total annual payments to the contractor reach $600 (federal threshold; some states lower).
 - Company collects W-9 from the contractor BEFORE first payment (with TIN; mandatory under IRS rules). Backup withholding (currently 24%) applies if W-9 not collected.
 - Contractor pays self-employment tax (15.3% SE tax + income tax). The company does NOT withhold.

@@ -97,7 +97,7 @@ describe('DiscordAdapter - toUnifiedIncomingMessage', () => {
       size: 1234,
     } as unknown as Attachment);
     const unified = toUnifiedIncomingMessage(
-      makeMessage({ attachments, content: 'see attached' } as unknown as Partial<DiscordMessage>),
+      makeMessage({ attachments, content: 'see attached' } as unknown as Partial<DiscordMessage>)
     );
     expect(unified?.content.type).toBe('photo');
     expect(unified?.content.text).toBe('see attached');
@@ -119,9 +119,7 @@ describe('DiscordAdapter - toUnifiedIncomingMessage', () => {
       contentType: 'application/octet-stream',
       size: 9999,
     } as unknown as Attachment);
-    const unified = toUnifiedIncomingMessage(
-      makeMessage({ attachments } as unknown as Partial<DiscordMessage>),
-    );
+    const unified = toUnifiedIncomingMessage(makeMessage({ attachments } as unknown as Partial<DiscordMessage>));
     expect(unified?.content.type).toBe('document');
   });
 
@@ -172,7 +170,7 @@ describe('DiscordAdapter - toDiscordSendParams', () => {
 describe('DiscordAdapter - toUnifiedIncomingMessage raw shape', () => {
   it('survives JSON.stringify (no circular structures from discord.js Message)', () => {
     const unified = toUnifiedIncomingMessage(
-      makeMessage({ guildId: 'guild-1', webhookId: null } as unknown as Partial<DiscordMessage>),
+      makeMessage({ guildId: 'guild-1', webhookId: null } as unknown as Partial<DiscordMessage>)
     );
     expect(unified).not.toBeNull();
     expect(() => JSON.stringify(unified)).not.toThrow();

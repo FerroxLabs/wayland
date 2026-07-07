@@ -43,4 +43,6 @@ export type ICreateProjectParams = {
 };
 
 /** Fields a user may edit on an existing project. */
-export type IUpdateProjectParams = Partial<Pick<IProject, 'name' | 'description' | 'workspace' | 'icon' | 'iconColor' | 'pinned' | 'pinnedAt'>>;
+export type IUpdateProjectParams = Partial<
+  Pick<IProject, 'name' | 'description' | 'workspace' | 'icon' | 'iconColor' | 'pinned' | 'pinnedAt'>
+>;

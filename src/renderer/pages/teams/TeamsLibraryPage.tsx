@@ -36,9 +36,7 @@ import { useAssistantList } from '@/renderer/hooks/assistant';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import type { TeamExport } from '@process/team/importExport/TeamExportSchema';
 import BuildMyOwnTeamCard from './components/BuildMyOwnTeamCard';
-import CapabilityReviewModal, {
-  type TeamCapabilities,
-} from './components/CapabilityReviewModal';
+import CapabilityReviewModal, { type TeamCapabilities } from './components/CapabilityReviewModal';
 import TeamCard from './components/TeamCard';
 import styles from './TeamsLibraryPage.module.css';
 
@@ -93,11 +91,7 @@ const matchesTeamQuery = (team: AssistantListItem, localeKey: string, query: str
   return haystack.includes(query);
 };
 
-const sortTeams = (
-  list: AssistantListItem[],
-  sortKey: TeamSortKey,
-  localeKey: string
-): AssistantListItem[] => {
+const sortTeams = (list: AssistantListItem[], sortKey: TeamSortKey, localeKey: string): AssistantListItem[] => {
   if (sortKey === 'default') return list;
   const sorted = [...list];
   if (sortKey === 'name') {
@@ -124,10 +118,7 @@ const TeamsLibraryPage: React.FC = () => {
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
 
-  const hasAnyTeams = useMemo(
-    () => assistants.some((assistant) => assistant._kind === 'team'),
-    [assistants]
-  );
+  const hasAnyTeams = useMemo(() => assistants.some((assistant) => assistant._kind === 'team'), [assistants]);
 
   const { standing, teams } = useMemo(() => {
     const standingList: AssistantListItem[] = [];
@@ -188,9 +179,7 @@ const TeamsLibraryPage: React.FC = () => {
         jsonText = await file.text();
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.fileReadError', { defaultValue: 'Could not read file' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.fileReadError', { defaultValue: 'Could not read file' })}: ${message}`);
         return;
       }
       try {
@@ -219,9 +208,7 @@ const TeamsLibraryPage: React.FC = () => {
         });
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`);
       }
     },
     [t]
@@ -256,9 +243,7 @@ const TeamsLibraryPage: React.FC = () => {
         }
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`);
         setImportLoading(false);
       }
     },
@@ -333,27 +318,17 @@ const TeamsLibraryPage: React.FC = () => {
               data-testid='teams-search-input'
             />
             <div className={styles.sortControl}>
-              <span className={styles.sortLabel}>
-                {t('teams.controls.sortLabel', { defaultValue: 'Sort' })}
-              </span>
+              <span className={styles.sortLabel}>{t('teams.controls.sortLabel', { defaultValue: 'Sort' })}</span>
               <Select
                 className={styles.sortSelect}
                 value={sortKey}
                 onChange={(value) => setSortKey(value as TeamSortKey)}
                 data-testid='teams-sort-select'
               >
-                <Select.Option value='default'>
-                  {t('teams.sort.default', { defaultValue: 'Default' })}
-                </Select.Option>
-                <Select.Option value='name'>
-                  {t('teams.sort.name', { defaultValue: 'Name (A-Z)' })}
-                </Select.Option>
-                <Select.Option value='roles'>
-                  {t('teams.sort.roles', { defaultValue: 'Most roles' })}
-                </Select.Option>
-                <Select.Option value='schedule'>
-                  {t('teams.sort.schedule', { defaultValue: 'Schedule' })}
-                </Select.Option>
+                <Select.Option value='default'>{t('teams.sort.default', { defaultValue: 'Default' })}</Select.Option>
+                <Select.Option value='name'>{t('teams.sort.name', { defaultValue: 'Name (A-Z)' })}</Select.Option>
+                <Select.Option value='roles'>{t('teams.sort.roles', { defaultValue: 'Most roles' })}</Select.Option>
+                <Select.Option value='schedule'>{t('teams.sort.schedule', { defaultValue: 'Schedule' })}</Select.Option>
               </Select>
             </div>
           </div>

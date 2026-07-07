@@ -63,7 +63,13 @@ describe('usePendingSendOnWake', () => {
 
   it('auto-fires the held send exactly once when the engine is ready', async () => {
     bridge.peek.mockResolvedValue({ hasPending: true, id: 'id-1' });
-    bridge.take.mockResolvedValue({ id: 'id-1', conversationId: 'c1', message: 'queued', files: ['/b.txt'], createdAt: 1 });
+    bridge.take.mockResolvedValue({
+      id: 'id-1',
+      conversationId: 'c1',
+      message: 'queued',
+      files: ['/b.txt'],
+      createdAt: 1,
+    });
     const execute = vi.fn(async () => {});
     renderHook(() => usePendingSendOnWake({ conversationId: 'c1', asleep: false, ready: true, execute }));
     await waitFor(() => expect(execute).toHaveBeenCalledWith({ input: 'queued', files: ['/b.txt'] }));

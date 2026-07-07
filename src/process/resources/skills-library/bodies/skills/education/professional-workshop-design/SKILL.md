@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching curriculum step-by-step guide"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching curriculum step-by-step guide'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Professional Workshop Design
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when the request involves designing, rebuilding, or significantly improving a workplace learning experience intended to develop skills, shift behaviors, or produce a tangible work product during the session itself.
 
 **Specific trigger scenarios:**
+
 - A corporate trainer or L&D professional asks to design a half-day or full-day workshop on a specific workplace skill (conflict resolution, data storytelling, giving feedback, change management, etc.)
 - A team lead or manager needs to run a structured team development session and wants a full facilitation package -- not just an agenda
 - An HR business partner is designing onboarding programming that includes skill-building components beyond information delivery
@@ -31,6 +33,7 @@ Use this skill when the request involves designing, rebuilding, or significantly
 - A team is about to go through a process change and needs a working session that produces decisions, alignment, or a shared plan
 
 **Do NOT use when:**
+
 - The audience is students in K-12 or higher education -- use `workshop-design` for academic contexts where pedagogy, not andragogy, governs the design
 - The request is for a multi-module learning program spanning weeks or months -- use `online-course-design`, which handles instructional sequencing, LMS integration, and course-level architecture
 - The user wants to design a conference presentation, keynote, or panel -- those are performance and communication design problems, not learning design problems
@@ -342,7 +345,9 @@ When participants range from novice to experienced on the same topic, do not des
 ---
 
 ### Learning Outcomes
+
 By the end of this workshop, participants will be able to:
+
 1. **Diagnose** the specific avoidance pattern driving their own reluctance to give difficult feedback -- assessed via self-diagnostic worksheet completed in the opening activity
 2. **Apply** the SBI (Situation-Behavior-Impact) feedback model to at least two realistic performance scenarios specific to financial services management contexts -- assessed via written scenario practice in Activity 1
 3. **Conduct** a structured performance conversation that includes a specific developmental commitment, using a co-created conversation framework -- assessed via observed role play in Activity 2, with peer and self-evaluation
@@ -351,32 +356,35 @@ By the end of this workshop, participants will be able to:
 
 ### PART 1: PARTICIPANT-FACING AGENDA
 
-| Time | Segment | Format | Materials |
-|------|---------|--------|-----------|
-| 0:00-0:15 | Welcome, business context, and session contract | Facilitator-led | Slides |
-| 0:15-0:35 | Opening activity: The Avoidance Audit | Individual then pairs | Handout 1 |
-| 0:35-0:50 | Debrief + concept frame: Why We Avoid Hard Feedback | Large group + mini-lecture | Slides |
-| 0:50-1:30 | Activity 1: SBI Clinic -- Rewriting Vague Feedback | Small groups of 4 | Handout 2 (scenario cards) |
-| 1:30-1:45 | Debrief: What makes feedback land? | Large group discussion | Whiteboard capture |
-| 1:45-2:00 | BREAK | -- | -- |
-| 2:00-2:10 | Concept frame: Structuring the full conversation | Mini-lecture | Slides + Handout 3 |
-| 2:10-2:45 | Activity 2: Performance Conversation Role Play | Triads (manager / employee / observer) | Handout 4 (role cards + observer guide) |
-| 2:45-3:05 | Debrief: What worked, what was hard, what shifted? | Large group discussion | -- |
-| 3:05-3:40 | Application activity: My Conversation Prep Sheet | Individual | Handout 5 |
-| 3:40-3:50 | Pair-share + 3 volunteers share with room | Pairs then large group | -- |
-| 3:50-4:00 | Synthesis, commitments, and evaluation | Facilitator-led | Evaluation form |
+| Time      | Segment                                             | Format                                 | Materials                               |
+| --------- | --------------------------------------------------- | -------------------------------------- | --------------------------------------- |
+| 0:00-0:15 | Welcome, business context, and session contract     | Facilitator-led                        | Slides                                  |
+| 0:15-0:35 | Opening activity: The Avoidance Audit               | Individual then pairs                  | Handout 1                               |
+| 0:35-0:50 | Debrief + concept frame: Why We Avoid Hard Feedback | Large group + mini-lecture             | Slides                                  |
+| 0:50-1:30 | Activity 1: SBI Clinic -- Rewriting Vague Feedback  | Small groups of 4                      | Handout 2 (scenario cards)              |
+| 1:30-1:45 | Debrief: What makes feedback land?                  | Large group discussion                 | Whiteboard capture                      |
+| 1:45-2:00 | BREAK                                               | --                                     | --                                      |
+| 2:00-2:10 | Concept frame: Structuring the full conversation    | Mini-lecture                           | Slides + Handout 3                      |
+| 2:10-2:45 | Activity 2: Performance Conversation Role Play      | Triads (manager / employee / observer) | Handout 4 (role cards + observer guide) |
+| 2:45-3:05 | Debrief: What worked, what was hard, what shifted?  | Large group discussion                 | --                                      |
+| 3:05-3:40 | Application activity: My Conversation Prep Sheet    | Individual                             | Handout 5                               |
+| 3:40-3:50 | Pair-share + 3 volunteers share with room           | Pairs then large group                 | --                                      |
+| 3:50-4:00 | Synthesis, commitments, and evaluation              | Facilitator-led                        | Evaluation form                         |
 
 ---
 
 ### PART 2: FACILITATOR GUIDE
 
 #### Opening (0:00-0:15)
+
 **Facilitator says:**
+
 > "Before we get into the content, I want to name why we're here. The performance review cycle starts in four weeks. And if you're like most managers -- including excellent ones -- there's at least one conversation on your list that you've been putting off. Today is about making sure you don't put it off again, and that when you have it, it actually helps the person on the other side of the table. We're not here to talk about feedback theory. We're here to practice the real conversations."
 
 **Key point to land:** Connect the workshop explicitly to the business timeline (review cycle starting next month). Make it immediately relevant by naming the avoidance pattern directly, without judgment.
 
 **Learning contract -- suggested norms to establish:**
+
 - "What's said in this room stays in this room -- we'll be using real scenarios, and we need psychological safety to practice honestly."
 - "This is a practice space, not a performance evaluation. Getting it wrong here is the point."
 - "Phones down during activities. You have 4 hours. Your team can wait."
@@ -390,10 +398,12 @@ By the end of this workshop, participants will be able to:
 **Objective:** Surface the specific avoidance pattern driving each participant's reluctance, and break the implicit assumption that everyone in the room finds feedback easy or is failing for the same reason.
 
 **Instructions to give participants:**
+
 > "Take Handout 1. You have 8 minutes to answer these four questions individually -- do not share yet, and be honest with yourself. This is not collected. When you're done, turn to the person next to you and share: what is one pattern you noticed in your answers?"
 
 **Handout 1 content -- The Avoidance Audit:**
 Think of a performance conversation you have been delaying or dreading. Answer the following:
+
 1. What specific concern is holding you back? (Check all that apply)
    - Fear of damaging the relationship
    - Uncertainty about whether my assessment is fair
@@ -411,6 +421,7 @@ Think of a performance conversation you have been delaying or dreading. Answer t
 **Materials:** Handout 1
 
 **Debrief sequence:**
+
 1. What: "Without sharing specifics, what was the most common concern that came up in your pair conversations?" -- capture on whiteboard
 2. So What: "Look at what we've captured. This is not a skills problem -- most of these are emotional or relational concerns. What does that tell us about what's actually making feedback difficult in your organization?"
 3. Now What: "The framework we'll work with today addresses each of these concerns specifically. The goal is to leave with a tool that reduces the ambiguity and the risk enough that the avoidance becomes harder to justify than the conversation."
@@ -428,6 +439,7 @@ Think of a performance conversation you have been delaying or dreading. Answer t
 **Core framework:** The Threat/Reward Response in feedback conversations (based on David Rock's SCARF model applied to feedback delivery)
 
 **Key points to land:**
+
 1. Avoidance is not weakness or cowardice -- it is a rational response to perceived social threat. The brain processes social threat (damaged relationship, conflict) using the same neural circuits as physical threat. Understanding this removes shame from the avoidance pattern.
 2. Vague feedback does not protect the relationship -- it creates the slow-burn resentment of a relationship where no one is honest. The most damaging feedback conversations are the ones that never happen.
 3. Structure reduces threat for both parties. When a manager uses a consistent, predictable framework for a difficult conversation, it signals to the recipient that the feedback is about observed behavior and impact -- not a judgment of their character. This is precisely what SBI is designed to do.
@@ -435,6 +447,7 @@ Think of a performance conversation you have been delaying or dreading. Answer t
 **Common misconception to address directly:** "Good feedback should feel natural and conversational -- using a framework feels robotic." Counter: surgeons use checklists. Pilots use pre-flight protocols. The stakes in a performance conversation are high enough that structure is a professional tool, not a crutch. The goal is to practice the framework until it feels natural -- that takes repetition, which is why this workshop exists.
 
 **Introduce SBI:**
+
 - **Situation:** Describe the specific, observable situation. When. Where. Under what circumstances.
 - **Behavior:** Describe the specific, observable behavior -- not the interpretation, not the intention, not the character trait. What you saw or heard, not what you concluded.
 - **Impact:** Describe the concrete impact on the team, the work, the client, or you. Not "it was unprofessional." Specifically: what happened as a result?
@@ -446,6 +459,7 @@ Think of a performance conversation you have been delaying or dreading. Answer t
 **Objective:** Participants practice distinguishing vague, evaluative feedback from specific, behavioral feedback and rewrite real-world examples using the SBI model.
 
 **Instructions to give participants:**
+
 > "In your groups of 4, you have 6 scenario cards -- each one shows a piece of feedback that a real manager might give. Your job is: first, identify what's wrong with it (too vague? evaluative? characterizes the person rather than the behavior?). Then rewrite it using SBI. You should have an SBI version for each scenario in 25 minutes. One person per group will share your best rewrite with the room."
 
 **Scenario cards content (Handout 2 -- financial services-specific):**
@@ -469,6 +483,7 @@ Card 6: "You handled the client situation poorly." -- Problem: no specific situa
 **Materials:** Handout 2 (scenario cards), space to write
 
 **Debrief sequence:**
+
 1. What: "What was the hardest card to rewrite, and why?"
 2. So What: "What do all six original examples have in common? What pattern do you see in the language we default to?" -- Answer the facilitator is drawing out: all six use evaluative labels ("off-putting," "ownership," "attitude") instead of observed behavior. This is the fundamental design flaw in most performance feedback.
 3. Now What: "When you look at the feedback you're sitting on right now -- the conversation from your Avoidance Audit -- can you write an SBI version of it? Take 90 seconds."
@@ -507,6 +522,7 @@ Present this as the container for SBI feedback -- SBI handles the "what" of the 
 **Objective:** Participants practice the full four-part conversation structure using a realistic scenario, receive structured peer feedback, and identify one specific thing to improve before their actual conversations next month.
 
 **Instructions to give participants:**
+
 > "In your triads, you have three roles: manager, employee, and observer. You'll rotate so each person plays each role. Each round is 7 minutes. Manager: you have a scenario card with the context. Your job is to conduct the conversation using the four-part structure and the SBI feedback from your card. Employee: play it realistically -- not as the worst possible nightmare employee, but not as an easy win either. Observer: you have an observer guide on your card. You're watching for specific things -- note them so your debrief is specific, not just 'it felt good.' After each round, 3 minutes for the observer to give feedback. I'll call time."
 
 **Role-play scenarios (Handout 4):**
@@ -528,6 +544,7 @@ Employee card for Scenario B: "You are Priya. You know you've been stretched thi
 **Materials:** Handout 4 (scenario and observer guide cards)
 
 **Debrief sequence (large group, 3:05-3:25):**
+
 1. What: "Observers -- what was the most common place where managers got stuck?" -- Expected answer: the invitation to hear the employee's perspective. Managers either skip it or, when the employee explains context, back away from the feedback.
 2. So What: "What does it tell us that the hardest part was listening after giving the feedback? What are we afraid of when we invite their perspective?" -- Draw out: we fear the employee's explanation will undermine our feedback. In reality, it almost never does -- and hearing the explanation allows us to distinguish skill issues from will issues from resource issues, which changes the commitment you need.
 3. Now What: "Name one specific thing you will do differently in your real conversation based on what you practiced today."
@@ -545,6 +562,7 @@ Employee card for Scenario B: "You are Priya. You know you've been stretched thi
 **Objective:** Each participant produces a completed prep sheet for a real conversation they will have in the next four weeks -- the immediate deliverable they take back to work.
 
 **Instructions to give participants:**
+
 > "Take Handout 5. This is yours -- it won't be collected. You're going to spend 25 minutes preparing for the specific conversation you identified in the Avoidance Audit. Write your SBI statement. Write your opening context-setting sentence. Anticipate what they're likely to say when you invite their perspective, and write down how you'll respond. Write the specific commitment you're going to ask for. When you're done, you should be able to walk into that conversation this week."
 
 **Handout 5 -- Conversation Prep Sheet:**
@@ -552,6 +570,7 @@ Employee card for Scenario B: "You are Priya. You know you've been stretched thi
 The conversation I have been avoiding: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
 **My SBI statement:**
+
 - Situation (specific, observable, recent): \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 - Behavior (what I saw or heard, not my interpretation): \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 - Impact (concrete consequence for the team, the work, the client, or me): \_\_\_\_\_\_

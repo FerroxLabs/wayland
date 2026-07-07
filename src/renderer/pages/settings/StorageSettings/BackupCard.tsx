@@ -152,7 +152,9 @@ const BackupCard: React.FC = () => {
             </div>
 
             <div>
-              <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePassphraseLabel')}</div>
+              <div className='text-12px text-t-secondary mb-4px'>
+                {t('settings.storagePage.restorePassphraseLabel')}
+              </div>
               <Input
                 type='password'
                 value={restorePassphrase}

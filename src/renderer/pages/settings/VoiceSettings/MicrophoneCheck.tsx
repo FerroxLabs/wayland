@@ -166,9 +166,7 @@ const MicrophoneCheck: React.FC = () => {
           )
         );
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-        setErrorMsg(
-          t('settings.voiceMicNotFound', 'Selected microphone is not available. Pick another input device.')
-        );
+        setErrorMsg(t('settings.voiceMicNotFound', 'Selected microphone is not available. Pick another input device.'));
       } else {
         setErrorMsg(err instanceof Error ? err.message : String(err));
       }
@@ -326,9 +324,7 @@ const MicrophoneCheck: React.FC = () => {
           loading={state === 'requesting'}
           onClick={isTesting ? handleStop : () => void handleStart()}
         >
-          {isTesting
-            ? t('settings.voiceMicStop', 'Stop Test')
-            : t('settings.voiceMicTest', 'Test Microphone')}
+          {isTesting ? t('settings.voiceMicStop', 'Stop Test') : t('settings.voiceMicTest', 'Test Microphone')}
         </Button>
       </div>
 

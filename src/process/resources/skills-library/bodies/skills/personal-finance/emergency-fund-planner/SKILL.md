@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance savings planning"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance savings planning'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Emergency Fund Planner
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks how much money they should have in an emergency fund or safety net
 - The user wants to calculate how long it will take to build emergency savings from zero or from a partial amount
 - The user asks whether their current savings balance is sufficient to cover emergencies
@@ -34,6 +36,7 @@ metadata:
 - The user is a freelancer, contractor, or gig worker asking how much buffer to keep on hand
 
 **Do NOT use when:**
+
 - The user wants to track multiple distinct savings goals simultaneously -- use `savings-goals-tracker` instead
 - The user wants to invest emergency savings in stocks, bonds, or mutual funds for growth -- emergency funds prioritize liquidity and stability; redirect to investment planning skills
 - The user wants a comprehensive monthly budget built from scratch -- use `budget-planning` first to establish essential expense totals, then return here
@@ -69,18 +72,19 @@ The conventional 3--6 month rule is a starting point, not a universal answer. Us
 
 **Income stability score** -- assess each factor:
 
-| Factor | Lower Coverage | Higher Coverage |
-|---|---|---|
-| Number of income earners | Dual income | Single income |
-| Employment type | Salaried W-2 employee | Self-employed / contractor / gig |
-| Industry volatility | Healthcare, government, utilities | Tech, media, real estate, finance |
-| Job market for their role | High demand, low replaceability | Specialized niche, long search |
-| Unemployment insurance eligibility | Eligible for full UI | Not eligible (1099 contractors) |
-| Benefits portability | COBRA available | No employer benefits to lose |
-| Household dependents | No dependents | Children, elderly parents, disabled family |
-| Other safety nets | Liquid assets, family support, equity | No backup resources |
+| Factor                             | Lower Coverage                        | Higher Coverage                            |
+| ---------------------------------- | ------------------------------------- | ------------------------------------------ |
+| Number of income earners           | Dual income                           | Single income                              |
+| Employment type                    | Salaried W-2 employee                 | Self-employed / contractor / gig           |
+| Industry volatility                | Healthcare, government, utilities     | Tech, media, real estate, finance          |
+| Job market for their role          | High demand, low replaceability       | Specialized niche, long search             |
+| Unemployment insurance eligibility | Eligible for full UI                  | Not eligible (1099 contractors)            |
+| Benefits portability               | COBRA available                       | No employer benefits to lose               |
+| Household dependents               | No dependents                         | Children, elderly parents, disabled family |
+| Other safety nets                  | Liquid assets, family support, equity | No backup resources                        |
 
 **Coverage guidance by profile:**
+
 - **3 months:** Dual-income household, both in stable employment, at least one partner in a high-demand field, no dependents, access to COBRA, 3+ months of unemployment insurance available
 - **4--5 months:** Single income OR one of the above risk factors elevated; modest job search expected in the field
 - **6 months:** Single income with moderate job market, or dual income in the same industry (correlated risk), or one earner with dependents and no secondary income
@@ -101,6 +105,7 @@ Remaining Gap = Target Emergency Fund - Current Savings Balance
 ```
 
 If the user has existing savings scattered across accounts (checking buffer, old savings account, piggy bank), clarify:
+
 - Only count savings that are liquid, not invested in market-based accounts that can lose value
 - Do not count savings already earmarked for a known future expense (vacation fund, car repair fund, wedding fund)
 - Do count a dedicated high-yield savings account already labeled as emergency fund
@@ -114,11 +119,13 @@ Show the user two or three target scenarios based on different coverage month op
 Ask the user how much they can currently set aside each month. If they do not know, use their stated after-tax income minus their total essential expenses as the starting point -- but acknowledge that discretionary spending will consume some of that margin.
 
 **Apply the contribution feasibility test:**
+
 - If the user can contribute their full surplus, calculate the timeline
 - If the contribution would leave zero discretionary buffer, flag this as unsustainable -- a zero-discretionary budget leads to abandonment. Reserve a minimum discretionary buffer of $100--$200/month even during the savings sprint
 - If the monthly contribution produces a timeline longer than 36 months to Stage 3 (3 months of essentials), discuss acceleration strategies
 
 **Acceleration strategies to discuss:**
+
 - Allocate 50--100% of annual tax refunds to the fund (the average U.S. federal refund is approximately $2,800 -- this alone closes 4--6 months of a modest emergency fund in 1--2 years)
 - Redirect employer bonuses or commission windfalls for the duration of the build phase
 - Apply the "savings rate ratchet" -- each time income increases (raise, side income pickup), allocate at least 50% of the increase to the emergency fund until fully funded
@@ -126,6 +133,7 @@ Ask the user how much they can currently set aside each month. If they do not kn
 - If the user receives irregular income, use a fixed minimum contribution monthly plus a percentage sweep of any income above baseline (30--50% of the overage goes to the fund)
 
 **Calculate the two key timeline numbers:**
+
 1. Months to reach Stage 3 (3 months of essentials) -- the functional safety threshold
 2. Months to reach the full target
 
@@ -136,23 +144,27 @@ Ask the user how much they can currently set aside each month. If they do not kn
 People abandon savings goals that feel distant. Breaking the target into stages with concrete dates makes progress tangible. Use this four-stage ladder:
 
 **Stage 1 -- Starter Emergency Buffer ($500--$1,000)**
+
 - Purpose: Covers a single unexpected essential expense (car repair, ER copay, broken appliance)
 - Psychological function: Breaks the paycheck-to-credit-card cycle for small emergencies
 - Timeline: Should be reachable within 60--120 days at almost any contribution rate
 - If the user already has more than $1,000, skip Stage 1 and acknowledge it as already complete
 
 **Stage 2 -- One-Month Foundation**
+
 - Amount: 1× monthly essential expenses
 - Purpose: Covers a very short income disruption (2--3 week illness, short layoff, delayed paycheck)
 - Most people can reach this stage within 3--9 months
 
 **Stage 3 -- Three-Month Security Threshold**
+
 - Amount: 3× monthly essential expenses
 - Purpose: This is the minimum functional emergency fund that covers the statistically most common emergency durations
 - Median U.S. job search after layoff runs 8--10 weeks -- 3 months covers this with a small buffer
 - At this stage, the fund provides genuine peace of mind; the user may now split surplus between emergency fund and other goals (not before)
 
 **Stage 4 -- Full Target Fund**
+
 - Amount: The coverage months × monthly essentials calculated in Step 2 and Step 3
 - Purpose: Provides complete coverage for the user's assessed risk profile
 
@@ -165,6 +177,7 @@ For each stage, calculate the target date using: Starting Date + (Stage Amount -
 Where emergency funds are held matters -- not just how much is in them.
 
 **Appropriate account types (generic guidance, no institution recommendations):**
+
 - High-yield savings accounts offered by FDIC-insured institutions typically pay 4--5× the interest rate of traditional savings accounts; direct the user to research current rates
 - Money market accounts at federally insured institutions provide similar yields with check-writing privileges, useful for larger emergency fund withdrawals
 - Certificates of deposit (CDs) are NOT appropriate for an emergency fund -- they impose early withdrawal penalties and defeat the purpose of liquid access
@@ -182,11 +195,13 @@ Where emergency funds are held matters -- not just how much is in them.
 Without explicit rules, the fund will be drained for non-emergencies. Define these with the user clearly.
 
 **Qualifying emergency criteria (all three must be true):**
+
 1. Unexpected -- not a known future expense that should have been planned for
 2. Necessary -- not optional or deferrable for 30+ days without serious consequence
 3. Urgent -- the expense disrupts essential living, employment, or health if not addressed
 
 **Classic qualifying emergencies:**
+
 - Job loss or sudden income reduction
 - Medical or dental emergency not covered by insurance (ER visit, urgent surgery, unexpected diagnosis)
 - Essential vehicle repair when the car is required for work (not cosmetic, not a convenience)
@@ -195,6 +210,7 @@ Without explicit rules, the fund will be drained for non-emergencies. Define the
 - Unexpected legal requirement with serious consequence for non-compliance
 
 **Classic non-qualifying expenses (these have their own savings categories):**
+
 - Planned car maintenance (oil change, tires, annual registration) -- these should be in a sinking fund
 - Known annual expenses (insurance deductibles, holiday gifts, back-to-school supplies) -- use a sinking fund
 - Vacations, even to visit family if the visit is not a crisis
@@ -203,6 +219,7 @@ Without explicit rules, the fund will be drained for non-emergencies. Define the
 - Sales or "limited-time offers" -- urgency created by marketing is never an emergency
 
 **Replenishment protocol after any withdrawal:**
+
 1. Immediately after the emergency resolves, calculate the depletion amount
 2. Pause all non-essential savings goals (vacation fund, down payment fund, etc.)
 3. Redirect the full previous emergency fund contribution PLUS any freed discretionary surplus toward replenishment
@@ -216,6 +233,7 @@ Without explicit rules, the fund will be drained for non-emergencies. Define the
 Several situations require specific guidance beyond the basic plan:
 
 **High-interest debt parallel decision:** If the user carries credit card or personal loan debt above 15% APR, advise the "starter fund first, then avalanche" sequence:
+
 1. Build $500--$1,000 starter fund
 2. Attack high-interest debt aggressively with all available surplus
 3. Once high-interest debt is eliminated, build the full emergency fund
@@ -440,7 +458,7 @@ This is a maintenance scenario, not a build scenario:
 
 This is a popular strategy in personal finance communities and requires nuanced handling:
 
-- Acknowledge that Roth IRA *contributions* (not earnings) can be withdrawn at any time without penalty or tax. This is factually correct.
+- Acknowledge that Roth IRA _contributions_ (not earnings) can be withdrawn at any time without penalty or tax. This is factually correct.
 - Explain the significant problems with relying on this strategy:
   - Withdrawing from a Roth IRA for an emergency permanently reduces tax-advantaged retirement space -- annual contribution limits do not allow "re-contribution" in most years.
   - Market timing risk: the Roth IRA is invested for growth and may be down 20--30% precisely when the user needs emergency funds.
@@ -477,86 +495,91 @@ This is a common gray-zone scenario distinct from the high-interest debt case:
 ---
 
 ### Monthly Essential Expenses Breakdown
-| Category                          | Monthly Cost | Notes                                      |
-|-----------------------------------|--------------|--------------------------------------------|
-| Rent                              | $1,450       |                                            |
-| Utilities (electric/gas/internet/etc.) | $210    |                                            |
-| Groceries                         | $320         |                                            |
-| Car payment                       | $285         |                                            |
-| Car insurance                     | $140         |                                            |
-| Phone                             | $65          |                                            |
-| Health insurance (payroll deduction) | $180      |                                            |
-| Student loan minimums             | $310         |                                            |
-| **Total Monthly Essentials**      | **$2,960**   |                                            |
+
+| Category                               | Monthly Cost | Notes |
+| -------------------------------------- | ------------ | ----- |
+| Rent                                   | $1,450       |       |
+| Utilities (electric/gas/internet/etc.) | $210         |       |
+| Groceries                              | $320         |       |
+| Car payment                            | $285         |       |
+| Car insurance                          | $140         |       |
+| Phone                                  | $65          |       |
+| Health insurance (payroll deduction)   | $180         |       |
+| Student loan minimums                  | $310         |       |
+| **Total Monthly Essentials**           | **$2,960**   |       |
 
 **Expenses confirmed as essential:** All items above are non-negotiable in a genuine emergency. Dining out, streaming subscriptions, gym memberships, and entertainment are not included -- those are discretionary and can be cut.
 
 ---
 
 ### Risk Profile Assessment
-| Factor                           | Your Situation                        | Impact              |
-|----------------------------------|---------------------------------------|---------------------|
-| Income earners in household      | Single (you only)                     | ↑ Higher coverage   |
-| Employment type                  | Salaried W-2                          | Moderate            |
-| Industry stability               | Creative / agency -- moderate volatility | ↑ Higher coverage |
-| Job search duration for designers | Typically 2--4 months in competitive markets | ↑ Moderate     |
-| Unemployment insurance eligible  | Yes (W-2 employee)                    | ↓ Slight reduction  |
-| Dependents                       | None stated                           | ↓ Slight reduction  |
-| Other safety nets                | Not mentioned                         | Neutral             |
-| **Recommended coverage**         | **6 months**                          | Single income + volatile industry offset by UI eligibility |
+
+| Factor                            | Your Situation                               | Impact                                                     |
+| --------------------------------- | -------------------------------------------- | ---------------------------------------------------------- |
+| Income earners in household       | Single (you only)                            | ↑ Higher coverage                                          |
+| Employment type                   | Salaried W-2                                 | Moderate                                                   |
+| Industry stability                | Creative / agency -- moderate volatility     | ↑ Higher coverage                                          |
+| Job search duration for designers | Typically 2--4 months in competitive markets | ↑ Moderate                                                 |
+| Unemployment insurance eligible   | Yes (W-2 employee)                           | ↓ Slight reduction                                         |
+| Dependents                        | None stated                                  | ↓ Slight reduction                                         |
+| Other safety nets                 | Not mentioned                                | Neutral                                                    |
+| **Recommended coverage**          | **6 months**                                 | Single income + volatile industry offset by UI eligibility |
 
 **Reasoning:** You are a single-income household in a creative agency environment where layoffs correlate with client budget cycles -- not individual performance. This is a structurally higher-risk position than a single person in a government or healthcare role. Six months is the appropriate target. If your agency has recently announced layoffs, budget cuts, or major client losses, consider sizing for 9 months immediately.
 
 ---
 
 ### Target Calculation
-| Metric                              | Value           |
-|-------------------------------------|-----------------|
-| Monthly essential expenses          | $2,960          |
-| Recommended coverage months         | 6 months        |
-| **Target emergency fund**           | **$17,760**     |
-| Current liquid emergency savings    | $1,100          |
-| **Remaining gap**                   | **$16,660**     |
+
+| Metric                           | Value       |
+| -------------------------------- | ----------- |
+| Monthly essential expenses       | $2,960      |
+| Recommended coverage months      | 6 months    |
+| **Target emergency fund**        | **$17,760** |
+| Current liquid emergency savings | $1,100      |
+| **Remaining gap**                | **$16,660** |
 
 **Alternative scenarios:**
-| Coverage | Target   | Gap      | Best For                                    |
+| Coverage | Target | Gap | Best For |
 |----------|----------|----------|---------------------------------------------|
-| 3 months | $8,880   | $7,780   | Would cover only if industry were more stable |
-| 6 months | $17,760  | $16,660  | **Recommended for your situation**          |
-| 9 months | $26,640  | $25,540  | Warranted if agency signals instability     |
+| 3 months | $8,880 | $7,780 | Would cover only if industry were more stable |
+| 6 months | $17,760 | $16,660 | **Recommended for your situation** |
+| 9 months | $26,640 | $25,540 | Warranted if agency signals instability |
 
 The 3-month fund is not wrong -- it is the minimum. But as a single income earner in an agency environment, 6 months is the appropriate standard. Your UI eligibility is a backstop, not a substitute: UI typically replaces 40--60% of prior wages and lasts 12--26 weeks depending on your state, so it extends -- not replaces -- your runway.
 
 ---
 
 ### Savings Timeline
-| Metric                              | Value           |
-|-------------------------------------|-----------------|
-| Monthly contribution                | $350            |
-| Months to Stage 3 (3-month fund: $8,880) | 23 months (~2 years)  |
-| Months to full target ($17,760)     | 48 months (~4 years)  |
-| Estimated Stage 3 date              | Approximately Month 23 from today |
-| Estimated full target date          | Approximately Month 48 from today |
+
+| Metric                                   | Value                             |
+| ---------------------------------------- | --------------------------------- |
+| Monthly contribution                     | $350                              |
+| Months to Stage 3 (3-month fund: $8,880) | 23 months (~2 years)              |
+| Months to full target ($17,760)          | 48 months (~4 years)              |
+| Estimated Stage 3 date                   | Approximately Month 23 from today |
+| Estimated full target date               | Approximately Month 48 from today |
 
 **Acceleration scenarios:**
-| If you add...                          | Impact on timeline                        |
+| If you add... | Impact on timeline |
 |----------------------------------------|-------------------------------------------|
-| +$100/month ($450 total)              | Full target in ~38 months (saves ~10 months) |
-| Apply a $2,800 tax refund             | Jumps timeline forward ~8 months; reaches Stage 3 in ~15 months |
+| +$100/month ($450 total) | Full target in ~38 months (saves ~10 months) |
+| Apply a $2,800 tax refund | Jumps timeline forward ~8 months; reaches Stage 3 in ~15 months |
 | Apply $2,800 refund + $100/month more | Reaches Stage 3 in ~12 months; full target in ~30 months |
-| One $5,000 windfall (bonus)           | Reaches Stage 2 immediately; Stage 3 in ~14 months |
+| One $5,000 windfall (bonus) | Reaches Stage 2 immediately; Stage 3 in ~14 months |
 
 **Recommendation:** Even redirecting your estimated tax refund once to the emergency fund cuts your time to Stage 3 nearly in half. Make this the plan before tax season.
 
 ---
 
 ### Milestone Ladder
-| Stage   | Name         | Target Amount | Starting From | Monthly at $350 | Target Date   | Status      |
-|---------|--------------|---------------|---------------|-----------------|---------------|-------------|
-| Stage 1 | Starter      | $1,000        | $1,100        | **Already met** | Complete      | ✅ Complete |
-| Stage 2 | Foundation   | $2,960        | $1,100        | ~6 months       | ~Month 6      | In Progress |
-| Stage 3 | Security     | $8,880        | $1,100        | ~23 months      | ~Month 23     | Pending     |
-| Stage 4 | Fully Funded | $17,760       | $1,100        | ~48 months      | ~Month 48     | Pending     |
+
+| Stage   | Name         | Target Amount | Starting From | Monthly at $350 | Target Date | Status      |
+| ------- | ------------ | ------------- | ------------- | --------------- | ----------- | ----------- |
+| Stage 1 | Starter      | $1,000        | $1,100        | **Already met** | Complete    | ✅ Complete |
+| Stage 2 | Foundation   | $2,960        | $1,100        | ~6 months       | ~Month 6    | In Progress |
+| Stage 3 | Security     | $8,880        | $1,100        | ~23 months      | ~Month 23   | Pending     |
+| Stage 4 | Fully Funded | $17,760       | $1,100        | ~48 months      | ~Month 48   | Pending     |
 
 **Good news:** You have already crossed Stage 1 ($1,000) with your current $1,100 balance. Stage 1 is complete. This is not a small thing -- it means a single car repair, ER copay, or broken laptop does not have to go on a credit card. Stage 2 is now the active goal.
 
@@ -565,11 +588,13 @@ The 3-month fund is not wrong -- it is the minimum. But as a single income earne
 ### Fund Usage Rules
 
 **An expense qualifies if all three are true:**
+
 - **Unexpected** -- you did not know this was coming and could not have planned for it
 - **Necessary** -- it cannot be safely deferred more than 30 days without serious consequence to your income, health, or housing
 - **Urgent** -- your essential living, employment, or health is disrupted without addressing it
 
 **Qualifies:**
+
 - Losing your job or a major income reduction
 - Medical or dental emergency beyond your insurance coverage
 - Car repair required to get to work that you cannot defer (not cosmetic damage)
@@ -577,6 +602,7 @@ The 3-month fund is not wrong -- it is the minimum. But as a single income earne
 - Emergency travel for immediate family crisis
 
 **Does not qualify:**
+
 - Planned car maintenance -- oil changes, tire rotation, annual registration should be in a sinking fund
 - A great sale on a laptop or camera equipment you want (urgency created by marketing is not an emergency)
 - A vacation, even a "once in a lifetime" opportunity
@@ -588,6 +614,7 @@ The 3-month fund is not wrong -- it is the minimum. But as a single income earne
 ---
 
 ### Replenishment Protocol
+
 If you ever withdraw from this fund:
 
 1. Identify the exact withdrawal amount immediately
@@ -612,6 +639,7 @@ Your student loans are at minimum payment only ($310/month). A few notes:
 ---
 
 ### Next Steps
+
 - [ ] Confirm the $1,100 is in a separate dedicated account, not your primary checking account. If it is in checking, move it today.
 - [ ] Label the account explicitly "Emergency Fund" in your banking app -- this mental accounting step reduces accidental use
 - [ ] Set up an automatic transfer of $350 on each payday, not monthly -- aligning with your pay schedule prevents you from spending it before transferring

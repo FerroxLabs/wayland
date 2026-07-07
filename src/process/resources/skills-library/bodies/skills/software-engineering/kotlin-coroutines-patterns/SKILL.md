@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "kotlin mobile backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'kotlin mobile backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kotlin Coroutines Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure coroutine scopes in an Android ViewModel, Activity, or Fragment, or in a Ktor/Spring Boot backend service
 - User wants to implement structured concurrency -- managing parent/child coroutine relationships, cancellation propagation, and lifecycle binding
 - User needs to choose between `launch`, `async`/`await`, `Flow`, `StateFlow`, `SharedFlow`, or `Channel` for a given concurrency problem
@@ -30,6 +32,7 @@ metadata:
 - User wants to understand dispatcher selection -- `Dispatchers.IO`, `Dispatchers.Default`, `Dispatchers.Main`, or a custom dispatcher
 
 **Do NOT use this skill when:**
+
 - User needs guidance on Kotlin language fundamentals unrelated to concurrency -- check the kotlin-fundamentals skill
 - User is asking about Java `CompletableFuture` or `ExecutorService` patterns without a Kotlin migration goal -- check the java-concurrency skill
 - User needs RxJava-specific operators or architecture without any coroutines migration intent -- check the rx-reactive-patterns skill
@@ -96,6 +99,7 @@ Unhandled coroutine exceptions are one of the most dangerous aspects of the libr
 - **`Channel`:** A hot communication primitive with FIFO ordering. Use for: producer/consumer queues, actor-style message passing, work distribution. Channels can buffer (`BUFFERED`, `CONFLATED`, `RENDEZVOUS`, `UNLIMITED`) -- choose based on backpressure requirements.
 
 **Flow operators to know deeply:**
+
 - `map`, `filter`, `transform` -- standard transformations
 - `flatMapLatest` -- cancel and restart inner flow on each upstream emission (search box debounce, live queries)
 - `flatMapConcat` -- sequential inner flows (ordered operations)
@@ -114,6 +118,7 @@ Unhandled coroutine exceptions are one of the most dangerous aspects of the libr
 Six patterns appear repeatedly in production Kotlin codebases:
 
 **Pattern A -- Retry with Exponential Backoff:**
+
 ```kotlin
 suspend fun <T> retryWithBackoff(
     maxAttempts: Int = 3,
@@ -135,14 +140,17 @@ suspend fun <T> retryWithBackoff(
 ```
 
 **Pattern B -- Timeout with Fallback:**
+
 ```kotlin
 val result = withTimeoutOrNull(5_000) {
     remoteApi.fetchData()
 } ?: localCache.getStaleData()
 ```
+
 Use `withTimeout` when you want the exception to propagate; use `withTimeoutOrNull` when a null fallback is acceptable.
 
 **Pattern C -- Parallel Decomposition:**
+
 ```kotlin
 suspend fun loadDashboard(): Dashboard = supervisorScope {
     val userDeferred = async { userRepository.getUser() }
@@ -160,6 +168,7 @@ suspend fun loadDashboard(): Dashboard = supervisorScope {
 ```
 
 **Pattern D -- Mutex for Shared Mutable State:**
+
 ```kotlin
 private val mutex = Mutex()
 private var sharedState: List<Item> = emptyList()
@@ -170,9 +179,11 @@ suspend fun addItem(item: Item) {
     }
 }
 ```
+
 Prefer `Mutex` over `@Volatile` + CAS for complex state. Use `Mutex(locked = false)` -- never create a pre-locked mutex unless you understand the implications.
 
 **Pattern E -- Flow-based Repository:**
+
 ```kotlin
 fun getItems(): Flow<List<Item>> = flow {
     emit(localCache.getItems())         // immediate local data
@@ -181,9 +192,11 @@ fun getItems(): Flow<List<Item>> = flow {
     emit(localCache.getItems())         // updated local data
 }.flowOn(Dispatchers.IO)
 ```
+
 Always use `flowOn` rather than `withContext` inside a `flow {}` builder. `withContext` inside a flow builder can cause issues with flow context preservation.
 
 **Pattern F -- Semaphore for Concurrency Limiting:**
+
 ```kotlin
 val semaphore = Semaphore(permits = 10)
 val results = items.map { item ->
@@ -194,6 +207,7 @@ val results = items.map { item ->
     }
 }.awaitAll()
 ```
+
 Use to prevent overwhelming downstream services. Set permits based on the target service's rate limit or your measured connection pool size.
 
 ### 7. Write Testable Coroutine Code
@@ -223,7 +237,7 @@ Before considering the implementation complete:
 
 When responding to a user's coroutines question, structure the answer using this template:
 
-```
+````
 ## Kotlin Coroutines Pattern Recommendation
 
 ### Problem Classification
@@ -254,7 +268,7 @@ When responding to a user's coroutines question, structure the answer using this
 // - Exception handling
 // - Cancellation safety
 // - Inline comments explaining non-obvious choices
-```
+````
 
 ### Testing the Implementation
 
@@ -264,15 +278,18 @@ When responding to a user's coroutines question, structure the answer using this
 ```
 
 ### Trade-offs and Alternatives
+
 - **If [condition changes]:** switch to [alternative] because [reason]
 - **Watch out for:** [one specific pitfall in this implementation]
 
 ### Dependency Versions
+
 - `kotlinx-coroutines-core`: [version]
 - `kotlinx-coroutines-android` (if applicable): [version]
 - `kotlinx-coroutines-test`: [version]
 - `app.cash.turbine` (if Flow testing): [version]
-```
+
+````
 
 ---
 
@@ -314,24 +331,30 @@ catch (e: IOException) {
     if (cause is CancellationException) throw cause
     handleNetworkError(e)
 }
-```
+````
 
 ### `StateFlow` Not Emitting in Tests
+
 `StateFlow` does not emit the same value twice (`distinctUntilChanged` is baked in). Tests that set the same value twice and expect two emissions will fail silently. Additionally, `StateFlow` requires an active collector -- asserting `stateFlow.value` directly in a `runTest` block works, but testing emissions via `Turbine` requires the `collect` to be active before the emission. Use `backgroundScope.launch { stateFlow.collect { ... } }` in the test to ensure collection is running before the emission occurs.
 
 ### Blocking Calls Accidentally on `Dispatchers.Default`
+
 CPU-bound dispatchers have thread pools sized to CPU core count (typically 4-16 threads on mobile/server). One blocking call on `Dispatchers.Default` occupies an entire thread, starving other coroutines. This manifests as unpredictable pauses in CPU-bound operations. Audit with a thread dump: if any `DefaultDispatcher-worker-N` threads are in `BLOCKED` state (not `WAITING`), there is a blocking call. Fix by wrapping the blocking call in `withContext(Dispatchers.IO)` or a dedicated dispatcher.
 
 ### `SharedFlow` Replay Buffer and Re-subscription
+
 A `SharedFlow` with `replay = 1` replays the last emission to new subscribers. This is appropriate for state but wrong for events. If a navigation event (`SharedFlow<NavigationEvent>` with `replay = 1`) is used and the screen is destroyed/recreated, the new collector immediately receives the last navigation event and navigates again. For one-time events, use `replay = 0` and `extraBufferCapacity = 1` with `DROP_OLDEST` overflow strategy. Alternatively, use a sealed class with a "consumed" state tracked in `StateFlow`.
 
 ### Coroutine Scope Outliving Android Process Kill
+
 When Android kills a process (low memory), all coroutines are terminated without executing `finally` blocks or cleanup code. This means in-progress database writes, file operations, or network requests may be interrupted mid-operation. For critical operations, use `WorkManager` (which survives process death via system scheduling) rather than a coroutine-based approach. For operations that can be interrupted, ensure idempotency -- the operation should be safe to restart from the beginning on the next launch.
 
 ### `runBlocking` in Android Main Thread
+
 `runBlocking` blocks the calling thread entirely. Calling `runBlocking` on the Android main thread will cause an ANR if the block takes more than 5 seconds (or even less under system pressure). The only acceptable use of `runBlocking` in Android is in unit tests and in `main()` functions of standalone Kotlin programs. For bridging synchronous APIs that need coroutine results, use callbacks, `lifecycleScope.launch`, or restructure the API to be `suspend` instead.
 
 ### `flatMapMerge` Concurrency Exhaustion
+
 `flatMapMerge` defaults to `DEFAULT_CONCURRENCY = 16` concurrent inner flows. If each inner flow makes a network request and downstream has slow response times, 16 simultaneous requests can overwhelm connection pools (typically sized 5-10 for mobile, 50-200 for servers) or hit API rate limits. Always set the `concurrency` parameter explicitly: `flatMapMerge(concurrency = 4) { item -> fetchItem(item) }`. Choose concurrency based on the downstream service's measured capacity, not the default.
 
 ---
@@ -345,19 +368,20 @@ When Android kills a process (low memory), all coroutines are terminated without
 ## Kotlin Coroutines Pattern Recommendation
 
 ### Problem Classification
+
 - Problem class: Data stream (continuous UI input driving async queries)
 - Scope: `viewModelScope` -- the search operation must survive orientation changes but must not outlive the ViewModel
 - Dispatcher: `Dispatchers.IO` for network calls (injected for testability); `Dispatchers.Main.immediate` for UI state updates (handled automatically by `StateFlow`)
 
 ### Pattern Decision Matrix
 
-| Criterion             | `launch` in `onTextChanged`      | `callbackFlow` in View     | `StateFlow` + `flatMapLatest` (Recommended) |
-|-----------------------|----------------------------------|----------------------------|---------------------------------------------|
-| Cancels in-flight req | No -- must track manually        | No -- same problem         | Yes -- `flatMapLatest` cancels automatically |
-| Debounce support      | Requires manual `Job` tracking   | Possible but complex       | `debounce` operator, one line               |
-| ViewModel lifecycle   | Leaks unless tracked carefully   | Tied to View lifecycle     | Survives rotation via `viewModelScope`       |
-| Testability           | Poor -- ViewModel tightly coupled| Poor -- View-coupled        | Excellent -- inject dispatcher + TestFlow    |
-| Loading state         | Manual flag management           | Manual                     | `map` to sealed UiState in pipeline         |
+| Criterion             | `launch` in `onTextChanged`       | `callbackFlow` in View | `StateFlow` + `flatMapLatest` (Recommended)  |
+| --------------------- | --------------------------------- | ---------------------- | -------------------------------------------- |
+| Cancels in-flight req | No -- must track manually         | No -- same problem     | Yes -- `flatMapLatest` cancels automatically |
+| Debounce support      | Requires manual `Job` tracking    | Possible but complex   | `debounce` operator, one line                |
+| ViewModel lifecycle   | Leaks unless tracked carefully    | Tied to View lifecycle | Survives rotation via `viewModelScope`       |
+| Testability           | Poor -- ViewModel tightly coupled | Poor -- View-coupled   | Excellent -- inject dispatcher + TestFlow    |
+| Loading state         | Manual flag management            | Manual                 | `map` to sealed UiState in pipeline          |
 
 ### Recommended Pattern: `StateFlow` search query + `flatMapLatest` for cancellation + `debounce` for rate limiting
 
@@ -556,6 +580,7 @@ class SearchViewModelTest {
 - **Watch out for:** `SharingStarted.WhileSubscribed(5_000)` means if the user backgrounds the app for more than 5 seconds, the flow restarts on return. If the last query result is important to preserve, increase `stopTimeoutMillis` or use `SharingStarted.Lazily` -- but `Lazily` never stops the upstream flow once started, which may be wasteful.
 
 ### Dependency Versions
+
 - `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1`
 - `org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1`
 - `org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1`

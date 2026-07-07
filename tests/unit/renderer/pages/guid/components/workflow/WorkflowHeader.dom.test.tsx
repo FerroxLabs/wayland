@@ -32,10 +32,7 @@ vi.mock('@arco-design/web-react', () => {
     </button>
   );
 
-  const Radio = ({
-    children,
-    value: _v,
-  }: React.PropsWithChildren<{ value?: string }>) => <span>{children}</span>;
+  const Radio = ({ children, value: _v }: React.PropsWithChildren<{ value?: string }>) => <span>{children}</span>;
   Radio.Group = ({
     children,
     onChange,
@@ -46,10 +43,7 @@ vi.mock('@arco-design/web-react', () => {
         if (!React.isValidElement(child)) return child;
         const props = child.props as { value?: string; children?: React.ReactNode };
         return (
-          <button
-            data-testid={`radio-${props.value}`}
-            onClick={() => onChange?.(props.value as string)}
-          >
+          <button data-testid={`radio-${props.value}`} onClick={() => onChange?.(props.value as string)}>
             {props.children}
           </button>
         );

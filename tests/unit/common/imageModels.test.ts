@@ -82,9 +82,9 @@ describe('curatedImageModelsForProvider', () => {
   it('returns the Flux arm floor by host, before the OpenAI rule, for a flux-host openai row', () => {
     // A connected Flux provider is mirrored with platform 'openai' + a Flux
     // baseUrl. It must get the Flux arms, NOT the OpenAI floor.
-    expect(
-      curatedImageModelsForProvider({ platform: 'openai', baseUrl: 'https://api.fluxrouter.ai/v1' })
-    ).toEqual([...FLUX_IMAGE_ARMS]);
+    expect(curatedImageModelsForProvider({ platform: 'openai', baseUrl: 'https://api.fluxrouter.ai/v1' })).toEqual([
+      ...FLUX_IMAGE_ARMS,
+    ]);
   });
 
   it('returns the Flux arm floor by the flux-router platform id', () => {
@@ -119,7 +119,11 @@ describe('isFluxProviderRow', () => {
   it('does not match OpenAI, a non-flux bridge tag, or empty providers', () => {
     expect(isFluxProviderRow({ platform: 'openai', baseUrl: 'https://api.openai.com/v1' })).toBe(false);
     expect(
-      isFluxProviderRow({ platform: 'openai-compatible', baseUrl: '', __waylandModelRegistryBridge: 'v2:google-gemini' })
+      isFluxProviderRow({
+        platform: 'openai-compatible',
+        baseUrl: '',
+        __waylandModelRegistryBridge: 'v2:google-gemini',
+      })
     ).toBe(false);
     expect(isFluxProviderRow({})).toBe(false);
   });

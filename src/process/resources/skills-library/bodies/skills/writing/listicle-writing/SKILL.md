@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing content-marketing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'blog-post writing content-marketing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Listicle Writing
 
 ## When to Use
@@ -177,13 +178,13 @@ generated without reading the full list.]
 
 **Format Variants by Publication Context:**
 
-| Context | Item heading level | Item body length | Concrete anchor format |
-|---|---|---|---|
-| Long-form blog post | H2 per item | 3-5 sentences | Named example or data point |
-| Email newsletter | Bold paragraph lead | 2-3 sentences | One-line comparison |
-| LinkedIn article | H2 or bold lead | 2-3 sentences | Specific number or percentage |
-| Social thread | No heading | 1-2 sentences | Short comparison or stat |
-| Content hub pillar | H2 per item + H3 sub-points | 5-8 sentences | Multiple anchors + internal link slot |
+| Context             | Item heading level          | Item body length | Concrete anchor format                |
+| ------------------- | --------------------------- | ---------------- | ------------------------------------- |
+| Long-form blog post | H2 per item                 | 3-5 sentences    | Named example or data point           |
+| Email newsletter    | Bold paragraph lead         | 2-3 sentences    | One-line comparison                   |
+| LinkedIn article    | H2 or bold lead             | 2-3 sentences    | Specific number or percentage         |
+| Social thread       | No heading                  | 1-2 sentences    | Short comparison or stat              |
+| Content hub pillar  | H2 per item + H3 sub-points | 5-8 sentences    | Multiple anchors + internal link slot |
 
 ---
 

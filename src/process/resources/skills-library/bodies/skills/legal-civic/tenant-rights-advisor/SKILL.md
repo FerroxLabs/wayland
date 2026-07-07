@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts tenant-rights"
-  category: "legal-civic"
-  subcategory: "tenant-rights"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts tenant-rights'
+  category: 'legal-civic'
+  subcategory: 'tenant-rights'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
 
 # Tenant Rights Advisor
@@ -25,11 +25,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tenant rights advisor
 - User needs guidance on tenant rights advisor topics
 - User wants a structured approach to tenant rights advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -39,20 +41,20 @@ metadata:
 
 Every lease should clearly state:
 
-| Term | What to Check |
-|------|--------------|
-| **Lease duration** | Month-to-month vs. fixed term (6 months, 1 year) |
-| **Rent amount and due date** | Amount, when due, acceptable payment methods |
-| **Late fees** | Amount and when they apply (some states cap late fees) |
-| **Security deposit** | Amount, conditions for return, timeline for return |
-| **Maintenance responsibilities** | What landlord maintains vs. what tenant maintains |
-| **Utilities** | Which are included, which tenant pays |
-| **Pet policy** | Allowed/not, pet deposit, breed/weight restrictions |
-| **Guest policy** | Restrictions on overnight guests or duration |
-| **Subletting** | Whether allowed, process required |
-| **Early termination** | Penalty, notice period, conditions |
-| **Renewal terms** | Auto-renewal clause, rent increase notice requirements |
-| **Entry notice** | How much notice landlord must give before entering (typically 24-48 hours by law) |
+| Term                             | What to Check                                                                     |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| **Lease duration**               | Month-to-month vs. fixed term (6 months, 1 year)                                  |
+| **Rent amount and due date**     | Amount, when due, acceptable payment methods                                      |
+| **Late fees**                    | Amount and when they apply (some states cap late fees)                            |
+| **Security deposit**             | Amount, conditions for return, timeline for return                                |
+| **Maintenance responsibilities** | What landlord maintains vs. what tenant maintains                                 |
+| **Utilities**                    | Which are included, which tenant pays                                             |
+| **Pet policy**                   | Allowed/not, pet deposit, breed/weight restrictions                               |
+| **Guest policy**                 | Restrictions on overnight guests or duration                                      |
+| **Subletting**                   | Whether allowed, process required                                                 |
+| **Early termination**            | Penalty, notice period, conditions                                                |
+| **Renewal terms**                | Auto-renewal clause, rent increase notice requirements                            |
+| **Entry notice**                 | How much notice landlord must give before entering (typically 24-48 hours by law) |
 
 ### Lease Red Flags
 
@@ -74,11 +76,13 @@ Every lease should clearly state:
 ### Your Rights (General Framework)
 
 **Limits on Amount**
+
 - Many states cap deposits: typically 1-2 months' rent
 - Some states: no limit (verify your state)
 - First month, last month, and security deposit may all be separate
 
 **Return Timeline**
+
 - Most states require return within 14-30 days after move-out
 - Landlord must provide an itemized list of any deductions
 - Failure to return on time or itemize can result in penalties (often 2-3x the deposit)
@@ -86,6 +90,7 @@ Every lease should clearly state:
 ### Protecting Your Deposit
 
 **At Move-In**
+
 1. Complete a detailed move-in condition checklist
 2. Photograph and video every room, wall, floor, fixture, and appliance
 3. Note existing damage in writing on the checklist
@@ -93,12 +98,14 @@ Every lease should clearly state:
 5. Keep your copy and digital backups of all photos/videos
 
 **During Tenancy**
+
 - Report maintenance issues in writing (email creates a record)
 - Document any damage caused by landlord neglect
 - Keep copies of all communication with landlord
 - Do not make unauthorized modifications
 
 **At Move-Out**
+
 1. Clean thoroughly (professional cleaning if required by lease)
 2. Photograph and video every room again (compare to move-in photos)
 3. Complete move-out checklist if available
@@ -110,15 +117,15 @@ Every lease should clearly state:
 
 **Landlord CANNOT deduct for normal wear and tear:**
 
-| Normal Wear and Tear | Tenant Damage |
-|---------------------|---------------|
-| Small nail holes from hanging pictures | Large holes in walls |
-| Faded paint or carpet from sunlight | Stains, burns, or pet damage to carpet |
-| Worn carpet in high-traffic areas | Ripped or torn carpet |
-| Minor scuffs on hardwood floors | Deep scratches or gouges |
-| Loose door handles from normal use | Broken doors or locks |
-| Dusty blinds | Broken or missing blinds |
-| Faded curtains | Missing curtains (if provided) |
+| Normal Wear and Tear                   | Tenant Damage                          |
+| -------------------------------------- | -------------------------------------- |
+| Small nail holes from hanging pictures | Large holes in walls                   |
+| Faded paint or carpet from sunlight    | Stains, burns, or pet damage to carpet |
+| Worn carpet in high-traffic areas      | Ripped or torn carpet                  |
+| Minor scuffs on hardwood floors        | Deep scratches or gouges               |
+| Loose door handles from normal use     | Broken doors or locks                  |
+| Dusty blinds                           | Broken or missing blinds               |
+| Faded curtains                         | Missing curtains (if provided)         |
 
 ### If Your Deposit Is Wrongfully Withheld
 
@@ -134,6 +141,7 @@ Every lease should clearly state:
 ### The Implied Warranty of Habitability
 
 In all states, landlords must maintain rental property in habitable condition. This includes:
+
 - Functioning heating system (and AC where required)
 - Hot and cold running water
 - Working plumbing and sewage
@@ -147,6 +155,7 @@ In all states, landlords must maintain rental property in habitable condition. T
 ### The Repair Request Process
 
 **Step 1: Notify in Writing**
+
 - Always put repair requests in writing (email or letter)
 - Describe the issue specifically
 - Note the date you first noticed the problem
@@ -154,6 +163,7 @@ In all states, landlords must maintain rental property in habitable condition. T
 - Keep a copy of every communication
 
 **Step 2: Follow Up**
+
 - If no response within a reasonable time (varies by severity):
   - Emergency (no heat in winter, gas leak, flood): 24 hours
   - Urgent (broken lock, no hot water): 3-7 days
@@ -161,12 +171,12 @@ In all states, landlords must maintain rental property in habitable condition. T
 
 **Step 3: Escalate If Necessary**
 
-| Option | How It Works | Risk Level |
-|--------|-------------|-----------|
-| Contact code enforcement | File complaint with local housing inspector | Low |
-| Repair and deduct | Fix it yourself, deduct cost from rent (if legal in your state) | Medium |
-| Withhold rent | Place rent in escrow, withhold until repaired (strict rules) | High |
-| Break the lease | Constructive eviction claim (uninhabitable conditions) | High |
+| Option                   | How It Works                                                    | Risk Level |
+| ------------------------ | --------------------------------------------------------------- | ---------- |
+| Contact code enforcement | File complaint with local housing inspector                     | Low        |
+| Repair and deduct        | Fix it yourself, deduct cost from rent (if legal in your state) | Medium     |
+| Withhold rent            | Place rent in escrow, withhold until repaired (strict rules)    | High       |
+| Break the lease          | Constructive eviction claim (uninhabitable conditions)          | High       |
 
 **Warning**: Rent withholding and repair-and-deduct have strict legal requirements that vary by state. Done incorrectly, you could face eviction. Get legal advice before using these remedies.
 
@@ -175,6 +185,7 @@ In all states, landlords must maintain rental property in habitable condition. T
 ### Legal Grounds for Eviction
 
 A landlord can typically evict for:
+
 - Non-payment of rent
 - Lease violations (unauthorized pets, subletting, disturbances)
 - Holding over after lease expiration
@@ -184,6 +195,7 @@ A landlord can typically evict for:
 ### What Landlords CANNOT Do
 
 **Illegal "Self-Help" Evictions** (Illegal in ALL states):
+
 - Changing the locks without a court order
 - Shutting off utilities
 - Removing your belongings
@@ -222,6 +234,7 @@ EVICTION TIMELINE (General):
 ### Defending Against Eviction
 
 Potential defenses (consult an attorney):
+
 - Improper notice (wrong form, wrong timeframe, wrong delivery method)
 - Rent was paid (bring proof)
 - Landlord accepted partial payment after filing
@@ -243,6 +256,7 @@ Potential defenses (consult an attorney):
 ### Fair Housing Act (Federal)
 
 Landlords CANNOT discriminate based on:
+
 - Race or color
 - National origin
 - Religion
@@ -255,6 +269,7 @@ Landlords CANNOT discriminate based on:
 ### Retaliation Protection
 
 Most states prohibit landlords from retaliating against tenants who:
+
 - Report code violations to authorities
 - Exercise legal rights (withholding rent legally, organizing tenants)
 - Complain about habitability issues
@@ -289,6 +304,7 @@ TENANT DOCUMENTATION CHECKLIST
 ```
 
 ### Communication Best Practices
+
 - Always communicate in writing (email preferred, creates automatic timestamp)
 - Follow up phone conversations with an email summary: "Per our call today..."
 - Keep copies of everything, backed up digitally
@@ -299,12 +315,12 @@ TENANT DOCUMENTATION CHECKLIST
 ## Renter's Insurance
 
 Not a legal requirement in most cases but strongly recommended:
+
 - Covers your personal belongings (theft, fire, water damage)
 - Provides liability coverage (someone injured in your unit)
 - Typically $15-30/month
 - Landlord's insurance does NOT cover your belongings
 - Some landlords require it as a lease condition
-
 
 ## Output Format
 

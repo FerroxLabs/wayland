@@ -18,16 +18,8 @@
   ],
   "x-wayland": {
     "tier": "core",
-    "categories": [
-      "media",
-      "developer"
-    ],
-    "tags": [
-      "replicate",
-      "image",
-      "video",
-      "models"
-    ],
+    "categories": ["media", "developer"],
+    "tags": ["replicate", "image", "video", "models"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -49,11 +41,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

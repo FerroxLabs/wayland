@@ -51,10 +51,14 @@ const SynologyChatSetup: React.FC = () => {
       pluginId='synology-chat_default'
       helpText={t(
         'settings.channels.synologyChat.help',
-        'NAS-hosted team chat via Synology DSM. Configure an outgoing webhook in Synology Chat to receive messages, and provide the incoming webhook URL to send replies.',
+        'NAS-hosted team chat via Synology DSM. Configure an outgoing webhook in Synology Chat to receive messages, and provide the incoming webhook URL to send replies.'
       )}
     >
-      <SynologyChatConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <SynologyChatConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql automation"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql automation'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Orchestration Engineer
@@ -24,15 +24,15 @@ Pipeline orchestration is the practice of defining, scheduling, monitoring, and 
 
 ## Framework Selection Guide
 
-| Factor | Airflow | Dagster | Prefect |
-|--------|---------|---------|---------|
-| Maturity | Most mature, largest community | Growing rapidly, modern design | Cloud-native, developer-friendly |
-| Paradigm | DAGs of tasks (imperative) | Software-defined assets (declarative) | Flows of tasks (Pythonic) |
-| Testing | Requires running scheduler | First-class local testing | Easy local execution |
-| UI | Functional, complex | Modern, asset-focused | Clean, observation-focused |
-| Scaling | Celery/K8s executors | Runs on K8s, multi-process | Workers, K8s, serverless |
-| Best For | Complex scheduling, large teams | Asset-centric, data mesh | Rapid development, small teams |
-| Dynamic | Limited (dynamic task mapping) | Strong (partitions, configs) | Strong (map, submit) |
+| Factor   | Airflow                         | Dagster                               | Prefect                          |
+| -------- | ------------------------------- | ------------------------------------- | -------------------------------- |
+| Maturity | Most mature, largest community  | Growing rapidly, modern design        | Cloud-native, developer-friendly |
+| Paradigm | DAGs of tasks (imperative)      | Software-defined assets (declarative) | Flows of tasks (Pythonic)        |
+| Testing  | Requires running scheduler      | First-class local testing             | Easy local execution             |
+| UI       | Functional, complex             | Modern, asset-focused                 | Clean, observation-focused       |
+| Scaling  | Celery/K8s executors            | Runs on K8s, multi-process            | Workers, K8s, serverless         |
+| Best For | Complex scheduling, large teams | Asset-centric, data mesh              | Rapid development, small teams   |
+| Dynamic  | Limited (dynamic task mapping)  | Strong (partitions, configs)          | Strong (map, submit)             |
 
 ## Apache Airflow
 
@@ -367,15 +367,15 @@ def scheduled_etl():
 
 ### Retry Strategy Decision Matrix
 
-| Failure Type | Retry? | Strategy | Max Retries | Backoff |
-|-------------|--------|----------|-------------|---------|
-| API rate limit | Yes | Exponential + jitter | 5 | 30s, 60s, 120s, 240s |
-| Network timeout | Yes | Linear | 3 | 30s |
-| Auth token expired | Yes (after refresh) | Refresh then retry | 2 | 0s |
-| Data validation | No | Route to DLQ | 0 | N/A |
-| Schema mismatch | No | Alert and stop | 0 | N/A |
-| Resource exhaustion | Yes | Exponential | 3 | 60s, 300s, 900s |
-| Upstream not ready | Yes | Fixed interval | 10 | 300s |
+| Failure Type        | Retry?              | Strategy             | Max Retries | Backoff              |
+| ------------------- | ------------------- | -------------------- | ----------- | -------------------- |
+| API rate limit      | Yes                 | Exponential + jitter | 5           | 30s, 60s, 120s, 240s |
+| Network timeout     | Yes                 | Linear               | 3           | 30s                  |
+| Auth token expired  | Yes (after refresh) | Refresh then retry   | 2           | 0s                   |
+| Data validation     | No                  | Route to DLQ         | 0           | N/A                  |
+| Schema mismatch     | No                  | Alert and stop       | 0           | N/A                  |
+| Resource exhaustion | Yes                 | Exponential          | 3           | 60s, 300s, 900s      |
+| Upstream not ready  | Yes                 | Fixed interval       | 10          | 300s                 |
 
 ### Airflow Retry Configuration
 
@@ -443,31 +443,31 @@ def trigger_backfill(start_date, end_date):
 ```yaml
 metrics:
   dag_level:
-    - dag_duration_seconds        # Total execution time
-    - dag_success_rate            # Success / total runs
-    - tasks_failed_count          # Failed tasks per run
-    - schedule_delay_seconds      # Time from scheduled to actual start
-    - sla_miss_count              # SLA violations
+    - dag_duration_seconds # Total execution time
+    - dag_success_rate # Success / total runs
+    - tasks_failed_count # Failed tasks per run
+    - schedule_delay_seconds # Time from scheduled to actual start
+    - sla_miss_count # SLA violations
 
   task_level:
-    - task_duration_seconds       # Individual task time
-    - task_retry_count            # Retries before success
-    - records_processed           # Business metric
-    - data_quality_score          # Quality gate result
+    - task_duration_seconds # Individual task time
+    - task_retry_count # Retries before success
+    - records_processed # Business metric
+    - data_quality_score # Quality gate result
 
 alerts:
   critical:
-    - condition: "dag_failed AND is_business_critical"
+    - condition: 'dag_failed AND is_business_critical'
       action: pagerduty
     - condition: "sla_miss AND severity = 'high'"
       action: pagerduty + slack
   warning:
-    - condition: "dag_duration > 2x median"
+    - condition: 'dag_duration > 2x median'
       action: slack
-    - condition: "task_retry_count > 2"
+    - condition: 'task_retry_count > 2'
       action: slack
   info:
-    - condition: "backfill_complete"
+    - condition: 'backfill_complete'
       action: email
 ```
 
@@ -508,6 +508,7 @@ Operations:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing orchestration engineer solutions
 - Reviewing or improving existing orchestration engineer approaches
 - Making architectural or implementation decisions about orchestration engineer
@@ -515,6 +516,7 @@ Operations:
 - Troubleshooting orchestration engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -525,21 +527,26 @@ Operations:
 # Orchestration Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

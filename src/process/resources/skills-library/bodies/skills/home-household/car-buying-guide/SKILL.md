@@ -7,25 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Car Buying Guide
+
 > **NOTE:** Car prices, interest rates, and incentives change frequently. Always verify current pricing and financing options at the time of purchase. This skill provides frameworks and strategies, not specific price guarantees.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about car buying guide
 - User needs guidance on car buying guide topics
 - User wants a structured approach to car buying guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -41,25 +45,28 @@ metadata:
 8. **What is your credit score range?** (Excellent 750+ / Good 700-749 / Fair 650-699 / Below 650)
 9. **How long do you plan to keep the vehicle?** (1-3 years / 3-5 years / 5-7 years / 7+ years)
 10. **What features are must-haves?** (Safety / Tech / Comfort / Performance / Fuel economy)
+
 ---
+
 ## Phase 1: New vs Used Decision Framework
 
 ### Comparison Matrix
 
-| Factor | New Vehicle | Used (1-3 years) | Used (4-7 years) |
-|--------|-----------|------------------|------------------|
-| Price | Highest | 20-35% less | 40-60% less |
-| Depreciation (Year 1) | 20-30% | Already absorbed | Minimal |
-| Warranty | Full manufacturer | Some remaining or CPO | Likely expired |
-| Interest Rate | Lowest (0% sometimes) | Low-Moderate | Moderate-Higher |
-| Maintenance | Included sometimes | Low | Increasing |
-| Technology | Latest | Recent | May be dated |
-| Selection | Full options | Limited inventory | Limited |
-| Unknown History | None | Minimal concern | Check carefully |
-| Insurance | Higher | Moderate | Lower |
-| Peace of Mind | High | Moderate-High (CPO) | Lower |
+| Factor                | New Vehicle           | Used (1-3 years)      | Used (4-7 years) |
+| --------------------- | --------------------- | --------------------- | ---------------- |
+| Price                 | Highest               | 20-35% less           | 40-60% less      |
+| Depreciation (Year 1) | 20-30%                | Already absorbed      | Minimal          |
+| Warranty              | Full manufacturer     | Some remaining or CPO | Likely expired   |
+| Interest Rate         | Lowest (0% sometimes) | Low-Moderate          | Moderate-Higher  |
+| Maintenance           | Included sometimes    | Low                   | Increasing       |
+| Technology            | Latest                | Recent                | May be dated     |
+| Selection             | Full options          | Limited inventory     | Limited          |
+| Unknown History       | None                  | Minimal concern       | Check carefully  |
+| Insurance             | Higher                | Moderate              | Lower            |
+| Peace of Mind         | High                  | Moderate-High (CPO)   | Lower            |
 
 ### When to Buy New
+
 ```
 BUY NEW IF:
 - You want latest safety features and technology
@@ -72,6 +79,7 @@ BUY NEW IF:
 ```
 
 ### When to Buy Used
+
 ```
 BUY USED IF:
 - You want the best value per dollar
@@ -90,10 +98,13 @@ CERTIFIED PRE-OWNED (CPO):
 - Costs more than regular used but less than new
 - Usually worth the premium for peace of mind
 ```
+
 ---
+
 ## Phase 2: Total Cost of Ownership Analysis
 
 ### TCO Calculator Template
+
 ```
 TOTAL COST OF OWNERSHIP (5-Year Analysis)
 VEHICLE: _______________
@@ -129,6 +140,7 @@ Vehicle A TCO: $__________  |  Vehicle B TCO: $__________
 ```
 
 ### Depreciation by Vehicle Type
+
 ```
 AVERAGE DEPRECIATION (from new):
 After 1 year: 20-30%
@@ -152,6 +164,7 @@ WORST DEPRECIATION:
 ```
 
 ### Insurance Cost Factors
+
 ```
 FACTORS AFFECTING PREMIUM:
 1. Vehicle value (higher = more expensive)
@@ -170,23 +183,26 @@ GET INSURANCE QUOTES BEFORE BUYING:
 - A car that costs $2,000 less but $1,200 more annually to insure
   costs MORE over 5 years
 ```
+
 ---
+
 ## Phase 3: Financing Options
 
 ### Loan vs Lease vs Cash
 
-| Factor | Loan | Lease | Cash |
-|--------|------|-------|------|
-| Monthly Cost | Moderate | Lowest | None |
-| Total Cost (5 yr) | Moderate | Highest (if repeating) | Lowest |
-| Ownership | You own it | You return it | You own it |
-| Mileage Limits | None | 10-15K/year typically | None |
-| Customization | Full | Very limited | Full |
-| End of Term | Paid-off vehicle | Return or buy | Already yours |
-| Equity | Building equity | No equity | Full equity |
-| Good For | Keeping 5+ years | Short-term, low miles | Best value overall |
+| Factor            | Loan             | Lease                  | Cash               |
+| ----------------- | ---------------- | ---------------------- | ------------------ |
+| Monthly Cost      | Moderate         | Lowest                 | None               |
+| Total Cost (5 yr) | Moderate         | Highest (if repeating) | Lowest             |
+| Ownership         | You own it       | You return it          | You own it         |
+| Mileage Limits    | None             | 10-15K/year typically  | None               |
+| Customization     | Full             | Very limited           | Full               |
+| End of Term       | Paid-off vehicle | Return or buy          | Already yours      |
+| Equity            | Building equity  | No equity              | Full equity        |
+| Good For          | Keeping 5+ years | Short-term, low miles  | Best value overall |
 
 ### Lease vs Buy Analysis Template
+
 ```
 LEASE SCENARIO:
 Monthly payment:        $__________
@@ -226,6 +242,7 @@ BUY MAKES SENSE IF:
 ```
 
 ### Financing Tips
+
 ```
 BEFORE VISITING THE DEALER:
 
@@ -262,10 +279,13 @@ THE 20/4/10 RULE:
 - 4-year (48 month) loan or shorter
 - Monthly payment no more than 10% of gross monthly income
 ```
+
 ---
+
 ## Phase 4: Negotiation Strategies
 
 ### Research Before Negotiating
+
 ```
 KNOW THESE NUMBERS:
 
@@ -295,6 +315,7 @@ KNOW THESE NUMBERS:
 ```
 
 ### Negotiation Tactics
+
 ```
 STRATEGY 1: EMAIL NEGOTIATION (Recommended)
 1. Identify 3-5 dealers within driving distance
@@ -335,6 +356,7 @@ THINGS TO AVOID:
 ```
 
 ### Dealer Add-Ons to Decline
+
 ```
 ALMOST ALWAYS DECLINE:
 - Dealer-applied paint protection ($300-1,000): A $30 bottle of wax works
@@ -350,10 +372,13 @@ CONSIDER (but negotiate price down or buy elsewhere):
 - Extended warranty (useful for out-of-warranty used cars, buy from third party cheaper)
 - Maintenance plans (do the math vs pay-as-you-go)
 ```
+
 ---
+
 ## Phase 5: Trade-In Value Maximization
 
 ### Preparation Checklist
+
 ```
 BEFORE GETTING TRADE-IN OFFERS:
 1. CLEAN THE VEHICLE
@@ -389,10 +414,13 @@ Private sale typically gets 10-20% more than trade-in.
 Trade-in is more convenient and may save sales tax
 (in some states, trade-in value reduces taxable purchase price).
 ```
+
 ---
+
 ## Phase 6: Used Car Inspection
 
 ### Pre-Purchase Inspection Checklist
+
 ```
 EXTERIOR:
 [ ] Walk around looking for dents, scratches, rust, mismatched paint
@@ -433,6 +461,7 @@ DOCUMENTS:
 ```
 
 ### Test Drive Checklist
+
 ```
 BEFORE STARTING:
 [ ] Adjust mirrors and seat
@@ -468,10 +497,13 @@ ALWAYS GET A PRE-PURCHASE INSPECTION (PPI):
 - This is the single best investment you can make when buying used
 - If the seller refuses an independent inspection, WALK AWAY
 ```
+
 ---
+
 ## Phase 7: Best Time to Buy
 
 ### Timing Your Purchase
+
 ```
 BEST TIMES TO BUY:
 
@@ -505,10 +537,13 @@ WORST TIMES TO BUY:
 - Spring/early summer (demand is highest)
 - When your trade-in has a problem (fix it first or sell privately)
 ```
+
 ---
+
 ## Output Format
 
 When providing car buying guidance, present it as:
+
 ```
 CAR BUYING ANALYSIS
 Budget: $[Monthly] / $[Total]
@@ -530,3 +565,4 @@ RECOMMENDED VEHICLES:
 - **Incomplete information:** Ask clarifying questions before proceeding. Do not assume details the user has not provided.
 - **Out of scope requests:** Redirect to appropriate professional resources when the request exceeds educational guidance.
 - **Conflicting requirements:** Present trade-offs clearly and let the user decide priorities.
+```

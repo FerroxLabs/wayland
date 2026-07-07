@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile dart design-patterns"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile dart design-patterns'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Flutter State Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks which state management solution to choose for a Flutter app (Provider, Riverpod, Bloc/Cubit, GetX, MobX, Redux, or setState)
 - The user needs to implement a specific state management pattern and wants production-ready code, file structure, and architectural guidance
 - The user is experiencing performance problems -- excessive widget rebuilds, UI jank, or memory leaks -- that originate from poorly scoped state
@@ -30,6 +32,7 @@ metadata:
 - The user needs to handle cross-feature state sharing, dependency injection, or service locators in Flutter
 
 **Do NOT use this skill when:**
+
 - The user needs Flutter navigation architecture -- use the flutter-navigation skill, which covers go_router, AutoRoute, and deep linking patterns
 - The user is asking about Flutter animation state (AnimationController, Tween, physics simulations) -- that is the flutter-animations skill
 - The user needs Flutter platform channel integration or native plugin development
@@ -58,24 +61,26 @@ Before recommending any solution, gather the following information:
 Use the following structured decision tree to select the appropriate solution:
 
 **Step 2a -- Eliminate options based on hard constraints:**
+
 - If the team has fewer than 6 months of Flutter experience and no reactive programming background: eliminate Bloc, MobX, and Redux immediately. These require understanding of streams, observables, or reducers that take weeks to learn correctly
 - If the codebase must avoid code generation at build time (strict CI constraints, slow build pipelines): eliminate MobX (requires `build_runner`) and Riverpod's code-generated variant (riverpod_generator). Use non-generated Riverpod or Provider instead
 - If the app is a prototype or MVP with a 4-week delivery window: setState + Provider is sufficient and appropriate. Do not over-engineer
 
 **Step 2b -- Match pattern to feature complexity:**
 
-| Feature Type | Recommended Pattern | Why |
-|---|---|---|
-| Local ephemeral UI state (dropdown open, tab index) | setState inside StatefulWidget | No need to share, lifecycle is screen-scoped |
-| Single async data fetch (user profile, config) | FutureProvider (Riverpod) or FutureBuilder | Simple, composable, handles loading/error |
-| Paginated or infinite-scroll lists | StateNotifierProvider (Riverpod) | Mutable list state with append semantics |
-| Real-time data (chat, live prices) | StreamProvider (Riverpod) or BlocBuilder + Stream | Reactive, auto-disposes on widget unmount |
-| Complex multi-step forms | Cubit (Bloc) | Clear state transitions, testable |
-| Complex event-driven flows (authentication, checkout) | Bloc with explicit Events | Audit trail of events, easy replay for tests |
-| Global app-wide state (auth, theme, user session) | Riverpod global providers or InheritedWidget root | Persistent scope above MaterialApp |
-| Cross-feature derived state (cart total from line items) | Riverpod Provider with watch() | Reactive derivation, auto-caches |
+| Feature Type                                             | Recommended Pattern                               | Why                                          |
+| -------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------- |
+| Local ephemeral UI state (dropdown open, tab index)      | setState inside StatefulWidget                    | No need to share, lifecycle is screen-scoped |
+| Single async data fetch (user profile, config)           | FutureProvider (Riverpod) or FutureBuilder        | Simple, composable, handles loading/error    |
+| Paginated or infinite-scroll lists                       | StateNotifierProvider (Riverpod)                  | Mutable list state with append semantics     |
+| Real-time data (chat, live prices)                       | StreamProvider (Riverpod) or BlocBuilder + Stream | Reactive, auto-disposes on widget unmount    |
+| Complex multi-step forms                                 | Cubit (Bloc)                                      | Clear state transitions, testable            |
+| Complex event-driven flows (authentication, checkout)    | Bloc with explicit Events                         | Audit trail of events, easy replay for tests |
+| Global app-wide state (auth, theme, user session)        | Riverpod global providers or InheritedWidget root | Persistent scope above MaterialApp           |
+| Cross-feature derived state (cart total from line items) | Riverpod Provider with watch()                    | Reactive derivation, auto-caches             |
 
 **Step 2c -- Final selection rationale:**
+
 - **setState:** Use only for state that does not leave the widget. If you call setState in a parent to pass data to a child, you have outgrown it
 - **Provider (package:provider):** Appropriate for small-to-medium apps. Simpler mental model than Riverpod but lacks auto-dispose, ref.watch composition, and code generation. Avoid for new greenfield projects in 2024+
 - **Riverpod (package:flutter_riverpod):** The default recommendation for most new Flutter apps. Compile-time safety, auto-dispose, family modifiers for parameterized providers, and first-class async support. Use riverpod_generator only if code generation is acceptable
@@ -99,6 +104,7 @@ Once the solution is chosen, define the state topology before writing code:
 Apply the following concrete implementation patterns:
 
 **Riverpod StateNotifier pattern (for mutable async state):**
+
 ```dart
 // State class using freezed for union types
 @freezed
@@ -142,6 +148,7 @@ final productListProvider = StateNotifierProvider.autoDispose
 ```
 
 **Bloc pattern (for event-driven flows):**
+
 ```dart
 // Events
 abstract class AuthEvent {}
@@ -428,6 +435,7 @@ Some providers depend on async initialization (reading from secure storage, load
 ## State Management Assessment
 
 **App Profile:**
+
 - Scale: Medium (4 domains, ~20--35 screens, real user-facing production app)
 - Async complexity: Mixed -- REST calls for catalog/orders, possible cart persistence via local storage, auth token management
 - Team experience: Intermediate -- 1--2 years Flutter, likely familiar with basic setState and Provider
@@ -439,12 +447,12 @@ Riverpod provides compile-time provider safety, auto-dispose, family parameteriz
 
 ## Decision Rationale
 
-| Criterion | Chosen: Riverpod | Eliminated: Bloc | Eliminated: Provider |
-|---|---|---|---|
-| Team familiarity | Moderate learning curve, watch/listen model intuitive | High ceremony -- separate Event/State/Bloc classes for every feature adds ~3 files per domain | Simpler but lacks auto-dispose and select(), leads to over-rebuild |
-| Async pattern | FutureProvider and StreamProvider handle REST and streams natively | Requires manual stream subscription and event dispatch | ChangeNotifier requires manual notifyListeners(), no built-in async state |
-| Testability | ProviderScope overrides enable pure widget + notifier tests | bloc_test is excellent but adds another dependency | Hard to test ChangeNotifier isolation |
-| Boilerplate tolerance | Moderate -- one provider file, one state file, one notifier per feature | High -- Event + State + Bloc + mapper per feature | Low but paid for in rebuild management pain |
+| Criterion             | Chosen: Riverpod                                                        | Eliminated: Bloc                                                                              | Eliminated: Provider                                                      |
+| --------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Team familiarity      | Moderate learning curve, watch/listen model intuitive                   | High ceremony -- separate Event/State/Bloc classes for every feature adds ~3 files per domain | Simpler but lacks auto-dispose and select(), leads to over-rebuild        |
+| Async pattern         | FutureProvider and StreamProvider handle REST and streams natively      | Requires manual stream subscription and event dispatch                                        | ChangeNotifier requires manual notifyListeners(), no built-in async state |
+| Testability           | ProviderScope overrides enable pure widget + notifier tests             | bloc_test is excellent but adds another dependency                                            | Hard to test ChangeNotifier isolation                                     |
+| Boilerplate tolerance | Moderate -- one provider file, one state file, one notifier per feature | High -- Event + State + Bloc + mapper per feature                                             | Low but paid for in rebuild management pain                               |
 
 ## Provider Architecture
 

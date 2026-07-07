@@ -18,7 +18,7 @@ steps:
   - id: api-key
     title: (Optional) Paste a Context7 API key for higher limits
     estSeconds: 30
-    externalAction: { label: "Get a Context7 API key", url: "https://context7.com/dashboard" }
+    externalAction: { label: 'Get a Context7 API key', url: 'https://context7.com/dashboard' }
     body: |
       A free key raises the per-IP rate limit. Recommended if you run
       Wayland behind a shared egress IP (corporate VPN, office NAT) or rely

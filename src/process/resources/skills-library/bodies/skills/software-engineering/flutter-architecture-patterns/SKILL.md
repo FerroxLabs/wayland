@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile dart architecture"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile dart architecture'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Flutter Architecture Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is starting a new Flutter project and needs to choose between BLoC, Riverpod, Provider, GetX, MobX, or Redux as their primary architecture pattern
 - The user has a Flutter app with growing complexity -- typically 10+ screens or 3+ developers -- and needs to introduce a structured architecture
 - The user is experiencing state management problems: UI not updating correctly, business logic scattered across widgets, or difficulty writing unit tests for app logic
@@ -29,6 +31,7 @@ metadata:
 - The user wants production-ready patterns for offline-first data, background sync, real-time updates via WebSockets, or complex form state
 
 **Do NOT use this skill when:**
+
 - The user needs help with a specific Flutter widget layout or animation -- use the Flutter UI/widget skill instead
 - The user is asking about Dart language fundamentals like async/await, streams, or generics in isolation -- use the Dart language skill
 - The user needs native iOS or Android integration (platform channels, Kotlin/Swift code) -- use the platform integration skill
@@ -67,6 +70,7 @@ Apply this decision framework based on gathered context:
 Implement a layered architecture appropriate to the tier:
 
 - **Tier 1 -- Simple layered (2 layers):**
+
   ```
   lib/
     features/
@@ -79,9 +83,11 @@ Implement a layered architecture appropriate to the tier:
       widgets/
     main.dart
   ```
+
   Business logic lives in the notifier. Repository handles HTTP/local storage. No separate domain layer.
 
 - **Tier 2 -- Feature-first with repositories (3 layers):**
+
   ```
   lib/
     features/
@@ -350,6 +356,7 @@ When a `ListView.builder` inside a BlocBuilder causes jank during state updates,
 **Output:**
 
 ### Project Classification
+
 - **Tier:** 3 -- Complex, multi-concern production app
 - **Team Size:** 5 developers
 - **Complexity Drivers:** Offline-first data, real-time WebSocket, complex form state
@@ -358,17 +365,17 @@ When a `ListView.builder` inside a BlocBuilder causes jank during state updates,
 
 ### Architecture Decision Summary
 
-| Concern | Decision | Rationale |
-|---|---|---|
-| State Management | BLoC (flutter_bloc 8.x) + Cubit for simpler screens | Team of 5 needs enforced discipline; event-driven model matches order status domain |
-| Navigation | go_router 13.x with ShellRoute | Deep links for order IDs, auth guards, tab navigation with preserved state per tab |
-| Dependency Injection | get_it 7.x + injectable 2.x | BLoC pattern requires constructor injection; injectable generates DI boilerplate |
-| Local Storage | Drift 2.x | Relational order data (orders, line items, statuses) requires SQL joins and reactive streams |
-| Real-time | web_socket_channel + StreamSubscription in BLoC | Order status updates from WS mapped to BLoC events |
-| HTTP Client | Dio 5.x with 3 interceptors | Auth, retry (3x exponential backoff), connectivity check |
-| Error Handling | Either<Failure, T> via fpdart | All repository methods return Either; sealed Failure hierarchy |
-| Form State | formz + OrderFormCubit | Multi-step form with per-field validation as FormzInput subclasses |
-| Code Generation | freezed, json_serializable, injectable, build_runner | All states/events are Freezed classes; all JSON models are json_serializable |
+| Concern              | Decision                                             | Rationale                                                                                    |
+| -------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| State Management     | BLoC (flutter_bloc 8.x) + Cubit for simpler screens  | Team of 5 needs enforced discipline; event-driven model matches order status domain          |
+| Navigation           | go_router 13.x with ShellRoute                       | Deep links for order IDs, auth guards, tab navigation with preserved state per tab           |
+| Dependency Injection | get_it 7.x + injectable 2.x                          | BLoC pattern requires constructor injection; injectable generates DI boilerplate             |
+| Local Storage        | Drift 2.x                                            | Relational order data (orders, line items, statuses) requires SQL joins and reactive streams |
+| Real-time            | web_socket_channel + StreamSubscription in BLoC      | Order status updates from WS mapped to BLoC events                                           |
+| HTTP Client          | Dio 5.x with 3 interceptors                          | Auth, retry (3x exponential backoff), connectivity check                                     |
+| Error Handling       | Either<Failure, T> via fpdart                        | All repository methods return Either; sealed Failure hierarchy                               |
+| Form State           | formz + OrderFormCubit                               | Multi-step form with per-field validation as FormzInput subclasses                           |
+| Code Generation      | freezed, json_serializable, injectable, build_runner | All states/events are Freezed classes; all JSON models are json_serializable                 |
 
 ---
 
@@ -632,7 +639,7 @@ final GoRouter appRouter = GoRouter(
 
 - name: Enforce 80% coverage threshold
   run: lcov --summary coverage/lcov.info | grep "lines" | awk '{print $2}' |
-       awk -F'%' '$1 < 80 {print "Coverage below 80%"; exit 1}'
+    awk -F'%' '$1 < 80 {print "Coverage below 80%"; exit 1}'
 ```
 
 ### Recommended Package Versions (pubspec.yaml)

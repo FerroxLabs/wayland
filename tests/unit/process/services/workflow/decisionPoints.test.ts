@@ -353,26 +353,18 @@ describe('stepHasDecisionPoint', () => {
 
 describe('shouldReviewAfterStep', () => {
   it('returns true when hasDecisionPoint is true and producedArtifact is false', () => {
-    expect(
-      shouldReviewAfterStep({ hasDecisionPoint: true, producedArtifact: false }),
-    ).toBe(true);
+    expect(shouldReviewAfterStep({ hasDecisionPoint: true, producedArtifact: false })).toBe(true);
   });
 
   it('returns true when hasDecisionPoint is false and producedArtifact is true', () => {
-    expect(
-      shouldReviewAfterStep({ hasDecisionPoint: false, producedArtifact: true }),
-    ).toBe(true);
+    expect(shouldReviewAfterStep({ hasDecisionPoint: false, producedArtifact: true })).toBe(true);
   });
 
   it('returns true when both are true', () => {
-    expect(
-      shouldReviewAfterStep({ hasDecisionPoint: true, producedArtifact: true }),
-    ).toBe(true);
+    expect(shouldReviewAfterStep({ hasDecisionPoint: true, producedArtifact: true })).toBe(true);
   });
 
   it('returns false when both are false (mechanical step, flow straight through)', () => {
-    expect(
-      shouldReviewAfterStep({ hasDecisionPoint: false, producedArtifact: false }),
-    ).toBe(false);
+    expect(shouldReviewAfterStep({ hasDecisionPoint: false, producedArtifact: false })).toBe(false);
   });
 });

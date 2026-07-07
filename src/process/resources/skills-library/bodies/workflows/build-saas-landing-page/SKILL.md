@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Build Saas Landing Page
 
 **Estimated time:** 2-4 weeks
@@ -120,7 +121,7 @@ iterate on conversion rate. Launch the first A/B test (headline variants from St
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Revise copy based on target audience feedback
   - If **After Step 4**: Optimize until performance targets are met
   - If **After Step 5**: Fix SEO issues before launch
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -180,11 +180,7 @@ export function convertAgentProfiles(profiles, outDir) {
     category: 'agent-profile',
   }));
 
-  writeFileSync(
-    join(outDir, 'agent-profiles.staged.json'),
-    JSON.stringify(mapped, null, 2),
-    'utf8',
-  );
+  writeFileSync(join(outDir, 'agent-profiles.staged.json'), JSON.stringify(mapped, null, 2), 'utf8');
   return { count: mapped.length };
 }
 
@@ -219,9 +215,7 @@ function parsePersonasCli(args) {
 // ── CLI entry point ──────────────────────────────────────────────────────────
 
 const isMain =
-  typeof process !== 'undefined' &&
-  argv[1] &&
-  resolve(argv[1]) === resolve(new URL(import.meta.url).pathname);
+  typeof process !== 'undefined' && argv[1] && resolve(argv[1]) === resolve(new URL(import.meta.url).pathname);
 
 if (isMain) {
   const [subCmd, ...rest] = argv.slice(2);
@@ -247,7 +241,9 @@ if (isMain) {
         try {
           const profiles = JSON.parse(readFileSync(agentsPath, 'utf8'));
           const { count } = convertAgentProfiles(profiles, out);
-          console.log(`[convert-team-bundle] Wrote ${count} agent-profile entries to '${out}/agent-profiles.staged.json'`);
+          console.log(
+            `[convert-team-bundle] Wrote ${count} agent-profile entries to '${out}/agent-profiles.staged.json'`
+          );
         } catch (err) {
           console.error(`[convert-team-bundle] Failed to convert agent profiles: ${err.message}`);
           process.exit(1);

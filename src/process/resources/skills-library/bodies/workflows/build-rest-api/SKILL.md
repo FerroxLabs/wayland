@@ -7,12 +7,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design backend database testing documentation step-by-step"
-  category: "software-development"
-  depends: "rest-api-design rest-api-implementation database-migration-patterns integration-testing-patterns api-versioning"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design backend database testing documentation step-by-step'
+  category: 'software-development'
+  depends: 'rest-api-design rest-api-implementation database-migration-patterns integration-testing-patterns api-versioning'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Build a REST API

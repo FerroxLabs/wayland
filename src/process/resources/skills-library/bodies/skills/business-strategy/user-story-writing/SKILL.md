@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "agile planning template project-management strategy"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'agile planning template project-management strategy'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # User Story Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write, refine, or review user stories for a feature, epic, or backlog item -- including partial inputs like "I need stories for a checkout flow" or "help me write AC for this story"
 - A user wants to break down a large epic or initiative into sprint-ready, independently deliverable stories
 - A user needs to convert a rough feature idea, a stakeholder request, a bug report, or a support ticket into properly formatted agile stories
@@ -29,6 +31,7 @@ metadata:
 - A user needs to convert a jobs-to-be-done (JTBD) statement or customer journey map step into discrete user stories
 
 **Do NOT use this skill when:**
+
 - The user needs a full product requirements document covering market context, competitive analysis, and multi-feature scope -- use `prd-writing`
 - The user wants a feature specification with wireframe annotations, UX flows, component states, and design decisions -- use `feature-spec`
 - The user needs a technical specification describing system architecture, API contracts, data models, or implementation decisions -- use `technical-specification`
@@ -139,9 +142,11 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 ## User Stories: [Feature/Epic Name]
 
 ### Epic Summary
+
 [1-2 sentences describing the overall feature, the user problem it solves, and the business outcome expected.]
 
 ### Definition of Done (Team Standard)
+
 - [ ] Code written, peer-reviewed (≥1 approver), and merged to main branch
 - [ ] Unit tests passing; ≥80% line coverage for new code paths
 - [ ] Acceptance criteria verified in staging environment by PO or QA
@@ -154,11 +159,11 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 
 ### Story Map (for epics with 5+ stories)
 
-| User Flow Step         | P0 (MVP)           | P1 (Next Sprint)   | P2 (Future)        |
-|------------------------|--------------------|--------------------|---------------------|
-| [Flow Step 1]          | Story 1            | Story 6            |                     |
-| [Flow Step 2]          | Story 2, Story 3   | Story 7            | Story 10            |
-| [Flow Step 3]          | Story 4, Story 5   |                    | Story 11            |
+| User Flow Step | P0 (MVP)         | P1 (Next Sprint) | P2 (Future) |
+| -------------- | ---------------- | ---------------- | ----------- |
+| [Flow Step 1]  | Story 1          | Story 6          |             |
+| [Flow Step 2]  | Story 2, Story 3 | Story 7          | Story 10    |
+| [Flow Step 3]  | Story 4, Story 5 |                  | Story 11    |
 
 ---
 
@@ -167,6 +172,7 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 ---
 
 #### Story [N]: [Short, active-noun-phrase title]
+
 **Priority:** [P0 / P1 / P2]
 **Estimate:** [1 / 2 / 3 / 5 / 8] points
 **Depends on:** [Story X, or "None"]
@@ -176,6 +182,7 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 **So that** [business or user outcome that explains the value].
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given [preconditions], when [user action], then [observable system outcome]
 - [ ] **[Happy Path]** Given [preconditions], when [user action], then [observable system outcome]
 - [ ] **[Alternative Path]** Given [edge condition], when [user action], then [expected behavior]
@@ -187,13 +194,14 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 
 ---
 
-*(Repeat Story block for each story)*
+_(Repeat Story block for each story)_
 
 ---
 
 ### Spike (if applicable)
 
 #### Spike: [Investigation Title]
+
 **Time Box:** [X hours]
 **Question to Answer:** [The specific decision or uncertainty this spike resolves]
 **Output:** [Document, decision log, ADR, or set of estimable stories]
@@ -203,12 +211,12 @@ The final deliverable is a coherent, prioritized, sprint-ready story set -- not 
 
 ### Backlog Summary Table
 
-| Story # | Title                        | Priority | Estimate | Depends On |
-|---------|------------------------------|----------|----------|------------|
-| 1       | [Story title]                | P0       | 3 pts    | None       |
-| 2       | [Story title]                | P0       | 5 pts    | Story 1    |
-| 3       | [Story title]                | P1       | 2 pts    | Story 2    |
-| Total   |                              |          | XX pts   |            |
+| Story # | Title         | Priority | Estimate | Depends On |
+| ------- | ------------- | -------- | -------- | ---------- |
+| 1       | [Story title] | P0       | 3 pts    | None       |
+| 2       | [Story title] | P0       | 5 pts    | Story 1    |
+| 3       | [Story title] | P1       | 2 pts    | Story 2    |
+| Total   |               |          | XX pts   |            |
 ```
 
 ---
@@ -286,9 +294,11 @@ When a story originates from a committed customer feature request or a sales pro
 ## User Stories: Company Onboarding Flow
 
 ### Epic Summary
+
 Enable newly registered B2B users to activate their company account end-to-end -- including setting up their company profile, inviting teammates, and connecting a first integration -- so that the team is functional on day one without requiring support intervention.
 
 ### Definition of Done (Team Standard)
+
 - [ ] Code written, peer-reviewed (≥1 approver), and merged to main branch
 - [ ] Unit tests passing; ≥80% line coverage for new code paths
 - [ ] Acceptance criteria verified in staging environment by PO or QA
@@ -301,12 +311,12 @@ Enable newly registered B2B users to activate their company account end-to-end -
 
 ### Story Map
 
-| User Flow Step             | P0 (Sprint 1 MVP)          | P1 (Sprint 2)               | P2 (Future)                  |
-|---------------------------|----------------------------|-----------------------------|------------------------------|
-| Company Profile Setup     | Story 1                    | Story 6 (logo upload)       |                              |
-| Team Member Invitation    | Story 2, Story 3           | Story 7 (bulk CSV import)   | Story 10 (SSO provisioning)  |
-| Integration Connection    | Story 4                    | Story 8 (OAuth retry flow)  | Story 11 (multi-integration) |
-| Onboarding Completion     | Story 5                    | Story 9 (completion email)  |                              |
+| User Flow Step         | P0 (Sprint 1 MVP) | P1 (Sprint 2)              | P2 (Future)                  |
+| ---------------------- | ----------------- | -------------------------- | ---------------------------- |
+| Company Profile Setup  | Story 1           | Story 6 (logo upload)      |                              |
+| Team Member Invitation | Story 2, Story 3  | Story 7 (bulk CSV import)  | Story 10 (SSO provisioning)  |
+| Integration Connection | Story 4           | Story 8 (OAuth retry flow) | Story 11 (multi-integration) |
+| Onboarding Completion  | Story 5           | Story 9 (completion email) |                              |
 
 ---
 
@@ -315,6 +325,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 1: Set Up Company Profile During Onboarding
+
 **Priority:** P0
 **Estimate:** 3 points
 **Depends on:** None (entry point of the onboarding flow)
@@ -324,6 +335,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** the product can be configured with relevant defaults and my teammates see our company context when they join.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I have just registered and my account has no company profile, when I log in for the first time, then I am automatically directed to Step 1 of the onboarding wizard
 - [ ] **[Happy Path]** Given I am on Step 1, when I enter a company name (1-100 characters), select an industry from the dropdown, and select a team size range, then I can advance to Step 2
 - [ ] **[Validation]** Given I attempt to advance without entering a company name, when I click "Continue," then the company name field shows an inline error: "Company name is required" and focus is moved to that field
@@ -337,6 +349,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 2: Invite Team Members by Email During Onboarding
+
 **Priority:** P0
 **Estimate:** 5 points
 **Depends on:** Story 1 (company profile must exist before invitations can be associated with it)
@@ -346,6 +359,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** my team can access the product immediately after setup without me having to remember to do it later from the Settings page.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I am on the Invite Team step, when I enter up to 10 valid email addresses (comma-separated or one per line) and click "Send Invites," then each address receives an invitation email within 2 minutes containing a unique accept link that expires in 7 days
 - [ ] **[Happy Path]** Given I have sent invitations, when I view the Team Settings page, then I see all invited users listed with status "Invite Pending" and the date the invitation was sent
 - [ ] **[Alternative Path]** Given I want to skip this step for now, when I click "I'll do this later," then I advance to the next onboarding step and the invite step is marked skippable (not blocking completion)
@@ -360,6 +374,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 3: Accept a Team Invitation and Join the Company Workspace
+
 **Priority:** P0
 **Estimate:** 3 points
 **Depends on:** Story 2 (invitations must be sent before they can be accepted)
@@ -369,6 +384,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** I can start using the product with my team's existing configuration without needing to set anything up myself.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I click a valid invitation link, when the page loads, then I see a registration form pre-filled with my invited email address (read-only) and fields for my name and password
 - [ ] **[Happy Path]** Given I complete the registration form with a valid password (minimum 8 characters, at least one number), when I submit, then my account is created, I am added to the company workspace with the default Member role, and I am redirected to the product dashboard
 - [ ] **[Validation]** Given I enter a password shorter than 8 characters, when I submit, then I see an inline error: "Password must be at least 8 characters" and the form is not submitted
@@ -382,6 +398,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 4: Connect First Integration During Onboarding
+
 **Priority:** P0
 **Estimate:** 8 points
 **Depends on:** Story 1 (company profile must exist to associate the integration)
@@ -391,6 +408,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** the product has live data to work with from day one, increasing the likelihood we see value in the first session.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I am on the Connect Integration step, when the page loads, then I see a list of the top 6 supported integrations with their logos, names, and a one-sentence description of what data they sync
 - [ ] **[Happy Path]** Given I click "Connect" on an integration, when I complete the OAuth authorization flow in the third-party app, then I am returned to the onboarding flow with a success confirmation showing the integration name and a "Connected" status badge
 - [ ] **[Alternative Path]** Given I do not use any of the listed integrations, when I click "Skip for now," then I advance to the completion step -- I can connect integrations from the Settings page after onboarding
@@ -405,6 +423,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 5: Complete Onboarding and Reach the Product Dashboard
+
 **Priority:** P0
 **Estimate:** 2 points
 **Depends on:** Story 1 (profile required), Story 2 or Story 4 (at least one other step attempted)
@@ -414,6 +433,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** I have a clear sense of completion and know where to go next without feeling abandoned mid-flow.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I have completed Step 1 (company profile) and attempted Steps 2 and 3 (invited team or connected an integration, or skipped them), when I reach the final step, then I see a summary screen listing what was completed with checkmarks and what was skipped
 - [ ] **[Happy Path]** Given I am on the completion screen, when I click "Go to Dashboard," then I am redirected to the product's main dashboard and the onboarding wizard does not appear again
 - [ ] **[Alternative Path]** Given I skipped one or more steps, when I view the completion screen, then I see a non-blocking prompt: "You can complete your setup anytime from Settings" with a link -- not a blocking error or a forced return to skipped steps
@@ -426,6 +446,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 ---
 
 #### Story 6: Upload Company Logo During Profile Setup (P1)
+
 **Priority:** P1
 **Estimate:** 3 points
 **Depends on:** Story 1
@@ -435,6 +456,7 @@ Enable newly registered B2B users to activate their company account end-to-end -
 **So that** the workspace feels branded for my team when they log in and on any customer-facing exports.
 
 **Acceptance Criteria:**
+
 - [ ] **[Happy Path]** Given I am on the Company Profile page, when I click "Upload Logo" and select a valid PNG or JPG file under 2MB, then the logo is uploaded, a preview is shown, and it appears in the product header for all company users within 5 seconds
 - [ ] **[Validation]** Given I attempt to upload a file over 2MB, when I select the file, then I see: "File size must be under 2MB. Please resize your image and try again."
 - [ ] **[Validation]** Given I attempt to upload a file type other than PNG or JPG (e.g., GIF, SVG, PDF), when I select the file, then I see: "Only PNG and JPG files are accepted."
@@ -447,15 +469,15 @@ Enable newly registered B2B users to activate their company account end-to-end -
 
 ### Backlog Summary Table
 
-| Story # | Title                                          | Priority | Estimate  | Depends On       |
-|---------|------------------------------------------------|----------|-----------|------------------|
-| 1       | Set up company profile during onboarding       | P0       | 3 pts     | None             |
-| 2       | Invite team members by email during onboarding | P0       | 5 pts     | Story 1          |
-| 3       | Accept invitation and join workspace           | P0       | 3 pts     | Story 2          |
-| 4       | Connect first integration during onboarding    | P0       | 8 pts     | Story 1          |
-| 5       | Complete onboarding and reach dashboard        | P0       | 2 pts     | Story 1 + 2 or 4 |
-| 6       | Upload company logo (P1)                       | P1       | 3 pts     | Story 1          |
-| **Total P0** |                                           |          | **21 pts**|                  |
-| **Total P1** |                                           |          | **3 pts** |                  |
+| Story #      | Title                                          | Priority | Estimate   | Depends On       |
+| ------------ | ---------------------------------------------- | -------- | ---------- | ---------------- |
+| 1            | Set up company profile during onboarding       | P0       | 3 pts      | None             |
+| 2            | Invite team members by email during onboarding | P0       | 5 pts      | Story 1          |
+| 3            | Accept invitation and join workspace           | P0       | 3 pts      | Story 2          |
+| 4            | Connect first integration during onboarding    | P0       | 8 pts      | Story 1          |
+| 5            | Complete onboarding and reach dashboard        | P0       | 2 pts      | Story 1 + 2 or 4 |
+| 6            | Upload company logo (P1)                       | P1       | 3 pts      | Story 1          |
+| **Total P0** |                                                |          | **21 pts** |                  |
+| **Total P1** |                                                |          | **3 pts**  |                  |
 
 **Sprint readiness note:** At 21 points for P0 stories, this is at the high end of a standard 2-week sprint velocity (typically 20-30 points for a 4-6 person team). Story 4 (integration connection, 8 points) should be the first candidate to defer to a second sprint if velocity does not support it -- the onboarding flow is still functional without it. Confirm with the team during planning.

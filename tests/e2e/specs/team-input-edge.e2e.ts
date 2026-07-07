@@ -74,9 +74,7 @@ test.describe('Team Blitz - input edge cases', () => {
       userId: 'system_default_user',
     });
     expect(after.length, 'empty-name click must NOT create a team').toBe(beforeCount);
-    expect(page.url(), 'empty-name click must NOT navigate away').toMatch(
-      new RegExp(`/teams/${LAUNCHER_ID}/launch$`)
-    );
+    expect(page.url(), 'empty-name click must NOT navigate away').toMatch(new RegExp(`/teams/${LAUNCHER_ID}/launch$`));
 
     // Whitespace-only - same.
     await nameInput.fill('   ');
@@ -132,9 +130,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('launcher name: HTML / script tags are rendered as literal text (no XSS)', async ({
-    page,
-  }) => {
+  test('launcher name: HTML / script tags are rendered as literal text (no XSS)', async ({ page }) => {
     test.setTimeout(90_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);
@@ -167,9 +163,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('launcher name: SQL injection - team created, list call still works', async ({
-    page,
-  }) => {
+  test('launcher name: SQL injection - team created, list call still works', async ({ page }) => {
     test.setTimeout(90_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);
@@ -192,9 +186,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('BuildMyOwn goal: empty disables Suggest, 1-char enables, 10000-char no crash', async ({
-    page,
-  }) => {
+  test('BuildMyOwn goal: empty disables Suggest, 1-char enables, 10000-char no crash', async ({ page }) => {
     test.setTimeout(120_000);
 
     await navigateTo(page, '#/teams');
@@ -237,9 +229,7 @@ test.describe('Team Blitz - input edge cases', () => {
     }).toPass({ timeout: 30_000 });
   });
 
-  test('delete modal: case-insensitive trim, newline tolerated, 10k-char paste no crash', async ({
-    page,
-  }) => {
+  test('delete modal: case-insensitive trim, newline tolerated, 10k-char paste no crash', async ({ page }) => {
     test.setTimeout(120_000);
     await cleanupTeams(page);
 
@@ -269,9 +259,7 @@ test.describe('Team Blitz - input edge cases', () => {
     // Open delete modal.
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
-    const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
-    );
+    const row = sidebarEntry.locator('xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]');
     await row.hover();
     await row.locator('span.flex-center.cursor-pointer').last().click();
     await page
@@ -320,9 +308,7 @@ test.describe('Team Blitz - input edge cases', () => {
     expect(after).toBeNull();
   });
 
-  test('slot name input: empty falls back to default, duplicates are allowed', async ({
-    page,
-  }) => {
+  test('slot name input: empty falls back to default, duplicates are allowed', async ({ page }) => {
     test.setTimeout(120_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);

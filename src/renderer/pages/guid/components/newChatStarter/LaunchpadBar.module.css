@@ -139,7 +139,10 @@
   color: var(--color-text-3);
   font-family: inherit;
   font-size: 11px;
-  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease,
+    background 120ms ease;
 }
 
 .addChip:hover,

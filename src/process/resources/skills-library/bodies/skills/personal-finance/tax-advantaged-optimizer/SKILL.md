@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tax-planning investing personal-finance retirement-planning"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tax-planning investing personal-finance retirement-planning'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Tax Advantaged Optimizer
 
 > **Disclaimer:** This skill provides educational information about tax-advantaged account structures and general financial planning frameworks. It does NOT constitute financial advice, tax advice, investment recommendations, or legal guidance. Tax laws change annually, income thresholds are adjusted for inflation, and individual circumstances vary significantly. Always consult a qualified financial advisor, CPA, or licensed financial planner before making contribution or allocation decisions. All figures referenced in this skill reflect U.S. tax law as of 2024-2025 and should be independently verified for the current tax year.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to prioritize contributions across multiple tax-advantaged accounts -- for example, "should I max my 401(k) or Roth IRA first?"
 - The user wants a framework for deciding between Traditional and Roth contributions across any account type (401k, IRA, 403(b))
 - The user asks about maximizing total tax-advantaged savings capacity across employer plans, IRAs, and HSAs
@@ -41,6 +43,7 @@ metadata:
 - The user is trying to reduce current-year AGI to qualify for other tax benefits (deductible IRA, child tax credit phase-outs, ACA subsidies, student loan income-driven repayment thresholds)
 
 **Do NOT use this skill when:**
+
 - The user wants to understand the mechanical structure of account types -- use `investment-account-types` for explanations of how 401(k)s, IRAs, and HSAs work
 - The user wants to choose specific investments within their accounts (equities, bonds, funds) -- use `portfolio-allocation-framework`
 - The user wants to calculate a total retirement savings target or model retirement income -- use `retirement-savings-calculator`
@@ -114,18 +117,21 @@ Present the framework as a series of yes/no questions the user works through -- 
 
 **Tier 1 -- Employer Match Capture**
 Question: Does your employer offer a match, and are you contributing enough to capture the full match?
+
 - If no match exists, skip to Tier 2.
 - If yes and not fully captured: the match is an immediate guaranteed return equal to the match rate (50% match = 50% immediate return, 100% match = 100% immediate return) before any investment growth. This is typically the highest-returning step regardless of tax bracket.
 - Calculate the exact contribution needed. If the match is 50% on the first 6% of a $80,000 salary, the contribution needed is $4,800/year to receive $2,400 in match -- a 50% return before day one.
 
 **Tier 2 -- HSA Funding (if eligible)**
 Question: Are you eligible for an HSA by virtue of HDHP enrollment?
+
 - If yes: the HSA offers a triple tax advantage unavailable anywhere else -- pre-tax contributions, tax-free growth, tax-free qualified medical expense withdrawals. This is functionally a stealth Roth IRA for healthcare costs with an additional feature: after age 65, non-medical withdrawals are taxed as ordinary income (like a Traditional IRA), so the worst case is Traditional IRA treatment.
 - High-income earners at 32%+ brackets should prioritize HSA over IRA because the combined federal + state + FICA tax savings on HSA contributions made via payroll deduction can approach 37-40% effective savings rate on those dollars.
 - Evaluate whether to pay current medical expenses out of pocket and preserve HSA as an investment vehicle -- this requires a sufficient liquid emergency fund outside the HSA.
 
 **Tier 3 -- IRA Funding (Roth or Traditional)**
 Question: Are you eligible for a deductible Traditional IRA or a Roth IRA (check income limits)?
+
 - The IRA offers investment optionality not available in employer plans -- access to any brokerage and any asset class, including individual stocks, low-cost index funds, and alternative assets through specialized custodians.
 - For users who are not covered by a workplace plan, the Traditional IRA is fully deductible at any income level.
 - For users above the Roth IRA income limit: flag the Backdoor Roth IRA as a workaround -- contribute to a non-deductible Traditional IRA, then convert to Roth. This is legitimate but requires careful attention to the pro-rata rule if the user has other pre-tax Traditional IRA balances.
@@ -133,11 +139,13 @@ Question: Are you eligible for a deductible Traditional IRA or a Roth IRA (check
 
 **Tier 4 -- Additional Employer Plan Contributions**
 Question: Is there remaining capacity in the employer plan beyond the match threshold?
+
 - Contributions above the match threshold still provide tax deferral but no immediate guaranteed return.
 - The employer plan's investment menu quality matters here. A plan with low-cost index funds (expense ratios under 0.10%) is far more valuable than a plan with actively managed funds averaging 0.75%+.
 - For very high earners: the 401(k) after-tax bucket (not Roth -- truly after-tax) enables the Mega Backdoor Roth strategy. If the plan allows after-tax contributions and in-service withdrawals or in-plan Roth conversions, the total 415(c) limit of $69,000 (2024) minus employee deferrals and employer match creates additional Roth-eligible space.
 
 **Tier 5 -- Taxable Brokerage Account**
+
 - After all tax-advantaged room is used, a taxable brokerage account provides unlimited contribution capacity with full flexibility.
 - Long-term capital gains rates (0%, 15%, 20%) and qualified dividend rates are favorable for many investors.
 - Tax-loss harvesting and asset location strategies make taxable accounts more efficient than the pre-tax comparison suggests.
@@ -156,6 +164,7 @@ This is the most nuanced decision. Present the analysis as a structured comparis
 ### Step 7: Model the Scenarios and Present the Summary
 
 Build 2-3 concrete allocation scenarios based on the user's available savings and accounts. Each scenario should show:
+
 - Monthly contribution to each account
 - Annual contribution total per account
 - Employer match captured
@@ -166,6 +175,7 @@ Build 2-3 concrete allocation scenarios based on the user's available savings an
 Flag what happens to remaining savings if all tax-advantaged room is used.
 
 Note explicitly what this analysis does not cover:
+
 - Asset location strategy (which account should hold bonds vs. equities vs. REITs for tax efficiency)
 - Roth conversion ladder timing for early retirement (FIRE strategies)
 - 72(t) SEPP distributions for accessing pre-59.5 funds without penalty
@@ -179,7 +189,7 @@ Note explicitly what this analysis does not cover:
 ```
 ## Tax-Advantaged Account Optimization Analysis
 
-> All figures reference 2024-2025 U.S. tax law. Verify current-year limits and 
+> All figures reference 2024-2025 U.S. tax law. Verify current-year limits and
 > income thresholds before acting. This is an educational framework, not financial advice.
 
 ---
@@ -200,7 +210,7 @@ Note explicitly what this analysis does not cover:
 †HSA deadline matches IRA for prior-year contributions; 401k/457 close Dec 31
 
 **Total tax-advantaged capacity this year:** $XX,XXX
-**Current annual contributions:** $XX,XXX  
+**Current annual contributions:** $XX,XXX
 **Remaining tax-advantaged room:** $XX,XXX
 
 ---
@@ -437,14 +447,14 @@ When contribution capacity is severely constrained, full optimization across all
 
 ### Section 1: Account Inventory and Contribution Room
 
-| Account | Access | 2024 Limit | Current Annual | Remaining | Deadline |
-|---------|--------|----------:|---------------:|----------:|----------|
-| 401(k) -- Traditional or Roth | Yes | $23,000 | Calculating below | $23,000 - current | Dec 31, 2024 |
-| Roth IRA | Yes* | $7,000 | $2,400 ($200/mo) | $4,600 | Apr 15, 2025 |
-| HSA (self-only, HDHP enrolled) | Yes | $4,150 | Unknown | Up to $4,150 | Apr 15, 2025† |
-| Taxable Brokerage | Yes | No limit | Unknown | Unlimited | N/A |
+| Account                        | Access | 2024 Limit |    Current Annual |         Remaining | Deadline      |
+| ------------------------------ | ------ | ---------: | ----------------: | ----------------: | ------------- |
+| 401(k) -- Traditional or Roth  | Yes    |    $23,000 | Calculating below | $23,000 - current | Dec 31, 2024  |
+| Roth IRA                       | Yes\*  |     $7,000 |  $2,400 ($200/mo) |            $4,600 | Apr 15, 2025  |
+| HSA (self-only, HDHP enrolled) | Yes    |     $4,150 |           Unknown |      Up to $4,150 | Apr 15, 2025† |
+| Taxable Brokerage              | Yes    |   No limit |           Unknown |         Unlimited | N/A           |
 
-*Roth IRA: At $105,000 MAGI (single), you are well below the $146,000 phase-out start. You are fully eligible for the $7,000 limit. Verify final MAGI with a tax professional since AGI adjustments (like HSA or traditional 401k contributions) may affect your MAGI.
+\*Roth IRA: At $105,000 MAGI (single), you are well below the $146,000 phase-out start. You are fully eligible for the $7,000 limit. Verify final MAGI with a tax professional since AGI adjustments (like HSA or traditional 401k contributions) may affect your MAGI.
 
 †HSA allows prior-year contributions until Tax Day if you had HDHP coverage in the prior year.
 
@@ -454,15 +464,15 @@ When contribution capacity is severely constrained, full optimization across all
 
 ### Section 2: Employer Match Analysis
 
-| Element | Detail |
-|---------|--------|
-| Match formula | 100% match on first 4% of salary |
-| Annual salary | $105,000 |
-| 4% of salary | $4,200/year |
-| Employer match value at 4% contribution | $4,200/year ($350/month) |
-| Effective immediate return on these dollars | 100% before any market return |
-| Contribution needed per month | $350/month to capture full match |
-| Vesting schedule | Confirm with HR -- structure unknown |
+| Element                                     | Detail                               |
+| ------------------------------------------- | ------------------------------------ |
+| Match formula                               | 100% match on first 4% of salary     |
+| Annual salary                               | $105,000                             |
+| 4% of salary                                | $4,200/year                          |
+| Employer match value at 4% contribution     | $4,200/year ($350/month)             |
+| Effective immediate return on these dollars | 100% before any market return        |
+| Contribution needed per month               | $350/month to capture full match     |
+| Vesting schedule                            | Confirm with HR -- structure unknown |
 
 **Match gap assessment:** At $350/month to your 401k, you capture $4,200 in employer match annually. This is the single highest-return action available to you -- a 100% immediate return on $4,200.
 
@@ -472,15 +482,15 @@ When contribution capacity is severely constrained, full optimization across all
 
 ### Section 3: Tax Rate Context
 
-| Factor | Your Situation | Implication |
-|--------|---------------|-------------|
-| Estimated federal marginal bracket | 22% | Moderate -- pre-tax contributions save 22 cents per dollar |
-| Pre-tax contributions reducing taxable income | 401k Traditional + HSA would reduce AGI | May keep you comfortably in 22% bracket |
-| State income tax rate | Unknown -- confirm your state | Adds to pre-tax value if applicable |
-| Income trajectory at age 34 | Likely early-to-mid career; income growth probable | Mild Roth signal -- paying 22% now may be lower than future rate |
-| Expected retirement income | Unknown -- SS + withdrawals | Moderate uncertainty |
-| RMD risk at current age | Very long horizon -- low urgency | But Roth contributions now compound for 30+ years tax-free |
-| Roth IRA income limit risk | Clear of phase-out ($105k vs. $146k threshold) | No backdoor strategy needed currently |
+| Factor                                        | Your Situation                                     | Implication                                                      |
+| --------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------- |
+| Estimated federal marginal bracket            | 22%                                                | Moderate -- pre-tax contributions save 22 cents per dollar       |
+| Pre-tax contributions reducing taxable income | 401k Traditional + HSA would reduce AGI            | May keep you comfortably in 22% bracket                          |
+| State income tax rate                         | Unknown -- confirm your state                      | Adds to pre-tax value if applicable                              |
+| Income trajectory at age 34                   | Likely early-to-mid career; income growth probable | Mild Roth signal -- paying 22% now may be lower than future rate |
+| Expected retirement income                    | Unknown -- SS + withdrawals                        | Moderate uncertainty                                             |
+| RMD risk at current age                       | Very long horizon -- low urgency                   | But Roth contributions now compound for 30+ years tax-free       |
+| Roth IRA income limit risk                    | Clear of phase-out ($105k vs. $146k threshold)     | No backdoor strategy needed currently                            |
 
 **Traditional vs. Roth signal at your situation:** At 22%, the case for Roth is moderate but real. You are likely at or below your peak lifetime marginal rate given a 30+ year career ahead. Tax-free Roth growth over 30 years is substantially more valuable than at shorter horizons. A reasonable split -- Traditional 401k to capture match + HSA + Roth IRA -- gives you both current tax savings and future tax-free income. This is a decision for you and a financial planner to finalize.
 
@@ -489,12 +499,14 @@ When contribution capacity is severely constrained, full optimization across all
 ### Section 4: Prioritization Decision Tree
 
 **Tier 1 -- Employer Match Capture**
+
 - Required contribution: $350/month (4% of $105,000)
 - This captures $4,200/year in employer match -- a 100% guaranteed return
 - Status: Confirm your current deferral percentage. If below 4%, increase immediately.
 - Decision: Contribute at least $350/month to your 401(k). Choose Traditional or Roth variant within the plan based on Section 3 analysis.
 
 **Tier 2 -- HSA Funding**
+
 - HDHP enrolled: Yes
 - 2024 self-only HSA limit: $4,150/year ($346/month)
 - Triple tax advantage: contributions pre-tax, growth tax-free, qualified medical withdrawals tax-free
@@ -504,6 +516,7 @@ When contribution capacity is severely constrained, full optimization across all
 - Decision: Fund the HSA to $4,150/year ($346/month). This is an exceptional use of $346/month given the triple tax advantage.
 
 **Tier 3 -- Roth IRA Funding**
+
 - Eligible at $105,000 MAGI: Yes
 - Current contribution: $200/month ($2,400/year) -- $4,600 remaining capacity
 - IRA advantage over additional 401k contributions: access to any brokerage and any index fund, not limited to your employer plan menu
@@ -511,12 +524,14 @@ When contribution capacity is severely constrained, full optimization across all
 - Decision: Increase Roth IRA to $583/month ($7,000/year). The $383/month increase uses remaining IRA capacity and captures the full benefit of tax-free growth.
 
 **Tier 4 -- Additional 401(k) Contributions**
+
 - After Tier 1 (match): $350/month used
 - Remaining 401k capacity: $23,000 - $4,200 = $18,800/year ($1,567/month remaining)
 - With $1,500/month total and Tiers 1-3 costing $350 + $346 + $583 = $1,279/month, you have $221/month remaining
 - Decision: Apply remaining $221/month ($2,652/year) to additional 401(k) contributions. This provides additional pre-tax deferral at 22%.
 
 **Tier 5 -- Taxable Brokerage**
+
 - Not yet needed -- your $1,500/month is fully absorbed by tax-advantaged accounts. Good problem to have.
 - If income increases in future years and you exhaust Tiers 1-4, taxable brokerage is the next step.
 
@@ -526,29 +541,30 @@ When contribution capacity is severely constrained, full optimization across all
 
 **Monthly savings available: $1,500/month ($18,000/year)**
 
-| Account | Current | Scenario A (Optimized) | Change |
-|---------|---------:|----------------------:|-------:|
-| 401(k) -- at least to match threshold | Unknown | $350/month (4% of salary) | Confirm/adjust |
-| HSA (self-only) | $0 | $346/month ($4,150/year) | +$346 |
-| Roth IRA | $200/month | $583/month ($7,000/year) | +$383 |
-| Additional 401(k) above match | Unknown | $221/month | Adjust |
-| Taxable Brokerage | Unknown | $0 | N/A |
-| **Total** | **$1,500** | **$1,500** | |
-| **Employer match received** | Unknown | **$350/month ($4,200/yr)** | |
+| Account                               |    Current |     Scenario A (Optimized) |         Change |
+| ------------------------------------- | ---------: | -------------------------: | -------------: |
+| 401(k) -- at least to match threshold |    Unknown |  $350/month (4% of salary) | Confirm/adjust |
+| HSA (self-only)                       |         $0 |   $346/month ($4,150/year) |          +$346 |
+| Roth IRA                              | $200/month |   $583/month ($7,000/year) |          +$383 |
+| Additional 401(k) above match         |    Unknown |                 $221/month |         Adjust |
+| Taxable Brokerage                     |    Unknown |                         $0 |            N/A |
+| **Total**                             | **$1,500** |                 **$1,500** |                |
+| **Employer match received**           |    Unknown | **$350/month ($4,200/yr)** |                |
 
 **Total tax-advantaged accounts at full Scenario A funding:**
 
-| Account | Annual Contribution | Source |
-|---------|-----------:|--------|
-| 401(k) employee | $6,852 ($350 match + $221 additional) | Your payroll |
-| 401(k) employer match | $4,200 | Employer |
-| HSA | $4,150 | Your payroll/direct |
-| Roth IRA | $7,000 | Your bank account |
-| **Total tax-advantaged** | **$22,202** | |
+| Account                  |                   Annual Contribution | Source              |
+| ------------------------ | ------------------------------------: | ------------------- |
+| 401(k) employee          | $6,852 ($350 match + $221 additional) | Your payroll        |
+| 401(k) employer match    |                                $4,200 | Employer            |
+| HSA                      |                                $4,150 | Your payroll/direct |
+| Roth IRA                 |                                $7,000 | Your bank account   |
+| **Total tax-advantaged** |                           **$22,202** |                     |
 
 You are using $22,202 of tax-advantaged capacity in this scenario, against your $1,500/month/$18,000/year personal savings contribution. The remaining $4,202 is employer match -- money you receive on top of your contributions.
 
 **Estimated 2024 federal tax savings from pre-tax contributions in Scenario A:**
+
 - 401k Traditional (if traditional): $6,852 × 22% = approximately $1,507
 - HSA via payroll: $4,150 × (22% + 7.65%) = approximately $1,230
 - **Total estimated federal + FICA tax reduction: approximately $2,737**
@@ -559,12 +575,13 @@ Note: If you choose Roth 401k for the employer plan portion, you lose the $1,507
 
 ### Section 6: Key Risks and Flags
 
-| Risk | Status | Action |
-|------|--------|--------|
-| 401k match not being captured | Unknown -- confirm current deferral | Verify your current 401k contribution percentage with HR or your paycheck |
-| HSA not currently funded | Not contributing | Enroll in payroll HSA deduction ASAP -- prior-year contributions also possible until April 15 |
-| Roth IRA under-funded | $2,400/year vs. $7,000 limit | Increase to $583/month or make lump-sum contribution before April 15 |
-| Pro-rata Backdoor Roth risk | Not applicable now (income is below phase-out) | Monitor MAGI annually as income grows |
-| IRMAA / RMD creep | Very long horizon -- not urgent | Factor into Roth allocation decision over time |
-| 401k plan fund quality | Unknown | Review your plan's investment menu; compare expense ratios of available funds to Vanguard/Fidelity index fund benchmarks (target ER under 0.10% for index funds) |
+| Risk                          | Status                                         | Action                                                                                                                                                           |
+| ----------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 401k match not being captured | Unknown -- confirm current deferral            | Verify your current 401k contribution percentage with HR or your paycheck                                                                                        |
+| HSA not currently funded      | Not contributing                               | Enroll in payroll HSA deduction ASAP -- prior-year contributions also possible until April 15                                                                    |
+| Roth IRA under-funded         | $2,400/year vs. $7,000 limit                   | Increase to $583/month or make lump-sum contribution before April 15                                                                                             |
+| Pro-rata Backdoor Roth risk   | Not applicable now (income is below phase-out) | Monitor MAGI annually as income grows                                                                                                                            |
+| IRMAA / RMD creep             | Very long horizon -- not urgent                | Factor into Roth allocation decision over time                                                                                                                   |
+| 401k plan fund quality        | Unknown                                        | Review your plan's investment menu; compare expense ratios of available funds to Vanguard/Fidelity index fund benchmarks (target ER under 0.10% for index funds) |
+
 | Year-end true-

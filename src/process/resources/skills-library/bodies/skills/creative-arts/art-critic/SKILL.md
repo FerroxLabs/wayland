@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing guide step-by-step"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing guide step-by-step'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Art Critic
@@ -25,11 +25,13 @@ Your tone is intellectually curious and approachable. You avoid pretension and j
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about art critic
 - User needs guidance on art critic topics
 - User wants a structured approach to art critic
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -49,12 +51,14 @@ Before guiding them, understand what they need:
 ### Pre-Renaissance to Modern
 
 **Medieval Art (500-1400)**
+
 - Religious subject matter dominates
 - Flat, symbolic figures; gold backgrounds
 - Illuminated manuscripts, mosaics, stained glass
 - Function: devotion and religious instruction, not naturalistic representation
 
 **Renaissance (1400-1600)**
+
 - Rebirth of classical ideals (Greece and Rome)
 - Linear perspective, anatomical accuracy, naturalism
 - Key artists: Leonardo da Vinci, Michelangelo, Raphael, Botticelli, Titian
@@ -62,36 +66,42 @@ Before guiding them, understand what they need:
 - Distinction: Italian Renaissance (Florence, Rome) vs. Northern Renaissance (van Eyck, Durer)
 
 **Baroque (1600-1750)**
+
 - Dramatic lighting (chiaroscuro), emotional intensity, movement
 - Grand, theatrical compositions
 - Key artists: Caravaggio, Rembrandt, Vermeer, Bernini, Rubens
 - Counter-Reformation art: designed to inspire awe and devotion
 
 **Rococo (1720-1780)**
+
 - Lighter, more playful than Baroque
 - Pastel colors, ornamental detail, themes of love and leisure
 - Key artists: Fragonard, Boucher, Watteau
 - Primarily French aristocratic culture
 
 **Neoclassicism (1760-1850)**
+
 - Return to classical Greek and Roman ideals
 - Clean lines, restrained emotion, moral subjects
 - Key artists: Jacques-Louis David, Ingres, Canova
 - Often associated with political revolution and civic virtue
 
 **Romanticism (1790-1850)**
+
 - Emotion, nature, the sublime, individualism
 - Dramatic landscapes, heroic figures, exotic subjects
 - Key artists: Delacroix, Turner, Friedrich, Goya
 - Reaction against Enlightenment rationalism
 
 **Realism (1840-1880)**
+
 - Depicting ordinary life without idealization
 - Working-class subjects, rural scenes, social commentary
 - Key artists: Courbet, Millet, Daumier
 - "Show me an angel and I'll paint one" - Courbet
 
 **Impressionism (1860-1890)**
+
 - Capturing light and atmosphere in the moment
 - Visible brushstrokes, en plein air painting, everyday subjects
 - Key artists: Monet, Renoir, Degas, Cassatt, Pissarro
@@ -99,6 +109,7 @@ Before guiding them, understand what they need:
 - Named (mockingly) after Monet's "Impression, Sunrise"
 
 **Post-Impressionism (1880-1910)**
+
 - Building on Impressionism but pushing beyond it
 - Each artist developed a highly individual style
 - Key artists: Cezanne (structure), Van Gogh (emotion), Gauguin (symbolism), Seurat (pointillism)
@@ -107,18 +118,21 @@ Before guiding them, understand what they need:
 ### The Modern Era
 
 **Fauvism (1900-1910)**
+
 - Wild, non-naturalistic color
 - Simplified forms, expressive brushwork
 - Key artists: Matisse, Derain, Vlaminck
 - "Les Fauves" = "the wild beasts" (a critical insult, adopted as a badge of honor)
 
 **Expressionism (1905-1930)**
+
 - Distortion of reality to express emotional experience
 - Bold color, angular forms, psychological intensity
 - Key artists: Munch, Kirchner, Schiele, Kandinsky (early)
 - German Expressionism particularly influential in film
 
 **Cubism (1907-1920)**
+
 - Multiple viewpoints simultaneously; fragmented forms
 - Analytical Cubism (muted colors, deconstructed objects)
 - Synthetic Cubism (collage, brighter colors, flatter forms)
@@ -126,18 +140,21 @@ Before guiding them, understand what they need:
 - "Everything you can imagine is real" - Picasso
 
 **Dada (1916-1924)**
+
 - Anti-art, anti-establishment, absurdist
 - Ready-mades, collage, performance, provocation
 - Key artists: Duchamp, Man Ray, Hannah Hoch, Schwitters
 - Born from disillusionment with WWI
 
 **Surrealism (1920-1950)**
+
 - Tapping the unconscious mind, dreams, automatism
 - Juxtaposition of unrelated images, dreamlike scenarios
 - Key artists: Dali, Magritte, Ernst, Kahlo, Miro
 - Influenced by Freudian psychoanalysis
 
 **Abstract Expressionism (1940s-1960s)**
+
 - The first major American art movement
 - Large-scale, gestural, emotionally charged abstraction
 - Action Painting: Pollock (drip painting), de Kooning
@@ -145,18 +162,21 @@ Before guiding them, understand what they need:
 - Key concept: The canvas as arena for emotional expression
 
 **Pop Art (1950s-1970s)**
+
 - Mass culture, consumerism, advertising, celebrity
 - Bright colors, bold graphics, appropriation of commercial imagery
 - Key artists: Warhol, Lichtenstein, Oldenburg, Hockney
 - Blurred the line between "high art" and popular culture
 
 **Minimalism (1960s-1970s)**
+
 - Stripped to essential geometric forms
 - Industrial materials, repetition, absence of narrative
 - Key artists: Judd, Flavin, Andre, LeWitt
 - "What you see is what you see" - Frank Stella
 
 **Conceptual Art (1960s-present)**
+
 - The idea is more important than the object
 - Text, instructions, documentation, performance
 - Key artists: Kosuth, Weiner, Hirst, Ai Weiwei
@@ -221,16 +241,19 @@ Is it effective? Does it achieve what it seems to be attempting? How does it com
 
 **The "I notice..." framework:**
 Start observations with "I notice..." to keep feedback descriptive rather than judgmental.
+
 - "I notice the warm colors in the upper left draw my eye first"
 - "I notice the figure's hands are disproportionately large"
 - "I notice the texture in the foreground contrasts with the smooth background"
 
 **The Sandwich Method (for beginners):**
+
 1. What's working (strengths)
 2. What could be developed further (areas for growth)
 3. Overall impact and potential
 
 **Professional Critique Structure:**
+
 1. **First impression:** Your immediate, honest response
 2. **Technical analysis:** Craft, materials, execution
 3. **Conceptual analysis:** Ideas, references, meaning
@@ -239,25 +262,27 @@ Start observations with "I notice..." to keep feedback descriptive rather than j
 
 ### Critique Vocabulary
 
-| Instead of... | Try... |
-|--------------|--------|
-| "I like it" | "The color harmony creates a sense of calm" |
-| "It's weird" | "The unexpected juxtaposition creates disorientation" |
-| "It's boring" | "The composition could benefit from more contrast or a clearer focal point" |
-| "I don't get it" | "I'm curious about the relationship between these elements" |
-| "It's pretty" | "The handling of light and the color palette are visually compelling" |
+| Instead of...    | Try...                                                                      |
+| ---------------- | --------------------------------------------------------------------------- |
+| "I like it"      | "The color harmony creates a sense of calm"                                 |
+| "It's weird"     | "The unexpected juxtaposition creates disorientation"                       |
+| "It's boring"    | "The composition could benefit from more contrast or a clearer focal point" |
+| "I don't get it" | "I'm curious about the relationship between these elements"                 |
+| "It's pretty"    | "The handling of light and the color palette are visually compelling"       |
 
 ## Museum Guide
 
 ### How to Visit a Museum
 
 **Before you go:**
+
 - Check the museum website for current exhibitions and highlights
 - Many museums have free or discounted days/hours
 - Plan to spend 1-2 hours maximum - museum fatigue is real
 - Download the museum's app if available (audio guides, maps)
 
 **At the museum:**
+
 - **Don't try to see everything.** Pick one or two galleries or exhibitions.
 - **Slow down.** Spend 5 minutes with one work rather than 10 seconds with thirty.
 - **Sit down when available.** Benches exist for a reason. Looking at art while seated changes the experience.
@@ -282,12 +307,14 @@ At the end of your visit, identify three works that affected you most. Write dow
 ### Starting an Art Collection
 
 **Why collect?**
+
 - Personal enrichment and daily aesthetic pleasure
 - Supporting living artists and the creative ecosystem
 - Potential long-term investment (though this should be secondary)
 - Building a personal legacy and cultural statement
 
 **How to start (at any budget):**
+
 1. **Look at a lot of art.** Gallery openings (free), museum visits, online platforms, art fairs
 2. **Buy what you love.** The first rule of collecting is that you'll live with this piece every day. It should move you.
 3. **Meet artists.** Studio visits and gallery talks build relationships and understanding.
@@ -295,6 +322,7 @@ At the end of your visit, identify three works that affected you most. Write dow
 5. **Learn provenance.** Know where the work comes from and verify authenticity.
 
 **Where to buy:**
+
 - Local galleries (they curate and vouch for quality)
 - Art fairs (wide selection, opportunity to discover)
 - Artist studio sales and open studios
@@ -342,23 +370,29 @@ At the end of your visit, identify three works that affected you most. Write dow
 ## Exercises for Developing Your Eye
 
 ### Exercise 1: Slow Looking
+
 Choose one artwork (in person or in a high-quality reproduction). Set a timer for 10 minutes. Look at it the entire time. Write down everything you notice - things will continue to reveal themselves.
 
 ### Exercise 2: Comparison
+
 Place two artworks side by side (same subject, different artists; or same artist, different periods). Describe the differences in approach, technique, and effect.
 
 ### Exercise 3: Personal Curation
+
 If you could own any five artworks from history, which would you choose? Why? What do your choices reveal about your tastes and values?
 
 ### Exercise 4: Museum Writing
+
 In front of a work that moves you, write a paragraph describing your experience. Not analysis - experience. What do you feel? Where does your eye go? What memories or associations arise?
 
 ### Exercise 5: Daily Art
+
 Look at one work of art per day for 30 days (apps like DailyArt or Smartify can help). After 30 days, note which works stayed with you and why.
 
 ## Response Guidelines
 
 When helping a user with art:
+
 - Meet them at their knowledge level - no condescension, no unnecessary jargon
 - When analyzing a specific work, use the description-analysis-interpretation-judgment framework
 - Connect art to the user's life and experiences - art is not just for experts
@@ -366,7 +400,6 @@ When helping a user with art:
 - Provide historical context when it enriches understanding
 - Be honest: it's okay to not like something. The question is whether you can articulate why.
 - Art is subjective, but informed subjectivity is richer than uninformed subjectivity
-
 
 ## Output Format
 

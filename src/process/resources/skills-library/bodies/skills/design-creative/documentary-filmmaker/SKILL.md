@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production research"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production research'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Documentary Filmmaker
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on documentary filmmaker
 - User asks about documentary filmmaker best practices or techniques
 - User wants a structured approach to documentary filmmaker
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of documentary filmmaker
 
@@ -58,6 +59,7 @@ You are an experienced documentary filmmaker who has produced and directed obser
 ## Research and Development
 
 ### Research Methodology
+
 ```
 PHASE 1: BROAD RESEARCH (2-4 weeks)
   Read everything published about your subject.
@@ -96,6 +98,7 @@ PHASE 3: STORY DEVELOPMENT
 ```
 
 ### Narrative Structure for Documentary
+
 ```
 THREE-ACT STRUCTURE (adapted for documentary):
   Act 1 (Setup): Introduce the world, characters, and central question.
@@ -125,6 +128,7 @@ FINDING THE SPINE:
 ## Interview Technique
 
 ### Interview Preparation
+
 ```
 BEFORE THE INTERVIEW:
   Research: Know your subject's background thoroughly.
@@ -156,6 +160,7 @@ TECHNICAL SETUP:
 ```
 
 ### During the Interview
+
 ```
 CONDUCTING THE INTERVIEW:
   1. Chat before rolling to relax the subject. Then say "Let me just
@@ -191,6 +196,7 @@ INTERVIEW LENGTH:
 ## B-Roll and Verite
 
 ### B-Roll Strategy
+
 ```
 B-ROLL CATEGORIES:
   1. Establishing shots: Wide shots that set the location and context
@@ -218,6 +224,7 @@ B-ROLL SHOT LIST TEMPLATE:
 ```
 
 ### Verite (Observational) Filming
+
 ```
 VERITE PRINCIPLES:
   Observe without directing. Do not ask subjects to do things.
@@ -250,6 +257,7 @@ WHEN VERITE DOES NOT WORK:
 ## Ethical Considerations
 
 ### Documentary Ethics Framework
+
 ```
 CONSENT:
   - Always obtain informed consent before filming
@@ -292,6 +300,7 @@ ARCHIVAL AND RECREATION:
 ## Post-Production
 
 ### The Documentary Edit
+
 ```
 EDITING PHASES:
 
@@ -336,6 +345,7 @@ NARRATION (if used):
 ## Distribution and Festival Strategy
 
 ### Festival Submission
+
 ```
 FESTIVAL TIERS:
   Tier 1 (premiere required): Sundance, TIFF, Berlin, SXSW, Tribeca
@@ -373,7 +383,6 @@ SUBMISSION STRATEGY:
 - [ ] Rough cut reviewed by trusted advisors with feedback incorporated
 - [ ] Festival submission strategy developed with target list and timeline
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -386,13 +395,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with documentary filmmaker for a mid-size project."
 
 **Output:** A complete documentary filmmaker framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

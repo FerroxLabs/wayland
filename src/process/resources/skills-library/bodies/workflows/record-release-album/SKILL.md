@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "songwriting-aid music-producer content-monetizer"
+skills: 'songwriting-aid music-producer content-monetizer'
 trigger_phrases: >-
   I want to record an album release my music how to produce an album record and
   distribute music make an album from scratch release music on Spotify
@@ -23,8 +23,9 @@ metadata:
   version: 1.0.0
   tags: performing-arts step-by-step planning
   category: creative-project
-  depends: "songwriting-aid music-producer content-monetizer"
+  depends: 'songwriting-aid music-producer content-monetizer'
 ---
+
 # Record Release Album
 
 **Estimated time:** 3-6 months
@@ -157,6 +158,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -167,7 +169,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Mixing while recording:** These are different mindsets. Record everything first, then mix. Switching between modes kills momentum and consistency.
 - **Loudness war mastering:** Squashing dynamics to be "loud" makes music fatiguing. Master for streaming normalization standards (-14 LUFS for Spotify).
 - **Releasing the album cold:** An album with no pre-release singles or marketing lands in silence. Build anticipation over 6-8 weeks before the release.
-
 
 ### Timeline Considerations
 

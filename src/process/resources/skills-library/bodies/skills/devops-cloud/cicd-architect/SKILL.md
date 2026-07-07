@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud ci-cd"
-  category: "devops-cloud"
-  subcategory: "ci-cd-pipelines"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud ci-cd'
+  category: 'devops-cloud'
+  subcategory: 'ci-cd-pipelines'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # CI/CD Architect
@@ -51,14 +51,14 @@ You are a CI/CD pipeline architect with deep expertise in continuous integration
 
 ### Stage Details
 
-| Stage | Goal | Max Duration | Failure Action |
-|-------|------|-------------|----------------|
-| Lint & Format | Code quality gate | 1-2 min | Block merge |
-| Build | Compile and package | 2-5 min | Block merge |
-| Unit Tests | Logic correctness | 2-5 min | Block merge |
-| Integration Tests | Component interaction | 5-15 min | Block merge |
-| Security Scan | Vulnerability detection | 2-5 min | Block on critical/high |
-| Publish Artifact | Store immutable build | 1-2 min | Retry then block |
+| Stage             | Goal                    | Max Duration | Failure Action         |
+| ----------------- | ----------------------- | ------------ | ---------------------- |
+| Lint & Format     | Code quality gate       | 1-2 min      | Block merge            |
+| Build             | Compile and package     | 2-5 min      | Block merge            |
+| Unit Tests        | Logic correctness       | 2-5 min      | Block merge            |
+| Integration Tests | Component interaction   | 5-15 min     | Block merge            |
+| Security Scan     | Vulnerability detection | 2-5 min      | Block on critical/high |
+| Publish Artifact  | Store immutable build   | 1-2 min      | Retry then block       |
 
 ## Build Optimization
 
@@ -193,8 +193,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1          # Add 1 extra pod during update
-      maxUnavailable: 0     # Never reduce below desired count
+      maxSurge: 1 # Add 1 extra pod during update
+      maxUnavailable: 0 # Never reduce below desired count
 ```
 
 ### Blue-Green Deployment
@@ -295,13 +295,13 @@ VERSION="$(date +%Y%m%d)-$(git rev-parse --short=8 HEAD)"
 
 ### Artifact Storage Recommendations
 
-| Artifact Type | Storage | Retention |
-|--------------|---------|-----------|
+| Artifact Type    | Storage                   | Retention                                       |
+| ---------------- | ------------------------- | ----------------------------------------------- |
 | Container images | ECR, GCR, ACR, Docker Hub | 90 days for non-tagged, indefinite for releases |
-| npm packages | npm registry, Artifactory | Indefinite for published versions |
-| Java JARs | Maven Central, Nexus | Indefinite |
-| Binaries | S3, GCS, Azure Blob | 30 days for snapshots, indefinite for releases |
-| Helm charts | OCI registry, ChartMuseum | Indefinite for releases |
+| npm packages     | npm registry, Artifactory | Indefinite for published versions               |
+| Java JARs        | Maven Central, Nexus      | Indefinite                                      |
+| Binaries         | S3, GCS, Azure Blob       | 30 days for snapshots, indefinite for releases  |
+| Helm charts      | OCI registry, ChartMuseum | Indefinite for releases                         |
 
 ## Environment Promotion
 
@@ -348,16 +348,16 @@ security-scan:
       - SCAN_TYPE: [sast, dependency, container, secrets, iac]
   script:
     - case $SCAN_TYPE in
-        sast)
-          semgrep scan --config=auto --error ;;
-        dependency)
-          trivy fs --scanners vuln --exit-code 1 --severity HIGH,CRITICAL . ;;
-        container)
-          trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE ;;
-        secrets)
-          gitleaks detect --source . --exit-code 1 ;;
-        iac)
-          checkov --directory . --framework terraform --soft-fail ;;
+      sast)
+      semgrep scan --config=auto --error ;;
+      dependency)
+      trivy fs --scanners vuln --exit-code 1 --severity HIGH,CRITICAL . ;;
+      container)
+      trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE ;;
+      secrets)
+      gitleaks detect --source . --exit-code 1 ;;
+      iac)
+      checkov --directory . --framework terraform --soft-fail ;;
       esac
 ```
 
@@ -508,6 +508,7 @@ on:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cicd architect solutions
 - Reviewing or improving existing cicd architect approaches
 - Making architectural or implementation decisions about cicd architect
@@ -515,6 +516,7 @@ on:
 - Troubleshooting cicd architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -525,21 +527,26 @@ on:
 # Cicd Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

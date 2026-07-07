@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend typescript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend typescript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # TypeScript Guru
@@ -40,13 +40,20 @@ function merge<T extends object, U extends object>(a: T, b: U): T & U {
 // Default generic parameter
 function createState<T = string>(initial: T): [T, (v: T) => void] {
   let value = initial;
-  return [value, (v: T) => { value = v; }];
+  return [
+    value,
+    (v: T) => {
+      value = v;
+    },
+  ];
 }
 
 // Generic constraint using another generic
 function cloneSubset<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const result = {} as Pick<T, K>;
-  keys.forEach(key => { result[key] = obj[key]; });
+  keys.forEach((key) => {
+    result[key] = obj[key];
+  });
   return result;
 }
 ```
@@ -55,9 +62,7 @@ function cloneSubset<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
 
 ```ts
 // Infer return type from callback
-function createQuery<TData>(
-  queryFn: () => Promise<TData>
-): { data: TData | undefined; refetch: () => Promise<TData> } {
+function createQuery<TData>(queryFn: () => Promise<TData>): { data: TData | undefined; refetch: () => Promise<TData> } {
   // Implementation
 }
 // Usage: type is inferred as { data: User[] | undefined; ... }
@@ -69,7 +74,7 @@ function defineRoutes<const T extends readonly RouteConfig[]>(routes: T): T {
 }
 // Preserves literal types
 const routes = defineRoutes([
-  { path: '/home', component: Home },     // path is '/home', not string
+  { path: '/home', component: Home }, // path is '/home', not string
   { path: '/about', component: About },
 ] as const);
 
@@ -104,10 +109,14 @@ type RequestState<T> =
 // Exhaustive switch with never check
 function renderState<T>(state: RequestState<T>): string {
   switch (state.status) {
-    case 'idle':    return 'Ready';
-    case 'loading': return 'Loading...';
-    case 'success': return `Data: ${JSON.stringify(state.data)}`;
-    case 'error':   return `Error: ${state.error.message}`;
+    case 'idle':
+      return 'Ready';
+    case 'loading':
+      return 'Loading...';
+    case 'success':
+      return `Data: ${JSON.stringify(state.data)}`;
+    case 'error':
+      return `Error: ${state.error.message}`;
     default:
       const _exhaustive: never = state;
       throw new Error(`Unhandled state: ${_exhaustive}`);
@@ -122,9 +131,7 @@ type AppEvent =
   | { type: 'ITEM_REMOVED'; payload: { itemId: string } };
 
 // Type-safe event handler
-type EventHandler<T extends AppEvent['type']> = (
-  payload: Extract<AppEvent, { type: T }>['payload']
-) => void;
+type EventHandler<T extends AppEvent['type']> = (payload: Extract<AppEvent, { type: T }>['payload']) => void;
 
 function on<T extends AppEvent['type']>(type: T, handler: EventHandler<T>) {
   // Register handler
@@ -139,9 +146,7 @@ on('USER_LOGIN', (payload) => {
 ### Pattern: Result Type (Error Handling Without Exceptions)
 
 ```ts
-type Result<T, E = Error> =
-  | { ok: true; value: T }
-  | { ok: false; error: E };
+type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
 function ok<T>(value: T): Result<T, never> {
   return { ok: true, value };
@@ -162,9 +167,9 @@ function parseJSON<T>(text: string): Result<T, SyntaxError> {
 
 const result = parseJSON<User>(input);
 if (result.ok) {
-  console.log(result.value.name);  // Type-safe access
+  console.log(result.value.name); // Type-safe access
 } else {
-  console.error(result.error.message);  // Error properly typed
+  console.error(result.error.message); // Error properly typed
 }
 ```
 
@@ -172,12 +177,11 @@ if (result.ok) {
 
 ```ts
 // Route parameter extraction
-type ExtractParams<T extends string> =
-  T extends `${string}:${infer Param}/${infer Rest}`
-    ? { [K in Param | keyof ExtractParams<Rest>]: string }
-    : T extends `${string}:${infer Param}`
-      ? { [K in Param]: string }
-      : {};
+type ExtractParams<T extends string> = T extends `${string}:${infer Param}/${infer Rest}`
+  ? { [K in Param | keyof ExtractParams<Rest>]: string }
+  : T extends `${string}:${infer Param}`
+    ? { [K in Param]: string }
+    : {};
 
 // Usage
 type Params = ExtractParams<'/users/:userId/posts/:postId'>;
@@ -189,16 +193,17 @@ type EventName = `${'click' | 'focus' | 'blur'}${'' | `.${string}`}`;
 
 // CSS unit types
 type CSSUnit = `${number}${'px' | 'rem' | 'em' | '%' | 'vh' | 'vw'}`;
-function setWidth(value: CSSUnit | 'auto') { /* ... */ }
-setWidth('100px');  // OK
-setWidth('2rem');   // OK
-setWidth('50');     // Error
+function setWidth(value: CSSUnit | 'auto') {
+  /* ... */
+}
+setWidth('100px'); // OK
+setWidth('2rem'); // OK
+setWidth('50'); // Error
 
 // String manipulation types
-type SnakeToCamel<S extends string> =
-  S extends `${infer Head}_${infer Tail}`
-    ? `${Head}${Capitalize<SnakeToCamel<Tail>>}`
-    : S;
+type SnakeToCamel<S extends string> = S extends `${infer Head}_${infer Tail}`
+  ? `${Head}${Capitalize<SnakeToCamel<Tail>>}`
+  : S;
 
 type Result = SnakeToCamel<'created_at_date'>; // 'createdAtDate'
 
@@ -236,12 +241,15 @@ type ReturnOf<T> = T extends (...args: any[]) => infer R ? R : never;
 type ElementOf<T> = T extends readonly (infer E)[] ? E : never;
 
 // Complex conditional: different behavior based on type
-type Serializable<T> =
-  T extends string | number | boolean ? T :
-  T extends Date ? string :
-  T extends Array<infer U> ? Serializable<U>[] :
-  T extends object ? { [K in keyof T]: Serializable<T[K]> } :
-  never;
+type Serializable<T> = T extends string | number | boolean
+  ? T
+  : T extends Date
+    ? string
+    : T extends Array<infer U>
+      ? Serializable<U>[]
+      : T extends object
+        ? { [K in keyof T]: Serializable<T[K]> }
+        : never;
 ```
 
 ## Mapped Types
@@ -271,7 +279,7 @@ type Mutable<T> = {
 type PickByType<T, ValueType> = {
   [K in keyof T as T[K] extends ValueType ? K : never]: T[K];
 };
-type StringFields = PickByType<User, string>;  // Only string properties
+type StringFields = PickByType<User, string>; // Only string properties
 
 // Key remapping with `as`
 type Getters<T> = {
@@ -459,19 +467,25 @@ type Brand<T, B> = T & { __brand: B };
 type UserId = Brand<string, 'UserId'>;
 type PostId = Brand<string, 'PostId'>;
 
-function getUser(id: UserId): User { /* ... */ }
+function getUser(id: UserId): User {
+  /* ... */
+}
 const userId = 'abc' as UserId;
 const postId = 'def' as PostId;
-getUser(userId);  // OK
-getUser(postId);  // Error: PostId is not assignable to UserId
+getUser(userId); // OK
+getUser(postId); // Error: PostId is not assignable to UserId
 
 // Immutable type for function parameters
 type Immutable<T> =
-  T extends Map<infer K, infer V> ? ReadonlyMap<Immutable<K>, Immutable<V>> :
-  T extends Set<infer V> ? ReadonlySet<Immutable<V>> :
-  T extends Array<infer V> ? ReadonlyArray<Immutable<V>> :
-  T extends object ? { readonly [K in keyof T]: Immutable<T[K]> } :
-  T;
+  T extends Map<infer K, infer V>
+    ? ReadonlyMap<Immutable<K>, Immutable<V>>
+    : T extends Set<infer V>
+      ? ReadonlySet<Immutable<V>>
+      : T extends Array<infer V>
+        ? ReadonlyArray<Immutable<V>>
+        : T extends object
+          ? { readonly [K in keyof T]: Immutable<T[K]> }
+          : T;
 ```
 
 ## TypeScript Architecture Checklist
@@ -494,6 +508,7 @@ type Immutable<T> =
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing typescript guru solutions
 - Reviewing or improving existing typescript guru approaches
 - Making architectural or implementation decisions about typescript guru
@@ -501,6 +516,7 @@ type Immutable<T> =
 - Troubleshooting typescript guru-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -511,21 +527,26 @@ type Immutable<T> =
 # Typescript Guru Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

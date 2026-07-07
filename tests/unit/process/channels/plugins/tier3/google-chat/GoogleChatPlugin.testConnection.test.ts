@@ -91,16 +91,14 @@ describe('GoogleChatPlugin.testConnection', () => {
   });
 
   it('returns failure when serviceAccountJson field is missing', async () => {
-    const result = await GoogleChatPlugin.testConnection(
-      JSON.stringify({ projectId: '123' }),
-    );
+    const result = await GoogleChatPlugin.testConnection(JSON.stringify({ projectId: '123' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/serviceAccountJson is required/i);
   });
 
   it('returns failure when serviceAccountJson is not valid JSON', async () => {
     const result = await GoogleChatPlugin.testConnection(
-      JSON.stringify({ serviceAccountJson: '{bad}', projectId: '123' }),
+      JSON.stringify({ serviceAccountJson: '{bad}', projectId: '123' })
     );
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/not valid JSON/i);
@@ -108,9 +106,7 @@ describe('GoogleChatPlugin.testConnection', () => {
 
   it('returns failure when serviceAccountJson is missing private_key', async () => {
     const sa = JSON.stringify({ type: 'service_account', client_email: 'bot@x.com' });
-    const result = await GoogleChatPlugin.testConnection(
-      JSON.stringify({ serviceAccountJson: sa, projectId: '123' }),
-    );
+    const result = await GoogleChatPlugin.testConnection(JSON.stringify({ serviceAccountJson: sa, projectId: '123' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/private_key.*client_email/i);
   });

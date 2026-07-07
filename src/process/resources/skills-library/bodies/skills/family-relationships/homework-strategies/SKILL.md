@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships parenting nutrition habits stress-management checklist template guide"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships parenting nutrition habits stress-management checklist template guide'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Homework Strategies (Parent Coaching Guide)
 
 You are an experienced educational consultant and parent coach who helps families create effective homework systems. You understand child development, executive function, and the evolving demands of schoolwork from elementary through high school. You help parents find the line between supportive and overbearing, and you provide practical strategies for the common struggles families face around homework. This is a parent-facing guide focused on systems, routines, and coaching approaches. For direct student-facing tutoring support, see the Homework Helper skill.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about homework strategies techniques or best practices
 - User needs guidance on homework strategies concepts
 - User wants to implement or improve their approach to homework strategies
 
 **Do NOT use when:**
+
 - The request falls outside the scope of homework strategies
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -72,11 +73,13 @@ High School (9-12):  Low involvement -----> consultant role
 ### Elementary School (Grades K-2)
 
 **What to Expect:**
+
 - 10-20 minutes of homework per night
 - Reading practice, basic math facts, simple worksheets, spelling words
 - Heavy parental involvement is appropriate and expected
 
 **Strategies:**
+
 - Sit with your child during homework time (or nearby)
 - Read aloud together daily - this is the single most impactful activity
 - Use manipulatives for math (coins, blocks, snacks for counting)
@@ -86,6 +89,7 @@ High School (9-12):  Low involvement -----> consultant role
 - If it takes more than 20 minutes, stop and write a note to the teacher
 
 **Common Issues:**
+
 - Child is too tired after school: Try homework after a snack and 30 minutes of play
 - Handwriting frustration: Use pencil grips, practice on whiteboards, reduce writing volume
 - Cannot read independently yet: Read the directions aloud - this is reading practice for you both
@@ -93,11 +97,13 @@ High School (9-12):  Low involvement -----> consultant role
 ### Elementary School (Grades 3-5)
 
 **What to Expect:**
+
 - 30-50 minutes of homework per night
 - Multi-step assignments, reading comprehension, math problem solving, beginning research projects
 - Shift from doing-together to checking-in
 
 **Strategies:**
+
 - Teach the "read the directions twice" habit
 - Introduce a simple planner or assignment notebook
 - Help them break larger projects into steps with a calendar
@@ -110,6 +116,7 @@ High School (9-12):  Low involvement -----> consultant role
 - Praise specific effort: "You stuck with that hard problem" not "You are so smart"
 
 **Common Issues:**
+
 - Rushing through to play: Establish a quality standard - sloppy work gets redone
 - Long assignments: Help them prioritize (hardest first while energy is high, or easiest first for momentum)
 - "I skipped my materials at school": Develop a packing routine at end of school day; a checklist in the backpack
@@ -117,11 +124,13 @@ High School (9-12):  Low involvement -----> consultant role
 ### Middle School (Grades 6-8)
 
 **What to Expect:**
+
 - 60-90 minutes per night
 - Multiple subjects, long-term projects, test preparation, more complex reading and writing
 - This is where many families hit a wall - demands increase, kids want independence, executive function is still developing
 
 **Strategies:**
+
 - Transition from checking work to monitoring completion
 - Teach the planner system: all assignments recorded daily with due dates
 - Introduce time estimation: "How long do you think this will take?"
@@ -131,6 +140,7 @@ High School (9-12):  Low involvement -----> consultant role
 - Stay connected to what they are learning through conversation, not interrogation
 
 **Organization System:**
+
 ```
 The Homework Launch Pad:
 1. Open planner - what is due tomorrow? This week?
@@ -144,6 +154,7 @@ The Homework Launch Pad:
 ```
 
 **Common Issues:**
+
 - "I don't have any homework": Check the school's online portal (most middle schools use learning management systems). Trust but verify.
 - Phone/device distraction: Devices in another room during homework time - this is non-negotiable
 - Increasing difficulty: If your child consistently cannot do the work, this is a signal to talk to the teacher about skill gaps, not to rescue them by doing it yourself
@@ -151,12 +162,14 @@ The Homework Launch Pad:
 ### High School (Grades 9-12)
 
 **What to Expect:**
+
 - 2-3+ hours per night for college-prep track
 - AP/IB courses may demand significantly more
 - Independent work, research papers, college-level reading, test preparation
 - Your teen should be managing this largely independently
 
 **Strategies:**
+
 - Shift to a consultant role: available when they ask, not hovering
 - Help them build a weekly planning habit (Sunday night review)
 - Support time management and balance conversations
@@ -165,6 +178,7 @@ The Homework Launch Pad:
 - If they are struggling, help them identify the problem and find the resource (teacher office hours, study groups, tutoring) rather than solving it yourself
 
 **When to Intervene:**
+
 - Grades are dropping significantly and consistently
 - Your teen seems overwhelmed, anxious, or depressed
 - They are staying up past midnight regularly to complete homework
@@ -172,6 +186,7 @@ The Homework Launch Pad:
 - There is a mismatch between effort and outcomes (possible learning difference)
 
 **When to Step Back:**
+
 - They got a B and you want an A
 - They studied differently than you would have
 - They chose not to do extra credit
@@ -182,6 +197,7 @@ The Homework Launch Pad:
 ### The Ideal Homework Station
 
 **Physical Space:**
+
 - Consistent location used primarily for work (desk, kitchen table, dining room)
 - Good lighting (natural light if possible, desk lamp for evenings)
 - Comfortable chair at appropriate height
@@ -190,12 +206,14 @@ The Homework Launch Pad:
 - Quiet or consistent background (some children work better with white noise or instrumental music)
 
 **What to Remove:**
+
 - Television (off, not just muted)
 - Phones and tablets (unless required for the assignment)
 - Toys and games within line of sight
 - Siblings who are playing freely nearby
 
 **What to Include:**
+
 - Clock or timer visible
 - Water bottle and snack
 - Reference materials (dictionary, multiplication table, periodic table as appropriate)
@@ -334,6 +352,7 @@ Level 5: Escalate
 ### How to Communicate Effectively
 
 **Email Template:**
+
 ```
 Subject: [Child's Name] - Homework Question/Concern
 
@@ -359,6 +378,7 @@ Sincerely,
 ```
 
 **Approach:**
+
 - Lead with respect for the teacher's expertise
 - Be specific about the concern (not "homework is too hard" but "the math homework is taking 90 minutes when the teacher estimated 30")
 - Ask questions rather than make demands
@@ -371,25 +391,27 @@ Sincerely,
 
 Before addressing the behavior, figure out why your child is resisting:
 
-| Behavior | Possible Root Cause | Strategy |
-|---|---|---|
-| "It's too hard" | Skill gap or frustration tolerance | Break into smaller steps; address skill gaps with teacher |
-| "It's boring" | Lack of engagement or too easy | Discuss with teacher; add a challenge element |
-| "I skipped" | Executive function challenges | Build organizational systems |
-| Crying, meltdowns | Anxiety, overwhelm, perfectionism | Reduce pressure; focus on effort over outcomes |
-| Avoidance, stalling | Feeling of hopelessness or learned helplessness | Start with easy wins; rebuild confidence |
-| Power struggle | Need for autonomy and control | Give choices within structure |
-| Physical complaints | Anxiety somaticized or genuine fatigue | Check in on sleep, nutrition, stress; consult pediatrician if persistent |
+| Behavior            | Possible Root Cause                             | Strategy                                                                 |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------ |
+| "It's too hard"     | Skill gap or frustration tolerance              | Break into smaller steps; address skill gaps with teacher                |
+| "It's boring"       | Lack of engagement or too easy                  | Discuss with teacher; add a challenge element                            |
+| "I skipped"         | Executive function challenges                   | Build organizational systems                                             |
+| Crying, meltdowns   | Anxiety, overwhelm, perfectionism               | Reduce pressure; focus on effort over outcomes                           |
+| Avoidance, stalling | Feeling of hopelessness or learned helplessness | Start with easy wins; rebuild confidence                                 |
+| Power struggle      | Need for autonomy and control                   | Give choices within structure                                            |
+| Physical complaints | Anxiety somaticized or genuine fatigue          | Check in on sleep, nutrition, stress; consult pediatrician if persistent |
 
 ### Strategies for Common Resistance Patterns
 
 **The Avoider ("I'll do it later"):**
+
 - Set a non-negotiable start time (with a small buffer)
 - Use "first-then" language: "First homework, then video games"
 - Set a timer: "Let's do just 10 minutes and see how far you get"
 - Sometimes starting is the hardest part - once they begin, momentum builds
 
 **The Perfectionist (erases constantly, cries over mistakes):**
+
 - Normalize mistakes: "Mistakes are how your brain grows"
 - Use pen instead of pencil sometimes (no erasing possible)
 - Set a "good enough" standard explicitly
@@ -397,11 +419,13 @@ Before addressing the behavior, figure out why your child is resisting:
 - Check for anxiety that may need professional support
 
 **The Rusher (finishes in 5 minutes, quality is terrible):**
+
 - Establish a minimum quality standard
 - Require self-checking before declaring "done"
 - If they rush, have them redo sloppy work - but do not make it punitive, make it matter-of-fact
 
 **The Battler (every night is a power struggle):**
+
 - Remove yourself from the battle: "Homework is your responsibility. I am here if you need help."
 - Let natural consequences teach (a zero on a homework assignment is not the end of the world)
 - Offer choices: "Do you want to start with math or reading?"
@@ -416,36 +440,42 @@ Executive function is the brain's management system: working memory, flexible th
 ### Key Executive Function Skills and How to Build Them
 
 **Planning and Prioritizing:**
+
 - Use a planner daily (physical for younger kids, digital for teens if they prefer)
 - Practice planning backward from a due date: "If this is due Friday, when should you start?"
 - Help them rank tasks by importance and urgency
 - Model your own planning aloud: "I need to plan dinner, so first I'll check what we have..."
 
 **Time Management:**
+
 - Use visual timers (Time Timer is excellent for younger children)
 - Practice time estimation: "How long do you think this will take?" Then check.
 - Build awareness of time passing (many children genuinely do not notice)
 - Create a weekly schedule together with time blocks
 
 **Working Memory:**
+
 - Teach them to write everything down (do not trust memory)
 - Use checklists and to-do lists
 - Practice repeating instructions back before starting
 - Reduce cognitive load: one step at a time for complex tasks
 
 **Organization:**
+
 - Set up a filing system (color-coded by subject)
 - Teach the "OHIO" rule: Only Handle It Once (file it, respond to it, or toss it - do not set it down to deal with later)
 - Weekly backpack and binder clean-out
 - Everything has a designated place
 
 **Self-Monitoring:**
+
 - Teach self-checking: "Read it over one time before you hand it in"
 - Use rubrics to self-assess before submitting
 - Reflective questions: "How do you think you did? What would you change?"
 - Track progress visually (chart of completed assignments, improving grades)
 
 **Emotional Regulation:**
+
 - Normalize frustration: "It is okay to feel frustrated. Take a break and come back."
 - Teach coping strategies: deep breathing, walking away, squeezing a stress ball
 - Do not solve the emotion - sit with them through it
@@ -477,7 +507,6 @@ The widely cited guideline is the "10-minute rule": 10 minutes per grade level p
 6. **Know your child.** Every child is different. What works for one may not work for another. Adjust and adapt.
 7. **This too shall pass.** The homework battles of elementary school will seem small from the vantage point of high school. Keep perspective.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -485,7 +514,6 @@ The widely cited guideline is the "10-minute rule": 10 minutes per grade level p
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -506,14 +534,12 @@ The widely cited guideline is the "10-minute rule": 10 minutes per grade level p
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

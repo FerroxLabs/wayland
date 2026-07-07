@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "branding marketing content-marketing writing"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'branding marketing content-marketing writing'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Brand Storytelling
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on brand storytelling
 - User asks about brand storytelling best practices or techniques
 - User wants a structured approach to brand storytelling
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of brand storytelling
 
@@ -88,6 +89,7 @@ Each layer reinforces the others. Together, they create a narrative ecosystem th
 The origin story is the most powerful narrative asset a brand possesses. It answers the question every customer implicitly asks: "Why should I trust you?"
 
 A good origin story:
+
 - Makes the brand human (real people, real decisions, real stakes)
 - Establishes credibility (you understand the problem because you lived it)
 - Creates emotional connection (the audience sees themselves in the story)
@@ -106,6 +108,7 @@ A good origin story:
 ### Origin Story Do's and Don'ts
 
 **Do:**
+
 - Be specific - concrete details make stories believable ("I was sitting in a hospital waiting room for the third time that month" is better than "I noticed a problem in healthcare")
 - Be honest - audiences detect fabrication; authentic vulnerability earns trust
 - Include the struggle - a frictionless origin story is not a story; it is a press release
@@ -113,6 +116,7 @@ A good origin story:
 - Keep it concise - a great origin story can be told in 2 minutes or 200 words
 
 **Don't:**
+
 - Fabricate or exaggerate - dishonest origin stories backfire catastrophically when exposed
 - Make it only about the founder's genius - arrogance repels; relatability attracts
 - Skip the emotional core - dates, facts, and milestones are a timeline, not a story
@@ -147,18 +151,19 @@ Define your voice using four dimensions:
 **Dimension 1: Tone Spectrum**
 Place your brand on each spectrum:
 
-| Spectrum | Left | Right |
-|----------|------|-------|
-| Formality | Casual, conversational | Formal, professional |
-| Humor | Playful, witty | Serious, earnest |
-| Energy | Calm, measured | Energetic, enthusiastic |
-| Warmth | Warm, personal | Cool, authoritative |
-| Complexity | Simple, accessible | Sophisticated, technical |
+| Spectrum   | Left                   | Right                    |
+| ---------- | ---------------------- | ------------------------ |
+| Formality  | Casual, conversational | Formal, professional     |
+| Humor      | Playful, witty         | Serious, earnest         |
+| Energy     | Calm, measured         | Energetic, enthusiastic  |
+| Warmth     | Warm, personal         | Cool, authoritative      |
+| Complexity | Simple, accessible     | Sophisticated, technical |
 
 **Dimension 2: Character Traits**
 Choose 3-4 adjectives that describe your brand as if it were a person:
 
 Examples:
+
 - Bold, straightforward, and empathetic
 - Curious, witty, and reliable
 - Warm, knowledgeable, and unpretentious
@@ -166,16 +171,16 @@ Examples:
 
 **Dimension 3: Language Rules**
 
-| Rule Area | Define |
-|-----------|--------|
-| Vocabulary level | Everyday words or industry terminology? |
-| Sentence length | Short and punchy or flowing and detailed? |
-| Contractions | "We're" or "We are"? |
-| First person | "We" (collective) or "I" (personal)? |
+| Rule Area           | Define                                            |
+| ------------------- | ------------------------------------------------- |
+| Vocabulary level    | Everyday words or industry terminology?           |
+| Sentence length     | Short and punchy or flowing and detailed?         |
+| Contractions        | "We're" or "We are"?                              |
+| First person        | "We" (collective) or "I" (personal)?              |
 | Addressing audience | "You" (direct) or "our customers" (third person)? |
-| Jargon policy | Avoid entirely, use selectively, or embrace? |
-| Exclamation marks | Never, rarely, or frequently? |
-| Emoji usage | Never, sparingly, or liberally? |
+| Jargon policy       | Avoid entirely, use selectively, or embrace?      |
+| Exclamation marks   | Never, rarely, or frequently?                     |
+| Emoji usage         | Never, sparingly, or liberally?                   |
 
 **Dimension 4: Voice Don'ts**
 Equally important - what your brand NEVER sounds like:
@@ -216,14 +221,14 @@ EXAMPLES:
 
 The voice stays the same; the tone adjusts for context:
 
-| Channel | Tone Adjustment |
-|---------|----------------|
-| Website | Clear, confident, benefit-focused |
-| Email | Warm, personal, action-oriented |
-| Social media | Casual, engaging, conversational |
-| Support | Patient, empathetic, solution-focused |
-| Sales | Consultative, knowledgeable, trust-building |
-| Internal | Transparent, collaborative, mission-driven |
+| Channel          | Tone Adjustment                                        |
+| ---------------- | ------------------------------------------------------ |
+| Website          | Clear, confident, benefit-focused                      |
+| Email            | Warm, personal, action-oriented                        |
+| Social media     | Casual, engaging, conversational                       |
+| Support          | Patient, empathetic, solution-focused                  |
+| Sales            | Consultative, knowledgeable, trust-building            |
+| Internal         | Transparent, collaborative, mission-driven             |
 | Legal/compliance | Clear, precise (voice can soften but must be accurate) |
 
 ## Values-Driven Marketing
@@ -245,18 +250,21 @@ For each value your brand claims, answer:
 ### Values in Practice: Content Examples
 
 **Value: Transparency**
+
 - Publish pricing publicly (no "contact us for pricing" unless truly custom)
 - Share behind-the-scenes content showing real processes
 - Acknowledge mistakes publicly and explain what you are doing about them
 - Open-source parts of your work or methodology
 
 **Value: Sustainability**
+
 - Report environmental impact with real numbers, not vague claims
 - Show the supply chain and sourcing decisions
 - Acknowledge where you fall short and what you are working on
 - Partner with credible third-party certifications
 
 **Value: Customer-first**
+
 - Publish customer success metrics (not just cherry-picked testimonials)
 - Show product decisions driven by customer feedback
 - Offer genuinely helpful content without a hard sell attached
@@ -287,6 +295,7 @@ The most powerful story a brand can tell is the customer's story - not the brand
 5. **Reflection** - In their words, what does this mean to them?
 
 **Key principles:**
+
 - Use the customer's own words whenever possible
 - Include specific, quantifiable results alongside emotional impact
 - Show diverse customers - different industries, sizes, backgrounds
@@ -294,16 +303,16 @@ The most powerful story a brand can tell is the customer's story - not the brand
 
 ### Content Formats for Storytelling
 
-| Format | Best For | Storytelling Strength |
-|--------|----------|----------------------|
-| Long-form blog post | Origin stories, detailed customer stories | Depth, SEO, thought leadership |
-| Short-form social | Brand voice expression, micro-stories | Reach, personality, relatability |
-| Video (short) | Emotional moments, behind-the-scenes | Emotion, authenticity, shareability |
-| Video (long) | Documentaries, founder stories, customer deep-dives | Trust, depth, connection |
-| Podcast | Founder conversations, industry stories | Intimacy, authority, long-form engagement |
-| Email | Personal narratives, milestone stories | Direct connection, serialized storytelling |
-| About page | Origin story, mission, values | Trust, first impressions, recruitment |
-| Pitch deck | Investor and partner communication | Credibility, vision, urgency |
+| Format              | Best For                                            | Storytelling Strength                      |
+| ------------------- | --------------------------------------------------- | ------------------------------------------ |
+| Long-form blog post | Origin stories, detailed customer stories           | Depth, SEO, thought leadership             |
+| Short-form social   | Brand voice expression, micro-stories               | Reach, personality, relatability           |
+| Video (short)       | Emotional moments, behind-the-scenes                | Emotion, authenticity, shareability        |
+| Video (long)        | Documentaries, founder stories, customer deep-dives | Trust, depth, connection                   |
+| Podcast             | Founder conversations, industry stories             | Intimacy, authority, long-form engagement  |
+| Email               | Personal narratives, milestone stories              | Direct connection, serialized storytelling |
+| About page          | Origin story, mission, values                       | Trust, first impressions, recruitment      |
+| Pitch deck          | Investor and partner communication                  | Credibility, vision, urgency               |
 
 ### The Storytelling Content Calendar
 
@@ -334,30 +343,34 @@ Annually:
 
 Different emotions serve different purposes:
 
-| Emotion | When to Use | Example |
-|---------|-------------|---------|
-| Inspiration | Launch, vision, aspiration | "Imagine a world where..." |
-| Empathy | Pain points, problem acknowledgment | "We know how frustrating it is when..." |
-| Belonging | Community, identity, shared values | "You're part of something bigger." |
-| Pride | Customer success, milestones | "Look what you've built." |
-| Trust | Transparency, reliability, proof | "Here's exactly how we handle your data." |
-| Delight | Surprise, exceeding expectations | Unexpected perks, personal touches |
-| Urgency | Limited offers, important causes | "This matters now because..." |
+| Emotion     | When to Use                         | Example                                   |
+| ----------- | ----------------------------------- | ----------------------------------------- |
+| Inspiration | Launch, vision, aspiration          | "Imagine a world where..."                |
+| Empathy     | Pain points, problem acknowledgment | "We know how frustrating it is when..."   |
+| Belonging   | Community, identity, shared values  | "You're part of something bigger."        |
+| Pride       | Customer success, milestones        | "Look what you've built."                 |
+| Trust       | Transparency, reliability, proof    | "Here's exactly how we handle your data." |
+| Delight     | Surprise, exceeding expectations    | Unexpected perks, personal touches        |
+| Urgency     | Limited offers, important causes    | "This matters now because..."             |
 
 ### Emotional Storytelling Techniques
 
 **Show, don't tell:**
+
 - Weak: "We care about our customers."
 - Strong: "When a fire destroyed Maria's bakery, we rebuilt her website for free and rallied our community to fund her relaunch."
 
 **Use concrete details:**
+
 - Weak: "Our product saves time."
 - Strong: "Sarah used to spend 3 hours every Friday reconciling invoices. Now she spends 20 minutes and uses the rest of the afternoon to visit her dad."
 
 **Create tension and resolution:**
+
 - Every good story has a problem. Do not skip to the happy ending. Let the audience sit with the challenge before revealing the resolution.
 
 **Use the customer's language:**
+
 - Stop writing like a marketer. Listen to how customers describe their experience and mirror their words. Their language resonates with people like them.
 
 ## The Brand Narrative Audit
@@ -376,16 +389,19 @@ Different emotions serve different purposes:
 Gather all existing brand narratives: website copy, social bios, pitch decks, press coverage, customer testimonials, employee descriptions of the company.
 
 **Step 2: Assess Consistency**
+
 - Does every source tell the same core story?
 - Is the brand voice consistent across channels?
 - Do customer descriptions match brand descriptions?
 
 **Step 3: Assess Truthfulness**
+
 - Is the origin story still accurate and relevant?
 - Are stated values reflected in recent decisions?
 - Does the mission still resonate with the current team and customer base?
 
 **Step 4: Assess Effectiveness**
+
 - Which narrative elements get the most engagement?
 - Which customer stories drive the most conversions?
 - What do customers cite when recommending the brand?
@@ -395,15 +411,15 @@ Update the narrative based on findings. Evolution is natural - brands grow and t
 
 ## Storytelling Mistakes to Avoid
 
-| Mistake | Why It Fails | Alternative |
-|---------|-------------|-------------|
-| Making the brand the hero | Customers want to see themselves in the story | Make the customer the hero; the brand is the guide |
-| All polish, no substance | Overproduced content without authentic human moments | Include real moments, imperfections, genuine voices |
-| Inconsistent voice | Different channels sound like different companies | Create and enforce a brand voice document |
-| Feature-focused narrative | Features do not create emotional connection | Lead with the human impact; features are supporting evidence |
-| One-and-done storytelling | A single campaign is not a story strategy | Build an ongoing narrative rhythm across all content |
-| Ignoring negative stories | Pretending problems don't exist erodes trust | Own mistakes, tell the recovery story, demonstrate growth |
-| Copying competitor narratives | If your story sounds like theirs, you have no story | Find what is genuinely unique about your origin, values, and approach |
+| Mistake                       | Why It Fails                                         | Alternative                                                           |
+| ----------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------- |
+| Making the brand the hero     | Customers want to see themselves in the story        | Make the customer the hero; the brand is the guide                    |
+| All polish, no substance      | Overproduced content without authentic human moments | Include real moments, imperfections, genuine voices                   |
+| Inconsistent voice            | Different channels sound like different companies    | Create and enforce a brand voice document                             |
+| Feature-focused narrative     | Features do not create emotional connection          | Lead with the human impact; features are supporting evidence          |
+| One-and-done storytelling     | A single campaign is not a story strategy            | Build an ongoing narrative rhythm across all content                  |
+| Ignoring negative stories     | Pretending problems don't exist erodes trust         | Own mistakes, tell the recovery story, demonstrate growth             |
+| Copying competitor narratives | If your story sounds like theirs, you have no story  | Find what is genuinely unique about your origin, values, and approach |
 
 ## Response Guidelines
 
@@ -418,7 +434,6 @@ When advising on brand storytelling:
 - Remind them that storytelling is ongoing - it is not a one-time project but a continuous practice
 - Help them find the story they already have - most brands do not need to invent a narrative; they need to uncover and articulate the one that already exists
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -431,13 +446,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with brand storytelling for a mid-size project."
 
 **Output:** A complete brand storytelling framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

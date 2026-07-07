@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'csharp testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # C# Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to write unit tests for C# classes, services, or methods using xUnit, NUnit, or MSTest
 - The user asks how to mock dependencies with Moq, NSubstitute, or FakeItEasy in .NET projects
 - The user asks about FluentAssertions syntax, custom assertion chains, or assertion failure messages
@@ -31,6 +33,7 @@ metadata:
 - The user asks about testing background services, hosted services, or message consumers in .NET
 
 **Do NOT use this skill when:**
+
 - The user asks about setting up a new C# project, configuring .csproj files, or solution structure (use `csharp-project-setup`)
 - The user asks about designing ASP.NET Core middleware, controllers, or the request pipeline outside of a testing context (use `csharp-aspnet-patterns`)
 - The user asks about general testing theory, test pyramid concepts, or framework-agnostic TDD principles (use `unit-testing-patterns`)
@@ -256,7 +259,7 @@ Coverage measurement is a safety net, not a goal. Use it to identify untested pa
 
 When helping a user implement or review C# testing patterns, produce output in this structure:
 
-```
+````
 ## Test Architecture Decision
 
 **Test Type:** [Unit | Integration | Component]
@@ -307,7 +310,7 @@ public class [ClassName]Tests : IClassFixture<[FixtureType]>   // omit fixture i
         // Assert (FluentAssertions)
     }
 }
-```
+````
 
 ---
 
@@ -323,7 +326,8 @@ public class [ClassName]Tests : IClassFixture<[FixtureType]>   // omit fixture i
   <Exclude>[*.Migrations]*,[*.Program]*</Exclude>
 </PropertyGroup>
 ```
-```
+
+````
 
 ---
 
@@ -413,9 +417,9 @@ Production code often uses `internal` visibility for domain logic that should no
 
 ### Test Architecture Decision
 
-**Test Type:** Unit  
-**Subject Under Test:** `OrderService.PlaceOrderAsync`  
-**Dependencies Identified:** `IInventoryService`, `IPaymentGateway`, `IOrderRepository`  
+**Test Type:** Unit
+**Subject Under Test:** `OrderService.PlaceOrderAsync`
+**Dependencies Identified:** `IInventoryService`, `IPaymentGateway`, `IOrderRepository`
 **Mocking Strategy:** Mock all three interfaces with Moq; use `MockBehavior.Strict` for `IPaymentGateway` to catch unexpected charge attempts
 
 ---
@@ -607,7 +611,7 @@ public class OrderServiceTests
         { 10_001, "*exceeds maximum order quantity*" }
     };
 }
-```
+````
 
 ---
 
@@ -648,6 +652,7 @@ dotnet test OrderService.Tests \
 ```
 
 **What this test suite achieves:**
+
 - Happy path verifies the full orchestration chain: stock check -> charge -> save
 - Strict `MockBehavior` on `IPaymentGateway` guarantees no charge is attempted when stock is insufficient -- the test does not need an explicit `Verify` call for this
 - Each failure mode (`InsufficientStock`, `PaymentFailed`, `ValidationException`) is isolated in its own `[Fact]` with a precise assertion

@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decluttering checklist legal-literacy"
-  category: "home-household"
-  subcategory: "interior-organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'decluttering checklist legal-literacy'
+  category: 'home-household'
+  subcategory: 'interior-organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Paper Document Organization
 
 ## When to Use
@@ -33,6 +34,7 @@ Use this skill when the user's request matches one of these specific scenarios:
 - User is purging old paperwork and needs to know what is safe to shred versus what must be kept
 
 **Do NOT use this skill when:**
+
 - User wants to organize digital files, downloads, or scanned documents on a computer or cloud service -- use a digital-file-organization skill instead
 - User is asking about document management for a small business, freelance business, or LLC -- business compliance, contractor record-keeping, and corporate document retention have different legal requirements; refer to a business-records skill
 - User wants to declutter their home broadly (furniture, clothes, kitchen items, general possessions) -- use the `decluttering-method` skill instead
@@ -66,6 +68,7 @@ If the user has any existing backlog of unsorted paper -- anything more than a w
 - **Pile 3 -- SHRED OR RECYCLE:** Anything with personal information (account numbers, Social Security numbers, medical data, financial figures) goes to the shred pile. Anything without personal information (junk mail, catalogs, generic flyers) goes directly to recycling. Do not merge these two sub-piles.
 
 **Triage rules to communicate to the user:**
+
 - Do not read every document during triage. Scan for category only. Reading everything doubles the time.
 - Do not make filing decisions during triage. The only decision is: action, file, or shred.
 - Process the Action pile immediately after triage -- before setting up the filing system. Discover any overdue bills or missed deadlines now.
@@ -94,6 +97,7 @@ A household filing system needs 8-12 top-level categories. Fewer than 8 creates 
 Assign one color per category. When filing or searching, the color is visible before the label. Red for taxes, blue for financial/banking, green for medical, yellow for housing, orange for legal/identity. Studies in workplace filing efficiency consistently show color-coded systems are retrieved 25-30% faster than label-only systems.
 
 **Within each category -- subcategory structure:**
+
 - For time-sensitive categories (taxes, banking, medical bills): use year-labeled subcategory folders within the hanging folder. Label: "Taxes 2023", "Taxes 2022", etc.
 - For entity-based categories (insurance, vehicle): use one folder per policy or vehicle.
 - For permanent documents (legal, identity): no date subdivisions needed. These are single-folder categories.
@@ -113,47 +117,47 @@ Every document type has a retention period derived from one of four sources: IRS
 
 **Provide this retention schedule in the output:**
 
-| Document Type | Retention Period | Rationale | After Period |
-|---|---|---|---|
-| Federal tax returns (the return itself) | 7 years from filing date | IRS extended audit window | Shred |
-| W-2s, 1099s, and all tax supporting documents | 7 years from filing date of the return they support | Must accompany the return if audited | Shred |
-| Charitable donation receipts ($250+, written acknowledgment required) | 7 years | Required documentation for deduction | Shred |
-| Home improvement receipts (capital improvements) | While you own the property + 7 years after sale | Increases cost basis, affects capital gains tax | Shred |
-| Brokerage/investment confirmation statements (buy/sell) | Until 7 years after the asset is sold | Establishes cost basis for capital gains calculation | Shred |
-| Monthly bank statements (no tax relevance) | 1 year | Return window and dispute period | Shred |
-| Monthly bank statements (year-end, with tax-relevant transactions) | 7 years | Part of tax record | Shred |
-| Credit card statements (no tax-deductible purchases) | 1 year | Dispute window (Fair Credit Billing Act: 60 days, but disputes can arise later) | Shred |
-| Credit card statements (with tax-deductible purchases) | 7 years | Supports tax documentation | Shred |
-| Pay stubs | Current year only -- shred after reconciling with W-2 | W-2 supersedes pay stubs | Shred |
-| Medical bills (paid, no dispute) | 5 years | State contract dispute statute of limitations | Shred |
-| Explanation of Benefits (EOB) from health insurer | 5 years | Needed to dispute billing errors or reimbursement | Shred |
-| Medical records (diagnosis, treatment, lab results) | Lifetime | Health history, second opinions, disability claims | Never discard |
-| Vaccination records | Lifetime | School, travel, employment requirements | Never discard |
-| Insurance policies (active) | Duration of policy + 3 years | Claims can be filed after a policy period ends | Shred |
-| Insurance policies (expired, no pending claims) | 3 years after expiration | Dispute or late claim window | Shred |
-| Auto and home insurance claim records | 7 years from claim resolution | Dispute, subrogation, or repeat-claim history | Shred |
-| Utility bills (no tax relevance) | 1 year | Return window; annual cycle | Shred or recycle |
-| Utility bills (home office deduction documented) | 7 years | Part of tax documentation | Shred |
-| Mortgage statements (monthly) | 1 year | Reconciliation | Shred |
-| Mortgage closing documents | While you own the property + 7 years | Part of property cost basis record | Shred |
-| Property deed | Permanently | Proof of ownership | Never discard |
-| Vehicle title | While you own vehicle + 3 years | Dispute, lien release verification | Shred after confirmed clear title transfer |
-| Warranties | While you own the item | No value after item is gone | Recycle |
-| Receipts for everyday purchases (no return need) | 30-60 days | Return window | Recycle |
-| Receipts for major purchases ($200+) | Warranty period + 1 year | Insurance claims, extended warranty | Shred |
-| Birth certificates | Permanently | Government-issued identity document | Never discard |
-| Marriage certificate | Permanently | Required for name changes, benefits, estate | Never discard |
-| Divorce decree | Permanently | Affects property rights, benefits, future legal matters | Never discard |
-| Death certificates | Permanently | Estate settlement, benefits claims | Never discard |
-| Social Security cards | Permanently | Identity verification | Never discard |
-| Passports (expired) | Keep 1 expired passport | Backup identity document | Shred after one subsequent renewal |
-| Will and trust documents | Permanently -- replace, never just discard | Superseded versions: shred after new version is signed | Never discard current version |
-| Power of attorney | Duration of document + permanently if general/durable | Disputes can arise after death | Keep permanent |
-| Advance healthcare directive / living will | Permanently | Medical emergencies require immediate access | Never discard |
-| Military discharge papers (DD-214) | Permanently | Required for VA benefits, burial rights, veteran services | Never discard |
-| Pension and retirement plan statements | Annual summaries: permanently; monthly statements: 1 year | Benefits disputes can arise decades later | Shred monthly after annual summary received |
-| Adoption papers | Permanently | Identity, inheritance, medical history | Never discard |
-| Naturalization certificate | Permanently | Proof of citizenship | Never discard |
+| Document Type                                                         | Retention Period                                          | Rationale                                                                       | After Period                                |
+| --------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------- |
+| Federal tax returns (the return itself)                               | 7 years from filing date                                  | IRS extended audit window                                                       | Shred                                       |
+| W-2s, 1099s, and all tax supporting documents                         | 7 years from filing date of the return they support       | Must accompany the return if audited                                            | Shred                                       |
+| Charitable donation receipts ($250+, written acknowledgment required) | 7 years                                                   | Required documentation for deduction                                            | Shred                                       |
+| Home improvement receipts (capital improvements)                      | While you own the property + 7 years after sale           | Increases cost basis, affects capital gains tax                                 | Shred                                       |
+| Brokerage/investment confirmation statements (buy/sell)               | Until 7 years after the asset is sold                     | Establishes cost basis for capital gains calculation                            | Shred                                       |
+| Monthly bank statements (no tax relevance)                            | 1 year                                                    | Return window and dispute period                                                | Shred                                       |
+| Monthly bank statements (year-end, with tax-relevant transactions)    | 7 years                                                   | Part of tax record                                                              | Shred                                       |
+| Credit card statements (no tax-deductible purchases)                  | 1 year                                                    | Dispute window (Fair Credit Billing Act: 60 days, but disputes can arise later) | Shred                                       |
+| Credit card statements (with tax-deductible purchases)                | 7 years                                                   | Supports tax documentation                                                      | Shred                                       |
+| Pay stubs                                                             | Current year only -- shred after reconciling with W-2     | W-2 supersedes pay stubs                                                        | Shred                                       |
+| Medical bills (paid, no dispute)                                      | 5 years                                                   | State contract dispute statute of limitations                                   | Shred                                       |
+| Explanation of Benefits (EOB) from health insurer                     | 5 years                                                   | Needed to dispute billing errors or reimbursement                               | Shred                                       |
+| Medical records (diagnosis, treatment, lab results)                   | Lifetime                                                  | Health history, second opinions, disability claims                              | Never discard                               |
+| Vaccination records                                                   | Lifetime                                                  | School, travel, employment requirements                                         | Never discard                               |
+| Insurance policies (active)                                           | Duration of policy + 3 years                              | Claims can be filed after a policy period ends                                  | Shred                                       |
+| Insurance policies (expired, no pending claims)                       | 3 years after expiration                                  | Dispute or late claim window                                                    | Shred                                       |
+| Auto and home insurance claim records                                 | 7 years from claim resolution                             | Dispute, subrogation, or repeat-claim history                                   | Shred                                       |
+| Utility bills (no tax relevance)                                      | 1 year                                                    | Return window; annual cycle                                                     | Shred or recycle                            |
+| Utility bills (home office deduction documented)                      | 7 years                                                   | Part of tax documentation                                                       | Shred                                       |
+| Mortgage statements (monthly)                                         | 1 year                                                    | Reconciliation                                                                  | Shred                                       |
+| Mortgage closing documents                                            | While you own the property + 7 years                      | Part of property cost basis record                                              | Shred                                       |
+| Property deed                                                         | Permanently                                               | Proof of ownership                                                              | Never discard                               |
+| Vehicle title                                                         | While you own vehicle + 3 years                           | Dispute, lien release verification                                              | Shred after confirmed clear title transfer  |
+| Warranties                                                            | While you own the item                                    | No value after item is gone                                                     | Recycle                                     |
+| Receipts for everyday purchases (no return need)                      | 30-60 days                                                | Return window                                                                   | Recycle                                     |
+| Receipts for major purchases ($200+)                                  | Warranty period + 1 year                                  | Insurance claims, extended warranty                                             | Shred                                       |
+| Birth certificates                                                    | Permanently                                               | Government-issued identity document                                             | Never discard                               |
+| Marriage certificate                                                  | Permanently                                               | Required for name changes, benefits, estate                                     | Never discard                               |
+| Divorce decree                                                        | Permanently                                               | Affects property rights, benefits, future legal matters                         | Never discard                               |
+| Death certificates                                                    | Permanently                                               | Estate settlement, benefits claims                                              | Never discard                               |
+| Social Security cards                                                 | Permanently                                               | Identity verification                                                           | Never discard                               |
+| Passports (expired)                                                   | Keep 1 expired passport                                   | Backup identity document                                                        | Shred after one subsequent renewal          |
+| Will and trust documents                                              | Permanently -- replace, never just discard                | Superseded versions: shred after new version is signed                          | Never discard current version               |
+| Power of attorney                                                     | Duration of document + permanently if general/durable     | Disputes can arise after death                                                  | Keep permanent                              |
+| Advance healthcare directive / living will                            | Permanently                                               | Medical emergencies require immediate access                                    | Never discard                               |
+| Military discharge papers (DD-214)                                    | Permanently                                               | Required for VA benefits, burial rights, veteran services                       | Never discard                               |
+| Pension and retirement plan statements                                | Annual summaries: permanently; monthly statements: 1 year | Benefits disputes can arise decades later                                       | Shred monthly after annual summary received |
+| Adoption papers                                                       | Permanently                                               | Identity, inheritance, medical history                                          | Never discard                               |
+| Naturalization certificate                                            | Permanently                                               | Proof of citizenship                                                            | Never discard                               |
 
 ---
 
@@ -168,6 +172,7 @@ Critical documents are those that are: (a) legally irreplaceable or extremely di
 2. **Bank safe deposit box:** Highly secure from fire and theft. Limitation: inaccessible on bank holidays and outside business hours. Never store a will exclusively in a safe deposit box -- access may be restricted until after probate, creating a circular problem. Store a copy of the will in the safe deposit box and the original with the attorney or at home.
 
 **What goes in the critical documents kit:**
+
 - Birth certificates (all household members)
 - Marriage certificate
 - Divorce decree (if applicable)
@@ -196,6 +201,7 @@ The filing system solves the historical backlog. The workflow prevents future ac
 
 **The Daily Mail Sort (2 minutes maximum -- must be done at the mail point):**
 The single most important habit. The key is to never set paper down without making a decision. Execute the sort standing at the recycling bin or trash:
+
 - Obvious junk, catalogs, and advertisements: directly into recycling (do not open, do not bring inside)
 - Action items (bills, forms, items requiring a response): into the Action Tray (a dedicated physical inbox on a desk or kitchen counter)
 - File items (statements, notices, receipts to keep): into the To-File Folder (a second slot in the inbox)
@@ -203,12 +209,14 @@ The single most important habit. The key is to never set paper down without maki
 
 **The Weekly Processing Session (15-20 minutes, same day each week):**
 Pick a consistent day -- Sunday evening works well before the new week begins:
+
 1. Process every item in the Action Tray: pay bills, log into accounts to confirm autopayments, sign and return forms, schedule appointments, respond to correspondence
 2. Move resolved action items to the To-File Folder
 3. File everything in the To-File Folder into the correct category folder
 4. The Action Tray and To-File Folder should be empty at the end of this session
 
 **The Annual Purge (2 hours, each January before tax season):**
+
 1. Gather last year's tax-relevant documents from all categories (W-2s, 1099s, deduction receipts, investment statements) and create a consolidated folder labeled by tax year for the upcoming filing
 2. Identify documents in every category that have passed their retention period -- use the retention schedule
 3. Create a shred pile of all expired documents. Shred in a session immediately after sorting (do not leave the shred pile sitting -- it becomes clutter and a security risk)
@@ -223,6 +231,7 @@ Pick a consistent day -- Sunday evening works well before the new week begins:
 Give the user a concrete, cost-ranged shopping list so they can execute immediately:
 
 **Minimum viable setup:**
+
 - Hanging file folders (at least 10-12) -- look for reinforced-tab versions, not the cheapest available; weak tabs cause folders to sag and merge. Cost: $8-15 for a box of 25.
 - Interior manila folders for subcategories (one box of 100) -- Cost: $5-10
 - A file drawer, desktop file box, or rolling file cart -- not a cardboard box, which collapses. Cost: $0 (repurpose an existing drawer) to $40-60 for a new file box or cart.
@@ -232,6 +241,7 @@ Give the user a concrete, cost-ranged shopping list so they can execute immediat
 - A fireproof safe rated UL 350 for paper protection -- Cost: $60-150 for residential models
 
 **Optional upgrades:**
+
 - Color-coded hanging folders (pre-sorted by color) -- Cost: $12-20 for a pack with multiple colors
 - A dedicated filing cabinet (2-drawer lateral is more space-efficient than 2-drawer vertical for household volume) -- Cost: $80-200 new, $20-50 at office liquidation sales
 
@@ -416,45 +426,45 @@ After sorting: Process the Action pile first. Then set up the system below. Then
 
 ### Filing Structure
 
-| # | Category | Folder Color | What Goes Here | Retention |
-|---|----------|-------------|----------------|-----------|
-| 1 | Tax Returns & Supporting Docs | Red | Filed 1040s, W-2s from both jobs, any 1099s, charitable donation receipts, medical expense receipts over 7.5% AGI threshold, accountant correspondence | 7 years from filing date |
-| 2 | Banking & Investments | Blue | Checking and savings statements (both of yours), any retirement account statements (401k, IRA), year-end summaries | Bank statements: 1 year unless tax-relevant (then 7 years); retirement: annual summaries permanently |
-| 3 | Insurance | Green | Health insurance policy documents and ID cards, renters insurance policy, auto insurance (if you have a car), any life or disability policies | Active policy + 3 years after expiration |
-| 4 | Medical & Health | Light Green | Medical visit summaries, lab results, paid medical bills, Explanation of Benefits from your health insurer, your daughter's medical records (separate subfolder) | Bills: 5 years; medical records: lifetime; EOBs: 5 years |
-| 5 | Lease & Rental | Yellow | Current signed lease (all pages and addenda), move-in inspection report, any move-in photographs, security deposit receipt ($[amount] paid on [date]), written landlord communications, maintenance requests and confirmations | All rental documents: 3 years after you move out |
-| 6 | Employment | Blue-Gray | Current employment contracts or offer letters for both of you, benefits summary plan descriptions, professional licenses or certifications, pay stubs (current year only -- shred previous years after reconciling with W-2) | Pay stubs: current year only; contracts: 3 years after employment ends |
-| 7 | Warranties & Manuals | White | Warranties and purchase receipts for major items (grouped by appliance or device) | While you own the item; then recycle |
-| 8 | Legal & Identity | Orange | Birth certificates (yours, your husband's, your daughter's), marriage certificate, Social Security cards (copies -- originals in safe), passports when not traveling | Permanently -- originals in fireproof safe |
-| 9 | Children's Records | Purple | Daughter's immunization records, school enrollment documents, pediatric medical records (can also keep in Medical folder), report cards, standardized test scores | Immunization records: permanently; report cards: keep through high school graduation, then only final official transcript |
-| 10 | Receipts & Warranties -- Miscellaneous | White | Receipts for purchases over $100 (appliances, electronics, furniture), product warranties without a dedicated manual | Warranty period + 1 year; then shred or recycle |
+| #   | Category                               | Folder Color | What Goes Here                                                                                                                                                                                                                 | Retention                                                                                                                 |
+| --- | -------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Tax Returns & Supporting Docs          | Red          | Filed 1040s, W-2s from both jobs, any 1099s, charitable donation receipts, medical expense receipts over 7.5% AGI threshold, accountant correspondence                                                                         | 7 years from filing date                                                                                                  |
+| 2   | Banking & Investments                  | Blue         | Checking and savings statements (both of yours), any retirement account statements (401k, IRA), year-end summaries                                                                                                             | Bank statements: 1 year unless tax-relevant (then 7 years); retirement: annual summaries permanently                      |
+| 3   | Insurance                              | Green        | Health insurance policy documents and ID cards, renters insurance policy, auto insurance (if you have a car), any life or disability policies                                                                                  | Active policy + 3 years after expiration                                                                                  |
+| 4   | Medical & Health                       | Light Green  | Medical visit summaries, lab results, paid medical bills, Explanation of Benefits from your health insurer, your daughter's medical records (separate subfolder)                                                               | Bills: 5 years; medical records: lifetime; EOBs: 5 years                                                                  |
+| 5   | Lease & Rental                         | Yellow       | Current signed lease (all pages and addenda), move-in inspection report, any move-in photographs, security deposit receipt ($[amount] paid on [date]), written landlord communications, maintenance requests and confirmations | All rental documents: 3 years after you move out                                                                          |
+| 6   | Employment                             | Blue-Gray    | Current employment contracts or offer letters for both of you, benefits summary plan descriptions, professional licenses or certifications, pay stubs (current year only -- shred previous years after reconciling with W-2)   | Pay stubs: current year only; contracts: 3 years after employment ends                                                    |
+| 7   | Warranties & Manuals                   | White        | Warranties and purchase receipts for major items (grouped by appliance or device)                                                                                                                                              | While you own the item; then recycle                                                                                      |
+| 8   | Legal & Identity                       | Orange       | Birth certificates (yours, your husband's, your daughter's), marriage certificate, Social Security cards (copies -- originals in safe), passports when not traveling                                                           | Permanently -- originals in fireproof safe                                                                                |
+| 9   | Children's Records                     | Purple       | Daughter's immunization records, school enrollment documents, pediatric medical records (can also keep in Medical folder), report cards, standardized test scores                                                              | Immunization records: permanently; report cards: keep through high school graduation, then only final official transcript |
+| 10  | Receipts & Warranties -- Miscellaneous | White        | Receipts for purchases over $100 (appliances, electronics, furniture), product warranties without a dedicated manual                                                                                                           | Warranty period + 1 year; then shred or recycle                                                                           |
 
 ---
 
 ### Retention Schedule (Your Household)
 
-| Document Type | Keep For | Why | After Period |
-|---|---|---|---|
-| Tax returns (the filed 1040) | 7 years from filing date | IRS audit window | Shred |
-| W-2s and all tax supporting docs | 7 years (must travel with the return) | Required for audit defense | Shred |
-| Bank statements -- no tax-relevant transactions | 1 year | Dispute window | Shred |
-| Bank statements -- year with tax-relevant transactions | 7 years | Part of tax record | Shred |
-| Pay stubs | Current year only | Verify against W-2, then shred | Shred |
-| Medical bills (paid, resolved) | 5 years | Insurance dispute and contract dispute window | Shred |
-| Explanation of Benefits (EOBs) | 5 years | Billing error dispute | Shred |
-| Medical records (diagnoses, lab results, treatment) | Lifetime | Health history is never obsolete | Never shred |
-| Daughter's immunization records | Permanently | School, college, travel, employment | Never shred |
-| Health insurance policy (active) | Duration + 3 years | Late claims window | Shred |
-| Renters insurance policy (active) | Duration + 3 years | Claim disputes | Shred |
-| Lease (current) | Full term + 3 years after move-out | Security deposit disputes | Shred |
-| Move-in photos and inspection report | 3 years after move-out | Security deposit protection | Shred |
-| Employment contracts (current) | Duration of employment + 3 years | Dispute, reference | Shred |
-| Receipts for everyday purchases | 30-60 days | Return window | Recycle |
-| Receipts for purchases over $100 | Warranty period + 1 year | Insurance, extended warranty | Shred |
-| Warranties | While you own the item | No value after | Recycle |
-| Birth certificates (all three) | Permanently | Government identity | Never shred |
-| Marriage certificate | Permanently | Benefits, estate, legal | Never shred |
-| Social Security cards | Permanently | Identity verification | Never shred |
+| Document Type                                          | Keep For                              | Why                                           | After Period |
+| ------------------------------------------------------ | ------------------------------------- | --------------------------------------------- | ------------ |
+| Tax returns (the filed 1040)                           | 7 years from filing date              | IRS audit window                              | Shred        |
+| W-2s and all tax supporting docs                       | 7 years (must travel with the return) | Required for audit defense                    | Shred        |
+| Bank statements -- no tax-relevant transactions        | 1 year                                | Dispute window                                | Shred        |
+| Bank statements -- year with tax-relevant transactions | 7 years                               | Part of tax record                            | Shred        |
+| Pay stubs                                              | Current year only                     | Verify against W-2, then shred                | Shred        |
+| Medical bills (paid, resolved)                         | 5 years                               | Insurance dispute and contract dispute window | Shred        |
+| Explanation of Benefits (EOBs)                         | 5 years                               | Billing error dispute                         | Shred        |
+| Medical records (diagnoses, lab results, treatment)    | Lifetime                              | Health history is never obsolete              | Never shred  |
+| Daughter's immunization records                        | Permanently                           | School, college, travel, employment           | Never shred  |
+| Health insurance policy (active)                       | Duration + 3 years                    | Late claims window                            | Shred        |
+| Renters insurance policy (active)                      | Duration + 3 years                    | Claim disputes                                | Shred        |
+| Lease (current)                                        | Full term + 3 years after move-out    | Security deposit disputes                     | Shred        |
+| Move-in photos and inspection report                   | 3 years after move-out                | Security deposit protection                   | Shred        |
+| Employment contracts (current)                         | Duration of employment + 3 years      | Dispute, reference                            | Shred        |
+| Receipts for everyday purchases                        | 30-60 days                            | Return window                                 | Recycle      |
+| Receipts for purchases over $100                       | Warranty period + 1 year              | Insurance, extended warranty                  | Shred        |
+| Warranties                                             | While you own the item                | No value after                                | Recycle      |
+| Birth certificates (all three)                         | Permanently                           | Government identity                           | Never shred  |
+| Marriage certificate                                   | Permanently                           | Benefits, estate, legal                       | Never shred  |
+| Social Security cards                                  | Permanently                           | Identity verification                         | Never shred  |
 
 ---
 
@@ -463,6 +473,7 @@ After sorting: Process the Action pile first. Then set up the system below. Then
 Purchase a fireproof home safe with a UL 350 paper rating. Residential models run $60-150 and are adequate for a household's critical documents. If you live in a building where storing a safe is impractical, a bank safe deposit box works for everything except your will (see note below).
 
 **Confirm you have these documents and store originals here:**
+
 - [ ] Your birth certificate
 - [ ] Your husband's birth certificate
 - [ ] Your daughter's birth certificate
@@ -483,6 +494,7 @@ Purchase a fireproof home safe with a UL 350 paper rating. Residential models ru
 **Daily -- The Mail Sort (2 minutes, at the door or mail slot):**
 
 Stand at the recycling bin. Make only three decisions:
+
 1. **Junk mail, catalogs, advertisements:** Directly into recycling -- do not bring them to the counter
 2. **Action items** (a bill, a form, something from the school, your daughter's medical appointment reminder, your insurer): Into the Action Tray on your counter or desk
 3. **File items** (a bank statement, an EOB, a pay stub, a warranty card): Into the To-File Folder
@@ -490,6 +502,7 @@ Stand at the recycling bin. Make only three decisions:
 This habit works because it takes less time than setting paper down "for later." Paper set down "for later" becomes the pile.
 
 **Weekly -- Processing Session (Sunday evening, 15-20 minutes):**
+
 1. Open the Action Tray. Pay any bills (or confirm autopay ran), respond to any forms, schedule any appointments
 2. Note: medical bills require extra attention -- compare every bill against the corresponding EOB from your insurer before paying. Billing errors are common; the EOB shows what your insurer has determined you actually owe.
 3. Move resolved items to the To-File Folder
@@ -497,6 +510,7 @@ This habit works because it takes less time than setting paper down "for later."
 5. Both trays should be empty by the end of the session
 
 **Annual -- The Purge (January, 2 hours):**
+
 1. Pull all tax-supporting documents from the current year: W-2s from both employers, any 1099s, donation receipts, relevant medical receipts. Place them in a folder labeled "Taxes [year] -- TO FILE." Your accountant gets this folder.
 2. After you file taxes, relabel the folder "Taxes [year] -- FILED" with the filing date noted inside
 3. Shred any documents that have hit their retention limit (check the retention schedule above)

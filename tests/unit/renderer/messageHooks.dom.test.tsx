@@ -280,7 +280,12 @@ describe('composeMessageWithIndex - sub_agent subtree merge (#252 Phase 2)', () 
         type: 'sub_agent_event',
         parent_call_id: 'spawn:2:child',
         agent_name: 'child',
-        inner: { type: 'tool_request', msg_id: 'm2', call_id: 'grandchild', tool: { name: 'ReadFile', category: 'info', args: {}, description: '' } },
+        inner: {
+          type: 'tool_request',
+          msg_id: 'm2',
+          call_id: 'grandchild',
+          tool: { name: 'ReadFile', category: 'info', args: {}, description: '' },
+        },
       })
     )!;
 

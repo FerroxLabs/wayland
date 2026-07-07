@@ -58,17 +58,13 @@ describe('applyVendoredOverlay', () => {
   });
 
   it('matches unprefixed ids as well as ext- prefixed ids', async () => {
-    const assistants: Record<string, unknown>[] = [
-      { id: 'dev-shop', name: 'Dev Shop' },
-    ];
+    const assistants: Record<string, unknown>[] = [{ id: 'dev-shop', name: 'Dev Shop' }];
     await applyVendoredOverlay(assistants);
     expect(assistants[0].standing).toBe(true);
   });
 
   it('leaves assistants with no matching vendored entry unchanged', async () => {
-    const assistants: Record<string, unknown>[] = [
-      { id: 'ext-this-id-does-not-exist-anywhere', name: 'Phantom' },
-    ];
+    const assistants: Record<string, unknown>[] = [{ id: 'ext-this-id-does-not-exist-anywhere', name: 'Phantom' }];
     const before = JSON.stringify(assistants[0]);
     await applyVendoredOverlay(assistants);
     expect(JSON.stringify(assistants[0])).toBe(before);
@@ -194,14 +190,39 @@ describe('applyVendoredOverlay', () => {
   // standing:false onto a bare live record.
   it('injects teammates + standing:false for all 33 operator-team launchers', async () => {
     const TEAM_IDS = [
-      'email-lifecycle-crew', 'paid-ads-war-room', 'seo-content-engine', 'lead-gen-outbound',
-      'local-seo-reviews', 'review-article-factory', 'offer-vetting-desk', 'comparison-roundup-builder',
-      'link-disclosure-custodian', 'content-refresh-crew', 'promo-calendar-war-room', 'listing-forge',
-      'back-office-crew', 'winning-product-war-room', 'review-engine', 'ad-account-mechanic',
-      'repurpose-engine', 'hook-lab', 'reply-desk', 'caption-carousel-studio', 'trend-desk',
-      'validation-cell', 'lead-magnet-forge', 'template-factory', 'lesson-scripting-crew',
-      'student-support-desk', 'cohort-ops-control-tower', 'daily-briefing', 'war-room',
-      'pre-mortem-room', 'fine-print-guard', 'pricing-tribunal', 'cold-pitch-bench',
+      'email-lifecycle-crew',
+      'paid-ads-war-room',
+      'seo-content-engine',
+      'lead-gen-outbound',
+      'local-seo-reviews',
+      'review-article-factory',
+      'offer-vetting-desk',
+      'comparison-roundup-builder',
+      'link-disclosure-custodian',
+      'content-refresh-crew',
+      'promo-calendar-war-room',
+      'listing-forge',
+      'back-office-crew',
+      'winning-product-war-room',
+      'review-engine',
+      'ad-account-mechanic',
+      'repurpose-engine',
+      'hook-lab',
+      'reply-desk',
+      'caption-carousel-studio',
+      'trend-desk',
+      'validation-cell',
+      'lead-magnet-forge',
+      'template-factory',
+      'lesson-scripting-crew',
+      'student-support-desk',
+      'cohort-ops-control-tower',
+      'daily-briefing',
+      'war-room',
+      'pre-mortem-room',
+      'fine-print-guard',
+      'pricing-tribunal',
+      'cold-pitch-bench',
     ];
     const assistants: Record<string, unknown>[] = TEAM_IDS.map((id) => ({ id: `ext-${id}`, kind: 'team' }));
     await applyVendoredOverlay(assistants);

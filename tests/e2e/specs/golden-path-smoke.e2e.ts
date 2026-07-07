@@ -94,9 +94,7 @@ test.describe('Golden path smoke - Cold Outbound', () => {
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 
-    const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
-    );
+    const row = sidebarEntry.locator('xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]');
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();
     await expect(threeDot).toBeVisible({ timeout: 5_000 });

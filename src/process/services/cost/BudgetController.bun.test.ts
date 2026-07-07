@@ -82,12 +82,24 @@ describe('BudgetController (bun:sqlite)', () => {
     });
 
     it('drops scopeKey for global scope', () => {
-      const b = controller.upsert({ scope: 'global', scopeKey: 'ignored', limitUsd: 10, period: 'day', action: 'warn' });
+      const b = controller.upsert({
+        scope: 'global',
+        scopeKey: 'ignored',
+        limitUsd: 10,
+        period: 'day',
+        action: 'warn',
+      });
       expect(b.scopeKey).toBeUndefined();
     });
 
     it('updates in place and preserves createdAt', () => {
-      const created = controller.upsert({ scope: 'model', scopeKey: 'opus-4', limitUsd: 10, period: 'day', action: 'warn' });
+      const created = controller.upsert({
+        scope: 'model',
+        scopeKey: 'opus-4',
+        limitUsd: 10,
+        period: 'day',
+        action: 'warn',
+      });
       const updated = controller.upsert({
         id: created.id,
         scope: 'model',

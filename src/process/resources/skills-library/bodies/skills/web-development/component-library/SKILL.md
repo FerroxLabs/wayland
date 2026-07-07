@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend design-patterns"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend design-patterns'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Component Library
@@ -71,7 +71,7 @@ export const colors = {
   primitives: {
     blue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 700: '#1d4ed8', 900: '#1e3a5c' },
     gray: { 50: '#f9fafb', 100: '#f3f4f6', 500: '#6b7280', 700: '#374151', 900: '#111827' },
-    red:  { 50: '#fef2f2', 500: '#ef4444', 700: '#b91c1c' },
+    red: { 50: '#fef2f2', 500: '#ef4444', 700: '#b91c1c' },
     green: { 50: '#f0fdf4', 500: '#22c55e', 700: '#15803d' },
   },
   semantic: {
@@ -138,8 +138,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', loading, leftIcon, rightIcon,
-     fullWidth, disabled, children, className, asChild, ...props }, ref) => {
+  (
+    {
+      variant = 'primary',
+      size = 'md',
+      loading,
+      leftIcon,
+      rightIcon,
+      fullWidth,
+      disabled,
+      children,
+      className,
+      asChild,
+      ...props
+    },
+    ref
+  ) => {
     const isDisabled = disabled || loading;
 
     const classes = cn(
@@ -148,16 +162,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       `button--${size}`,
       fullWidth && 'button--full',
       isDisabled && 'button--disabled',
-      className,
+      className
     );
 
     return (
-      <button ref={ref} className={classes} disabled={isDisabled}
-              aria-busy={loading || undefined} {...props}>
-        {loading && <Spinner size={size} aria-hidden="true" />}
-        {!loading && leftIcon && <span className="button__icon">{leftIcon}</span>}
-        <span className="button__label">{children}</span>
-        {rightIcon && <span className="button__icon">{rightIcon}</span>}
+      <button ref={ref} className={classes} disabled={isDisabled} aria-busy={loading || undefined} {...props}>
+        {loading && <Spinner size={size} aria-hidden='true' />}
+        {!loading && leftIcon && <span className='button__icon'>{leftIcon}</span>}
+        <span className='button__label'>{children}</span>
+        {rightIcon && <span className='button__icon'>{rightIcon}</span>}
       </button>
     );
   }
@@ -179,11 +192,7 @@ function useDialogContext() {
 }
 
 function Dialog({ open, onOpenChange, children }: DialogProps) {
-  return (
-    <DialogContext.Provider value={{ open, onOpenChange }}>
-      {children}
-    </DialogContext.Provider>
-  );
+  return <DialogContext.Provider value={{ open, onOpenChange }}>{children}</DialogContext.Provider>;
 }
 
 function DialogTrigger({ children, asChild }: DialogTriggerProps) {
@@ -196,12 +205,16 @@ function DialogContent({ children, title, description }: DialogContentProps) {
   if (!open) return null;
 
   return createPortal(
-    <div className="dialog-overlay" onClick={() => onOpenChange(false)}>
-      <div className="dialog-content" role="dialog" aria-modal="true"
-           aria-labelledby={title ? 'dialog-title' : undefined}
-           onClick={(e) => e.stopPropagation()}>
-        {title && <h2 id="dialog-title">{title}</h2>}
-        {description && <p id="dialog-desc">{description}</p>}
+    <div className='dialog-overlay' onClick={() => onOpenChange(false)}>
+      <div
+        className='dialog-content'
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby={title ? 'dialog-title' : undefined}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {title && <h2 id='dialog-title'>{title}</h2>}
+        {description && <p id='dialog-desc'>{description}</p>}
         {children}
       </div>
     </div>,
@@ -221,11 +234,11 @@ Dialog.Close = DialogClose;
 // Usage
 <Dialog open={isOpen} onOpenChange={setIsOpen}>
   <Dialog.Trigger>Open Settings</Dialog.Trigger>
-  <Dialog.Content title="Settings">
+  <Dialog.Content title='Settings'>
     <p>Configure your preferences.</p>
     <Dialog.Close>Done</Dialog.Close>
   </Dialog.Content>
-</Dialog>
+</Dialog>;
 ```
 
 ## Polymorphic Components
@@ -283,11 +296,13 @@ function Switch({ checked, onCheckedChange, label, id }: SwitchProps) {
   const switchId = id || useId();
 
   return (
-    <div className="switch-wrapper">
-      <label htmlFor={switchId} className="switch-label">{label}</label>
+    <div className='switch-wrapper'>
+      <label htmlFor={switchId} className='switch-label'>
+        {label}
+      </label>
       <button
         id={switchId}
-        role="switch"
+        role='switch'
         aria-checked={checked}
         onClick={() => onCheckedChange(!checked)}
         onKeyDown={(e) => {
@@ -298,7 +313,7 @@ function Switch({ checked, onCheckedChange, label, id }: SwitchProps) {
         }}
         className={cn('switch', checked && 'switch--checked')}
       >
-        <span className="switch-thumb" />
+        <span className='switch-thumb' />
       </button>
     </div>
   );
@@ -306,7 +321,7 @@ function Switch({ checked, onCheckedChange, label, id }: SwitchProps) {
 
 // A11y testing in every component test
 test('Switch is accessible', async () => {
-  const { container } = render(<Switch label="Dark mode" checked={false} onCheckedChange={() => {}} />);
+  const { container } = render(<Switch label='Dark mode' checked={false} onCheckedChange={() => {}} />);
   expect(await axe(container)).toHaveNoViolations();
 });
 ```
@@ -373,11 +388,11 @@ export const Primary: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem' }}>
-      <Button variant="primary">Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="danger">Danger</Button>
+      <Button variant='primary'>Primary</Button>
+      <Button variant='secondary'>Secondary</Button>
+      <Button variant='outline'>Outline</Button>
+      <Button variant='ghost'>Ghost</Button>
+      <Button variant='danger'>Danger</Button>
     </div>
   ),
 };
@@ -409,7 +424,11 @@ describe('Button', () => {
 
   it('does not call onClick when disabled', async () => {
     const onClick = vi.fn();
-    render(<Button onClick={onClick} disabled>Click me</Button>);
+    render(
+      <Button onClick={onClick} disabled>
+        Click me
+      </Button>
+    );
     await userEvent.click(screen.getByRole('button'));
     expect(onClick).not.toHaveBeenCalled();
   });
@@ -455,15 +474,19 @@ PATCH (0.0.X): Bug fixes
 
 ```markdown
 ## [2.1.0] - 2025-03-15
+
 ### Added
+
 - `Tooltip` component with hover and focus triggers
 - `fullWidth` prop to `Button` component
 
 ### Fixed
+
 - `Select` dropdown now correctly positions in scroll containers
 - `Dialog` focus trap includes dynamically added elements
 
 ### Deprecated
+
 - `Modal` component: use `Dialog` instead (will be removed in 3.0)
 ```
 
@@ -515,6 +538,7 @@ PATCH (0.0.X): Bug fixes
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing component library solutions
 - Reviewing or improving existing component library approaches
 - Making architectural or implementation decisions about component library
@@ -522,6 +546,7 @@ PATCH (0.0.X): Bug fixes
 - Troubleshooting component library-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -532,21 +557,26 @@ PATCH (0.0.X): Bug fixes
 # Component Library Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -1076,6 +1076,7 @@
   "speechToTextProviderDeepgram": "Deepgram Nova-2",
   "speechToTextApiKey": "API-ключ",
   "speechToTextBaseUrl": "Базовый URL",
+  "speechToTextBaseUrlHint": "Укажите здесь любой API транскрипции, совместимый с OpenAI, включая сторонние приложения, похожие на Whisper, чтобы использовать его вместо OpenAI.",
   "speechToTextModel": "Модель",
   "speechToTextLanguage": "Язык по умолчанию",
   "speechToTextDetectLanguage": "Автоопределение языка",

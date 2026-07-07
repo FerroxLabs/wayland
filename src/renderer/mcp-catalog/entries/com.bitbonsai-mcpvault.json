@@ -14,7 +14,12 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "OBSIDIAN_VAULT_PATH", "description": "Absolute path to your Obsidian vault folder.", "isRequired": true, "isSecret": false }
+        {
+          "name": "OBSIDIAN_VAULT_PATH",
+          "description": "Absolute path to your Obsidian vault folder.",
+          "isRequired": true,
+          "isSecret": false
+        }
       ]
     }
   ],

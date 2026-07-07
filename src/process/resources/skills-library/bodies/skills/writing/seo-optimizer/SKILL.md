@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing seo"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'writing content-marketing seo'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # SEO Optimizer
@@ -23,6 +23,7 @@ You are an expert SEO Content Optimizer who helps technical content rank well in
 ## SEO Philosophy
 
 ### Core Principles
+
 ```
 1. USER FIRST, SEARCH ENGINE SECOND: Write for humans. If the content is
    genuinely useful, search engines will reward it. If it's keyword-stuffed
@@ -45,6 +46,7 @@ You are an expert SEO Content Optimizer who helps technical content rank well in
 ## Keyword Research
 
 ### Keyword Research Process
+
 ```
 Step 1: Seed Keywords
   Start with broad terms in your domain
@@ -73,6 +75,7 @@ Step 4: Prioritize
 ```
 
 ### Keyword Classification
+
 ```
 By Intent:
 1. Informational: "how to deploy kubernetes" (learning)
@@ -92,6 +95,7 @@ Long-tail → Blog posts, FAQs, specific tutorials
 ```
 
 ### Keyword Research Template
+
 ```
 ┌────────────────────────────┬────────┬──────────┬─────────┬──────────┐
 │ Keyword                    │ Volume │ Difficulty│ Intent  │ Priority │
@@ -112,6 +116,7 @@ Long-tail → Blog posts, FAQs, specific tutorials
 ## On-Page SEO
 
 ### On-Page Optimization Checklist
+
 ```
 Title Tag:
 [ ] Primary keyword in the title (preferably near the beginning)
@@ -144,6 +149,7 @@ Images:
 ## Heading Hierarchy
 
 ### Proper Heading Structure
+
 ```
 H1: React Server Components: A Complete Tutorial
   H2: What Are React Server Components?
@@ -176,6 +182,7 @@ Rules:
 ## Meta Description Optimization
 
 ### Meta Description Formulas
+
 ```
 Tutorial:
 "Learn [topic] step by step. This tutorial covers [key aspects]
@@ -195,6 +202,7 @@ that work in [context]. Includes code examples."
 ```
 
 ### Meta Description Best Practices
+
 ```
 DO:
 - Include the primary keyword naturally
@@ -215,6 +223,7 @@ DON'T:
 ## Internal Linking
 
 ### Internal Linking Strategy
+
 ```
 Why Internal Links Matter:
 1. Distribute page authority (link equity) across your site
@@ -245,6 +254,7 @@ Rules:
 ```
 
 ### Anchor Text Best Practices
+
 ```
 GOOD anchor text:
 "For more details, see our [React Server Components tutorial](/react-server-components)"
@@ -264,6 +274,7 @@ Rules:
 ## Technical SEO Audit
 
 ### Technical SEO Checklist
+
 ```
 Crawlability:
 [ ] robots.txt allows search engine access to important pages
@@ -296,6 +307,7 @@ Structured Data:
 ## Structured Data / Schema Markup
 
 ### Common Schema Types for Technical Content
+
 ```
 Article Schema (for blog posts):
 <script type="application/ld+json">
@@ -328,6 +340,7 @@ Article Schema (for blog posts):
 ## Content Freshness
 
 ### Freshness Strategy
+
 ```
 When to Update Content:
 - Technology/library version changes (update examples)
@@ -352,6 +365,7 @@ Annually: Full content audit of entire site
 ```
 
 ### Content Freshness Signals
+
 ```
 Things Google considers for freshness:
 - dateModified in structured data
@@ -370,6 +384,7 @@ Things to avoid:
 ## Search Intent Matching
 
 ### Understanding Search Intent
+
 ```
 For every keyword, ask: "What is the searcher actually looking for?"
 
@@ -396,6 +411,7 @@ How to Verify Intent:
 ```
 
 ### Intent-Optimized Content Formats
+
 ```
 Informational ("how to", "what is", "why"):
   Format: Tutorial, explainer, guide
@@ -421,6 +437,7 @@ Troubleshooting ("error", "fix", "not working"):
 ## SEO Content Strategy
 
 ### Content Cluster Model
+
 ```
 1. Identify a broad topic (pillar): "Kubernetes"
 2. Create a comprehensive pillar page: "The Complete Guide to Kubernetes"
@@ -439,6 +456,7 @@ comprehensive, interlinked coverage of the topic.
 ```
 
 ### Content Gap Analysis
+
 ```
 1. Identify your top competitors (sites ranking for your target keywords)
 2. List all keywords they rank for that you don't
@@ -458,6 +476,7 @@ Tools for Gap Analysis:
 ## Quick Decision Guide
 
 When asked about SEO:
+
 - **"How to optimize my article?"** → On-page SEO checklist + heading hierarchy + meta description
 - **"What keywords should I target?"** → Keyword research process, prioritize high-relevance + low-competition
 - **"My content isn't ranking"** → Check: intent match, technical SEO, content quality, backlinks
@@ -468,6 +487,7 @@ When asked about SEO:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing seo optimizer solutions
 - Reviewing or improving existing seo optimizer approaches
 - Making architectural or implementation decisions about seo optimizer
@@ -475,6 +495,7 @@ When asked about SEO:
 - Troubleshooting seo optimizer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -485,21 +506,26 @@ When asked about SEO:
 # Seo Optimizer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

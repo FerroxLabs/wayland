@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks frontend architecture"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks frontend architecture'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Angular Signals Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to implement Angular Signals (introduced in Angular 16, stabilized in Angular 17+) for reactive state management in components, services, or application-wide stores
 - User wants to replace RxJS-heavy component state with signal-based reactivity and needs guidance on which patterns to use and when
 - User asks about `signal()`, `computed()`, `effect()`, `toSignal()`, `toObservable()`, or the `input()` / `output()` / `model()` signal-based component APIs introduced in Angular 17--18
@@ -30,6 +32,7 @@ metadata:
 - User is debugging unexpected signal re-evaluations, glitch-prone computed chains, or `effect()` infinite loops
 
 **Do NOT use this skill when:**
+
 - User is working with Angular versions below 16 -- signals do not exist; redirect to RxJS observable patterns for Angular state management
 - User needs general RxJS patterns not related to signal interop -- check the rxjs-patterns skill in this subcategory
 - User is building with React, Vue, Svelte, or Solid.js, even though those frameworks have analogous reactive primitives -- the APIs and scheduling semantics differ fundamentally
@@ -75,16 +78,16 @@ Signal mutations must be performed correctly to trigger reactivity and avoid sta
 - Use `.set(newValue)` when replacing the entire value.
 - Use `.update(prev => newValue)` when the new value depends on the previous value -- this is the correct pattern for array mutations and counter increments.
   ```typescript
-  items.update(prev => [...prev, newItem]);   // append
-  items.update(prev => prev.filter(i => i.id !== id)); // remove
-  count.update(n => n + 1);                   // increment
+  items.update((prev) => [...prev, newItem]); // append
+  items.update((prev) => prev.filter((i) => i.id !== id)); // remove
+  count.update((n) => n + 1); // increment
   ```
 - Never mutate the signal's value in place (e.g., `items().push(x)`) -- this does not notify Angular's reactive graph and produces stale UI.
 - Use `.mutate()` only if available in your Angular version (it was removed in Angular 17.1 in favor of always-immutable updates with `.update()`). If the codebase is on 16.x, `.mutate()` exists but signals the team to plan for removal.
 - For deep objects, use a custom equality function to prevent re-renders when semantically identical objects are produced:
   ```typescript
   const config = signal<Config>(initialConfig, {
-    equal: (a, b) => JSON.stringify(a) === JSON.stringify(b)
+    equal: (a, b) => JSON.stringify(a) === JSON.stringify(b),
   });
   ```
   Use `JSON.stringify` only for small, serializable objects. For large objects, write a structural comparator or use a library like `fast-deep-equal`.
@@ -124,10 +127,13 @@ Signal mutations must be performed correctly to trigger reactivity and avoid sta
   - Replacing `ngOnChanges` with `effect()` -- use signal-based `input()` with `computed()` instead
 - To write to a signal inside an `effect()` when truly necessary (rare), use the `allowSignalWrites` option:
   ```typescript
-  effect(() => {
-    const value = this.externalSignal();
-    this.localSignal.set(processValue(value));
-  }, { allowSignalWrites: true });
+  effect(
+    () => {
+      const value = this.externalSignal();
+      this.localSignal.set(processValue(value));
+    },
+    { allowSignalWrites: true }
+  );
   ```
   This option exists to escape hatches, not as a default pattern. If you use it more than once per class, reconsider the design.
 - Always clean up `effect()` by using the `DestroyRef` injection or calling the returned cleanup function. In components and directives, effects registered in the constructor are cleaned up automatically on destroy. In services, use `inject(DestroyRef).onDestroy()` to clean up manually created effects.
@@ -162,6 +168,7 @@ Angular 17.1+ introduced signal-based `input()`, `output()`, and `model()` APIs 
 For feature or global state, implement a signal store as a plain injectable service or using NgRx SignalStore.
 
 **Hand-rolled signal store pattern:**
+
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class CartStore {
@@ -180,20 +187,17 @@ export class CartStore {
 
   // Commands (methods that mutate state)
   addItem(item: CartItem): void {
-    this._items.update(items => {
-      const existing = items.find(i => i.productId === item.productId);
+    this._items.update((items) => {
+      const existing = items.find((i) => i.productId === item.productId);
       if (existing) {
-        return items.map(i => i.productId === item.productId
-          ? { ...i, quantity: i.quantity + item.quantity }
-          : i
-        );
+        return items.map((i) => (i.productId === item.productId ? { ...i, quantity: i.quantity + item.quantity } : i));
       }
       return [...items, item];
     });
   }
 
   removeItem(productId: string): void {
-    this._items.update(items => items.filter(i => i.productId !== productId));
+    this._items.update((items) => items.filter((i) => i.productId !== productId));
   }
 
   clearCart(): void {
@@ -350,7 +354,7 @@ Angular compares signal values with `Object.is()` by default. This causes issues
 - When using `.update()` on an array to produce a filtered or mapped copy, every downstream `computed()` will recompute even if the filter result is identical to the previous value. Add a custom `equal` function to the signal definition to prevent this:
   ```typescript
   const ids = signal<string[]>([], {
-    equal: (a, b) => a.length === b.length && a.every((v, i) => v === b[i])
+    equal: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
   });
   ```
 - Custom equality functions must be pure, fast, and side-effect-free. They run during every `.set()` and `.update()` call.
@@ -396,7 +400,10 @@ Signal primitives work in TestBed, but there are testing patterns specific to si
 - `TestBed.runInInjectionContext(() => { ... })` allows you to create signals, effects, and call `toSignal()` / `toObservable()` in tests without a component fixture.
 - To test that a `computed()` reacts correctly, set the dependency signal's value and immediately read the computed -- no async tick is needed because computed values are synchronously derived:
   ```typescript
-  store.setItems([{ id: '1', active: true }, { id: '2', active: false }]);
+  store.setItems([
+    { id: '1', active: true },
+    { id: '2', active: false },
+  ]);
   expect(store.activeItems()).toHaveLength(1);
   ```
 - To test `effect()` side effects, call `TestBed.flushEffects()` after setting signal values -- effects are batched and do not run synchronously. Without flushing, effect-driven behavior will not appear in test assertions.
@@ -414,17 +421,17 @@ Signal primitives work in TestBed, but there are testing patterns specific to si
 
 ### State Classification
 
-| State Slice | Type | Owner | Pattern |
-|---|---|---|---|
-| `searchQuery` | local UI state | `ProductListStore` | `signal<string>('')` |
-| `selectedCategory` | local UI state | `ProductListStore` | `signal<string \| null>(null)` |
-| `sortOrder` | local UI state | `ProductListStore` | `signal<SortOrder>('relevance')` |
-| `currentPage` | local UI state | `ProductListStore` | `signal<number>(1)` |
-| `rawProducts` | server data | `ProductListStore` | `toSignal(http$, { initialValue: [] })` |
-| `filteredProducts` | derived | `ProductListStore` | `computed()` |
-| `totalPages` | derived | `ProductListStore` | `computed()` |
-| `isLoading` | derived from Observable | `ProductListStore` | `signal<boolean>(false)` |
-| `error` | derived from Observable | `ProductListStore` | `signal<string \| null>(null)` |
+| State Slice        | Type                    | Owner              | Pattern                                 |
+| ------------------ | ----------------------- | ------------------ | --------------------------------------- |
+| `searchQuery`      | local UI state          | `ProductListStore` | `signal<string>('')`                    |
+| `selectedCategory` | local UI state          | `ProductListStore` | `signal<string \| null>(null)`          |
+| `sortOrder`        | local UI state          | `ProductListStore` | `signal<SortOrder>('relevance')`        |
+| `currentPage`      | local UI state          | `ProductListStore` | `signal<number>(1)`                     |
+| `rawProducts`      | server data             | `ProductListStore` | `toSignal(http$, { initialValue: [] })` |
+| `filteredProducts` | derived                 | `ProductListStore` | `computed()`                            |
+| `totalPages`       | derived                 | `ProductListStore` | `computed()`                            |
+| `isLoading`        | derived from Observable | `ProductListStore` | `signal<boolean>(false)`                |
+| `error`            | derived from Observable | `ProductListStore` | `signal<string \| null>(null)`          |
 
 ### Signal Graph
 
@@ -468,7 +475,7 @@ export interface Product {
   imageUrl: string;
 }
 
-@Injectable()  // NOT providedIn: 'root' -- scoped to the feature route
+@Injectable() // NOT providedIn: 'root' -- scoped to the feature route
 export class ProductListStore {
   private readonly http = inject(HttpClient);
 
@@ -506,40 +513,34 @@ export class ProductListStore {
       this._isLoading.set(true);
       this._error.set(null);
     }),
-    switchMap(params =>
-      this.http.get<{ products: Product[]; total: number }>(
-        '/api/products',
-        { params: this.buildHttpParams(params) }
-      ).pipe(
-        catchError(err => {
-          this._error.set('Failed to load products. Please try again.');
-          this._isLoading.set(false);
-          return of({ products: [], total: 0 });
-        })
-      )
+    switchMap((params) =>
+      this.http
+        .get<{ products: Product[]; total: number }>('/api/products', { params: this.buildHttpParams(params) })
+        .pipe(
+          catchError((err) => {
+            this._error.set('Failed to load products. Please try again.');
+            this._isLoading.set(false);
+            return of({ products: [], total: 0 });
+          })
+        )
     ),
     tap(() => this._isLoading.set(false))
   );
 
   // ── Convert HTTP Observable to a signal for template consumption ──
-  private readonly productResponse = toSignal(
-    this.products$,
-    { initialValue: { products: [], total: 0 } }
-  );
+  private readonly productResponse = toSignal(this.products$, { initialValue: { products: [], total: 0 } });
 
   // ── Public computed selectors ──
   readonly products = computed(() => this.productResponse().products);
   readonly totalResults = computed(() => this.productResponse().total);
-  readonly totalPages = computed(() => Math.ceil(this.totalResults() / 24));  // 24 per page
+  readonly totalPages = computed(() => Math.ceil(this.totalResults() / 24)); // 24 per page
   readonly hasResults = computed(() => this.products().length > 0);
-  readonly isEmpty = computed(() =>
-    !this.isLoading() && !this.error() && !this.hasResults()
-  );
+  readonly isEmpty = computed(() => !this.isLoading() && !this.error() && !this.hasResults());
 
   // ── Commands (state mutation methods) ──
   setSearchQuery(query: string): void {
     this._searchQuery.set(query.trim());
-    this._currentPage.set(1);  // reset pagination on search change
+    this._currentPage.set(1); // reset pagination on search change
   }
 
   setCategory(category: string | null): void {
@@ -554,7 +555,7 @@ export class ProductListStore {
 
   goToPage(page: number): void {
     const total = this.totalPages();
-    if (page < 1 || page > total) return;  // guard invalid page numbers
+    if (page < 1 || page > total) return; // guard invalid page numbers
     this._currentPage.set(page);
   }
 
@@ -579,21 +580,12 @@ import { ProductListStore, SortOrder } from './product-list.store';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,  // signals work with OnPush
-  providers: [ProductListStore],                     // feature-scoped -- one instance per route
+  changeDetection: ChangeDetectionStrategy.OnPush, // signals work with OnPush
+  providers: [ProductListStore], // feature-scoped -- one instance per route
   template: `
-    <app-search-bar
-      [value]="store.searchQuery()"
-      (search)="store.setSearchQuery($event)"
-    />
-    <app-category-filter
-      [selected]="store.selectedCategory()"
-      (categoryChange)="store.setCategory($event)"
-    />
-    <app-sort-selector
-      [current]="store.sortOrder()"
-      (sortChange)="store.setSortOrder($event)"
-    />
+    <app-search-bar [value]="store.searchQuery()" (search)="store.setSearchQuery($event)" />
+    <app-category-filter [selected]="store.selectedCategory()" (categoryChange)="store.setCategory($event)" />
+    <app-sort-selector [current]="store.sortOrder()" (sortChange)="store.setSortOrder($event)" />
 
     @if (store.isLoading()) {
       <app-loading-skeleton [rows]="8" />
@@ -610,7 +602,7 @@ import { ProductListStore, SortOrder } from './product-list.store';
       />
       <p class="results-count">{{ store.totalResults() }} results</p>
     }
-  `
+  `,
 })
 export class ProductListComponent {
   readonly store = inject(ProductListStore);

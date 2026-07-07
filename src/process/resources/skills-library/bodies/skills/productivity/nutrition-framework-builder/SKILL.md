@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks nutrition habits template guide planning performing-arts"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks nutrition habits template guide planning performing-arts'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Nutrition Framework Builder
@@ -22,15 +22,16 @@ You are an expert in nutritional approaches who helps users build a sustainable 
 
 **IMPORTANT DISCLAIMER: This skill provides general nutrition education and frameworks for healthy adults. It is NOT medical nutrition therapy, a treatment for eating disorders, or a substitute for guidance from registered dietitians, physicians, or licensed nutritionists. If you have a medical condition (diabetes, kidney disease, food allergies, eating disorders, pregnancy, etc.), consult a qualified healthcare professional before making dietary changes. If you are struggling with disordered eating, please reach out to a professional or the National Eating Disorders Association (NEDA) helpline.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about nutrition framework builder techniques or best practices
 - User needs guidance on nutrition framework builder concepts
 - User wants to implement or improve their approach to nutrition framework builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of nutrition framework builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,13 +63,13 @@ TIER 3: OPTIMIZATION  - Fine-tuning based on response and preference
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| IIFYM/Flexible Dieting | Goal-specific nutrition; athletes; those who want quantification | Macronutrient and calorie targets provide a framework; any food can fit within those targets | Can ignore food quality; tracking can become obsessive; learning curve |
-| Mediterranean Diet | Long-term health; heart health; sustainable eating | Whole foods, healthy fats, vegetables, moderate protein; well-researched for longevity | Not designed for specific body composition goals; cultural specificity |
-| Zone Diet (Sears) | Blood sugar management; balanced meals; inflammation reduction | Balance protein, carbs, and fats at every meal (40/30/30); manage insulin response | Rigid ratios; not one-size-fits-all for macros; can feel restrictive |
-| Intuitive Eating (Tribole/Resch) | Healing disordered eating; breaking diet culture; food freedom | Honor hunger and fullness cues; reject diet mentality; all foods are allowed | Not designed for specific physique goals; requires unlearning years of diet rules; can be misunderstood |
-| Precision Nutrition | Behavior change; coaching; sustainable habits | Habit-based approach; one change at a time; meet people where they are | Slow; less specific about targets; requires patience |
+| Approach                         | Best For                                                         | Key Insight                                                                                  | Limitation                                                                                              |
+| -------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| IIFYM/Flexible Dieting           | Goal-specific nutrition; athletes; those who want quantification | Macronutrient and calorie targets provide a framework; any food can fit within those targets | Can ignore food quality; tracking can become obsessive; learning curve                                  |
+| Mediterranean Diet               | Long-term health; heart health; sustainable eating               | Whole foods, healthy fats, vegetables, moderate protein; well-researched for longevity       | Not designed for specific body composition goals; cultural specificity                                  |
+| Zone Diet (Sears)                | Blood sugar management; balanced meals; inflammation reduction   | Balance protein, carbs, and fats at every meal (40/30/30); manage insulin response           | Rigid ratios; not one-size-fits-all for macros; can feel restrictive                                    |
+| Intuitive Eating (Tribole/Resch) | Healing disordered eating; breaking diet culture; food freedom   | Honor hunger and fullness cues; reject diet mentality; all foods are allowed                 | Not designed for specific physique goals; requires unlearning years of diet rules; can be misunderstood |
+| Precision Nutrition              | Behavior change; coaching; sustainable habits                    | Habit-based approach; one change at a time; meet people where they are                       | Slow; less specific about targets; requires patience                                                    |
 
 ## Tier 1: Foundation - Universal Principles
 
@@ -300,16 +301,16 @@ RULE: Do not add the next habit until the current one is >80% consistent.
 
 ### Common Nutrition Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| All-or-nothing dieting | Diet culture; "clean" vs "dirty" thinking | 80/20 rule; most meals nutritious, some for enjoyment; no forbidden foods |
-| Undereating protein | Cultural eating patterns; convenience foods are carb-heavy | Add a palm of protein to every meal; keep easy protein sources available |
-| Cutting calories too aggressively | Wanting fast results | Moderate deficit (300-500 cal); slow results are sustainable results |
-| Eliminating entire food groups | Trendy diets; fear-based nutrition | Unless medically necessary, all food groups serve a purpose |
-| Drinking too many calories | Smoothies, juices, coffee drinks, alcohol, soda | Eat your calories; drink water, black coffee, tea |
-| Weekend undermining weekdays | Restriction creates rebound; "reward" mindset | Same habits 7 days a week; include foods you enjoy in your daily plan |
-| Seeking the perfect diet | Overwhelmed by conflicting information | The best diet is one you can follow consistently; start with Tier 1 principles |
-| Ignoring the social aspect of food | Treating food as purely fuel | Food is culture, connection, and pleasure; include these aspects |
+| Mistake                            | Why It Happens                                             | Fix                                                                            |
+| ---------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| All-or-nothing dieting             | Diet culture; "clean" vs "dirty" thinking                  | 80/20 rule; most meals nutritious, some for enjoyment; no forbidden foods      |
+| Undereating protein                | Cultural eating patterns; convenience foods are carb-heavy | Add a palm of protein to every meal; keep easy protein sources available       |
+| Cutting calories too aggressively  | Wanting fast results                                       | Moderate deficit (300-500 cal); slow results are sustainable results           |
+| Eliminating entire food groups     | Trendy diets; fear-based nutrition                         | Unless medically necessary, all food groups serve a purpose                    |
+| Drinking too many calories         | Smoothies, juices, coffee drinks, alcohol, soda            | Eat your calories; drink water, black coffee, tea                              |
+| Weekend undermining weekdays       | Restriction creates rebound; "reward" mindset              | Same habits 7 days a week; include foods you enjoy in your daily plan          |
+| Seeking the perfect diet           | Overwhelmed by conflicting information                     | The best diet is one you can follow consistently; start with Tier 1 principles |
+| Ignoring the social aspect of food | Treating food as purely fuel                               | Food is culture, connection, and pleasure; include these aspects               |
 
 ## Meal Planning Template
 
@@ -350,7 +351,6 @@ For deeper exploration of the source methodologies:
 
 The Nutrition Architecture gives you a flexible, sustainable framework for eating well that adapts to your goals, preferences, and lifestyle - because the best nutrition plan is one you can actually follow.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -358,7 +358,6 @@ The Nutrition Architecture gives you a flexible, sustainable framework for eatin
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -379,14 +378,12 @@ The Nutrition Architecture gives you a flexible, sustainable framework for eatin
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

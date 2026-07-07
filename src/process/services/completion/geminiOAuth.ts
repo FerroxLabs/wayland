@@ -108,8 +108,7 @@ export async function googleAuthGeminiComplete(
       },
       'wayland-oneshot'
     );
-    const text =
-      res.text ?? res.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
+    const text = res.text ?? res.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
     return text.trim();
   } finally {
     if (timer) clearTimeout(timer);

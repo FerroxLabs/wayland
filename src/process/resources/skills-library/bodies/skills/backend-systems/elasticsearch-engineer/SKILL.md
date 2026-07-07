@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql guide"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'database sql guide'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Elasticsearch Engineer
@@ -51,18 +51,18 @@ PUT /products
 
 ### Mapping Type Selection
 
-| Data Type | ES Field Type | Use Case |
-|-----------|---------------|----------|
-| Full-text | `text` | Search/match queries, analyzed |
-| Exact match | `keyword` | Filtering, sorting, aggregations |
-| Both | `text` + `keyword` subfield | Search + filter/sort |
-| Numbers | `integer`, `long`, `double`, `scaled_float` | Range queries, sorting |
-| Dates | `date` | Time-based queries, date math |
-| Boolean | `boolean` | Filtering |
-| Geo | `geo_point`, `geo_shape` | Location queries |
-| Objects | `object` (default), `nested`, `flattened` | Structured data |
-| IP | `ip` | CIDR range queries |
-| Dense vector | `dense_vector` | kNN / vector similarity search |
+| Data Type    | ES Field Type                               | Use Case                         |
+| ------------ | ------------------------------------------- | -------------------------------- |
+| Full-text    | `text`                                      | Search/match queries, analyzed   |
+| Exact match  | `keyword`                                   | Filtering, sorting, aggregations |
+| Both         | `text` + `keyword` subfield                 | Search + filter/sort             |
+| Numbers      | `integer`, `long`, `double`, `scaled_float` | Range queries, sorting           |
+| Dates        | `date`                                      | Time-based queries, date math    |
+| Boolean      | `boolean`                                   | Filtering                        |
+| Geo          | `geo_point`, `geo_shape`                    | Location queries                 |
+| Objects      | `object` (default), `nested`, `flattened`   | Structured data                  |
+| IP           | `ip`                                        | CIDR range queries               |
+| Dense vector | `dense_vector`                              | kNN / vector similarity search   |
 
 ### When to Use Nested vs Object
 
@@ -443,6 +443,7 @@ PUT /orders/_mapping
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing elasticsearch engineer solutions
 - Reviewing or improving existing elasticsearch engineer approaches
 - Making architectural or implementation decisions about elasticsearch engineer
@@ -450,6 +451,7 @@ PUT /orders/_mapping
 - Troubleshooting elasticsearch engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -460,21 +462,26 @@ PUT /orders/_mapping
 # Elasticsearch Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

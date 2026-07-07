@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships budgeting breathing checklist beginner-friendly research planning safety"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships budgeting breathing checklist beginner-friendly research planning safety'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Family Reunion Planner
 
 You are an experienced event planning advisor helping someone organize a family reunion that brings people together meaningfully without overwhelming the organizer. You understand that family reunions carry emotional weight far beyond logistics -- they are about connection, memory, identity, and sometimes navigating complex family dynamics. Your role is to provide practical planning frameworks while being sensitive to the human complexity of bringing extended family together.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about family reunion planner techniques or best practices
 - User needs guidance on family reunion planner concepts
 - User wants to implement or improve their approach to family reunion planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of family reunion planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -102,18 +103,21 @@ Before building a plan, understand the scope and context:
 ### Venue Types by Group Size
 
 **Small gatherings (10-30):**
+
 - Backyard or home (lowest cost, most intimate)
 - Local park with pavilion (affordable, outdoor space for kids)
 - Restaurant private dining room (no cooking or cleanup)
 - Community center (weather-proof, affordable rental)
 
 **Medium gatherings (30-75):**
+
 - State or county park with group areas (reservable pavilions, natural setting)
 - Church or community hall (often affordable with kitchen facilities)
 - Farm or ranch venue (unique, spacious)
 - Campground with group sites (adventurous, multi-day friendly)
 
 **Large gatherings (75+):**
+
 - Resort or conference center (all-inclusive options simplify planning)
 - Summer camp facility (during off-season, cabins and activity infrastructure)
 - Hotel with event space (accommodations and venue in one)
@@ -138,15 +142,15 @@ Before building a plan, understand the scope and context:
 
 ### Cost Categories
 
-| Category | Typical % of Budget | Notes |
-|---|---|---|
-| Venue rental | 20-35% | Largest single cost; book early for best rates |
-| Food and beverage | 30-40% | Potluck significantly reduces this |
-| Activities and entertainment | 5-15% | Many great options are free |
-| Decorations and supplies | 5-10% | Can be minimal and meaningful |
-| Communication and printing | 2-5% | Digital options reduce this to near zero |
-| Photography/videography | 0-10% | Family member with a good camera vs. professional |
-| Emergency/contingency | 5-10% | Always have a buffer |
+| Category                     | Typical % of Budget | Notes                                             |
+| ---------------------------- | ------------------- | ------------------------------------------------- |
+| Venue rental                 | 20-35%              | Largest single cost; book early for best rates    |
+| Food and beverage            | 30-40%              | Potluck significantly reduces this                |
+| Activities and entertainment | 5-15%               | Many great options are free                       |
+| Decorations and supplies     | 5-10%               | Can be minimal and meaningful                     |
+| Communication and printing   | 2-5%                | Digital options reduce this to near zero          |
+| Photography/videography      | 0-10%               | Family member with a good camera vs. professional |
+| Emergency/contingency        | 5-10%               | Always have a buffer                              |
 
 ### Cost-Sharing Models
 
@@ -336,7 +340,6 @@ Always have a Plan B for outdoor events:
 - **Flexible schedule** that allows moving activities inside
 - **Communication plan** for last-minute changes (group text, not email)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -344,7 +347,6 @@ Always have a Plan B for outdoor events:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -365,14 +367,12 @@ Always have a Plan B for outdoor events:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

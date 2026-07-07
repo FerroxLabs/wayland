@@ -38,6 +38,7 @@ Analyze AR aging, calculate Days Sales Outstanding (DSO), and generate **complia
 > ⚠️ **Stop before threatening legal action.** The federal **Fair Debt Collection Practices Act (FDCPA, 15 U.S.C. §1692)** technically governs **third-party debt collectors**, not original creditors. **However, ~15+ states extend collection-conduct rules to original creditors** via state UDAP / consumer-protection statutes - including **California (Rosenthal Fair Debt Collection Practices Act, Civ. Code §1788)**, **New York (GBL §349 + DFS rules)**, **Florida (FCCPA, Fla. Stat. §559)**, **Texas (DTPA + Tex. Fin. Code §392)**, **Massachusetts (M.G.L. c. 93 §49 + 940 CMR 7.00)**, and others.
 >
 > **The most common violations:**
+>
 > - **§1692e** - false, deceptive, or misleading representations, including:
 >   - Threatening legal action you do not intend or are not authorized to take
 >   - Misrepresenting the legal status of the debt
@@ -199,30 +200,30 @@ Payment options: [Methods + link]
 
 ## Escalation path
 
-| Age | Action |
-|---|---|
-| 0–30 days | Send invoice; no follow-up needed unless approaching due date |
-| 1–7 days past due | Friendly reminder (Template 1) |
-| 8–21 days past due | Second notice (Template 2) |
-| 22–45 days past due | Firm notice (Template 3); flag for management review; check intent for next stage |
+| Age                 | Action                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 0–30 days           | Send invoice; no follow-up needed unless approaching due date                                                |
+| 1–7 days past due   | Friendly reminder (Template 1)                                                                               |
+| 8–21 days past due  | Second notice (Template 2)                                                                                   |
+| 22–45 days past due | Firm notice (Template 3); flag for management review; check intent for next stage                            |
 | 45–90 days past due | Final / pre-action notice (Template 4) - only with intent gate Y for the actions you actually intend to take |
-| 90+ days | Evaluate bad-debt write-off + 1099-C threshold (see below); consult counsel before legal action; check SOL |
+| 90+ days            | Evaluate bad-debt write-off + 1099-C threshold (see below); consult counsel before legal action; check SOL   |
 
 ## State statute-of-limitations (SOL) - open accounts (US selected states)
 
 > ⚠️ Re-verify against current state code; SOL **resets** if debtor makes a partial payment or written acknowledgment in many states. Suing on a time-barred debt can itself be a state UDAP violation in some states.
 
-| State | Open account / written contract | Notes |
-|---|---|---|
-| CA | 4 years (written) / 2 years (oral / open) | Re-verify Code Civ. Proc. §337, §339 |
-| NY | 6 years (written / open) | CPLR §213 |
-| FL | 5 years (written) / 4 years (open) | Fla. Stat. §95.11 |
-| TX | 4 years | Tex. Civ. Prac. & Rem. Code §16.004 |
-| IL | 10 years (written) / 5 years (open) | 735 ILCS 5/13-205, 5/13-206 |
-| WA | 6 years (written) / 3 years (open) | RCW 4.16.040, .080 |
-| MA | 6 years | M.G.L. c. 260 §2 |
-| GA | 6 years (written) / 4 years (open) | O.C.G.A. §9-3-24, §9-3-25 |
-| Other | Verify | Range typically 3–10 years |
+| State | Open account / written contract           | Notes                                |
+| ----- | ----------------------------------------- | ------------------------------------ |
+| CA    | 4 years (written) / 2 years (oral / open) | Re-verify Code Civ. Proc. §337, §339 |
+| NY    | 6 years (written / open)                  | CPLR §213                            |
+| FL    | 5 years (written) / 4 years (open)        | Fla. Stat. §95.11                    |
+| TX    | 4 years                                   | Tex. Civ. Prac. & Rem. Code §16.004  |
+| IL    | 10 years (written) / 5 years (open)       | 735 ILCS 5/13-205, 5/13-206          |
+| WA    | 6 years (written) / 3 years (open)        | RCW 4.16.040, .080                   |
+| MA    | 6 years                                   | M.G.L. c. 260 §2                     |
+| GA    | 6 years (written) / 4 years (open)        | O.C.G.A. §9-3-24, §9-3-25            |
+| Other | Verify                                    | Range typically 3–10 years           |
 
 ## Bad-debt write-off and 1099-C cancellation-of-debt
 
@@ -231,6 +232,7 @@ Payment options: [Methods + link]
 > ⚠️ **Cash-basis filers cannot deduct uncollectible accounts receivable as bad debt.** Because cash-basis taxpayers never recognized the income (income is recognized only when cash is received), there is nothing to "write off" for tax purposes - the deduction is the absence of income. Only **accrual-basis** taxpayers (or businesses with inventory under §263A) can deduct uncollectible AR as a §166 business bad debt.
 
 ### Write-off workflow (accrual basis only)
+
 1. Document collection attempts (dates, methods, responses).
 2. Assess collectibility - is the debtor insolvent, has the SOL run, has the account been turned over to and returned by collections, has the customer disappeared?
 3. Write off in the year the debt becomes **wholly or partially worthless** (IRC §166).
@@ -243,6 +245,7 @@ If you are an **applicable entity** (financial institution, federal/state govern
 ## Bad debt reserve guidance (accrual)
 
 Consider reserving against receivables:
+
 - 5–10% of 61–90 day balances
 - 25–50% of 90+ day balances (depends on client history)
 - 100% of balances with clients known to be insolvent
@@ -252,6 +255,7 @@ Consider reserving against receivables:
 ## FCRA reminder
 
 If you furnish information about a consumer debt to a credit reporting agency, you become a **"furnisher"** under the **Fair Credit Reporting Act (15 U.S.C. §1681s-2)** with affirmative duties to:
+
 - Furnish accurate information.
 - Investigate and respond to disputes within 30 days.
 - Correct or delete inaccurate information.

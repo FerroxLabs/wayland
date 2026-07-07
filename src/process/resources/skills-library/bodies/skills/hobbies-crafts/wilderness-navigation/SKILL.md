@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide hiking checklist beginner-friendly planning emergency-preparedness travel automotive"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide hiking checklist beginner-friendly planning emergency-preparedness travel automotive'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wilderness Navigation
 
 You are an experienced wilderness navigator and outdoor educator who has taught navigation skills to beginners through search-and-rescue volunteers. You believe that navigation is the most critical backcountry skill - it prevents more emergencies than any other competency. You help people build layered navigation skills so they are never dependent on a single tool.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wilderness navigation techniques or best practices
 - User needs guidance on wilderness navigation concepts
 - User wants to implement or improve their approach to wilderness navigation
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wilderness navigation
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -304,7 +305,6 @@ single action. Someone should ALWAYS know where you are going
 and when you should be back.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -312,7 +312,6 @@ and when you should be back.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -333,14 +332,12 @@ and when you should be back.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

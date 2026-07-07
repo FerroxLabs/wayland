@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning template analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning template analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Lean Canvas
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to create, complete, or fill out a Lean Canvas for a specific business idea, product, or startup concept
 - The user wants a one-page business model overview and mentions terms like "one-page plan," "lean startup canvas," or "Ash Maurya's canvas"
 - The user wants to map out the core assumptions of a new business before writing a formal plan or building anything
@@ -28,6 +30,7 @@ metadata:
 - The user wants to document a pivot or a new strategic direction for an existing business in a structured format
 
 **Do NOT use this skill when:**
+
 - The user needs a detailed, multi-section business plan with executive summary, market analysis, operations plan, and projected financials (use `business-plan`)
 - The user wants to design specific validation experiments or interviews to test a hypothesis (use `idea-validation`)
 - The user needs to scope the features and acceptance criteria for a minimum viable product (use `mvp-definition`)
@@ -87,12 +90,14 @@ This is the single hardest box to write well, and most founders write it too ear
 These three boxes form the operational backbone of the canvas.
 
 **Solution:**
+
 - Map each solution element directly to a numbered problem from Box 1. If a solution element does not address a stated problem, it does not belong on the canvas
 - Keep solutions minimal -- this is the core approach or mechanic, not a feature list. "Automated invoice reconciliation using bank transaction data" is a solution. A list of 12 features is a product roadmap
 - If the solution requires a technology that does not exist yet or a partnership that has not been secured, flag this as a dependency and note the risk level
 - Distinguish between the solution (what it does) and the delivery mechanism (how it is built). The canvas needs the what, not the how
 
 **Channels:**
+
 - Separate acquisition (finding new customers) from delivery (how customers use the product). The Channels box covers acquisition and activation
 - For each channel, assess: cost per lead (paid ads: $5-50; content/SEO: $0 but 6-12 months; outbound: $50-200 in labor), conversion rate, and time to first result
 - Early-stage startups should bias toward unscalable, high-touch channels first (direct outreach, personal network, founder-led sales) -- these provide learning, not just customers
@@ -100,6 +105,7 @@ These three boxes form the operational backbone of the canvas.
 - For B2C with LTV below $100, paid acquisition is usually not viable until organic and referral loops are established and conversion rates are measured
 
 **Key Metrics:**
+
 - Use the AARRR framework (Acquisition, Activation, Retention, Referral, Revenue) as a checklist -- the canvas should capture at least one metric from Acquisition, Retention, and Revenue
 - Metrics must be measurable today, not theoretical. "Brand awareness" is not a key metric. "Weekly active users" is
 - Choose the One Metric That Matters (OMTM) for the current stage: pre-revenue startups should track activation rate; post-revenue startups should track MRR growth rate or net revenue retention
@@ -111,6 +117,7 @@ These three boxes form the operational backbone of the canvas.
 These two boxes are the reality check on whether the business can survive financially.
 
 **Revenue Streams:**
+
 - Name the pricing model explicitly: subscription (monthly/annual), usage-based (per transaction, per API call, per seat), one-time purchase, freemium with paid upgrade, commission/take rate, or hybrid
 - Include a specific price point or range -- even a rough estimate forces financial discipline. "Premium pricing" is not a revenue model
 - Calculate revenue per customer per month and multiply by target customer count at 12 months to produce a rough Year 1 revenue target -- this surfaces whether the model is worth building
@@ -118,6 +125,7 @@ These two boxes are the reality check on whether the business can survive financ
 - For marketplace/commission models: model the take rate (typically 10-30% depending on category) and note whether it is buyer-side, seller-side, or split
 
 **Cost Structure:**
+
 - Separate fixed costs (exist regardless of customer count: salaries, SaaS tools, rent, legal) from variable costs (scale with customers: hosting, payment processing at 2.5-3.5%, customer support hours, cost of goods sold)
 - For software businesses, common fixed monthly costs at early stage: $200-500 for infrastructure, $100-300 for SaaS tools, $500-2000 for part-time contractors if applicable
 - Calculate breakeven: the number of paying customers needed to cover total monthly fixed costs at the chosen price point, before factoring in variable costs
@@ -322,17 +330,21 @@ These businesses have longer lead times to market and different risk profiles th
 ---
 
 ## Lean Canvas: MenuProfit -- Restaurant Menu Intelligence SaaS
+
 **Version:** 1.0 | **Date:** [Current] | **Stage:** Idea / Pre-revenue (5 customer discovery interviews completed)
 
 ---
 
 ### Problem | Solution
+
 ---|---
+
 1. Restaurant owners cannot identify which menu items lose money after food cost, labor, and prep time are accounted for -- end-of-day POS reports show revenue, not profit per dish | 1. Automated menu profitability analysis: integrates with POS, calculates true margin per dish including food cost % and prep time
 2. Pricing decisions are made on gut feel or competitor observation rather than data -- owners have not raised prices in 12-18 months despite food cost inflation of 15-25% since 2021 | 2. Weekly pricing recommendation engine: flags underpriced high-demand items and overstocked low-margin items based on sales velocity + food cost data
 3. Menu engineering (the practice of structuring menus to guide customers toward high-margin items) is known in the industry but requires expensive consultants ($2,000-5,000 per engagement) or internal expertise most independent operators do not have | 3. Monthly menu engineering report: uses BCG-style four-quadrant analysis (Stars, Plowhorses, Puzzles, Dogs) to prioritize which items to promote, reprice, re-engineer, or remove
-| |
-**Existing Alternatives:** | **Key Metrics**
+   | |
+   **Existing Alternatives:** | **Key Metrics**
+
 - Manual spreadsheet tracking (used by ~20% of independent operators; time-consuming, rarely updated) | - New POS integrations connected per month (acquisition)
 - POS built-in reporting (shows sales volume, not profitability; lacks food cost data) | - % of users completing first profitability report within 7 days of signup (activation)
 - Restaurant consultant engagement (expensive, one-time, not ongoing) | - Monthly active users running at least one report per week (retention)
@@ -341,24 +353,28 @@ These businesses have longer lead times to market and different risk profiles th
 ---
 
 ### Unique Value Proposition
+
 **Headline:** Know exactly which dishes make you money -- and which ones are quietly killing your margins -- in 10 minutes a week.
 **Tagline:** Menu intelligence for independent restaurants. No spreadsheets. No consultants.
 
 ---
 
 ### Unfair Advantage | Channels
+
 ---|---
 **Current:** None established. | **Acquisition:**
 | - Direct outreach to independent restaurant owners via Instagram and Facebook (targeting: restaurant owner + independent business + specific metro area); estimated CPL $15-40
 **Could develop into:** | - Partnership with POS companies (Toast, Square for Restaurants) as a third-party integration in their app marketplaces -- free distribution to existing POS user bases
+
 - Proprietary benchmarking dataset: after 500+ restaurants, MenuProfit will hold industry-specific food cost benchmarks by cuisine type and market size that no new entrant can replicate quickly | - Content marketing: SEO-targeted articles on "restaurant food cost percentage," "menu engineering guide," "how to price a menu" -- high-intent search terms, 6-12 month horizon
 - POS integration depth: deep integrations with 3-5 major POS systems create switching costs once set up | - Restaurant industry associations and trade shows (NRA Show, regional operator groups)
 - Restaurant owner community trust: independent operators are a high-referral community if the product demonstrably saves money | **Activation:**
-| - Self-serve onboarding with POS OAuth connection; first profitability report generated automatically within 15 minutes of signup
+  | - Self-serve onboarding with POS OAuth connection; first profitability report generated automatically within 15 minutes of signup
 
 ---
 
 ### Customer Segments | Revenue Streams
+
 ---|---
 **Primary segment:** | **Pricing model:** Monthly SaaS subscription (annual option available at 2 months free)
 Independent restaurant owners operating 1-3 locations with annual revenue of $500K-$3M, using a cloud POS system (Toast, Square, Lightspeed, Clover) | |
@@ -374,14 +390,15 @@ Champion = Head chef who wants data to negotiate menu decisions with the owner |
 ---
 
 ### Cost Structure
-| Category | Item | Monthly Cost |
-|---|---|---|
-| Fixed | Founder salary (1 technical founder, below-market) | $5,000/month |
-| Fixed | Infrastructure / hosting (AWS, database) | $300/month |
-| Fixed | POS API access fees (per-integration licensing) | $200/month |
-| Fixed | SaaS tools (analytics, support, billing via Stripe) | $200/month |
-| Variable | Stripe payment processing | 2.9% + $0.30/transaction |
-| Variable | Customer support time (est. 30 min/customer/month at $30/hr contractor rate, scales down with documentation) | $15/customer/month |
+
+| Category | Item                                                                                                         | Monthly Cost             |
+| -------- | ------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| Fixed    | Founder salary (1 technical founder, below-market)                                                           | $5,000/month             |
+| Fixed    | Infrastructure / hosting (AWS, database)                                                                     | $300/month               |
+| Fixed    | POS API access fees (per-integration licensing)                                                              | $200/month               |
+| Fixed    | SaaS tools (analytics, support, billing via Stripe)                                                          | $200/month               |
+| Variable | Stripe payment processing                                                                                    | 2.9% + $0.30/transaction |
+| Variable | Customer support time (est. 30 min/customer/month at $30/hr contractor rate, scales down with documentation) | $15/customer/month       |
 
 **Monthly burn rate (zero revenue):** ~$5,700/month
 **Contribution margin per customer (Starter tier):** $79 revenue -- $15 variable cost -- $2.30 payment processing = ~$61.70/customer
@@ -392,10 +409,10 @@ Champion = Head chef who wants data to negotiate menu decisions with the owner |
 
 ### Canvas Assessment
 
-| Item | Detail |
-|---|---|
-| **Riskiest assumption** | Independent restaurant owners will pay $79/month for automated profitability reports when most have never tracked food costs digitally -- the behavior change required (connecting POS, inputting food costs, acting on weekly reports) may exceed what time-constrained owners will actually do, regardless of stated interest in the concept |
-| **First experiment** | Build a no-code prototype: connect a CSV export from Toast or Square to a Google Sheets template that auto-calculates margin per dish. Offer this manually as a "white-glove audit" to 10 restaurant owners for $0 or a small fee ($50-100 one-time). Measure: do they complete the food cost data input? Do they act on the recommendations? Do they say they would pay $79/month for this automatically? Target: 6 of 10 owners complete the process AND 4 of 10 express willingness to pay monthly |
-| **Second riskiest assumption** | POS integration will work reliably across the target POS platforms. Toast, Square, and Lightspeed all have different data schemas, API rate limits, and terms of service for third-party applications. Integration complexity may significantly increase development cost and time to launch |
-| **Confidence level** | **Medium-Low.** Five customer discovery interviews confirm the problem exists and owners express interest. No payment validation has occurred yet. No prototype has been tested. POS integration feasibility has not been scoped. |
-| **Next canvas review** | After completing 10 manual profitability audits (white-glove experiment) and receiving at least 3 verbal commitments to pay -- or after discovering that owners will not complete the food cost input step, which would require revisiting the Solution box fundamentally |
+| Item                           | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Riskiest assumption**        | Independent restaurant owners will pay $79/month for automated profitability reports when most have never tracked food costs digitally -- the behavior change required (connecting POS, inputting food costs, acting on weekly reports) may exceed what time-constrained owners will actually do, regardless of stated interest in the concept                                                                                                                                                        |
+| **First experiment**           | Build a no-code prototype: connect a CSV export from Toast or Square to a Google Sheets template that auto-calculates margin per dish. Offer this manually as a "white-glove audit" to 10 restaurant owners for $0 or a small fee ($50-100 one-time). Measure: do they complete the food cost data input? Do they act on the recommendations? Do they say they would pay $79/month for this automatically? Target: 6 of 10 owners complete the process AND 4 of 10 express willingness to pay monthly |
+| **Second riskiest assumption** | POS integration will work reliably across the target POS platforms. Toast, Square, and Lightspeed all have different data schemas, API rate limits, and terms of service for third-party applications. Integration complexity may significantly increase development cost and time to launch                                                                                                                                                                                                          |
+| **Confidence level**           | **Medium-Low.** Five customer discovery interviews confirm the problem exists and owners express interest. No payment validation has occurred yet. No prototype has been tested. POS integration feasibility has not been scoped.                                                                                                                                                                                                                                                                     |
+| **Next canvas review**         | After completing 10 manual profitability audits (white-glove experiment) and receiving at least 3 verbal commitments to pay -- or after discovering that owners will not complete the food cost input step, which would require revisiting the Solution box fundamentally                                                                                                                                                                                                                             |

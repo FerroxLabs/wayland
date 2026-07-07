@@ -181,18 +181,14 @@ export function extractLineMessageText(message: LineMessageContent): string {
     const sticker = message as LineStickerMessageContent;
     const packageName = STICKER_PACKAGES[sticker.packageId] ?? 'sticker';
     const keywords = sticker.keywords?.slice(0, 3).join(', ') ?? '';
-    return keywords
-      ? `[Sent a ${packageName} sticker: ${keywords}]`
-      : `[Sent a ${packageName} sticker]`;
+    return keywords ? `[Sent a ${packageName} sticker: ${keywords}]` : `[Sent a ${packageName} sticker]`;
   }
   if (message.type === 'location') {
     const loc = message as LineLocationMessageContent;
     const title = loc.title?.trim() || 'Location';
     const coords = `${loc.latitude}, ${loc.longitude}`;
     const address = loc.address?.trim();
-    return address
-      ? `📍 ${title} (${coords}) - ${address}`
-      : `📍 ${title} (${coords})`;
+    return address ? `📍 ${title} (${coords}) - ${address}` : `📍 ${title} (${coords})`;
   }
   if (message.type === 'image') return '<media:image>';
   if (message.type === 'video') return '<media:video>';
@@ -239,9 +235,7 @@ export function lineMessageEventToUnified(event: LineMessageEvent): IUnifiedInco
  * Convert a LINE PostbackEvent into IUnifiedIncomingMessage.
  * Returns null when postback data is empty.
  */
-export function linePostbackEventToUnified(
-  event: LinePostbackEvent,
-): IUnifiedIncomingMessage | null {
+export function linePostbackEventToUnified(event: LinePostbackEvent): IUnifiedIncomingMessage | null {
   const data = event.postback?.data?.trim() ?? '';
   if (!data) return null;
 

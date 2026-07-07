@@ -42,9 +42,7 @@ export class EventLogger {
       await this.repo.appendEvent(event);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.warn(
-        `[EventLogger] Failed to append ${input.eventType} event for team ${input.teamId}: ${message}`
-      );
+      console.warn(`[EventLogger] Failed to append ${input.eventType} event for team ${input.teamId}: ${message}`);
     }
   }
 }

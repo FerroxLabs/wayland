@@ -30,12 +30,12 @@ metadata:
   wayland:
     related_skills: [convert, convert-temperature, convert-open, convert-three-locks, convert-sales-page, convert-vsl]
 attribution:
-  lineage: "The Donahoe Method (Wayland-owned operating system); diagnostic posture echoes Schwartz market sophistication audit (Breakthrough Advertising, 1966) and Halbert customer-research-first canon (Boron Letters, 1984)"
+  lineage: 'The Donahoe Method (Wayland-owned operating system); diagnostic posture echoes Schwartz market sophistication audit (Breakthrough Advertising, 1966) and Halbert customer-research-first canon (Boron Letters, 1984)'
 ---
 
 # Convert Four Questions - The Donahoe Diagnostic
 
-> *"Before you write a single word of copy, you need to answer four questions - from the customer's perspective. Not your perspective. Theirs."* - The Donahoe Method
+> _"Before you write a single word of copy, you need to answer four questions - from the customer's perspective. Not your perspective. Theirs."_ - The Donahoe Method
 
 Four Questions. Four answers. Each in one sentence. From the customer's chair, not yours.
 
@@ -48,19 +48,22 @@ Trigger phrases: "run the four questions", "four questions", "donahoe diagnostic
 Run this skill **first** - before `convert-open`, before `convert-bullets`, before any page-builder. The Four Questions output becomes the brief the rest of the Method writes against.
 
 Do NOT use for:
+
 - Scoring an existing page (use `convert-audit` for Method-scored teardown)
-- Direct copy generation (this produces a *brief*, not a draft)
+- Direct copy generation (this produces a _brief_, not a draft)
 - Offer design itself (use `funnels-offer` - different pack)
 - Awareness-level classification alone (use `convert-temperature` - paired but distinct)
 
 ## Inputs
 
 Required:
-1. **Product / offer** - what's being sold? One concrete description. Not "a course on marketing" - *"an 8-week program that teaches plumbers how to run their own Google Local Service Ads, $1,997, includes done-with-you setup."*
-2. **Reader** - one specific person (the One Person Rule). Not "small business owners" - *"Mike, runs a 3-truck plumbing crew in Akron, has tried two SEO agencies and one Facebook ads guy in the last 18 months, none of it produced calls he could measure."*
+
+1. **Product / offer** - what's being sold? One concrete description. Not "a course on marketing" - _"an 8-week program that teaches plumbers how to run their own Google Local Service Ads, $1,997, includes done-with-you setup."_
+2. **Reader** - one specific person (the One Person Rule). Not "small business owners" - _"Mike, runs a 3-truck plumbing crew in Akron, has tried two SEO agencies and one Facebook ads guy in the last 18 months, none of it produced calls he could measure."_
 3. **Author / seller** - who's the "I" telling them this? Their qualification needs to be Skin-In-The-Game qualification, not credential dump.
 
 Optional:
+
 - **Asset type** - sales page / VSL / email / ad. Tunes how aggressively each answer needs to land.
 - **Existing brand voice notes** - vocabulary, signature phrases.
 - `out_path` - caller-controlled output path. Defaults via `build_report_path`.
@@ -71,54 +74,60 @@ Optional:
 
 Why should THIS person care? Not "why is this important" in the abstract - why does it matter to THEM, right now, today? What's it costing them to NOT have this? What's the specific pain, frustration, or missed opportunity that makes this relevant to their Tuesday?
 
-**Test:** if you can't answer in one sentence that would make Mike nod and say *"yeah, that's exactly my problem"* - you haven't done enough research.
+**Test:** if you can't answer in one sentence that would make Mike nod and say _"yeah, that's exactly my problem"_ - you haven't done enough research.
 
 Specifications:
+
 - One sentence
 - Names the specific cost of inaction (money / time / opportunity / sanity)
-- Tied to *their* current week, not a hypothetical pain
+- Tied to _their_ current week, not a hypothetical pain
 - Specific enough that the wrong reader self-deselects
 
 Examples:
-- ✓ *"Every week you don't have a system for landing inbound plumbing calls, you're losing roughly $4,800 in jobs to whoever's running ads against your zip code."*
-- ✗ *"Marketing is important for growing your business."* (abstract, generic, zero nerve)
-- ✗ *"You should care about leads."* (a directive, not a diagnosis)
+
+- ✓ _"Every week you don't have a system for landing inbound plumbing calls, you're losing roughly $4,800 in jobs to whoever's running ads against your zip code."_
+- ✗ _"Marketing is important for growing your business."_ (abstract, generic, zero nerve)
+- ✗ _"You should care about leads."_ (a directive, not a diagnosis)
 
 ### 2. Why Me?
 
 Why should they listen to YOU? Not your resume. Not your certifications. Why are you specifically qualified to help THEM with THIS problem?
 
-The answer is almost always: *"Because I've been where you are, I figured it out, and I have the results to prove it."*
+The answer is almost always: _"Because I've been where you are, I figured it out, and I have the results to prove it."_
 
 This isn't about being the most credentialed person in the room. It's about being the most credible. Credibility comes from experience, specificity, and the ability to describe their situation so accurately that they feel like you're reading their mind.
 
 Specifications:
+
 - One sentence
 - First-person, specific past situation that mirrors theirs
 - Concrete result attached (numbers, dates, before/after)
 - No credential dump - credentials drop in passing if they appear at all
 
 Examples:
-- ✓ *"I ran a service business for nine years before I figured out the Local Services Ads angle that took my own crew from $11k months to $38k months in under a year - and now I show other operators how to do it without the $80k of mistakes I made first."*
-- ✗ *"As a leading expert in digital marketing for service businesses..."* (credential-dump opener - fails Skin-In-The-Game)
-- ✗ *"I've helped many businesses grow."* (vague, no proof, no shared experience)
+
+- ✓ _"I ran a service business for nine years before I figured out the Local Services Ads angle that took my own crew from $11k months to $38k months in under a year - and now I show other operators how to do it without the $80k of mistakes I made first."_
+- ✗ _"As a leading expert in digital marketing for service businesses..."_ (credential-dump opener - fails Skin-In-The-Game)
+- ✗ _"I've helped many businesses grow."_ (vague, no proof, no shared experience)
 
 ### 3. Why This?
 
 Why this specific solution and not the hundred other options they've already seen? What makes this approach fundamentally different? Not "better" - different. What's the mechanism that makes this work when other things haven't?
 
-This is the hardest question to answer, and most copy fails here. *"It's better"* isn't an answer. *"It works differently because [specific mechanism]"* is.
+This is the hardest question to answer, and most copy fails here. _"It's better"_ isn't an answer. _"It works differently because [specific mechanism]"_ is.
 
 Specifications:
+
 - One sentence
-- Names the *mechanism*, not the benefit
+- Names the _mechanism_, not the benefit
 - Differentiates from at least one named alternative the reader has tried
 - Specific enough that you couldn't swap it onto a competitor's page
 
 Examples:
-- ✓ *"Unlike Facebook ads - which front-load you with $3,000 of testing before any phone rings - Google Local Service Ads charge you only when a verified-intent caller lands on your line, which is why our students see real bookings inside week one instead of week ten."*
-- ✗ *"Our system is better than the others."* (no mechanism, no differentiation)
-- ✗ *"We use a proprietary AI-powered framework."* (buzzword salad - fails the Bullshit Filter)
+
+- ✓ _"Unlike Facebook ads - which front-load you with $3,000 of testing before any phone rings - Google Local Service Ads charge you only when a verified-intent caller lands on your line, which is why our students see real bookings inside week one instead of week ten."_
+- ✗ _"Our system is better than the others."_ (no mechanism, no differentiation)
+- ✗ _"We use a proprietary AI-powered framework."_ (buzzword salad - fails the Bullshit Filter)
 
 ### 4. Why Now?
 
@@ -127,28 +136,30 @@ Why should they act today instead of bookmarking this and forgetting about it? T
 But if there IS a real reason - limited capacity, a price change, a bonus that's going away, a market window that's closing - state it plainly.
 
 Specifications:
+
 - One sentence
 - Real reason - verifiable, not invented
-- If no real urgency exists, the answer is: "the cost of *not* doing it keeps compounding" - and the copy reflects that honestly
+- If no real urgency exists, the answer is: "the cost of _not_ doing it keeps compounding" - and the copy reflects that honestly
 - No fake countdown timers, no "only 3 spots left" if it isn't true
 
 Examples:
-- ✓ *"Google opened LSA verification to plumbing trades in 14 new metros last quarter - being one of the first three verified providers in your zip code is worth roughly 10x what being the seventeenth is, and that window closes the moment the local market saturates."*
-- ✓ *"There's no fake deadline here - just the math: every month you wait costs you ~$4,800, so the real question is when you stop bleeding it."*
-- ✗ *"Limited time offer! Act now!"* (fake urgency - fails)
-- ✗ *"Don't wait!"* (no reason - fails)
+
+- ✓ _"Google opened LSA verification to plumbing trades in 14 new metros last quarter - being one of the first three verified providers in your zip code is worth roughly 10x what being the seventeenth is, and that window closes the moment the local market saturates."_
+- ✓ _"There's no fake deadline here - just the math: every month you wait costs you ~$4,800, so the real question is when you stop bleeding it."_
+- ✗ _"Limited time offer! Act now!"_ (fake urgency - fails)
+- ✗ _"Don't wait!"_ (no reason - fails)
 
 ## Workflow
 
 ### Step 1 - Lock the One Person
 
-If the user gave you a segment ("plumbers", "agency owners", "moms"), don't proceed. Re-ask once: *"Pick one. Describe Mike specifically - his city, his crew size, the last marketing thing that didn't work for him. The Method requires it."*
+If the user gave you a segment ("plumbers", "agency owners", "moms"), don't proceed. Re-ask once: _"Pick one. Describe Mike specifically - his city, his crew size, the last marketing thing that didn't work for him. The Method requires it."_
 
 The diagnostic is worthless without one specific human in the chair.
 
 ### Step 2 - Answer Why You from their chair
 
-Sit in the reader's seat. What's costing them money / time / sanity *right now*? Write the answer as if you were them describing the problem to a friend.
+Sit in the reader's seat. What's costing them money / time / sanity _right now_? Write the answer as if you were them describing the problem to a friend.
 
 Test: read the answer aloud. Would the reader nod? If they'd shrug, the answer is too generic. Sharpen it.
 
@@ -160,7 +171,7 @@ Test: does the answer describe a specific scene with numbers / dates / a concret
 
 ### Step 4 - Answer Why This with the mechanism
 
-What's the underlying *thing* that makes this approach work where others haven't? Pin the mechanism, not the marketing.
+What's the underlying _thing_ that makes this approach work where others haven't? Pin the mechanism, not the marketing.
 
 Test: could you swap the seller's name onto a competitor's page and have the answer still read true? If yes, the mechanism isn't specific enough. Find the differentiator.
 
@@ -257,7 +268,8 @@ If any of the four answers is weak, the asset built on top of it will be weak. S
 The Four Questions are part of **The Donahoe Method** (Wayland-owned operating system).
 
 Lineage references:
-- Customer-perspective-first stance - *Halbert's research-before-writing canon (Boron Letters, 1984)*
-- Why-You / Why-Me audit posture - informed by *Schwartz's market sophistication audit (Breakthrough Advertising, 1966)*
-- Why-This mechanism focus - informed by *Ogilvy's "unique selling proposition" tradition (Confessions of an Advertising Man, 1963)*
-- Why-Now honest-urgency frame - informed by *Cialdini scarcity principle, used responsibly (Influence, 1984)*
+
+- Customer-perspective-first stance - _Halbert's research-before-writing canon (Boron Letters, 1984)_
+- Why-You / Why-Me audit posture - informed by _Schwartz's market sophistication audit (Breakthrough Advertising, 1966)_
+- Why-This mechanism focus - informed by _Ogilvy's "unique selling proposition" tradition (Confessions of an Advertising Man, 1963)_
+- Why-Now honest-urgency frame - informed by _Cialdini scarcity principle, used responsibly (Influence, 1984)_

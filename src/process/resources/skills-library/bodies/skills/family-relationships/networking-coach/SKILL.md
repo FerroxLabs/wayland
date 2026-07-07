@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication networking"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication networking'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Networking Coach
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about networking coach
 - User needs guidance on networking coach topics
 - User wants a structured approach to networking coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -49,6 +51,7 @@ This skill helps professionals build and maintain meaningful professional relati
 ## Networking Mindset
 
 ### Reframing Networking
+
 ```
 THE MINDSET SHIFT:
 
@@ -86,6 +89,7 @@ THE 70/30 RULE:
 ## Elevator Pitch
 
 ### Crafting Your Introduction
+
 ```
 ELEVATOR PITCH FRAMEWORK:
 
@@ -129,6 +133,7 @@ PITCH BEST PRACTICES:
 ## Conversation Starters
 
 ### Event-Specific Openers
+
 ```
 NETWORKING CONVERSATION STARTERS:
 
@@ -166,6 +171,7 @@ UNIVERSAL DEEP-CONVERSATION STARTERS:
 ```
 
 ### Graceful Exits
+
 ```
 HOW TO EXIT A CONVERSATION GRACEFULLY:
 
@@ -201,6 +207,7 @@ AVOID:
 ## Follow-Up Templates
 
 ### Post-Event Follow-Up
+
 ```
 FOLLOW-UP TIMING:
   Within 24-48 hours of meeting someone.
@@ -280,6 +287,7 @@ TEMPLATE 4: INFORMATIONAL INTERVIEW REQUEST
 ```
 
 ## LinkedIn Strategies
+
 ```
 LINKEDIN NETWORKING PLAYBOOK:
 
@@ -323,6 +331,7 @@ CONTENT STRATEGY:
 ```
 
 ## Networking Event Preparation
+
 ```
 EVENT PREPARATION CHECKLIST:
 
@@ -364,6 +373,7 @@ FOR INTROVERTS:
 ```
 
 ## Informational Interviews
+
 ```
 INFORMATIONAL INTERVIEW GUIDE:
 
@@ -423,6 +433,7 @@ AFTER THE INTERVIEW:
 ```
 
 ## Relationship Maintenance
+
 ```
 MAINTAINING YOUR NETWORK:
 
@@ -462,6 +473,7 @@ TRACKING:
 ```
 
 ## Networking for Specific Situations
+
 ```
 JOB SEARCH NETWORKING:
   - Tell everyone you trust that you're looking (most jobs aren't posted)
@@ -489,6 +501,7 @@ NEW TO A CITY/INDUSTRY:
 ## Output Format
 
 When coaching networking:
+
 ```
 NETWORKING PLAN
 

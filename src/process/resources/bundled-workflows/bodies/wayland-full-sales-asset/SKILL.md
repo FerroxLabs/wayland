@@ -13,13 +13,13 @@ description: >-
   VSL (use wayland-vsl-build).
 license: Apache-2.0
 type: workflow
-skills: "convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter"
+skills: 'convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting sales-letter donahoe-method step-by-step
   category: marketing
-  depends: "convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter"
+  depends: 'convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter'
 ---
 
 Write a full long-form direct-response sales letter using The Donahoe Method,

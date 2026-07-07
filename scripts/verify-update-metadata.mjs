@@ -80,9 +80,28 @@ function main() {
     // gate runs once and correctness beats bandwidth.
     execFileSync(
       'gh',
-      ['release', 'download', tag, '--pattern', 'latest*.yml', '--pattern', '*.zip',
-        '--pattern', '*.dmg', '--pattern', '*.exe', '--pattern', '*.AppImage', '--pattern', '*.deb',
-        '--pattern', '*.rpm', '--dir', dir, '--clobber'],
+      [
+        'release',
+        'download',
+        tag,
+        '--pattern',
+        'latest*.yml',
+        '--pattern',
+        '*.zip',
+        '--pattern',
+        '*.dmg',
+        '--pattern',
+        '*.exe',
+        '--pattern',
+        '*.AppImage',
+        '--pattern',
+        '*.deb',
+        '--pattern',
+        '*.rpm',
+        '--dir',
+        dir,
+        '--clobber',
+      ],
       { stdio: 'inherit' }
     );
   }

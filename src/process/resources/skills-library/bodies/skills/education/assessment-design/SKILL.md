@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan curriculum step-by-step"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan curriculum step-by-step'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Assessment Design
 
 ## When to Use
@@ -29,6 +30,7 @@ Use this skill when an educator, instructional designer, or curriculum developer
 - A department or team needs a common assessment that multiple teachers will administer to compare results across classrooms
 
 **Do NOT use when:**
+
 - The user wants only a scoring rubric without the full assessment instrument -- use `rubric-creation` instead
 - The user wants strategies for checking understanding during daily instruction (exit tickets, thumb checks, classroom polls) -- use `formative-assessment` instead
 - A student is asking how to prepare for an upcoming test -- use `exam-prep-plan` instead
@@ -298,24 +300,31 @@ After scoring, tally results by objective to identify reteaching needs.
 ## Edge Cases
 
 ### Early Elementary (Grades K-2)
+
 Students in K-2 have limited decoding ability and no test-taking stamina for long written assessments. Replace multiple choice with picture-matching, circling correct responses from 2-3 options, drawing responses, or teacher-administered oral items. Limit total assessment time to 15-20 minutes maximum. Provide large font (minimum 14pt), generous white space, and item numbers with visual separators. Avoid paragraphs of instructions -- use simple sentence directions like "Circle the correct answer." Note in the teacher section which items can be read aloud and which require observation checklists rather than written responses. Consider designing a two-part assessment: individual written section plus a small-group oral section administered by the teacher.
 
 ### English Language Learners (ELL) and Multilingual Learners
+
 Distinguish between what the assessment is measuring (content knowledge) and what it is not measuring (English language proficiency). For non-ELA subjects, simplify sentence structure in stems without reducing cognitive demand of the content. Use consistent vocabulary (do not use multiple synonyms for the same term within an assessment -- pick one term and use it throughout). Allow bilingual glossaries unless the assessment is specifically measuring English vocabulary. Consider providing a Spanish, Mandarin, or home-language version if the purpose is content mastery assessment and the student's academic language in that subject is primarily in another language. Note which items are most language-dependent and flag them for accommodation decision-making.
 
 ### Performance Task Only (No Traditional Test)
+
 When the entire assessment is a performance task, the blueprint structure changes. Replace the objective-to-item table with an objective-to-task-component table, where each component of the task (planning, drafting, revision, final product, reflection) maps to specific objectives. Build in at least two checkpoints where the teacher or peers can provide feedback before the final product is scored. Provide a student-facing task brief (scenario, deliverable, constraints, and a student self-assessment checklist) and a separate teacher scoring rubric. The rubric must have at least three scored dimensions for any task worth more than 20 points. Include an observation checklist for process skills that cannot be assessed from the final product alone (e.g., scientific practice behaviors during a lab, collaborative skills during a group task).
 
 ### Diagnostic / Pre-Assessment
+
 Pre-assessments are not graded summatively. Design parameters shift: include items from prerequisite skills (prior grade or prior unit) as well as current unit targets, so teachers can identify both readiness gaps and misconceptions about new content. Remove the grading scale entirely -- replace it with a skill profile template that the teacher completes per student, showing which prerequisite skills are solid, which current-unit skills show readiness, and which show misconceptions. Keep item count lower (8-12 items typical) and Bloom's levels lower (Remember/Understand dominant) because the goal is identifying what students currently know, not measuring end-of-unit mastery. Never use pre-assessment data to assign grades.
 
 ### Standardized Test Format Practice (SAT, ACT, AP, State Tests)
+
 When the request is specifically to mirror a standardized format, research and apply the exact format specifications: question types, passage lengths, time-per-section ratios, calculator vs. no-calculator policies, and scoring conventions (e.g., SAT does not deduct for wrong answers; AP uses a specific scoring formula). Clearly label every item as "practice" and note that items are modeled on the format but are original content. Include timing guidance by section matching the actual test's pacing (e.g., for SAT Math Module 1: 35 minutes for 22 questions = approximately 1.6 minutes per item). Provide a raw-to-scaled score conversion approximation note so teachers can contextualize performance, but warn that actual score conversion depends on that year's test equating and cannot be exactly reproduced.
 
 ### Mastery Learning / Competency-Based Contexts
+
 In mastery learning systems, assessment is not a one-time event -- it is a checkpoint in a retake cycle. Design with this in mind: create two parallel-form versions of the assessment (Form A and Form B) so that students who do not demonstrate mastery on the first attempt have a fresh set of items for the retake. Flag the mastery cutoff explicitly (typically 80%). Design items so that the difficulty distribution is less steep -- you do not need the 20% challenging items if the purpose is confirming competency on a defined skill set. Include a feedback template that the teacher returns to students before the retake, specifying which objectives were and were not mastered so students know what to review.
 
 ### Cross-Curricular or Interdisciplinary Assessments
+
 When an assessment spans two or more subject areas (a science-literacy assessment, a math-social studies data project), map each item to its primary discipline's standards. Ensure the assessment does not double-penalize students for weakness in one subject when assessing the other -- a student who understands the science content thoroughly should not fail because of writing mechanics, and vice versa. Score dimensions for each discipline separately. In the blueprint, include two sets of objective columns -- one per discipline -- and track mastery data separately by subject area. Communicate clearly to students and parents which dimensions count toward which subject grade.
 
 ---
@@ -340,31 +349,32 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 ### Assessment Blueprint
 
-| Learning Objective | Standard | Bloom's Level | Item Numbers | Points | % of Exam |
-|-------------------|----------|--------------|--------------|--------|-----------|
-| Explain how dominant and recessive alleles determine phenotype; predict monohybrid cross outcomes | HS-LS3-3 | Understand / Apply | 1-4, 11-13 | 19 | 32% |
-| Set up and interpret dihybrid crosses using Punnett squares; predict phenotypic ratios | HS-LS3-3 | Apply / Analyze | 5-7, 14-15 | 17 | 28% |
-| Distinguish incomplete dominance and codominance from complete dominance; predict blended and both-expressed phenotypes | HS-LS3-3 | Understand / Apply | 8-10, 16 | 12 | 20% |
-| Analyze pedigree or cross data to determine inheritance patterns and parental genotypes | HS-LS3-3 | Analyze / Evaluate | 17, 18 | 12 | 20% |
-| **TOTALS** | | | 25 items | 60 pts | 100% |
+| Learning Objective                                                                                                      | Standard | Bloom's Level      | Item Numbers | Points | % of Exam |
+| ----------------------------------------------------------------------------------------------------------------------- | -------- | ------------------ | ------------ | ------ | --------- |
+| Explain how dominant and recessive alleles determine phenotype; predict monohybrid cross outcomes                       | HS-LS3-3 | Understand / Apply | 1-4, 11-13   | 19     | 32%       |
+| Set up and interpret dihybrid crosses using Punnett squares; predict phenotypic ratios                                  | HS-LS3-3 | Apply / Analyze    | 5-7, 14-15   | 17     | 28%       |
+| Distinguish incomplete dominance and codominance from complete dominance; predict blended and both-expressed phenotypes | HS-LS3-3 | Understand / Apply | 8-10, 16     | 12     | 20%       |
+| Analyze pedigree or cross data to determine inheritance patterns and parental genotypes                                 | HS-LS3-3 | Analyze / Evaluate | 17, 18       | 12     | 20%       |
+| **TOTALS**                                                                                                              |          |                    | 25 items     | 60 pts | 100%      |
 
 ### Bloom's Taxonomy Distribution
 
-| Level | Item Count | Points | % of Total |
-|-------|------------|--------|------------|
-| Remember / Understand | 6 | 12 | 20% |
-| Apply / Analyze | 15 | 33 | 55% |
-| Evaluate / Create | 4 | 15 | 25% |
+| Level                 | Item Count | Points | % of Total |
+| --------------------- | ---------- | ------ | ---------- |
+| Remember / Understand | 6          | 12     | 20%        |
+| Apply / Analyze       | 15         | 33     | 55%        |
+| Evaluate / Create     | 4          | 15     | 25%        |
 
 ### Difficulty Distribution
 
-| Difficulty | Item Count | % of Items |
-|------------|------------|------------|
-| Accessible | 6 | 24% |
-| Moderate | 13 | 52% |
-| Challenging | 6 | 24% |
+| Difficulty  | Item Count | % of Items |
+| ----------- | ---------- | ---------- |
+| Accessible  | 6          | 24%        |
+| Moderate    | 13         | 52%        |
+| Challenging | 6          | 24%        |
 
 ### Estimated Completion Time Check
+
 - Section 1: 10 MC × 1.5 min = 15 min
 - Section 2: 6 MC × 1.5 min = 9 min
 - Section 3: 4 SA × 8 min = 32 min... **Flag:** Total = 56 min, over budget.
@@ -374,7 +384,7 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 ### [STUDENT-FACING SECTION]
 
-**Name:** _________________________ **Date:** _____________ **Period:** _______
+**Name:** ************\_************ **Date:** ******\_****** **Period:** **\_\_\_**
 
 # Mendelian Genetics -- Unit Exam
 
@@ -390,73 +400,73 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 **1.** In pea plants, tallness (T) is dominant over dwarfism (t). A homozygous tall plant is crossed with a homozygous dwarf plant. What is the expected phenotypic ratio of the offspring?
 
-   A) 1 tall : 1 dwarf
-   B) 3 tall : 1 dwarf
-   C) All tall
-   D) All dwarf
+A) 1 tall : 1 dwarf
+B) 3 tall : 1 dwarf
+C) All tall
+D) All dwarf
 
 **2.** A plant with the genotype Tt is crossed with a plant of genotype tt. What fraction of the offspring will be dwarf?
 
-   A) 0
-   B) 1/4
-   C) 1/2
-   D) 3/4
+A) 0
+B) 1/4
+C) 1/2
+D) 3/4
 
 **3.** Two organisms that are both heterozygous for a trait (Bb × Bb) are crossed. Which of the following correctly describes the expected offspring?
 
-   A) 1/4 BB, 1/2 Bb, 1/4 bb -- phenotypically 3 dominant : 1 recessive
-   B) 1/2 BB, 1/2 bb -- phenotypically 1 dominant : 1 recessive
-   C) All Bb -- phenotypically all dominant
-   D) 1/4 BB, 1/4 Bb, 1/2 bb -- phenotypically 1 dominant : 1 recessive
+A) 1/4 BB, 1/2 Bb, 1/4 bb -- phenotypically 3 dominant : 1 recessive
+B) 1/2 BB, 1/2 bb -- phenotypically 1 dominant : 1 recessive
+C) All Bb -- phenotypically all dominant
+D) 1/4 BB, 1/4 Bb, 1/2 bb -- phenotypically 1 dominant : 1 recessive
 
 **4.** An organism that is homozygous recessive for a gene will:
 
-   A) Always pass the dominant allele to its offspring
-   B) Display the dominant phenotype
-   C) Always pass the recessive allele to its offspring
-   D) Show an intermediate phenotype between dominant and recessive
+A) Always pass the dominant allele to its offspring
+B) Display the dominant phenotype
+C) Always pass the recessive allele to its offspring
+D) Show an intermediate phenotype between dominant and recessive
 
 **5.** A black guinea pig (BB) is crossed with a white guinea pig (bb), where black (B) is completely dominant. What percentage of offspring are expected to be white?
 
-   A) 0%
-   B) 25%
-   C) 50%
-   D) 75%
+A) 0%
+B) 25%
+C) 50%
+D) 75%
 
 **6.** In humans, widow's peak (W) is dominant over a straight hairline (w). A woman with a straight hairline has children with a man who has a widow's peak. Some of their children have straight hairlines. What is the father's genotype?
 
-   A) WW
-   B) Ww
-   C) ww
-   D) Cannot be determined from the information given
+A) WW
+B) Ww
+C) ww
+D) Cannot be determined from the information given
 
 **7.** Which of the following genotypes would produce the same phenotype as genotype TT?
 
-   A) tt
-   B) Tt
-   C) Both Tt and tt
-   D) Neither Tt nor tt
+A) tt
+B) Tt
+C) Both Tt and tt
+D) Neither Tt nor tt
 
 **8.** In a monohybrid cross between two heterozygous individuals (Aa × Aa), what is the probability that a specific offspring will be homozygous dominant (AA)?
 
-   A) 75%
-   B) 50%
-   C) 25%
-   D) 0%
+A) 75%
+B) 50%
+C) 25%
+D) 0%
 
 **9.** A recessive allele for a trait will be expressed in the phenotype only when:
 
-   A) At least one dominant allele is also present
-   B) The organism inherits the recessive allele from both parents
-   C) The organism is heterozygous
-   D) The dominant allele is absent from the population
+A) At least one dominant allele is also present
+B) The organism inherits the recessive allele from both parents
+C) The organism is heterozygous
+D) The dominant allele is absent from the population
 
 **10.** Which cross would produce offspring with the highest probability of displaying the recessive phenotype?
 
-   A) AA × aa
-   B) AA × Aa
-   C) Aa × Aa
-   D) Aa × aa
+A) AA × aa
+B) AA × Aa
+C) Aa × Aa
+D) Aa × aa
 
 ---
 
@@ -466,45 +476,45 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 **11.** In peas, round seed shape (R) is dominant over wrinkled (r), and yellow color (Y) is dominant over green (y). Two plants that are both RrYy are crossed. What is the expected phenotypic ratio of offspring?
 
-   A) 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green
-   B) 1 : 1 : 1 : 1 for all four phenotypes
-   C) 3 round yellow : 1 wrinkled green
-   D) All round yellow
+A) 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green
+B) 1 : 1 : 1 : 1 for all four phenotypes
+C) 3 round yellow : 1 wrinkled green
+D) All round yellow
 
 **12.** A plant that is RrYy produces gametes through meiosis. How many different types of gametes (allele combinations) can this plant produce?
 
-   A) 2
-   B) 4
-   C) 8
-   D) 16
+A) 2
+B) 4
+C) 8
+D) 16
 
 **13.** In a dihybrid cross (RrYy × RrYy), what fraction of offspring would be expected to be homozygous recessive for both traits (rryy)?
 
-   A) 1/4
-   B) 1/16
-   C) 1/9
-   D) 1/2
+A) 1/4
+B) 1/16
+C) 1/9
+D) 1/2
 
 **14.** In snapdragons, flower color shows incomplete dominance. A red flower plant (CR CR) is crossed with a white flower plant (CW CW). What color will all F1 offspring be?
 
-   A) Red, because red is dominant
-   B) White, because white is dominant
-   C) Pink, because neither allele is fully dominant
-   D) Half red and half white, in a 1:1 ratio
+A) Red, because red is dominant
+B) White, because white is dominant
+C) Pink, because neither allele is fully dominant
+D) Half red and half white, in a 1:1 ratio
 
 **15.** Two pink snapdragons from the F1 generation in Item 14 are crossed. What is the expected phenotypic ratio of their offspring?
 
-   A) All pink
-   B) 3 red : 1 white
-   C) 1 red : 2 pink : 1 white
-   D) 1 red : 1 white
+A) All pink
+B) 3 red : 1 white
+C) 1 red : 2 pink : 1 white
+D) 1 red : 1 white
 
 **16.** Human ABO blood type is an example of codominance and multiple alleles. A person with blood type AB has genotype IA IB. Which of the following best explains why this person expresses both A and B antigens?
 
-   A) The IA allele is dominant over the IB allele, so both are expressed unequally
-   B) Both the IA and IB alleles are fully expressed simultaneously, producing both A and B antigens on red blood cells
-   C) Neither allele is dominant, so an intermediate antigen is produced
-   D) The IA allele suppresses the IB allele in half of the red blood cells
+A) The IA allele is dominant over the IB allele, so both are expressed unequally
+B) Both the IA and IB alleles are fully expressed simultaneously, producing both A and B antigens on red blood cells
+C) Neither allele is dominant, so an intermediate antigen is produced
+D) The IA allele suppresses the IB allele in half of the red blood cells
 
 ---
 
@@ -512,74 +522,75 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 **Directions:** Answer each question in the space provided. Show your reasoning. Partial credit will be awarded for correct steps even if the final answer contains an error.
 
-**17.** (3 points) A cross between two pea plants with round seeds produces 78 round-seeded offspring and 26 wrinkled-seeded offspring. 
-   
-   a) What is the approximate phenotypic ratio observed? _______________
-   
-   b) Based on this ratio, what were the likely genotypes of the parent plants?
-   
-   Parent 1 genotype: ________ Parent 2 genotype: ________
-   
-   c) Explain in one sentence how Mendel's Law of Segregation accounts for this result.
-   
-   ___________________________________________________________________________
+**17.** (3 points) A cross between two pea plants with round seeds produces 78 round-seeded offspring and 26 wrinkled-seeded offspring.
+
+a) What is the approximate phenotypic ratio observed? ******\_\_\_******
+
+b) Based on this ratio, what were the likely genotypes of the parent plants?
+
+Parent 1 genotype: **\_\_\_\_** Parent 2 genotype: **\_\_\_\_**
+
+c) Explain in one sentence how Mendel's Law of Segregation accounts for this result.
+
+---
 
 **18.** (4 points) In cattle, red coat (CR) and white coat (CW) show codominance, producing roan (mixed red and white) coat in heterozygotes.
-   
-   A roan bull is crossed with a roan cow.
-   
-   a) Write the genotypes of both parents.
-   
-   Parent 1: __________ Parent 2: __________
-   
-   b) Complete the Punnett square for this cross.
-   
-   |  | CW | CW |
-   |--|----|-----|
-   | CR | | |
-   | CR | | |
-   
-   Wait -- complete with the correct parent alleles:
-   
-   |  | CR | CW |
-   |--|----|-----|
-   | CR |  |  |
-   | CW |  |  |
-   
-   c) What percentage of offspring are expected to be red? ________ White? ________ Roan? ________
-   
-   d) If this couple has 40 calves over several years, how many would you predict to be roan? Show your calculation.
+
+A roan bull is crossed with a roan cow.
+
+a) Write the genotypes of both parents.
+
+Parent 1: ****\_\_**** Parent 2: ****\_\_****
+
+b) Complete the Punnett square for this cross.
+
+|     | CW  | CW  |
+| --- | --- | --- |
+| CR  |     |     |
+| CR  |     |     |
+
+Wait -- complete with the correct parent alleles:
+
+|     | CR  | CW  |
+| --- | --- | --- |
+| CR  |     |     |
+| CW  |     |     |
+
+c) What percentage of offspring are expected to be red? **\_\_\_\_** White? **\_\_\_\_** Roan? **\_\_\_\_**
+
+d) If this couple has 40 calves over several years, how many would you predict to be roan? Show your calculation.
 
 **19.** (5 points) A geneticist is studying fur color in rabbits. Black (B) is dominant over brown (b). Examine the following cross data:
 
-   **Cross 1:** Black rabbit × brown rabbit → 31 black offspring, 0 brown offspring
-   
-   **Cross 2:** Black rabbit (same black parent as Cross 1) × another black rabbit → 18 black offspring, 6 brown offspring
-   
-   a) Based on Cross 1 results, what is the genotype of the black parent rabbit? Explain your reasoning.
-   
-   ___________________________________________________________________________
-   
-   b) Based on Cross 2 results, what is the genotype of the other black parent in Cross 2? Explain.
-   
-   ___________________________________________________________________________
-   
-   c) A student claims that because Cross 2 does not produce a perfect 3:1 ratio, Mendel's laws must be incorrect. Evaluate this claim. Is it valid? Why or why not? Use the concept of probability and sample size in your response. (2 points for this sub-item)
-   
-   ___________________________________________________________________________
-   ___________________________________________________________________________
+**Cross 1:** Black rabbit × brown rabbit → 31 black offspring, 0 brown offspring
+
+**Cross 2:** Black rabbit (same black parent as Cross 1) × another black rabbit → 18 black offspring, 6 brown offspring
+
+a) Based on Cross 1 results, what is the genotype of the black parent rabbit? Explain your reasoning.
+
+---
+
+b) Based on Cross 2 results, what is the genotype of the other black parent in Cross 2? Explain.
+
+---
+
+c) A student claims that because Cross 2 does not produce a perfect 3:1 ratio, Mendel's laws must be incorrect. Evaluate this claim. Is it valid? Why or why not? Use the concept of probability and sample size in your response. (2 points for this sub-item)
+
+---
+
+---
 
 **20.** (4 points) In garden peas, seed shape (round R or wrinkled r) and seed color (yellow Y or green y) independently assort. A plant with genotype RrYy is crossed with a plant with genotype rrYy.
-   
-   a) List all possible gamete types produced by each parent.
-   
-   RrYy gametes: ______________________
-   
-   rrYy gametes: ______________________
-   
-   b) Without drawing the full 8 × 4 Punnett square, predict the probability that an offspring will be wrinkled and green (rryy). Show your reasoning using the probability multiplication rule.
-   
-   P(rr) × P(yy) = ________ × ________ = ________
+
+a) List all possible gamete types produced by each parent.
+
+RrYy gametes: **********\_\_**********
+
+rrYy gametes: **********\_\_**********
+
+b) Without drawing the full 8 × 4 Punnett square, predict the probability that an offspring will be wrinkled and green (rryy). Show your reasoning using the probability multiplication rule.
+
+P(rr) × P(yy) = **\_\_\_\_** × **\_\_\_\_** = **\_\_\_\_**
 
 ---
 
@@ -587,40 +598,43 @@ When an assessment spans two or more subject areas (a science-literacy assessmen
 
 ### Answer Key and Scoring Guide
 
-| Item | Correct | Points | Objective | Bloom's | Distractor / Error Analysis |
-|------|---------|--------|-----------|---------|----------------------------|
-| 1 | C | 2 | Monohybrid / complete dominance | Understand | A: confuses F1 with testcross; B: confuses F1 with F2; D: confuses parent genotype with offspring |
-| 2 | C | 2 | Monohybrid / testcross | Apply | A: misidentifies Tt as unable to produce recessive offspring; B: confuses 1/4 from Aa × Aa with Tt × tt; D: inverts ratio |
-| 3 | A | 2 | Monohybrid Bb × Bb | Apply | B: confuses Bb × Bb with Bb × bb; C: applies incomplete dominance logic; D: inverts frequencies |
-| 4 | C | 2 | Allele transmission / homozygous | Understand | A: inverts -- hom rec never passes dominant; B: confuses hom rec with hom dom; D: applies incomplete dominance logic |
-| 5 | A | 2 | BB × bb F1 | Apply | B: applies Aa × Aa ratio to BB × bb; C: confuses with testcross; D: inverts frequency |
-| 6 | B | 2 | Phenotype/genotype inference | Analyze | A: WW father cannot produce ww offspring; C: ww would show straight hairline; D: the cross data does provide enough info |
-| 7 | B | 2 | Dominant allele expression | Understand | A: would show recessive; C: only Tt, not tt; D: Tt does show same phenotype as TT |
-| 8 | C | 2 | Monohybrid Aa × Aa | Apply | A: confuses probability of dominant phenotype (75%) with AA genotype; B: confuses with 1/2; D: misunderstands genetics |
-| 9 | B | 2 | Recessive expression | Understand | A: inverts; C: heterozygous would show dominant; D: confuses population genetics with individual genotype |
-| 10 | D | 2 | Cross outcome comparison | Analyze | A: all Aa (dominant); B: all AA or Aa (dominant); C: 1/4 recessive; D: 1/2 recessive -- highest |
-| 11 | A | 3 | Dihybrid 9:3:3:1 | Apply | B: confuses with dihybrid testcross; C: confuses with monohybrid cross; D: misapplies dominance |
-| 12 | B | 3 | Gamete formation RrYy | Apply | A: confuses with single-locus heterozygote; C: confuses with three loci; D: confuses with number of allele combinations in offspring |
-| 13 | B | 3 | Dihybrid frequency rryy | Apply | A: confuses with single-locus recessive frequency; C: student invents ratio; D: applies single-locus logic |
-| 14 | C | 3 | Incomplete dominance F1 | Understand | A/B: applies complete dominance logic; D: applies codominance logic |
-| 15 | C | 3 | Incomplete dominance F2 | Apply | A: all pink is the F1 result; B: confuses with complete dominance 3:1; D: confuses with F1 × recessive cross |
-| 16 | B | 3 | Codominance mechanism | Understand | A: IA is not dominant over IB; C: describes incomplete dominance; D: codominance means both expressed in all cells |
+| Item | Correct | Points | Objective                        | Bloom's    | Distractor / Error Analysis                                                                                                          |
+| ---- | ------- | ------ | -------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | C       | 2      | Monohybrid / complete dominance  | Understand | A: confuses F1 with testcross; B: confuses F1 with F2; D: confuses parent genotype with offspring                                    |
+| 2    | C       | 2      | Monohybrid / testcross           | Apply      | A: misidentifies Tt as unable to produce recessive offspring; B: confuses 1/4 from Aa × Aa with Tt × tt; D: inverts ratio            |
+| 3    | A       | 2      | Monohybrid Bb × Bb               | Apply      | B: confuses Bb × Bb with Bb × bb; C: applies incomplete dominance logic; D: inverts frequencies                                      |
+| 4    | C       | 2      | Allele transmission / homozygous | Understand | A: inverts -- hom rec never passes dominant; B: confuses hom rec with hom dom; D: applies incomplete dominance logic                 |
+| 5    | A       | 2      | BB × bb F1                       | Apply      | B: applies Aa × Aa ratio to BB × bb; C: confuses with testcross; D: inverts frequency                                                |
+| 6    | B       | 2      | Phenotype/genotype inference     | Analyze    | A: WW father cannot produce ww offspring; C: ww would show straight hairline; D: the cross data does provide enough info             |
+| 7    | B       | 2      | Dominant allele expression       | Understand | A: would show recessive; C: only Tt, not tt; D: Tt does show same phenotype as TT                                                    |
+| 8    | C       | 2      | Monohybrid Aa × Aa               | Apply      | A: confuses probability of dominant phenotype (75%) with AA genotype; B: confuses with 1/2; D: misunderstands genetics               |
+| 9    | B       | 2      | Recessive expression             | Understand | A: inverts; C: heterozygous would show dominant; D: confuses population genetics with individual genotype                            |
+| 10   | D       | 2      | Cross outcome comparison         | Analyze    | A: all Aa (dominant); B: all AA or Aa (dominant); C: 1/4 recessive; D: 1/2 recessive -- highest                                      |
+| 11   | A       | 3      | Dihybrid 9:3:3:1                 | Apply      | B: confuses with dihybrid testcross; C: confuses with monohybrid cross; D: misapplies dominance                                      |
+| 12   | B       | 3      | Gamete formation RrYy            | Apply      | A: confuses with single-locus heterozygote; C: confuses with three loci; D: confuses with number of allele combinations in offspring |
+| 13   | B       | 3      | Dihybrid frequency rryy          | Apply      | A: confuses with single-locus recessive frequency; C: student invents ratio; D: applies single-locus logic                           |
+| 14   | C       | 3      | Incomplete dominance F1          | Understand | A/B: applies complete dominance logic; D: applies codominance logic                                                                  |
+| 15   | C       | 3      | Incomplete dominance F2          | Apply      | A: all pink is the F1 result; B: confuses with complete dominance 3:1; D: confuses with F1 × recessive cross                         |
+| 16   | B       | 3      | Codominance mechanism            | Understand | A: IA is not dominant over IB; C: describes incomplete dominance; D: codominance means both expressed in all cells                   |
 
 ### Extended Response Scoring Guides
 
 **Item 17 (3 points total)**
+
 - 1 pt: States approximately 3:1 ratio (acceptable range: 2.8:1 to 3.2:1 given sample variation)
 - 1 pt: Correctly identifies parent genotypes as Rr × Rr
 - 1 pt: Explanation correctly references that each parent carries one R and one r allele and they segregate during gamete formation, so offspring inherit one allele from each parent independently
 
 **Item 18 (4 points total)**
+
 - 0.5 pt each: Correctly writes CR CW for both parents (1 pt total)
 - 1 pt: Correctly completes Punnett square with CR CR, CR CW, CR CW, CW CW in the four cells
 - 1 pt: Correctly states 25% red (CR CR), 25% white (CW CW), 50% roan (CR CW)
 - 1 pt: Calculation: 0.50 × 40 = 20 roan calves. Accept responses showing proportion × total with correct arithmetic.
 
 **Item 19 (5 points total)**
+
 - 1 pt: Cross 1 conclusion: black parent is homozygous dominant (BB) -- because all offspring are black, no recessive allele expressed
 - 1 pt: Reasoning: if parent were Bb, approximately 50% of offspring from Bb × bb would be brown; 0 brown offspring is consistent with BB × bb
 - 1 pt: Cross 2 conclusion: second black parent is Bb (heterozygous)
-- 1 pt: Reasoning: appearance of brown offspring (bb) means both parents must carry a b allele; first parent is BB confirmed by Cross 1 -- wait, Cross 2 shows browns, meaning the first parent must have contributed b. Correct answer: Cross 1 result (all black offspring from testcross) is consistent with BB; Cross 2 showing ~3:1 suggests both parents are Bb -- **Correction note for teacher:** The cross design here means Cross 1 confirms BB for the same black parent only if the brown parent is bb. But Cross 2 
+- 1 pt: Reasoning: appearance of brown offspring (bb) means both parents must carry a b allele; first parent is BB confirmed by Cross 1 -- wait, Cross 2 shows browns, meaning the first parent must have contributed b. Correct answer: Cross 1 result (all black offspring from testcross) is consistent with BB; Cross 2 showing ~3:1 suggests both parents are Bb -- **Correction note for teacher:** The cross design here means Cross 1 confirms BB for the same black parent only if the brown parent is bb. But Cross 2

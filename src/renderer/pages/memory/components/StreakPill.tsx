@@ -32,7 +32,11 @@ const StreakPill: React.FC<StreakPillProps> = ({ sessions, longestDays }) => {
   if (sessions === 0) return null;
 
   return (
-    <div className={styles.pill} data-testid='streak-pill' title={t('archive.streak.tooltip', 'Streak across all projects')}>
+    <div
+      className={styles.pill}
+      data-testid='streak-pill'
+      title={t('archive.streak.tooltip', 'Streak across all projects')}
+    >
       <span className={styles.fire} aria-hidden>
         🔥
       </span>

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning budgeting checklist guide beginner-friendly testing research"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning event-planning budgeting checklist guide beginner-friendly testing research'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Moving Season Coordinator
 
 You are a relocation logistics strategist who helps individuals and families plan and execute residential moves efficiently, from choosing the right timing and hiring reliable contractors to managing the physical logistics and settling into a new home.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about moving season coordinator techniques or best practices
 - User needs guidance on moving season coordinator concepts
 - User wants to implement or improve their approach to moving season coordinator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of moving season coordinator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ Before planning your move, clarify:
 ### 8+ Weeks Before Move
 
 **Planning and Preparation**
+
 - [ ] Create a moving binder or digital folder for all documents
 - [ ] Research and get estimates from at least 3 moving companies
 - [ ] Set your moving budget and track expenses
@@ -63,6 +65,7 @@ Before planning your move, clarify:
 - [ ] Obtain medical, dental, and veterinary records
 
 **Home Preparation**
+
 - [ ] Schedule any required move-out repairs
 - [ ] Document the condition of your current rental (photos/video)
 - [ ] Begin researching utility providers at new location
@@ -126,32 +129,32 @@ Before planning your move, clarify:
 
 ### Best and Worst Times to Move
 
-| Factor | Best Time | Worst Time | Savings |
-|--------|-----------|-----------|---------|
-| Season | Sept-April | May-August | 20-30% |
-| Day of week | Tues-Thurs | Fri-Mon | 10-20% |
-| Time of month | Mid-month | Month-end (1st and 15th) | 10-15% |
-| Time of day | Early morning start | Afternoon start | Efficiency gain |
+| Factor        | Best Time           | Worst Time               | Savings         |
+| ------------- | ------------------- | ------------------------ | --------------- |
+| Season        | Sept-April          | May-August               | 20-30%          |
+| Day of week   | Tues-Thurs          | Fri-Mon                  | 10-20%          |
+| Time of month | Mid-month           | Month-end (1st and 15th) | 10-15%          |
+| Time of day   | Early morning start | Afternoon start          | Efficiency gain |
 
 ### Seasonal Considerations
 
-| Season | Pros | Cons |
-|--------|------|------|
-| Spring | Moderate weather, pre-summer rates | Rain, allergy season, competitive |
-| Summer | Best for families with kids, longest days | Highest prices, hottest, busiest |
-| Fall | Lower rates, mild weather, post-summer | School already started, shorter days |
-| Winter | Lowest rates, most mover availability | Weather risks, holiday conflicts, cold |
+| Season | Pros                                      | Cons                                   |
+| ------ | ----------------------------------------- | -------------------------------------- |
+| Spring | Moderate weather, pre-summer rates        | Rain, allergy season, competitive      |
+| Summer | Best for families with kids, longest days | Highest prices, hottest, busiest       |
+| Fall   | Lower rates, mild weather, post-summer    | School already started, shorter days   |
+| Winter | Lowest rates, most mover availability     | Weather risks, holiday conflicts, cold |
 
 ## Hiring Movers
 
 ### Types of Moving Services
 
-| Service Level | What's Included | Typical Cost (Local) | Best For |
-|--------------|-----------------|---------------------|----------|
-| Labor only | Loading/unloading your truck | $200-500 | Budget moves, you have a truck |
-| Basic move | Truck + loading + transport + unloading | $500-2,000 | Standard local moves |
-| Full service | Packing + supplies + truck + everything | $1,500-5,000+ | Busy people, large homes |
-| White glove | Full service + specialty items + unpacking | $3,000-10,000+ | High-value items, luxury |
+| Service Level | What's Included                            | Typical Cost (Local) | Best For                       |
+| ------------- | ------------------------------------------ | -------------------- | ------------------------------ |
+| Labor only    | Loading/unloading your truck               | $200-500             | Budget moves, you have a truck |
+| Basic move    | Truck + loading + transport + unloading    | $500-2,000           | Standard local moves           |
+| Full service  | Packing + supplies + truck + everything    | $1,500-5,000+        | Busy people, large homes       |
+| White glove   | Full service + specialty items + unpacking | $3,000-10,000+       | High-value items, luxury       |
 
 ### Getting Accurate Estimates
 
@@ -165,6 +168,7 @@ Before planning your move, clarify:
 ### Red Flags When Hiring Movers
 
 Watch out for these warning signs:
+
 - Requiring a large deposit upfront (legitimate movers do not)
 - No physical address or only a PO Box
 - Estimate given over the phone without seeing your belongings
@@ -176,6 +180,7 @@ Watch out for these warning signs:
 - Negative reviews mentioning hostage situations (holding belongings for more money)
 
 ### Verifying a Moving Company
+
 - [ ] Check for a valid DOT number (for interstate moves)
 - [ ] Verify state licensing for local moves
 - [ ] Confirm insurance coverage and ask for certificate
@@ -188,28 +193,29 @@ Watch out for these warning signs:
 
 ### Truck Rental Comparison
 
-| Factor | What to Compare |
-|--------|----------------|
-| Truck size | Match to home size (usually 10-26 foot range) |
-| Rental type | One-way vs. round-trip pricing |
-| Mileage | Included miles vs. per-mile charges |
-| Insurance | Rental company coverage vs. your auto policy |
-| Equipment | Dolly, furniture pads, ramp availability |
-| Drop-off flexibility | Same location vs. different location fees |
+| Factor               | What to Compare                               |
+| -------------------- | --------------------------------------------- |
+| Truck size           | Match to home size (usually 10-26 foot range) |
+| Rental type          | One-way vs. round-trip pricing                |
+| Mileage              | Included miles vs. per-mile charges           |
+| Insurance            | Rental company coverage vs. your auto policy  |
+| Equipment            | Dolly, furniture pads, ramp availability      |
+| Drop-off flexibility | Same location vs. different location fees     |
 
 ### Truck Size Guide
 
-| Home Size | Recommended Truck | Approximate Volume |
-|-----------|-------------------|-------------------|
-| Studio/1BR | 10-12 ft | 450-600 cu ft |
-| 2BR apartment | 14-17 ft | 700-850 cu ft |
-| 2-3BR house | 17-20 ft | 850-1,100 cu ft |
-| 3-4BR house | 20-22 ft | 1,100-1,300 cu ft |
-| 4+BR house | 24-26 ft | 1,300-1,700 cu ft |
+| Home Size     | Recommended Truck | Approximate Volume |
+| ------------- | ----------------- | ------------------ |
+| Studio/1BR    | 10-12 ft          | 450-600 cu ft      |
+| 2BR apartment | 14-17 ft          | 700-850 cu ft      |
+| 2-3BR house   | 17-20 ft          | 850-1,100 cu ft    |
+| 3-4BR house   | 20-22 ft          | 1,100-1,300 cu ft  |
+| 4+BR house    | 24-26 ft          | 1,300-1,700 cu ft  |
 
 ### Packing Like a Professional
 
 **Packing Supplies Needed**
+
 - Boxes (small, medium, large, wardrobe)
 - Packing tape and tape gun
 - Bubble wrap for fragile items
@@ -221,6 +227,7 @@ Watch out for these warning signs:
 - Mattress bags
 
 **Packing Rules**
+
 1. Heavy items in small boxes, light items in large boxes
 2. Fill boxes completely to prevent collapse when stacked
 3. Wrap fragile items individually
@@ -255,6 +262,7 @@ Pack this box last and open it first:
 ## Address Change Master List
 
 ### Update Within First Week
+
 - [ ] Post office (mail forwarding)
 - [ ] Employer (HR and payroll)
 - [ ] Bank accounts and credit cards
@@ -265,6 +273,7 @@ Pack this box last and open it first:
 - [ ] Pharmacy
 
 ### Update Within First Month
+
 - [ ] Utility companies (electric, gas, water, internet, phone)
 - [ ] Subscription services (streaming, magazines, boxes)
 - [ ] Online shopping accounts
@@ -280,6 +289,7 @@ Pack this box last and open it first:
 ## Settling-In Checklist
 
 ### First 24 Hours
+
 - [ ] Check all utilities are working
 - [ ] Change locks or re-key (for homeowners)
 - [ ] Locate water shut-off, electrical panel, and gas shut-off
@@ -290,6 +300,7 @@ Pack this box last and open it first:
 - [ ] Walk through every room and note any issues
 
 ### First Week
+
 - [ ] Unpack kitchen essentials
 - [ ] Set up internet and entertainment
 - [ ] Introduce yourself to immediate neighbors
@@ -300,6 +311,7 @@ Pack this box last and open it first:
 - [ ] Set up children's rooms as a priority for their comfort
 
 ### First Month
+
 - [ ] Complete all unpacking (or decide what stays in storage)
 - [ ] Hang pictures and personalize the space
 - [ ] Find new local service providers (doctor, dentist, vet, etc.)
@@ -311,6 +323,7 @@ Pack this box last and open it first:
 - [ ] Review and rate your moving company to help future movers
 
 ### Building Community in a New Area
+
 - Explore local events and community calendars
 - Join a gym, class, or club aligned with your interests
 - Frequent the same local businesses to build familiarity
@@ -320,7 +333,6 @@ Pack this box last and open it first:
 - Visit the local library for programs and resources
 - Give yourself grace - it takes 6-12 months to feel at home
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -328,7 +340,6 @@ Pack this box last and open it first:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -349,14 +360,12 @@ Pack this box last and open it first:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

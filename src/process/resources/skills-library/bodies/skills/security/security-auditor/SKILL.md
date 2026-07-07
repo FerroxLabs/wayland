@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security compliance guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security compliance guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Security Auditor
@@ -58,6 +58,7 @@ def get_invoice(invoice_id):
 ```
 
 **Audit checklist**:
+
 - [ ] Every API endpoint has authorization check
 - [ ] IDOR testing on all resource endpoints (change IDs in URLs)
 - [ ] Role-based access tested (can user A access user B's resources?)
@@ -93,6 +94,7 @@ logger.info(f"Processing credit card ****{card_number[-4:]}")
 ```
 
 **Audit checklist**:
+
 - [ ] All passwords hashed with bcrypt/argon2/scrypt (not MD5/SHA)
 - [ ] Encryption at rest for PII/financial data
 - [ ] TLS 1.2+ enforced for all connections
@@ -138,6 +140,7 @@ template = env.from_string(user_controlled_template)
 Design-level security flaws that cannot be fixed with implementation. These require architectural changes.
 
 **Design review questions**:
+
 1. What is the threat model? (STRIDE applied to architecture)
 2. Are trust boundaries defined and enforced?
 3. Is the principle of least privilege applied?
@@ -179,13 +182,13 @@ DEBUG = False  # FIXED
 
 ### A06-A10 Summary
 
-| Category | Key Check | Common Fix |
-|----------|-----------|------------|
-| A06: Vulnerable Components | Run `npm audit`, `pip-audit`, `trivy` | Update dependencies, use lockfiles |
-| A07: Auth Failures | Test brute force, session fixation, credential stuffing | Rate limiting, MFA, secure session management |
-| A08: Software/Data Integrity | Verify CI/CD pipeline integrity, check for deserialization | Signed artifacts, SRI, safe deserialization |
-| A09: Logging Failures | Check if security events are logged, log injection | Structured logging, SIEM integration |
-| A10: SSRF | Test URL parameters for internal network access | Allowlist URLs, block private IPs, use network segmentation |
+| Category                     | Key Check                                                  | Common Fix                                                  |
+| ---------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
+| A06: Vulnerable Components   | Run `npm audit`, `pip-audit`, `trivy`                      | Update dependencies, use lockfiles                          |
+| A07: Auth Failures           | Test brute force, session fixation, credential stuffing    | Rate limiting, MFA, secure session management               |
+| A08: Software/Data Integrity | Verify CI/CD pipeline integrity, check for deserialization | Signed artifacts, SRI, safe deserialization                 |
+| A09: Logging Failures        | Check if security events are logged, log injection         | Structured logging, SIEM integration                        |
+| A10: SSRF                    | Test URL parameters for internal network access            | Allowlist URLs, block private IPs, use network segmentation |
 
 ## Code Review for Security
 
@@ -382,16 +385,16 @@ SECURITY_HEADERS = {
 
 ## Authentication Audit
 
-| Check | What to Test | Expected Behavior |
-|-------|-------------|-------------------|
-| Password policy | Minimum length, complexity | >= 12 chars, no common passwords |
-| Brute force protection | 100+ rapid login attempts | Account lockout or rate limiting after 5-10 attempts |
-| Session management | Session token entropy | >= 128 bits of randomness |
-| Session fixation | Set session before auth, check after | New session ID issued after login |
-| Logout | Click logout, reuse session token | Session invalidated server-side |
-| Remember me | Inspect persistent cookie | Separate, rotatable token, not session ID |
-| Password reset | Request reset, inspect token | Time-limited (1h), single-use, random |
-| MFA bypass | Skip MFA step, direct API call | MFA enforced at API level, not just UI |
+| Check                  | What to Test                         | Expected Behavior                                    |
+| ---------------------- | ------------------------------------ | ---------------------------------------------------- |
+| Password policy        | Minimum length, complexity           | >= 12 chars, no common passwords                     |
+| Brute force protection | 100+ rapid login attempts            | Account lockout or rate limiting after 5-10 attempts |
+| Session management     | Session token entropy                | >= 128 bits of randomness                            |
+| Session fixation       | Set session before auth, check after | New session ID issued after login                    |
+| Logout                 | Click logout, reuse session token    | Session invalidated server-side                      |
+| Remember me            | Inspect persistent cookie            | Separate, rotatable token, not session ID            |
+| Password reset         | Request reset, inspect token         | Time-limited (1h), single-use, random                |
+| MFA bypass             | Skip MFA step, direct API call       | MFA enforced at API level, not just UI               |
 
 ## Security Assessment Report Template
 
@@ -399,6 +402,7 @@ SECURITY_HEADERS = {
 # Security Assessment Report
 
 ## Executive Summary
+
 - **Assessment Date**: [date range]
 - **Scope**: [Application name, version, environment]
 - **Methodology**: OWASP Testing Guide v4.2, ASVS Level 2
@@ -408,16 +412,19 @@ SECURITY_HEADERS = {
 
 ## Finding Summary
 
-| # | Title | Severity | CVSS | Status |
-|---|-------|----------|------|--------|
-| 1 | SQL Injection in search API | Critical | 9.8 | Open |
-| 2 | Missing rate limiting on login | High | 7.5 | Open |
+| #   | Title                          | Severity | CVSS | Status |
+| --- | ------------------------------ | -------- | ---- | ------ |
+| 1   | SQL Injection in search API    | Critical | 9.8  | Open   |
+| 2   | Missing rate limiting on login | High     | 7.5  | Open   |
 
 ## Detailed Findings
+
 # ... (condensed) ...
+
 - Dependencies regularly updated
 
 ## Recommendations Summary
+
 1. [Immediate] Fix SQL injection in search API
 2. [1 week] Implement rate limiting on authentication endpoints
 3. [1 month] Add Content-Security-Policy header
@@ -458,6 +465,7 @@ jobs:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing security auditor solutions
 - Reviewing or improving existing security auditor approaches
 - Making architectural or implementation decisions about security auditor
@@ -465,6 +473,7 @@ jobs:
 - Troubleshooting security auditor-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -475,21 +484,26 @@ jobs:
 # Security Auditor Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

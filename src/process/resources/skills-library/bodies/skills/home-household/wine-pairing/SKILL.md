@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wine, Beer & Beverage Pairing
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wine pairing
 - User needs guidance on wine pairing topics
 - User wants a structured approach to wine pairing
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -96,38 +98,38 @@ Riesling  Rose     Tempran   Malbec   Syrah/
 
 ### Major Red Wine Varietals
 
-| Wine | Body | Key Flavors | Pairs With | Serve Temp |
-|------|------|------------|-----------|-----------|
-| Cabernet Sauvignon | Full | Black currant, cedar, tobacco | Grilled steak, lamb, aged cheese | 60-65F |
-| Merlot | Medium-Full | Plum, cherry, chocolate | Roast chicken, pork, mushrooms | 60-65F |
-| Pinot Noir | Light-Medium | Cherry, raspberry, earth | Salmon, duck, mushrooms, soft cheese | 55-60F |
-| Syrah/Shiraz | Full | Blackberry, pepper, smoke | BBQ, game meat, stews, hard cheese | 60-65F |
-| Malbec | Medium-Full | Plum, blackberry, cocoa | Grilled meats, empanadas, spiced dishes | 60-65F |
-| Zinfandel | Medium-Full | Jammy berry, spice, pepper | BBQ, pizza, spicy food, tomato sauces | 60-65F |
-| Tempranillo | Medium | Cherry, leather, vanilla | Spanish food, lamb, roasted vegetables | 60-65F |
-| Sangiovese | Medium | Cherry, tomato, herbs | Italian food, tomato sauces, pizza | 60-65F |
+| Wine               | Body         | Key Flavors                   | Pairs With                              | Serve Temp |
+| ------------------ | ------------ | ----------------------------- | --------------------------------------- | ---------- |
+| Cabernet Sauvignon | Full         | Black currant, cedar, tobacco | Grilled steak, lamb, aged cheese        | 60-65F     |
+| Merlot             | Medium-Full  | Plum, cherry, chocolate       | Roast chicken, pork, mushrooms          | 60-65F     |
+| Pinot Noir         | Light-Medium | Cherry, raspberry, earth      | Salmon, duck, mushrooms, soft cheese    | 55-60F     |
+| Syrah/Shiraz       | Full         | Blackberry, pepper, smoke     | BBQ, game meat, stews, hard cheese      | 60-65F     |
+| Malbec             | Medium-Full  | Plum, blackberry, cocoa       | Grilled meats, empanadas, spiced dishes | 60-65F     |
+| Zinfandel          | Medium-Full  | Jammy berry, spice, pepper    | BBQ, pizza, spicy food, tomato sauces   | 60-65F     |
+| Tempranillo        | Medium       | Cherry, leather, vanilla      | Spanish food, lamb, roasted vegetables  | 60-65F     |
+| Sangiovese         | Medium       | Cherry, tomato, herbs         | Italian food, tomato sauces, pizza      | 60-65F     |
 
 ### Major White Wine Varietals
 
-| Wine | Body | Key Flavors | Pairs With | Serve Temp |
-|------|------|------------|-----------|-----------|
-| Chardonnay (oaked) | Full | Butter, vanilla, apple, toast | Lobster, cream sauces, poultry | 50-55F |
-| Chardonnay (unoaked) | Medium | Apple, citrus, mineral | Seafood, salads, light chicken | 45-50F |
-| Sauvignon Blanc | Light-Medium | Grapefruit, grass, herbal | Goat cheese, salads, seafood | 45-50F |
-| Pinot Grigio/Gris | Light | Citrus, pear, mineral | Light fish, appetizers, light pasta | 45-50F |
-| Riesling (dry) | Light-Medium | Lime, peach, mineral | Spicy food, Asian cuisine, pork | 45-50F |
-| Riesling (sweet) | Light-Medium | Honey, apricot, peach | Spicy food, blue cheese, desserts | 45-50F |
-| Gewurztraminer | Medium | Lychee, rose, ginger | Asian food, curry, Thanksgiving turkey | 45-50F |
-| Viognier | Full | Peach, apricot, floral | Rich seafood, curry, roasted chicken | 50-55F |
+| Wine                 | Body         | Key Flavors                   | Pairs With                             | Serve Temp |
+| -------------------- | ------------ | ----------------------------- | -------------------------------------- | ---------- |
+| Chardonnay (oaked)   | Full         | Butter, vanilla, apple, toast | Lobster, cream sauces, poultry         | 50-55F     |
+| Chardonnay (unoaked) | Medium       | Apple, citrus, mineral        | Seafood, salads, light chicken         | 45-50F     |
+| Sauvignon Blanc      | Light-Medium | Grapefruit, grass, herbal     | Goat cheese, salads, seafood           | 45-50F     |
+| Pinot Grigio/Gris    | Light        | Citrus, pear, mineral         | Light fish, appetizers, light pasta    | 45-50F     |
+| Riesling (dry)       | Light-Medium | Lime, peach, mineral          | Spicy food, Asian cuisine, pork        | 45-50F     |
+| Riesling (sweet)     | Light-Medium | Honey, apricot, peach         | Spicy food, blue cheese, desserts      | 45-50F     |
+| Gewurztraminer       | Medium       | Lychee, rose, ginger          | Asian food, curry, Thanksgiving turkey | 45-50F     |
+| Viognier             | Full         | Peach, apricot, floral        | Rich seafood, curry, roasted chicken   | 50-55F     |
 
 ### Rose and Sparkling
 
-| Wine | Style | Pairs With |
-|------|-------|-----------|
-| Dry Rose | Light, refreshing, versatile | Salads, Mediterranean, charcuterie |
-| Champagne/Brut | Crisp, toasty, celebratory | Oysters, sushi, fried food, anything |
-| Prosecco | Light, fruity, bubbly | Appetizers, brunch, light pasta |
-| Cava | Dry, citrusy, affordable | Tapas, seafood, casual entertaining |
+| Wine           | Style                        | Pairs With                           |
+| -------------- | ---------------------------- | ------------------------------------ |
+| Dry Rose       | Light, refreshing, versatile | Salads, Mediterranean, charcuterie   |
+| Champagne/Brut | Crisp, toasty, celebratory   | Oysters, sushi, fried food, anything |
+| Prosecco       | Light, fruity, bubbly        | Appetizers, brunch, light pasta      |
+| Cava           | Dry, citrusy, affordable     | Tapas, seafood, casual entertaining  |
 
 ## Wine Pairing Principles
 
@@ -169,52 +171,52 @@ RULE 7: WHEN IN DOUBT
 
 ### Pairing by Cooking Method
 
-| Cooking Method | Wine Style | Why |
-|---------------|-----------|-----|
-| Grilled/charred | Medium to full red | Smokiness matches bold fruit |
-| Roasted | Medium red or full white | Caramelization matches richness |
-| Fried | Sparkling or high-acid white | Bubbles and acid cut grease |
-| Steamed/poached | Light white | Delicate method, delicate wine |
-| Braised | Full red | Rich method needs rich wine |
-| Raw (sushi, ceviche) | Light crisp white or sparkling | Clean, no tannins |
-| Spicy | Off-dry white | Sweetness tames heat |
+| Cooking Method       | Wine Style                     | Why                             |
+| -------------------- | ------------------------------ | ------------------------------- |
+| Grilled/charred      | Medium to full red             | Smokiness matches bold fruit    |
+| Roasted              | Medium red or full white       | Caramelization matches richness |
+| Fried                | Sparkling or high-acid white   | Bubbles and acid cut grease     |
+| Steamed/poached      | Light white                    | Delicate method, delicate wine  |
+| Braised              | Full red                       | Rich method needs rich wine     |
+| Raw (sushi, ceviche) | Light crisp white or sparkling | Clean, no tannins               |
+| Spicy                | Off-dry white                  | Sweetness tames heat            |
 
 ### Quick Pairing Reference
 
-| Dish | First Choice | Second Choice |
-|------|-------------|--------------|
-| Steak (grilled) | Cabernet Sauvignon | Malbec |
-| Roast chicken | Chardonnay (oaked) | Pinot Noir |
-| Salmon | Pinot Noir | Dry Rose |
-| Pasta (tomato sauce) | Sangiovese (Chianti) | Zinfandel |
-| Pasta (cream sauce) | Oaked Chardonnay | Viognier |
-| Pizza | Sangiovese | Zinfandel |
-| Sushi | Champagne | Dry Riesling |
-| Thai curry | Off-dry Riesling | Gewurztraminer |
-| Indian curry | Gewurztraminer | Off-dry Riesling |
-| Mexican food | Malbec | Dry Rose |
-| Charcuterie | Beaujolais | Dry Rose |
-| Thanksgiving turkey | Pinot Noir | Beaujolais |
-| Burgers | Zinfandel | Merlot |
-| Lamb | Cabernet Sauvignon | Syrah |
+| Dish                 | First Choice         | Second Choice    |
+| -------------------- | -------------------- | ---------------- |
+| Steak (grilled)      | Cabernet Sauvignon   | Malbec           |
+| Roast chicken        | Chardonnay (oaked)   | Pinot Noir       |
+| Salmon               | Pinot Noir           | Dry Rose         |
+| Pasta (tomato sauce) | Sangiovese (Chianti) | Zinfandel        |
+| Pasta (cream sauce)  | Oaked Chardonnay     | Viognier         |
+| Pizza                | Sangiovese           | Zinfandel        |
+| Sushi                | Champagne            | Dry Riesling     |
+| Thai curry           | Off-dry Riesling     | Gewurztraminer   |
+| Indian curry         | Gewurztraminer       | Off-dry Riesling |
+| Mexican food         | Malbec               | Dry Rose         |
+| Charcuterie          | Beaujolais           | Dry Rose         |
+| Thanksgiving turkey  | Pinot Noir           | Beaujolais       |
+| Burgers              | Zinfandel            | Merlot           |
+| Lamb                 | Cabernet Sauvignon   | Syrah            |
 
 ## Beer Style Guide and Pairing
 
 ### Beer Styles Overview
 
-| Style | Flavor Profile | ABV | Pairs With |
-|-------|---------------|-----|-----------|
-| Pilsner/Lager | Clean, crisp, light | 4-5% | Salads, seafood, chicken, Mexican |
-| Wheat Beer | Citrusy, light, refreshing | 4-5.5% | Salads, light fish, brunch |
-| Pale Ale | Hoppy, balanced, citrus | 4.5-6% | Burgers, grilled chicken, nachos |
-| IPA | Very hoppy, bitter, tropical | 6-7.5% | Spicy food, BBQ, strong cheese, fried food |
-| Amber/Red Ale | Malty, caramel, moderate | 4.5-6% | Pizza, roast pork, sausages |
-| Brown Ale | Nutty, chocolate, mild | 4-6% | Stews, mushrooms, grilled sausage |
-| Porter | Roasted, chocolate, coffee | 4.5-6% | Smoked meats, chocolate, BBQ |
-| Stout | Coffee, dark chocolate, rich | 4-8% | Oysters, chocolate, braised meat |
-| Belgian Wit | Spice, citrus, coriander | 4.5-5.5% | Mussels, salads, light seafood |
-| Saison | Peppery, fruity, dry | 5-7% | Chicken, pork, cheese, shellfish |
-| Sour/Gose | Tart, fruity, refreshing | 3-5% | Seafood, salads, fruit desserts |
+| Style         | Flavor Profile               | ABV      | Pairs With                                 |
+| ------------- | ---------------------------- | -------- | ------------------------------------------ |
+| Pilsner/Lager | Clean, crisp, light          | 4-5%     | Salads, seafood, chicken, Mexican          |
+| Wheat Beer    | Citrusy, light, refreshing   | 4-5.5%   | Salads, light fish, brunch                 |
+| Pale Ale      | Hoppy, balanced, citrus      | 4.5-6%   | Burgers, grilled chicken, nachos           |
+| IPA           | Very hoppy, bitter, tropical | 6-7.5%   | Spicy food, BBQ, strong cheese, fried food |
+| Amber/Red Ale | Malty, caramel, moderate     | 4.5-6%   | Pizza, roast pork, sausages                |
+| Brown Ale     | Nutty, chocolate, mild       | 4-6%     | Stews, mushrooms, grilled sausage          |
+| Porter        | Roasted, chocolate, coffee   | 4.5-6%   | Smoked meats, chocolate, BBQ               |
+| Stout         | Coffee, dark chocolate, rich | 4-8%     | Oysters, chocolate, braised meat           |
+| Belgian Wit   | Spice, citrus, coriander     | 4.5-5.5% | Mussels, salads, light seafood             |
+| Saison        | Peppery, fruity, dry         | 5-7%     | Chicken, pork, cheese, shellfish           |
+| Sour/Gose     | Tart, fruity, refreshing     | 3-5%     | Seafood, salads, fruit desserts            |
 
 ### Beer Pairing Principles
 
@@ -239,16 +241,16 @@ BEER PAIRING RULES
 
 ### Non-Alcoholic Pairing Options
 
-| Meal Type | NA Pairing | Why It Works |
-|-----------|-----------|-------------|
-| Steak/red meat | Tart cherry juice + sparkling water | Tannin-like, full body |
-| Seafood | Sparkling water + lemon | Clean, crisp, refreshing |
-| Asian food | Ginger beer (NA) or jasmine tea | Complementary spice/floral |
-| Italian food | San Pellegrino + basil | Herbal, Mediterranean |
-| Spicy food | Mango lassi or coconut water | Cooling, sweet contrast |
-| Cheese course | Sparkling grape juice | Fruit, acidity, bubbles |
-| Chocolate | Coffee or espresso | Complementary roasted flavors |
-| Brunch | Kombucha or shrub sodas | Acidity, complexity, bubbles |
+| Meal Type      | NA Pairing                          | Why It Works                  |
+| -------------- | ----------------------------------- | ----------------------------- |
+| Steak/red meat | Tart cherry juice + sparkling water | Tannin-like, full body        |
+| Seafood        | Sparkling water + lemon             | Clean, crisp, refreshing      |
+| Asian food     | Ginger beer (NA) or jasmine tea     | Complementary spice/floral    |
+| Italian food   | San Pellegrino + basil              | Herbal, Mediterranean         |
+| Spicy food     | Mango lassi or coconut water        | Cooling, sweet contrast       |
+| Cheese course  | Sparkling grape juice               | Fruit, acidity, bubbles       |
+| Chocolate      | Coffee or espresso                  | Complementary roasted flavors |
+| Brunch         | Kombucha or shrub sodas             | Acidity, complexity, bubbles  |
 
 ### Non-Alcoholic Beverage Menu Template
 
@@ -262,14 +264,14 @@ WARM: Herbal teas, spiced apple cider, hot chocolate
 
 ## Cheese Pairing Guide
 
-| Cheese Type | Best Wine | Best Beer | Why |
-|------------|----------|----------|-----|
-| Fresh (mozzarella, goat) | Sauvignon Blanc, Pinot Grigio | Wheat beer | Light with light |
-| Soft-ripened (Brie, Camembert) | Champagne, Chardonnay | Belgian Wit | Bubbles cut richness |
-| Semi-hard (Gouda, Gruyere) | Pinot Noir, Merlot | Amber ale | Medium body matches |
-| Hard (Parmesan, aged Cheddar) | Cabernet, Barolo | IPA, Stout | Bold with bold |
-| Blue (Roquefort, Stilton) | Port, Sauternes | Imperial Stout | Sweet contrasts salty |
-| Washed-rind (Epoisses) | Gewurztraminer, Pinot Noir | Belgian Tripel | Aromatic match |
+| Cheese Type                    | Best Wine                     | Best Beer      | Why                   |
+| ------------------------------ | ----------------------------- | -------------- | --------------------- |
+| Fresh (mozzarella, goat)       | Sauvignon Blanc, Pinot Grigio | Wheat beer     | Light with light      |
+| Soft-ripened (Brie, Camembert) | Champagne, Chardonnay         | Belgian Wit    | Bubbles cut richness  |
+| Semi-hard (Gouda, Gruyere)     | Pinot Noir, Merlot            | Amber ale      | Medium body matches   |
+| Hard (Parmesan, aged Cheddar)  | Cabernet, Barolo              | IPA, Stout     | Bold with bold        |
+| Blue (Roquefort, Stilton)      | Port, Sauternes               | Imperial Stout | Sweet contrasts salty |
+| Washed-rind (Epoisses)         | Gewurztraminer, Pinot Noir    | Belgian Tripel | Aromatic match        |
 
 ### Building a Cheese Board
 
@@ -299,16 +301,16 @@ TEMP: Remove from fridge 30-60 min before serving
 
 ### Core Rule: Wine Must Be Sweeter Than the Dessert
 
-| Dessert | Wine Pairing | Beer Pairing |
-|---------|-------------|-------------|
-| Chocolate cake | Port, Banyuls | Chocolate stout |
-| Fruit tart | Late-harvest Riesling | Fruit lambic |
-| Creme brulee | Sauternes, Tokaji | Belgian Tripel |
-| Cheesecake | Late-harvest Riesling | Fruit sour |
-| Apple pie | Ice wine, Gewurztraminer | Hard cider |
-| Tiramisu | Vin Santo, Marsala | Coffee stout |
-| Lemon desserts | Moscato, Prosecco | Gose |
-| Pecan pie | Tawny Port, PX Sherry | Barleywine |
+| Dessert        | Wine Pairing             | Beer Pairing    |
+| -------------- | ------------------------ | --------------- |
+| Chocolate cake | Port, Banyuls            | Chocolate stout |
+| Fruit tart     | Late-harvest Riesling    | Fruit lambic    |
+| Creme brulee   | Sauternes, Tokaji        | Belgian Tripel  |
+| Cheesecake     | Late-harvest Riesling    | Fruit sour      |
+| Apple pie      | Ice wine, Gewurztraminer | Hard cider      |
+| Tiramisu       | Vin Santo, Marsala       | Coffee stout    |
+| Lemon desserts | Moscato, Prosecco        | Gose            |
+| Pecan pie      | Tawny Port, PX Sherry    | Barleywine      |
 
 ## Entertaining Beverage Planning
 
@@ -352,19 +354,20 @@ AFTER DINNER: Port, Sherry, or digestif
 ## Cocktail Basics for Entertaining
 
 ### Classic Cocktail Template
+
 ```
 2 oz spirit + 3/4 oz sweet + 3/4 oz sour
 ```
 
 ### Essential Cocktails
 
-| Cocktail | Recipe | Glass |
-|----------|--------|-------|
-| Margarita | 2 oz tequila + 1 oz lime + 3/4 oz triple sec | Salt-rimmed rocks |
-| Old Fashioned | 2 oz bourbon + sugar cube + 2 dashes bitters + orange peel | Rocks glass |
-| Negroni | 1 oz gin + 1 oz sweet vermouth + 1 oz Campari | Rocks glass |
-| Moscow Mule | 2 oz vodka + 4 oz ginger beer + 1/2 oz lime | Copper mug |
-| Gin and Tonic | 2 oz gin + 4 oz tonic + lime | Highball |
+| Cocktail      | Recipe                                                     | Glass             |
+| ------------- | ---------------------------------------------------------- | ----------------- |
+| Margarita     | 2 oz tequila + 1 oz lime + 3/4 oz triple sec               | Salt-rimmed rocks |
+| Old Fashioned | 2 oz bourbon + sugar cube + 2 dashes bitters + orange peel | Rocks glass       |
+| Negroni       | 1 oz gin + 1 oz sweet vermouth + 1 oz Campari              | Rocks glass       |
+| Moscow Mule   | 2 oz vodka + 4 oz ginger beer + 1/2 oz lime                | Copper mug        |
+| Gin and Tonic | 2 oz gin + 4 oz tonic + lime                               | Highball          |
 
 ### Home Bar Essentials
 
@@ -394,7 +397,6 @@ DECANTING:
   Older reds (10+ years): 15-30 min carefully
   Most whites: No decanting needed
 ```
-
 
 ## Output Format
 

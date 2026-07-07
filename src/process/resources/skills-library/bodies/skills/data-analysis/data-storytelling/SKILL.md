@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization analysis report"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization analysis report'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Data Storytelling
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has completed an analysis and needs to present findings to an audience that must make a decision or take an action -- the analysis is done, and the communication challenge begins here
 - The user asks "how do I make this data compelling?", "how do I structure this presentation?", or "my stakeholders aren't convinced by my numbers -- what am I doing wrong?"
 - The user has a slide deck or report full of charts but no clear narrative thread -- data exists but story is absent
@@ -30,6 +32,7 @@ metadata:
 - The user explicitly says they need to "translate" technical findings for a non-technical audience
 
 **Do NOT use when:**
+
 - The user hasn't finished their analysis yet and needs to run it -- redirect to `eda-framework` for exploratory analysis, `hypothesis-testing` for statistical inference, or `correlation-analysis` for relationship quantification
 - The user is asking which chart type to use for a specific data type -- that is a discrete visual encoding decision, not a narrative decision; use `chart-type-selector`
 - The user needs to format an existing report document (margins, headers, citation styles) -- use `report-formatting`
@@ -312,6 +315,7 @@ Delivering bad news via data requires specific structural care to prevent the me
 ## Data Story: Influencer-Acquired Customers Churn at 2.4x the Rate of Other Channels -- $680K in Annual Revenue Is At Risk
 
 ### Context Snapshot
+
 - **Audience:** Leadership team (CEO, CMO, CFO) -- financially sophisticated, protective of current marketing mix, will want to see channel comparison with confidence
 - **Decision required:** Whether to reallocate a portion of the $340K quarterly influencer marketing budget to retention-optimized acquisition channels
 - **Arc type:** Comparison Arc (channel performance) with Urgency framing on cost of inaction
@@ -320,9 +324,11 @@ Delivering bad news via data requires specific structural care to prevent the me
 ---
 
 ### The Setup
+
 We currently acquire new subscribers across four channels: influencer partnerships, paid search, organic social, and email referrals. Influencer campaigns represent our single largest acquisition investment at $340K per quarter -- more than twice what we spend on paid search ($140K) and email ($80K) combined. This investment has produced strong new subscriber volume: influencer campaigns delivered 1,840 new subscribers last quarter, our highest single-channel total.
 
 ### The Tension
+
 New subscriber volume is only half the acquisition equation. The other half is how long those subscribers stay -- and 90-day retention data reveals a meaningful performance gap that our top-line acquisition numbers have been obscuring. If influencer-acquired customers are churning at materially higher rates before recovering their acquisition cost, our effective cost per retained customer is significantly higher than our reported cost per acquisition.
 
 ---
@@ -344,23 +350,25 @@ _Visualization: Stacked bar chart | Data: 12-month revenue composition (base sub
 ---
 
 ### The Insight
+
 Taken together, these findings show that our influencer marketing budget is optimized for a metric (new subscriber volume) that does not reflect acquisition quality. The channel's fundamental problem is audience-fit: influencer-acquired customers are likely coming to the product with different expectations -- novelty, social proof, FOMO -- than customers who actively searched or were referred by a friend, and those expectations produce lower commitment to the subscription model. This means that the $340K we are spending on influencer campaigns is generating the highest volume of the lowest-quality customers in our acquisition portfolio, and the gap is large enough that reallocation would likely improve both revenue and margin even if it reduces new subscriber headline numbers.
 
 ---
 
 ### The Recommendation
 
-| # | Action | Owner (role) | Timeline | Expected Outcome | Success Metric |
-|---|--------|-------------|----------|-----------------|----------------|
-| 1 | Reallocate $170K/quarter (50% of influencer budget) to email referral and paid search -- the two highest CPRS channels | CMO + Head of Acquisition | Begin next quarter | Reduce blended CPRS from current $196 to approximately $140; increase 90-day retention rate from 73% to an estimated 80% | 90-day retention rate reviewed at end of Q1; target 78%+ across all channels |
-| 2 | Pilot retention-focused onboarding for influencer subscribers: tailored email sequence addressing subscription value, unboxing content, and personalization survey in week 1 | CRM Manager | Launch within 6 weeks | Target: reduce influencer churn from 47% to 33% without reducing acquisition volume | 90-day churn rate of influencer cohort vs. prior cohort; measure at week 12 |
-| 3 | Establish monthly CPRS reporting as a standard acquisition metric alongside CPA | Analytics + CMO | Implement this quarter | Prevent future budget allocation decisions based on CPA alone, which obscures retention-adjusted economics | CPRS included in monthly marketing performance dashboard by next monthly review |
+| #   | Action                                                                                                                                                                       | Owner (role)              | Timeline               | Expected Outcome                                                                                                         | Success Metric                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| 1   | Reallocate $170K/quarter (50% of influencer budget) to email referral and paid search -- the two highest CPRS channels                                                       | CMO + Head of Acquisition | Begin next quarter     | Reduce blended CPRS from current $196 to approximately $140; increase 90-day retention rate from 73% to an estimated 80% | 90-day retention rate reviewed at end of Q1; target 78%+ across all channels    |
+| 2   | Pilot retention-focused onboarding for influencer subscribers: tailored email sequence addressing subscription value, unboxing content, and personalization survey in week 1 | CRM Manager               | Launch within 6 weeks  | Target: reduce influencer churn from 47% to 33% without reducing acquisition volume                                      | 90-day churn rate of influencer cohort vs. prior cohort; measure at week 12     |
+| 3   | Establish monthly CPRS reporting as a standard acquisition metric alongside CPA                                                                                              | Analytics + CMO           | Implement this quarter | Prevent future budget allocation decisions based on CPA alone, which obscures retention-adjusted economics               | CPRS included in monthly marketing performance dashboard by next monthly review |
 
 **Cost of inaction:** At the current trajectory, we are spending $340K per quarter -- $1.36M annually -- on our least retention-efficient channel. Each quarter of delay preserves approximately $168K in avoidable acquisition inefficiency. The recommended reallocation could recover approximately $530K in annual retained-customer revenue at the same total marketing budget.
 
 ---
 
 ### Skeptic Prep
+
 **Most likely objection:** "Influencer campaigns drive brand awareness and word-of-mouth that doesn't show up in direct attribution -- you're only looking at direct subscribers, not the halo effect on other channels."
 
 **Preemptive response:** "That's a real consideration and we've accounted for it in two ways: first, organic social (our clearest proxy for brand-driven acquisition) showed 21% 90-day churn -- in line with the all-channel average, not elevated above it, suggesting influencer campaigns are not meaningfully boosting organic acquisition quality. Second, our recommendation is to reduce, not eliminate, influencer spend -- we are proposing to preserve $170K per quarter in influencer investment while reallocating the underperforming half, which maintains brand presence while testing whether reallocated budget improves blended economics."
@@ -368,6 +376,7 @@ Taken together, these findings show that our influencer marketing budget is opti
 ---
 
 ### Appendix (for technical review)
+
 - **Data source and date range:** Internal subscription platform export, Q1-Q3 this fiscal year, n = 6,840 new subscribers across all channels
 - **Methodology note:** 90-day churn defined as cancellation before day 91 of subscription. CPRS calculated as channel quarterly spend divided by number of subscribers retained past 90 days. 12-month revenue projection uses 18-month historical cohort data from subscribers who entered in the same season last year, adjusted for current pricing.
 - **Confidence and limitations:** Influencer campaign performance varies by individual influencer and campaign theme -- the 47% churn figure is an average across 12 campaigns with a range of 31%-61%. The pilot in Finding 3 (onboarding sequence) has no direct historical analog -- the 33% churn target is based on comparable onboarding interventions from industry case data and should be treated as a directional estimate pending a controlled test.
@@ -375,6 +384,7 @@ Taken together, these findings show that our influencer marketing budget is opti
 ---
 
 ### Narrative Structure Used
+
 - **Arc type:** Comparison Arc with Urgency framing on cost of inaction
 - **Audience:** CEO, CMO, CFO -- financially sophisticated, decisions-focused
 - **Key metric:** Cost per retained subscriber (CPRS): $349 influencer vs. $87 email

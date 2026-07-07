@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care checklist guide"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'pet-care checklist guide'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Pet Health Monitoring
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to establish or improve a weekly at-home health check routine for a dog or cat and needs a structured, species-specific protocol
 - A user asks what constitutes normal vital signs, body condition, or behavior for their dog or cat, and wants to understand the ranges that distinguish healthy from concerning
 - A user has noticed a specific change in their pet (eating less, drinking more, limping, coat changes) and wants to know whether it warrants a veterinary visit and how urgently
@@ -29,6 +31,7 @@ metadata:
 - A user wants to prepare for a veterinary wellness visit and needs to know what observations to report and how to document them effectively
 
 **Do NOT use when:**
+
 - A user describes a life-threatening emergency (pet is not breathing, has collapsed, is having a seizure, has ingested a known toxin, is showing signs of urinary blockage) -- stop immediately and direct to emergency veterinary care; do not proceed with this skill
 - A user is asking for a diagnosis of a specific disease or condition -- this skill teaches structured observation and triage, not medical diagnosis; use a veterinary consultation referral instead
 - A user is asking about medication dosing, over-the-counter treatments, supplements, or home remedies -- all treatment decisions belong to a licensed veterinarian
@@ -59,14 +62,14 @@ Teach the owner to measure and record baseline values when the pet is healthy. A
 
 **Normal vital signs reference table:**
 
-| Parameter | Dog -- Normal Range | Cat -- Normal Range | How to Measure |
-|---|---|---|---|
-| Resting heart rate | 60-140 bpm (large breeds 60-90; small breeds 90-140) | 140-220 bpm | Place flat hand on left chest wall just behind the elbow; count beats for 15 seconds; multiply by 4 |
-| Resting respiratory rate | 10-30 breaths/min | 20-30 breaths/min | Count chest rises while pet is calm or sleeping; count for 30 seconds; multiply by 2; a resting rate above 30 in a sleeping cat is a red flag for heart disease |
-| Rectal temperature | 101.0-102.5°F (38.3-39.2°C) | 100.5-102.5°F (38.1-39.2°C) | Digital rectal thermometer; lubricate tip with petroleum jelly; insert 1 inch; hold 60 seconds or until the device beeps; below 99°F or above 104°F is an emergency |
-| Capillary refill time (CRT) | Less than 2 seconds | Less than 2 seconds | Press the gum above the upper canine tooth firmly with a finger until it turns white; release; count seconds until pink returns; over 2 seconds suggests poor circulation |
-| Gum (mucous membrane) color | Moist, salmon-pink | Moist, salmon-pink | Lift lip and observe the gum tissue directly (not the lip skin); pale, white, blue, bright red, yellow, or mottled color indicates a medical emergency |
-| Skin turgor (hydration) | Snaps back in under 1 second | Snaps back in under 1 second | Gently tent skin on the back of the neck between thumb and forefinger; release; delayed return (over 1-2 seconds) indicates dehydration of at least 5-8% |
+| Parameter                   | Dog -- Normal Range                                  | Cat -- Normal Range          | How to Measure                                                                                                                                                            |
+| --------------------------- | ---------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resting heart rate          | 60-140 bpm (large breeds 60-90; small breeds 90-140) | 140-220 bpm                  | Place flat hand on left chest wall just behind the elbow; count beats for 15 seconds; multiply by 4                                                                       |
+| Resting respiratory rate    | 10-30 breaths/min                                    | 20-30 breaths/min            | Count chest rises while pet is calm or sleeping; count for 30 seconds; multiply by 2; a resting rate above 30 in a sleeping cat is a red flag for heart disease           |
+| Rectal temperature          | 101.0-102.5°F (38.3-39.2°C)                          | 100.5-102.5°F (38.1-39.2°C)  | Digital rectal thermometer; lubricate tip with petroleum jelly; insert 1 inch; hold 60 seconds or until the device beeps; below 99°F or above 104°F is an emergency       |
+| Capillary refill time (CRT) | Less than 2 seconds                                  | Less than 2 seconds          | Press the gum above the upper canine tooth firmly with a finger until it turns white; release; count seconds until pink returns; over 2 seconds suggests poor circulation |
+| Gum (mucous membrane) color | Moist, salmon-pink                                   | Moist, salmon-pink           | Lift lip and observe the gum tissue directly (not the lip skin); pale, white, blue, bright red, yellow, or mottled color indicates a medical emergency                    |
+| Skin turgor (hydration)     | Snaps back in under 1 second                         | Snaps back in under 1 second | Gently tent skin on the back of the neck between thumb and forefinger; release; delayed return (over 1-2 seconds) indicates dehydration of at least 5-8%                  |
 
 **Teach the measurement technique for each parameter** because owners who have never taken a rectal temperature on a pet or assessed gum color will produce inaccurate readings. Walk through each technique step by step and encourage practice during a calm, healthy period so the owner has a baseline to compare against.
 
@@ -77,27 +80,32 @@ Teach the owner to measure and record baseline values when the pet is healthy. A
 This 5-7 minute structured exam is the core of the monitoring skill. Train the owner to perform it consistently on the same day each week, in a consistent, calm setting. The sequence -- head to tail -- helps ensure nothing is skipped.
 
 **Eyes:**
+
 - Normal: clear corneas, bright alert expression, pupils equal in size and symmetrically reactive, small amount of clear or slightly rust-tinged discharge in the inner corner (particularly in certain breeds), no squinting or pawing at eyes
 - Abnormal findings requiring veterinary attention: cloudiness (corneal opacity or cataract), redness of the white of the eye (sclera) or third eyelid prominence, yellow or green discharge (infection), squinting or frequent blinking (corneal ulcer or pain -- urgent, same-day visit), one pupil different in size from the other (unequal pupils, called anisocoria, can indicate neurological emergency), bulging globe
 - Cherry eye (prolapsed nictitating gland): red round mass in the inner corner of the eye; not an emergency but requires veterinary management; common in Bulldogs, Cocker Spaniels, Beagles
 
 **Ears:**
+
 - Normal: light pink inner ear flap, mild warm odor at most, small amount of light tan or slightly darker wax, no discomfort when the base of the ear is gently massaged
 - Abnormal: dark brown to black discharge (common in yeast otitis), red inflamed ear canal visible at the opening, foul smell, head shaking, pawing at ears, tilting head consistently to one side (head tilt is a vestibular or neurological concern -- same-day veterinary visit)
 - Floppy-eared breeds (Cocker Spaniels, Basset Hounds, Labrador Retrievers) and dogs that swim are at higher risk for otitis externa (ear infection) and need more frequent ear checks
 
 **Mouth, Gums, and Teeth:**
+
 - Assess gum color (see vital signs table above) and CRT at this step
 - Normal: pink moist gums, minimal tartar (light yellowing is stage 1 dental disease), mild "dog breath" but not overtly foul
 - Abnormal findings: bright red gum line (gingivitis -- routine veterinary dental visit), heavy brown-to-tan tartar deposits especially at the gum line (stage 2-3 dental disease requiring professional cleaning under anesthesia), broken teeth with exposed pink pulp (urgent, often painful), foul necrotic odor (tissue death or periodontal abscess), excessive drooling especially in cats (dental pain is a very common cause in cats), oral ulcers or masses
 - Never underestimate dental disease: chronic periodontal disease releases bacteria into the bloodstream and has documented associations with kidney, liver, and cardiac disease
 
 **Neck, Throat, and Lymph Nodes:**
+
 - Run fingers along the underside of the neck on both sides; feel for symmetrical, soft, slightly movable lymph nodes (submandibular nodes) roughly the size of a large grape depending on the pet's size
 - Normal: small, symmetrical, soft, slightly movable nodes; the pet does not react to light palpation
 - Abnormal: enlarged, firm, immovable, or painful lymph nodes; asymmetry (one side larger); rapid growth over days to weeks; multiple lymph node regions enlarged simultaneously -- schedule a veterinary visit within a few days; sudden marked enlargement warrants an urgent visit
 
 **Skin and Coat:**
+
 - Part the fur in multiple locations on the back, flanks, and belly; inspect the skin surface directly
 - Normal: light pink to pigmented skin (depending on breed), smooth coat with appropriate breed texture, no visible parasites, minimal shedding outside of seasonal coat changes, no odor from the skin itself
 - Abnormal findings: red or irritated patches (hot spots in dogs are moist, painful, rapidly expanding dermatitis -- urgent, as they can double in size within hours), alopecia (hair loss patches), crusting or scaling (seborrhea, ringworm, mange), black pepper-like specks at the skin surface (flea dirt -- test by placing on a white surface and adding a drop of water; if it turns reddish-brown, it is flea feces), new lumps or masses (any new lump should be brought to the veterinarian's attention, especially in cats where even small masses carry higher malignancy risk), skin that is thickened or elephant-textured (lichenification -- chronic inflammation)
@@ -105,6 +113,7 @@ This 5-7 minute structured exam is the core of the monitoring skill. Train the o
 - For outdoor pets: part the coat to check for ticks, particularly around the head, neck, ears, between toes, and in the groin and axillary (armpit) areas
 
 **Body Condition Score (BCS):**
+
 - Use the standardized 1-9 Purina Body Condition Score scale: 4-5 is ideal for most dogs and cats
 - BCS 4-5 (ideal): ribs easily palpable with light pressure (like knuckles of a fist), minimal fat covering, waist visible from above, abdominal tuck visible from the side
 - BCS 6-7 (overweight): ribs require firm pressure to feel, no visible waist, flattened abdominal tuck -- discuss with veterinarian; obesity shortens lifespan and accelerates joint disease
@@ -113,11 +122,13 @@ This 5-7 minute structured exam is the core of the monitoring skill. Train the o
 - Muscle condition score (MCS): separate from BCS; assess muscle mass over the lumbar spine, skull, and shoulder blades; muscle wasting (sarcopenia) in a senior pet with maintained body weight (fat replacing muscle) is a significant health concern
 
 **Abdomen:**
+
 - Gently palpate the abdomen from behind the rib cage to the pelvis with flat hands; the pet should be relaxed
 - Normal: soft, non-tender, no hard masses or gas-filled organs, mild gurgling sounds are normal
 - Abnormal: extreme tightness or rigidity (acute abdomen -- emergency), visibly distended abdomen especially in large-breed dogs (suspect GDV/bloat -- emergency; a large breed dog with a distended abdomen, unproductive retching, and restlessness requires emergency care immediately -- mortality increases rapidly without intervention), pain response to palpation (guarding, crying out, attempting to bite), palpable masses
 
 **Limbs, Joints, and Gait:**
+
 - Observe the pet standing, walking, and trotting on a firm surface (not carpet) if possible; all four limbs should bear weight equally
 - Normal: fluid, even gait, nails touching the ground with a slight click on hard floors (indicating appropriate nail length), paw pads moist and smooth, no swelling at joints
 - Abnormal: head bobbing when trotting (forelimb lameness -- head drops when the non-lame foot hits the ground), hip swing asymmetry (hindlimb lameness), bunny-hopping on hindlimbs (bilateral hindlimb weakness, common in hip dysplasia), swollen joints, reluctance to put weight on any single leg for more than a few steps, knuckling (dorsal surface of paw touching the floor instead of the pads -- neurological concern, urgent)
@@ -129,19 +140,19 @@ Behavior changes often precede physical findings by days. A cat that has been co
 
 **Behavioral monitoring table:**
 
-| Observation | Duration Threshold for Veterinary Contact | Possible Significance |
-|---|---|---|
-| Decreased or absent appetite | Dogs: over 24 hours; Cats: over 12-24 hours | Dental pain, GI disease, systemic illness, nausea; in cats, even 24-48 hours of anorexia can trigger hepatic lipidosis (fatty liver), particularly in overweight cats |
-| Increased appetite without weight gain | Several days | Diabetes mellitus, hyperthyroidism (cats), exocrine pancreatic insufficiency (dogs), intestinal malabsorption |
-| Polydipsia (markedly increased water intake) | 3+ days consistently | Diabetes mellitus, chronic kidney disease, hyperthyroidism (cats), hyperadrenocorticism (Cushing's disease, dogs), pyometra in intact females |
-| Lethargy beyond post-exercise recovery | Over 24 hours | Pain, infection, anemia, organ dysfunction, cardiac disease, cancer |
-| Hiding (cats specifically) | Over 24 hours, or combined with any other sign | Pain and illness are the primary medical causes; never dismiss as introversion if new onset |
-| Increased vocalization or howling at night | 3+ nights | Cognitive dysfunction syndrome (CDS) in seniors, hypertension (especially hyperthyroid cats), pain, hearing loss |
-| Sudden aggression or snapping | Any episode in a previously non-aggressive pet | Pain is the number one cause -- a painful pet may bite or scratch to protect itself; pursue veterinary evaluation before behavioral intervention |
-| Excessive licking of lips or swallowing repeatedly | Hours | Nausea, esophageal discomfort, dental pain; in dogs, can precede vomiting or regurgitation |
-| Circling, stumbling, or falling to one side | Any occurrence | Vestibular disease or neurological event -- same-day veterinary evaluation |
-| Persistent coughing in dogs | 48+ hours, or any cough in a known cardiac patient | Kennel cough, tracheal collapse, heart disease with pulmonary edema, laryngeal paralysis |
-| Open-mouth breathing in cats at rest | Any occurrence | Emergency -- cats are obligate nasal breathers; any open-mouth breathing at rest indicates serious respiratory distress |
+| Observation                                        | Duration Threshold for Veterinary Contact          | Possible Significance                                                                                                                                                 |
+| -------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Decreased or absent appetite                       | Dogs: over 24 hours; Cats: over 12-24 hours        | Dental pain, GI disease, systemic illness, nausea; in cats, even 24-48 hours of anorexia can trigger hepatic lipidosis (fatty liver), particularly in overweight cats |
+| Increased appetite without weight gain             | Several days                                       | Diabetes mellitus, hyperthyroidism (cats), exocrine pancreatic insufficiency (dogs), intestinal malabsorption                                                         |
+| Polydipsia (markedly increased water intake)       | 3+ days consistently                               | Diabetes mellitus, chronic kidney disease, hyperthyroidism (cats), hyperadrenocorticism (Cushing's disease, dogs), pyometra in intact females                         |
+| Lethargy beyond post-exercise recovery             | Over 24 hours                                      | Pain, infection, anemia, organ dysfunction, cardiac disease, cancer                                                                                                   |
+| Hiding (cats specifically)                         | Over 24 hours, or combined with any other sign     | Pain and illness are the primary medical causes; never dismiss as introversion if new onset                                                                           |
+| Increased vocalization or howling at night         | 3+ nights                                          | Cognitive dysfunction syndrome (CDS) in seniors, hypertension (especially hyperthyroid cats), pain, hearing loss                                                      |
+| Sudden aggression or snapping                      | Any episode in a previously non-aggressive pet     | Pain is the number one cause -- a painful pet may bite or scratch to protect itself; pursue veterinary evaluation before behavioral intervention                      |
+| Excessive licking of lips or swallowing repeatedly | Hours                                              | Nausea, esophageal discomfort, dental pain; in dogs, can precede vomiting or regurgitation                                                                            |
+| Circling, stumbling, or falling to one side        | Any occurrence                                     | Vestibular disease or neurological event -- same-day veterinary evaluation                                                                                            |
+| Persistent coughing in dogs                        | 48+ hours, or any cough in a known cardiac patient | Kennel cough, tracheal collapse, heart disease with pulmonary edema, laryngeal paralysis                                                                              |
+| Open-mouth breathing in cats at rest               | Any occurrence                                     | Emergency -- cats are obligate nasal breathers; any open-mouth breathing at rest indicates serious respiratory distress                                               |
 
 **Monitoring elimination closely:**
 
@@ -155,15 +166,16 @@ At-home monitoring supplements -- never replaces -- regular veterinary wellness 
 
 **Preventive care schedule by life stage:**
 
-| Life Stage | At-Home Monitoring Frequency | Veterinary Visit Frequency | Key Focus Areas |
-|---|---|---|---|
-| Puppy/kitten (0-12 months) | Daily observation; weekly weight check | Every 3-4 weeks until 16 weeks for vaccine series; 6-month visit for spay/neuter assessment | Vaccine schedule completion, socialization health effects, growth rate, parasite screening, bite wound monitoring |
-| Young adult (1-3 years) | Weekly head-to-tail check; monthly weight | Annual wellness exam | Dental baseline, body condition, parasite prevention, behavior baseline, vaccine boosters |
-| Adult (3-7 years) | Weekly check; monthly weight | Annual wellness exam with comprehensive blood panel | Dental disease progression, weight management, pre-anesthetic blood work if dental cleaning needed |
-| Senior dog (7+ years; giant breeds 5+) | Weekly check; twice-monthly weight | Every 6 months with complete blood count, chemistry panel, urinalysis, thyroid panel | Cognitive function, mobility, drinking and urination changes, weight loss, oral pain, lump monitoring |
-| Senior cat (10+ years) | Weekly check; weekly weight monitoring | Every 6 months with blood work including T4 (thyroid), blood pressure measurement, kidney values | Hyperthyroidism (affects 10% of cats over 10), chronic kidney disease (CKD affects 30-40% of cats over 12), hypertension, weight loss, cognitive dysfunction |
+| Life Stage                             | At-Home Monitoring Frequency              | Veterinary Visit Frequency                                                                       | Key Focus Areas                                                                                                                                              |
+| -------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Puppy/kitten (0-12 months)             | Daily observation; weekly weight check    | Every 3-4 weeks until 16 weeks for vaccine series; 6-month visit for spay/neuter assessment      | Vaccine schedule completion, socialization health effects, growth rate, parasite screening, bite wound monitoring                                            |
+| Young adult (1-3 years)                | Weekly head-to-tail check; monthly weight | Annual wellness exam                                                                             | Dental baseline, body condition, parasite prevention, behavior baseline, vaccine boosters                                                                    |
+| Adult (3-7 years)                      | Weekly check; monthly weight              | Annual wellness exam with comprehensive blood panel                                              | Dental disease progression, weight management, pre-anesthetic blood work if dental cleaning needed                                                           |
+| Senior dog (7+ years; giant breeds 5+) | Weekly check; twice-monthly weight        | Every 6 months with complete blood count, chemistry panel, urinalysis, thyroid panel             | Cognitive function, mobility, drinking and urination changes, weight loss, oral pain, lump monitoring                                                        |
+| Senior cat (10+ years)                 | Weekly check; weekly weight monitoring    | Every 6 months with blood work including T4 (thyroid), blood pressure measurement, kidney values | Hyperthyroidism (affects 10% of cats over 10), chronic kidney disease (CKD affects 30-40% of cats over 12), hypertension, weight loss, cognitive dysfunction |
 
 **At-home monitoring intervals summary:**
+
 - Weekly: full head-to-tail physical check for all adult and senior pets
 - Monthly: weigh all pets on a consistent scale at a consistent time (same scale, same time of day, before feeding); record and track trend over time
 - After every outdoor outing (tick-endemic areas): tick check
@@ -174,6 +186,7 @@ At-home monitoring supplements -- never replaces -- regular veterinary wellness 
 The health log is one of the most clinically useful tools an owner can bring to a veterinary appointment. Veterinarians see the pet for 15-30 minutes once or twice a year. The owner has 365 days of observational data. A log that shows gradual weight loss of 0.5 lbs per month over four months, combined with increased water intake noted three months ago, is far more actionable than a vague report of "she seems thinner lately."
 
 **What to log:**
+
 - Date of observation
 - Weight (measured, not estimated)
 - Appetite score (1-5: 1 = refused all food, 3 = ate normally, 5 = ate ravenously and more)
@@ -455,3 +468,4 @@ Perform every week on a consistent day -- for example, every Sunday morning befo
 - [ ] Ears: light pink inner surface, no dark or moist discharge, no odor, no head shaking, base of ear not painful when gently massaged
 - [ ] Mouth: lift the lip and look; gums should be moist and salmon-pink; press gum and release -- color should return within 2 seconds; no foul odor; no drooling
 - [ ] Teeth: check for visible brown-to-tan tartar, especially at the
+```

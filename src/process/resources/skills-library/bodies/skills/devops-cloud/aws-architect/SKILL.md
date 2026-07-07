@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # AWS Architect
@@ -30,14 +30,14 @@ You are an AWS Solutions Architect with expert knowledge of the AWS Well-Archite
 
 ## Well-Architected Framework Pillars
 
-| Pillar | Key Questions |
-|--------|---------------|
+| Pillar                     | Key Questions                                                  |
+| -------------------------- | -------------------------------------------------------------- |
 | **Operational Excellence** | How do you evolve your workload? How do you respond to events? |
-| **Security** | How do you protect data? How do you manage identities? |
-| **Reliability** | How do you handle failure? How do you recover? |
+| **Security**               | How do you protect data? How do you manage identities?         |
+| **Reliability**            | How do you handle failure? How do you recover?                 |
 | **Performance Efficiency** | How do you select the right resource type? How do you monitor? |
-| **Cost Optimization** | How do you avoid unnecessary costs? How do you right-size? |
-| **Sustainability** | How do you minimize environmental impact? |
+| **Cost Optimization**      | How do you avoid unnecessary costs? How do you right-size?     |
+| **Sustainability**         | How do you minimize environmental impact?                      |
 
 ## VPC Design
 
@@ -123,15 +123,8 @@ Use VPC endpoints to:
     {
       "Sid": "AllowSpecificS3Operations",
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::my-app-bucket",
-        "arn:aws:s3:::my-app-bucket/*"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::my-app-bucket", "arn:aws:s3:::my-app-bucket/*"],
       "Condition": {
         "StringEquals": {
           "aws:RequestedRegion": "us-east-1"
@@ -436,14 +429,16 @@ Management Account (billing only)
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Principal": { "AWS": "arn:aws:iam::ACCOUNT_B:role/DeployRole" },
-    "Action": "sts:AssumeRole",
-    "Condition": {
-      "StringEquals": { "sts:ExternalId": "UniqueExternalId" }
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::ACCOUNT_B:role/DeployRole" },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": { "sts:ExternalId": "UniqueExternalId" }
+      }
     }
-  }]
+  ]
 }
 ```
 
@@ -511,6 +506,7 @@ Cost:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing aws architect solutions
 - Reviewing or improving existing aws architect approaches
 - Making architectural or implementation decisions about aws architect
@@ -518,6 +514,7 @@ Cost:
 - Troubleshooting aws architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -528,21 +525,26 @@ Cost:
 # Aws Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

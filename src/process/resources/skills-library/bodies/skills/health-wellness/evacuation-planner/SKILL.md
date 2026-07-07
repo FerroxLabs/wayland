@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness stress-management checklist template guide beginner-friendly cloud testing"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness stress-management checklist template guide beginner-friendly cloud testing'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Evacuation Planner
@@ -22,15 +22,16 @@ You are an evacuation planning specialist who helps households create comprehens
 
 > **DISCLAIMER**: This skill provides general evacuation planning guidance. It is not a substitute for official evacuation orders or guidance from your local emergency management agency. Always follow official instructions during an actual emergency. Individual circumstances, local hazards, and infrastructure vary. Review your plan with local emergency management resources when possible.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about evacuation planner techniques or best practices
 - User needs guidance on evacuation planner concepts
 - User wants to implement or improve their approach to evacuation planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of evacuation planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,6 +64,7 @@ You are an evacuation planning specialist who helps households create comprehens
 - [ ] Note any seasonal road closures or construction
 
 **Route documentation:**
+
 - Print paper maps (do not rely solely on phone GPS)
 - Mark primary and alternate routes with different colors
 - Note mile markers and key landmarks
@@ -71,19 +73,20 @@ You are an evacuation planning specialist who helps households create comprehens
 
 ### Route Selection Criteria
 
-| Factor | Consideration |
-|--------|--------------|
-| Direction | Routes should lead AWAY from the hazard zone |
-| Redundancy | At least 2 options in case one is blocked |
-| Road type | Mix of highway and surface streets for flexibility |
+| Factor          | Consideration                                           |
+| --------------- | ------------------------------------------------------- |
+| Direction       | Routes should lead AWAY from the hazard zone            |
+| Redundancy      | At least 2 options in case one is blocked               |
+| Road type       | Mix of highway and surface streets for flexibility      |
 | Bridges/tunnels | Avoid if possible (chokepoints, may close in disasters) |
-| Elevation | For floods, choose higher-ground routes |
-| Distance | Balance speed with reliability |
-| Services | Gas, food, and rest stops along the way |
+| Elevation       | For floods, choose higher-ground routes                 |
+| Distance        | Balance speed with reliability                          |
+| Services        | Gas, food, and rest stops along the way                 |
 
 ### Hazard-Specific Route Considerations
 
 **Wildfire:**
+
 - Move away from fire front and downhill from fire if possible
 - Avoid narrow canyon roads (fire channeling)
 - Routes should lead to large cleared areas or urban zones
@@ -91,6 +94,7 @@ You are an evacuation planning specialist who helps households create comprehens
 - Know where the fire is and where it is heading before choosing route
 
 **Hurricane:**
+
 - Evacuate inland and/or to higher ground
 - Avoid coastal routes that may flood
 - Plan for bridges closing hours before landfall
@@ -98,6 +102,7 @@ You are an evacuation planning specialist who helps households create comprehens
 - Fuel up vehicles early (gas stations run out fast)
 
 **Flood:**
+
 - Move to higher ground immediately
 - Never drive through moving water (6 inches can sweep a car)
 - Avoid low-lying roads, underpasses, and flood-prone areas
@@ -105,6 +110,7 @@ You are an evacuation planning specialist who helps households create comprehens
 - Monitor river gauge levels if in a river flood area
 
 **Chemical/Industrial:**
+
 - Move upwind and uphill from the release
 - Close vehicle windows and set air to recirculate
 - Routes should move crosswind if upwind route is not available
@@ -115,21 +121,25 @@ You are an evacuation planning specialist who helps households create comprehens
 ### Establishing Meeting Points
 
 **Meeting Point 1: Near home**
+
 - Just outside the house (mailbox, specific tree, neighbor's driveway)
 - Used for house fires and immediate evacuations
 - Everyone should know this instinctively
 
 **Meeting Point 2: In the neighborhood**
+
 - Nearby landmark outside the immediate area (school, park, community center)
 - Used when you cannot return home
 - Walking distance if possible
 
 **Meeting Point 3: Out of the area**
+
 - Friend or family member's home in a different town/region
 - Used for large-scale evacuations
 - Include full address and multiple contact numbers
 
 **Meeting Point 4: Regional shelter/hotel zone**
+
 - Identified area with hotels and shelters along your evacuation route
 - Used when personal contacts are not available
 - Research options in advance and note locations
@@ -184,11 +194,13 @@ Shelter locations: ________________________
 ### Document Storage Strategy
 
 **Three-location approach:**
+
 1. **Originals**: In a fireproof/waterproof safe at home
 2. **Physical copies**: In your go-bag, ready to grab
 3. **Digital copies**: Encrypted cloud storage or USB drive in go-bag
 
 **Digital backup tips:**
+
 - Scan or photograph all documents
 - Store in encrypted cloud service with strong password
 - Keep an encrypted USB drive as backup
@@ -302,12 +314,14 @@ Shelter locations: ________________________
 ### Loading Plan
 
 **Pre-stage for quick departure:**
+
 - Go-bags by the door or in vehicle
 - Pet carriers accessible
 - Important documents in designated grab location
 - Vehicle keys in consistent, known location
 
 **Loading priority order:**
+
 1. People and pets
 2. Medications and medical equipment
 3. Go-bags with essentials
@@ -321,12 +335,14 @@ Shelter locations: ________________________
 ### When to Evacuate
 
 **Evacuate immediately if:**
+
 - Officials issue a mandatory evacuation order
 - You feel unsafe in your current location
 - You see an immediate threat (approaching fire, rising water, structural damage)
 - A hazardous material release is moving toward your location
 
 **Prepare to evacuate when:**
+
 - Voluntary evacuation advisories are issued
 - Hazard conditions are developing (approaching hurricane, growing wildfire)
 - Flood warnings are issued for your area
@@ -354,14 +370,14 @@ DO YOU HAVE SPECIAL NEEDS THAT REQUIRE EXTRA TIME?
 
 ### Shelter-in-Place vs. Evacuate
 
-| Factor | Shelter-in-Place | Evacuate |
-|--------|-----------------|----------|
-| Hazmat release | Often recommended (seal rooms) | If ordered or in direct path |
-| Tornado | Usually best (interior room) | Not recommended during event |
-| Hurricane | Only if outside flood/surge zone in sturdy building | If in flood/surge zone or ordered |
-| Wildfire | Rarely safe | Almost always recommended |
-| Flood | If on high ground only | If in flood zone |
-| Earthquake | During shaking, yes; evaluate after | If building is damaged |
+| Factor         | Shelter-in-Place                                    | Evacuate                          |
+| -------------- | --------------------------------------------------- | --------------------------------- |
+| Hazmat release | Often recommended (seal rooms)                      | If ordered or in direct path      |
+| Tornado        | Usually best (interior room)                        | Not recommended during event      |
+| Hurricane      | Only if outside flood/surge zone in sturdy building | If in flood/surge zone or ordered |
+| Wildfire       | Rarely safe                                         | Almost always recommended         |
+| Flood          | If on high ground only                              | If in flood zone                  |
+| Earthquake     | During shaking, yes; evaluate after                 | If building is damaged            |
 
 ## Practice and Drills
 
@@ -378,6 +394,7 @@ DO YOU HAVE SPECIAL NEEDS THAT REQUIRE EXTRA TIME?
 - [ ] Update plan based on lessons learned
 
 **Recommended frequency:**
+
 - Full drill: Twice per year (before each hazard season)
 - Verbal review of plan: Quarterly
 - Document and contact list update: Every 6 months
@@ -437,7 +454,6 @@ ___________________________________________________________
 ___________________________________________________________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -445,7 +461,6 @@ ___________________________________________________________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -466,14 +481,12 @@ ___________________________________________________________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

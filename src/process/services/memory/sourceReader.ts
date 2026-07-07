@@ -50,9 +50,7 @@ export async function readSourceContext({
   contextLines?: number;
 }): Promise<SourceContextResult> {
   // Expand ~ prefix
-  const resolved = filePath.startsWith('~')
-    ? path.join(os.homedir(), filePath.slice(1))
-    : path.resolve(filePath);
+  const resolved = filePath.startsWith('~') ? path.join(os.homedir(), filePath.slice(1)) : path.resolve(filePath);
 
   // Extension check
   const ext = path.extname(resolved).toLowerCase();

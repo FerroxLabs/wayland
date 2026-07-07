@@ -40,7 +40,5 @@ export function selectAuthFailureCulprits(
 ): ProviderId[] {
   if (!isProviderKeyAuthFailure(errorText)) return [];
   if (backendAuthVars.length === 0 || injected.length === 0) return [];
-  return injected
-    .filter((inj) => inj.envVars.some((v) => backendAuthVars.includes(v)))
-    .map((inj) => inj.providerId);
+  return injected.filter((inj) => inj.envVars.some((v) => backendAuthVars.includes(v))).map((inj) => inj.providerId);
 }

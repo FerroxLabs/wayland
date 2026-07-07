@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness budgeting checklist template guide cloud testing planning"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness budgeting checklist template guide cloud testing planning'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Emergency Preparedness Guide
 
 > **Disclaimer:** This guide provides general emergency preparedness information. Specific risks vary by geographic location, climate, and individual circumstances. Always follow official guidance from local emergency management agencies, FEMA, and the Red Cross during actual emergencies. Medical preparedness should be discussed with your healthcare provider.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about emergency prepper techniques or best practices
 - User needs guidance on emergency prepper concepts
 - User wants to implement or improve their approach to emergency prepper
 
 **Do NOT use when:**
+
 - The request falls outside the scope of emergency prepper
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -86,6 +87,7 @@ Example: Family of 4, 14-day supply
 | Water bricks (stackable) | 3.5 gallons each | $15-$25 each | Rotate every 6-12 months |
 
 **Water purification backup:**
+
 - Water purification tablets (Aquatabs, Potable Aqua)
 - Portable water filter (Sawyer, LifeStraw, Katadyn)
 - Unscented liquid chlorine bleach (8 drops per gallon, wait 30 minutes)
@@ -94,6 +96,7 @@ Example: Family of 4, 14-day supply
 ### Food Reserves
 
 **Food storage priorities:**
+
 1. Foods your family actually eats (do not stockpile foods nobody likes)
 2. No cooking required options (may not have power or fuel)
 3. Long shelf life (canned goods, freeze-dried, dehydrated)
@@ -102,16 +105,17 @@ Example: Family of 4, 14-day supply
 
 **72-Hour Food Kit per Person:**
 
-| Category | Items | Quantity |
-|----------|-------|---------|
-| Protein | Canned tuna/chicken, peanut butter, protein bars, jerky | 3-6 servings |
-| Carbohydrates | Crackers, granola bars, dried fruit, instant oatmeal | 6-9 servings |
-| Canned meals | Soup, chili, stew, pasta | 3-6 cans |
-| Snacks | Trail mix, nuts, dried fruit, hard candy | Assorted |
-| Comfort foods | Chocolate, coffee, tea (morale matters) | As desired |
-| Special needs | Baby formula, dietary restriction items | As needed |
+| Category      | Items                                                   | Quantity     |
+| ------------- | ------------------------------------------------------- | ------------ |
+| Protein       | Canned tuna/chicken, peanut butter, protein bars, jerky | 3-6 servings |
+| Carbohydrates | Crackers, granola bars, dried fruit, instant oatmeal    | 6-9 servings |
+| Canned meals  | Soup, chili, stew, pasta                                | 3-6 cans     |
+| Snacks        | Trail mix, nuts, dried fruit, hard candy                | Assorted     |
+| Comfort foods | Chocolate, coffee, tea (morale matters)                 | As desired   |
+| Special needs | Baby formula, dietary restriction items                 | As needed    |
 
 **Extended Supply (2 Weeks):**
+
 - Canned vegetables and fruits
 - Rice and dried pasta
 - Dried beans and lentils
@@ -176,6 +180,7 @@ MEDICAL INFORMATION:
 ```
 
 ### Communication Tips During Emergencies
+
 - Text messages often get through when voice calls cannot (uses less bandwidth)
 - Designate your out-of-area contact as a central relay point
 - Keep phones charged (portable battery packs are essential)
@@ -202,13 +207,13 @@ MEDICAL INFORMATION:
 
 ### Protection Methods
 
-| Method | Pros | Cons |
-|--------|------|------|
-| Fireproof safe (at home) | Immediate access, protects from fire | Can be lost in flood, theft, total destruction |
-| Bank safe deposit box | Very secure | Limited access hours, may be inaccessible in disaster |
-| Cloud storage (encrypted) | Accessible anywhere, protected from physical damage | Requires internet access and password |
-| Trusted family member | Geographic redundancy | Privacy concerns |
-| USB drive in go-bag | Portable, quick access | Can be lost or damaged |
+| Method                    | Pros                                                | Cons                                                  |
+| ------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| Fireproof safe (at home)  | Immediate access, protects from fire                | Can be lost in flood, theft, total destruction        |
+| Bank safe deposit box     | Very secure                                         | Limited access hours, may be inaccessible in disaster |
+| Cloud storage (encrypted) | Accessible anywhere, protected from physical damage | Requires internet access and password                 |
+| Trusted family member     | Geographic redundancy                               | Privacy concerns                                      |
+| USB drive in go-bag       | Portable, quick access                              | Can be lost or damaged                                |
 
 **Best practice:** Use multiple methods. Store digital copies in encrypted cloud storage AND keep physical copies in a fireproof safe AND with a trusted out-of-area contact.
 
@@ -232,6 +237,7 @@ MEDICAL INFORMATION:
 **Each family member should have a bag that can be grabbed in minutes:**
 
 **Essentials:**
+
 - [ ] Water (at least 1 liter)
 - [ ] Food (energy bars, nuts, dried fruit for 24 hours)
 - [ ] Medications (3-7 day supply of all prescriptions)
@@ -244,6 +250,7 @@ MEDICAL INFORMATION:
 - [ ] Rain poncho or jacket
 
 **Additional Items:**
+
 - [ ] Multi-tool or knife
 - [ ] Whistle (for signaling)
 - [ ] Dust mask or N95 respirator
@@ -256,6 +263,7 @@ MEDICAL INFORMATION:
 - [ ] Emergency blanket (Mylar)
 
 **For Children:**
+
 - [ ] Comfort item (stuffed animal, blanket)
 - [ ] Activities (coloring book, small toy, book)
 - [ ] Diapers and wipes (if applicable)
@@ -264,6 +272,7 @@ MEDICAL INFORMATION:
 - [ ] Photo of child with parent (for identification if separated)
 
 **For Pets:**
+
 - [ ] 3-day supply of food and water
 - [ ] Leash, collar with ID, carrier
 - [ ] Medications
@@ -276,12 +285,14 @@ MEDICAL INFORMATION:
 ## Phase 5: Shelter-in-Place
 
 ### When to Shelter in Place
+
 - Chemical or industrial accident with toxic release
 - Severe weather (tornado warning, severe thunderstorm)
 - Active threat in the area
 - Authorities specifically instruct shelter-in-place
 
 ### Shelter-in-Place Procedure
+
 1. Get inside the nearest sturdy building immediately
 2. Close and lock all doors and windows
 3. Turn off HVAC system, fans, and ventilation
@@ -292,6 +303,7 @@ MEDICAL INFORMATION:
 8. Do not leave until authorities give the all-clear
 
 ### Shelter-in-Place Supply Checklist
+
 - [ ] Plastic sheeting (pre-cut for each window and door)
 - [ ] Duct tape
 - [ ] Battery-powered or hand-crank radio
@@ -315,17 +327,20 @@ MEDICAL INFORMATION:
 ### Go-Bag Contents by Category
 
 **Water (heaviest item, plan accordingly):**
+
 - 1-2 liters of water in bottles
 - Water purification method (filter, tablets)
 - Collapsible water container
 
 **Food (calorie-dense, lightweight):**
+
 - Energy bars (1,200+ calories per day for 3 days)
 - Trail mix and nuts
 - Jerky
 - Freeze-dried meals (if you have a way to heat water)
 
 **Shelter and Warmth:**
+
 - Emergency bivvy or space blanket
 - Rain poncho
 - Compact sleeping bag or liner (if space allows)
@@ -333,12 +348,14 @@ MEDICAL INFORMATION:
 - Extra socks (dry socks are critical)
 
 **Fire and Light:**
+
 - Waterproof matches or lighter
 - Flashlight (headlamp preferred for hands-free)
 - Extra batteries or hand-crank light
 - Glow sticks
 
 **First Aid:**
+
 - Adhesive bandages (assorted sizes)
 - Gauze pads and roll
 - Medical tape
@@ -350,6 +367,7 @@ MEDICAL INFORMATION:
 - Moleskin (for blisters)
 
 **Tools and Navigation:**
+
 - Multi-tool
 - Fixed-blade knife
 - Paracord (50 feet)
@@ -363,6 +381,7 @@ MEDICAL INFORMATION:
 ## Phase 7: Seasonal Preparation
 
 ### Spring Preparation
+
 - [ ] Test smoke detectors and CO detectors (replace batteries)
 - [ ] Review and update emergency plans and contacts
 - [ ] Check and rotate water storage
@@ -373,6 +392,7 @@ MEDICAL INFORMATION:
 - [ ] Check sump pump operation
 
 ### Summer Preparation
+
 - [ ] Prepare for heat emergencies (fans, hydration supplies, cooling center locations)
 - [ ] Wildfire preparation (defensible space, evacuation routes)
 - [ ] Hurricane preparation (if in hurricane zone: shutters, supplies, plan)
@@ -380,6 +400,7 @@ MEDICAL INFORMATION:
 - [ ] Update go-bags with seasonal clothing
 
 ### Fall Preparation
+
 - [ ] Winterize home (insulation, weather stripping, pipe insulation)
 - [ ] Service heating system
 - [ ] Stock winter storm supplies
@@ -388,6 +409,7 @@ MEDICAL INFORMATION:
 - [ ] Rotate food and water storage
 
 ### Winter Preparation
+
 - [ ] Ensure adequate heating backup (wood stove, space heater with safety features)
 - [ ] Stock extra blankets and warm clothing
 - [ ] Maintain rock salt or sand for ice
@@ -427,20 +449,19 @@ Next review date: _______________
 
 ### Building Your Kit Over Time
 
-| Month | Focus Area | Budget |
-|-------|-----------|--------|
-| Month 1 | Water storage (containers, purification) | $20-$50 |
-| Month 2 | Food supply (start with canned goods) | $30-$50 |
-| Month 3 | First aid kit and medications | $25-$50 |
-| Month 4 | Lighting and communication (flashlights, radio, batteries) | $25-$50 |
-| Month 5 | Documents and communication plan | $10-$20 |
-| Month 6 | Go-bag basics (backpack, essentials) | $30-$60 |
-| Month 7-12 | Expand and refine all categories | $20-$50/month |
+| Month      | Focus Area                                                 | Budget        |
+| ---------- | ---------------------------------------------------------- | ------------- |
+| Month 1    | Water storage (containers, purification)                   | $20-$50       |
+| Month 2    | Food supply (start with canned goods)                      | $30-$50       |
+| Month 3    | First aid kit and medications                              | $25-$50       |
+| Month 4    | Lighting and communication (flashlights, radio, batteries) | $25-$50       |
+| Month 5    | Documents and communication plan                           | $10-$20       |
+| Month 6    | Go-bag basics (backpack, essentials)                       | $30-$60       |
+| Month 7-12 | Expand and refine all categories                           | $20-$50/month |
 
 You do not need to spend hundreds of dollars at once. Build your preparedness gradually, focusing on the most critical items first: water, food, first aid, and a communication plan. Even basic preparation puts you far ahead of most households.
 
 The time to prepare is before you need it. Review and practice your plans regularly, maintain your supplies, and keep your family informed and engaged.
-
 
 ## Process
 
@@ -449,7 +470,6 @@ The time to prepare is before you need it. Review and practice your plans regula
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -470,14 +490,12 @@ The time to prepare is before you need it. Review and practice your plans regula
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

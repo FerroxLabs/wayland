@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security cloud-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security cloud-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # WAF Configurer
@@ -110,12 +110,12 @@ SecAction "id:900000,phase:1,pass,t:none,\
 
 ### Paranoia Level Selection
 
-| Level | Description | False Positives | Detection | Use Case |
-|-------|-------------|-----------------|-----------|----------|
-| PL1 | Basic protection | Very low | Moderate | Default, most applications |
-| PL2 | Elevated | Low-moderate | Good | Applications handling sensitive data |
-| PL3 | Strict | Moderate-high | Very good | High-security applications |
-| PL4 | Maximum | High | Maximum | Requires extensive tuning |
+| Level | Description      | False Positives | Detection | Use Case                             |
+| ----- | ---------------- | --------------- | --------- | ------------------------------------ |
+| PL1   | Basic protection | Very low        | Moderate  | Default, most applications           |
+| PL2   | Elevated         | Low-moderate    | Good      | Applications handling sensitive data |
+| PL3   | Strict           | Moderate-high   | Very good | High-security applications           |
+| PL4   | Maximum          | High            | Maximum   | Requires extensive tuning            |
 
 ## Rate Limiting Rules
 
@@ -161,7 +161,7 @@ rate_limits:
     method: POST
     limit: 3 requests per hour per IP
     action: block for 1 hour
-# ... (condensed) ...
+  # ... (condensed) ...
 
   # Global fallback
   global:
@@ -173,19 +173,19 @@ rate_limits:
 
 ```json
 {
-    "Name": "GeoBlockRule",
-    "Priority": 0,
-    "Statement": {
-        "GeoMatchStatement": {
-            "CountryCodes": ["CN", "RU", "KP", "IR"]
-        }
-    },
-    "Action": {"Block": {}},
-    "VisibilityConfig": {
-        "SampledRequestsEnabled": true,
-        "CloudWatchMetricsEnabled": true,
-        "MetricName": "GeoBlock"
+  "Name": "GeoBlockRule",
+  "Priority": 0,
+  "Statement": {
+    "GeoMatchStatement": {
+      "CountryCodes": ["CN", "RU", "KP", "IR"]
     }
+  },
+  "Action": { "Block": {} },
+  "VisibilityConfig": {
+    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "GeoBlock"
+  }
 }
 ```
 
@@ -359,12 +359,12 @@ waf_dashboard_metrics:
       - Rate limiting
       - Custom rules
       - Geo-blocking
-# ... (condensed) ...
+  # ... (condensed) ...
   - alert_on:
-      - block_rate > 10%: "Possible attack or misconfiguration"
-      - block_rate < 0.1%: "WAF may not be effective"
-      - single_ip_blocked > 1000/hour: "Targeted attack"
-      - new_rule_blocks > 100/hour: "New rule may have false positives"
+      - block_rate > 10%: 'Possible attack or misconfiguration'
+      - block_rate < 0.1%: 'WAF may not be effective'
+      - single_ip_blocked > 1000/hour: 'Targeted attack'
+      - new_rule_blocks > 100/hour: 'New rule may have false positives'
 ```
 
 ## False Positive Management
@@ -457,24 +457,24 @@ false_positive_record:
 ```yaml
 bypass_prevention:
   encoding_bypass:
-    attack: "Encode payload to evade pattern matching"
+    attack: 'Encode payload to evade pattern matching'
     examples:
-      - URL encoding: "%27%20OR%201%3D1--"
-      - Double URL encoding: "%2527%2520OR%25201%253D1--"
+      - URL encoding: '%27%20OR%201%3D1--'
+      - Double URL encoding: '%2527%2520OR%25201%253D1--'
       - Unicode: "\u0027 OR 1=1--"
-      - HTML entities: "&#39; OR 1=1--"
-    defense: "Apply multiple text transformations before rule evaluation"
+      - HTML entities: '&#39; OR 1=1--'
+    defense: 'Apply multiple text transformations before rule evaluation'
 
   case_variation:
-    attack: "Mix case to bypass case-sensitive rules"
+    attack: 'Mix case to bypass case-sensitive rules'
     examples:
-      - "<ScRiPt>alert(1)</sCrIpT>"
+      - '<ScRiPt>alert(1)</sCrIpT>'
       # ... (condensed) ...
-    defense: "Reassemble full request before inspection"
+    defense: 'Reassemble full request before inspection'
 
   http_parameter_pollution:
-    attack: "Duplicate parameters: ?id=1&id=2;DROP TABLE users"
-    defense: "Inspect all parameter values, not just first/last"
+    attack: 'Duplicate parameters: ?id=1&id=2;DROP TABLE users'
+    defense: 'Inspect all parameter values, not just first/last'
 ```
 
 ## WAF Deployment Best Practices
@@ -493,6 +493,7 @@ bypass_prevention:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing waf configurer solutions
 - Reviewing or improving existing waf configurer approaches
 - Making architectural or implementation decisions about waf configurer
@@ -500,6 +501,7 @@ bypass_prevention:
 - Troubleshooting waf configurer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -510,21 +512,26 @@ bypass_prevention:
 # Waf Configurer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

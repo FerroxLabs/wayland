@@ -6,13 +6,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning presentation branding"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning presentation branding'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Startup Pitch Narrative
@@ -20,6 +20,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User needs to pitch their startup to investors, accelerators, or grant programs
 - User wants a narrative script for a 3-5 minute or 10-minute pitch
 - User asks about how to structure a startup pitch or tell their founder story
@@ -27,6 +28,7 @@ metadata:
 - User wants to translate their business plan into a compelling spoken narrative
 
 **Do NOT use this skill when:**
+
 - User needs a sales pitch deck for customers (use `sales-pitch-deck`)
 - User needs the financial narrative for a fundraise (use `fundraising-narrative`)
 - User needs brand positioning or messaging (use `brand-positioning`)
@@ -297,14 +299,15 @@ metadata:
 ## Startup Pitch Narrative: FoodCast
 
 ### Pitch Overview
-| Field | Value |
-|-------|-------|
-| **Company** | FoodCast |
+
+| Field         | Value                                                                 |
+| ------------- | --------------------------------------------------------------------- |
+| **Company**   | FoodCast                                                              |
 | **One-liner** | AI demand forecasting that helps restaurants reduce food waste by 30% |
-| **Audience** | Demo day investors |
-| **Duration** | 5 minutes |
-| **Stage** | Pre-seed |
-| **Ask** | $500K |
+| **Audience**  | Demo day investors                                                    |
+| **Duration**  | 5 minutes                                                             |
+| **Stage**     | Pre-seed                                                              |
+| **Ask**       | $500K                                                                 |
 
 ### Narrative Script
 
@@ -332,12 +335,12 @@ metadata:
 
 #### 4. Traction [2:30 - 3:15]
 
-| Metric | Value |
-|--------|-------|
-| Restaurants | 15 active (up from 3 two months ago) |
-| Average waste reduction | 30% |
-| Monthly revenue | $4,500 MRR |
-| Retention | 100% (zero churn in 4 months) |
+| Metric                  | Value                                |
+| ----------------------- | ------------------------------------ |
+| Restaurants             | 15 active (up from 3 two months ago) |
+| Average waste reduction | 30%                                  |
+| Monthly revenue         | $4,500 MRR                           |
+| Retention               | 100% (zero churn in 4 months)        |
 
 "Every restaurant that has tried FoodCast has stayed. And they are sending us referrals -- 8 of our 15 customers came from word of mouth."
 

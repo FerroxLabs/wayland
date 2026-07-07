@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "salary-negotiation career email writing template"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'salary-negotiation career email writing template'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Counter Offer Letter
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has received a formal or informal written job offer and wants to respond with a higher compensation request via email
 - The user asks to draft a salary counter-proposal, negotiate a job offer in writing, or respond to an offer letter with modified terms
 - The user wants to counter on a specific component of compensation -- base salary, signing bonus, equity, title, or benefits -- while accepting other components
@@ -34,6 +36,7 @@ metadata:
 - The user wants to counter after initial negotiations have stalled and a recruiter has asked for a final decision in writing
 
 **Do NOT use when:**
+
 - The user wants talking points for a live phone or in-person negotiation -- use `salary-negotiation-script` instead
 - The user is a freelancer responding to a client project budget -- use `freelance-proposal-writer` instead
 - The user wants to request a raise or promotion from their current employer -- use `salary-negotiation-script` with the raise scenario
@@ -82,6 +85,7 @@ Every counter-offer email must include exactly 2--3 justification points. More t
 6. **Years of directly relevant experience** -- Useful but the weakest standalone argument since it is universally claimed. Pair it with a quantified outcome to strengthen it.
 
 **Never use as justification:**
+
 - Personal financial needs (rent, debt, family obligations) -- these are irrelevant to market value
 - "I feel I'm worth more" -- subjective and unverifiable
 - Vague claims like "my experience is extensive" without specifics
@@ -92,17 +96,20 @@ Every counter-offer email must include exactly 2--3 justification points. More t
 Build the email in exactly this sequence. Each section has a purpose that must not be omitted or reordered:
 
 **Subject Line:**
+
 - Format: `[Role Title] Offer -- [Framing Word]`
 - Framing words that work: "Compensation Discussion," "Proposed Adjustment," "Follow-Up," "Compensation Consideration"
 - Avoid: "Negotiation," "Counter-Offer" (signals adversarialism), anything vague like "Quick Question"
 - Example: `Senior Data Scientist Offer -- Compensation Discussion`
 
 **Opening Paragraph (2--4 sentences):**
+
 - Open with genuine, specific enthusiasm for the role or company -- not generic gratitude
 - Reference something specific about the opportunity (the product, the team, a conversation point) to signal this is not a form letter
 - End the paragraph before any compensation language appears -- do not mix enthusiasm and money in the same paragraph
 
 **Counter Paragraph (4--6 sentences):**
+
 - Begin with a transitional phrase that signals a shift without apology: "After reviewing the full offer..." or "As I considered the position more carefully..."
 - State the specific counter number clearly and early in the paragraph
 - Present each justification point in 1--2 sentences, most powerful first
@@ -110,11 +117,13 @@ Build the email in exactly this sequence. Each section has a purpose that must n
 - If referencing market data, cite the source type (survey data, competing offer, published range) without the need to hyperlink it
 
 **Flexibility Paragraph (1--2 sentences, conditional):**
+
 - Include only if the user is genuinely open to alternatives (signing bonus in lieu of base, extra equity, etc.)
 - Frame openness as collaborative problem-solving: "I'm happy to discuss the full package structure if that helps find a path forward."
 - Omit this paragraph if the user is firm on a specific number -- including it when the user is not flexible creates false expectations
 
 **Closing Paragraph (2--3 sentences):**
+
 - Reaffirm enthusiasm for the role specifically
 - Propose a concrete next step: a phone call, a timeline, or a request for a response
 - Close warmly but not obsequiously
@@ -274,6 +283,7 @@ Help the user use the competing offer as leverage without making a commitment th
 **User Input:** "I received an offer for $105,000 as a Product Marketing Manager at a SaaS company. I want to counter at $120,000. My justifications: I have 5 years of PMM experience at SaaS companies, I led a product launch that drove $3M in new ARR, and market data shows the P50 for this role in Austin is $115K-$125K according to Radford survey data. The offer came from the hiring manager, Jessica Torres."
 
 **Compensation Analysis:**
+
 - Offer: $105,000
 - Counter: $120,000
 - Gap: $15,000 / 14.3% above offer -- within standard 10--20% range, no large-gap advisory needed
@@ -330,6 +340,7 @@ The market data point leads because it is the most objective and hardest to dism
 **User Input:** "I got an offer for $90,000 as a UX Designer at a healthcare tech company. The salary is fair for my market. But they only offer 10 days PTO and no remote work flexibility. I want to counter for 20 days PTO and at least 2 remote days per week. The recruiter is Tom Walsh."
 
 **Compensation Analysis:**
+
 - Base salary: $90,000 -- user is satisfied, no base counter
 - Benefits gap: PTO at 10 days vs. 20 days requested (industry median for this seniority is 15--20 days); remote work -- 0 days vs. 2 days requested
 - Structure note: Benefits-only counter -- the counter paragraph becomes a structured list of two specific requests, each with a brief justification
@@ -387,6 +398,7 @@ The bulleted list format is used here because two distinct benefits items are be
 **User Input:** "I have an offer from Company A for $130,000 as a Senior Software Engineer. I also have an offer from Company B for $148,000 for an essentially identical role. I strongly prefer Company A -- the team and the tech stack are a better fit -- but the $18K gap is significant. I want to counter Company A at $145,000. The hiring manager at Company A is Priya Patel."
 
 **Compensation Analysis:**
+
 - Offer: $130,000
 - Counter: $145,000
 - Gap: $15,000 / 11.5% above offer -- within standard range, no large-gap advisory needed
@@ -443,6 +455,7 @@ The competing offer leads as justification because it is the most objective and 
 **User Input:** "I have an offer from a Series C SaaS startup as a Staff Engineer. The base is $175,000, which I'm fine with. But they're offering 8,000 RSUs vesting over 4 years at a current 409A of $12 per share. For a Staff Engineer role at a Series C, I expected something closer to 15,000 RSUs. I want to counter on equity only. The hiring manager is Marcus Webb."
 
 **Compensation Analysis:**
+
 - Base: $175,000 -- user is satisfied, no base counter
 - Current equity offer: 8,000 RSUs × $12 409A = $96,000 four-year grant value / $24,000/year
 - Requested equity: 15,000 RSUs × $12 409A = $180,000 four-year grant value / $45,000/year

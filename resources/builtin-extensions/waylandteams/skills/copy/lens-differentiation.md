@@ -1,22 +1,23 @@
 # lens-differentiation
 
-**Lens mode.** Source authority: Seth Godin's *Purple Cow* / *Linchpin* lineage — remarkable beats safe; the obvious version of any idea is the one nobody forwards.
+**Lens mode.** Source authority: Seth Godin's _Purple Cow_ / _Linchpin_ lineage — remarkable beats safe; the obvious version of any idea is the one nobody forwards.
 
 ## When to use
 
-Use when the deliverable risks being *correct but invisible*. Thought-leadership essays, manifestos, conference talks, contrarian threads, opinion columns, "we believe" pages, anything where the reader has read ten near-identical takes already. Trigger this lens when the brief is "this is a crowded topic" or "the post says the right thing but no one shares it."
+Use when the deliverable risks being _correct but invisible_. Thought-leadership essays, manifestos, conference talks, contrarian threads, opinion columns, "we believe" pages, anything where the reader has read ten near-identical takes already. Trigger this lens when the brief is "this is a crowded topic" or "the post says the right thing but no one shares it."
 
 ## Procedure
 
 1. **State the obvious version.** Write the take the reader has already seen five times this month — the consensus, the safe, the conference-keynote-cliché version. State it plainly, without contempt. ("The obvious version: founders should focus on product-market fit before scaling marketing.") Naming the obvious creates the room to move past it.
-2. **Find the differentiated angle.** Not the opposite of the consensus — the *unstated implication* of taking it seriously. What does the consensus claim, if true, force you to also believe? What does it forbid? The differentiated angle lives where most writers stop because the implication is uncomfortable.
+2. **Find the differentiated angle.** Not the opposite of the consensus — the _unstated implication_ of taking it seriously. What does the consensus claim, if true, force you to also believe? What does it forbid? The differentiated angle lives where most writers stop because the implication is uncomfortable.
 3. **Compress to an insight.** One sentence the reader could repeat. Shorter than feels safe. The compression test: if you cannot say it in 18 words, the angle is still tangled.
-4. **Name the contrarian truth.** The specific thing this lens forces you to say that you would not say at a polite dinner. Contrarian does not mean *opposite*; it means *load-bearing claim that the consensus is quietly avoiding*. ("Most founders chasing PMF are running customer interviews that protect their roadmap from learning.") If a peer would not push back, the contrarian truth is not yet earned.
+4. **Name the contrarian truth.** The specific thing this lens forces you to say that you would not say at a polite dinner. Contrarian does not mean _opposite_; it means _load-bearing claim that the consensus is quietly avoiding_. ("Most founders chasing PMF are running customer interviews that protect their roadmap from learning.") If a peer would not push back, the contrarian truth is not yet earned.
 5. **Connect to the bigger picture.** What does this angle imply about the next 18 months in the category, the role, or the reader's behavior? The bigger picture is what makes the asset get saved, not just liked.
 
 End every output with this exact contract:
 
 **DIFFERENTIATION:**
+
 - Obvious version: ...
 - Differentiated angle: ...
 - Compressed insight: ...
@@ -44,11 +45,13 @@ End every output with this exact contract:
 **Brief:** Twitter thread for a B2B audience on hiring.
 
 **Before:**
-> *Hire slow, fire fast. Culture matters. Get the right people on the bus.*
+
+> _Hire slow, fire fast. Culture matters. Get the right people on the bus._
 
 Three consensus claims stacked. No reader writes these down.
 
 **After:**
-> *Obvious version: hire slow, fire fast. The honest version: most "hire slow" processes are just procrastination dressed as rigor. Eight-stage interview loops do not produce better hires — they produce candidates who tolerate eight-stage loops. The bigger picture: the best hires this decade will come from companies that decide in three conversations and onboard like their life depends on it.*
+
+> _Obvious version: hire slow, fire fast. The honest version: most "hire slow" processes are just procrastination dressed as rigor. Eight-stage interview loops do not produce better hires — they produce candidates who tolerate eight-stage loops. The bigger picture: the best hires this decade will come from companies that decide in three conversations and onboard like their life depends on it._
 
 Obvious named. Implication surfaced. Compressed insight: process length signals candidate filter, not hire quality. Contrarian truth: long loops select for tolerance, not talent. Bigger picture stated.

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy goal-setting"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy goal-setting'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # OKR Coach
@@ -32,6 +32,7 @@ OBJECTIVE: Qualitative, inspirational, time-bound
 ```
 
 ### Rules of Thumb
+
 - **3-5 Objectives** per team per quarter (focus is the point)
 - **2-4 Key Results** per Objective (enough to triangulate, not overwhelm)
 - **Objectives** answer "Where do we want to go?"
@@ -55,7 +56,9 @@ GOOD (Outcome-based):
 ## Writing Effective OKRs
 
 ### The Objective Test
+
 Ask these questions about every Objective:
+
 1. Is it inspirational? (Would someone rally around this?)
 2. Is it time-bound? (Can we achieve meaningful progress this quarter?)
 3. Is it qualitative? (No numbers in the Objective itself)
@@ -63,7 +66,9 @@ Ask these questions about every Objective:
 5. Does it connect to strategy? (Why does this matter NOW?)
 
 ### The Key Result Test
+
 Every Key Result must pass ALL of these:
+
 1. **Measurable**: Has a number with a starting point and target
 2. **Verifiable**: An independent observer could confirm achievement
 3. **Outcome-oriented**: Describes a result, not an activity
@@ -103,6 +108,7 @@ COMPANY OKR
 ```
 
 ### Cascading Rules
+
 1. **Not every OKR cascades** -- teams should have autonomy OKRs too
 2. **60/40 split**: ~60% aligned to company/department OKRs, ~40% team-originated
 3. **Cascade outcomes, not tasks**: The parent KR becomes context, not a mandate
@@ -136,10 +142,10 @@ COMPANY OKR
 
 ### Committed vs Aspirational OKRs
 
-| Type | Expected Score | Purpose | Example |
-|------|---------------|---------|---------|
-| Committed | 1.0 | Must-do, tied to business commitments | "Achieve SOC2 compliance" |
-| Aspirational (Stretch) | 0.7 | Ambitious, pushes the team | "Reduce churn to industry-best 2%" |
+| Type                   | Expected Score | Purpose                               | Example                            |
+| ---------------------- | -------------- | ------------------------------------- | ---------------------------------- |
+| Committed              | 1.0            | Must-do, tied to business commitments | "Achieve SOC2 compliance"          |
+| Aspirational (Stretch) | 0.7            | Ambitious, pushes the team            | "Reduce churn to industry-best 2%" |
 
 ### Scoring Process
 
@@ -150,11 +156,12 @@ COMPANY OKR
 **Actual result**: 52%
 **Score**: 0.6 (52-40)/(60-40) = 0.6
 **Context**: We shipped the new onboarding in week 8 (late).
-             Early data shows 58% for users on new flow.
+Early data shows 58% for users on new flow.
 **Carry forward?**: Yes - continue next quarter with higher baseline
 ```
 
 ### Team-Level OKR Score
+
 - Average the KR scores within each Objective
 - Average the Objective scores for an overall team score
 - **Do NOT use OKR scores for performance reviews** (this kills ambition)
@@ -162,6 +169,7 @@ COMPANY OKR
 ## Quarterly Cadence
 
 ### Annual Planning (December/January)
+
 - Set company-level annual OKRs (3-5 Objectives)
 - These are directional -- quarterly OKRs will be more specific
 
@@ -195,21 +203,25 @@ WEEK 12: Scoring and Reflection
 ## Weekly OKR Check-in - [Team Name] - Week [N]
 
 ### Objective 1: [Name]
-| Key Result | Target | Current | Confidence | Notes |
-|-----------|--------|---------|------------|-------|
-| KR1       | 60%    | 48%     | On Track   | New flow shipping next week |
-| KR2       | 200ms  | 350ms   | At Risk    | Blocked on infra migration |
+
+| Key Result | Target | Current | Confidence | Notes                       |
+| ---------- | ------ | ------- | ---------- | --------------------------- |
+| KR1        | 60%    | 48%     | On Track   | New flow shipping next week |
+| KR2        | 200ms  | 350ms   | At Risk    | Blocked on infra migration  |
 
 ### Blockers
+
 - [List anything blocking KR progress]
 
 ### Asks
+
 - [What do you need from other teams or leadership?]
 ```
 
 ## Common Anti-Patterns
 
 ### 1. Task Lists Disguised as OKRs
+
 ```
 BAD:
   Objective: Improve the product
@@ -225,6 +237,7 @@ FIX: Ask "So what?" after each KR. Ship feature X... so what?
 ```
 
 ### 2. Too Many OKRs
+
 ```
 SYMPTOM: Team has 8 Objectives with 5 KRs each = 40 things to track
 WHY IT FAILS: OKRs are a FOCUS tool. 40 priorities = zero priorities.
@@ -233,6 +246,7 @@ FIX: Force-rank. Pick the top 3-4 Objectives. Everything else is
 ```
 
 ### 3. Sandbagging (Setting Easy OKRs)
+
 ```
 SYMPTOM: Team scores 1.0 every quarter
 WHY IT FAILS: OKRs should stretch the team. Consistent 1.0 means
@@ -242,6 +256,7 @@ FIX: Calibrate using historical data. If you always hit 1.0,
 ```
 
 ### 4. Set and Skip
+
 ```
 SYMPTOM: OKRs are set in January and not looked at until March
 WHY IT FAILS: OKRs only work as a management tool if they drive
@@ -251,6 +266,7 @@ FIX: Weekly check-ins. Make OKR status visible on team dashboards.
 ```
 
 ### 5. Using OKRs for Performance Reviews
+
 ```
 SYMPTOM: Individual OKR scores affect compensation
 WHY IT FAILS: People stop setting ambitious goals. Sandbagging
@@ -260,6 +276,7 @@ FIX: Explicitly decouple OKR scores from performance reviews.
 ```
 
 ### 6. Changing OKRs Mid-Quarter
+
 ```
 SYMPTOM: OKRs are rewritten every few weeks
 WHY IT FAILS: There is no time to make progress if the target
@@ -271,18 +288,21 @@ FIX: OKRs are set quarterly and only changed for dramatic context
 ## OKR Rollout Playbook
 
 ### Phase 1: Pilot (Quarter 1)
+
 - Start with 1-2 teams, not the whole company
 - Assign an OKR champion per team
 - Use simple tooling (spreadsheet or doc, not software)
 - Focus on learning the format, not perfection
 
 ### Phase 2: Expand (Quarter 2-3)
+
 - Add 3-5 more teams based on pilot learnings
 - Introduce company-level OKRs for alignment
 - Start weekly check-in cadence
 - Train managers on coaching OKRs (not writing them for their teams)
 
 ### Phase 3: Scale (Quarter 4+)
+
 - All teams on OKRs with cascading alignment
 - Introduce cross-team OKR dependencies tracking
 - Consider OKR tooling (Gtmhub/Quantive, Weekdone, Perdoo)
@@ -348,17 +368,20 @@ Is your organization larger than 20 people?
 ## Integration with Other Frameworks
 
 ### OKRs + Scrum
+
 - OKRs set the quarterly direction
 - Sprint goals should connect to KR progress
 - Sprint reviews should report KR movement
 - Do NOT make every sprint backlog item an OKR task
 
 ### OKRs + Kanban
+
 - OKRs inform WIP limit priorities
 - Use KR progress as input to flow optimization
 - Quarterly OKR cadence overlays continuous flow
 
 ### OKRs + Product Strategy
+
 - Company OKRs derive from product strategy
 - Product roadmap themes should map to Objectives
 - KRs validate that roadmap items deliver outcomes
@@ -390,6 +413,7 @@ ANTI-PATTERNS:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing okr coach solutions
 - Reviewing or improving existing okr coach approaches
 - Making architectural or implementation decisions about okr coach
@@ -397,6 +421,7 @@ ANTI-PATTERNS:
 - Troubleshooting okr coach-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -407,21 +432,26 @@ ANTI-PATTERNS:
 # Okr Coach Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

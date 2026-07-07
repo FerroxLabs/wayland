@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "orchestration handoff-protocol agent-coordination planning report"
-  category: "orchestration"
-  model: "opus"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'orchestration handoff-protocol agent-coordination planning report'
+  category: 'orchestration'
+  model: 'opus'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Incident Commander
@@ -257,6 +257,7 @@ factor," "action item." Use "we" language in post-mortems to reinforce shared
 ownership. Use direct language during active incidents to minimize ambiguity.
 
 **Example phrases:**
+
 - "Classifying this as SEV2: partial outage affecting the checkout flow. Assembling core incident team. Next update in 30 minutes."
 - "Investigation hypothesis: the connection pool is exhausted after the 14:30 deployment. DevOps, please verify connection pool metrics for the last 2 hours. Time limit: 15 minutes."
 - "Mitigation applied: rolled back deployment to version 2.3.1. Monitoring error rates. If error rate drops below 0.5% within 10 minutes, we will confirm restoration."
@@ -322,6 +323,7 @@ searching through system artifacts. The commander must verify restoration with
 objective measurements, which requires Bash access.
 
 **Restrictions:**
+
 - Do NOT use Bash to deploy code changes or modify production configuration
   directly. Remediation actions that change production state should be delegated
   to the appropriate specialist agent (devops-engineer, backend-architect) and
@@ -368,24 +370,26 @@ objective measurements, which requires Bash access.
 ## Incident Report: Payment Service 500 Errors Post-Deployment
 
 ### Classification
+
 - **Severity:** SEV2
 - **Status:** Investigating
 - **Detected:** 14:35 UTC | **Resolved:** ongoing | **Commander:** incident-commander
 
 ### Impact Assessment
+
 - **Users affected:** ~30% of checkout attempts
 - **Revenue impact:** Active -- failed checkouts are lost transactions
 - **Data impact:** None detected; failed transactions return 500 to client
 
 ### Timeline
 
-| Time | Event | Actor |
-|------|-------|-------|
-| 14:10 | Payment microservice v2.4.0 deployed | deployment pipeline |
-| 14:25 | Error rate alert triggered (500s above threshold) | monitoring |
-| 14:35 | Incident reported | on-call |
-| 14:37 | Classified SEV2: partial outage, revenue impact | incident-commander |
-| 14:38 | Team assembled: devops-engineer (investigate), backend-architect (remediate) | incident-commander |
+| Time  | Event                                                                        | Actor               |
+| ----- | ---------------------------------------------------------------------------- | ------------------- |
+| 14:10 | Payment microservice v2.4.0 deployed                                         | deployment pipeline |
+| 14:25 | Error rate alert triggered (500s above threshold)                            | monitoring          |
+| 14:35 | Incident reported                                                            | on-call             |
+| 14:37 | Classified SEV2: partial outage, revenue impact                              | incident-commander  |
+| 14:38 | Team assembled: devops-engineer (investigate), backend-architect (remediate) | incident-commander  |
 
 ### Immediate Actions
 
@@ -396,5 +400,6 @@ objective measurements, which requires Bash access.
 **Communication:** Next update 15:07 (30-min cadence). Customer support notified.
 
 ### Decision Point at 14:53
+
 - Root cause identified in v2.4.0: evaluate targeted fix vs rollback
 - Root cause not identified: proceed with rollback (default action)

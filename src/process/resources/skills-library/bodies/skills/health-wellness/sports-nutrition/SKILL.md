@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness nutrition"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness nutrition'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Sports Nutrition
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sports nutrition
 - User needs guidance on sports nutrition topics
 - User wants a structured approach to sports nutrition
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,14 +52,14 @@ metadata:
 
 ### Calorie and Macro Targets by Sport Type
 
-| Sport Type | Calories (kcal/kg/day) | Protein (g/kg) | Carbs (g/kg) | Fat (g/kg) |
-|-----------|----------------------|----------------|--------------|------------|
-| Endurance (moderate) | 35-45 | 1.2-1.4 | 5-7 | 1.0-1.5 |
-| Endurance (high volume) | 45-60 | 1.4-1.8 | 7-10 | 1.0-1.5 |
-| Strength/Power | 35-45 | 1.6-2.2 | 4-6 | 1.0-1.5 |
-| Team sport | 35-50 | 1.4-1.8 | 5-8 | 1.0-1.5 |
-| Combat sport | 35-45 | 1.6-2.0 | 4-7 | 1.0-1.5 |
-| General fitness | 30-35 | 1.2-1.6 | 3-5 | 1.0-1.5 |
+| Sport Type              | Calories (kcal/kg/day) | Protein (g/kg) | Carbs (g/kg) | Fat (g/kg) |
+| ----------------------- | ---------------------- | -------------- | ------------ | ---------- |
+| Endurance (moderate)    | 35-45                  | 1.2-1.4        | 5-7          | 1.0-1.5    |
+| Endurance (high volume) | 45-60                  | 1.4-1.8        | 7-10         | 1.0-1.5    |
+| Strength/Power          | 35-45                  | 1.6-2.2        | 4-6          | 1.0-1.5    |
+| Team sport              | 35-50                  | 1.4-1.8        | 5-8          | 1.0-1.5    |
+| Combat sport            | 35-45                  | 1.6-2.0        | 4-7          | 1.0-1.5    |
+| General fitness         | 30-35                  | 1.2-1.6        | 3-5          | 1.0-1.5    |
 
 ### Understanding Each Macronutrient
 
@@ -185,12 +187,12 @@ POST-EXERCISE REHYDRATION:
 
 ### Electrolyte Guide
 
-| Electrolyte | Daily Need (athlete) | Food Sources | When to Supplement |
-|-------------|---------------------|-------------|-------------------|
-| Sodium | 2,000-5,000+ mg | Salt, broth, pretzels | Exercise over 60 min, heavy sweater |
-| Potassium | 3,500-4,700 mg | Banana, potato, coconut water | Most get enough from food |
-| Magnesium | 310-420 mg | Nuts, seeds, dark leafy greens | If cramping, poor sleep |
-| Calcium | 1,000-1,300 mg | Dairy, fortified plant milk, greens | If dairy-free |
+| Electrolyte | Daily Need (athlete) | Food Sources                        | When to Supplement                  |
+| ----------- | -------------------- | ----------------------------------- | ----------------------------------- |
+| Sodium      | 2,000-5,000+ mg      | Salt, broth, pretzels               | Exercise over 60 min, heavy sweater |
+| Potassium   | 3,500-4,700 mg       | Banana, potato, coconut water       | Most get enough from food           |
+| Magnesium   | 310-420 mg           | Nuts, seeds, dark leafy greens      | If cramping, poor sleep             |
+| Calcium     | 1,000-1,300 mg       | Dairy, fortified plant milk, greens | If dairy-free                       |
 
 ```
 SIGNS OF DEHYDRATION:
@@ -394,20 +396,20 @@ Macros: ~140g protein, 330g carbs, 75g fat
 
 ### Budget-Friendly Athletic Foods
 
-| Food | Protein | Carbs | Cost Efficiency |
-|------|---------|-------|-----------------|
-| Eggs | High | Low | Excellent |
-| Oats | Moderate | High | Excellent |
-| Rice | Low | High | Excellent |
-| Canned tuna | High | None | Excellent |
-| Bananas | Low | High | Excellent |
-| Peanut butter | Moderate | Low | Excellent |
-| Lentils | High | High | Excellent |
-| Frozen vegetables | Low | Low | Good |
-| Greek yogurt | High | Moderate | Good |
-| Chicken thighs | High | None | Good |
-| Sweet potatoes | Low | High | Good |
-| Milk | Moderate | Moderate | Good |
+| Food              | Protein  | Carbs    | Cost Efficiency |
+| ----------------- | -------- | -------- | --------------- |
+| Eggs              | High     | Low      | Excellent       |
+| Oats              | Moderate | High     | Excellent       |
+| Rice              | Low      | High     | Excellent       |
+| Canned tuna       | High     | None     | Excellent       |
+| Bananas           | Low      | High     | Excellent       |
+| Peanut butter     | Moderate | Low      | Excellent       |
+| Lentils           | High     | High     | Excellent       |
+| Frozen vegetables | Low      | Low      | Good            |
+| Greek yogurt      | High     | Moderate | Good            |
+| Chicken thighs    | High     | None     | Good            |
+| Sweet potatoes    | Low      | High     | Good            |
+| Milk              | Moderate | Moderate | Good            |
 
 ---
 

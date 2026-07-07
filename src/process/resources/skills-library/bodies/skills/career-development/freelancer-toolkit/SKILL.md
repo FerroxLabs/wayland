@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career freelancing guide"
-  category: "career-development"
-  subcategory: "freelancing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career freelancing guide'
+  category: 'career-development'
+  subcategory: 'freelancing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Freelancer Toolkit
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about freelancer toolkit
 - User needs guidance on freelancer toolkit topics
 - User wants a structured approach to freelancer toolkit
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Have you worked with contracts before?**
 9. **How do you currently track time and invoices?**
 10. **What annual revenue are you targeting?**
+
 ---
+
 ## Step 1: Rate Setting
 
 ### Rate Calculation Method
+
 ```
 RATE CALCULATION WORKSHEET:
 Step 1: Determine your target annual income
@@ -75,15 +81,16 @@ Adjustment needed: {{YES/NO}}
 
 ### Pricing Models
 
-| Model | Best For | Pros | Cons |
-|---|---|---|---|
-| **Hourly** | Unknown scope, ongoing work | Flexible, covers scope changes | Income ceiling, penalizes efficiency |
-| **Project-based** | Defined scope, deliverables | Rewards efficiency, predictable for client | Risk of scope creep, must estimate accurately |
-| **Retainer** | Ongoing relationships | Predictable income, client commitment | Must deliver consistent value |
-| **Value-based** | High-impact work, consulting | Highest earning potential | Requires understanding client's business value |
-| **Day rate** | Workshops, on-site work | Simple, premium feel | May not capture full value |
+| Model             | Best For                     | Pros                                       | Cons                                           |
+| ----------------- | ---------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| **Hourly**        | Unknown scope, ongoing work  | Flexible, covers scope changes             | Income ceiling, penalizes efficiency           |
+| **Project-based** | Defined scope, deliverables  | Rewards efficiency, predictable for client | Risk of scope creep, must estimate accurately  |
+| **Retainer**      | Ongoing relationships        | Predictable income, client commitment      | Must deliver consistent value                  |
+| **Value-based**   | High-impact work, consulting | Highest earning potential                  | Requires understanding client's business value |
+| **Day rate**      | Workshops, on-site work      | Simple, premium feel                       | May not capture full value                     |
 
 ### When and How to Raise Rates
+
 ```
 RATE INCREASE FRAMEWORK:
 
@@ -114,10 +121,13 @@ Thank you for your continued trust.
 Best,
 {{YOUR_NAME}}"
 ```
+
 ---
+
 ## Step 2: Contract Template
 
 ### Freelance Service Agreement
+
 ```
 FREELANCE SERVICE AGREEMENT
 This Agreement is entered into as of {{DATE}} between:
@@ -182,8 +192,11 @@ Name: {{CLIENT_NAME}}
 Freelancer: ____________________ Date: __________
 Name: {{YOUR_NAME}}
 ```
+
 ---
+
 ## Step 3: Invoice Template
+
 ```
 INVOICE
 FROM:                              TO:
@@ -214,10 +227,13 @@ NOTES:
 {{PROJECT_NOTES_OR_SUMMARY_OF_WORK_COMPLETED}}
 Thank you for your business.
 ```
+
 ---
+
 ## Step 4: Client Acquisition
 
 ### Client Acquisition Channels
+
 ```
 CLIENT ACQUISITION STRATEGY:
 
@@ -242,6 +258,7 @@ TIER 3: LOWER CONVERSION (focus 10% of effort)
 ```
 
 ### Cold Outreach Template
+
 ```
 COLD OUTREACH EMAIL:
 
@@ -269,6 +286,7 @@ P.S. {{ADDITIONAL_VALUE -- relevant article, free audit, etc.}}
 ```
 
 ### Proposal Template
+
 ```
 PROJECT PROPOSAL
 Prepared for: {{CLIENT_NAME}} at {{COMPANY}}
@@ -304,10 +322,13 @@ Date: {{DATE}}
    Please reply or schedule a call to discuss: {{CALENDAR_LINK}}
    This proposal is valid for {{14}} days.
 ```
+
 ---
+
 ## Step 5: Scope Creep Prevention
 
 ### Scope Creep Defense System
+
 ```
 SCOPE CREEP PREVENTION:
 BEFORE THE PROJECT:
@@ -344,10 +365,13 @@ SCOPE CREEP RED FLAGS:
 - "Can we just add one more thing?"
 - Changing requirements after approval
 ```
+
 ---
+
 ## Step 6: Tax Considerations
 
 ### Freelance Tax Essentials
+
 ```
 FREELANCE TAX CHECKLIST:
 BUSINESS STRUCTURE:
@@ -396,10 +420,13 @@ TAX FORMS YOU WILL FILE:
 - 1099-NEC (for subcontractors you pay $600+)
 - State tax returns as applicable
 ```
+
 ---
+
 ## Step 7: Client Communication Templates
 
 ### Project Kickoff
+
 ```
 PROJECT KICKOFF EMAIL:
 
@@ -425,6 +452,7 @@ Best,
 ```
 
 ### Weekly Status Update
+
 ```
 WEEKLY STATUS UPDATE:
 Subject: {{PROJECT_NAME}} -- Weekly Update {{DATE}}
@@ -458,6 +486,7 @@ Best,
 ```
 
 ### Handling Late Payment
+
 ```
 LATE PAYMENT FOLLOW-UP SEQUENCE:
 DAY 1 (Due date): Automatic invoice reminder (most tools do this)
@@ -483,8 +512,11 @@ BEYOND 30 DAYS:
 - Consult the Small Claims Guide skill
 - Consider a collections agency for large amounts
 ```
+
 ---
+
 ## Freelancer Business Health Check
+
 ```
 MONTHLY BUSINESS REVIEW:
 
@@ -516,9 +548,10 @@ GROWTH:
 [ ] Portfolio updated: YES / NO
 [ ] LinkedIn/content posted: {{COUNT}} times
 ```
----
-*This skill provides freelance business management guidance. Consider consulting with an accountant for tax strategy and a business attorney for contract review as your business grows.*
 
+---
+
+_This skill provides freelance business management guidance. Consider consulting with an accountant for tax strategy and a business attorney for contract review as your business grows._
 
 ## Output Format
 

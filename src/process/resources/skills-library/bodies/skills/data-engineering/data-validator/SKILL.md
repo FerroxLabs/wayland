@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql testing"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql testing'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Validator
@@ -91,7 +91,7 @@ def validate_data(**context):
 
 ```yaml
 name: dim_customer
-version: "2.1"
+version: '2.1'
 owner: data-engineering
 sla_hours: 6
 allow_extra_columns: false
@@ -102,7 +102,7 @@ columns:
     type: string
     nullable: false
     unique: true
-    pattern: "^CUS-[A-Z0-9]{8}$"
+    pattern: '^CUS-[A-Z0-9]{8}$'
   - name: email
     type: string
     nullable: true
@@ -114,7 +114,7 @@ columns:
   - name: status
     type: string
     nullable: false
-    allowed_values: ["active", "inactive", "suspended", "pending"]
+    allowed_values: ['active', 'inactive', 'suspended', 'pending']
 ```
 
 ### Schema Drift Detection
@@ -248,7 +248,7 @@ class DataQualityScorer:
 ```yaml
 contract:
   name: dim_customer
-  version: "3.0"
+  version: '3.0'
   owner: data-engineering
   consumers: [analytics, marketing-ml, customer-success]
 
@@ -256,7 +256,7 @@ contract:
     fields:
       - { name: customer_id, type: string, required: true, unique: true }
       - { name: email, type: string, required: false, pii: true }
-      - { name: lifetime_revenue, type: "decimal(12,2)", required: true, min: 0 }
+      - { name: lifetime_revenue, type: 'decimal(12,2)', required: true, min: 0 }
 
   quality:
     freshness: { max_age_hours: 24, field: updated_at }
@@ -269,7 +269,7 @@ contract:
 
   breaking_changes:
     notification_days: 14
-    channels: [{ slack: "#data-contracts" }]
+    channels: [{ slack: '#data-contracts' }]
 ```
 
 ## Automated Testing: dbt Integration
@@ -295,17 +295,18 @@ WHERE ABS(w.total - s.total) / GREATEST(s.total, 1) > 0.01
 
 ## Validation Decision Framework
 
-| Stage | What to Validate | Failure Action |
-|-------|-----------------|----------------|
-| Ingestion | Schema, encoding, row count | Reject file, alert source team |
-| Staging | Types, nulls, basic ranges | Quarantine records, log to DLQ |
-| Transform | Business rules, referential integrity | Block downstream, alert owner |
-| Load | Row counts match, no duplicates | Rollback, retry with investigation |
-| Serving | Freshness, availability, SLA | Alert consumers, serve stale with warning |
+| Stage     | What to Validate                      | Failure Action                            |
+| --------- | ------------------------------------- | ----------------------------------------- |
+| Ingestion | Schema, encoding, row count           | Reject file, alert source team            |
+| Staging   | Types, nulls, basic ranges            | Quarantine records, log to DLQ            |
+| Transform | Business rules, referential integrity | Block downstream, alert owner             |
+| Load      | Row counts match, no duplicates       | Rollback, retry with investigation        |
+| Serving   | Freshness, availability, SLA          | Alert consumers, serve stale with warning |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data validator solutions
 - Reviewing or improving existing data validator approaches
 - Making architectural or implementation decisions about data validator
@@ -313,6 +314,7 @@ WHERE ABS(w.total - s.total) / GREATEST(s.total, 1) > 0.01
 - Troubleshooting data validator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -323,21 +325,26 @@ WHERE ABS(w.total - s.total) / GREATEST(s.total, 1) > 0.01
 # Data Validator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

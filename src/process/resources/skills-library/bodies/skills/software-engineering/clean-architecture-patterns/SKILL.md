@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture clean-code design-patterns"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture clean-code design-patterns'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Clean Architecture Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to structure a new application using Clean Architecture, Hexagonal Architecture, or Ports and Adapters principles
 - User has a monolith with tangled business logic mixed into controllers, database models, or framework code and wants to untangle it
 - User needs to decide between Clean Architecture, layered architecture (N-tier), CQRS, Event-Driven Architecture, or Vertical Slice Architecture for a specific project context
@@ -30,6 +32,7 @@ metadata:
 - User asks about testing strategy in the context of architecture: how to achieve fast unit tests, independent of databases and HTTP clients
 
 **Do NOT use this skill when:**
+
 - User is asking about microservice decomposition boundaries -- use the domain-driven-design or microservices-decomposition skill instead
 - User needs infrastructure-level architectural decisions (load balancing, CDN placement, database sharding) -- use the infrastructure-architecture skill
 - User is asking about a specific framework's built-in MVC structure (how Django class-based views work, how Rails concerns work) -- use the framework-specific skill
@@ -147,13 +150,17 @@ Architectural rules that are not enforced will erode within weeks on a team.
   ```js
   // .dependency-cruiser.js excerpt
   forbidden: [
-    { name: "domain-must-not-depend-on-infrastructure",
-      from: { path: "^src/domain" },
-      to: { path: "^src/infrastructure" } },
-    { name: "application-must-not-depend-on-infrastructure",
-      from: { path: "^src/application" },
-      to: { path: "^src/infrastructure" } }
-  ]
+    {
+      name: 'domain-must-not-depend-on-infrastructure',
+      from: { path: '^src/domain' },
+      to: { path: '^src/infrastructure' },
+    },
+    {
+      name: 'application-must-not-depend-on-infrastructure',
+      from: { path: '^src/application' },
+      to: { path: '^src/infrastructure' },
+    },
+  ];
   ```
 - **Java/Spring:** Use ArchUnit in a dedicated test class. Write rules like `noClasses().that().resideInPackage("..domain..").should().dependOnClassesThat().resideInPackage("..infrastructure..")`. Run as part of the unit test suite.
 - **Python:** Use `import-linter` with a `setup.cfg` contract section specifying forbidden imports. Integrates with pytest.
@@ -422,6 +429,7 @@ When a Clean Architecture module is extracted into a microservice, the internal 
 ## Clean Architecture Assessment
 
 ### Context Summary
+
 - **Codebase profile:** Greenfield
 - **Language and ecosystem:** TypeScript / Node.js (Fastify recommended over Express for performance; Prisma for ORM with manual mapping to domain entities)
 - **Delivery mechanisms:** REST API (primary), background retry worker (secondary) -- this dual delivery mechanism is the strongest signal that Clean Architecture is appropriate here
@@ -432,13 +440,13 @@ When a Clean Architecture module is extracted into a microservice, the internal 
 
 ### Layer Mapping
 
-| Layer              | Contents in This Project                                              | Enforcement Tool    |
-|--------------------|-----------------------------------------------------------------------|---------------------|
-| Domain (Entities)  | `PaymentTransaction` aggregate, `Money` value object, `RiskScore` value object, `PaymentStatus` enum, `PaymentAttempt` entity, domain events | dependency-cruiser  |
-| Application (Use Cases) | `InitiatePaymentUseCase`, `RetryFailedPaymentUseCase`, `GetTransactionStatusUseCase` | dependency-cruiser  |
-| Interface Adapters | `PaymentController` (Fastify), `RetryWorkerAdapter` (queue consumer), `StripePaymentGateway`, `BraintreePaymentGateway`, `PrismaTransactionRepository` | dependency-cruiser  |
-| Infrastructure     | Fastify app instance, Prisma client, Stripe SDK client, Braintree SDK client, BullMQ worker | dependency-cruiser  |
-| Composition Root   | `src/di/container.ts` -- binds all interfaces to implementations      | --                  |
+| Layer                   | Contents in This Project                                                                                                                               | Enforcement Tool   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| Domain (Entities)       | `PaymentTransaction` aggregate, `Money` value object, `RiskScore` value object, `PaymentStatus` enum, `PaymentAttempt` entity, domain events           | dependency-cruiser |
+| Application (Use Cases) | `InitiatePaymentUseCase`, `RetryFailedPaymentUseCase`, `GetTransactionStatusUseCase`                                                                   | dependency-cruiser |
+| Interface Adapters      | `PaymentController` (Fastify), `RetryWorkerAdapter` (queue consumer), `StripePaymentGateway`, `BraintreePaymentGateway`, `PrismaTransactionRepository` | dependency-cruiser |
+| Infrastructure          | Fastify app instance, Prisma client, Stripe SDK client, Braintree SDK client, BullMQ worker                                                            | dependency-cruiser |
+| Composition Root        | `src/di/container.ts` -- binds all interfaces to implementations                                                                                       | --                 |
 
 ---
 
@@ -530,15 +538,15 @@ export interface IPaymentGatewayPort {
 export interface InitiatePaymentCommand {
   customerId: string;
   amountCents: number;
-  currencyCode: string;   // ISO 4217: "USD", "EUR"
+  currencyCode: string; // ISO 4217: "USD", "EUR"
   paymentMethodToken: string;
   idempotencyKey: string;
-  preferredGateway: "stripe" | "braintree";
+  preferredGateway: 'stripe' | 'braintree';
 }
 
 export interface InitiatePaymentResult {
   transactionId: string;
-  status: "PROCESSING" | "SUCCESS" | "FAILED";
+  status: 'PROCESSING' | 'SUCCESS' | 'FAILED';
   providerTransactionId: string | null;
 }
 
@@ -549,7 +557,7 @@ export class InitiatePaymentUseCase {
     private readonly paymentGateway: IPaymentGatewayPort,
     private readonly riskScoring: IRiskScoringPort,
     private readonly retryScheduler: IRetrySchedulerPort,
-    private readonly eventPublisher: IEventPublisher,
+    private readonly eventPublisher: IEventPublisher
   ) {}
 
   async execute(command: InitiatePaymentCommand): Promise<InitiatePaymentResult> {
@@ -613,13 +621,13 @@ export class InitiatePaymentUseCase {
 
 ### Testing Strategy
 
-| Layer                  | Test Type             | Tooling                        | Infra Required  |
-|------------------------|-----------------------|--------------------------------|-----------------|
-| `PaymentTransaction`, `Money`, `RiskScore` | Pure unit | Vitest, zero mocks | None |
-| `InitiatePaymentUseCase` | Unit with in-memory doubles | Vitest + `InMemoryTransactionRepository` | None |
-| `PrismaTransactionRepository` | Integration | Vitest + Testcontainers (PostgreSQL 15) | Docker |
-| `StripePaymentGateway` | Integration | Vitest + Stripe test mode keys | Network (Stripe sandbox) |
-| Full payment flow | E2E | Supertest against Fastify app + Testcontainers | Docker |
+| Layer                                      | Test Type                   | Tooling                                        | Infra Required           |
+| ------------------------------------------ | --------------------------- | ---------------------------------------------- | ------------------------ |
+| `PaymentTransaction`, `Money`, `RiskScore` | Pure unit                   | Vitest, zero mocks                             | None                     |
+| `InitiatePaymentUseCase`                   | Unit with in-memory doubles | Vitest + `InMemoryTransactionRepository`       | None                     |
+| `PrismaTransactionRepository`              | Integration                 | Vitest + Testcontainers (PostgreSQL 15)        | Docker                   |
+| `StripePaymentGateway`                     | Integration                 | Vitest + Stripe test mode keys                 | Network (Stripe sandbox) |
+| Full payment flow                          | E2E                         | Supertest against Fastify app + Testcontainers | Docker                   |
 
 For the Use Case unit tests, implement `InMemoryTransactionRepository` as a real in-memory store:
 
@@ -638,9 +646,7 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
 
   async findPendingRetries(maxAttempts: number, beforeDate: Date): Promise<PaymentTransaction[]> {
     return [...this.store.values()].filter(
-      t => t.status === "RETRYING" &&
-           t.attemptCount < maxAttempts &&
-           t.lastAttemptAt < beforeDate
+      (t) => t.status === 'RETRYING' && t.attemptCount < maxAttempts && t.lastAttemptAt < beforeDate
     );
   }
 }
@@ -655,29 +661,30 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
 module.exports = {
   forbidden: [
     {
-      name: "domain-no-infrastructure",
-      severity: "error",
-      from: { path: "^src/domain" },
-      to: { path: "^src/(infrastructure|di)" },
+      name: 'domain-no-infrastructure',
+      severity: 'error',
+      from: { path: '^src/domain' },
+      to: { path: '^src/(infrastructure|di)' },
     },
     {
-      name: "application-no-infrastructure",
-      severity: "error",
-      from: { path: "^src/application" },
-      to: { path: "^src/(infrastructure|di)" },
+      name: 'application-no-infrastructure',
+      severity: 'error',
+      from: { path: '^src/application' },
+      to: { path: '^src/(infrastructure|di)' },
     },
     {
-      name: "domain-no-application",
-      severity: "error",
-      from: { path: "^src/domain" },
-      to: { path: "^src/application" },
+      name: 'domain-no-application',
+      severity: 'error',
+      from: { path: '^src/domain' },
+      to: { path: '^src/application' },
     },
   ],
-  options: { tsConfig: { fileName: "tsconfig.json" } },
+  options: { tsConfig: { fileName: 'tsconfig.json' } },
 };
 ```
 
 Add to CI pipeline (`package.json`):
+
 ```json
 {
   "scripts": {

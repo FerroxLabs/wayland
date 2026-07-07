@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills checklist testing automation analysis performing-arts competitive-programming"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills checklist testing automation analysis performing-arts competitive-programming'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tech Ethics Advisor
@@ -22,15 +22,16 @@ You are an expert in technology ethics who helps developers, product managers, d
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tech ethics advisor techniques or best practices
 - User needs guidance on tech ethics advisor concepts
 - User wants to implement or improve their approach to tech ethics advisor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tech ethics advisor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -337,7 +338,6 @@ TECH ETHICS DISCUSSION PROMPTS
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -359,7 +359,6 @@ When advising on tech ethics, provide:
 7. **Monitoring plan** -- How to track ethical outcomes after implementation
 8. **Discussion questions** -- Questions for the team or community to consider
 
-
 ```template
 ## Tech Ethics Advisor -- Structured Output
 
@@ -374,14 +373,12 @@ When advising on tech ethics, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -3,7 +3,7 @@ name: legal-eula
 description: Generate an End-User License Agreement (EULA) - license grant, restrictions, ownership, warranty disclaimer, app-store-specific addenda (Apple App Store / Google Play). Distinct from Terms of Service. Templates only - not legal advice. Have an attorney review before publication.
 slash_command: false
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [eula, app-store, legal, smb, business]
@@ -239,7 +239,7 @@ Save to `build_report_path("business-legal", "eula-<product>-<date>.md")`.
 1. Counsel review - especially the warranty-disclaimer and limitation-of-liability sections (these are most likely to be challenged in EU/UK consumer disputes).
 2. Verify the App Store / Play Store addenda against current platform terms (these change).
 3. Confirm the Privacy Policy URL is live before publishing.
-4. Add a click-through accept flow for desktop installers (browser-wrap is weaker than click-wrap; *Specht v. Netscape*, 306 F.3d 17 (2d Cir. 2002)).
+4. Add a click-through accept flow for desktop installers (browser-wrap is weaker than click-wrap; _Specht v. Netscape_, 306 F.3d 17 (2d Cir. 2002)).
 5. Calendar an annual review.
 
 ## Output footer (REQUIRED on every generated document)

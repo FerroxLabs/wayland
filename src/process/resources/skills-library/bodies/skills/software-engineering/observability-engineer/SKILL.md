@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices devops guide"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'best-practices devops guide'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Observability Engineer
@@ -24,13 +24,13 @@ You are a senior observability engineer who designs and implements monitoring, t
 
 ### Pillar Comparison
 
-| Pillar | What It Captures | Best For | Tool Examples |
-|--------|-----------------|----------|---------------|
-| **Metrics** | Numeric measurements over time | Alerting, dashboards, trends | Prometheus, Datadog, CloudWatch |
-| **Logs** | Discrete events with context | Debugging specific requests, audit trails | ELK, Loki, CloudWatch Logs |
-| **Traces** | Request flow across services | Latency analysis, dependency mapping | Jaeger, Tempo, Zipkin, Honeycomb |
-| **Profiles** (4th pillar) | CPU/memory usage by function | Performance optimization | Pyroscope, Parca, pprof |
-| **Events** (5th pillar) | Business-level occurrences | Deployment correlation, feature launches | PagerDuty, custom event stores |
+| Pillar                    | What It Captures               | Best For                                  | Tool Examples                    |
+| ------------------------- | ------------------------------ | ----------------------------------------- | -------------------------------- |
+| **Metrics**               | Numeric measurements over time | Alerting, dashboards, trends              | Prometheus, Datadog, CloudWatch  |
+| **Logs**                  | Discrete events with context   | Debugging specific requests, audit trails | ELK, Loki, CloudWatch Logs       |
+| **Traces**                | Request flow across services   | Latency analysis, dependency mapping      | Jaeger, Tempo, Zipkin, Honeycomb |
+| **Profiles** (4th pillar) | CPU/memory usage by function   | Performance optimization                  | Pyroscope, Parca, pprof          |
+| **Events** (5th pillar)   | Business-level occurrences     | Deployment correlation, feature launches  | PagerDuty, custom event stores   |
 
 ### When to Use Each
 
@@ -129,40 +129,44 @@ const tracer = trace.getTracer('order-service', '1.0.0');
 
 async function processOrder(orderId: string): Promise<Order> {
   // Create a span for the entire operation
-  return tracer.startActiveSpan('processOrder', {
-    kind: SpanKind.INTERNAL,
-    attributes: {
-      'order.id': orderId,
+  return tracer.startActiveSpan(
+    'processOrder',
+    {
+      kind: SpanKind.INTERNAL,
+      attributes: {
+        'order.id': orderId,
+      },
     },
-  }, async (span) => {
-    try {
-      // Child span for validation
-      const order = await tracer.startActiveSpan('validateOrder', async (validationSpan) => {
-        const result = await validateOrder(orderId);
-        validationSpan.setAttribute('order.item_count', result.items.length);
-        validationSpan.end();
-        return result;
-      });
+    async (span) => {
+      try {
+        // Child span for validation
+        const order = await tracer.startActiveSpan('validateOrder', async (validationSpan) => {
+          const result = await validateOrder(orderId);
+          validationSpan.setAttribute('order.item_count', result.items.length);
+          validationSpan.end();
+          return result;
+        });
 
-      // Child span for payment
-      await tracer.startActiveSpan('chargePayment', async (paymentSpan) => {
-        paymentSpan.setAttribute('payment.amount', order.total);
-        paymentSpan.setAttribute('payment.currency', order.currency);
-        await chargePayment(order);
-        paymentSpan.end();
-      });
+        // Child span for payment
+        await tracer.startActiveSpan('chargePayment', async (paymentSpan) => {
+          paymentSpan.setAttribute('payment.amount', order.total);
+          paymentSpan.setAttribute('payment.currency', order.currency);
+          await chargePayment(order);
+          paymentSpan.end();
+        });
 
-      span.setAttribute('order.status', 'completed');
-      span.setStatus({ code: SpanStatusCode.OK });
-      return order;
-    } catch (error) {
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-      span.recordException(error);
-      throw error;
-    } finally {
-      span.end();
+        span.setAttribute('order.status', 'completed');
+        span.setStatus({ code: SpanStatusCode.OK });
+        return order;
+      } catch (error) {
+        span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+        span.recordException(error);
+        throw error;
+      } finally {
+        span.end();
+      }
     }
-  });
+  );
 }
 ```
 
@@ -256,17 +260,17 @@ Service A (web)  ──HTTP──>  Service B (api)  ──gRPC──>  Service 
 
 ### What to Capture in Spans
 
-| Span Attribute | Example | Why |
-|---------------|---------|-----|
-| `http.method` | GET, POST | Know the operation type |
-| `http.status_code` | 200, 500 | Quick error identification |
-| `http.url` | /api/orders/123 | Know which endpoint |
-| `db.system` | postgresql | Know which database |
-| `db.statement` | SELECT ... | Debug slow queries |
-| `user.id` | usr_abc123 | Trace user-specific issues |
-| `order.id` | ord_xyz789 | Correlate business events |
-| `error.type` | ValidationError | Categorize failures |
-| `retry.count` | 2 | Detect retry storms |
+| Span Attribute     | Example         | Why                        |
+| ------------------ | --------------- | -------------------------- |
+| `http.method`      | GET, POST       | Know the operation type    |
+| `http.status_code` | 200, 500        | Quick error identification |
+| `http.url`         | /api/orders/123 | Know which endpoint        |
+| `db.system`        | postgresql      | Know which database        |
+| `db.statement`     | SELECT ...      | Debug slow queries         |
+| `user.id`          | usr_abc123      | Trace user-specific issues |
+| `order.id`         | ord_xyz789      | Correlate business events  |
+| `error.type`       | ValidationError | Categorize failures        |
+| `retry.count`      | 2               | Detect retry storms        |
 
 ## Structured Logging
 
@@ -290,12 +294,12 @@ logger.info(`Order ord_123 processed for user usr_456, amount $99.99 in 245ms`);
 
 ### Log Levels Usage Guide
 
-| Level | Use For | Alert? | Example |
-|-------|---------|--------|---------|
-| `ERROR` | Failures requiring attention | Yes | Database connection failed, payment charge failed |
-| `WARN` | Degraded but functional | Monitor trend | Retry succeeded, cache miss fallback, rate limit approaching |
-| `INFO` | Normal business events | No | Order created, user signed in, deployment started |
-| `DEBUG` | Detailed diagnostic info | No | SQL query executed, cache hit, request/response bodies |
+| Level   | Use For                      | Alert?        | Example                                                      |
+| ------- | ---------------------------- | ------------- | ------------------------------------------------------------ |
+| `ERROR` | Failures requiring attention | Yes           | Database connection failed, payment charge failed            |
+| `WARN`  | Degraded but functional      | Monitor trend | Retry succeeded, cache miss fallback, rate limit approaching |
+| `INFO`  | Normal business events       | No            | Order created, user signed in, deployment started            |
+| `DEBUG` | Detailed diagnostic info     | No            | SQL query executed, cache hit, request/response bodies       |
 
 ### Correlation: Logs + Traces
 
@@ -323,12 +327,12 @@ const logger = pino({
 
 ### The Four Golden Signals (Google SRE)
 
-| Signal | What to Measure | Metric Type | Example |
-|--------|----------------|-------------|---------|
-| **Latency** | Time to serve a request | Histogram | `http_request_duration_seconds` |
-| **Traffic** | Demand on your system | Counter | `http_requests_total` |
-| **Errors** | Rate of failed requests | Counter | `http_errors_total` |
-| **Saturation** | How full your system is | Gauge | `system_cpu_utilization`, `db_connection_pool_used` |
+| Signal         | What to Measure         | Metric Type | Example                                             |
+| -------------- | ----------------------- | ----------- | --------------------------------------------------- |
+| **Latency**    | Time to serve a request | Histogram   | `http_request_duration_seconds`                     |
+| **Traffic**    | Demand on your system   | Counter     | `http_requests_total`                               |
+| **Errors**     | Rate of failed requests | Counter     | `http_errors_total`                                 |
+| **Saturation** | How full your system is | Gauge       | `system_cpu_utilization`, `db_connection_pool_used` |
 
 ### RED Method (for request-driven services)
 
@@ -371,15 +375,15 @@ RELATIONSHIP: SLI measures -> SLO targets -> SLA enforces
 
 ### Defining Good SLIs
 
-| Service Type | SLI Category | SLI Definition |
-|-------------|-------------|----------------|
-| **API** | Availability | % of requests returning non-5xx in 5-min window |
-| **API** | Latency | % of requests completing in < 200ms |
-| **API** | Correctness | % of responses matching expected schema |
-| **Pipeline** | Freshness | Time since last successful pipeline run |
-| **Pipeline** | Completeness | % of expected records processed |
-| **Storage** | Durability | % of objects retrievable after write |
-| **Storage** | Throughput | % of read requests served within 50ms |
+| Service Type | SLI Category | SLI Definition                                  |
+| ------------ | ------------ | ----------------------------------------------- |
+| **API**      | Availability | % of requests returning non-5xx in 5-min window |
+| **API**      | Latency      | % of requests completing in < 200ms             |
+| **API**      | Correctness  | % of responses matching expected schema         |
+| **Pipeline** | Freshness    | Time since last successful pipeline run         |
+| **Pipeline** | Completeness | % of expected records processed                 |
+| **Storage**  | Durability   | % of objects retrievable after write            |
+| **Storage**  | Throughput   | % of read requests served within 50ms           |
 
 ### Error Budget
 
@@ -440,7 +444,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Burning error budget 14x faster than sustainable"
+          summary: 'Burning error budget 14x faster than sustainable'
 
       # Slow burn: 5% budget consumed in 6 hours (6x burn rate)
       - alert: HighErrorBurnRate_Slow
@@ -453,7 +457,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Burning error budget 6x faster than sustainable"
+          summary: 'Burning error budget 6x faster than sustainable'
 ```
 
 ## Dashboard Design
@@ -512,6 +516,7 @@ LEVEL 3: Debug (for investigations)
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing observability engineer solutions
 - Reviewing or improving existing observability engineer approaches
 - Making architectural or implementation decisions about observability engineer
@@ -519,6 +524,7 @@ LEVEL 3: Debug (for investigations)
 - Troubleshooting observability engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -529,21 +535,26 @@ LEVEL 3: Debug (for investigations)
 # Observability Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

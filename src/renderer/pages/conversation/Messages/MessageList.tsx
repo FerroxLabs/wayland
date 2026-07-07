@@ -494,7 +494,7 @@ const ConversationMessageList: React.FC<{
       const item = processedList[i];
       if ('type' in item && item.type === 'tool_summary') {
         const steps = toolSummaryToSteps(item.messages);
-        return [...steps].reverse().find((s) => s.status === 'running')?.label;
+        return [...steps].toReversed().find((s) => s.status === 'running')?.label;
       }
       // #318: during the live reasoning phase (no tool activity yet) prefer the
       // engine's own per-turn reasoning subject for the orbit footer; PHRASES stays

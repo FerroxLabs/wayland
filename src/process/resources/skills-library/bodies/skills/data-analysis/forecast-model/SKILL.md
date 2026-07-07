@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "statistics analysis spreadsheets"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'statistics analysis spreadsheets'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Forecast Model
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to project future values of a time series metric -- sales, revenue, demand units, web traffic, support ticket volume, headcount, or any measurement recorded at regular intervals
 - The user asks which forecasting method to choose and wants a rationale tied to their actual data characteristics (trend shape, seasonality, volatility, data length)
 - The user wants a forecast with quantified uncertainty -- confidence intervals, prediction intervals, or best/worst case ranges grounded in statistical error estimates rather than gut feel
@@ -29,6 +31,7 @@ metadata:
 - The user wants to set up a recurring forecast process -- specifying when to refresh, what accuracy threshold triggers a model rebuild, and how to document forecast misses
 
 **Do NOT use when:**
+
 - The user needs a multi-assumption financial model with drivers and scenarios -- use `financial-model-template` instead, which handles income statement projections with interconnected assumptions
 - The user wants to define KPIs, build a metrics hierarchy, or decide what to measure -- use `metric-framework` instead
 - The user wants to design or analyze an A/B test with treatment and control groups -- use `ab-test-design` instead, which handles significance testing and sample size calculations
@@ -99,37 +102,40 @@ Use this decision framework to select the method. Apply the criteria in order --
 
 **Method Parameters Reference:**
 
-| Method | Key Parameters | Typical Starting Values | Optimization Approach |
-|--------|---------------|------------------------|----------------------|
-| Simple Moving Average | Window (k) | k = 3 for noisy data; k = 6 for smooth data | Minimize RMSE across window sizes 2-8 |
-| Single Exponential Smoothing | Alpha (α) | α = 0.2 (stable), α = 0.5 (responsive) | Grid search α from 0.1 to 0.9 in 0.1 steps, minimize MSE |
-| Double Exponential Smoothing (Holt) | Alpha (α), Beta (β) | α = 0.3, β = 0.1 | Grid search; β < α almost always; small β smooths trend |
-| Linear Trend (OLS) | Slope (b), Intercept (a) | Calculated from data | No optimization needed -- OLS is analytically optimal |
-| Additive Decomposition | Seasonal period (S) | S determined by data granularity | S is fixed by domain knowledge, not optimized |
-| Multiplicative Decomposition | Seasonal period (S) | Same | Same |
-| Holt-Winters Additive | Alpha (α), Beta (β), Gamma (γ) | α = 0.3, β = 0.1, γ = 0.2 | Minimize SSE using Solver or scipy.optimize |
-| Holt-Winters Multiplicative | Alpha (α), Beta (β), Gamma (γ) | α = 0.3, β = 0.1, γ = 0.2 | Same |
-| Croston's | Alpha (α) for both components | α = 0.1-0.2 | Keep alpha low -- intermittent demand is slow-moving |
+| Method                              | Key Parameters                 | Typical Starting Values                     | Optimization Approach                                    |
+| ----------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------------- |
+| Simple Moving Average               | Window (k)                     | k = 3 for noisy data; k = 6 for smooth data | Minimize RMSE across window sizes 2-8                    |
+| Single Exponential Smoothing        | Alpha (α)                      | α = 0.2 (stable), α = 0.5 (responsive)      | Grid search α from 0.1 to 0.9 in 0.1 steps, minimize MSE |
+| Double Exponential Smoothing (Holt) | Alpha (α), Beta (β)            | α = 0.3, β = 0.1                            | Grid search; β < α almost always; small β smooths trend  |
+| Linear Trend (OLS)                  | Slope (b), Intercept (a)       | Calculated from data                        | No optimization needed -- OLS is analytically optimal    |
+| Additive Decomposition              | Seasonal period (S)            | S determined by data granularity            | S is fixed by domain knowledge, not optimized            |
+| Multiplicative Decomposition        | Seasonal period (S)            | Same                                        | Same                                                     |
+| Holt-Winters Additive               | Alpha (α), Beta (β), Gamma (γ) | α = 0.3, β = 0.1, γ = 0.2                   | Minimize SSE using Solver or scipy.optimize              |
+| Holt-Winters Multiplicative         | Alpha (α), Beta (β), Gamma (γ) | α = 0.3, β = 0.1, γ = 0.2                   | Same                                                     |
+| Croston's                           | Alpha (α) for both components  | α = 0.1-0.2                                 | Keep alpha low -- intermittent demand is slow-moving     |
 
 ### Step 3: Build the Forecast Model -- Formulas and Calculations
 
 Provide the exact mathematical specification for the selected method. This section must be rigorous enough that a user can implement it in Excel, Google Sheets, or Python without ambiguity.
 
 **For Linear Trend (OLS Regression):**
+
 - Assign sequential integers to periods: t = 1, 2, 3, ... N for history; t = N+1, N+2, ... for forecast
 - Calculate: t_bar = (N+1)/2; y_bar = mean of all actual values
 - Slope: b = SUM[(t - t_bar)(y_t - y_bar)] / SUM[(t - t_bar)²]
 - Intercept: a = y_bar - b × t_bar
 - Forecast for period T: Ŷ(T) = a + b × T
-- Spreadsheet: =SLOPE(known_y, known_x) * T + INTERCEPT(known_y, known_x) or =FORECAST.LINEAR(T, known_y, known_x)
+- Spreadsheet: =SLOPE(known_y, known_x) \* T + INTERCEPT(known_y, known_x) or =FORECAST.LINEAR(T, known_y, known_x)
 
 **For Simple Moving Average (window k):**
+
 - Forecast for period T = Average of actuals from period T-k through T-1
 - Spreadsheet: =AVERAGE(offset_range) -- anchor the range to always look back k periods
 - Choose k by minimizing RMSE on historical data: test k = 2, 3, 4, 5, 6 and pick lowest in-sample RMSE
 - Note: moving average forecasts are flat (constant) -- they do not project trend
 
 **For Single Exponential Smoothing (alpha α):**
+
 - Initialize: S[1] = y[1] (or average of first 3 periods for stability)
 - Recursive: S[t] = α × y[t] + (1-α) × S[t-1]
 - Forecast for next period: Ŷ[t+1] = S[t]
@@ -137,6 +143,7 @@ Provide the exact mathematical specification for the selected method. This secti
 - Spreadsheet: build column of S values using the recursive formula; use Solver to optimize α
 
 **For Holt's Double Exponential Smoothing (α, β):**
+
 - Level: L[t] = α × y[t] + (1-α) × (L[t-1] + T[t-1])
 - Trend: T[t] = β × (L[t] - L[t-1]) + (1-β) × T[t-1]
 - Initialize: L[1] = y[1]; T[1] = y[2] - y[1] (or average of first differences)
@@ -144,6 +151,7 @@ Provide the exact mathematical specification for the selected method. This secti
 - Dampened trend variant: Replace h × T[t] with SUM[i=1 to h] of φ^i × T[t] where φ (damping factor) = 0.80-0.98. Use dampened trend when the linear extrapolation seems optimistic.
 
 **For Seasonal Decomposition (Additive, period S):**
+
 - Step 1: Calculate centered moving average (CMA) of length S to extract the trend-cycle
   -- For even S (e.g., S=12): CMA[t] = (0.5×y[t-S/2] + y[t-S/2+1] + ... + y[t+S/2-1] + 0.5×y[t+S/2]) / S
   -- For odd S (e.g., S=7): CMA[t] = average of S consecutive values centered on t
@@ -154,6 +162,7 @@ Provide the exact mathematical specification for the selected method. This secti
 - Step 6: Re-seasonalize the forecast: Ŷ[T] = Trend(T) + S_i[T mod S] (additive) or Ŷ[T] = Trend(T) × S_i[T mod S] (multiplicative)
 
 **For Holt-Winters Triple Exponential Smoothing (Additive variant):**
+
 - Level: L[t] = α × (y[t] - I[t-S]) + (1-α) × (L[t-1] + T[t-1])
 - Trend: T[t] = β × (L[t] - L[t-1]) + (1-β) × T[t-1]
 - Seasonal index: I[t] = γ × (y[t] - L[t]) + (1-γ) × I[t-S]
@@ -162,6 +171,7 @@ Provide the exact mathematical specification for the selected method. This secti
 - Use Excel Solver or Python scipy.optimize to minimize SSE over α, β, γ all in [0, 1]
 
 **For Croston's Method (intermittent demand):**
+
 - Track two separate series: demand size (z) when demand > 0, and inter-arrival time (p) between demand events
 - Smooth each independently using exponential smoothing with the same alpha
 - Forecast rate: Ŷ = z / p (expected demand per period)
@@ -172,10 +182,12 @@ Provide the exact mathematical specification for the selected method. This secti
 Every forecast requires quantified uncertainty. Use prediction intervals (which cover future observations, not just the conditional mean) rather than confidence intervals alone.
 
 **Prediction interval standard formula:**
+
 - PI = Ŷ(T) ± Z × σ_h
 - Where σ_h is the h-step-ahead forecast standard deviation
 
 **How σ_h grows with forecast horizon h:**
+
 - For regression: σ_h = s × SQRT(1 + 1/N + (T - t_bar)² / Sxx)
   where s = RMSE of regression residuals, Sxx = SUM[(t - t_bar)²]
 - For exponential smoothing (single): σ_h = σ_e × SQRT(h) where σ_e = RMSE of one-step-ahead errors
@@ -183,6 +195,7 @@ Every forecast requires quantified uncertainty. Use prediction intervals (which 
 - If the exact formula is complex, use the approximation: σ_h ≈ σ_1 × SQRT(h) where σ_1 is the one-step RMSE. This is slightly conservative but straightforward to implement.
 
 **Critical Z-scores for prediction intervals:**
+
 - 68% PI: Z = 1.00 (useful for "normal variation" communications)
 - 80% PI: Z = 1.28 (used in supply chain safety stock calculations)
 - 90% PI: Z = 1.645 (common in demand planning)
@@ -190,10 +203,12 @@ Every forecast requires quantified uncertainty. Use prediction intervals (which 
 - 99% PI: Z = 2.576 (used when errors are very costly)
 
 **When errors are NOT normally distributed:**
+
 - If the series is strictly positive and right-skewed, compute intervals in log space: log-transform the data, build the model, compute intervals in log space, then exponentiate all values back. This prevents negative lower bounds and corrects for right skew.
 - If the error distribution has heavy tails (kurtosis > 5), use bootstrap prediction intervals: resample the residuals 1,000 times, re-generate forecasts each time, and use the 2.5th and 97.5th percentiles of the resulting distribution as the 95% bounds.
 
 **Fan chart specification (for multi-step forecasts):**
+
 - Report multiple bands simultaneously: 50% PI (inner), 80% PI (middle), 95% PI (outer)
 - This communicates that uncertainty is not binary -- it grows continuously
 - In spreadsheet terms: calculate three sets of upper/lower bounds using Z = 0.674, 1.28, 1.96
@@ -213,6 +228,7 @@ A forecast without a back-test is untestable. Always validate before reporting.
 - **Benchmark comparison:** Always compare to the naive forecast (next period = last period) and simple moving average. If your chosen model does not beat the 3-period moving average on RMSE, question whether the added complexity is justified.
 
 **Accuracy benchmarks by industry context:**
+
 - Short-horizon monthly revenue forecast for stable businesses: MAPE < 5% is excellent, 5-10% is good, 10-15% is acceptable, > 15% signals model mismatch or structural volatility
 - SKU-level demand forecasting in retail: MAPE < 15% is excellent, 15-30% is acceptable, > 30% is common for low-volume items (consider switching to probability distributions rather than point forecasts)
 - Weekly web traffic forecasting: MAPE < 8% is good for trending traffic
@@ -270,19 +286,23 @@ The forecast is not a one-time deliverable -- specify exactly how it should be m
 
 **[Method Name] -- Mathematical Specification:**
 ```
+
 [Formula for period t in precise notation]
 [Formula for h-step-ahead forecast]
 [Formula for prediction interval: Ŷ ± Z × σ_h]
 [σ_h formula showing how uncertainty grows with h]
+
 ```
 
 **Spreadsheet Implementation ([Excel/Google Sheets]):**
 ```
+
 [Named range or column definitions]
 Forecast formula (cell B15): =[exact formula, no ambiguity]
 Upper bound (cell C15): =[exact formula]
 Lower bound (cell D15): =[exact formula]
 [Note any helper columns needed]
+
 ```
 
 **Parameter Optimization Result:**
@@ -427,17 +447,18 @@ Year 2: Jan 1,450 | Feb 1,320 | Mar 1,620 | Apr 1,550 | May 1,720 | Jun 1,680 | 
 
 ### Data Assessment Summary
 
-| Characteristic | Assessment | Implication |
-|---------------|------------|-------------|
-| Historical periods (N) | 24 months (2 full years) | Sufficient for seasonal decomposition (minimum = 24) |
-| Granularity | Monthly | Seasonal period S = 12 |
-| Trend | Upward, approximately 55 units/month | R² = 0.84 on linear regression -- strong linear trend confirmed |
-| Seasonality | Yes -- November is 55% above trend-adjusted mean; December is 83% above; Q1 is 18% below | Multiplicative seasonality (amplitude grows with level -- Nov/Dec spikes are larger in Year 2 than Year 1 in absolute terms) |
-| Volatility (CV) | 28% overall; CV of deseasonalized trend = 8% | High CV driven by seasonal spikes, not noise -- multiplicative model appropriate |
-| Outliers | None identified. Nov/Dec spikes are seasonal, not outliers | No treatment needed |
-| Stationarity | Non-stationary (upward trend confirmed) | Trend must be modeled explicitly; do not use simple moving average |
+| Characteristic         | Assessment                                                                               | Implication                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Historical periods (N) | 24 months (2 full years)                                                                 | Sufficient for seasonal decomposition (minimum = 24)                                                                         |
+| Granularity            | Monthly                                                                                  | Seasonal period S = 12                                                                                                       |
+| Trend                  | Upward, approximately 55 units/month                                                     | R² = 0.84 on linear regression -- strong linear trend confirmed                                                              |
+| Seasonality            | Yes -- November is 55% above trend-adjusted mean; December is 83% above; Q1 is 18% below | Multiplicative seasonality (amplitude grows with level -- Nov/Dec spikes are larger in Year 2 than Year 1 in absolute terms) |
+| Volatility (CV)        | 28% overall; CV of deseasonalized trend = 8%                                             | High CV driven by seasonal spikes, not noise -- multiplicative model appropriate                                             |
+| Outliers               | None identified. Nov/Dec spikes are seasonal, not outliers                               | No treatment needed                                                                                                          |
+| Stationarity           | Non-stationary (upward trend confirmed)                                                  | Trend must be modeled explicitly; do not use simple moving average                                                           |
 
 **Key diagnostic findings:**
+
 - Year 1 November = 2,400 (trend level ~1,700) → seasonal index ≈ 1.41 (41% above trend)
 - Year 2 November = 2,750 (trend level ~2,000) → seasonal index ≈ 1.38
 - The multiplicative seasonal index is stable across years (~1.40 for November), confirming multiplicative decomposition is correct. An additive model would have produced indices of +700 and +750 for the same month -- they differ by 7%, indicating mild proportionality.
@@ -464,6 +485,7 @@ Year 2: Jan 1,450 | Feb 1,320 | Mar 1,620 | Apr 1,550 | May 1,720 | Jun 1,680 | 
 ### Model Formulas
 
 **Holt-Winters Multiplicative -- Mathematical Specification:**
+
 ```
 Initialization (using classical decomposition on first 12 months):
   L[12] = average of deseasonalized values for months 1-12
@@ -485,6 +507,7 @@ Prediction interval (h-step ahead):
 ```
 
 **Spreadsheet Implementation (Google Sheets):**
+
 ```
 Column setup: A = period (1-24), B = date label, C = actual, D = model fit, E = residual, F = residual%
 
@@ -525,5 +548,6 @@ Forecast rows (periods 25-30):
 ```
 
 **Parameter Optimization Result:**
+
 - Method: Grid search over α (0.1-0.9), β (0.05-0.3), γ (0.05-0.3) in 0.05 steps
-- Optimal (α=0.35, β=0.10, γ=0.15): SSE = 39,800, in-sample RMSE = 
+- Optimal (α=0.35, β=0.10, γ=0.15): SSE = 39,800, in-sample RMSE =

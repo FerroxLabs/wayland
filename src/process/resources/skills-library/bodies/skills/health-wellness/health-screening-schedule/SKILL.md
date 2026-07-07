@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness guide strategy"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'fitness guide strategy'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Health Screening Schedule
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks which health screenings are recommended for their age group (e.g., "What tests should I get in my 40s?")
 - A user wants to understand the purpose and general frequency of specific preventive screenings (e.g., "What is a colonoscopy screening for and when do people start getting them?")
 - A user wants to build a structured preventive health timeline to bring to a primary care appointment
@@ -33,6 +35,7 @@ metadata:
 - A user returning to the healthcare system after a gap wants to understand what may have changed in screening guidelines
 
 **Do NOT use this skill when:**
+
 - The user is asking to interpret a specific screening result (e.g., "My PSA came back at 5.2 -- is that bad?") -- use a result-interpretation or clinical-review handoff instead
 - The user has a named diagnosis, active symptoms, or a condition that drives a different screening protocol -- those require individualized clinical guidance beyond this skill's scope
 - The user has a known hereditary cancer syndrome (BRCA1/2, Lynch Syndrome, familial adenomatous polyposis) -- their screening protocol is substantially different and must be provider-managed
@@ -82,6 +85,7 @@ Within each life stage, organize screenings by clinical domain rather than alpha
 8. **Functional and safety** -- advance directives, medication review, fall risk (65+)
 
 For each screening type, provide:
+
 - The target condition it is designed to detect
 - The general recommended start age for average-risk adults
 - The general frequency when normal results are returned
@@ -93,11 +97,13 @@ For each screening type, provide:
 Generic advice like "check regularly" is not useful. Provide the actual general framework numbers that reflect common guideline structures. These are the numbers the user will encounter in conversations with their provider:
 
 **Cardiovascular:**
+
 - Blood pressure: Every 2 years if consistently below 120/80 mmHg; annually if 120-129/less than 80 (elevated range); more frequently if 130+ mmHg (hypertension range)
 - Fasting lipid panel: Every 5 years for normal results in a low-risk adult; every 1-2 years if borderline or on treatment
 - Fasting glucose or A1C: Every 3 years starting at age 35-45 for average risk; baseline A1C normal is below 5.7%; prediabetes range 5.7-6.4%
 
 **Cancer:**
+
 - Colorectal: Average risk -- discussion at 45, options include colonoscopy every 10 years (if normal), annual fecal immunochemical test (FIT), or stool DNA test (Cologuard) every 1-3 years
 - Cervical: Age 21-65 with a cervix -- Pap smear every 3 years ages 21-29; co-testing (Pap + HPV) every 5 years ages 30-65, or Pap alone every 3 years; high-risk HPV primary testing every 5 years is an accepted alternative in some guideline structures
 - Breast (mammography): Many guideline structures suggest annual screening beginning at 40; others suggest shared decision-making at 40-44 with recommended annual screening from 45-54 and every 2 years from 55+. The variation in guideline structures on this topic is worth noting explicitly -- the user should discuss this directly with their provider.
@@ -106,9 +112,11 @@ Generic advice like "check regularly" is not useful. Provide the actual general 
 - Abdominal aortic aneurysm (AAA): One-time abdominal ultrasound for men aged 65-75 who have ever smoked (100+ cigarettes lifetime)
 
 **Bone:**
+
 - DEXA bone density: Women -- begin at age 65 for average risk; earlier for women with risk factors (low body weight, steroid use, early menopause, fracture history). Men -- discuss at age 70 or earlier if significant risk factors present.
 
 **Mental Health:**
+
 - Depression screening: At least annually as part of a wellness visit across all adult age groups; PHQ-2 and PHQ-9 are the tools commonly used in primary care
 
 ### Step 5: Address Sex-Specific and Anatomy-Based Screenings with Appropriate Sensitivity
@@ -138,6 +146,7 @@ Adult immunizations are a parallel preventive track that the screening conversat
 The most actionable output of this skill is equipping the user to have a productive conversation with their provider. Generate a customized list of specific, intelligent questions calibrated to the user's life stage. Generic questions ("Are there other screenings I need?") are less useful than targeted ones ("I've read that some guidelines recommend starting colorectal screening at 45 -- given my family history and health, when do you think I should start and which method would you recommend?").
 
 Provider conversation questions should:
+
 - Name the specific screening being asked about
 - Reference the life stage relevance ("I know this becomes relevant in my 40s...")
 - Invite the provider to personalize ("Given my specific history...")
@@ -319,6 +328,7 @@ This is the most important edge case. Present it prominently: "Before building a
 ### User Asks About a Condition for Which No General-Population Screening Exists
 
 Several conditions commonly believed to have routine screenings do not:
+
 - **Ovarian cancer:** No recommended general-population screening test. CA-125 and transvaginal ultrasound are used in high-risk populations (BRCA carriers) but are not recommended for general population use.
 - **Pancreatic cancer:** No recommended general-population screening.
 - **Brain tumors:** No recommended general-population screening.
@@ -365,12 +375,12 @@ If the user mentions a prior abnormal finding (e.g., "I had a polyp removed duri
 
 ### Domain 1: Cardiovascular Risk Screening
 
-| Screening            | Target                    | General Start Age | Avg-Risk Frequency              | Key Threshold                         |
-|----------------------|---------------------------|-------------------|---------------------------------|----------------------------------------|
-| Blood pressure       | Hypertension              | 18                | Every 2 yrs if <120/80 mmHg     | Annual if 120-129; more if ≥130 mmHg  |
-| Fasting lipid panel  | Dyslipidemia, CVD risk    | 20 (baseline)     | Every 5 yrs if consistently normal | More frequent if borderline LDL    |
-| Fasting glucose/A1C  | Prediabetes, Type 2 DM    | 35-45             | Every 3 years                   | A1C 5.7-6.4% = prediabetes range      |
-| BMI assessment       | Obesity, metabolic risk   | 18                | At every wellness visit         | BMI ≥ 30 escalates frequency/intensity|
+| Screening           | Target                  | General Start Age | Avg-Risk Frequency                 | Key Threshold                          |
+| ------------------- | ----------------------- | ----------------- | ---------------------------------- | -------------------------------------- |
+| Blood pressure      | Hypertension            | 18                | Every 2 yrs if <120/80 mmHg        | Annual if 120-129; more if ≥130 mmHg   |
+| Fasting lipid panel | Dyslipidemia, CVD risk  | 20 (baseline)     | Every 5 yrs if consistently normal | More frequent if borderline LDL        |
+| Fasting glucose/A1C | Prediabetes, Type 2 DM  | 35-45             | Every 3 years                      | A1C 5.7-6.4% = prediabetes range       |
+| BMI assessment      | Obesity, metabolic risk | 18                | At every wellness visit            | BMI ≥ 30 escalates frequency/intensity |
 
 **What to know at 47:** Cardiovascular risk in women increases significantly around perimenopause. Cholesterol profiles often shift during hormonal transition, which makes a baseline lipid panel a high-value test if you haven't had one recently. If your last blood pressure check was years ago, that is likely the first thing measured at your upcoming visit.
 
@@ -378,15 +388,16 @@ If the user mentions a prior abnormal finding (e.g., "I had a polyp removed duri
 
 ### Domain 2: Cancer Screenings
 
-| Screening           | Target          | General Start Age | Method Options                        | General Frequency               |
-|---------------------|-----------------|-------------------|----------------------------------------|----------------------------------|
-| Colorectal          | Colorectal ca.  | 45                | Colonoscopy / FIT / Cologuard stool DNA| Colonoscopy: 10 yrs; FIT: annual |
-| Cervical            | Cervical ca.    | 21 (with cervix)  | Pap smear (every 3 yrs) OR co-test (Pap+HPV every 5 yrs) | Per last result |
-| Breast (mammogram)  | Breast cancer   | 40-50 (varies)    | Mammogram -- 2D or 3D (tomosynthesis)  | Annual or every 2 yrs (discuss)  |
-| Skin                | Melanoma, skin ca.| All adults      | Clinical skin exam; self-monitoring   | Annual clinical exam if risk     |
-| Oral cancer         | Oral ca.        | All adults        | Via dental exam                        | Every 6-12 months (dental visit) |
+| Screening          | Target             | General Start Age | Method Options                                           | General Frequency                |
+| ------------------ | ------------------ | ----------------- | -------------------------------------------------------- | -------------------------------- |
+| Colorectal         | Colorectal ca.     | 45                | Colonoscopy / FIT / Cologuard stool DNA                  | Colonoscopy: 10 yrs; FIT: annual |
+| Cervical           | Cervical ca.       | 21 (with cervix)  | Pap smear (every 3 yrs) OR co-test (Pap+HPV every 5 yrs) | Per last result                  |
+| Breast (mammogram) | Breast cancer      | 40-50 (varies)    | Mammogram -- 2D or 3D (tomosynthesis)                    | Annual or every 2 yrs (discuss)  |
+| Skin               | Melanoma, skin ca. | All adults        | Clinical skin exam; self-monitoring                      | Annual clinical exam if risk     |
+| Oral cancer        | Oral ca.           | All adults        | Via dental exam                                          | Every 6-12 months (dental visit) |
 
 **Important notes at 47:**
+
 - **Colorectal:** You are at or past the age where this conversation should be happening. If you have not had a colonoscopy or completed any colorectal screening, this is one of the most time-sensitive items on this list. Ask your provider this visit.
 - **Cervical:** Depending on your last Pap and HPV test results, you may be due or still within a 3-5 year window. Bring whatever records you have. If you have no records and haven't been seen in years, assume you are due.
 - **Breast:** Guideline structures for mammography timing genuinely differ. Some recommend annual screening from age 40; others recommend beginning the discussion at 40-44 with annual screening recommended from 45-54 and biennial from 55. You are in the window where this conversation should be happening now if it hasn't already. 3D mammography (digital breast tomosynthesis) is now widely available and has modestly better detection rates than standard 2D in women with dense breast tissue.
@@ -396,9 +407,9 @@ If the user mentions a prior abnormal finding (e.g., "I had a polyp removed duri
 
 ### Domain 3: Bone Health
 
-| Screening | Target       | General Start Age     | Frequency                                        |
-|-----------|--------------|-----------------------|---------------------------------------------------|
-| DEXA scan | Osteoporosis | Women: 65 (avg risk)  | Earlier if risk factors present; every 2 yrs if borderline |
+| Screening | Target       | General Start Age    | Frequency                                                  |
+| --------- | ------------ | -------------------- | ---------------------------------------------------------- |
+| DEXA scan | Osteoporosis | Women: 65 (avg risk) | Earlier if risk factors present; every 2 yrs if borderline |
 
 **What to know at 47:** DEXA is not yet routinely recommended at 47 for average-risk women. However, perimenopause accelerates bone density loss. Risk factors that move this earlier include: low body weight (BMI under 21), corticosteroid use, smoking history, prior fractures, or early menopause (before 45). Raise these with your provider to see if earlier screening applies to you.
 
@@ -406,10 +417,10 @@ If the user mentions a prior abnormal finding (e.g., "I had a polyp removed duri
 
 ### Domain 4: Mental Health Screening
 
-| Screening   | Common Tool    | Frequency                       |
-|-------------|----------------|----------------------------------|
-| Depression  | PHQ-2 / PHQ-9  | Annually at wellness visit       |
-| Anxiety     | GAD-7          | Per provider judgment            |
+| Screening  | Common Tool   | Frequency                  |
+| ---------- | ------------- | -------------------------- |
+| Depression | PHQ-2 / PHQ-9 | Annually at wellness visit |
+| Anxiety    | GAD-7         | Per provider judgment      |
 
 Midlife is a period of elevated depression risk, particularly for women during hormonal transition. This is a standard part of the wellness visit and is nothing to avoid or be surprised by.
 
@@ -417,24 +428,24 @@ Midlife is a period of elevated depression risk, particularly for women during h
 
 ### Domain 5: Sensory and Dental Health
 
-| Screening       | Target                        | General Frequency                        |
-|-----------------|-------------------------------|-------------------------------------------|
-| Dental exam     | Caries, periodontal, oral ca. | Every 6-12 months                         |
-| Vision exam     | Refractive change, glaucoma   | Every 2 years; annually with correction   |
-| Hearing         | Hearing loss                  | Discuss starting at 50; begin annual at 65|
+| Screening   | Target                        | General Frequency                          |
+| ----------- | ----------------------------- | ------------------------------------------ |
+| Dental exam | Caries, periodontal, oral ca. | Every 6-12 months                          |
+| Vision exam | Refractive change, glaucoma   | Every 2 years; annually with correction    |
+| Hearing     | Hearing loss                  | Discuss starting at 50; begin annual at 65 |
 
 ---
 
 ### Domain 6: Immunization Review
 
-| Vaccine        | Status for You at 47                     | Schedule Note                                  |
-|----------------|------------------------------------------|--------------------------------------------------|
-| Influenza      | Due annually                             | Best received September-October                  |
-| COVID-19       | Per current public health guidance       | Discuss updated booster timing                   |
-| Tdap/Td        | Tdap once in adulthood; Td every 10 yrs  | If you can't recall your last tetanus, you may be due |
-| HPV            | Shared decision-making ages 27-45        | Discuss with provider if not previously completed |
-| Shingrix       | Begins at age 50                         | Start planning: 2 doses, 2-6 months apart        |
-| Hepatitis B    | If not previously vaccinated or serology negative | 2-dose Heplisav-B or 3-dose Engerix series |
+| Vaccine     | Status for You at 47                              | Schedule Note                                         |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------- |
+| Influenza   | Due annually                                      | Best received September-October                       |
+| COVID-19    | Per current public health guidance                | Discuss updated booster timing                        |
+| Tdap/Td     | Tdap once in adulthood; Td every 10 yrs           | If you can't recall your last tetanus, you may be due |
+| HPV         | Shared decision-making ages 27-45                 | Discuss with provider if not previously completed     |
+| Shingrix    | Begins at age 50                                  | Start planning: 2 doses, 2-6 months apart             |
+| Hepatitis B | If not previously vaccinated or serology negative | 2-dose Heplisav-B or 3-dose Engerix series            |
 
 **Preview for your early 50s:** Shingrix (shingles vaccine) is one of the highest-efficacy vaccines in the adult schedule and is recommended starting at age 50. Begin the conversation at your upcoming visit so it is on the radar.
 

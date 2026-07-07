@@ -44,11 +44,7 @@ afterEach(() => {
 // to keep this test focused on the resolution rules. A change to the contract
 // breaks both the test and the file shape the plugin writes - exactly the
 // regression we want to catch.
-function loadOrCreateWechatUinContract(
-  dataDir: string,
-  accountId: string,
-  ilinkUserId?: string
-): string {
+function loadOrCreateWechatUinContract(dataDir: string, accountId: string, ilinkUserId?: string): string {
   const uinDir = path.join(dataDir, 'weixin-monitor');
   const uinFile = path.join(uinDir, `${accountId}.uin`);
 
@@ -77,10 +73,7 @@ describe('WeixinPlugin / loadOrCreateWechatUin contract (CRIT-3)', () => {
     const uin = loadOrCreateWechatUinContract(tmpDir, 'bot-123', 'tencent-uin-AAA');
     expect(uin).toBe('tencent-uin-AAA');
 
-    const onDisk = fs.readFileSync(
-      path.join(tmpDir, 'weixin-monitor', 'bot-123.uin'),
-      'utf-8'
-    );
+    const onDisk = fs.readFileSync(path.join(tmpDir, 'weixin-monitor', 'bot-123.uin'), 'utf-8');
     expect(onDisk).toBe('tencent-uin-AAA');
   });
 

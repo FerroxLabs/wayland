@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization design template"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'data-visualization design template'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Chart Formatting
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user shares a chart (screenshot, description, or data) and says it looks cluttered, amateurish, hard to read, or "like a default Excel chart"
 - A user asks for a formatting specification or style guide to apply consistently across multiple charts in a report, deck, or publication
 - A user wants to reduce visual noise -- specifically mentions gridlines, 3D effects, excessive tick marks, overlapping labels, or redundant legends
@@ -30,6 +32,7 @@ metadata:
 - A user is preparing a chart for publication in a trade journal, annual report, or external investor presentation where professional standards are expected
 
 **Do NOT use when:**
+
 - The user has not yet chosen a chart type and is deciding between bars, lines, scatter, or other forms -- use `chart-type-selector` first
 - The user needs to decide which color encodes which data dimension or category -- use `color-in-data`
 - The user is designing a multi-chart dashboard layout, determining panel arrangement, or setting cross-chart interaction behavior -- use `dashboard-design`
@@ -84,18 +87,21 @@ The title is the single most-read element in any chart. Most charts fail here by
 Axes are the most technically demanding formatting element. Errors here directly distort data interpretation.
 
 **Y-axis scale rules:**
+
 - Bar charts and column charts: Always start at zero. A truncated Y-axis on a bar chart is a perceptual lie -- bar length encodes magnitude, and that encoding only works when the baseline is zero.
 - Line charts: Zero baseline is preferred but not mandatory. If all values fall between 85 and 105, a zero-anchored axis collapses all variation into a flat line and hides the signal. Use a contextually meaningful minimum (e.g., 80) and add a Y-axis break marker (double diagonal line) or a note: "Y-axis begins at 80."
 - Scatter plots: Match the axis range to the data range with 5-10% padding on each side. Do not force zero on scatter axes.
 - Percentage axes: 0% to 100% for 100% stacked charts. For other percent charts, use data range with 5% padding.
 
 **Tick interval selection:**
+
 - Always use round-number intervals: 1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000. Never use intervals of 3, 7, 11, or other non-round numbers.
 - Target 4-6 gridline intervals on the Y-axis. Fewer than 4 provides insufficient reference; more than 6 creates clutter.
 - For currency: $500K intervals on a $0-$3M axis (6 intervals). For percentages: 5% or 10% intervals. For dates: round to the natural period (months, quarters, years) rather than irregular intervals.
 - Suppress minor tick marks. They add ink without adding information in most business charts.
 
 **Axis label formatting:**
+
 - Always include units in the axis label: "Revenue ($M)" not "Revenue." Exception: dates on the X-axis are self-explanatory.
 - X-axis label rotation: 0 degrees (horizontal) is always preferred. Rotate to 45 degrees only when labels overlap at 0 degrees. Rotate to 90 degrees only as a last resort. Never rotate Y-axis tick labels.
 - Abbreviate long axis labels: Jan/Feb/Mar not January/February/March, Q1 not Quarter 1, FY24 not Fiscal Year 2024.
@@ -128,6 +134,7 @@ The legend is the most commonly misused chart element. It forces the viewer's ey
 These two elements are distinct. Data labels show the value of every (or selected) data point. Annotations are editorial -- they explain significance, mark thresholds, or highlight outliers.
 
 **Data labels:**
+
 - Use when the viewer needs to read specific values and the chart has fewer than 10-12 data points.
 - Suppress data labels when there are 15+ data points -- labels will overlap or crowd, defeating their purpose.
 - Selective labeling strategy: Label only the highest value, lowest value, most recent value, or the specific data point referenced in the title. This focuses the viewer's attention where the message is.
@@ -136,6 +143,7 @@ These two elements are distinct. Data labels show the value of every (or selecte
 - Position: Above bars (column charts), to the right of bars (horizontal bar charts), above/beside points (scatter, line). Never inside a bar that is too short to contain the label.
 
 **Annotations:**
+
 - Maximum 3 per chart. Each annotation competes with the data for the viewer's attention. More than 3 creates a visual hierarchy crisis where nothing is primary.
 - Style: Use a thin connector line (0.75pt, #888888, no arrowhead or small open arrowhead) connecting the annotation text box to the data point. Text box has no border, no background fill, or very light fill (#F9F9F9) if overlap with data elements is unavoidable.
 - Reference lines (horizontal or vertical): Use a dashed line (#AAAAAA, 1pt, dashed 3pt/3pt) for targets, averages, benchmarks. Label the line directly (e.g., "Industry avg: $1.4M") rather than putting the label in a separate legend.
@@ -351,54 +359,55 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Chart Context
 
-| Element                | Value                                                         |
-|------------------------|---------------------------------------------------------------|
-| Chart type             | Multi-series line chart                                       |
-| Display medium         | Board-level PDF report (printed and screen PDF)               |
-| Dimensions             | 6.5 inches wide x 3.5 inches tall (full text-width column)   |
-| Data points per series | 8 (Q1 2023 -- Q4 2024)                                       |
-| Number of series       | 3 (Enterprise, Mid-Market, SMB)                               |
+| Element                | Value                                                                                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| Chart type             | Multi-series line chart                                                                         |
+| Display medium         | Board-level PDF report (printed and screen PDF)                                                 |
+| Dimensions             | 6.5 inches wide x 3.5 inches tall (full text-width column)                                      |
+| Data points per series | 8 (Q1 2023 -- Q4 2024)                                                                          |
+| Number of series       | 3 (Enterprise, Mid-Market, SMB)                                                                 |
 | Key message            | Identify which segment is trending positively or negatively and the magnitude of any divergence |
-| Brand constraints      | Font: Inter (all weights available)                           |
+| Brand constraints      | Font: Inter (all weights available)                                                             |
 
 ---
 
 ### Quick Reference (Top 6 Specs)
 
-| Spec               | Value                                              |
-|--------------------|----------------------------------------------------|
-| Title font         | Inter, 14pt, SemiBold, #1A1A1A                     |
-| Axis tick font     | Inter, 10pt, Regular, #555555                      |
+| Spec               | Value                                                          |
+| ------------------ | -------------------------------------------------------------- |
+| Title font         | Inter, 14pt, SemiBold, #1A1A1A                                 |
+| Axis tick font     | Inter, 10pt, Regular, #555555                                  |
 | Primary data color | Enterprise: #1A6EBF, Mid-Market: #E07B39, SMB: #888888 (muted) |
-| Gridline style     | Horizontal only, #E5E5E5, 0.5pt                    |
-| Data labels        | Selective -- Q4 2024 endpoint only per series      |
-| Legend             | Direct labels at line endpoints (no separate legend) |
+| Gridline style     | Horizontal only, #E5E5E5, 0.5pt                                |
+| Data labels        | Selective -- Q4 2024 endpoint only per series                  |
+| Legend             | Direct labels at line endpoints (no separate legend)           |
 
 ---
 
 ### Title and Subtitle
 
-| Element         | Specification                                                              |
-|-----------------|----------------------------------------------------------------------------|
-| Title text      | "Enterprise NPS Has Improved 18 Points While SMB Has Declined Since Q3 2023" |
-| Title font      | Inter, 14pt, SemiBold, #1A1A1A                                             |
-| Title alignment | Left-aligned                                                               |
-| Title case      | Title Case                                                                 |
-| Subtitle text   | "Net Promoter Score by customer segment, Q1 2023 -- Q4 2024. Scores range from -100 to +100." |
-| Subtitle font   | Inter, 10pt, Regular, #666666                                              |
-| Subtitle case   | Sentence case                                                              |
-| Vertical spacing| 4pt between title and subtitle; 12pt between subtitle and chart area       |
+| Element          | Specification                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| Title text       | "Enterprise NPS Has Improved 18 Points While SMB Has Declined Since Q3 2023"                  |
+| Title font       | Inter, 14pt, SemiBold, #1A1A1A                                                                |
+| Title alignment  | Left-aligned                                                                                  |
+| Title case       | Title Case                                                                                    |
+| Subtitle text    | "Net Promoter Score by customer segment, Q1 2023 -- Q4 2024. Scores range from -100 to +100." |
+| Subtitle font    | Inter, 10pt, Regular, #666666                                                                 |
+| Subtitle case    | Sentence case                                                                                 |
+| Vertical spacing | 4pt between title and subtitle; 12pt between subtitle and chart area                          |
 
 ---
 
 ### Axis Formatting
 
-| Axis | Label Text      | Font     | Range        | Tick Interval | Label Rotation | Axis Line | Gridlines               |
-|------|-----------------|----------|--------------|---------------|----------------|-----------|-------------------------|
-| X    | (none needed -- quarters are self-explanatory) | Inter, 10pt | Q1 2023 -- Q4 2024 | Quarterly (all 8 labels) | 0 degrees | Off | Off |
-| Y    | NPS Score       | Inter, 10pt | 0 to 80     | 20-point intervals (0, 20, 40, 60, 80) | 0 degrees | Off | On: #E5E5E5, 0.5pt |
+| Axis | Label Text                                     | Font        | Range              | Tick Interval                          | Label Rotation | Axis Line | Gridlines          |
+| ---- | ---------------------------------------------- | ----------- | ------------------ | -------------------------------------- | -------------- | --------- | ------------------ |
+| X    | (none needed -- quarters are self-explanatory) | Inter, 10pt | Q1 2023 -- Q4 2024 | Quarterly (all 8 labels)               | 0 degrees      | Off       | Off                |
+| Y    | NPS Score                                      | Inter, 10pt | 0 to 80            | 20-point intervals (0, 20, 40, 60, 80) | 0 degrees      | Off       | On: #E5E5E5, 0.5pt |
 
 **Axis Notes:**
+
 - Y-axis range: Enterprise sits around 55-72, Mid-Market 38-52, SMB 44-32 (declining). Range of 0-80 captures all three with headroom. Do not start at negative values -- none of the scores are negative and starting at 0 avoids distorting the distance between series.
 - Add year demarcation: Place a thin vertical reference line at the boundary between Q4 2023 and Q1 2024 (#CCCCCC, 0.75pt, dashed) to help the viewer split the two calendar years visually. Label it "2024" just above the X-axis.
 - Y-axis interval of 20 produces 4 gridlines -- clean and sufficient for an NPS scale.
@@ -407,13 +416,14 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Data Element Formatting
 
-| Element                 | Color    | Line Weight | Marker     | Effects |
-|-------------------------|----------|-------------|------------|---------|
-| Enterprise series       | #1A6EBF  | 2.5pt solid | Filled circle, 5px | None |
-| Mid-Market series       | #E07B39  | 2pt solid   | Filled square, 5px | None |
-| SMB series (declining)  | #888888  | 1.5pt solid | Filled diamond, 5px | None |
+| Element                | Color   | Line Weight | Marker              | Effects |
+| ---------------------- | ------- | ----------- | ------------------- | ------- |
+| Enterprise series      | #1A6EBF | 2.5pt solid | Filled circle, 5px  | None    |
+| Mid-Market series      | #E07B39 | 2pt solid   | Filled square, 5px  | None    |
+| SMB series (declining) | #888888 | 1.5pt solid | Filled diamond, 5px | None    |
 
 **Series Notes:**
+
 - Enterprise and Mid-Market are the two focal series (the divergence story). SMB is context -- slightly lighter line weight visually subordinates it without hiding it.
 - Use distinct marker shapes (circle, square, diamond) in addition to color to distinguish series for black-and-white printing and color vision accessibility.
 - Do not use Excel's default blue/orange/gray -- the default gray is too close to the gridline color (#E5E5E5) and will appear to disappear. Use #888888 (medium gray) for SMB to maintain 4:1 contrast against the white background.
@@ -422,15 +432,15 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Data Labels
 
-| Setting         | Value                                                        |
-|-----------------|--------------------------------------------------------------|
-| Visibility      | Selected points only                                         |
-| Which points    | Q4 2024 endpoint for each series (the current state), and the Q3 2023 inflection point for SMB where decline begins |
-| Position        | Right of the endpoint marker (aligned with direct series label) |
-| Number format   | Integer (NPS scores are whole numbers): "72", "48", "31"     |
-| Font size       | 9pt                                                          |
-| Font weight     | Regular (the direct label beside it carries the series name) |
-| Font color      | Matching series color                                        |
+| Setting       | Value                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Visibility    | Selected points only                                                                                                |
+| Which points  | Q4 2024 endpoint for each series (the current state), and the Q3 2023 inflection point for SMB where decline begins |
+| Position      | Right of the endpoint marker (aligned with direct series label)                                                     |
+| Number format | Integer (NPS scores are whole numbers): "72", "48", "31"                                                            |
+| Font size     | 9pt                                                                                                                 |
+| Font weight   | Regular (the direct label beside it carries the series name)                                                        |
+| Font color    | Matching series color                                                                                               |
 
 **Notes:** With 8 data points and 3 series (24 total labels), showing all labels would create severe overlap. The four selective labels (3 endpoints + 1 inflection point) convey the essential quantitative information without clutter. Gridlines handle value estimation for intermediate quarters.
 
@@ -438,13 +448,13 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Legend
 
-| Setting              | Value                                                       |
-|----------------------|-------------------------------------------------------------|
-| Visibility           | Hidden (replaced by direct labels)                          |
+| Setting                | Value                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| Visibility             | Hidden (replaced by direct labels)                                                                  |
 | Direct label placement | Right end of each line, 6pt to the right of the Q4 2024 marker, vertically offset if lines converge |
-| Label text           | "Enterprise", "Mid-Market", "SMB"                           |
-| Label font           | Inter, 10pt, SemiBold, in matching series color             |
-| Label alignment      | Left-aligned to a consistent X position (right edge of chart area + 6pt) |
+| Label text             | "Enterprise", "Mid-Market", "SMB"                                                                   |
+| Label font             | Inter, 10pt, SemiBold, in matching series color                                                     |
+| Label alignment        | Left-aligned to a consistent X position (right edge of chart area + 6pt)                            |
 
 **Notes:** Lines diverge at Q4 2024 (Enterprise high, SMB low, Mid-Market middle), so direct labels do not overlap at the endpoint. If lines converged, stagger label Y-positions by 12pt. Chart area width should account for direct label width -- add approximately 0.8 inches of right margin to the 6.5-inch total width, making the actual plot area approximately 5.7 inches wide.
 
@@ -452,11 +462,11 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Annotations and Reference Lines
 
-| # | Type           | Text                                | Position                              | Style                                              |
-|---|----------------|-------------------------------------|---------------------------------------|----------------------------------------------------|
-| 1 | Reference line | "Industry benchmark: 45"            | Horizontal dashed line at Y=45        | #AAAAAA, 1pt, dashed 4pt/3pt; label at left edge of line, Inter 9pt, #AAAAAA |
-| 2 | Annotation     | "SMB decline begins"                | Q3 2023 data point on SMB series      | Thin connector 0.75pt #888888, no arrowhead; text box no border, Inter 9pt, #555555 |
-| 3 | Year divider   | "2024"                              | Above X-axis at Q4 2023 / Q1 2024 boundary | #CCCCCC vertical dashed line, 0.75pt; label Inter 9pt, #AAAAAA |
+| #   | Type           | Text                     | Position                                   | Style                                                                               |
+| --- | -------------- | ------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| 1   | Reference line | "Industry benchmark: 45" | Horizontal dashed line at Y=45             | #AAAAAA, 1pt, dashed 4pt/3pt; label at left edge of line, Inter 9pt, #AAAAAA        |
+| 2   | Annotation     | "SMB decline begins"     | Q3 2023 data point on SMB series           | Thin connector 0.75pt #888888, no arrowhead; text box no border, Inter 9pt, #555555 |
+| 3   | Year divider   | "2024"                   | Above X-axis at Q4 2023 / Q1 2024 boundary | #CCCCCC vertical dashed line, 0.75pt; label Inter 9pt, #AAAAAA                      |
 
 **Notes:** The industry benchmark line at 45 contextualizes the Mid-Market score (hovering near the benchmark) and shows SMB has fallen below it. Three annotations is the maximum -- the year divider is a light reference marker rather than a full annotation, so it does not compete visually with the two substantive annotations.
 
@@ -464,17 +474,17 @@ Email clients (Outlook, Gmail, Apple Mail) render images differently, and some b
 
 ### Elements Removed (Chart Junk Eliminated)
 
-| Element Removed              | Reason                                                                                             |
-|------------------------------|----------------------------------------------------------------------------------------------------|
-| Gray plot area background    | Adds no information; reduces contrast of all overlaid elements; use white                          |
-| Vertical gridlines           | X-axis categories (quarters) do not benefit from grid reference -- viewers do not estimate X positions |
-| Centered title               | Left alignment anchors to reading direction and is faster to parse; centered title replaced with finding-based left-aligned text |
-| Bordered legend box          | Border draws the eye away from the data; direct labels eliminate the need entirely                 |
-| All 24 data point labels     | 24 labels on an 8-quarter, 3-series chart overlap severely and compete with the data lines; replaced by 4 selective labels |
-| Excel default shadows on markers | Drop shadows add ink without encoding information and blur marker positions                    |
-| Chart area outer border      | No information content; adds a frame that implies the chart is a discrete object rather than part of the page |
-| X-axis gridlines             | Redundant with direct quarter labels on the X-axis                                                 |
-| Default Excel colors (#4472C4, #ED7D31, #A5A5A5) | Default gray is too close to gridline color; replaced with intentional palette with sufficient contrast ratios |
+| Element Removed                                  | Reason                                                                                                                           |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Gray plot area background                        | Adds no information; reduces contrast of all overlaid elements; use white                                                        |
+| Vertical gridlines                               | X-axis categories (quarters) do not benefit from grid reference -- viewers do not estimate X positions                           |
+| Centered title                                   | Left alignment anchors to reading direction and is faster to parse; centered title replaced with finding-based left-aligned text |
+| Bordered legend box                              | Border draws the eye away from the data; direct labels eliminate the need entirely                                               |
+| All 24 data point labels                         | 24 labels on an 8-quarter, 3-series chart overlap severely and compete with the data lines; replaced by 4 selective labels       |
+| Excel default shadows on markers                 | Drop shadows add ink without encoding information and blur marker positions                                                      |
+| Chart area outer border                          | No information content; adds a frame that implies the chart is a discrete object rather than part of the page                    |
+| X-axis gridlines                                 | Redundant with direct quarter labels on the X-axis                                                                               |
+| Default Excel colors (#4472C4, #ED7D31, #A5A5A5) | Default gray is too close to gridline color; replaced with intentional palette with sufficient contrast ratios                   |
 
 ---
 

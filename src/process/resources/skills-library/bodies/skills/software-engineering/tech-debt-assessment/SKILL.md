@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "refactoring architecture best-practices"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'refactoring architecture best-practices'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Tech Debt Assessment
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to audit an existing codebase to identify, categorize, and prioritize technical debt before a major refactoring initiative or architecture migration
 - A user needs to build a business case for allocating engineering time to debt reduction and must quantify the cost of inaction in terms executives or product managers can understand
 - A team is experiencing velocity degradation, escalating defect rates, or increasing onboarding time and suspects accumulated technical debt is the root cause
@@ -29,6 +31,7 @@ metadata:
 - A team is preparing for a platform migration (e.g., monolith to microservices, on-prem to cloud) and needs to understand which components carry the highest debt load before decomposition begins
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on a specific refactoring technique for a known code smell -- use a refactoring patterns skill instead
 - The user is asking about software architecture selection (e.g., event-driven vs. REST) without a debt context -- use an architecture decision skill instead
 - The user wants to set up static analysis tooling from scratch -- use a code quality tooling skill that covers tool configuration in depth
@@ -302,24 +305,31 @@ Assessment without prevention creates a recurring emergency. Embed controls to s
 ## Edge Cases
 
 ### Legacy Codebase with No Tests and No Documentation
+
 The standard process assumes some baseline of automated coverage to triangulate with static analysis. When test coverage is below 10% system-wide and documentation is absent, the assessment must shift approach. Prioritize Test Debt (Type 6) as a prerequisite to all other debt work. Before scoring any module, create a characterization test suite using techniques from Michael Feathers' "Working Effectively with Legacy Code" -- write approval tests that capture current behavior (including bugs) to create a refactoring safety net. Do not run the full automated analysis until characterization tests exist for the top 5 highest-complexity modules. Without this foundation, any refactoring recommendation has unacceptable risk of regression.
 
 ### Acquired or Vendor-Handoff Codebase
+
 For codebases received from an external party, the hotspot analysis is unreliable -- the git history may be incomplete, sanitized, or represent a different delivery cadence than your team will maintain. Substitute hotspot analysis with stakeholder interviews from the acquiring team about which modules they expect to touch first, combined with a domain criticality map. Double the effort estimates on all items due to the learning curve of an unfamiliar codebase. Add a "knowledge gap tax" of 1.5x to every effort estimate until the team has maintained the code for at least one quarter. Flag all modules with external API dependencies as Dependency Debt regardless of version, since vendor SDK contracts may change without the acquisition team's control.
 
 ### High-Frequency Deployment Environment (Multiple Deploys Per Day)
+
 In teams deploying 5+ times per day, traditional refactoring sprints (where a module is frozen while being refactored) are impractical. Recommend the Strangler Fig pattern exclusively for module-level refactoring: build the new implementation alongside the old, route traffic incrementally via feature flags, and retire the old implementation only after the new one has handled 100% of traffic for a defined period (typically 2 weeks). Never recommend big-bang rewrites in this environment. Apply the Expand-Contract pattern for API and database schema changes. All debt items classified as L or XL effort must have a Strangler Fig or Expand-Contract implementation plan included in the debt ticket before work begins.
 
 ### Regulated Industry (Finance, Healthcare, Government)
+
 In regulated environments, some technical debt cannot be assessed using standard automated tools without compliance review. Static analysis tools that transmit code to external services (SaaS versions of SonarQube, CodeClimate cloud) may violate data handling requirements. Use only on-premise or self-hosted analysis tooling. Additionally, some intentional "debt" -- such as a deprecated but still-used cryptographic library retained for FIPS compliance -- is not remediable without regulatory re-certification. Classify these items as "Compliance-Locked" rather than standard debt types and exclude them from RICE scoring. They require a separate regulatory track, not an engineering remediation sprint.
 
 ### Distributed Microservices (50+ Services)
+
 Assessing 50+ services simultaneously is infeasible in the time budget of a standard assessment. Apply a tiered approach. Tier 1 (assess fully): services in the critical path of the highest-revenue or highest-volume user flows. Identify these using distributed tracing data (Jaeger, Zipkin, or cloud-native equivalents). Tier 2 (automated analysis only): services outside the critical path. Tier 3 (no assessment): services marked for deprecation or with planned rewrites already scheduled. For inter-service debt -- inconsistent API contracts, missing circuit breakers, synchronous chains longer than 3 hops -- use a service dependency graph produced from tracing data rather than code analysis.
 
 ### Team Resistance to Debt Acknowledgment
+
 In organizations where engineers fear that acknowledging debt will result in blame or performance consequences, the assessment will be sabotaged through minimization or concealment. Before beginning the technical work, establish a blameless framing in writing: the assessment evaluates the system, not the people who built it, and all debt is understood as the result of reasonable decisions made under constraints that existed at the time. If leadership has previously used quality metrics punitively, this framing must be reinforced by a senior leader (VP Engineering or CTO) before data collection begins. Consider anonymizing the git attribution in the hotspot analysis and presenting only aggregate data in the first report to build trust. The prevention system must explicitly state that future debt tickets filed by engineers are recognized as professional behavior, not admissions of failure.
 
 ### Post-Assessment Prioritization Conflict Between Engineering and Product
+
 A common failure mode is completing a thorough assessment only to have product management override the remediation roadmap in favor of feature work. Address this proactively by including a "debt-feature coupling" analysis in the report: for each item in Horizon 1 and 2, identify which planned product features will be directly slowed or blocked by the unresolved debt. Present these as pre-conditions, not trade-offs. For example: "The proposed real-time notification feature requires changes to user-mgmt. With current test coverage at 22% and complexity at 31, the feature will take 3x longer to implement safely than estimated, or carry a 40% regression risk if rushed." This reframes debt as a feature velocity issue, not a quality abstraction.
 
 ---
@@ -339,6 +349,7 @@ Here is the assessment I would run for your situation:
 ---
 
 # Technical Debt Assessment Report
+
 **System:** E-commerce Platform Monolith (Django)
 **Assessment Date:** [Assessment Date]
 **Assessed By:** [Lead Engineer + Senior Architect]
@@ -349,16 +360,17 @@ Here is the assessment I would run for your situation:
 
 ## Executive Summary
 
-| Metric | Value |
-|--------|-------|
-| Total debt items identified | 31 |
-| Critical risk items (immediate action) | 5 |
-| Estimated velocity tax (% of sprint capacity) | 28% |
-| Estimated annual cost of inaction | ~19 engineer-weeks (~$190,000 at $200K fully-loaded/year) |
-| Recommended remediation budget (% of capacity) | 30% (elevated due to pre-migration urgency) |
-| Estimated velocity recovery (post-remediation of Horizon 1+2 items) | 15-20% of sprint capacity |
+| Metric                                                              | Value                                                     |
+| ------------------------------------------------------------------- | --------------------------------------------------------- |
+| Total debt items identified                                         | 31                                                        |
+| Critical risk items (immediate action)                              | 5                                                         |
+| Estimated velocity tax (% of sprint capacity)                       | 28%                                                       |
+| Estimated annual cost of inaction                                   | ~19 engineer-weeks (~$190,000 at $200K fully-loaded/year) |
+| Recommended remediation budget (% of capacity)                      | 30% (elevated due to pre-migration urgency)               |
+| Estimated velocity recovery (post-remediation of Horizon 1+2 items) | 15-20% of sprint capacity                                 |
 
 **Top 3 Risk Items:**
+
 1. `checkout/views.py` -- 2,800-line file with cyclomatic complexity of 47, 18% test coverage, and 5 of 6 payment gateway integrations sharing a single error handler that swallows exceptions silently. This is the direct root cause of Incident 2 last quarter.
 2. `inventory/models.py` -- 11 raw SQL queries bypassing the Django ORM with no parameterization audit, creating both a correctness risk and a latent SQL injection surface. Root cause of Incident 1.
 3. `requirements.txt` -- Django 3.2 (LTS expires April 2024), Celery 4.x (EOL), and Pillow 8.x (3 known CVEs). Upgrading these is a prerequisite to the microservice extraction -- migrating a service pinned to EOL dependencies into a new deployment target creates a compounding liability.
@@ -391,61 +403,65 @@ git log --format="%H %ae" --name-only | python hotspot_analyzer.py
 # (Adam Tornhill's approach -- count commits per file, weight by complexity)
 ```
 
-| App | Cyclomatic Complexity (P95) | Duplication % | Test Coverage % | Dependency Issues | Hotspot Score |
-|-----|----------------------------|---------------|-----------------|-------------------|---------------|
-| checkout | 47 -- CRITICAL | 14% -- HIGH | 18% -- CRITICAL | 0 | 9.4/10 |
-| inventory | 29 -- CRITICAL | 9% -- MODERATE | 31% -- LOW | 0 | 8.1/10 |
-| catalog | 12 -- MODERATE | 5% -- MODERATE | 62% -- OK | 0 | 4.2/10 |
-| users | 8 -- OK | 2% -- OK | 71% -- OK | 0 | 2.1/10 |
-| orders | 19 -- MODERATE | 11% -- HIGH | 44% -- MODERATE | 0 | 6.7/10 |
-| payments | 22 -- CRITICAL | 6% -- MODERATE | 25% -- CRITICAL | 0 | 7.9/10 |
-| notifications | 6 -- OK | 18% -- HIGH | 58% -- MODERATE | 0 | 1.8/10 |
-| reporting | 9 -- OK | 21% -- HIGH | 39% -- LOW | 0 | 1.4/10 |
-| admin_tools | 14 -- MODERATE | 7% -- MODERATE | 48% -- MODERATE | 0 | 3.3/10 |
-| shipping | 11 -- MODERATE | 4% -- OK | 55% -- MODERATE | 0 | 3.7/10 |
-| promotions | 16 -- MODERATE | 8% -- MODERATE | 41% -- MODERATE | 0 | 4.8/10 |
-| core (shared) | 7 -- OK | 3% -- OK | 66% -- OK | 0 | 2.9/10 |
-| **Dependency Layer** | -- | -- | -- | Django 3.2 EOL, Celery 4.x EOL, Pillow 8.x (3 CVEs), 4 stale packages | -- |
+| App                  | Cyclomatic Complexity (P95) | Duplication %  | Test Coverage % | Dependency Issues                                                     | Hotspot Score |
+| -------------------- | --------------------------- | -------------- | --------------- | --------------------------------------------------------------------- | ------------- |
+| checkout             | 47 -- CRITICAL              | 14% -- HIGH    | 18% -- CRITICAL | 0                                                                     | 9.4/10        |
+| inventory            | 29 -- CRITICAL              | 9% -- MODERATE | 31% -- LOW      | 0                                                                     | 8.1/10        |
+| catalog              | 12 -- MODERATE              | 5% -- MODERATE | 62% -- OK       | 0                                                                     | 4.2/10        |
+| users                | 8 -- OK                     | 2% -- OK       | 71% -- OK       | 0                                                                     | 2.1/10        |
+| orders               | 19 -- MODERATE              | 11% -- HIGH    | 44% -- MODERATE | 0                                                                     | 6.7/10        |
+| payments             | 22 -- CRITICAL              | 6% -- MODERATE | 25% -- CRITICAL | 0                                                                     | 7.9/10        |
+| notifications        | 6 -- OK                     | 18% -- HIGH    | 58% -- MODERATE | 0                                                                     | 1.8/10        |
+| reporting            | 9 -- OK                     | 21% -- HIGH    | 39% -- LOW      | 0                                                                     | 1.4/10        |
+| admin_tools          | 14 -- MODERATE              | 7% -- MODERATE | 48% -- MODERATE | 0                                                                     | 3.3/10        |
+| shipping             | 11 -- MODERATE              | 4% -- OK       | 55% -- MODERATE | 0                                                                     | 3.7/10        |
+| promotions           | 16 -- MODERATE              | 8% -- MODERATE | 41% -- MODERATE | 0                                                                     | 4.8/10        |
+| core (shared)        | 7 -- OK                     | 3% -- OK       | 66% -- OK       | 0                                                                     | 2.9/10        |
+| **Dependency Layer** | --                          | --             | --              | Django 3.2 EOL, Celery 4.x EOL, Pillow 8.x (3 CVEs), 4 stale packages | --            |
 
 ---
 
 ## Debt Inventory and Prioritization
 
-| ID | App | Debt Type | Description | Impact | Risk | Effort (days) | RICE Score | Owner | Horizon |
-|----|-----|-----------|-------------|--------|------|---------------|------------|-------|---------|
-| TD-001 | checkout | Type 1 | `checkout/views.py` monolith (2,800 lines) -- single file handles cart, payment, fulfillment dispatch, and error reporting with no separation of concerns | 5 | 5 | 12 | 2.1 | checkout team | 30-90d |
-| TD-002 | checkout | Type 6 | Test coverage at 18% across checkout app -- no tests for 4 of 6 payment gateway integrations | 5 | 5 | 5 | 5.0 | checkout team | 0-30d |
-| TD-003 | payments | Type 1 | Silent exception swallowing in shared payment error handler -- `except Exception: pass` pattern in 7 call sites | 5 | 5 | 1 | 25.0 | payments team | 0-30d |
-| TD-004 | inventory | Type 1 | 11 raw SQL queries with no parameterization -- confirmed SQLi surface, also bypasses Django signals causing cache invalidation failures | 5 | 5 | 3 | 8.3 | inventory team | 0-30d |
-| TD-005 | dependency | Type 5 | Django 3.2 LTS expires April 2024 -- upgrade to Django 4.2 LTS required before microservice extraction | 4 | 4 | 8 | 2.0 | platform team | 30-90d |
-| TD-006 | dependency | Type 5 | Celery 4.x EOL -- upgrade to Celery 5.x (breaking config changes required) | 4 | 4 | 4 | 4.0 | platform team | 30-90d |
-| TD-007 | dependency | Type 5 | Pillow 8.x -- 3 known CVEs including CVE-2023-44271 (DoS via crafted image). Upgrade to 10.x | 3 | 4 | 0.5 | 24.0 | any | 0-30d |
-| TD-008 | orders | Type 4 | Order status state machine implemented as ad-hoc if/elif chain across 3 files -- was adequate at 1K orders/day, creates race conditions above 10K/day | 4 | 3 | 5 | 2.4 | orders team | 30-90d |
-| TD-009 | reporting | Type 2 | 21% code duplication in reporting app -- 6 near-identical report generators with hardcoded column definitions | 2 | 1 | 3 | 0.7 | reporting team | 90-180d |
-| TD-010 | notifications | Type 2 | 18% code duplication -- email, SMS, and push notification builders share 80% logic but were implemented independently | 2 | 2 | 2 | 2.0 | notifications team | 90-180d |
-| TD-011 | checkout | Type 3 | Checkout session stored in Django session (cookie-backed) rather than Redis -- deliberate shortcut from 2021, now blocking horizontal scaling | 4 | 3 | 4 | 3.0 | checkout team | 30-90d |
-| TD-012 | payments | Type 6 | No integration tests for webhook receipt handlers -- payment status updates from Stripe/PayPal are untested | 5 | 5 | 3 | 8.3 | payments team | 0-30d |
+| ID     | App           | Debt Type | Description                                                                                                                                               | Impact | Risk | Effort (days) | RICE Score | Owner              | Horizon |
+| ------ | ------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---- | ------------- | ---------- | ------------------ | ------- |
+| TD-001 | checkout      | Type 1    | `checkout/views.py` monolith (2,800 lines) -- single file handles cart, payment, fulfillment dispatch, and error reporting with no separation of concerns | 5      | 5    | 12            | 2.1        | checkout team      | 30-90d  |
+| TD-002 | checkout      | Type 6    | Test coverage at 18% across checkout app -- no tests for 4 of 6 payment gateway integrations                                                              | 5      | 5    | 5             | 5.0        | checkout team      | 0-30d   |
+| TD-003 | payments      | Type 1    | Silent exception swallowing in shared payment error handler -- `except Exception: pass` pattern in 7 call sites                                           | 5      | 5    | 1             | 25.0       | payments team      | 0-30d   |
+| TD-004 | inventory     | Type 1    | 11 raw SQL queries with no parameterization -- confirmed SQLi surface, also bypasses Django signals causing cache invalidation failures                   | 5      | 5    | 3             | 8.3        | inventory team     | 0-30d   |
+| TD-005 | dependency    | Type 5    | Django 3.2 LTS expires April 2024 -- upgrade to Django 4.2 LTS required before microservice extraction                                                    | 4      | 4    | 8             | 2.0        | platform team      | 30-90d  |
+| TD-006 | dependency    | Type 5    | Celery 4.x EOL -- upgrade to Celery 5.x (breaking config changes required)                                                                                | 4      | 4    | 4             | 4.0        | platform team      | 30-90d  |
+| TD-007 | dependency    | Type 5    | Pillow 8.x -- 3 known CVEs including CVE-2023-44271 (DoS via crafted image). Upgrade to 10.x                                                              | 3      | 4    | 0.5           | 24.0       | any                | 0-30d   |
+| TD-008 | orders        | Type 4    | Order status state machine implemented as ad-hoc if/elif chain across 3 files -- was adequate at 1K orders/day, creates race conditions above 10K/day     | 4      | 3    | 5             | 2.4        | orders team        | 30-90d  |
+| TD-009 | reporting     | Type 2    | 21% code duplication in reporting app -- 6 near-identical report generators with hardcoded column definitions                                             | 2      | 1    | 3             | 0.7        | reporting team     | 90-180d |
+| TD-010 | notifications | Type 2    | 18% code duplication -- email, SMS, and push notification builders share 80% logic but were implemented independently                                     | 2      | 2    | 2             | 2.0        | notifications team | 90-180d |
+| TD-011 | checkout      | Type 3    | Checkout session stored in Django session (cookie-backed) rather than Redis -- deliberate shortcut from 2021, now blocking horizontal scaling             | 4      | 3    | 4             | 3.0        | checkout team      | 30-90d  |
+| TD-012 | payments      | Type 6    | No integration tests for webhook receipt handlers -- payment status updates from Stripe/PayPal are untested                                               | 5      | 5    | 3             | 8.3        | payments team      | 0-30d   |
 
-*(19 additional items in full backlog -- omitted for brevity)*
+_(19 additional items in full backlog -- omitted for brevity)_
 
 ---
 
 ## Cost of Inaction Analysis
 
 **Velocity Tax:**
+
 - Team survey estimate: 28% of sprint capacity consumed by debt workarounds (debugging, manual retries, avoiding fragile modules)
 - At 8 engineers × 26 sprints/year × 10 days/sprint × 28% = 582 engineer-days/year = ~29 engineer-weeks/year lost
 
 **Defect Attribution:**
+
 - Past 6 months: 73 production bugs. 41 (56%) traced to `checkout`, `inventory`, or `payments` apps.
 - Estimated engineering hours on debt-related bug fixing: 180 hrs/quarter
 
 **Incident Contribution:**
+
 - 2 of 2 production incidents last quarter had technical debt as primary root cause
 - Combined incident response: 47 engineering hours (RCA + hotfix + post-mortem)
 - Customer impact: ~$28,000 in chargebacks and order cancellations attributed to Incident 2 (payment errors)
 
 **Microservice Extraction Risk Premium:**
+
 - Extracting `checkout` at current debt levels would require 3-4x the engineering effort of a clean-slate extraction
 - Estimated additional cost of migrating with unresolved debt: 6-8 engineer-weeks of remediation inside the microservice scope that should have been resolved in the monolith
 
@@ -455,11 +471,11 @@ git log --format="%H %ae" --name-only | python hotspot_analyzer.py
 
 ## Quick Wins (< 1 Day Each, Impact ≥ 3)
 
-| ID | Action | App | Estimated Time | Expected Benefit |
-|----|--------|-----|----------------|------------------|
-| TD-003 | Replace 7 `except Exception: pass` sites with explicit error handling and structured logging | payments | 3 hrs | Directly prevents recurrence of Incident 2; surfaces payment failures that are currently invisible |
-| TD-007 | `pip install --upgrade Pillow` to 10.x, run regression on image upload flows | dependency | 2 hrs | Eliminates 3 CVEs including one DoS vector |
-| TD-012 (partial) | Write smoke tests for Stripe and PayPal webhook receipt handlers using their test event fixtures | payments | 6 hrs | Catches webhook handler regressions before deploy; Stripe provides a full test event library via `stripe trigger` CLI |
+| ID               | Action                                                                                           | App        | Estimated Time | Expected Benefit                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------ | ---------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| TD-003           | Replace 7 `except Exception: pass` sites with explicit error handling and structured logging     | payments   | 3 hrs          | Directly prevents recurrence of Incident 2; surfaces payment failures that are currently invisible                    |
+| TD-007           | `pip install --upgrade Pillow` to 10.x, run regression on image upload flows                     | dependency | 2 hrs          | Eliminates 3 CVEs including one DoS vector                                                                            |
+| TD-012 (partial) | Write smoke tests for Stripe and PayPal webhook receipt handlers using their test event fixtures | payments   | 6 hrs          | Catches webhook handler regressions before deploy; Stripe provides a full test event library via `stripe trigger` CLI |
 
 ---
 
@@ -467,25 +483,25 @@ git log --format="%H %ae" --name-only | python hotspot_analyzer.py
 
 ### Horizon 1: 0-30 Days -- Stop the Bleeding
 
-| ID | Action | Owner | Effort |
-|----|--------|-------|--------|
-| TD-003 | Fix silent exception swallowing in payment error handler | payments team | 3 hrs |
-| TD-007 | Upgrade Pillow to 10.x | any | 2 hrs |
-| TD-012 | Add webhook handler smoke tests | payments team | 6 hrs |
-| TD-002 | Begin characterization tests for checkout app -- target 40% coverage as a floor before refactoring begins | checkout team | 5 days |
-| TD-004 | Audit and parameterize all 11 raw SQL queries in inventory app | inventory team | 3 days |
+| ID     | Action                                                                                                    | Owner          | Effort |
+| ------ | --------------------------------------------------------------------------------------------------------- | -------------- | ------ |
+| TD-003 | Fix silent exception swallowing in payment error handler                                                  | payments team  | 3 hrs  |
+| TD-007 | Upgrade Pillow to 10.x                                                                                    | any            | 2 hrs  |
+| TD-012 | Add webhook handler smoke tests                                                                           | payments team  | 6 hrs  |
+| TD-002 | Begin characterization tests for checkout app -- target 40% coverage as a floor before refactoring begins | checkout team  | 5 days |
+| TD-004 | Audit and parameterize all 11 raw SQL queries in inventory app                                            | inventory team | 3 days |
 
 **Sprint allocation for Horizon 1:** 30% of one sprint (6-day dedicated block for a team of 8)
 
 ### Horizon 2: 30-90 Days -- Structural Risk Reduction
 
-| ID | Action | Owner | Effort |
-|----|--------|-------|--------|
+| ID     | Action                                                                                                                             | Owner         | Effort  |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
 | TD-001 | Decompose `checkout/views.py` into CartService, PaymentOrchestrator, FulfillmentDispatcher -- requires TD-002 floor achieved first | checkout team | 12 days |
-| TD-005 | Upgrade Django 3.2 to 4.2 LTS -- run django-upgrade tool, address deprecation warnings systematically | platform team | 8 days |
-| TD-006 | Upgrade Celery 4.x to 5.x -- migrate configuration from `CELERY_*` prefix to lowercase | platform team | 4 days |
-| TD-011 | Migrate checkout sessions from cookie backend to Redis via `django-redis` -- prerequisite for horizontal scaling | checkout team | 4 days |
-| TD-008 | Implement order status transitions as an explicit state machine using `django-fsm` | orders team | 5 days |
+| TD-005 | Upgrade Django 3.2 to 4.2 LTS -- run django-upgrade tool, address deprecation warnings systematically                              | platform team | 8 days  |
+| TD-006 | Upgrade Celery 4.x to 5.x -- migrate configuration from `CELERY_*` prefix to lowercase                                             | platform team | 4 days  |
+| TD-011 | Migrate checkout sessions from cookie backend to Redis via `django-redis` -- prerequisite for horizontal scaling                   | checkout team | 4 days  |
+| TD-008 | Implement order status transitions as an explicit state machine using `django-fsm`                                                 | orders team   | 5 days  |
 
 **Sprint allocation for Horizon 2:** Dedicated 2-week debt sprint (one per 6-week cycle). Reserve the full sprint for these items -- no feature work.
 
@@ -493,11 +509,11 @@ git log --format="%H %ae" --name-only | python hotspot_analyzer.py
 
 ### Horizon 3: 90-180 Days -- Quality Normalization
 
-| ID | Action | Owner | Effort |
-|----|--------|-------|--------|
-| TD-009 | Refactor reporting generators into a parameterized report-builder pattern | reporting team | 3 days |
-| TD-010 | Extract shared notification logic into a NotificationBuilder base class | notifications team | 2 days |
-| *(remaining 17 lower-RICE items)* | Address in 20% allocation across regular sprints | assigned owners | ongoing |
+| ID                                | Action                                                                    | Owner              | Effort  |
+| --------------------------------- | ------------------------------------------------------------------------- | ------------------ | ------- |
+| TD-009                            | Refactor reporting generators into a parameterized report-builder pattern | reporting team     | 3 days  |
+| TD-010                            | Extract shared notification logic into a NotificationBuilder base class   | notifications team | 2 days  |
+| _(remaining 17 lower-RICE items)_ | Address in 20% allocation across regular sprints                          | assigned owners    | ongoing |
 
 ---
 

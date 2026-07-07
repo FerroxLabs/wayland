@@ -111,10 +111,7 @@ export type NostrEventLike = {
  * Convert a decrypted Nostr kind:4 DM to IUnifiedIncomingMessage.
  * chatId is the sender's pubkey (hex) - the natural "conversation" id for DMs.
  */
-export function toUnifiedIncomingFromNostr(
-  event: NostrEventLike,
-  plaintext: string,
-): IUnifiedIncomingMessage {
+export function toUnifiedIncomingFromNostr(event: NostrEventLike, plaintext: string): IUnifiedIncomingMessage {
   const npub = hexToNpub(event.pubkey);
   return {
     id: randomUUID(),

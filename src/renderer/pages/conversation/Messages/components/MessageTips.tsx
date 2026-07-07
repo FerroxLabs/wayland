@@ -16,16 +16,10 @@ import { sanitizeHtml } from '@renderer/utils/sanitize';
 const icon = {
   success: <CheckCircle2 size={16} color={theme.Color.FunctionalColor.success} className='m-t-2px' />,
   warning: (
-    <AlertTriangle size={16}
-      strokeLinejoin='bevel'
-      className='m-t-2px' color={theme.Color.FunctionalColor.warn}
-    />
+    <AlertTriangle size={16} strokeLinejoin='bevel' className='m-t-2px' color={theme.Color.FunctionalColor.warn} />
   ),
   error: (
-    <AlertTriangle size={16}
-      strokeLinejoin='bevel'
-      className='m-t-2px' color={theme.Color.FunctionalColor.error}
-    />
+    <AlertTriangle size={16} strokeLinejoin='bevel' className='m-t-2px' color={theme.Color.FunctionalColor.error} />
   ),
 };
 

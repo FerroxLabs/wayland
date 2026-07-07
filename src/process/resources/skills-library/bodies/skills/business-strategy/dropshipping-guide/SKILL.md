@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy guide"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy guide'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Dropshipping Guide
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start a dropshipping business and needs product research or supplier vetting guidance
 - The user needs help with store setup, advertising strategy, or margin calculations for dropshipping
 - The user wants guidance on customer service operations, returns handling, or scaling a dropshipping operation
 - The user is evaluating dropshipping as a business model and wants to understand the economics
 
 **Do NOT use this skill when:**
+
 - The user is building an e-commerce store with their own inventory (use ecommerce-advisor instead)
 - The user wants to sell handmade or artisan products (use handmade-seller instead)
 - The user needs general business planning beyond the dropshipping model (use business-planner instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on dropshipping guide
 - User asks about dropshipping guide best practices or techniques
 - User wants a structured approach to dropshipping guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of dropshipping guide
+
 ## Questions to Ask First
 
 Before providing guidance, establish the operator's situation:
@@ -67,6 +72,7 @@ Before providing guidance, establish the operator's situation:
 ## Product Research
 
 ### Product Selection Criteria
+
 ```
 WINNING PRODUCT CHECKLIST:
   [ ] Solves a problem or fills a strong desire
@@ -91,6 +97,7 @@ AVOID:
 ```
 
 ### Product Research Methods
+
 ```
 METHOD 1: AD SPY TOOLS
   Tools: Minea, AdSpy, PiPiADS (TikTok), Facebook Ad Library
@@ -131,6 +138,7 @@ PRODUCT RESEARCH TEMPLATE:
 ## Supplier Vetting
 
 ### Supplier Sources
+
 ```
 ALIEXPRESS:
   Pros: Huge selection, buyer protection, easy to start
@@ -159,6 +167,7 @@ PRIVATE SOURCING AGENTS:
 ```
 
 ### Supplier Vetting Process
+
 ```
 STEP 1: INITIAL SCREENING
   [ ] Seller rating: 4.7+ stars
@@ -195,6 +204,7 @@ SUPPLIER SCORECARD:
 ## Store Setup
 
 ### Platform Selection
+
 ```
 SHOPIFY (Recommended for Most):
   Cost: $39-$399/month + transaction fees
@@ -213,6 +223,7 @@ BIGCOMMERCE:
 ```
 
 ### Store Setup Checklist
+
 ```
 FOUNDATION:
   [ ] Domain name purchased ($10-$15/year)
@@ -252,6 +263,7 @@ PRODUCT PAGE OPTIMIZATION:
 ## Advertising Strategy
 
 ### Facebook/Meta Ads Framework
+
 ```
 TESTING PHASE (Budget: $20-$50/day):
   Campaign type: CBO (Campaign Budget Optimization)
@@ -283,6 +295,7 @@ SCALING PHASE:
 ```
 
 ### TikTok Ads Strategy
+
 ```
 TikTok ads can outperform Facebook for products with strong video potential.
 
@@ -309,6 +322,7 @@ CONTENT TYPES THAT WORK:
 ```
 
 ### Organic Marketing
+
 ```
 FREE TRAFFIC STRATEGIES:
   TikTok organic:
@@ -336,6 +350,7 @@ FREE TRAFFIC STRATEGIES:
 ## Margin Calculation
 
 ### Profit Calculation Framework
+
 ```
 LANDED COST CALCULATION:
   Product cost from supplier:    $________
@@ -363,6 +378,7 @@ TARGET METRICS:
 ```
 
 ### Break-Even Analysis
+
 ```
 MONTHLY FIXED COSTS:
   Shopify subscription:          $________
@@ -379,6 +395,7 @@ BREAK-EVEN ORDERS:
 ## Customer Service
 
 ### Communication Standards
+
 ```
 RESPONSE TIMES:
   Email: Within 12 hours (24 hours maximum)
@@ -408,6 +425,7 @@ right immediately."
 ```
 
 ### Common Issues and Resolutions
+
 ```
 ISSUE: Product hasn't arrived (past estimated date)
   Action 1: Check tracking, provide update
@@ -436,6 +454,7 @@ REFUND POLICY STRATEGY:
 ## Returns Handling
 
 ### Return Process
+
 ```
 RETURN WORKFLOW:
   1. Customer contacts you requesting return
@@ -465,6 +484,7 @@ CHARGEBACK MANAGEMENT:
 ## Scaling
 
 ### Growth Phases
+
 ```
 PHASE 1: PRODUCT TESTING ($0-$1K/month profit)
   Timeline: 1-3 months
@@ -498,6 +518,7 @@ PHASE 4: BRAND BUILDING ($20K+/month profit)
 ```
 
 ### Key Scaling Metrics
+
 ```
 TRACK DAILY:
   Revenue:                       $________
@@ -540,7 +561,6 @@ TRACK MONTHLY:
 11. Selling trademarked or copyrighted products (legal risk)
 12. Not having a backup supplier for your winning product
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +573,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with dropshipping guide for a mid-size project."
 
 **Output:** A complete dropshipping guide framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "workout-planning planning checklist step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'workout-planning planning checklist step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Practice Routine Builder
 
 ## When to Use
@@ -133,7 +134,7 @@ This block serves three functions: integrating skills developed in other blocks,
 Apply the following proportions as the starting point, then adjust based on level and goal:
 
 | Session | Warm-up | Technique | Repertoire | Ear/Reading | Creative |
-|---------|---------|-----------|------------|-------------|----------|
+| ------- | ------- | --------- | ---------- | ----------- | -------- |
 | 15 min  | 2 min   | 6 min     | 5 min      | 0 min       | 2 min    |
 | 20 min  | 3 min   | 7 min     | 6 min      | 2 min       | 2 min    |
 | 30 min  | 4 min   | 9 min     | 9 min      | 4 min       | 4 min    |
@@ -177,20 +178,24 @@ Vary the focus across the week to develop multiple skills simultaneously without
 Milestones must be numerical. Vague goals are not milestones.
 
 **Technique milestones:**
+
 - Express as BPM range: "G major scale ascending/descending, two octaves, at 92 BPM by end of week" or "Chord change G to C, 4 times per measure, at 80 BPM with no hesitation"
 - Express as accuracy percentage: "Barre chord F-major, 8 out of 10 attempts clean (no buzzing, all strings sounding)" -- 80% accuracy threshold
 - Express as duration: "Sustain trumpet long tone on middle G for 12 beats at 60 BPM without wavering"
 
 **Repertoire milestones:**
+
 - Express as bars learned: "Measures 1-8 of the piece at 70% of target tempo, hands separately and together"
 - Express as sections: "Verse of the song played through twice without stopping at 80 BPM"
 - Express as completion: "Entire 12-bar blues head from memory at performance tempo"
 
 **Ear training milestones:**
+
 - Express as percentage correct out of N trials: "Identify major vs. minor chord quality correctly on 8 out of 10 trials"
 - Express as interval recognition target: "Correctly identify all seven diatonic intervals (unison through octave) 70% of the time in random order"
 
 **Creative milestones:**
+
 - Record one 30-second improvisation per week using the phone's voice memo function. Do not evaluate the recording during the session -- listen back the following week to notice development
 - Define a constraint for the week: "Improvise using only pentatonic scale and no note repetition within 4 beats" -- constraints force creative problem-solving
 
@@ -350,6 +355,7 @@ Deliver the complete routine in this structure every time:
 ## Edge Cases
 
 ### User has only 10-15 minutes per day
+
 The research on massed vs. distributed practice strongly supports short daily sessions over long infrequent ones -- 15 minutes daily produces more motor learning than 75 minutes once a week for beginner and intermediate players. For 15-minute sessions, compress to four blocks and drop Ear Training entirely from the session:
 
 - Warm-up: 2 minutes (non-negotiable)
@@ -360,9 +366,11 @@ The research on massed vs. distributed practice strongly supports short daily se
 Schedule Ear Training separately: 5-10 minutes during a commute, lunch break, or before bed using a piano app or relative pitch trainer app on the phone. Ear training does not require the instrument in hand and can be decoupled from physical practice sessions.
 
 ### User practices multiple instruments simultaneously
+
 Do not split a single session between two instruments. Context switching between instruments within a session reduces the learning depth for both. Instead, build separate complete routines and assign each to dedicated sessions. Alternate days when possible: Instrument A on Monday/Wednesday/Friday, Instrument B on Tuesday/Thursday/Saturday. Both routines should stand alone as complete sessions, not as halves of a combined routine. If daily time is too limited to give each instrument adequate sessions, acknowledge this directly and help the user choose a primary instrument for focused development. "Dabbling in two instruments" is a valid hobby -- but if progress is the goal, depth of focus on one instrument for 3-6 months before adding the second is the more effective path.
 
 ### User is recovering from a repetitive strain injury (tendinitis, carpal tunnel, lateral epicondylitis)
+
 This is a medical situation, not a practice optimization challenge. The routine must be redesigned around zero-pain limits:
 
 - Reduce all session lengths to 50% of normal
@@ -373,6 +381,7 @@ This is a medical situation, not a practice optimization challenge. The routine 
 - Include this statement explicitly: "If you feel any pain, numbness, or tingling during practice, stop immediately. Please consult a physician or physical therapist who works with musicians before resuming full practice. Continuing to practice through RSI symptoms converts a temporary injury into a chronic condition."
 
 ### Vocalist edge case
+
 Vocalists require an entirely different warm-up sequence and injury prevention paradigm than instrumentalists. The vocal instrument is embedded in the body and subject to systemic factors (hydration, sleep quality, illness, acid reflux, hormonal changes) that external instruments are not:
 
 - Replace physical warm-up with: 2 minutes of humming on comfortable pitches, lip trills on a five-tone scale (do-re-mi-re-do), slow sirens on "ng" consonant, spoken text articulation exercises
@@ -381,6 +390,7 @@ Vocalists require an entirely different warm-up sequence and injury prevention p
 - Schedule-specific note: voices fatigue differently than hands. Two 20-minute sessions separated by 2 hours produce more vocal development than one continuous 40-minute session
 
 ### User wants a routine for performance preparation with a specific deadline
+
 This is a different planning problem than open-ended skill development. Reverse-engineer from the deadline:
 
 - Count available practice days until the performance
@@ -390,6 +400,7 @@ This is a different planning problem than open-ended skill development. Reverse-
 - Reduce new learning to zero in the final two weeks -- the brain cannot consolidate new motor patterns fast enough to be useful at performance level, and attempting to add new material increases performance anxiety
 
 ### User has had no previous structured routine and describes "just noodling" for 1-2 years
+
 This is a very common profile: a player with real accumulated ability and intuitive musicianship who has never applied deliberate practice. They will often be more capable than their formal "level" suggests (because years of free play builds musical ear and creativity) but have significant gaps in fundamentals (scale knowledge, consistent technique, sight-reading).
 
 - Start with an assessment week: ask them to record themselves playing for 5 minutes (anything they want, how they normally play)
@@ -398,6 +409,7 @@ This is a very common profile: a player with real accumulated ability and intuit
 - Creative block is especially important for this profile -- it must be large enough (at least 15% of session) that the routine does not feel like it is eliminating the fun they previously had
 
 ### User practices only 3 days per week and wants to know if that is "enough"
+
 Frame the honest answer carefully: 3 days per week is enough for meaningful, consistent progress -- but "meaningful" is calibrated to realistic expectations. With 3 days per week at 30 minutes per session (90 minutes of weekly practice), a beginner player can expect to learn 1-2 new chord changes per month, advance technique tempo by approximately 4-8 BPM per week, and reach comfortable early-intermediate level after 18-24 months. A 5-day-per-week player will cover the same ground in approximately 12-14 months. What 3 days per week prevents is: rapid improvement, high-level technique development, and performance readiness for demanding material. It is a perfectly valid choice for a hobbyist whose goal is enjoyment and gradual growth.
 
 ---
@@ -411,6 +423,7 @@ Frame the honest answer carefully: 3 days per week is enough for meaningful, con
 ## Practice Routine: Piano (Intermediate -- Performance Preparation)
 
 ### Practice Profile
+
 - Instrument: Piano
 - Level: Intermediate (2.5 years, hands-together, all major scales, learning advanced romantic repertoire)
 - Session length: 45 minutes
@@ -424,39 +437,39 @@ Frame the honest answer carefully: 3 days per week is enough for meaningful, con
 
 ### Daily Session Template (45 minutes)
 
-| Block         | Duration | This Week's Specific Focus                                                                    | Metronome/Tempo          |
-|---------------|----------|-----------------------------------------------------------------------------------------------|--------------------------|
-| Warm-up       | 5 min    | E-flat major scale (the home key of the nocturne), 2 octaves, hands separately then together, then E-flat major arpeggio, both hands | 60-72 BPM, no pressure   |
-| Technique     | 14 min   | (7 min) RH ornamental run isolation: mm. 5-6 right hand only, scale segment extracted, slow practice with rhythmic displacement. (7 min) LH arpeggios: left hand alone, mm. 1-4, arm weight technique, no finger pressure | RH: start at 50 BPM (16th = 1 beat). LH: 52 BPM |
-| Repertoire    | 13 min   | Learning section: mm. 1-8, hands separate, then hands together. Polishing previously learned: mm. 1-4 at 75% of target tempo (target = approx. 60 BPM dotted-quarter) | 45 BPM dotted-quarter for new material, 52 BPM for polishing |
-| Ear Training  | 7 min    | Chopin harmonic ear training: play the left-hand accompaniment in mm. 1-4 (E-flat major, B-flat7, cm, A-flat) and sing/identify each chord quality. Then, play the nocturne's chromatic passing tones and identify each as a semitone above or below the underlying harmony | No metronome              |
-| Creative Play | 6 min    | Improvise freely in E-flat major using only the ornamental rhythm figure from the nocturne as a melodic motif over a simple I-IV-V-I pattern. No metronome. No corrections. | Off                       |
+| Block         | Duration | This Week's Specific Focus                                                                                                                                                                                                                                                  | Metronome/Tempo                                              |
+| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Warm-up       | 5 min    | E-flat major scale (the home key of the nocturne), 2 octaves, hands separately then together, then E-flat major arpeggio, both hands                                                                                                                                        | 60-72 BPM, no pressure                                       |
+| Technique     | 14 min   | (7 min) RH ornamental run isolation: mm. 5-6 right hand only, scale segment extracted, slow practice with rhythmic displacement. (7 min) LH arpeggios: left hand alone, mm. 1-4, arm weight technique, no finger pressure                                                   | RH: start at 50 BPM (16th = 1 beat). LH: 52 BPM              |
+| Repertoire    | 13 min   | Learning section: mm. 1-8, hands separate, then hands together. Polishing previously learned: mm. 1-4 at 75% of target tempo (target = approx. 60 BPM dotted-quarter)                                                                                                       | 45 BPM dotted-quarter for new material, 52 BPM for polishing |
+| Ear Training  | 7 min    | Chopin harmonic ear training: play the left-hand accompaniment in mm. 1-4 (E-flat major, B-flat7, cm, A-flat) and sing/identify each chord quality. Then, play the nocturne's chromatic passing tones and identify each as a semitone above or below the underlying harmony | No metronome                                                 |
+| Creative Play | 6 min    | Improvise freely in E-flat major using only the ornamental rhythm figure from the nocturne as a melodic motif over a simple I-IV-V-I pattern. No metronome. No corrections.                                                                                                 | Off                                                          |
 
 ---
 
 ### Weekly Schedule (5 practice days)
 
-| Day       | Emphasis            | Adjusted Blocks                                                                 | Total Time |
-|-----------|---------------------|---------------------------------------------------------------------------------|------------|
-| Monday    | Technique Heavy     | Technique 22 min (+8), Repertoire 8 min (-5), others standard                  | 45 min     |
-| Tuesday   | Repertoire Heavy    | Repertoire 20 min (+7), Technique 7 min (-7), others standard                  | 45 min     |
-| Wednesday | Balanced            | Standard allocation (5/14/13/7/6)                                               | 45 min     |
-| Thursday  | Ear Training Heavy  | Ear Training 14 min (doubled), Creative 0 min (absorbed into ear), Technique 10 min | 45 min  |
-| Friday    | Performance Sim     | Technique 5 min (only warm-up level), Repertoire 28 min (full run-throughs of all learned material, no stopping), Creative 7 min | 45 min |
-| Saturday  | Rest                | Full rest                                                                       | 0 min      |
-| Sunday    | Rest                | Full rest                                                                       | 0 min      |
+| Day       | Emphasis           | Adjusted Blocks                                                                                                                  | Total Time |
+| --------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Monday    | Technique Heavy    | Technique 22 min (+8), Repertoire 8 min (-5), others standard                                                                    | 45 min     |
+| Tuesday   | Repertoire Heavy   | Repertoire 20 min (+7), Technique 7 min (-7), others standard                                                                    | 45 min     |
+| Wednesday | Balanced           | Standard allocation (5/14/13/7/6)                                                                                                | 45 min     |
+| Thursday  | Ear Training Heavy | Ear Training 14 min (doubled), Creative 0 min (absorbed into ear), Technique 10 min                                              | 45 min     |
+| Friday    | Performance Sim    | Technique 5 min (only warm-up level), Repertoire 28 min (full run-throughs of all learned material, no stopping), Creative 7 min | 45 min     |
+| Saturday  | Rest               | Full rest                                                                                                                        | 0 min      |
+| Sunday    | Rest               | Full rest                                                                                                                        | 0 min      |
 
 ---
 
 ### This Week's Milestones
 
-| Block         | Measurable Target                                                                                   | How to Verify                          |
-|---------------|-----------------------------------------------------------------------------------------------------|----------------------------------------|
-| Technique     | RH ornamental run (mm. 5-6 extracted pattern) at 60 BPM (16th = 1 beat), 3 consecutive clean reps with no rushing at the top of the turn | Metronome + count consecutive reps     |
-| Technique     | LH mm. 1-4 arpeggios at 56 BPM, arm weight not finger pressure, all notes equal volume (no thumb accent) | Metronome + phone recording for thumb accent check |
-| Repertoire    | Measures 1-8, hands together, at 45 BPM dotted-quarter, no stopping for errors                     | Full run-through of these 8 bars once without stopping |
-| Ear Training  | Correctly identify all 4 chords in mm. 1-4 (E-flat, B-flat7, cm, A-flat) by quality and function 4 of 4 times | Play without score, sing chord names aloud |
-| Creative      | Record one 2-minute improvisation in E-flat major using ornamental rhythms                          | Phone voice memo, filed by date         |
+| Block        | Measurable Target                                                                                                                        | How to Verify                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Technique    | RH ornamental run (mm. 5-6 extracted pattern) at 60 BPM (16th = 1 beat), 3 consecutive clean reps with no rushing at the top of the turn | Metronome + count consecutive reps                     |
+| Technique    | LH mm. 1-4 arpeggios at 56 BPM, arm weight not finger pressure, all notes equal volume (no thumb accent)                                 | Metronome + phone recording for thumb accent check     |
+| Repertoire   | Measures 1-8, hands together, at 45 BPM dotted-quarter, no stopping for errors                                                           | Full run-through of these 8 bars once without stopping |
+| Ear Training | Correctly identify all 4 chords in mm. 1-4 (E-flat, B-flat7, cm, A-flat) by quality and function 4 of 4 times                            | Play without score, sing chord names aloud             |
+| Creative     | Record one 2-minute improvisation in E-flat major using ornamental rhythms                                                               | Phone voice memo, filed by date                        |
 
 ---
 
@@ -478,7 +491,7 @@ Piano technique depends on arm weight transfer, not on pressing down with the fi
 
 ### 4-Week Progression Arc
 
-| Week | Technique Target                                    | Repertoire Target                                   | Ear Target                               | Session Tone              |
-|------|-----------------------------------------------------|-----------------------------------------------------|------------------------------------------|---------------------------|
-| 1    | RH ornament at 60 BPM / LH arpeggio at 56 BPM      | Learn mm. 1-8, HT at 45 BPM dotted-quarter          | Identify 4 chords mm. 1-4 by quality     | Build routine habit       |
-| 2    | RH ornament at 66 BPM / LH arpeggio at 60 BPM      | Learn mm. 9-16, chain mm. 1-16, HT at 48 BPM        | Add mm. 5-8 
+| Week | Technique Target                              | Repertoire Target                            | Ear Target                           | Session Tone        |
+| ---- | --------------------------------------------- | -------------------------------------------- | ------------------------------------ | ------------------- |
+| 1    | RH ornament at 60 BPM / LH arpeggio at 56 BPM | Learn mm. 1-8, HT at 45 BPM dotted-quarter   | Identify 4 chords mm. 1-4 by quality | Build routine habit |
+| 2    | RH ornament at 66 BPM / LH arpeggio at 60 BPM | Learn mm. 9-16, chain mm. 1-16, HT at 48 BPM | Add mm. 5-8                          |

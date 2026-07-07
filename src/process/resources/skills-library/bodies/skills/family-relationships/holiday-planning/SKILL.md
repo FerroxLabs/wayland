@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events event-planning template"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events event-planning template'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Holiday Planning and Logistics
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to plan and organize a holiday celebration involving multiple moving parts -- scheduling, food, guests, budget, or travel
 - A user needs to coordinate holiday participation across two or more households or family units, including blended families, divorced co-parents, or geographically scattered relatives
 - A user asks how to manage gift lists, track holiday spending, set gift-exchange formats, or avoid going over budget during the holiday season
@@ -30,6 +32,7 @@ metadata:
 - A user explicitly asks about tradition scheduling, holiday meal planning, or creating a master task list for a specific holiday
 
 **Do NOT use when:**
+
 - The user is planning the ceremonial or liturgical elements of a religious holiday -- refer them to their religious community or clergy for that guidance (the logistical layer of a religious holiday, like who is cooking or who is traveling, is still in scope)
 - The user is organizing a corporate holiday party, team celebration, or workplace event -- use an event planning skill that addresses venue contracts, catering vendors, and professional contexts
 - The user asks for specific product recommendations, brand comparisons, or gift ideas -- do not recommend specific items; provide frameworks and criteria only
@@ -127,6 +130,7 @@ Compile all gathered information into the structured output format. The plan doc
 ---
 
 ### Overview
+
 - **Holiday:** [Name]
 - **Date(s):** [Date or date range]
 - **Host:** [Name/household]
@@ -137,12 +141,14 @@ Compile all gathered information into the structured output format. The plan doc
 ---
 
 ### Multi-Family Schedule
-| Date | Event | Location | Attending | Time |
-|------|-------|----------|-----------|------|
+
+| Date   | Event               | Location                 | Attending      | Time           |
+| ------ | ------------------- | ------------------------ | -------------- | -------------- |
 | [Date] | [Event description] | [Address or "Your home"] | [Who is there] | [Start -- End] |
-| [Date] | [Event description] | [Address] | [Who is there] | [Start -- End] |
+| [Date] | [Event description] | [Address]                | [Who is there] | [Start -- End] |
 
 **Coordination notes:**
+
 - [Family A] is traveling from [City] and arriving [day/time]
 - [Family B] has a fixed commitment at [time] -- scheduling adjusted accordingly
 - [Any known conflict and how it was resolved]
@@ -150,55 +156,60 @@ Compile all gathered information into the structured output format. The plan doc
 ---
 
 ### Task Timeline
-| Timeframe | Tasks | Owner | Status |
-|-----------|-------|-------|--------|
-| 8 weeks before ([Date]) | Confirm guest count; communicate plan to all households; book travel | [Name] | [ ] |
-| 6 weeks before ([Date]) | Finalize gift list; assign per-person budgets; decide exchange format | [Name] | [ ] |
-| 4 weeks before ([Date]) | Purchase non-custom gifts; finalize menu; send dish assignments; order main protein | [Name] | [ ] |
-| 2-3 weeks before ([Date]) | Buy remaining gifts; purchase non-perishable groceries; prep guest room | [Name] | [ ] |
-| 1 week before ([Date]) | Buy perishable groceries; set decorations; confirm all arrival/departure logistics | [Name] | [ ] |
-| 2-3 days before ([Date]) | Advance cooking; final house cleaning; prep activities for children | [Name] | [ ] |
-| Day before ([Date]) | Cook make-ahead dishes; set table; prepare guest accommodations | [Name] | [ ] |
-| Day of ([Date]) | Execute day-of timeline; delegate roles; enjoy | [Name] | [ ] |
-| Post-holiday (within 1 week) | Thank-you notes; leftover distribution; decoration storage; budget review | [Name] | [ ] |
+
+| Timeframe                    | Tasks                                                                               | Owner  | Status |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ------ | ------ |
+| 8 weeks before ([Date])      | Confirm guest count; communicate plan to all households; book travel                | [Name] | [ ]    |
+| 6 weeks before ([Date])      | Finalize gift list; assign per-person budgets; decide exchange format               | [Name] | [ ]    |
+| 4 weeks before ([Date])      | Purchase non-custom gifts; finalize menu; send dish assignments; order main protein | [Name] | [ ]    |
+| 2-3 weeks before ([Date])    | Buy remaining gifts; purchase non-perishable groceries; prep guest room             | [Name] | [ ]    |
+| 1 week before ([Date])       | Buy perishable groceries; set decorations; confirm all arrival/departure logistics  | [Name] | [ ]    |
+| 2-3 days before ([Date])     | Advance cooking; final house cleaning; prep activities for children                 | [Name] | [ ]    |
+| Day before ([Date])          | Cook make-ahead dishes; set table; prepare guest accommodations                     | [Name] | [ ]    |
+| Day of ([Date])              | Execute day-of timeline; delegate roles; enjoy                                      | [Name] | [ ]    |
+| Post-holiday (within 1 week) | Thank-you notes; leftover distribution; decoration storage; budget review           | [Name] | [ ]    |
 
 ---
 
 ### Gift Management
-| Recipient | Relationship | Budget | Gift Idea | Purchased | Wrapped | Ship By |
-|-----------|-------------|--------|-----------|-----------|---------|---------|
-| [Name] | [Child / Adult / Other] | $[Amt] | [Idea or TBD] | [ ] | [ ] | [Date or N/A] |
-| [Name] | [Relationship] | $[Amt] | [Idea or TBD] | [ ] | [ ] | [Date or N/A] |
-| **Total** | | **$[Amt]** | | | | |
+
+| Recipient | Relationship            | Budget     | Gift Idea     | Purchased | Wrapped | Ship By       |
+| --------- | ----------------------- | ---------- | ------------- | --------- | ------- | ------------- |
+| [Name]    | [Child / Adult / Other] | $[Amt]     | [Idea or TBD] | [ ]       | [ ]     | [Date or N/A] |
+| [Name]    | [Relationship]          | $[Amt]     | [Idea or TBD] | [ ]       | [ ]     | [Date or N/A] |
+| **Total** |                         | **$[Amt]** |               |           |         |               |
 
 **Gift exchange format:** [Individual gifts / Secret Santa ($[limit] limit, draw date [date]) / White elephant / Other]
 
 ---
 
 ### Holiday Budget
-| Category | Budgeted | Spent | Remaining | Notes |
-|----------|----------|-------|-----------|-------|
-| Gifts | $[Amt] | $0 | $[Amt] | [Exchange format; number of recipients] |
-| Food and beverages | $[Amt] | $0 | $[Amt] | [Headcount; hosting or contributing] |
-| Travel | $[Amt] | $0 | $[Amt] | [Mode; departure date] |
-| Decorations | $[Amt] | $0 | $[Amt] | [New items needed vs. reusing existing] |
-| Guest accommodations | $[Amt] | $0 | $[Amt] | [Number of nights; supplies needed] |
-| Contingency (10%) | $[Amt] | $0 | $[Amt] | Reserved for unexpected costs |
-| **Total** | **$[Amt]** | **$0** | **$[Amt]** | |
+
+| Category             | Budgeted   | Spent  | Remaining  | Notes                                   |
+| -------------------- | ---------- | ------ | ---------- | --------------------------------------- |
+| Gifts                | $[Amt]     | $0     | $[Amt]     | [Exchange format; number of recipients] |
+| Food and beverages   | $[Amt]     | $0     | $[Amt]     | [Headcount; hosting or contributing]    |
+| Travel               | $[Amt]     | $0     | $[Amt]     | [Mode; departure date]                  |
+| Decorations          | $[Amt]     | $0     | $[Amt]     | [New items needed vs. reusing existing] |
+| Guest accommodations | $[Amt]     | $0     | $[Amt]     | [Number of nights; supplies needed]     |
+| Contingency (10%)    | $[Amt]     | $0     | $[Amt]     | Reserved for unexpected costs           |
+| **Total**            | **$[Amt]** | **$0** | **$[Amt]** |                                         |
 
 ---
 
 ### Meal Plan
-| Dish | Who Makes It | Made When | Oven Temp | Dietary Notes |
-|------|-------------|-----------|-----------|---------------|
-| [Main protein] | [Host] | Day of, [start time] | [Temp / hrs] | [Restrictions it addresses] |
-| [Vegetarian main, if needed] | [Assigned guest or host] | [Day before / Day of] | [Temp] | Vegetarian / vegan |
-| [Side dish 1] | [Assigned guest] | [When] | [Temp or stovetop] | [Dietary note] |
-| [Side dish 2] | [Host] | [Make-ahead day] | [Temp] | [Note] |
-| [Dessert] | [Assigned or purchased] | [Day before] | [Temp] | [Note] |
-| [Beverages] | [Host] | Day of | N/A | [Note alcoholic / non-alcoholic] |
+
+| Dish                         | Who Makes It             | Made When             | Oven Temp          | Dietary Notes                    |
+| ---------------------------- | ------------------------ | --------------------- | ------------------ | -------------------------------- |
+| [Main protein]               | [Host]                   | Day of, [start time]  | [Temp / hrs]       | [Restrictions it addresses]      |
+| [Vegetarian main, if needed] | [Assigned guest or host] | [Day before / Day of] | [Temp]             | Vegetarian / vegan               |
+| [Side dish 1]                | [Assigned guest]         | [When]                | [Temp or stovetop] | [Dietary note]                   |
+| [Side dish 2]                | [Host]                   | [Make-ahead day]      | [Temp]             | [Note]                           |
+| [Dessert]                    | [Assigned or purchased]  | [Day before]          | [Temp]             | [Note]                           |
+| [Beverages]                  | [Host]                   | Day of                | N/A                | [Note alcoholic / non-alcoholic] |
 
 **Dietary restrictions confirmed:**
+
 - [Guest name(s)]: [Restriction] -- accommodated by [specific dish/adjustment]
 - [Guest name(s)]: [Restriction] -- accommodated by [specific dish/adjustment]
 
@@ -207,40 +218,43 @@ Compile all gathered information into the structured output format. The plan doc
 ---
 
 ### Day-Of Timeline
-| Time | Task | Who |
-|------|------|-----|
-| [Time] | [First kitchen task -- anchor around main protein cook time] | [Host] |
-| [Time] | [Next task] | [Host] |
-| [Time] | Set table; prepare appetizer station | [Assigned person] |
-| [Time] | Guests arrive; offer drinks and appetizers | [Drinks/social host] |
-| [Time] | [Final dish completion] | [Host] |
-| [Time] | Serve meal | [All] |
-| [Time] | Dessert and coffee | [All] |
-| [Time] | Cleanup begins | [Cleanup crew: names] |
-| [Time] | Guests depart | -- |
+
+| Time   | Task                                                         | Who                   |
+| ------ | ------------------------------------------------------------ | --------------------- |
+| [Time] | [First kitchen task -- anchor around main protein cook time] | [Host]                |
+| [Time] | [Next task]                                                  | [Host]                |
+| [Time] | Set table; prepare appetizer station                         | [Assigned person]     |
+| [Time] | Guests arrive; offer drinks and appetizers                   | [Drinks/social host]  |
+| [Time] | [Final dish completion]                                      | [Host]                |
+| [Time] | Serve meal                                                   | [All]                 |
+| [Time] | Dessert and coffee                                           | [All]                 |
+| [Time] | Cleanup begins                                               | [Cleanup crew: names] |
+| [Time] | Guests depart                                                | --                    |
 
 ---
 
 ### Roles and Delegation
-| Role | Assigned To | Responsibilities |
-|------|-------------|-----------------|
-| Primary cook | [Name] | [Main dishes] |
-| Drinks and social host | [Name] | Greet guests, manage drinks, keep conversation going while cook finishes |
-| Child coordinator | [Name] | Activities, supervision, snack management |
-| Cleanup coordinator | [Name] | Dishes, leftovers, trash; recruit helpers |
-| Guest room host | [Name] | Towels, toiletries, check-in/check-out for overnight guests |
+
+| Role                   | Assigned To | Responsibilities                                                         |
+| ---------------------- | ----------- | ------------------------------------------------------------------------ |
+| Primary cook           | [Name]      | [Main dishes]                                                            |
+| Drinks and social host | [Name]      | Greet guests, manage drinks, keep conversation going while cook finishes |
+| Child coordinator      | [Name]      | Activities, supervision, snack management                                |
+| Cleanup coordinator    | [Name]      | Dishes, leftovers, trash; recruit helpers                                |
+| Guest room host        | [Name]      | Towels, toiletries, check-in/check-out for overnight guests              |
 
 ---
 
 ### Post-Holiday Checklist
-| Task | Due By | Done |
-|------|--------|------|
-| Send thank-you notes for gifts received | [Date -- within 5 days] | [ ] |
-| Distribute leftovers to guests who want them | [Date] | [ ] |
-| Store decorations (labeled by category) | [Date] | [ ] |
-| Return unused items; file receipts for returns | [Return deadline] | [ ] |
-| Complete budget review (planned vs. actual) | [Date] | [ ] |
-| Note 3 things to do differently next year | [Date] | [ ] |
+
+| Task                                           | Due By                  | Done |
+| ---------------------------------------------- | ----------------------- | ---- |
+| Send thank-you notes for gifts received        | [Date -- within 5 days] | [ ]  |
+| Distribute leftovers to guests who want them   | [Date]                  | [ ]  |
+| Store decorations (labeled by category)        | [Date]                  | [ ]  |
+| Return unused items; file receipts for returns | [Return deadline]       | [ ]  |
+| Complete budget review (planned vs. actual)    | [Date]                  | [ ]  |
+| Note 3 things to do differently next year      | [Date]                  | [ ]  |
 ```
 
 ---
@@ -314,6 +328,7 @@ International travel for the holidays requires a planning timeline that starts e
 ---
 
 ### Overview
+
 - **Holiday:** Christmas
 - **Date(s):** December 24-26, 2024
 - **Host:** You and your husband, at your home
@@ -324,17 +339,19 @@ International travel for the holidays requires a planning timeline that starts e
 ---
 
 ### Multi-Family Schedule
-| Date | Event | Location | Attending | Time |
-|------|-------|----------|-----------|------|
-| Sun, Dec 22 | In-laws depart Denver | Denver Airport | In-laws | Confirm flight |
-| Sun, Dec 22 (evening) | In-laws arrive; settle in | Your home | You, husband, in-laws | Evening |
-| Mon, Dec 23 | Relaxed day, prep together | Your home | You, husband, in-laws | All day |
-| Tue, Dec 24 (Christmas Eve) | Christmas Eve dinner + traditions | Your home | You, husband, in-laws | 6:00 PM dinner |
-| Wed, Dec 25 (Christmas Day) | Christmas morning with in-laws | Your home | You, husband, in-laws | 9:00 AM |
-| Wed, Dec 25 (Christmas Day) | Full Christmas celebration | Your home | All 8 guests | 1:00 PM -- 7:00 PM |
-| Thu, Dec 26 | Relaxed leftover day; in-laws depart | Your home → Airport | All | Confirm flight |
+
+| Date                        | Event                                | Location            | Attending             | Time               |
+| --------------------------- | ------------------------------------ | ------------------- | --------------------- | ------------------ |
+| Sun, Dec 22                 | In-laws depart Denver                | Denver Airport      | In-laws               | Confirm flight     |
+| Sun, Dec 22 (evening)       | In-laws arrive; settle in            | Your home           | You, husband, in-laws | Evening            |
+| Mon, Dec 23                 | Relaxed day, prep together           | Your home           | You, husband, in-laws | All day            |
+| Tue, Dec 24 (Christmas Eve) | Christmas Eve dinner + traditions    | Your home           | You, husband, in-laws | 6:00 PM dinner     |
+| Wed, Dec 25 (Christmas Day) | Christmas morning with in-laws       | Your home           | You, husband, in-laws | 9:00 AM            |
+| Wed, Dec 25 (Christmas Day) | Full Christmas celebration           | Your home           | All 8 guests          | 1:00 PM -- 7:00 PM |
+| Thu, Dec 26                 | Relaxed leftover day; in-laws depart | Your home → Airport | All                   | Confirm flight     |
 
 **Coordination notes:**
+
 - In-laws are flying from Denver -- confirm arrival and departure flights. Build arrival and departure logistics into the day-of timeline.
 - Sister's family is local and arrives Christmas Day only. Confirm arrival time (1:00 PM works well).
 - Two children ages 4 and 7 will be present Christmas Day -- plan a child-friendly activity or space.
@@ -343,31 +360,33 @@ International travel for the holidays requires a planning timeline that starts e
 ---
 
 ### Task Timeline
-| Timeframe | Tasks | Owner | Status |
-|-----------|-------|-------|--------|
-| 8 weeks before (Oct 28) | Communicate the plan to sister's family and in-laws; confirm arrival/departure dates; book in-laws' airport pickup or confirm they have transportation | You + husband | [ ] |
-| 6 weeks before (Nov 11) | Finalize gift list; assign per-person budgets; decide gift exchange format; order any custom or personalized gifts | You | [ ] |
-| 4 weeks before (Nov 25) | Finalize menu; send dish assignments to sister; order turkey or prime rib if needed; purchase non-custom gifts | You | [ ] |
-| 2-3 weeks before (Dec 2-9) | Buy remaining gifts; purchase non-perishable groceries; prep guest room with fresh linens and towels; confirm all arrival/departure times in writing | You + husband | [ ] |
-| 1 week before (Dec 16-18) | Buy perishable groceries; set up decorations; confirm in-laws' flight details; wrap completed gifts | You | [ ] |
-| Dec 22-23 | Make cranberry sauce, pie crusts, cookie dough; prep vegan dishes that can be made ahead; prepare cheese board and appetizer supplies; clean house | You + in-laws (if they want to participate -- many guests enjoy helping prep) | [ ] |
-| Dec 24 | Make Christmas Eve dinner; set out Christmas decorations fully; wrap remaining gifts after children are asleep | You, husband, in-laws | [ ] |
-| Dec 25 | Execute day-of timeline; delegate roles | See below | [ ] |
-| Dec 26-30 | Send thank-you notes for gifts; distribute leftover food; store decorations; complete budget review; note 3 things to change next year | You | [ ] |
+
+| Timeframe                  | Tasks                                                                                                                                                  | Owner                                                                         | Status |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | ------ |
+| 8 weeks before (Oct 28)    | Communicate the plan to sister's family and in-laws; confirm arrival/departure dates; book in-laws' airport pickup or confirm they have transportation | You + husband                                                                 | [ ]    |
+| 6 weeks before (Nov 11)    | Finalize gift list; assign per-person budgets; decide gift exchange format; order any custom or personalized gifts                                     | You                                                                           | [ ]    |
+| 4 weeks before (Nov 25)    | Finalize menu; send dish assignments to sister; order turkey or prime rib if needed; purchase non-custom gifts                                         | You                                                                           | [ ]    |
+| 2-3 weeks before (Dec 2-9) | Buy remaining gifts; purchase non-perishable groceries; prep guest room with fresh linens and towels; confirm all arrival/departure times in writing   | You + husband                                                                 | [ ]    |
+| 1 week before (Dec 16-18)  | Buy perishable groceries; set up decorations; confirm in-laws' flight details; wrap completed gifts                                                    | You                                                                           | [ ]    |
+| Dec 22-23                  | Make cranberry sauce, pie crusts, cookie dough; prep vegan dishes that can be made ahead; prepare cheese board and appetizer supplies; clean house     | You + in-laws (if they want to participate -- many guests enjoy helping prep) | [ ]    |
+| Dec 24                     | Make Christmas Eve dinner; set out Christmas decorations fully; wrap remaining gifts after children are asleep                                         | You, husband, in-laws                                                         | [ ]    |
+| Dec 25                     | Execute day-of timeline; delegate roles                                                                                                                | See below                                                                     | [ ]    |
+| Dec 26-30                  | Send thank-you notes for gifts; distribute leftover food; store decorations; complete budget review; note 3 things to change next year                 | You                                                                           | [ ]    |
 
 ---
 
 ### Gift Management
-| Recipient | Relationship | Budget | Gift Idea | Purchased | Wrapped | Ship By |
-|-----------|-------------|--------|-----------|-----------|---------|---------|
-| Father-in-law | Adult | $40 | TBD | [ ] | [ ] | N/A (in person) |
-| Mother-in-law (vegan) | Adult | $40 | TBD -- consider experience gift or vegan-friendly items | [ ] | [ ] | N/A |
-| Sister | Adult | $35 | TBD | [ ] | [ ] | N/A |
-| Brother-in-law | Adult | $35 | TBD | [ ] | [ ] | N/A |
-| Niece, age 7 | Child | $40 | TBD | [ ] | [ ] | N/A |
-| Nephew, age 4 | Child | $40 | TBD | [ ] | [ ] | N/A |
-| Husband (from you) | Partner | $40 | TBD | [ ] | [ ] | N/A |
-| **Total** | | **$270** | | | | |
+
+| Recipient             | Relationship | Budget   | Gift Idea                                               | Purchased | Wrapped | Ship By         |
+| --------------------- | ------------ | -------- | ------------------------------------------------------- | --------- | ------- | --------------- |
+| Father-in-law         | Adult        | $40      | TBD                                                     | [ ]       | [ ]     | N/A (in person) |
+| Mother-in-law (vegan) | Adult        | $40      | TBD -- consider experience gift or vegan-friendly items | [ ]       | [ ]     | N/A             |
+| Sister                | Adult        | $35      | TBD                                                     | [ ]       | [ ]     | N/A             |
+| Brother-in-law        | Adult        | $35      | TBD                                                     | [ ]       | [ ]     | N/A             |
+| Niece, age 7          | Child        | $40      | TBD                                                     | [ ]       | [ ]     | N/A             |
+| Nephew, age 4         | Child        | $40      | TBD                                                     | [ ]       | [ ]     | N/A             |
+| Husband (from you)    | Partner      | $40      | TBD                                                     | [ ]       | [ ]     | N/A             |
+| **Total**             |              | **$270** |                                                         |           |         |                 |
 
 **Gift exchange format:** Individual gifts. Consider suggesting a $35 adult spending cap to your sister's family in advance -- it removes the guessing and levels the playing field.
 
@@ -376,15 +395,16 @@ International travel for the holidays requires a planning timeline that starts e
 ---
 
 ### Holiday Budget
-| Category | Budgeted | Spent | Remaining | Notes |
-|----------|----------|-------|-----------|-------|
-| Gifts | $270 | $0 | $270 | 7 recipients; see gift list above |
-| Christmas Day food and beverages | $140 | $0 | $140 | 8 people; full dinner + dessert |
-| Christmas Eve dinner | $40 | $0 | $40 | Simpler meal for 4; in-laws + you and husband |
-| Decorations | $25 | $0 | $25 | New items only; reuse existing |
-| Guest room supplies | $15 | $0 | $15 | Fresh toiletries, towels if needed |
-| Contingency (10%) | $60 | $0 | $60 | Buffer for last-minute needs |
-| **Total** | **$550** | **$0** | **$550** | Leaves $50 margin within $600 budget |
+
+| Category                         | Budgeted | Spent  | Remaining | Notes                                         |
+| -------------------------------- | -------- | ------ | --------- | --------------------------------------------- |
+| Gifts                            | $270     | $0     | $270      | 7 recipients; see gift list above             |
+| Christmas Day food and beverages | $140     | $0     | $140      | 8 people; full dinner + dessert               |
+| Christmas Eve dinner             | $40      | $0     | $40       | Simpler meal for 4; in-laws + you and husband |
+| Decorations                      | $25      | $0     | $25       | New items only; reuse existing                |
+| Guest room supplies              | $15      | $0     | $15       | Fresh toiletries, towels if needed            |
+| Contingency (10%)                | $60      | $0     | $60       | Buffer for last-minute needs                  |
+| **Total**                        | **$550** | **$0** | **$550**  | Leaves $50 margin within $600 budget          |
 
 ---
 
@@ -393,31 +413,32 @@ International travel for the holidays requires a planning timeline that starts e
 **Christmas Eve Dinner (4 adults: you, husband, in-laws)**
 Simple, stress-free meal -- you will be cooking a large dinner the next day.
 
-| Dish | Who Makes It | Made When | Notes |
-|------|-------------|-----------|-------|
-| Baked salmon with lemon and herbs | You | Christmas Eve | Naturally vegan-adaptable: set aside a plain portion for vegan guest before adding butter baste |
-| Roasted vegetables (asparagus, potatoes) | You | Christmas Eve | Vegan-friendly; roast in olive oil, not butter |
-| Simple green salad | In-laws (if they want to contribute) | Christmas Eve | |
-| Crusty bread | Purchase | -- | |
-| Wine / sparkling water | You | -- | Offer both |
+| Dish                                     | Who Makes It                         | Made When     | Notes                                                                                           |
+| ---------------------------------------- | ------------------------------------ | ------------- | ----------------------------------------------------------------------------------------------- |
+| Baked salmon with lemon and herbs        | You                                  | Christmas Eve | Naturally vegan-adaptable: set aside a plain portion for vegan guest before adding butter baste |
+| Roasted vegetables (asparagus, potatoes) | You                                  | Christmas Eve | Vegan-friendly; roast in olive oil, not butter                                                  |
+| Simple green salad                       | In-laws (if they want to contribute) | Christmas Eve |                                                                                                 |
+| Crusty bread                             | Purchase                             | --            |                                                                                                 |
+| Wine / sparkling water                   | You                                  | --            | Offer both                                                                                      |
 
 **Christmas Day Dinner (8 people including 2 children)**
 
-| Dish | Who Makes It | Made When | Oven Temp | Dietary Notes |
-|------|-------------|-----------|-----------|---------------|
-| Roast turkey (12-14 lb; serves 8-10) | You | Day of; 9:00 AM in oven at 325°F (approx 3.5-4 hrs) | 325°F | Non-vegan; set aside carved white meat portion |
-| Vegan main (whole roasted cauliflower with tahini and herbs, or stuffed acorn squash) | You, prep day before | Finish in oven Dec 25 at same temp as turkey if timing allows | 375°F (30-45 min) | Vegan; this is the vegan guest's centerpiece, not a side dish |
-| Mashed potatoes (made with olive oil for vegan guest; traditional for others) | You | Day of; hold in slow cooker | Stovetop | Make two versions OR make one fully vegan (olive oil + vegetable broth); most guests won't notice |
-| Green bean casserole | Sister's family (confirmed assignment) | Day before or morning of | 350°F (30 min) | Vegetarian; confirm cream of mushroom is vegan if vegan guest is eating it -- it is not; offer plain green beans with almonds as vegan alternative |
-| Cranberry sauce (from scratch) | You | Dec 23 (make ahead beautifully; refrigerates 2 weeks) | Stovetop | Vegan-friendly |
-| Dinner rolls | Purchase (bakery or frozen par-baked) | -- | Per package | |
-| Turkey gravy | You | Christmas morning from drippings | Stovetop | Non-vegan; prepare mushroom gravy as vegan alternative the day before |
-| Mushroom gravy (vegan) | You | Dec 24 | Stovetop | Store in fridge; reheat Christmas Day |
-| Pumpkin pie | You | Dec 23 (pies are always better made a day ahead) | 425°F then 350°F | Not vegan as written; purchase or make a vegan version if desired |
-| Apple crisp (naturally vegan) | Sister's family (second assignment) | Morning of | 350°F (45 min) | Vegan-friendly; serve with coconut whip for vegan guest |
-| Coffee, tea, juice, sparkling cider | You | Day of | N/A | Offer non-alcoholic options prominently for children and non-drinkers |
+| Dish                                                                                  | Who Makes It                           | Made When                                                     | Oven Temp         | Dietary Notes                                                                                                                                      |
+| ------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Roast turkey (12-14 lb; serves 8-10)                                                  | You                                    | Day of; 9:00 AM in oven at 325°F (approx 3.5-4 hrs)           | 325°F             | Non-vegan; set aside carved white meat portion                                                                                                     |
+| Vegan main (whole roasted cauliflower with tahini and herbs, or stuffed acorn squash) | You, prep day before                   | Finish in oven Dec 25 at same temp as turkey if timing allows | 375°F (30-45 min) | Vegan; this is the vegan guest's centerpiece, not a side dish                                                                                      |
+| Mashed potatoes (made with olive oil for vegan guest; traditional for others)         | You                                    | Day of; hold in slow cooker                                   | Stovetop          | Make two versions OR make one fully vegan (olive oil + vegetable broth); most guests won't notice                                                  |
+| Green bean casserole                                                                  | Sister's family (confirmed assignment) | Day before or morning of                                      | 350°F (30 min)    | Vegetarian; confirm cream of mushroom is vegan if vegan guest is eating it -- it is not; offer plain green beans with almonds as vegan alternative |
+| Cranberry sauce (from scratch)                                                        | You                                    | Dec 23 (make ahead beautifully; refrigerates 2 weeks)         | Stovetop          | Vegan-friendly                                                                                                                                     |
+| Dinner rolls                                                                          | Purchase (bakery or frozen par-baked)  | --                                                            | Per package       |                                                                                                                                                    |
+| Turkey gravy                                                                          | You                                    | Christmas morning from drippings                              | Stovetop          | Non-vegan; prepare mushroom gravy as vegan alternative the day before                                                                              |
+| Mushroom gravy (vegan)                                                                | You                                    | Dec 24                                                        | Stovetop          | Store in fridge; reheat Christmas Day                                                                                                              |
+| Pumpkin pie                                                                           | You                                    | Dec 23 (pies are always better made a day ahead)              | 425°F then 350°F  | Not vegan as written; purchase or make a vegan version if desired                                                                                  |
+| Apple crisp (naturally vegan)                                                         | Sister's family (second assignment)    | Morning of                                                    | 350°F (45 min)    | Vegan-friendly; serve with coconut whip for vegan guest                                                                                            |
+| Coffee, tea, juice, sparkling cider                                                   | You                                    | Day of                                                        | N/A               | Offer non-alcoholic options prominently for children and non-drinkers                                                                              |
 
 **Dietary restrictions confirmed:**
+
 - Father-in-law or mother-in-law (confirm which): Vegan -- accommodated by vegan main dish, olive oil mashed potatoes, mushroom gravy, cranberry sauce, apple crisp with coconut whip
 - Children ages 4 and 7: No noted restrictions; offer plain versions of dishes without sauces for picky eaters
 
@@ -427,41 +448,42 @@ Simple, stress-free meal -- you will be cooking a large dinner the next day.
 
 ### Day-Of Timeline: Christmas Day
 
-| Time | Task | Who |
-|------|------|-----|
-| 8:00 AM | Christmas morning with in-laws; open gifts before guests arrive | You, husband, in-laws |
-| 9:00 AM | Turkey goes into oven (325°F, 12-14 lb turkey needs ~3.5-4 hrs) | You |
-| 10:00 AM | Remove vegan main from fridge to come to room temperature; prep mashed potato potatoes (peel, cube, hold in cold water) | You |
-| 11:30 AM | Begin stovetop prep: reheat mushroom gravy on low; prep appetizer station (cheese board, nuts, crudités) | Husband or in-laws |
-| 12:00 PM | Set dining table; arrange serving dishes and labels; put out appetizers | Husband + in-law assist |
-| 12:30 PM | Your last kitchen task before guests arrive; freshen up | You |
-| 1:00 PM | Sister's family arrives; greet guests; offer drinks and appetizers | Husband (social host) while you finish |
-| 1:30 PM | Turkey out to rest (internal temp 165°F in thigh); vegan main into oven | You |
-| 1:30 PM | Boil potatoes; heat green bean casserole (brought by sister); make turkey gravy from drippings | You |
-| 2:00 PM | Mash potatoes (two versions -- regular and vegan); slice turkey; plate vegan main | You + one helper |
-| 2:15 PM | Serve buffet-style; announce dish labels especially for vegan items | You |
-| 3:30 PM | Clear dinner dishes; put out desserts | Cleanup crew begins |
-| 3:45 PM | Dessert and coffee; children may want to play with gifts | All |
-| 5:00 PM | Structured cleanup: 2 people on dishes, 1 on leftovers, 1 on trash | See delegation below |
-| 6:30 PM | Sister's family departs | -- |
-| Evening | Quiet evening with in-laws | You, husband, in-laws |
+| Time     | Task                                                                                                                    | Who                                    |
+| -------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 8:00 AM  | Christmas morning with in-laws; open gifts before guests arrive                                                         | You, husband, in-laws                  |
+| 9:00 AM  | Turkey goes into oven (325°F, 12-14 lb turkey needs ~3.5-4 hrs)                                                         | You                                    |
+| 10:00 AM | Remove vegan main from fridge to come to room temperature; prep mashed potato potatoes (peel, cube, hold in cold water) | You                                    |
+| 11:30 AM | Begin stovetop prep: reheat mushroom gravy on low; prep appetizer station (cheese board, nuts, crudités)                | Husband or in-laws                     |
+| 12:00 PM | Set dining table; arrange serving dishes and labels; put out appetizers                                                 | Husband + in-law assist                |
+| 12:30 PM | Your last kitchen task before guests arrive; freshen up                                                                 | You                                    |
+| 1:00 PM  | Sister's family arrives; greet guests; offer drinks and appetizers                                                      | Husband (social host) while you finish |
+| 1:30 PM  | Turkey out to rest (internal temp 165°F in thigh); vegan main into oven                                                 | You                                    |
+| 1:30 PM  | Boil potatoes; heat green bean casserole (brought by sister); make turkey gravy from drippings                          | You                                    |
+| 2:00 PM  | Mash potatoes (two versions -- regular and vegan); slice turkey; plate vegan main                                       | You + one helper                       |
+| 2:15 PM  | Serve buffet-style; announce dish labels especially for vegan items                                                     | You                                    |
+| 3:30 PM  | Clear dinner dishes; put out desserts                                                                                   | Cleanup crew begins                    |
+| 3:45 PM  | Dessert and coffee; children may want to play with gifts                                                                | All                                    |
+| 5:00 PM  | Structured cleanup: 2 people on dishes, 1 on leftovers, 1 on trash                                                      | See delegation below                   |
+| 6:30 PM  | Sister's family departs                                                                                                 | --                                     |
+| Evening  | Quiet evening with in-laws                                                                                              | You, husband, in-laws                  |
 
 ---
 
 ### Roles and Delegation: Christmas Day
 
-| Role | Assigned To | Responsibilities |
-|------|-------------|-----------------|
-| Primary cook | You | Turkey, mashed potatoes (both versions), gravy (both), cranberry sauce |
-| Kitchen helper | Mother-in-law or father-in-law (offer, don't demand) | Assist with timing, hold dishes, stir things, keep cook sane |
-| Social host / drinks | Husband | Greet sister's family, manage drinks and appetizers, keep conversation going 12:30-2:15 PM while you finish cooking |
-| Child coordinator | Sister or brother-in-law | Keep the 4 and 7-year-old engaged before and after meal |
-| Cleanup coordinator | Brother-in-law (assign this explicitly) | Organize dish washing and drying, leftover storage, trash |
-| Leftover packaging | Father-in-law | Container assignment and labeling for guests to take portions home |
+| Role                 | Assigned To                                          | Responsibilities                                                                                                    |
+| -------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Primary cook         | You                                                  | Turkey, mashed potatoes (both versions), gravy (both), cranberry sauce                                              |
+| Kitchen helper       | Mother-in-law or father-in-law (offer, don't demand) | Assist with timing, hold dishes, stir things, keep cook sane                                                        |
+| Social host / drinks | Husband                                              | Greet sister's family, manage drinks and appetizers, keep conversation going 12:30-2:15 PM while you finish cooking |
+| Child coordinator    | Sister or brother-in-law                             | Keep the 4 and 7-year-old engaged before and after meal                                                             |
+| Cleanup coordinator  | Brother-in-law (assign this explicitly)              | Organize dish washing and drying, leftover storage, trash                                                           |
+| Leftover packaging   | Father-in-law                                        | Container assignment and labeling for guests to take portions home                                                  |
 
 ---
 
 ### Guest Room Setup (For In-Laws, 3 Nights)
+
 - Fresh sheets and pillowcases washed before Dec 22
 - 2 fresh towels and 1 hand towel per person
 - Travel-size toiletries (shampoo, conditioner, soap, toothpaste) if guest bathroom is their primary bathroom
@@ -474,14 +496,15 @@ Simple, stress-free meal -- you will be cooking a large dinner the next day.
 ---
 
 ### Post-Holiday Checklist
-| Task | Due By | Done |
-|------|--------|------|
-| Send thank-you notes to in-laws for traveling and to sister's family for contributions | December 30 | [ ] |
-| Package leftover turkey for in-laws to take if flying (solid food generally fine for carry-on; check current TSA rules for gravies and sauces) | December 26 | [ ] |
-| Store decorations in labeled bins (lights, ornaments, outdoor, table linens -- each separate) | December 28-30 | [ ] |
-| File gift receipts; note return-window deadlines for any gifts that may be exchanged | January 1 | [ ] |
-| Complete budget review: actual spent vs. planned in each category | December 30 | [ ] |
-| Write 3 things to do differently next Christmas while still fresh | December 30 | [ ] |
+
+| Task                                                                                                                                           | Due By         | Done |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---- |
+| Send thank-you notes to in-laws for traveling and to sister's family for contributions                                                         | December 30    | [ ]  |
+| Package leftover turkey for in-laws to take if flying (solid food generally fine for carry-on; check current TSA rules for gravies and sauces) | December 26    | [ ]  |
+| Store decorations in labeled bins (lights, ornaments, outdoor, table linens -- each separate)                                                  | December 28-30 | [ ]  |
+| File gift receipts; note return-window deadlines for any gifts that may be exchanged                                                           | January 1      | [ ]  |
+| Complete budget review: actual spent vs. planned in each category                                                                              | December 30    | [ ]  |
+| Write 3 things to do differently next Christmas while still fresh                                                                              | December 30    | [ ]  |
 
 ---
 

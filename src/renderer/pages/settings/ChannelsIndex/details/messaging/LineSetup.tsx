@@ -48,7 +48,7 @@ const LineSetup: React.FC = () => {
       pluginId={pluginStatus?.id ?? 'line_default'}
       helpText={t(
         'settings.channels.line.help',
-        'LINE Messaging API. In LINE Developers Console → your channel → Messaging API: set Use webhook = ON, Auto-reply messages = OFF, and Greeting messages = OFF. Then paste the webhook URL shown after Test & Enable into the Webhook URL field.',
+        'LINE Messaging API. In LINE Developers Console → your channel → Messaging API: set Use webhook = ON, Auto-reply messages = OFF, and Greeting messages = OFF. Then paste the webhook URL shown after Test & Enable into the Webhook URL field.'
       )}
     >
       <LineConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

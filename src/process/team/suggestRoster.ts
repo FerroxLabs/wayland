@@ -107,10 +107,7 @@ export type SuggestRosterResult = {
 /** Pure scoring + selection. No I/O. */
 export function suggestRoster(input: SuggestRosterInput): SuggestRosterResult {
   const goalTokens = tokenize(input.goalText);
-  const target = Math.max(
-    2,
-    Math.min(input.targetSize ?? 5, Math.min(6, input.specialists.length))
-  );
+  const target = Math.max(2, Math.min(input.targetSize ?? 5, Math.min(6, input.specialists.length)));
 
   // Score each specialist by token overlap with name + description.
   const scored = input.specialists.map((s) => {

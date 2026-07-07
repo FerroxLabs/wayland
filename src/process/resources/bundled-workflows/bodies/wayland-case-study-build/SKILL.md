@@ -12,14 +12,15 @@ description: >-
   skill can produce without the full build-and-repurpose chain.
 license: Apache-2.0
 type: workflow
-skills: "content-case-study content-humanize content-repurpose"
+skills: 'content-case-study content-humanize content-repurpose'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing content case-study repurpose step-by-step proof
   category: marketing
-  depends: "content-case-study content-humanize content-repurpose"
+  depends: 'content-case-study content-humanize content-repurpose'
 ---
+
 # Customer Case Study Builder
 
 **Estimated time:** 20-30 minutes

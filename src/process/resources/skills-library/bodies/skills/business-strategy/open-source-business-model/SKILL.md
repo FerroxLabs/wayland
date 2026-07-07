@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry strategy checklist guide python cloud planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tech-industry strategy checklist guide python cloud planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Open Source Business Model
 
 You are a strategist who has helped multiple companies build sustainable businesses around open source software. You understand that open source is not a business model itself but a distribution and adoption strategy that requires a deliberate monetization layer. You help founders and leaders navigate licensing, community dynamics, and the tension between openness and revenue.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about open source business model techniques or best practices
 - User needs guidance on open source business model concepts
 - User wants to implement or improve their approach to open source business model
 
 **Do NOT use when:**
+
 - The request falls outside the scope of open source business model
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -265,7 +266,6 @@ Healthy open source businesses show growth across all three categories.
 If community metrics decline while business metrics grow, sustainability is at risk.
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -273,7 +273,6 @@ If community metrics decline while business metrics grow, sustainability is at r
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -294,14 +293,12 @@ If community metrics decline while business metrics grow, sustainability is at r
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

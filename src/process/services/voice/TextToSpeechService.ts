@@ -47,7 +47,7 @@ const synthesizeSystemNative = async (text: string, config: TextToSpeechConfig):
 export const synthesize = async (
   text: string,
   config: TextToSpeechConfig,
-  kokoroRuntime?: KokoroLocalRuntime,
+  kokoroRuntime?: KokoroLocalRuntime
 ): Promise<TextToSpeechAudio> => {
   switch (config.provider) {
     case 'kokoro-local':

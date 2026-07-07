@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Language Level Assessment
 
 ## When to Use
@@ -73,6 +74,7 @@ Deliver the diagnostic using the graduated can-do statement format anchored to C
 Use the full diagnostic template in the Output Format section. When delivering this interactively, present one skill at a time, allow the learner to respond, then probe with follow-up questions at the boundary levels they identify.
 
 **Boundary probing questions** (to distinguish B1 vs B2 in speaking, for example):
+
 - "Can you maintain a conversation about an abstract topic (politics, ethics, hypotheticals) for 10+ minutes without switching to your native language?"
 - "When you make errors, do listeners frequently ask for clarification, or do they understand despite the errors?"
 - "Can you correct yourself mid-sentence when you notice an error?"
@@ -93,10 +95,12 @@ After collecting self-reported skill levels, cross-reference with objective indi
 Synthesize the diagnostic data into a four-domain skill profile. Never report a single "level" without the profile breakdown -- this is the most actionable part of the assessment.
 
 For each domain, assign:
+
 - A primary level (A1, A2, B1, B2, C1, C2)
 - A sub-level qualifier: **emerging** (just entering this level, less than 50% of descriptors met), **consolidating** (meeting 50--80% of descriptors), or **transitioning** (meeting 80%+ and ready to move up)
 
 The **composite level** for practical purposes is the average of the four domain levels, but weighted by the learner's stated use case:
+
 - Travel/tourism: weight Listening and Speaking 60%, Reading and Writing 40%
 - Academic study: weight Reading and Writing 60%, Listening and Speaking 40%
 - Professional/workplace: weight all four equally at 25%
@@ -109,6 +113,7 @@ Identify the **bottleneck skill** -- the single domain most limiting the learner
 A level label alone is insufficient. For each domain, identify the specific structural and lexical gaps that are preventing advancement. This requires applying level-specific criteria:
 
 **Vocabulary thresholds (research-based):**
+
 - A1: ~500 word families (basic survival vocabulary)
 - A2: ~1,000 word families (everyday topics)
 - B1: ~2,000--3,000 word families (general communication without significant gaps)
@@ -117,6 +122,7 @@ A level label alone is insufficient. For each domain, identify the specific stru
 - C2: ~15,000--20,000 word families (near-native range)
 
 **Grammar thresholds (illustrative for Spanish; adjust for target language):**
+
 - A1--A2: present tense, basic past (preterite), ser/estar distinction, gender/number agreement
 - B1: subjunctive introduction, imperfect vs preterite contrast, reflexive verbs, future tense
 - B2: subjunctive in adverbial and relative clauses, conditional perfect, passive constructions, reported speech
@@ -124,6 +130,7 @@ A level label alone is insufficient. For each domain, identify the specific stru
 - C2: stylistic variation, archaic or highly literary structures, colloquial contractions, sociolectal awareness
 
 **Interaction quality thresholds:**
+
 - B1: can sustain topic but relies on repetition requests and clarification strategies
 - B2: repairs misunderstandings independently; maintains conversation across topic shifts
 - C1: uses discourse markers and hedging for precision; adjusts register
@@ -392,13 +399,13 @@ Simultaneous multilingual learners commonly experience cross-linguistic interfer
 
 ### Skill Profile
 
-| Skill Domain | Estimated Level | Sub-Level Status | Confidence |
-|-------------|----------------|-----------------|------------|
-| Listening | B1 | Transitioning | Medium |
-| Reading | B2 | Emerging | High |
-| Speaking | B1 | Emerging | Medium-High |
-| Writing | B1 | Consolidating | Medium |
-| **Composite Level** | **B1+** | Uneven profile -- reading ahead of other skills | |
+| Skill Domain        | Estimated Level | Sub-Level Status                                | Confidence  |
+| ------------------- | --------------- | ----------------------------------------------- | ----------- |
+| Listening           | B1              | Transitioning                                   | Medium      |
+| Reading             | B2              | Emerging                                        | High        |
+| Speaking            | B1              | Emerging                                        | Medium-High |
+| Writing             | B1              | Consolidating                                   | Medium      |
+| **Composite Level** | **B1+**         | Uneven profile -- reading ahead of other skills |             |
 
 **Primary Bottleneck Skill:** Speaking -- learner reports freezing under real-time pressure; gap between receptive processing capacity (B2 reading) and productive automaticity (B1 emerging speaking) is the core limitation for healthcare communication goal.
 
@@ -416,7 +423,7 @@ Simultaneous multilingual learners commonly experience cross-linguistic interfer
 
 ### Self-Assessment Diagnostic Results
 
-*Based on responses and probe questions during this session:*
+_Based on responses and probe questions during this session:_
 
 #### Listening: B1 Transitioning
 
@@ -439,22 +446,26 @@ Can write connected paragraphs with reasonable accuracy. Uses a variety of conne
 ### Identified Gaps by Domain
 
 #### Listening Gaps
+
 - Extended abstract or unfamiliar-topic audio at B2 level -- learner processing is topic-dependent rather than fully level-generalized
 - Fast colloquial speech with regional accent variation (Latin American regional accents, Spanish Castilian) -- tutors have likely been accommodating speech rate
 - Healthcare-specific listening: patient symptom description, fast medical team communication
 
 #### Reading Gaps
+
 - Formal and specialist register vocabulary above the 4,000 word-family mark -- healthcare, legal, administrative registers
 - Ability to infer meaning from morphological analysis (recognizing that "hipertensivo" relates to "tensión" and "hiper-") -- important for medical vocabulary acquisition
 - Reading speed needs improvement for functional clinical use -- likely below 150 words/minute in Spanish vs. likely 250+ in English
 
 #### Speaking Gaps
+
 - Proceduralization of core B1 grammar under time pressure -- ser/estar, preterite/imperfect, and subjunctive avoidance are all accuracy gaps that become fluency gaps under real-time conditions
 - Transition phrase and filler vocabulary in Spanish ("o sea," "es decir," "a ver," "bueno") -- lack of these creates unnatural pause patterns
 - Healthcare-specific interaction scripts: taking patient history, explaining procedures, giving instructions, expressing empathy
 - Self-repair and communication strategy vocabulary -- how to say "let me rephrase," "I meant to say," "could you repeat that please" in Spanish
 
 #### Writing Gaps
+
 - Subjunctive in subordinate clauses -- avoidable in speech but expected in formal writing at B2+
 - Healthcare documentation register -- imperative constructions, passive voice for procedures, formal address
 
@@ -468,37 +479,38 @@ Can write connected paragraphs with reasonable accuracy. Uses a variety of conne
 
 #### Time Allocation
 
-| Domain | % of Study Time | Weekly Hours (at 8 hrs/week) | Priority Focus |
-|--------|----------------|-------------------------------|---------------|
-| Speaking | 40% | 3.2 hrs | Real-time production under pressure; healthcare interaction scripts |
-| Listening | 25% | 2.0 hrs | Abstract and unfamiliar topics; regional variety exposure |
-| Reading | 20% | 1.6 hrs | Healthcare/medical vocabulary; speed training |
-| Writing | 15% | 1.2 hrs | Subjunctive in writing; short paragraph structuring |
+| Domain    | % of Study Time | Weekly Hours (at 8 hrs/week) | Priority Focus                                                      |
+| --------- | --------------- | ---------------------------- | ------------------------------------------------------------------- |
+| Speaking  | 40%             | 3.2 hrs                      | Real-time production under pressure; healthcare interaction scripts |
+| Listening | 25%             | 2.0 hrs                      | Abstract and unfamiliar topics; regional variety exposure           |
+| Reading   | 20%             | 1.6 hrs                      | Healthcare/medical vocabulary; speed training                       |
+| Writing   | 15%             | 1.2 hrs                      | Subjunctive in writing; short paragraph structuring                 |
 
 #### Input/Output Ratio
+
 **Recommended split:** 45% input / 55% output
 **Rationale:** At B1+ with a documented output deficit, the learner has sufficient input-processing capacity -- the priority is driving proceduralization through high-volume output practice, not more passive comprehension. The reading advantage already provides strong input scaffolding.
 
 #### Resource Types by Domain
 
-| Domain | Resource Type | Quantity/Frequency | Notes |
-|--------|-------------|-------------------|-------|
-| Speaking | Weekly iTalki sessions with explicit healthcare script focus; conversation exchange with Spanish-speaking healthcare colleague or student | 2--3x/week, 30 min each | Set explicit correction contract with tutor: request real-time flagging of ser/estar and subjunctive errors. Record at least one session per week for self-review |
-| Speaking | Shadowing practice with medical Spanish dialogues (patient intake scenarios, symptom description scripts) | 15 min/day, 5 days/week | Use scripted dialogue first, then move to improvised variation |
-| Listening | Authentic Spanish-language medical content: patient education videos, health news segments from Univision or RTVE | 20--30 min/day | Begin with transcripts + audio simultaneously; remove transcript after 2 passes |
-| Listening | Regional variety exposure: alternate between Mexican Spanish, Argentine Spanish, and Castilian sources over the 90 days | 3 sources/week | Builds accent robustness needed for diverse patient populations |
-| Reading | Medical Spanish glossary work: systematic study of the top 500 most common medical terms using a flashcard system (Anki recommended) | 15 min/day | Prioritize morphological roots (Latin/Greek) for generative vocabulary |
-| Reading | Timed reading of 300-word general Spanish texts -- aim to increase processing speed from estimated 130 words/min to 180+ | 2x/week | Track words per minute explicitly |
-| Writing | Weekly paragraph writing (150 words) on healthcare scenario prompt (explain a medication schedule, describe patient symptoms) with tutor correction | 1x/week | Focus correction contract on subjunctive and formal register |
+| Domain    | Resource Type                                                                                                                                       | Quantity/Frequency      | Notes                                                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Speaking  | Weekly iTalki sessions with explicit healthcare script focus; conversation exchange with Spanish-speaking healthcare colleague or student           | 2--3x/week, 30 min each | Set explicit correction contract with tutor: request real-time flagging of ser/estar and subjunctive errors. Record at least one session per week for self-review |
+| Speaking  | Shadowing practice with medical Spanish dialogues (patient intake scenarios, symptom description scripts)                                           | 15 min/day, 5 days/week | Use scripted dialogue first, then move to improvised variation                                                                                                    |
+| Listening | Authentic Spanish-language medical content: patient education videos, health news segments from Univision or RTVE                                   | 20--30 min/day          | Begin with transcripts + audio simultaneously; remove transcript after 2 passes                                                                                   |
+| Listening | Regional variety exposure: alternate between Mexican Spanish, Argentine Spanish, and Castilian sources over the 90 days                             | 3 sources/week          | Builds accent robustness needed for diverse patient populations                                                                                                   |
+| Reading   | Medical Spanish glossary work: systematic study of the top 500 most common medical terms using a flashcard system (Anki recommended)                | 15 min/day              | Prioritize morphological roots (Latin/Greek) for generative vocabulary                                                                                            |
+| Reading   | Timed reading of 300-word general Spanish texts -- aim to increase processing speed from estimated 130 words/min to 180+                            | 2x/week                 | Track words per minute explicitly                                                                                                                                 |
+| Writing   | Weekly paragraph writing (150 words) on healthcare scenario prompt (explain a medication schedule, describe patient symptoms) with tutor correction | 1x/week                 | Focus correction contract on subjunctive and formal register                                                                                                      |
 
 #### Level Advancement Milestones
 
-| Domain | Milestone to Trigger Re-assessment |
-|--------|------------------------------------|
-| Speaking | Sustains 15-minute role-play patient intake conversation without pausing more than 5 seconds or switching to English; makes fewer than 3 uncorrected ser/estar errors per session |
-| Listening | Follows 10-minute authentic medical Spanish patient-education video (standard register) with 80%+ comprehension without transcript |
-| Reading | Reads a 400-word authentic healthcare leaflet in Spanish (standard register) with fewer than 8 unfamiliar words and comprehends the core instruction set |
-| Writing | Writes a 150-word patient instruction paragraph in Spanish (how to prepare for a procedure) with fewer than 2 structural errors on first draft |
+| Domain    | Milestone to Trigger Re-assessment                                                                                                                                                |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Speaking  | Sustains 15-minute role-play patient intake conversation without pausing more than 5 seconds or switching to English; makes fewer than 3 uncorrected ser/estar errors per session |
+| Listening | Follows 10-minute authentic medical Spanish patient-education video (standard register) with 80%+ comprehension without transcript                                                |
+| Reading   | Reads a 400-word authentic healthcare leaflet in Spanish (standard register) with fewer than 8 unfamiliar words and comprehends the core instruction set                          |
+| Writing   | Writes a 150-word patient instruction paragraph in Spanish (how to prepare for a procedure) with fewer than 2 structural errors on first draft                                    |
 
 **Target re-assessment timeline:** 10--12 weeks at recommended study pace. Expect Speaking to reach B1-Consolidating and Reading to reach B2-Consolidating by that point if prescription is followed.
 
@@ -506,11 +518,11 @@ Can write connected paragraphs with reasonable accuracy. Uses a variety of conne
 
 ### Complementary Skills -- Recommended Next Steps
 
-| Immediate Priority | Timeline | Skill to Use |
-|-------------------|----------|-------------|
-| Address subjunctive avoidance in speaking and writing | This week | `grammar-practice` -- request targeted subjunctive drills for B1 level, present and imperfect subjunctive |
-| Build medical Spanish vocabulary systematically | Ongoing | `vocabulary-building` -- request healthcare domain vocabulary list with frequency data |
-| Develop immersive input environment | Within 2 weeks | `immersion-plan` -- request a B1+ Spanish immersion schedule with healthcare media integration |
+| Immediate Priority                                    | Timeline       | Skill to Use                                                                                              |
+| ----------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- |
+| Address subjunctive avoidance in speaking and writing | This week      | `grammar-practice` -- request targeted subjunctive drills for B1 level, present and imperfect subjunctive |
+| Build medical Spanish vocabulary systematically       | Ongoing        | `vocabulary-building` -- request healthcare domain vocabulary list with frequency data                    |
+| Develop immersive input environment                   | Within 2 weeks | `immersion-plan` -- request a B1+ Spanish immersion schedule with healthcare media integration            |
 
 ---
 

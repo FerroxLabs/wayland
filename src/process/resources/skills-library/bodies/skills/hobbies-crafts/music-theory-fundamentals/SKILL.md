@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly guide step-by-step teaching"
-  category: "hobbies-crafts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly guide step-by-step teaching'
+  category: 'hobbies-crafts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Music Theory Fundamentals
 
 ## When to Use
@@ -150,7 +151,7 @@ This is where theory becomes immediately usable for playing, writing, and commun
 
 Produce the specific diagrams and tables the user needs based on their instrument and question. Do not produce generic catch-all tables -- build references anchored to the key and chords they actually asked about.
 
-- **Keyboard diagram:** show one octave with white and black keys labeled. Use asterisks (*) or brackets to mark scale tones. Mark the root with (R). Show the pattern of whole and half steps between marked notes. For guitar players, show keyboard AND fretboard.
+- **Keyboard diagram:** show one octave with white and black keys labeled. Use asterisks (\*) or brackets to mark scale tones. Mark the root with (R). Show the pattern of whole and half steps between marked notes. For guitar players, show keyboard AND fretboard.
 - **Fretboard diagram (guitar/bass):** show the scale pattern as fret positions on the low E string (6th string), then connect to a box pattern. For C major, the root on the low E string is at fret 8. For G major, fret 3. For A, fret 5. Note that the same scale formula applies at every starting fret.
 - **Diatonic chord table:** always show all 7 chords in the user's target key with: degree number, Roman numeral, chord name, quality, constituent notes, and the interval math for the first three chords.
 - **Progression table:** show the user's specific progression (or 4-5 common progressions) with the number notation, the chord names in their key, and a brief feel description.
@@ -180,17 +181,23 @@ Starting note / Root: [note]
 
 **Keyboard (one octave, C to C):**
 ```
- C  C# D  D# E  F  F# G  G# A  A# B  C
- |  ■  |  ■  |  |  ■  |  ■  |  ■  |  |
- *        *     *  *     *     *     *
- [Mark scale tones with *, root with (R)]
+
+C C# D D# E F F# G G# A A# B C
+| ■ | ■ | | ■ | ■ | ■ | |
+
+---
+
+[Mark scale tones with *, root with (R)]
+
 ```
 
 **Fretboard -- Low E string (6th string):**
 ```
-Open  1    2    3    4    5    6    7    8    9    10   11   12
- E    F   F#   G   G#   A   A#   B    C   C#    D   D#   E
- [Mark scale root with (R), other scale tones with (○)]
+
+Open 1 2 3 4 5 6 7 8 9 10 11 12
+E F F# G G# A A# B C C# D D# E
+[Mark scale root with (R), other scale tones with (○)]
+
 ```
 
 ---
@@ -427,6 +434,7 @@ G (W) A (W) B (H) C (W) D (W) E (W) F# (H) G
 The formula forced the 7th note to be F# instead of F. If we used F natural, the gap from F to G would be a whole step, but the formula requires a half step there. One sharp (F#) is the price of starting the major scale pattern on G.
 
 **Keyboard diagram (one octave):**
+
 ```
  C   C#  D   D#  E   F   F#  G   G#  A   A#  B   C
  |   ■   |   ■   |   |   ■   |   ■   |   ■   |   |
@@ -446,8 +454,10 @@ Simplified -- notes in G major scale marked with ★, root with [R]:
 ```
 
 **Fretboard -- Low E string (6th string), G major scale:**
+
 ```
 Fret:  0    1    2    3    4    5    6    7    8    9    10
 Note:  E    F   F#    G   G#    A   A#    B    C   C#    D
-           ★   [R]         ★              ★         
+           ★   [R]         ★              ★
 Fret: 11   12
+```

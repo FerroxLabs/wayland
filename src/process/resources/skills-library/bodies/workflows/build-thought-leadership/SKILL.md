@@ -15,7 +15,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "personal-brand-architect technical-blogger newsletter-growth-hacker public-speaking-coach content-monetizer"
+skills: 'personal-brand-architect technical-blogger newsletter-growth-hacker public-speaking-coach content-monetizer'
 trigger_phrases: >-
   I want to build thought leadership become a thought leader establish authority
   in my field build an audience around my expertise personal brand strategy
@@ -25,8 +25,9 @@ metadata:
   version: 1.0.0
   tags: content-marketing career step-by-step planning
   category: career
-  depends: "personal-brand-architect technical-blogger newsletter-growth-hacker public-speaking-coach content-monetizer"
+  depends: 'personal-brand-architect technical-blogger newsletter-growth-hacker public-speaking-coach content-monetizer'
 ---
+
 # Build Thought Leadership
 
 **Estimated time:** 3-12 months
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design mobile"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design mobile'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile Game Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user is designing a free-to-play mobile game and needs F2P design patterns, retention mechanics, or session design
 - The user wants guidance on mobile monetization models (IAP, ads, battle pass, subscription)
 - The user needs help with mobile-specific UX, onboarding flows, or A/B testing strategies
@@ -26,6 +27,7 @@ metadata:
 - The user needs KPI frameworks (retention, ARPDAU, LTV, CPI) for mobile game performance
 
 **Do NOT use this skill when:**
+
 - The user is designing a PC or console game without mobile considerations (use video-game-designer instead)
 - The user needs virtual economy design across platforms (use game-economy-designer instead)
 - The user wants to build a game for a 48-hour jam rather than a live-service product (use game-jam-guide instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on mobile game designer
 - User asks about mobile game designer best practices or techniques
 - User wants a structured approach to mobile game designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of mobile game designer
 
@@ -516,23 +520,28 @@ GAME HEALTH MONITORING:
 ## Practice Exercises
 
 ### Exercise 1: Core Loop Analysis
+
 Play 5 top-grossing mobile games for 30 minutes each. Map their core loop exactly. Identify what creates the desire to play "one more time."
 
 ### Exercise 2: FTUE Audit
+
 Install 3 games you've never played. Record your first 5 minutes. Note every moment of delight or frustration. How quickly did you understand the core loop?
 
 ### Exercise 3: Monetization Mapping
+
 For a game concept, design 3 different monetization models (IAP-only, ad-only, hybrid). Estimate which would generate the most revenue and which would create the best player experience.
 
 ### Exercise 4: Retention Hook Design
+
 Design a Day 1, Day 7, and Day 30 retention strategy for your game. What specific design elements bring players back at each interval?
 
 ### Exercise 5: A/B Test Design
+
 Design 3 A/B tests for a mobile game's onboarding. For each, state the hypothesis, control, variant, primary metric, and minimum sample size.
 
 ### Exercise 6: Session Design
-Design a complete 5-minute mobile session that includes: re-engagement, core gameplay, reward, progress visibility, and a hook for the next session.
 
+Design a complete 5-minute mobile session that includes: re-engagement, core gameplay, reward, progress visibility, and a hook for the next session.
 
 ## Output Format
 
@@ -546,13 +555,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with mobile game designer for a mid-size project."
 
 **Output:** A complete mobile game designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

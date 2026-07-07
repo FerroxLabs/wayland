@@ -16,10 +16,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import {
-  loadCliSkills,
-  __resetCliSkillDiscoveryForTests,
-} from '@process/services/skills/CliSkillDiscovery';
+import { loadCliSkills, __resetCliSkillDiscoveryForTests } from '@process/services/skills/CliSkillDiscovery';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 
 type CliRoot = {
@@ -69,12 +66,12 @@ describe('loadCliSkills', () => {
     stageSkill(
       claudeRoot,
       'gsd-audit-milestone',
-      '---\nname: gsd-audit-milestone\ndescription: "Audit milestone completion before archiving"\n---\nbody',
+      '---\nname: gsd-audit-milestone\ndescription: "Audit milestone completion before archiving"\n---\nbody'
     );
     stageSkill(
       claudeRoot,
       'gsd-execute-phase',
-      '---\nname: gsd-execute-phase\ndescription: "Execute phase plan with atomic commits"\n---\nbody',
+      '---\nname: gsd-execute-phase\ndescription: "Execute phase plan with atomic commits"\n---\nbody'
     );
 
     const total = await loadCliSkills({ force: true, rootsOverride: [claudeRoot] });
@@ -85,7 +82,7 @@ describe('loadCliSkills', () => {
     expect(entries).toHaveLength(2);
     expect(entries.every((e) => e.sourceLabel === 'Claude Code')).toBe(true);
     expect(entries.every((e) => e.type === 'skill')).toBe(true);
-    expect(entries.map((e) => e.name).sort()).toEqual(['gsd-audit-milestone', 'gsd-execute-phase']);
+    expect(entries.map((e) => e.name).toSorted()).toEqual(['gsd-audit-milestone', 'gsd-execute-phase']);
   });
 
   it('skips roots that do not exist on disk (CLI not installed)', async () => {
@@ -110,7 +107,7 @@ describe('loadCliSkills', () => {
     stageSkill(
       codexRoot,
       'ijfw-commit',
-      '---\nname: ijfw-commit\ndescription: "Commit with IJFW conventions"\n---\nbody',
+      '---\nname: ijfw-commit\ndescription: "Commit with IJFW conventions"\n---\nbody'
     );
 
     const total = await loadCliSkills({ force: true, rootsOverride: [codexRoot] });
@@ -127,11 +124,7 @@ describe('loadCliSkills', () => {
     tempRoots.push(root);
     stageSkill(root, 'no-frontmatter', 'just markdown body, no frontmatter block');
     stageSkill(root, 'missing-name', '---\ndescription: "no name field"\n---\nbody');
-    stageSkill(
-      root,
-      'valid',
-      '---\nname: valid\ndescription: "this one is fine"\n---\nbody',
-    );
+    stageSkill(root, 'valid', '---\nname: valid\ndescription: "this one is fine"\n---\nbody');
 
     const total = await loadCliSkills({ force: true, rootsOverride: [root] });
     expect(total).toBe(1);

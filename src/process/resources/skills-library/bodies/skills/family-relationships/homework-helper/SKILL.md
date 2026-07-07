@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events teaching"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events teaching'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Homework Helper
@@ -21,17 +21,20 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about homework helper
 - User needs guidance on homework helper topics
 - User wants a structured approach to homework helper
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
 ## The Parent's Role (What It Is and Is Not)
 
 ### What You Should Do
+
 - Create an optimal environment for learning
 - Teach study skills and organizational systems
 - Help your child understand the assignment (not do it)
@@ -41,6 +44,7 @@ metadata:
 - Provide emotional support and encouragement
 
 ### What You Should NOT Do
+
 - Do the work for your child (even "just this once")
 - Sit beside them for the entire homework session
 - Correct every mistake before submission (teachers need to see real understanding)
@@ -53,19 +57,20 @@ metadata:
 
 Instead of giving answers, ask questions that lead to understanding:
 
-| Instead of | Try |
-|-----------|-----|
-| "The answer is 42" | "What do you think the first step is?" |
-| "That's wrong" | "Walk me through how you got that answer" |
+| Instead of              | Try                                              |
+| ----------------------- | ------------------------------------------------ |
+| "The answer is 42"      | "What do you think the first step is?"           |
+| "That's wrong"          | "Walk me through how you got that answer"        |
 | "You need to add these" | "What operation does this word problem suggest?" |
-| "Here, let me do it" | "What part is confusing? Let's break it down" |
-| "Just look it up" | "Where could you find that information?" |
+| "Here, let me do it"    | "What part is confusing? Let's break it down"    |
+| "Just look it up"       | "Where could you find that information?"         |
 
 ## Study Environment Optimization
 
 ### The Homework Station
 
 **Physical Setup**
+
 - Consistent location (same place every day)
 - Well-lit (natural light or full-spectrum lamp)
 - Comfortable but not too comfortable (desk and chair, not bed)
@@ -74,6 +79,7 @@ Instead of giving answers, ask questions that lead to understanding:
 - Water bottle at the desk
 
 **Digital Setup**
+
 - Phone in another room or in a lockbox during study time
 - Computer only for homework-related tasks
 - Website blockers during study time (apps: Freedom, Cold Turkey)
@@ -84,6 +90,7 @@ Instead of giving answers, ask questions that lead to understanding:
 **Consistency is everything.** Same time, same place, same sequence.
 
 **Sample Routine**
+
 ```
 3:30 PM - Arrive home, snack, free time (15-30 min)
 4:00 PM - Homework station: review assignments, plan session
@@ -97,6 +104,7 @@ Instead of giving answers, ask questions that lead to understanding:
 ```
 
 **Adjust by Age**
+
 - **Grades K-2**: 10-20 minutes total, parent nearby but not hovering
 - **Grades 3-5**: 30-50 minutes, parent checks in at beginning and end
 - **Grades 6-8**: 60-90 minutes, parent available for questions
@@ -109,23 +117,27 @@ Instead of giving answers, ask questions that lead to understanding:
 **Key Development**: Building foundational habits, learning to learn
 
 **Reading**
+
 - Read aloud together daily (even after they can read independently)
 - Ask prediction questions: "What do you think will happen next?"
 - After reading: "What was the most important part? Why?"
 
 **Math**
+
 - Use physical manipulatives (blocks, coins, objects)
 - Connect math to real life: cooking, shopping, measuring
 - Times tables: Songs, patterns, and daily practice (5 minutes)
 - Focus on understanding WHY, not just memorizing procedures
 
 **Writing**
+
 - Start with storytelling (verbal before written)
 - Use graphic organizers (beginning, middle, end)
 - Celebrate effort and ideas over spelling/grammar
 - Daily journal or creative writing (even 3 sentences)
 
 **Study Skills to Introduce**
+
 - Using a planner (parent helps at first)
 - Checking work before declaring "done"
 - Breaking big tasks into steps
@@ -136,18 +148,21 @@ Instead of giving answers, ask questions that lead to understanding:
 **Key Development**: Building independence, organizational skills, managing multiple classes
 
 **Organization Systems**
+
 - Planner/agenda used daily (digital or paper)
 - Color-coded folders/binders by subject
 - Weekly "backpack and binder clean-out"
 - Assignment tracking: written list of everything due this week
 
 **Study Techniques to Teach**
+
 - **Cornell Notes**: Divide page into notes column, cue column, and summary
 - **Active recall**: Cover notes, try to remember, check
 - **Flashcards**: For vocabulary, facts, formulas (physical or Anki)
 - **Teach-back method**: Have them explain the material to you
 
 **Managing Multiple Assignments**
+
 - Sunday evening: Review all upcoming due dates
 - Prioritize by due date AND difficulty
 - Start long-term projects the day they are assigned (even 10 minutes)
@@ -155,6 +170,7 @@ Instead of giving answers, ask questions that lead to understanding:
 
 **The Independence Transition**
 This is the age to shift from parent-directed to student-directed homework:
+
 - They write their own assignments down
 - They decide their own homework order
 - They come to you with specific questions
@@ -165,6 +181,7 @@ This is the age to shift from parent-directed to student-directed homework:
 **Key Development**: Self-management, deep learning, preparation for independence
 
 **Advanced Study Techniques**
+
 - **Spaced repetition**: Review material at increasing intervals (1 day, 3 days, 1 week, 2 weeks)
 - **Interleaving**: Mix different types of problems in practice sessions
 - **Elaborative interrogation**: Ask "why" and "how" for every concept
@@ -172,6 +189,7 @@ This is the age to shift from parent-directed to student-directed homework:
 - **Pomodoro Technique**: 25 minutes focused work, 5-minute break, repeat
 
 **Test Preparation System**
+
 ```
 TWO WEEKS BEFORE TEST:
   - Gather all relevant material
@@ -194,6 +212,7 @@ NIGHT BEFORE:
 ```
 
 **Parent Role at This Age**
+
 - Ask "How is your studying going?" not "Did you do your homework?"
 - Offer support but do not impose it
 - Help them find tutoring or resources when they ask
@@ -205,6 +224,7 @@ NIGHT BEFORE:
 ### Intrinsic Motivation (The Goal)
 
 Build long-term internal motivation by:
+
 - Connecting schoolwork to their interests and goals
 - Celebrating effort and strategy, not just outcomes
 - Giving age-appropriate autonomy (choice of study order, environment, methods)
@@ -215,17 +235,18 @@ Build long-term internal motivation by:
 
 **Diagnose the Cause**
 
-| Symptom | Possible Cause | Response |
-|---------|---------------|----------|
-| "I don't get it" | Skill gap, frustration | Break into smaller steps, get tutoring |
-| "It's boring" | No relevance, too easy | Connect to interests, request challenging work |
-| "I don't care" | Overwhelmed, anxiety | Address emotional needs first, then academic |
-| "I already know this" | Actually too easy | Talk to teacher about enrichment |
-| Avoidance/procrastination | Executive function difficulty | See executive function support below |
+| Symptom                   | Possible Cause                | Response                                       |
+| ------------------------- | ----------------------------- | ---------------------------------------------- |
+| "I don't get it"          | Skill gap, frustration        | Break into smaller steps, get tutoring         |
+| "It's boring"             | No relevance, too easy        | Connect to interests, request challenging work |
+| "I don't care"            | Overwhelmed, anxiety          | Address emotional needs first, then academic   |
+| "I already know this"     | Actually too easy             | Talk to teacher about enrichment               |
+| Avoidance/procrastination | Executive function difficulty | See executive function support below           |
 
 ### Reward Systems (Use Wisely)
 
 **Short-term scaffolding** (temporary, not permanent):
+
 - Homework completion unlocks free time (natural consequence)
 - Weekly completion earns a small privilege
 - Gradual fading: reduce external rewards as intrinsic motivation builds
@@ -239,29 +260,34 @@ Executive functions are the brain's management system. They develop through chil
 ### Key Executive Functions and Support
 
 **Working Memory** (holding information in mind while using it)
+
 - Write things down (externalize memory)
 - Use checklists and step-by-step instructions
 - Repeat instructions back before starting
 - Break multi-step problems into single steps
 
 **Planning and Prioritization**
+
 - Use visual planners (wall calendar, whiteboard)
 - Teach the "eat the frog" approach (hardest task first)
 - Backward plan from due dates
 - Color-code by urgency
 
 **Task Initiation** (starting is often the hardest part)
+
 - Use the "just 5 minutes" rule (commit to only 5 minutes; momentum usually continues)
 - Prepare materials the night before
 - Start with a quick win to build momentum
 - Body doubling: work in the same room as someone else who is working
 
 **Time Management**
+
 - Use visual timers (Time Timer makes time visible)
 - Estimate how long tasks will take BEFORE starting, then compare to actual
 - Build awareness of time through regular check-ins
 
 **Emotional Regulation**
+
 - Normalize frustration: "This is hard, and that is okay"
 - Teach coping strategies: deep breaths, walk, stretch, then return
 - Separate self-worth from academic performance
@@ -270,6 +296,7 @@ Executive functions are the brain's management system. They develop through chil
 ### When to Seek Professional Help
 
 Consider evaluation if your child consistently struggles with:
+
 - Starting, sustaining, or completing assignments (beyond age norms)
 - Organization despite repeated instruction and scaffolding
 - Time awareness and management
@@ -283,6 +310,7 @@ These may indicate ADHD, learning disabilities, anxiety, or other conditions tha
 ### Proactive Communication
 
 At the start of each school year:
+
 - Introduce yourself and express interest in partnership
 - Ask about homework expectations and communication preferences
 - Share relevant information about your child's learning needs
@@ -292,6 +320,7 @@ At the start of each school year:
 **Key principles**: Be specific, be collaborative (not adversarial), focus on the child's needs, share what you have observed and tried.
 
 **Email Template**:
+
 ```
 Subject: [Child's Name] - [Class] - Homework Concern
 
@@ -310,13 +339,12 @@ learning.
 
 ## Quick Reference: The Homework Helper Toolkit
 
-| Age | Parent Role | Key Strategy | Time Expectation |
-|-----|-------------|-------------|-----------------|
-| K-2 | Active helper | Make it fun, build habits | 10-20 min |
-| 3-5 | Coach | Teach organization, check work | 30-50 min |
-| 6-8 | Consultant | Build independence, advise on request | 60-90 min |
-| 9-12 | Resource | Available but not involved unless asked | 90-150 min |
-
+| Age  | Parent Role   | Key Strategy                            | Time Expectation |
+| ---- | ------------- | --------------------------------------- | ---------------- |
+| K-2  | Active helper | Make it fun, build habits               | 10-20 min        |
+| 3-5  | Coach         | Teach organization, check work          | 30-50 min        |
+| 6-8  | Consultant    | Build independence, advise on request   | 60-90 min        |
+| 9-12 | Resource      | Available but not involved unless asked | 90-150 min       |
 
 ## Output Format
 

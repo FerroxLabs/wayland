@@ -20,21 +20,102 @@ function makeTeams() {
   return {
     listTeams: vi.fn(async () => [team]),
     listTasksForTeam: vi.fn(async () => [
-      { id: 'a', teamId: 't1', subject: 'Running task', status: 'in_progress', owner: 'slot1', blockedBy: [], blocks: [], metadata: {}, createdAt: 1, updatedAt: 30 },
-      { id: 'b', teamId: 't1', subject: 'Blocked task', status: 'pending', blockedBy: ['a'], blocks: [], metadata: {}, createdAt: 1, updatedAt: 20 },
-      { id: 'c', teamId: 't1', subject: 'Free pending', status: 'pending', blockedBy: [], blocks: [], metadata: {}, createdAt: 1, updatedAt: 10 },
-      { id: 'd', teamId: 't1', subject: 'Done task', status: 'completed', blockedBy: [], blocks: [], metadata: { verification: { outcome: 'pass' } }, createdAt: 1, updatedAt: 5 },
-      { id: 'e', teamId: 't1', subject: 'Deleted task', status: 'deleted', blockedBy: [], blocks: [], metadata: {}, createdAt: 1, updatedAt: 99 },
-      { id: 'f', teamId: 't1', subject: 'Verifying task', status: 'verifying', owner: 'slot1', blockedBy: [], blocks: [], metadata: { verification: { outcome: 'pass' } }, createdAt: 1, updatedAt: 25, retriesUsed: 1, retryBudget: 3, lastHeartbeat: 40 },
-      { id: 'g', teamId: 't1', subject: 'Zombie task', status: 'zombie', owner: 'slot2', blockedBy: [], blocks: [], metadata: {}, createdAt: 1, updatedAt: 15, lastHeartbeat: 12 },
+      {
+        id: 'a',
+        teamId: 't1',
+        subject: 'Running task',
+        status: 'in_progress',
+        owner: 'slot1',
+        blockedBy: [],
+        blocks: [],
+        metadata: {},
+        createdAt: 1,
+        updatedAt: 30,
+      },
+      {
+        id: 'b',
+        teamId: 't1',
+        subject: 'Blocked task',
+        status: 'pending',
+        blockedBy: ['a'],
+        blocks: [],
+        metadata: {},
+        createdAt: 1,
+        updatedAt: 20,
+      },
+      {
+        id: 'c',
+        teamId: 't1',
+        subject: 'Free pending',
+        status: 'pending',
+        blockedBy: [],
+        blocks: [],
+        metadata: {},
+        createdAt: 1,
+        updatedAt: 10,
+      },
+      {
+        id: 'd',
+        teamId: 't1',
+        subject: 'Done task',
+        status: 'completed',
+        blockedBy: [],
+        blocks: [],
+        metadata: { verification: { outcome: 'pass' } },
+        createdAt: 1,
+        updatedAt: 5,
+      },
+      {
+        id: 'e',
+        teamId: 't1',
+        subject: 'Deleted task',
+        status: 'deleted',
+        blockedBy: [],
+        blocks: [],
+        metadata: {},
+        createdAt: 1,
+        updatedAt: 99,
+      },
+      {
+        id: 'f',
+        teamId: 't1',
+        subject: 'Verifying task',
+        status: 'verifying',
+        owner: 'slot1',
+        blockedBy: [],
+        blocks: [],
+        metadata: { verification: { outcome: 'pass' } },
+        createdAt: 1,
+        updatedAt: 25,
+        retriesUsed: 1,
+        retryBudget: 3,
+        lastHeartbeat: 40,
+      },
+      {
+        id: 'g',
+        teamId: 't1',
+        subject: 'Zombie task',
+        status: 'zombie',
+        owner: 'slot2',
+        blockedBy: [],
+        blocks: [],
+        metadata: {},
+        createdAt: 1,
+        updatedAt: 15,
+        lastHeartbeat: 12,
+      },
     ]),
   };
 }
 
 function makeCronJob(over: Record<string, unknown>) {
   return {
-    id: over.id, name: over.name, description: '', enabled: over.enabled,
-    schedule: {}, target: { payload: { kind: 'message', text: '' } },
+    id: over.id,
+    name: over.name,
+    description: '',
+    enabled: over.enabled,
+    schedule: {},
+    target: { payload: { kind: 'message', text: '' } },
     metadata: { conversationId: 'x', agentType: 'claude', createdBy: 'user', createdAt: 1, updatedAt: 1 },
     state: { runCount: 0, retryCount: 0, maxRetries: 3, ...(over.state as object) },
   };
@@ -103,7 +184,12 @@ describe('TaskLedgerService.snapshot', () => {
 
   it('degrades to an empty contribution when a source throws', async () => {
     listJobs.mockRejectedValueOnce(new Error('cron down'));
-    const teams = { listTeams: vi.fn(async () => [team]), listTasksForTeam: vi.fn(async () => { throw new Error('repo down'); }) };
+    const teams = {
+      listTeams: vi.fn(async () => [team]),
+      listTasksForTeam: vi.fn(async () => {
+        throw new Error('repo down');
+      }),
+    };
     const ledger = new TaskLedgerService(teams as never);
 
     const snap = await ledger.snapshot('user1');

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis data-science"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Text Mining Protocol
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to analyze a large collection of texts computationally (news articles, research papers, product reviews, social media posts)
 - User wants to discover topics, themes, or patterns in unstructured text data
 - User needs to extract entities (people, organizations, locations, dates) from documents
@@ -28,6 +29,7 @@ metadata:
 - User wants to identify frequently co-occurring words or phrases in a corpus
 
 **Do NOT use when:**
+
 - User wants to classify text as positive, negative, or neutral (use `sentiment-analysis-guide`)
 - User wants to manually code interview transcripts or open-ended responses (use `qualitative-coding`)
 - User wants to design a survey with structured questions (use `survey-design`)
@@ -44,16 +46,16 @@ metadata:
 
 2. **Select the analysis type.** Match the analysis to the research question:
 
-   | Analysis Type | Best For | Output | Complexity |
-   |---------------|---------|--------|------------|
-   | **Word frequency** | "What are the most discussed terms?" | Ranked word list with counts | Low |
-   | **N-gram analysis** | "What phrases appear most often?" | Ranked phrase list (bigrams, trigrams) | Low |
-   | **Collocation analysis** | "What words co-occur with [term]?" | Word pairs with association scores (PMI, chi-square) | Medium |
-   | **Topic modeling (LDA)** | "What are the main topics across all documents?" | Topic clusters with top words per topic | Medium |
-   | **Named entity recognition (NER)** | "What people, organizations, or places are mentioned?" | Entity list with type, frequency, and source document | Medium |
-   | **Keyword-in-context (KWIC)** | "How is a specific term used across documents?" | Concordance table showing the term with surrounding context | Low |
-   | **Document clustering** | "Which documents are similar to each other?" | Document groups with shared vocabulary | High |
-   | **Temporal analysis** | "How has language changed over time?" | Term frequency trends over time periods | Medium |
+   | Analysis Type                      | Best For                                               | Output                                                      | Complexity |
+   | ---------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------- | ---------- |
+   | **Word frequency**                 | "What are the most discussed terms?"                   | Ranked word list with counts                                | Low        |
+   | **N-gram analysis**                | "What phrases appear most often?"                      | Ranked phrase list (bigrams, trigrams)                      | Low        |
+   | **Collocation analysis**           | "What words co-occur with [term]?"                     | Word pairs with association scores (PMI, chi-square)        | Medium     |
+   | **Topic modeling (LDA)**           | "What are the main topics across all documents?"       | Topic clusters with top words per topic                     | Medium     |
+   | **Named entity recognition (NER)** | "What people, organizations, or places are mentioned?" | Entity list with type, frequency, and source document       | Medium     |
+   | **Keyword-in-context (KWIC)**      | "How is a specific term used across documents?"        | Concordance table showing the term with surrounding context | Low        |
+   | **Document clustering**            | "Which documents are similar to each other?"           | Document groups with shared vocabulary                      | High       |
+   | **Temporal analysis**              | "How has language changed over time?"                  | Term frequency trends over time periods                     | Medium     |
 
    **Default recommendation:** Start with word frequency and n-gram analysis to understand the corpus. Then apply topic modeling if the goal is theme discovery, or NER if the goal is entity extraction.
 
@@ -224,6 +226,7 @@ metadata:
 ## Text Mining Protocol: Customer Support Ticket Analysis
 
 ### Corpus Definition
+
 - **Source:** Customer support ticket database (subject line + description fields)
 - **Volume:** 5,000 tickets, estimated 250,000 words total
 - **Language:** English (primary), potential multilingual tickets flagged for exclusion
@@ -232,22 +235,22 @@ metadata:
 
 ### Analysis Selection
 
-| Analysis | Purpose | Expected Output |
-|----------|---------|-----------------|
-| Word frequency + TF-IDF | Identify the dominant terms in support tickets | Ranked term list highlighting distinctive problem words |
-| N-gram analysis (bigrams, trigrams) | Capture multi-word issue descriptions ("password reset", "billing error") | Ranked phrase list |
-| Topic modeling (LDA) | Discover issue categories automatically | 8-15 topic clusters, each representing a support issue type |
-| Temporal analysis | Detect new or growing issues | Topic frequency by month, highlighting trends |
+| Analysis                            | Purpose                                                                   | Expected Output                                             |
+| ----------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Word frequency + TF-IDF             | Identify the dominant terms in support tickets                            | Ranked term list highlighting distinctive problem words     |
+| N-gram analysis (bigrams, trigrams) | Capture multi-word issue descriptions ("password reset", "billing error") | Ranked phrase list                                          |
+| Topic modeling (LDA)                | Discover issue categories automatically                                   | 8-15 topic clusters, each representing a support issue type |
+| Temporal analysis                   | Detect new or growing issues                                              | Topic frequency by month, highlighting trends               |
 
 ### Preprocessing Pipeline
 
-| Step | Operation | Configuration | Rationale |
-|------|-----------|---------------|-----------|
-| 1 | Text normalization | Lowercase all text; remove ticket IDs, timestamps, and agent signatures | Ticket metadata adds noise |
-| 2 | Tokenization | Word-level tokenization | Standard for frequency and topic analysis |
-| 3 | Stopword removal | English standard list + domain stopwords (see below) | Remove non-informative words |
-| 4 | Lemmatization | Dictionary-based lemmatization | "crashes" and "crashing" should count as one term |
-| 5 | Domain adjustments | Preserve multi-word terms; map abbreviations | "password reset" is one concept, not two |
+| Step | Operation          | Configuration                                                           | Rationale                                         |
+| ---- | ------------------ | ----------------------------------------------------------------------- | ------------------------------------------------- |
+| 1    | Text normalization | Lowercase all text; remove ticket IDs, timestamps, and agent signatures | Ticket metadata adds noise                        |
+| 2    | Tokenization       | Word-level tokenization                                                 | Standard for frequency and topic analysis         |
+| 3    | Stopword removal   | English standard list + domain stopwords (see below)                    | Remove non-informative words                      |
+| 4    | Lemmatization      | Dictionary-based lemmatization                                          | "crashes" and "crashing" should count as one term |
+| 5    | Domain adjustments | Preserve multi-word terms; map abbreviations                            | "password reset" is one concept, not two          |
 
 **Domain stopwords added:** "hi", "hello", "thanks", "thank", "please", "help", "need", "want", "issue", "problem", "ticket", "support", "team", "dear", "regards", "sincerely"
 
@@ -256,12 +259,14 @@ metadata:
 ### Analysis Configuration
 
 **Topic modeling parameters:**
+
 - Number of topics (K): Start with K=10, test K=8 and K=15, select based on coherence score
 - Top words per topic: 15
 - Iterations: 1,000 minimum
 - Target coherence: above 0.4
 
 **Temporal analysis parameters:**
+
 - Time windows: monthly (6 windows: September through February)
 - Metric: topic proportion per month (percentage of tickets assigned to each topic)
 - Trend detection: flag any topic whose monthly proportion increases by more than 50% relative to its 6-month average
@@ -270,37 +275,40 @@ metadata:
 
 #### Topic Model Output
 
-| Topic | Label | Top Words | Ticket Count | % of Total |
-|-------|-------|-----------|-------------|------------|
-| 1 | Login and Authentication | password, reset, login, locked, account, access, authentication, two-factor, email, verification | 820 | 16.4% |
-| 2 | Billing and Payments | billing, charge, payment, declined, invoice, refund, subscription, renewal, credit, amount | 710 | 14.2% |
-| 3 | Performance Issues | slow, loading, crash, freeze, timeout, performance, lag, response, speed, page | 650 | 13.0% |
-| 4 | Feature Requests | feature, add, integration, ability, option, support, export, import, connect, missing | 540 | 10.8% |
-| 5 | Data and Sync | data, sync, missing, lost, export, import, update, refresh, display, incorrect | 480 | 9.6% |
+| Topic | Label                    | Top Words                                                                                        | Ticket Count | % of Total |
+| ----- | ------------------------ | ------------------------------------------------------------------------------------------------ | ------------ | ---------- |
+| 1     | Login and Authentication | password, reset, login, locked, account, access, authentication, two-factor, email, verification | 820          | 16.4%      |
+| 2     | Billing and Payments     | billing, charge, payment, declined, invoice, refund, subscription, renewal, credit, amount       | 710          | 14.2%      |
+| 3     | Performance Issues       | slow, loading, crash, freeze, timeout, performance, lag, response, speed, page                   | 650          | 13.0%      |
+| 4     | Feature Requests         | feature, add, integration, ability, option, support, export, import, connect, missing            | 540          | 10.8%      |
+| 5     | Data and Sync            | data, sync, missing, lost, export, import, update, refresh, display, incorrect                   | 480          | 9.6%       |
 
 #### Temporal Trend Output
 
-| Topic | Sep | Oct | Nov | Dec | Jan | Feb | Trend |
-|-------|-----|-----|-----|-----|-----|-----|-------|
-| Login | 14% | 15% | 16% | 15% | 17% | 19% | Rising (35% increase) |
-| Billing | 13% | 14% | 14% | 16% | 14% | 13% | Stable |
-| Performance | 12% | 12% | 13% | 13% | 14% | 15% | Slight rise |
-| Feature Requests | 11% | 11% | 10% | 10% | 11% | 11% | Stable |
-| Data and Sync | 8% | 9% | 9% | 10% | 10% | 12% | Rising (50% increase -- flag) |
+| Topic            | Sep | Oct | Nov | Dec | Jan | Feb | Trend                         |
+| ---------------- | --- | --- | --- | --- | --- | --- | ----------------------------- |
+| Login            | 14% | 15% | 16% | 15% | 17% | 19% | Rising (35% increase)         |
+| Billing          | 13% | 14% | 14% | 16% | 14% | 13% | Stable                        |
+| Performance      | 12% | 12% | 13% | 13% | 14% | 15% | Slight rise                   |
+| Feature Requests | 11% | 11% | 10% | 10% | 11% | 11% | Stable                        |
+| Data and Sync    | 8%  | 9%  | 9%  | 10% | 10% | 12% | Rising (50% increase -- flag) |
 
 ### Interpretation Guide
 
 **Topic interpretation:**
+
 - Topic 1 (Login) accounts for the largest share of tickets. The rising trend suggests a growing authentication issue -- investigate recent changes to the login flow.
 - Topic 5 (Data and Sync) shows a 50% increase over 6 months. This is the strongest emerging trend and may indicate a new issue introduced by a recent feature or integration.
 - Topics with stable trends represent ongoing baseline issues. Prioritize by volume (Topic 2: Billing is the second-largest category).
 
 **Temporal trend interpretation:**
+
 - A rising trend means the issue is becoming more common relative to total ticket volume, not just in absolute numbers.
 - Seasonal effects may explain some variation: December billing spikes may correlate with annual subscription renewals.
 - A new topic appearing only in recent months (not in the original K=10 model) may indicate a genuinely new issue class -- rerun with K=12 or K=15 to check.
 
 ### Validation Protocol
+
 1. Manually review 100 randomly selected tickets and compare their assigned topics to a human reading
 2. For each topic, verify that the top 15 words form a coherent theme a support manager would recognize
 3. If any topic is incoherent (top words do not relate to each other), adjust K and rerun

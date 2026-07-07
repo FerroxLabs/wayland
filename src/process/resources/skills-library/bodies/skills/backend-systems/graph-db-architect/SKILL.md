@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql guide"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql guide'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Graph Database Architect
@@ -25,6 +25,7 @@ Graph databases model relationships as first-class citizens. Use them when your 
 ## When to Use a Graph Database
 
 **Ideal use cases:**
+
 - Social networks and influence analysis
 - Recommendation engines (collaborative filtering)
 - Fraud detection (transaction rings, identity networks)
@@ -35,6 +36,7 @@ Graph databases model relationships as first-class citizens. Use them when your 
 - Master data management (entity resolution)
 
 **Not ideal for:**
+
 - Simple CRUD with tabular data
 - Heavy aggregations over all data
 - Time-series or append-only workloads
@@ -416,21 +418,26 @@ MERGE (u)-[:FOLLOWS]->(f)
 # Graph Db Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

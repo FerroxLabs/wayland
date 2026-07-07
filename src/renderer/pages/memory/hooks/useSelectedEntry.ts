@@ -56,7 +56,7 @@ export function useSelectedEntry(): UseSelectedEntryResult {
       next.set('entry', id);
       setSearchParams(next, { replace: true });
     },
-    [searchParams, setSearchParams],
+    [searchParams, setSearchParams]
   );
 
   const clearSelection = useCallback(() => {

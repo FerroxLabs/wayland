@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql optimization"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql optimization'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Redis Specialist
@@ -199,7 +199,7 @@ const sha = await redis.scriptLoad(script);
 
 const allowed = await redis.evalsha(sha, {
   keys: [`rate:${userId}`],
-  arguments: ['60', '100', Date.now().toString()]
+  arguments: ['60', '100', Date.now().toString()],
 });
 ```
 
@@ -276,6 +276,7 @@ sentinel auth-pass mymaster your_password
 ```
 
 Sentinel provides:
+
 - **Monitoring**: Checks if master and replicas are working
 - **Notification**: Alerts via API when something goes wrong
 - **Automatic failover**: Promotes a replica to master if master fails
@@ -363,14 +364,14 @@ set-max-intset-entries 512         # use intset for small integer-only sets
 
 ### Eviction Policies
 
-| Policy | Description | Use Case |
-|--------|-------------|----------|
-| `noeviction` | Return error on writes when full | Critical data, no data loss |
-| `allkeys-lru` | Evict least recently used | General-purpose cache |
-| `allkeys-lfu` | Evict least frequently used | Cache with frequency matters |
-| `volatile-lru` | LRU among keys with TTL | Mixed persistent + cache |
-| `volatile-ttl` | Evict soonest-expiring keys | Time-sensitive cache |
-| `allkeys-random` | Random eviction | Uniform access patterns |
+| Policy           | Description                      | Use Case                     |
+| ---------------- | -------------------------------- | ---------------------------- |
+| `noeviction`     | Return error on writes when full | Critical data, no data loss  |
+| `allkeys-lru`    | Evict least recently used        | General-purpose cache        |
+| `allkeys-lfu`    | Evict least frequently used      | Cache with frequency matters |
+| `volatile-lru`   | LRU among keys with TTL          | Mixed persistent + cache     |
+| `volatile-ttl`   | Evict soonest-expiring keys      | Time-sensitive cache         |
+| `allkeys-random` | Random eviction                  | Uniform access patterns      |
 
 ## Common Application Patterns
 
@@ -475,6 +476,7 @@ async def release_lock(resource: str, lock_id: str) -> bool:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing redis specialist solutions
 - Reviewing or improving existing redis specialist approaches
 - Making architectural or implementation decisions about redis specialist
@@ -482,6 +484,7 @@ async def release_lock(resource: str, lock_id: str) -> bool:
 - Troubleshooting redis specialist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -492,21 +495,26 @@ async def release_lock(resource: str, lock_id: str) -> bool:
 # Redis Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

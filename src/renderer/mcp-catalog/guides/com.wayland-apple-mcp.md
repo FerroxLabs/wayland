@@ -17,8 +17,12 @@ steps:
   - id: full-disk-access
     title: Grant Full Disk Access to Wayland
     estSeconds: 60
-    externalAction: { label: "Open System Settings → Privacy & Security", url: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" }
-    primaryAction: { label: "Done - verify access", action: "verify-fda" }
+    externalAction:
+      {
+        label: 'Open System Settings → Privacy & Security',
+        url: 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles',
+      }
+    primaryAction: { label: 'Done - verify access', action: 'verify-fda' }
     body: |
       macOS guards Notes, Mail, and the EventKit databases (Calendar /
       Reminders) behind Full Disk Access. Without it, every tool call returns
@@ -44,4 +48,3 @@ steps:
 
 This MCP reads from and writes to your local macOS apps directly - no cloud,
 no API keys, no telemetry. Everything stays on the device.
-

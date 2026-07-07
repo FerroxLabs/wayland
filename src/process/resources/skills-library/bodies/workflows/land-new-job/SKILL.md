@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "resume-writing interview-prep career linkedin salary-negotiation step-by-step planning"
-  category: "career"
-  depends: "ats-resume-optimizer cover-letter-writer linkedin-summary-writer job-search-strategy interview-prep-plan salary-negotiation-script job-description-analyzer"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'resume-writing interview-prep career linkedin salary-negotiation step-by-step planning'
+  category: 'career'
+  depends: 'ats-resume-optimizer cover-letter-writer linkedin-summary-writer job-search-strategy interview-prep-plan salary-negotiation-script job-description-analyzer'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Land a New Job

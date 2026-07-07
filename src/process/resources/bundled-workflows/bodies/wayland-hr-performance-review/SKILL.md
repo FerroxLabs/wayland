@@ -12,14 +12,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "hr-review hr-1on1"
+skills: 'hr-review hr-1on1'
 metadata:
   author: wayland
   version: 1.0.0
   tags: hr performance-review development-plan feedback step-by-step planning
   category: hr
-  depends: "hr-review hr-1on1"
+  depends: 'hr-review hr-1on1'
 ---
+
 # Run a Performance Review
 
 **Estimated time:** 30-45 minutes

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml optimization architecture"
-  category: "ai-machine-learning"
-  subcategory: "ai-ml-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml optimization architecture'
+  category: 'ai-machine-learning'
+  subcategory: 'ai-ml-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Fine Tuning Strategy
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a pre-trained foundation model (LLM, vision model, or multimodal model) and needs to adapt it to a domain-specific task, writing style, or instruction format that prompting alone cannot achieve reliably
 - The user is experiencing persistent quality failures from prompt engineering -- for example, the base model produces structurally inconsistent outputs, ignores domain terminology, or fails to follow response formats even with detailed few-shot examples
 - The user needs to bake task-specific behavior into model weights for latency or cost reasons -- such as eliminating the need for long system prompts or expensive few-shot examples at inference time
@@ -29,6 +31,7 @@ metadata:
 - The user is evaluating whether fine-tuning is cost-justified against alternatives like retrieval-augmented generation (RAG), prompt caching, or model distillation
 
 **Do NOT use this skill when:**
+
 - The user's problem is a retrieval or knowledge freshness problem -- use a RAG pipeline design skill instead, since fine-tuning does not reliably inject factual knowledge and will hallucinate on dynamic data
 - The user wants to evaluate a model's quality or benchmark performance -- use a model evaluation skill that covers evaluation harnesses, benchmark datasets, and human evaluation protocols
 - The user needs to deploy or serve a fine-tuned model in production infrastructure -- use a model serving and deployment skill covering VLLM, TGI, or API gateway patterns
@@ -68,10 +71,10 @@ Dataset quality is the single most important variable in fine-tuning success -- 
 
 - **Define the input-output format precisely before collecting data.** Every training example must match the exact prompt template and output format you will use at inference time. Inconsistency between training and inference format is the most common cause of fine-tuning failure.
 - **Choose a data collection strategy based on availability:**
-  - *Human-labeled from scratch:* Highest quality, most expensive. Use annotation platforms with structured guidelines. Budget for 2--3 annotator passes with inter-annotator agreement measurement (Cohen's kappa >0.7 is acceptable).
-  - *Self-instruct / GPT-4 distillation:* Generate training examples using GPT-4o or Claude 3.5 Sonnet as a teacher model. Cost-effective for instruction-following tasks. Legal note: check the terms of service of the teacher model API -- some prohibit using outputs to train competing models.
-  - *Curated from existing logs:* Mine production logs for input-output pairs. Filter aggressively -- use an LLM judge to score quality and keep only the top 20--40% of examples.
-  - *Synthetic augmentation:* Use paraphrasing and backtranslation to expand limited datasets. Effective for format diversity, not for knowledge expansion.
+  - _Human-labeled from scratch:_ Highest quality, most expensive. Use annotation platforms with structured guidelines. Budget for 2--3 annotator passes with inter-annotator agreement measurement (Cohen's kappa >0.7 is acceptable).
+  - _Self-instruct / GPT-4 distillation:_ Generate training examples using GPT-4o or Claude 3.5 Sonnet as a teacher model. Cost-effective for instruction-following tasks. Legal note: check the terms of service of the teacher model API -- some prohibit using outputs to train competing models.
+  - _Curated from existing logs:_ Mine production logs for input-output pairs. Filter aggressively -- use an LLM judge to score quality and keep only the top 20--40% of examples.
+  - _Synthetic augmentation:_ Use paraphrasing and backtranslation to expand limited datasets. Effective for format diversity, not for knowledge expansion.
 - **Apply deduplication before training.** Use MinHash LSH or exact SHA-256 deduplication. Duplicate examples inflate apparent dataset size and cause overfitting on those specific patterns. A dataset with 30% duplicates behaves like a dataset 1/3 the stated size.
 - **Balance the label distribution.** For classification fine-tuning, ensure label balance within ±20%. For generation tasks, ensure diversity in input length, topic, and complexity. An unbalanced dataset produces a model biased toward the majority class.
 - **Format every example as a conversation or instruction-response pair** using the target model's chat template. For Llama-3-style models, use the BOS/EOS and role tags exactly as specified. For Mistral models, use `[INST]`/`[/INST]` formatting. Mismatched formatting is undetectable during training but produces garbage at inference.
@@ -440,7 +443,7 @@ Full fine-tuning of large models (>13B parameters) on narrow datasets routinely 
 
 - **Mix in 5--10% general-purpose instruction data** (from datasets like Alpaca, FLAN, or OpenHermes) with every training batch. This is called "replay" or "experience replay" and dramatically reduces forgetting.
 - **Use elastic weight consolidation (EWC)** if mixing general data is impractical -- EWC adds a regularization term that penalizes large changes to weights important for general tasks.
-- **Apply layer-wise learning rate decay** -- set learning rates 5--10x lower for early layers (which encode general knowledge) than later layers (which encode task-specific patterns). In transformers, early layers 0--8 should have lr * 0.1, middle layers lr * 0.3, last layers lr * 1.0.
+- **Apply layer-wise learning rate decay** -- set learning rates 5--10x lower for early layers (which encode general knowledge) than later layers (which encode task-specific patterns). In transformers, early layers 0--8 should have lr _ 0.1, middle layers lr _ 0.3, last layers lr \* 1.0.
 - **Prefer LoRA over full fine-tuning for any dataset smaller than 50k examples** -- LoRA's frozen base weights are inherently immune to catastrophic forgetting.
 
 ### Fine-Tuning Proprietary or Confidential Data
@@ -484,6 +487,7 @@ When using managed fine-tuning APIs rather than self-hosted training infrastruct
 ## Example
 
 **Input from user:**
+
 > "We have a legal tech startup. We want to fine-tune a model to extract structured data from commercial contracts -- specifically, extracting the parties, effective date, payment terms, governing law, and termination clauses from uploaded PDFs. We have about 800 labeled contracts. We're currently using GPT-4o with a detailed prompt and getting about 78% exact-match accuracy on our test set, and we want to get to 92%+. What fine-tuning strategy should you recommend?"
 
 ---
@@ -567,16 +571,16 @@ Input Format (CRITICAL -- must match inference exactly):
 
   Prompt template:
   [System]: You are a contract analysis assistant. Extract the following fields
-  from the contract text as a JSON object: parties (array of strings), 
-  effective_date (ISO 8601 string or null), payment_terms (string), 
-  governing_law (string), termination_clause (string). 
+  from the contract text as a JSON object: parties (array of strings),
+  effective_date (ISO 8601 string or null), payment_terms (string),
+  governing_law (string), termination_clause (string).
   Return ONLY valid JSON with no explanation.
   [User]: [CONTRACT TEXT]
   [Assistant]: {"parties": [...], "effective_date": "...", ...}
 
 Output Format:
-  Strict JSON. Every training example MUST have all 6 keys present, even if 
-  the value is null (for missing fields). This teaches the model to always 
+  Strict JSON. Every training example MUST have all 6 keys present, even if
+  the value is null (for missing fields). This teaches the model to always
   output a complete schema.
 
 Quality Filter Method:  Manual review of 80 random examples from your existing
@@ -616,3 +620,4 @@ SECTION 4: TRAINING CONFIGURATION
 | Weight decay            | 0.01           | Light regularization for 800 examples  |
 | Mixed precision         | bf16           | A100 native, lower loss than fp16      |
 | Optimizer               | paged_adamw_32bit | Reduces
+```

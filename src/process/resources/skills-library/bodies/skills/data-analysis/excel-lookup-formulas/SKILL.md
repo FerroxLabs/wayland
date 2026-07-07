@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets data-science template"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'spreadsheets data-science template'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Excel Lookup Formulas
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to pull a value from one table into another based on a matching key -- for example, joining employee IDs to salaries, product codes to descriptions, or order numbers to customer names
 - The user explicitly asks how to use VLOOKUP, HLOOKUP, INDEX/MATCH, XLOOKUP, or any combination of these functions
 - The user wants to replace a broken or slow VLOOKUP with a more robust alternative and needs guidance on which formula fits their structure
@@ -30,6 +32,7 @@ metadata:
 - The user needs case-sensitive matching, wildcard matching, or approximate match for bracket-based lookups (tax brackets, discount tiers, shipping weight bands)
 
 **Do NOT use when:**
+
 - The user wants to summarize data by grouping, aggregating, or pivoting -- use `pivot-table-builder` instead
 - The user wants to clean, normalize, or transform raw data values -- use `spreadsheet-data-cleaning` instead
 - The user wants to highlight cells based on conditions -- use `conditional-formatting-rules` instead
@@ -59,16 +62,16 @@ Before writing a single formula, collect precise details from the user. Misunder
 
 Use this decision framework precisely. Choosing the wrong formula wastes the user's time and produces brittle results.
 
-| Structural Situation | Recommended Formula | Why This Formula |
-|---|---|---|
-| Return column is to the RIGHT of lookup column, user is on Excel 2019 or older | VLOOKUP | Simplest syntax, universally familiar, no array requirement |
-| Return column is to the LEFT of the lookup column | INDEX/MATCH or XLOOKUP | VLOOKUP structurally cannot look left -- col_index_num cannot be negative |
-| User needs to return a value from a horizontal (row-oriented) table | HLOOKUP | Same mechanics as VLOOKUP but scans rows instead of columns; row_index_num works identically to col_index_num |
-| User is on Excel 365 or Excel 2021+ and comfort with modern functions is confirmed | XLOOKUP | Replaces VLOOKUP/HLOOKUP with a single function; handles left lookup, built-in error handling, exact match default, supports wildcard and approximate modes natively |
-| User needs row AND column lookup simultaneously | INDEX/MATCH/MATCH | Two nested MATCH functions find the row number and column number; INDEX returns the cell at their intersection |
-| User needs to match on two or more criteria simultaneously | INDEX/MATCH with concatenation (legacy) or XLOOKUP with array criteria (365) | VLOOKUP and single-criteria MATCH cannot evaluate two conditions natively |
-| User needs approximate match / bracket lookup | VLOOKUP with TRUE or MATCH with 1/-1 | Table must be sorted ascending for TRUE/1 or descending for -1; returns the largest value that is less than or equal to the lookup value |
-| Lookup value may contain leading/trailing spaces or inconsistent casing | Any formula wrapped with TRIM/LOWER | Normalization prevents the most common silent mismatch failures |
+| Structural Situation                                                               | Recommended Formula                                                          | Why This Formula                                                                                                                                                     |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Return column is to the RIGHT of lookup column, user is on Excel 2019 or older     | VLOOKUP                                                                      | Simplest syntax, universally familiar, no array requirement                                                                                                          |
+| Return column is to the LEFT of the lookup column                                  | INDEX/MATCH or XLOOKUP                                                       | VLOOKUP structurally cannot look left -- col_index_num cannot be negative                                                                                            |
+| User needs to return a value from a horizontal (row-oriented) table                | HLOOKUP                                                                      | Same mechanics as VLOOKUP but scans rows instead of columns; row_index_num works identically to col_index_num                                                        |
+| User is on Excel 365 or Excel 2021+ and comfort with modern functions is confirmed | XLOOKUP                                                                      | Replaces VLOOKUP/HLOOKUP with a single function; handles left lookup, built-in error handling, exact match default, supports wildcard and approximate modes natively |
+| User needs row AND column lookup simultaneously                                    | INDEX/MATCH/MATCH                                                            | Two nested MATCH functions find the row number and column number; INDEX returns the cell at their intersection                                                       |
+| User needs to match on two or more criteria simultaneously                         | INDEX/MATCH with concatenation (legacy) or XLOOKUP with array criteria (365) | VLOOKUP and single-criteria MATCH cannot evaluate two conditions natively                                                                                            |
+| User needs approximate match / bracket lookup                                      | VLOOKUP with TRUE or MATCH with 1/-1                                         | Table must be sorted ascending for TRUE/1 or descending for -1; returns the largest value that is less than or equal to the lookup value                             |
+| Lookup value may contain leading/trailing spaces or inconsistent casing            | Any formula wrapped with TRIM/LOWER                                          | Normalization prevents the most common silent mismatch failures                                                                                                      |
 
 **Key structural test to run mentally before selecting:** Count from the left edge of the table_array to the return column. If the return column is column 1 of the range (i.e., it is to the LEFT of the lookup column), VLOOKUP is disqualified immediately.
 
@@ -79,37 +82,45 @@ Use this decision framework precisely. Choosing the wrong formula wastes the use
 Write out every argument explicitly. Never abbreviate or skip optional arguments -- ambiguity causes user error.
 
 **VLOOKUP -- Full Syntax:**
+
 ```
 =VLOOKUP(lookup_value, table_array, col_index_num, range_lookup)
 ```
+
 - `lookup_value` -- The cell or value to find. Use relative row reference (A2) so it adjusts when copied down. If the lookup value is text that should be normalized, wrap it: `TRIM(LOWER(A2))`.
 - `table_array` -- The rectangular range containing both the lookup column and the return column. The lookup column MUST be the leftmost column of this range. Lock this range with absolute references: `$A$1:$D$500` or `Sheet2!$A:$D`. If the table is on another sheet, prefix it: `Sheet2!$A:$D`.
 - `col_index_num` -- An integer. Count from the LEFT edge of `table_array`. If table_array starts at column A and the return value is in column D, col_index_num is 4. This is relative to the range, not the sheet -- if table_array starts at column C, then column E is col_index_num 3.
 - `range_lookup` -- Always specify explicitly. `FALSE` (or `0`) for exact match. `TRUE` (or `1`) for approximate match. Never omit this argument -- Excel defaults to TRUE which causes silent wrong answers when the table is not sorted.
 
 **INDEX/MATCH -- Full Syntax:**
+
 ```
 =INDEX(return_range, MATCH(lookup_value, lookup_range, match_type))
 ```
+
 - `return_range` -- The single column (or row) containing the values to return. Can be anywhere on the sheet or another sheet. Lock with absolute references: `Sheet2!$C:$C`.
 - `MATCH(lookup_value, lookup_range, match_type)` -- Returns the row number (position) of the match within `lookup_range`. `match_type` of 0 = exact match (nearly always correct). 1 = find largest value ≤ lookup_value (table must be sorted ascending). -1 = find smallest value ≥ lookup_value (table must be sorted descending).
 - The `return_range` and `lookup_range` must span the same number of rows and be aligned -- if the lookup column has a header in row 1, the return column must also start at row 1.
 
 **XLOOKUP -- Full Syntax:**
+
 ```
 =XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found], [match_mode], [search_mode])
 ```
+
 - `lookup_value` -- The search key. Supports wildcards natively when `match_mode` is 2.
 - `lookup_array` -- The single column or row to search. Unlike VLOOKUP, this does NOT have to be the leftmost column of any table -- it can be any column, any position.
 - `return_array` -- The column or row to return values from. Can be to the left, right, above, or below the lookup array. Can also be a multi-column range -- XLOOKUP will spill multiple results.
 - `if_not_found` -- The value to return when no match exists. `"Not Found"`, `""`, or `0` are typical choices. If omitted, XLOOKUP returns #N/A on no match.
-- `match_mode` -- 0 = exact match (default). -1 = exact match or next smaller. 1 = exact match or next larger. 2 = wildcard match (*, ?, ~).
+- `match_mode` -- 0 = exact match (default). -1 = exact match or next smaller. 1 = exact match or next larger. 2 = wildcard match (\*, ?, ~).
 - `search_mode` -- 1 = first to last (default). -1 = last to first (use when you want the LAST match instead of the first). 2 = binary search ascending (faster on sorted large datasets). -2 = binary search descending.
 
 **HLOOKUP -- Full Syntax (horizontal tables):**
+
 ```
 =HLOOKUP(lookup_value, table_array, row_index_num, range_lookup)
 ```
+
 - Identical mechanics to VLOOKUP but searches the TOP ROW of table_array instead of the left column. `row_index_num` counts rows down from the top of the range. Use when data is organized with categories in a header row and values in rows below.
 
 ---
@@ -129,21 +140,26 @@ This is the most common situation where VLOOKUP fails users. If the return colum
 Every lookup formula delivered to a user must include an error wrapper. Unhandled #N/A errors cascade into SUM formulas (returning an error instead of a sum), AVERAGE formulas, and conditional formatting rules. They also confuse end users who are not formula-literate.
 
 **IFERROR (broadest catch -- recommended for production use):**
+
 ```
 =IFERROR(VLOOKUP(A2, Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 Catches all errors including #N/A, #VALUE!, #REF!, #DIV/0!. Use this when you want the formula to never show an error to the end user regardless of what goes wrong.
 
 **IFNA (narrow catch -- recommended for debugging):**
+
 ```
 =IFNA(VLOOKUP(A2, Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 Catches ONLY #N/A. Lets #VALUE!, #REF!, and #DIV/0! pass through as visible errors. This is better during development because a #REF! error means the range is wrong -- IFERROR would silently hide it.
 
 **XLOOKUP built-in handling:**
 The `if_not_found` argument of XLOOKUP makes an outer IFERROR redundant for #N/A cases. However, wrapping with IFERROR is still appropriate if the lookup_array or return_array could be invalid.
 
 **Return value choice for error handler:**
+
 - Use `""` (empty string) when the cell should appear blank and downstream formulas use COUNTIF or SUMIF (they ignore blank cells).
 - Use `0` when the cell is summed or averaged and a missing value is legitimately zero.
 - Use `"Not Found"` or `"Unknown"` when the cell is displayed to an end user and a missing value should be visually obvious.
@@ -157,9 +173,11 @@ The `if_not_found` argument of XLOOKUP makes an outer IFERROR redundant for #N/A
 Single-column lookup formulas fail when the user needs to match on two or more fields (e.g., match both "Region" AND "Product" to return a sales figure).
 
 **Concatenation method (all Excel versions):**
+
 ```
 =IFERROR(INDEX(Sheet2!$C:$C, MATCH(A2&B2, Sheet2!$A:$A&Sheet2!$B:$B, 0)), "Not Found")
 ```
+
 This must be entered as a **Ctrl+Shift+Enter array formula** in Excel 2019 and earlier, which wraps it in `{ }` braces. In Excel 365 and Google Sheets, array entry is automatic -- press Enter normally.
 
 - `A2&B2` concatenates the two lookup values into a single composite key (e.g., "EastWidget" from "East" and "Widget").
@@ -167,9 +185,11 @@ This must be entered as a **Ctrl+Shift+Enter array formula** in Excel 2019 and e
 - Both sides must concatenate in the same order and with the same delimiter (if used). If two values could overlap ambiguously -- e.g., "East" + "Widget" = "EastWidget" is the same as "Eas" + "tWidget" -- add a delimiter: `A2&"|"&B2` and `Sheet2!$A:$A&"|"&Sheet2!$B:$B`.
 
 **XLOOKUP array criteria method (Excel 365+):**
+
 ```
 =XLOOKUP(1, (Sheet2!$A:$A=A2)*(Sheet2!$B:$B=B2), Sheet2!$C:$C, "Not Found")
 ```
+
 Each condition evaluates to an array of 1s and 0s. Multiplying them together creates a single array where only rows matching ALL conditions equal 1. XLOOKUP searches for the value 1 in this computed array. This is cleaner than concatenation and avoids delimiter collision issues.
 
 ---
@@ -207,7 +227,7 @@ For datasets below 5,000 rows, performance differences between formula types are
 
 Deliver the formula solution using this complete structure. Every section must be populated -- do not omit sections because a formula is simple.
 
-```
+````
 ## Lookup Formula Solution
 
 ### Requirement Summary
@@ -228,9 +248,10 @@ Deliver the formula solution using this complete structure. Every section must b
 **Paste into cell [target cell reference]:**
 ```excel
 =[complete formula string -- every argument filled in with real values]
-```
+````
 
 **How it works:**
+
 - `[argument 1]` -- [what this specific value does in this specific formula]
 - `[argument 2]` -- [what this specific value does in this specific formula]
 - `[argument 3]` -- [what this specific value does in this specific formula]
@@ -241,9 +262,11 @@ Deliver the formula solution using this complete structure. Every section must b
 ### Alternative Formula
 
 **[Formula name] version (use when [specific condition]):**
+
 ```excel
 =[alternative complete formula string]
 ```
+
 [One sentence explaining the key structural difference and when to prefer this version]
 
 ---
@@ -253,6 +276,7 @@ Deliver the formula solution using this complete structure. Every section must b
 ```excel
 =[XLOOKUP complete formula string]
 ```
+
 [Note any advantages this version provides over the primary formula for this specific use case]
 
 ---
@@ -260,6 +284,7 @@ Deliver the formula solution using this complete structure. Every section must b
 ### Multi-Copy Instructions
 
 To apply this formula to all rows:
+
 - [Paste into the first data cell, e.g., B2]
 - [Drag the fill handle down, or double-click it to auto-fill to the last row]
 - [Lock references that must not shift: which references use $ and why]
@@ -272,7 +297,8 @@ To apply this formula to all rows:
 - **Range recommendation:** [Specific range recommendation, e.g., use $A$1:$C$5000 instead of $A:$C because...]
 - **Recalculation impact:** [Low / Medium / High and why]
 - **Optimization available:** [Yes/No and what it is, e.g., switch to XLOOKUP binary search if table is sorted]
-```
+
+````
 
 ---
 
@@ -310,25 +336,32 @@ To apply this formula to all rows:
 VLOOKUP structurally cannot return values from columns to the left of its lookup column because `col_index_num` must be a positive integer ≥ 1, and position 1 is always the leftmost column of `table_array`. There is no VLOOKUP workaround. Deliver INDEX/MATCH immediately:
 ```excel
 =IFERROR(INDEX(Sheet2!$A:$A, MATCH(B2, Sheet2!$C:$C, 0)), "Not Found")
-```
+````
+
 Explanation to user: "VLOOKUP's col_index_num counts rightward from the start of your table range. If the column you want to return is to the left of the column you're searching, the count would need to be zero or negative, which VLOOKUP does not support. INDEX/MATCH avoids this entirely because the lookup range and return range are specified as separate, independent arguments."
 
 ---
 
 ### Lookup Value Contains Leading/Trailing Spaces or Extra Internal Spaces
+
 This is the most common cause of lookup formulas returning #N/A when the user insists "the value is definitely there." A product ID of "A102 " (trailing space) will not match "A102" even though they look identical in a cell. Handle with TRIM:
+
 ```excel
 =IFERROR(VLOOKUP(TRIM(A2), Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 For extra internal spaces (multiple spaces between words), use TRIM combined with SUBSTITUTE:
+
 ```excel
 =IFERROR(VLOOKUP(TRIM(SUBSTITUTE(A2, " ", " ")), Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 Also recommend trimming the source column in Sheet2: `=TRIM(A2)` copied to a helper column, then paste-as-values to replace the original. Note that TRIM removes leading and trailing spaces and collapses internal multiple spaces to single spaces -- this is usually the desired behavior.
 
 ---
 
 ### Duplicate Lookup Values in the Source Table
+
 VLOOKUP, INDEX/MATCH, and XLOOKUP (with default search_mode 1) all return only the FIRST match in the table. If the source table has duplicate keys, the formula silently returns one result and ignores others. Provide guidance based on what the user actually needs:
 
 - **If they want the LAST match:** `=XLOOKUP(A2, Sheet2!$A:$A, Sheet2!$C:$C, "Not Found", 0, -1)` -- set `search_mode` to -1 to search last to first.
@@ -340,10 +373,13 @@ VLOOKUP, INDEX/MATCH, and XLOOKUP (with default search_mode 1) all return only t
 ---
 
 ### Case-Sensitive Matching Required
+
 VLOOKUP, MATCH, and XLOOKUP are case-insensitive by default. "apple", "Apple", and "APPLE" are treated as identical. This is a problem when lookup keys are case-sensitive codes or passwords. Solution using EXACT function:
+
 ```excel
 =IFERROR(INDEX(Sheet2!$B:$B, MATCH(TRUE, EXACT(A2, Sheet2!$A:$A), 0)), "Not Found")
 ```
+
 - In Excel 2019 and earlier, this must be entered as an **array formula** with Ctrl+Shift+Enter.
 - In Excel 365 and Google Sheets, press Enter normally (dynamic array support handles it).
 - The EXACT function returns TRUE only when both the value AND the case match exactly. MATCH then finds the first TRUE in the resulting array.
@@ -352,10 +388,13 @@ VLOOKUP, MATCH, and XLOOKUP are case-insensitive by default. "apple", "Apple", a
 ---
 
 ### Two-Dimensional Lookup (Row AND Column Intersection)
+
 When the user has a matrix -- for example, a pricing grid where rows are products and columns are regions -- they need to look up both a row value and a column value simultaneously. INDEX/MATCH/MATCH is the correct formula:
+
 ```excel
 =IFERROR(INDEX(Sheet2!$B$2:$F$10, MATCH(A2, Sheet2!$A$2:$A$10, 0), MATCH(B2, Sheet2!$B$1:$F$1, 0)), "Not Found")
 ```
+
 - First MATCH finds the row position: `MATCH(A2, Sheet2!$A$2:$A$10, 0)` -- searches the row headers (left column) for the row lookup value.
 - Second MATCH finds the column position: `MATCH(B2, Sheet2!$B$1:$F$1, 0)` -- searches the column headers (top row) for the column lookup value.
 - INDEX returns the value at the intersection: the data range `$B$2:$F$10` excludes the headers -- it is purely the data body.
@@ -364,23 +403,29 @@ When the user has a matrix -- for example, a pricing grid where rows are product
 ---
 
 ### Wildcard Lookup (Partial Text Match)
+
 Sometimes the user needs to look up a partial string -- for example, finding a customer record when only part of their name is known, or matching product codes that share a prefix.
 
 **VLOOKUP with wildcard:**
+
 ```excel
 =IFERROR(VLOOKUP("*"&A2&"*", Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 The `*` wildcard matches any sequence of characters before or after the search string. Use `?` to match exactly one character.
 
 **INDEX/MATCH with wildcard:**
+
 ```excel
 =IFERROR(INDEX(Sheet2!$C:$C, MATCH("*"&A2&"*", Sheet2!$A:$A, 0)), "Not Found")
 ```
 
 **XLOOKUP with wildcard (cleaner syntax):**
+
 ```excel
 =XLOOKUP("*"&A2&"*", Sheet2!$A:$A, Sheet2!$C:$C, "Not Found", 2)
 ```
+
 Set `match_mode` to 2 to enable wildcard matching in XLOOKUP.
 
 **Warning:** Wildcard lookups return the first match. If multiple rows contain the partial string, only one result is returned. Inform the user and suggest FILTER for multi-result wildcard retrieval.
@@ -388,19 +433,23 @@ Set `match_mode` to 2 to enable wildcard matching in XLOOKUP.
 ---
 
 ### Numbers Stored as Text (Type Mismatch Failure)
+
 This is the second most common cause of lookup #N/A after whitespace issues. A cell that looks like `1042` but is stored as text will not match a lookup value of `1042` stored as a number. The cell will show a small green triangle in the upper-left corner in Excel, or will be left-aligned rather than right-aligned.
 
 Detection: If the formula returns #N/A but the value clearly exists in the table, check alignment of both cells. Text is left-aligned; numbers are right-aligned by default.
 
 **Fix for text-formatted numbers in the lookup value cell:**
+
 ```excel
 =IFERROR(VLOOKUP(VALUE(A2), Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
 
 **Fix for text-formatted numbers in the lookup column of the source table:**
+
 ```excel
 =IFERROR(VLOOKUP(TEXT(A2, "0"), Sheet2!$A:$D, 3, FALSE), "Not Found")
 ```
+
 This converts the numeric lookup value to text to match the text-formatted source column. Confirm which side of the mismatch has the wrong type before applying the fix.
 
 **Long-term recommendation:** Fix the source data type rather than compensating in the formula. Use Data > Text to Columns on the source column (select the column, go to Data > Text to Columns, click Finish immediately) to force Excel to re-evaluate the data type.
@@ -416,27 +465,30 @@ This converts the numeric lookup value to text to match the text-formatted sourc
 ## Lookup Formula Solution
 
 ### Requirement Summary
-| Parameter | Value |
-|---|---|
-| Lookup value | B2 (Sales Rep ID on Sheet1) |
-| Lookup column | Sheet2!$A:$A (Sales Rep ID directory) |
-| Return column -- Name | Sheet2!$B:$B (Full Name -- 2nd column of Sheet2!$A:$D) |
-| Return column -- Region | Sheet2!$C:$C (Region -- 3rd column of Sheet2!$A:$D) |
-| Return column position | Name = col_index_num 2; Region = col_index_num 3 (counting from left edge of Sheet2!$A:$D) |
-| Match type | Exact match -- Sales Rep IDs are discrete codes, not ranges |
-| Error behavior | "Pending Assignment" when Sales Rep ID is not found in directory |
-| Excel version | Excel 2019 -- XLOOKUP is NOT available; use VLOOKUP or INDEX/MATCH |
+
+| Parameter               | Value                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| Lookup value            | B2 (Sales Rep ID on Sheet1)                                                                |
+| Lookup column           | Sheet2!$A:$A (Sales Rep ID directory)                                                      |
+| Return column -- Name   | Sheet2!$B:$B (Full Name -- 2nd column of Sheet2!$A:$D)                                     |
+| Return column -- Region | Sheet2!$C:$C (Region -- 3rd column of Sheet2!$A:$D)                                        |
+| Return column position  | Name = col_index_num 2; Region = col_index_num 3 (counting from left edge of Sheet2!$A:$D) |
+| Match type              | Exact match -- Sales Rep IDs are discrete codes, not ranges                                |
+| Error behavior          | "Pending Assignment" when Sales Rep ID is not found in directory                           |
+| Excel version           | Excel 2019 -- XLOOKUP is NOT available; use VLOOKUP or INDEX/MATCH                         |
 
 ---
 
 ### Primary Formula -- Sales Rep Full Name (Sheet1 column C)
 
 **Paste into Sheet1 cell C2:**
+
 ```excel
 =IFERROR(VLOOKUP(B2, Sheet2!$A:$D, 2, FALSE), "Pending Assignment")
 ```
 
 **How it works:**
+
 - `B2` -- Takes the Sales Rep ID from the current row in column B; uses a relative row reference so it adjusts to C3, C4, etc. when copied down
 - `Sheet2!$A:$D` -- Searches the rep directory on Sheet2, columns A through D; the `$` signs lock this range so it does not shift when the formula is copied
 - `2` -- Returns the value from the 2nd column of the range Sheet2!$A:$D, which is column B (Full Name); counted as: A=1, B=2
@@ -448,11 +500,13 @@ This converts the numeric lookup value to text to match the text-formatted sourc
 ### Primary Formula -- Region (Sheet1 column D)
 
 **Paste into Sheet1 cell D2:**
+
 ```excel
 =IFERROR(VLOOKUP(B2, Sheet2!$A:$D, 3, FALSE), "Pending Assignment")
 ```
 
 **How it works:**
+
 - `B2` -- Same Sales Rep ID lookup value as the name formula
 - `Sheet2!$A:$D` -- Same locked source range
 - `3` -- Returns the value from the 3rd column of the range Sheet2!$A:$D, which is column C (Region); counted as: A=1, B=2, C=3
@@ -466,11 +520,13 @@ This converts the numeric lookup value to text to match the text-formatted sourc
 **Use when you need more flexibility or if the Sales Rep ID column moves away from being the leftmost column in Sheet2:**
 
 Full Name (Sheet1 column C):
+
 ```excel
 =IFERROR(INDEX(Sheet2!$B:$B, MATCH(B2, Sheet2!$A:$A, 0)), "Pending Assignment")
 ```
 
 Region (Sheet1 column D):
+
 ```excel
 =IFERROR(INDEX(Sheet2!$C:$C, MATCH(B2, Sheet2!$A:$A, 0)), "Pending Assignment")
 ```
@@ -482,11 +538,13 @@ Region (Sheet1 column D):
 ### Note on XLOOKUP (Not Available in Excel 2019)
 
 If you ever upgrade to Excel 365 or Excel 2021, the equivalent formula for Full Name would be:
+
 ```excel
 =XLOOKUP(B2, Sheet2!$A:$A, Sheet2!$B:$B, "Pending Assignment")
 ```
 
 And for Region:
+
 ```excel
 =XLOOKUP(B2, Sheet2!$A:$A, Sheet2!$C:$C, "Pending Assignment")
 ```

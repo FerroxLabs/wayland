@@ -180,7 +180,7 @@ if (win.electronAPI) {
           window.clearTimeout(reconnectTimer);
           reconnectTimer = null;
         }
-          // Skip redirect if already on login page to prevent infinite reload loop
+        // Skip redirect if already on login page to prevent infinite reload loop
         if (window.location.pathname === '/login' || window.location.hash.includes('/login')) {
           return;
         }

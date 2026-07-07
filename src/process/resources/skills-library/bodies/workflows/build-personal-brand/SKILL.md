@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "linkedin career branding content-marketing step-by-step planning"
-  category: "career"
-  depends: "personal-brand-strategy linkedin-summary-writer content-brief linkedin-post audience-analysis"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'linkedin career branding content-marketing step-by-step planning'
+  category: 'career'
+  depends: 'personal-brand-strategy linkedin-summary-writer content-brief linkedin-post audience-analysis'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Build a Personal Brand

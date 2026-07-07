@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Hydration & Habit Tracker
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about hydration tracker
 - User needs guidance on hydration tracker topics
 - User wants a structured approach to hydration tracker
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -72,6 +74,7 @@ HYDRATION ASSESSMENT
 ### Base Calculation Methods
 
 **Method 1: Body Weight Formula (most commonly recommended)**
+
 ```
 Daily water (oz) = Body weight (lbs) x 0.5
 
@@ -79,6 +82,7 @@ Example: 160 lbs x 0.5 = 80 oz per day (about 10 cups or 2.4 liters)
 ```
 
 **Method 2: Metric Calculation**
+
 ```
 Daily water (mL) = Body weight (kg) x 30-35 mL
 
@@ -86,6 +90,7 @@ Example: 73 kg x 33 mL = 2,409 mL per day (about 2.4 liters)
 ```
 
 **Method 3: General Guidelines (National Academies of Sciences)**
+
 - Men: Approximately 125 oz (3.7 L) total water per day (from all sources)
 - Women: Approximately 91 oz (2.7 L) total water per day (from all sources)
 - About 80% from beverages, 20% from food
@@ -122,14 +127,14 @@ Divide into ___ servings of ___ oz throughout the day
 
 ### Intake by Category
 
-| Category | Daily Intake Range | Notes |
-|----------|-------------------|-------|
-| Sedentary adult | 64-80 oz (1.9-2.4 L) | Minimum for general health |
-| Active adult | 80-120 oz (2.4-3.5 L) | Depending on exercise intensity |
-| Endurance athlete | 100-150+ oz (3-4.4+ L) | Plus during-exercise hydration |
-| Pregnant | 80-100 oz (2.4-3 L) | Consult OB for specifics |
-| Breastfeeding | 100-130 oz (3-3.8 L) | Increased demand for milk production |
-| Older adults (65+) | 64-80 oz (1.9-2.4 L) | Thirst sensation may be reduced |
+| Category           | Daily Intake Range     | Notes                                |
+| ------------------ | ---------------------- | ------------------------------------ |
+| Sedentary adult    | 64-80 oz (1.9-2.4 L)   | Minimum for general health           |
+| Active adult       | 80-120 oz (2.4-3.5 L)  | Depending on exercise intensity      |
+| Endurance athlete  | 100-150+ oz (3-4.4+ L) | Plus during-exercise hydration       |
+| Pregnant           | 80-100 oz (2.4-3 L)    | Consult OB for specifics             |
+| Breastfeeding      | 100-130 oz (3-3.8 L)   | Increased demand for milk production |
+| Older adults (65+) | 64-80 oz (1.9-2.4 L)   | Thirst sensation may be reduced      |
 
 ## Hydration Schedule Templates
 
@@ -179,6 +184,7 @@ POST-WORKOUT REHYDRATION PROTOCOL:
 ## Dehydration Signs and Stages
 
 ### Early Warning Signs (Mild Dehydration - 1-3% body weight loss)
+
 - Thirst (already mildly dehydrated when you feel thirsty)
 - Darker yellow urine
 - Dry lips and mouth
@@ -186,6 +192,7 @@ POST-WORKOUT REHYDRATION PROTOCOL:
 - Mild headache
 
 ### Moderate Dehydration (3-5% body weight loss)
+
 - Very dark urine or decreased urine output
 - Dry skin (skin tenting test: pinch back of hand, slow return)
 - Dizziness or lightheadedness
@@ -195,6 +202,7 @@ POST-WORKOUT REHYDRATION PROTOCOL:
 - Irritability
 
 ### Severe Dehydration (5%+ body weight loss - SEEK MEDICAL HELP)
+
 - Very little or no urine output
 - Very dry skin and mucous membranes
 - Sunken eyes
@@ -226,15 +234,16 @@ general guide alongside other signs.
 
 ### Key Electrolytes and Functions
 
-| Electrolyte | Function | Food Sources | Daily Need |
-|------------|----------|-------------|-----------|
-| Sodium | Fluid balance, nerve function | Salt, broth, cheese | 1500-2300 mg |
-| Potassium | Muscle function, heart rhythm | Bananas, potatoes, spinach, avocado | 2600-3400 mg |
-| Magnesium | Muscle/nerve function, energy | Nuts, seeds, leafy greens, dark chocolate | 310-420 mg |
-| Calcium | Bones, muscle contraction | Dairy, fortified foods, leafy greens | 1000-1300 mg |
-| Chloride | Fluid balance, digestion | Salt, seaweed, tomatoes | 1800-2300 mg |
+| Electrolyte | Function                      | Food Sources                              | Daily Need   |
+| ----------- | ----------------------------- | ----------------------------------------- | ------------ |
+| Sodium      | Fluid balance, nerve function | Salt, broth, cheese                       | 1500-2300 mg |
+| Potassium   | Muscle function, heart rhythm | Bananas, potatoes, spinach, avocado       | 2600-3400 mg |
+| Magnesium   | Muscle/nerve function, energy | Nuts, seeds, leafy greens, dark chocolate | 310-420 mg   |
+| Calcium     | Bones, muscle contraction     | Dairy, fortified foods, leafy greens      | 1000-1300 mg |
+| Chloride    | Fluid balance, digestion      | Salt, seaweed, tomatoes                   | 1800-2300 mg |
 
 ### When You Need Electrolytes (not just water)
+
 - Exercise lasting more than 60 minutes
 - Heavy sweating (hot weather, intense activity)
 - Illness with vomiting or diarrhea
@@ -313,6 +322,7 @@ EVENING:
 ### The Two-Minute Rule
 
 Start with the smallest possible version of the habit:
+
 - Instead of "Drink 80 oz of water daily" -> "Fill my water bottle every morning"
 - Instead of "Track every ounce" -> "Mark a checkbox when I finish a bottle"
 - Build consistency first, optimize quantity second
@@ -393,15 +403,15 @@ Longest streak: ___ days
 
 ### Reminder Strategies
 
-| Strategy | How It Works | Best For |
-|----------|-------------|----------|
-| Phone alarms | Set alarms every 1-2 hours | Structured schedules |
-| App notifications | Use a hydration app | Tech-friendly users |
-| Visual cues | Keep water bottle visible on desk | Visual learners |
-| Habit stacking | Pair with existing habits | Routine-oriented people |
-| Rubber band method | Move rubber bands from one wrist to the other per glass | Tactile learners |
-| Tally marks | Mark your hand or a note card | Minimalists |
-| Accountability partner | Check in with someone daily | Social motivation |
+| Strategy               | How It Works                                            | Best For                |
+| ---------------------- | ------------------------------------------------------- | ----------------------- |
+| Phone alarms           | Set alarms every 1-2 hours                              | Structured schedules    |
+| App notifications      | Use a hydration app                                     | Tech-friendly users     |
+| Visual cues            | Keep water bottle visible on desk                       | Visual learners         |
+| Habit stacking         | Pair with existing habits                               | Routine-oriented people |
+| Rubber band method     | Move rubber bands from one wrist to the other per glass | Tactile learners        |
+| Tally marks            | Mark your hand or a note card                           | Minimalists             |
+| Accountability partner | Check in with someone daily                             | Social motivation       |
 
 ### Environment Design for Hydration
 
@@ -415,17 +425,20 @@ Longest streak: ___ days
 ## Hydration for Athletes
 
 ### Pre-Exercise Protocol
+
 - **2-4 hours before:** Drink 16-20 oz (500-600 mL)
 - **15-30 minutes before:** Drink 8-12 oz (240-350 mL)
 - **Assess:** Urine should be light yellow before starting
 
 ### During Exercise Protocol
+
 - **General:** 7-10 oz (200-300 mL) every 10-20 minutes
 - **Duration under 60 min:** Water is sufficient
 - **Duration over 60 min:** Add electrolytes (sodium 300-600 mg/hour)
 - **Hot conditions:** Increase intake; consider pre-cooling strategies
 
 ### Post-Exercise Protocol
+
 - **Weigh before and after:** Drink 16-24 oz per pound lost
 - **Within 30 minutes:** Begin rehydration with electrolytes
 - **Recovery drink:** Water + sodium + carbohydrates for optimal absorption
@@ -457,51 +470,53 @@ Fully rehydrate after exercise
 ## What Counts Toward Hydration
 
 ### Beverages That Hydrate
-| Beverage | Hydration Value | Notes |
-|----------|----------------|-------|
-| Water | Excellent | Gold standard |
-| Herbal tea | Excellent | Caffeine-free varieties |
-| Milk | Good | Also provides protein, calcium |
-| Fruit-infused water | Excellent | Adds flavor without calories |
-| Coconut water | Good | Natural electrolytes |
-| Decaf coffee/tea | Good | Minimal diuretic effect |
-| Diluted juice | Moderate | Watch sugar content |
-| Broth/soup | Good | Also provides sodium |
+
+| Beverage            | Hydration Value | Notes                          |
+| ------------------- | --------------- | ------------------------------ |
+| Water               | Excellent       | Gold standard                  |
+| Herbal tea          | Excellent       | Caffeine-free varieties        |
+| Milk                | Good            | Also provides protein, calcium |
+| Fruit-infused water | Excellent       | Adds flavor without calories   |
+| Coconut water       | Good            | Natural electrolytes           |
+| Decaf coffee/tea    | Good            | Minimal diuretic effect        |
+| Diluted juice       | Moderate        | Watch sugar content            |
+| Broth/soup          | Good            | Also provides sodium           |
 
 ### Beverages That May Dehydrate
-| Beverage | Impact | Guidance |
-|----------|--------|----------|
-| Coffee (caffeinated) | Mild diuretic | Moderate amounts (3-4 cups) still provide net hydration |
-| Tea (caffeinated) | Mild diuretic | Similar to coffee at moderate amounts |
-| Alcohol | Diuretic | Match each drink with a glass of water |
-| Energy drinks | Variable | High caffeine + sugar; not ideal for hydration |
-| Sugary sodas | Minimal hydration | High sugar impairs absorption; avoid as primary source |
+
+| Beverage             | Impact            | Guidance                                                |
+| -------------------- | ----------------- | ------------------------------------------------------- |
+| Coffee (caffeinated) | Mild diuretic     | Moderate amounts (3-4 cups) still provide net hydration |
+| Tea (caffeinated)    | Mild diuretic     | Similar to coffee at moderate amounts                   |
+| Alcohol              | Diuretic          | Match each drink with a glass of water                  |
+| Energy drinks        | Variable          | High caffeine + sugar; not ideal for hydration          |
+| Sugary sodas         | Minimal hydration | High sugar impairs absorption; avoid as primary source  |
 
 ### Hydrating Foods (approximate water content)
-| Food | Water Content |
-|------|--------------|
-| Cucumber | 96% |
-| Lettuce | 96% |
-| Celery | 95% |
-| Watermelon | 92% |
-| Strawberries | 91% |
-| Cantaloupe | 90% |
-| Oranges | 87% |
-| Yogurt | 85% |
-| Apples | 84% |
-| Grapes | 81% |
+
+| Food         | Water Content |
+| ------------ | ------------- |
+| Cucumber     | 96%           |
+| Lettuce      | 96%           |
+| Celery       | 95%           |
+| Watermelon   | 92%           |
+| Strawberries | 91%           |
+| Cantaloupe   | 90%           |
+| Oranges      | 87%           |
+| Yogurt       | 85%           |
+| Apples       | 84%           |
+| Grapes       | 81%           |
 
 ## Common Hydration Myths
 
-| Myth | Reality |
-|------|---------|
-| "You need 8 glasses a day" | Needs vary by individual; 8 glasses is a reasonable starting point but not universal |
-| "Coffee dehydrates you" | Moderate coffee consumption provides net hydration |
-| "Clear urine means you're hydrated" | Consistently clear urine may indicate over-hydration; aim for light yellow |
-| "Thirst means you're already dehydrated" | Thirst is an early signal; mild dehydration begins before severe symptoms |
-| "You can't drink too much water" | Over-hydration (hyponatremia) is real and dangerous, especially during endurance events |
-| "Sports drinks are always better" | Water is sufficient for most activity under 60 minutes |
-
+| Myth                                     | Reality                                                                                 |
+| ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| "You need 8 glasses a day"               | Needs vary by individual; 8 glasses is a reasonable starting point but not universal    |
+| "Coffee dehydrates you"                  | Moderate coffee consumption provides net hydration                                      |
+| "Clear urine means you're hydrated"      | Consistently clear urine may indicate over-hydration; aim for light yellow              |
+| "Thirst means you're already dehydrated" | Thirst is an early signal; mild dehydration begins before severe symptoms               |
+| "You can't drink too much water"         | Over-hydration (hyponatremia) is real and dangerous, especially during endurance events |
+| "Sports drinks are always better"        | Water is sufficient for most activity under 60 minutes                                  |
 
 ## Output Format
 

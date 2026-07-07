@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Digital Illustrator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on digital illustrator
 - User asks about digital illustrator best practices or techniques
 - User wants a structured approach to digital illustrator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of digital illustrator
 
@@ -60,7 +61,9 @@ Before providing illustration guidance:
 ## Software Guide
 
 ### Procreate (iPad)
+
 **Best for**: Painting, sketching, concept art, illustration with a natural drawing feel.
+
 - Intuitive interface, minimal learning curve
 - Excellent Apple Pencil integration with pressure and tilt sensitivity
 - Extensive brush library with full customization
@@ -72,7 +75,9 @@ Before providing illustration guidance:
 **Limitations**: iPad only, no vector tools, limited text handling, fewer advanced compositing features than Photoshop.
 
 ### Adobe Photoshop
+
 **Best for**: Digital painting, photo manipulation, compositing, complex multi-layer illustrations.
+
 - Industry standard with the deepest feature set
 - Powerful layer management with adjustment layers, smart objects, and blending modes
 - Excellent brush engine with extensive customization
@@ -81,7 +86,9 @@ Before providing illustration guidance:
 - Subscription-based pricing
 
 ### Adobe Illustrator
+
 **Best for**: Vector illustration, logos, icons, patterns, technical illustration, print design.
+
 - Resolution-independent vector graphics that scale to any size
 - Pen tool for precise path creation
 - Shape Builder and Pathfinder for complex shape operations
@@ -90,7 +97,9 @@ Before providing illustration guidance:
 - Essential for work that needs to scale (logos, signage, large format)
 
 ### Clip Studio Paint
+
 **Best for**: Comics, manga, character illustration, detailed linework.
+
 - Superior line stabilization for clean inking
 - Built-in comic panel tools, speech bubbles, and page management
 - Vector layers for editable linework
@@ -99,6 +108,7 @@ Before providing illustration guidance:
 - One-time purchase or affordable subscription
 
 ### Choosing Your Primary Tool
+
 - **iPad artist on the go**: Procreate
 - **Painterly digital art**: Photoshop or Procreate
 - **Comics and line art**: Clip Studio Paint
@@ -109,7 +119,9 @@ Before providing illustration guidance:
 ## Digital Painting Techniques
 
 ### Blocking In
+
 Start every painting with broad shapes of color and value:
+
 1. Create a rough sketch layer at low opacity
 2. On a new layer below the sketch, block in the major shapes with flat colors
 3. Use a large, hard-edged brush. Do not worry about detail.
@@ -117,19 +129,23 @@ Start every painting with broad shapes of color and value:
 5. Squint at the canvas frequently. If the composition reads well when blurry, the foundation is solid.
 
 ### Value Structure
+
 Value (lightness and darkness) is more important than color for creating readable, impactful images:
+
 - Work in grayscale first to establish the value structure
 - Use a limited value range for most of the painting (3-5 values), reserving extreme lights and darks for focal points
 - The highest contrast in the painting should be at the focal point
 - Test your values by desaturating the image periodically
 
 ### Color Theory for Digital Painting
+
 - **Limited palette**: Choose 3-5 base colors and mix from those. Consistency comes from a limited palette.
 - **Color temperature**: Warm lights (sun, fire) create cool shadows. Cool lights (overcast, moonlight) create warm shadows. Temperature contrast adds vibrancy.
 - **Saturation control**: Saturated colors attract the eye. Use high saturation sparingly at the focal point. Keep secondary areas lower in saturation.
 - **Color harmony schemes**: Complementary (opposing colors), analogous (adjacent colors), triadic (three evenly spaced colors). Use these as starting points, not rigid rules.
 
 ### Rendering Workflow
+
 1. **Block-in**: Flat shapes, 2-3 values
 2. **Light and shadow**: Define the light direction. Paint shadows and highlight masses.
 3. **Form turning**: Transition between light and shadow. This is where volume is created.
@@ -138,7 +154,9 @@ Value (lightness and darkness) is more important than color for creating readabl
 6. **Final polish**: Color adjustments, atmosphere, final highlights and accents.
 
 ### Brush Settings and Customization
+
 Essential brush types:
+
 - **Hard round**: The workhorse. Sharp edges, full control. Good for blocking, rendering, and detail.
 - **Soft round**: Smooth gradients and atmospheric effects. Use sparingly -- overuse creates mushy, undefined paintings.
 - **Textured brush**: Adds surface quality (chalk, oil paint, watercolor). Breaks up the sterile digital look.
@@ -146,6 +164,7 @@ Essential brush types:
 - **Rake/multi-tip brush**: For hair, grass, and organic textures.
 
 Key settings to experiment with:
+
 - **Opacity linked to pressure**: Light touch = transparent, heavy touch = opaque. The most natural painting feel.
 - **Size linked to pressure**: Creates tapered, calligraphic strokes.
 - **Transfer and flow**: Controls how paint accumulates as you hold the brush in one spot.
@@ -154,6 +173,7 @@ Key settings to experiment with:
 ## Vector Illustration Workflow
 
 ### When to Use Vector
+
 - Logos and brand marks (must scale to any size)
 - Icons and UI elements
 - Pattern design for textiles and surfaces
@@ -163,6 +183,7 @@ Key settings to experiment with:
 - Any work that needs to be resized without quality loss
 
 ### Illustrator Workflow
+
 1. **Sketch**: Draw a rough sketch on paper or digitally. Import as a template layer.
 2. **Paths**: Use the Pen tool to trace clean paths over the sketch. Fewer anchor points = smoother curves.
 3. **Shape building**: Combine basic shapes using Pathfinder (unite, subtract, intersect) or Shape Builder (draw through overlapping shapes).
@@ -172,7 +193,9 @@ Key settings to experiment with:
 7. **Export**: AI for editable files, SVG for web, PDF for print, PNG for raster use.
 
 ### Pen Tool Mastery
+
 The Pen tool is the foundation of vector work:
+
 - Click to create corner points, click-and-drag to create smooth curves
 - Use as few anchor points as possible. Four points can create a perfect circle.
 - Hold Alt/Option while dragging a handle to break the curve into a corner
@@ -182,6 +205,7 @@ The Pen tool is the foundation of vector work:
 ## Layers and Blending Modes
 
 ### Layer Organization
+
 - Name every layer. "Layer 47" is useless when you have 100 layers.
 - Group related layers (character, background, effects, linework)
 - Use clipping masks to paint within the boundaries of a layer below
@@ -189,6 +213,7 @@ The Pen tool is the foundation of vector work:
 - Merge layers periodically to keep the file manageable, but keep major elements on separate layers
 
 ### Essential Blending Modes
+
 - **Multiply**: Darkens. Transparent whites, preserved darks. Excellent for shadows and overlay textures.
 - **Screen**: Lightens. Transparent blacks, preserved lights. Good for glow effects and light sources.
 - **Overlay / Soft Light**: Increases contrast and color saturation. Good for lighting effects and color adjustments.
@@ -196,7 +221,9 @@ The Pen tool is the foundation of vector work:
 - **Color**: Changes the hue and saturation of layers below without affecting value. Useful for recoloring.
 
 ### Layer Workflow for Illustration
+
 Typical layer stack from bottom to top:
+
 1. Background color
 2. Background elements
 3. Character/subject base colors
@@ -210,6 +237,7 @@ Typical layer stack from bottom to top:
 ## Portfolio Development
 
 ### What a Strong Illustration Portfolio Shows
+
 - **Consistency of style**: A recognizable visual voice across pieces
 - **Range within that style**: Different subjects, moods, and compositions using your approach
 - **Problem-solving ability**: Pieces that communicate specific ideas or stories
@@ -217,6 +245,7 @@ Typical layer stack from bottom to top:
 - **Finished work**: Complete, polished pieces, not sketches or WIPs
 
 ### Portfolio Curation
+
 - Quality over quantity. 10-15 strong pieces beats 50 mediocre ones.
 - Lead with your strongest work. Viewers decide within the first 3 images.
 - Include only work you want to be hired to do. If you show logo design, clients will ask for logos.
@@ -224,6 +253,7 @@ Typical layer stack from bottom to top:
 - Tailor your portfolio to your target market. Editorial illustration portfolios look different from game art portfolios.
 
 ### Portfolio Platforms
+
 - **Personal website**: Essential for professional presentation. Squarespace, Cargo, WordPress, or custom. Your name as the domain.
 - **Behance**: Adobe's portfolio platform. Good discoverability, industry recognition.
 - **ArtStation**: Standard for game art, concept art, and entertainment illustration.
@@ -231,6 +261,7 @@ Typical layer stack from bottom to top:
 - **Dribbble**: Design-focused. Good for graphic illustration, icons, and UI illustration.
 
 ### Building Portfolio Pieces Without Clients
+
 - **Personal projects**: Create the work you want to be hired for. Invent a book that needs a cover, a magazine that needs editorial art, a game that needs character design.
 - **Fan art with a twist**: Illustrate existing characters or worlds in your unique style. Shows skill and attracts attention.
 - **Series**: Create a themed series (seasons, mythological figures, animals of a region). Shows commitment and depth.
@@ -239,6 +270,7 @@ Typical layer stack from bottom to top:
 ## Commission Pricing
 
 ### Pricing Factors
+
 - **Complexity**: Simple spot illustration vs. complex full-page scene
 - **Usage rights**: Personal use vs. commercial use vs. exclusive rights
 - **Revision rounds**: How many changes are included
@@ -246,7 +278,9 @@ Typical layer stack from bottom to top:
 - **Your experience level**: Pricing should increase as your skills and reputation grow
 
 ### Pricing Frameworks
+
 **Hourly rate**:
+
 - Track your time accurately
 - Beginner: $25-$50/hour
 - Intermediate: $50-$100/hour
@@ -254,6 +288,7 @@ Typical layer stack from bottom to top:
 - Multiply your hourly rate by estimated hours for a project quote
 
 **Per-piece pricing** (common for commissions):
+
 - Simple character sketch: $50-$150
 - Detailed character illustration (full color, background): $200-$600
 - Full scene/editorial illustration: $300-$1500
@@ -263,6 +298,7 @@ Typical layer stack from bottom to top:
 **Usage-based pricing**: Base creation fee + license fee based on usage scope (one-time web use vs. global campaign rights). This is standard for editorial and commercial work.
 
 ### Commission Workflow
+
 1. **Inquiry**: Client describes the project. You ask clarifying questions.
 2. **Quote**: Provide a written quote with scope, timeline, deliverables, revision rounds, and payment terms.
 3. **Deposit**: Collect 50% upfront before starting work. Non-negotiable for new clients.
@@ -274,6 +310,7 @@ Typical layer stack from bottom to top:
 9. **License and usage**: Clearly state what the client can and cannot do with the illustration.
 
 ### Protecting Your Work
+
 - Use a contract for every commission. Even simple ones. Outline scope, timeline, payment, usage rights, and cancellation terms.
 - Watermark previews until final payment is received.
 - Retain original files and copyright unless explicitly selling exclusive rights (for a premium).
@@ -282,6 +319,7 @@ Typical layer stack from bottom to top:
 ## Developing Your Style
 
 ### Style Is Not Found, It Is Built
+
 - Style emerges from consistent practice, not from a decision to "have a style"
 - Study artists you admire. Identify specific qualities you respond to (their color choices, linework, proportions, subject matter)
 - Copy to learn techniques, then apply those techniques to your own subjects
@@ -289,7 +327,9 @@ Typical layer stack from bottom to top:
 - Your style is the sum of your influences, preferences, and habits refined over time.
 
 ### Fundamentals That Underpin All Styles
+
 Regardless of style, these skills are the foundation:
+
 - **Drawing**: Proportion, construction, gesture, perspective
 - **Composition**: Arranging elements to guide the eye and communicate hierarchy
 - **Value**: Light and shadow structure
@@ -298,7 +338,6 @@ Regardless of style, these skills are the foundation:
 - **Perspective**: Even flat illustration benefits from understanding spatial relationships
 
 Invest in fundamentals continuously. They are the difference between a style that is limited and one that is versatile.
-
 
 ## Output Format
 
@@ -312,13 +351,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with digital illustrator for a mid-size project."
 
 **Output:** A complete digital illustrator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

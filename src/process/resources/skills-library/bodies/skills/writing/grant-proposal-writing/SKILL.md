@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing proposal"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'academic-writing writing proposal'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Grant Proposal Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write, draft, or revise a grant proposal or funding application for a research project
 - The user needs help with a specific aims page, research strategy, significance, innovation, approach, or budget justification section
 - The user is applying to a funding agency -- NIH (R01, R21, R03, K awards, P awards), NSF (CAREER, standard grants, collaborative research), private foundations (Robert Wood Johnson, Gates, Wellcome Trust, American Cancer Society), or institutional mechanisms (internal pilot grants, bridge funding)
@@ -30,6 +32,7 @@ metadata:
 - The user is writing for a team science, multi-PI, or center grant (P01, U19, SPORE) and needs to coordinate aims across investigators
 
 **Do NOT use this skill when:**
+
 - The user wants a business proposal or investor pitch -- use a business writing skill instead
 - The user wants a scholarship or fellowship personal statement or research statement (these use entirely different rhetorical structures and evaluation criteria)
 - The user wants to write a manuscript or research paper reporting completed work -- use `research-paper-structure`
@@ -334,20 +337,25 @@ Using [key method], we will [specific activity] in [specific population/model]. 
 ## Edge Cases
 
 ### Early-Career Investigators with No Preliminary Data
+
 For junior investigators (without a prior R01 or equivalent), preliminary data is always thinner. Handle this by:
+
 - Framing feasibility through training rather than findings: "Dr. [Name]'s doctoral training in [method X] at [institution] under [mentor] provides direct technical foundation for Aim 1. [Mentor's] lab has successfully applied this method to [analogous problem]."
 - Using mentor/co-investigator published data as feasibility evidence when appropriately attributed ("Mentor [Name] published [finding] demonstrating that [method] detects [signal] at the sensitivity required for this study (reference).").
 - Selecting smaller mechanisms: R21 (exploratory), R03 (small grant), K99/R00 (career development), or foundation pilot grants. R21s explicitly do not require preliminary data and are designed for innovative/high-risk proposals.
 - Proposing one of the aims as a feasibility or optimization aim (Aim 1 = "establish the assay in our target population") -- this converts absence of preliminary data into a scientific aim.
 
 ### Private Foundation Applications (Non-NIH/NSF Format)
+
 Many foundations use a letter of inquiry (LOI) followed by full application format. The principles are the same; the format is different.
+
 - LOIs are typically 2-3 pages and must communicate the gap, the approach, and the impact without the full technical apparatus. Write LOIs as if you are writing the specific aims page plus one paragraph of methods.
 - Foundation reviewers are often a mix of scientists and program officers, not a peer-review panel. Write for a sophisticated lay reader who may not be in the exact field.
 - Budget formatting varies: some foundations use narrative budgets ("Personnel: $180,000/year covering the PI at 15% effort and one postdoctoral fellow at 100% effort...") rather than itemized spreadsheets.
 - Most foundations do not use the NIH's five scored criteria -- look for their mission statement and strategic priorities and write the significance section to their specific interests (e.g., Gates Foundation priorities health equity and scalable interventions; American Cancer Society emphasizes cancer prevention and survivorship).
 
 ### Resubmissions (NIH A1, NSF Resubmissions)
+
 - Obtain and carefully read the complete summary statement (NIH) or panel summary (NSF) before writing.
 - Create a response matrix: list every critique, categorize by concern type (conceptual, methodological, scope, budget, PI qualifications), and plan a specific response for each.
 - For NIH, the Introduction page (1 page) is the only place to formally respond to prior review. Do not respond to reviewers in the body of the proposal.
@@ -355,24 +363,28 @@ Many foundations use a letter of inquiry (LOI) followed by full application form
 - In the proposal body, mark all significant changes with a vertical bar in the left margin (common practice) or bold text -- this helps reviewers from the prior panel quickly identify what changed.
 
 ### Multi-PI and Team Science Grants
+
 - NIH allows multiple PIs on an R01 through the Multiple PD/PI mechanism. Each PI's contribution must be distinct and non-redundant. Reviewers ask: "Why do you need both PIs? Could one PI do this?"
 - Include an explicit Multiple PI Leadership Plan that describes: governance structure, decision-making process, conflict resolution, authorship policy, and plans for continuity if one PI leaves the project.
 - Budget effort for each PI must reflect actual contribution. If the work divides cleanly by aim, each PI should be named as the aim lead on their respective aims.
 - P01 program project grants and U-mechanisms have even more complex structures with cores, projects, and an administrative core. These require internal coordination of 3-5 individual project proposals under a single umbrella. Treat each project as a mini-R01 and the Program Overview as a meta-specific aims page.
 
 ### Clinical Trial Applications
+
 - NIH clinical trial applications require additional sections: a clinical trial protocol (or protocol synopsis for early-stage trials), a human subjects section addressing risks and benefits, a recruitment plan with milestones, and a data safety monitoring plan for Phase II/III trials.
 - The Approach section must include stopping rules -- prespecified criteria under which the trial would be halted for safety or futility. Reviewers in clinical trial study sections expect these.
 - For clinical trials, the statistical analysis plan in the Approach must be more detailed than for basic science studies: specify the primary endpoint, the analysis population (intention-to-treat vs. per-protocol), how missing data will be handled, and whether interim analyses are planned.
 - Budget justification for clinical trials must account for clinical research coordinator effort (typically 0.5-1.0 FTE per trial), data coordinating center costs (for multi-site trials), and participant reimbursement at rates justified by IRB protocol.
 
 ### International Collaborations and Foreign Components
+
 - NIH grants with significant activities conducted outside the United States require a "foreign component" designation. This triggers additional administrative review.
 - Budget for foreign subawards follows standard subaward procedures, but indirect costs may be limited to direct costs on subawards above the first $25,000.
 - Some countries require government approval for international research collaborations -- this must be documented in the proposal or described as a pending step.
 - If the collaboration involves sharing of biological specimens, data, or intellectual property across national boundaries, address this explicitly in the approach and note any relevant agreements (material transfer agreements, data use agreements).
 
 ### Responding to a Specific Program Announcement vs. a Parent Funding Opportunity
+
 - Program Announcements (PAs) indicate that NIH study sections are particularly interested in certain topics but do not guarantee a set-aside of funds. Competing for a PA means competing within the normal review pool.
 - Requests for Applications (RFAs) are different: they have a dedicated review panel, a set-aside budget, and often a single receipt date. RFAs are competitive and targeted -- proposals that do not directly respond to the stated scientific priorities in the RFA text are non-competitive.
 - For RFAs, map the proposal structure to the RFA's stated objectives. Some RFAs require specific sections (e.g., "Response to Program Objectives") that are not part of standard Research Strategy. Read the RFA as carefully as any other submission requirement.
@@ -427,9 +439,9 @@ In a separate genomic feasibility study in 22 of these patients, we genotyped TR
 
 **Aim 1: Determine the independent and combined contributions of TREM2/CD33 variant burden and acute mitochondrial metabolite profiles to 72-hour microglial activation magnitude**
 
-*Rationale:* Microglial activation after TBI is not a uniform response -- it reflects the intersection of genetic predisposition and metabolic context. TREM2 is expressed on microglia and modulates their phagocytic and inflammatory responses to damage-associated molecular patterns. CD33 (Siglec-3) is a myeloid inhibitory receptor whose functional variants regulate microglial reactivity. Both genes carry common variants with demonstrated functional effects on microglial behavior in Alzheimer's disease, and our pilot genomics data suggest they contribute to activation variation in TBI. Separately, acute TBI induces mitochondrial dysfunction -- elevated succinate and suppressed succinate dehydrogenase activity stabilize HIF-1alpha, driving pro-inflammatory microglial polarization in preclinical models. Whether this pathway is active in human TBI and contributes to the inter-patient variation we observe has not been tested.
+_Rationale:_ Microglial activation after TBI is not a uniform response -- it reflects the intersection of genetic predisposition and metabolic context. TREM2 is expressed on microglia and modulates their phagocytic and inflammatory responses to damage-associated molecular patterns. CD33 (Siglec-3) is a myeloid inhibitory receptor whose functional variants regulate microglial reactivity. Both genes carry common variants with demonstrated functional effects on microglial behavior in Alzheimer's disease, and our pilot genomics data suggest they contribute to activation variation in TBI. Separately, acute TBI induces mitochondrial dysfunction -- elevated succinate and suppressed succinate dehydrogenase activity stabilize HIF-1alpha, driving pro-inflammatory microglial polarization in preclinical models. Whether this pathway is active in human TBI and contributes to the inter-patient variation we observe has not been tested.
 
-*Experimental design:*
+_Experimental design:_
 
 - **Study population:** 240 adults with moderate-to-severe TBI (GCS 4-12 at scene or ED; confirmed by CT or MRI), enrolled consecutively from the ongoing [Institution] TBI Registry at two sites (site 1: n=180 projected; site 2: n=60 projected). Inclusion: age 18-70, injury within 6 hours of hospital arrival, CT-confirmed TBI. Exclusion: pre-existing dementia or neurodegenerative disease, prior TBI within 12 months, immunosuppressive therapy (which would confound microglial activation measurement), contraindication to PET.
 
@@ -445,9 +457,10 @@ In a separate genomic feasibility study in 22 of these patients, we genotyped TR
 
 - **Timeline:** Months 1-36. Patient enrollment begins Month 3 (following IRB amendment approval for the expanded cohort protocol). PET scanning, blood collection, and genomic sample processing will occur continuously. Database lock at Month 34; analysis and manuscript preparation Months 34-42.
 
-*Expected outcomes:* We expect that wPRS will independently explain 10-15% of variance in DVR-wb, that 72-hour succinate level will independently explain 8-12%, and that the interaction will explain an additional 5-8%, together accounting for approximately 25-35% of the inter-patient variation in microglial activation. If our effect size estimates are accurate, we will identify at least one genomic and one metabolic factor as independent, modifiable contributors to neuroinflammatory heterogeneity.
+_Expected outcomes:_ We expect that wPRS will independently explain 10-15% of variance in DVR-wb, that 72-hour succinate level will independently explain 8-12%, and that the interaction will explain an additional 5-8%, together accounting for approximately 25-35% of the inter-patient variation in microglial activation. If our effect size estimates are accurate, we will identify at least one genomic and one metabolic factor as independent, modifiable contributors to neuroinflammatory heterogeneity.
 
-*Interpretation of results:*
+_Interpretation of results:_
+
 - If wPRS but not succinate predicts DVR: The dominant driver of variation is pre-injury genetic constitution; metabolic context at injury is secondary. This would support a genetic stratification strategy for clinical trials.
 - If succinate but not wPRS predicts DVR: Acute metabolic context drives variation; genetics play a minor role. This would support metabolic intervention (e.g., itaconate supplementation, which suppresses succinate-driven HIF-1alpha stabilization) as a stratification-independent approach.
 - If neither wPRS nor succinate independently predicts DVR: The variation is explained by unmeasured factors (injury timing precision, concurrent medications, unmeasured comorbidities). In this case, we will proceed with the full 21-metabolite LASSO analysis and will expand genomic coverage

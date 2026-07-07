@@ -101,14 +101,8 @@ const ComponentsShowcase: React.FC = () => {
       <section className='space-y-4'>
         <h2 className='text-xl font-semibold'>Steps - Step Indicator</h2>
         <StepsWrapper current={currentStep} size='small'>
-          <StepsWrapper.Step
-            title='Step 1'
-            icon={currentStep > 1 ? <Check size={16} color='#165dff' /> : undefined}
-          />
-          <StepsWrapper.Step
-            title='Step 2'
-            icon={currentStep > 2 ? <Check size={16} color='#165dff' /> : undefined}
-          />
+          <StepsWrapper.Step title='Step 1' icon={currentStep > 1 ? <Check size={16} color='#165dff' /> : undefined} />
+          <StepsWrapper.Step title='Step 2' icon={currentStep > 2 ? <Check size={16} color='#165dff' /> : undefined} />
           <StepsWrapper.Step title='Step 3' />
         </StepsWrapper>
         <div className='flex gap-2 mt-4'>
@@ -146,7 +140,9 @@ const ComponentsShowcase: React.FC = () => {
         >
           <div className='p-6'>
             <p>This is a custom modal wrapped using ModalWrapper.</p>
-            <p className='mt-2 text-t-secondary'>Features: border-radius 12px, custom close button, theme background color.</p>
+            <p className='mt-2 text-t-secondary'>
+              Features: border-radius 12px, custom close button, theme background color.
+            </p>
           </div>
         </ModalWrapper>
       </section>

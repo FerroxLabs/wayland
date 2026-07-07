@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting mental-wellness habits self-care"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'goal-setting mental-wellness habits self-care'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Habit Stacking Framework
 
 > **Disclaimer:** This skill provides general wellness and behavioral science information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional judgment. Always consult a qualified healthcare professional before beginning a new fitness program, making dietary changes, or if habit difficulty is connected to significant emotional or psychological distress. If you are experiencing a mental health emergency, contact emergency services or a crisis line immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to attach a new behavior to an existing automatic routine ("I want to start meditating but I never remember to do it")
 - The user explicitly asks about habit stacking, implementation intentions, habit chaining, or the "After I... I will..." format
 - The user has one or more specific new habits they want to build and can name at least one thing they already do consistently every day
@@ -33,6 +35,7 @@ metadata:
 - The user is designing a routine for a life transition -- new job, new home, new baby, post-illness recovery -- where habits need to be rebuilt from scratch
 
 **Do NOT use when:**
+
 - The user wants to stop, reduce, or eliminate a harmful existing behavior -- use `trigger-identification` to map the cue-routine-reward loop of the behavior they want to break
 - The user is dealing with substance use, disordered eating, compulsive behavior, or other addiction-adjacent patterns -- refer to a licensed mental health or addiction professional; habit stacking is for adding positive behaviors, not restructuring addictive cycles
 - The user asks for a 30-day structured challenge format with milestones, public accountability, and journaling prompts -- use `30-day-habit-challenge` which has that scaffolding built in
@@ -306,13 +309,14 @@ Design two versions of the stack from the start: a primary version for when the 
 
 ### Anchor Inventory
 
-| Time of Day | Anchor Habit | Linkage Point | Anchor Quality |
-|-------------|-------------|---------------|----------------|
-| ~7:00 AM | Make morning coffee | The moment the coffee maker begins brewing | Iron |
-| ~12:30 PM | Eat lunch at desk | The moment lunch container or plate is placed on the desk | Strong |
-| ~10:00 PM | Brush teeth before bed | The moment toothbrush goes back in its holder | Iron |
+| Time of Day | Anchor Habit           | Linkage Point                                             | Anchor Quality |
+| ----------- | ---------------------- | --------------------------------------------------------- | -------------- |
+| ~7:00 AM    | Make morning coffee    | The moment the coffee maker begins brewing                | Iron           |
+| ~12:30 PM   | Eat lunch at desk      | The moment lunch container or plate is placed on the desk | Strong         |
+| ~10:00 PM   | Brush teeth before bed | The moment toothbrush goes back in its holder             | Iron           |
 
 **Anchor Notes:**
+
 - The desk lunch anchor is rated Strong, not Iron, because work meetings occasionally move or skip lunch. A backup anchor is included in the recovery section.
 - "Making coffee" has three candidate linkage points: starting the brewer, waiting for the brew, pouring the first cup. The recommended linkage point is **starting the brewer** because it creates the most natural 2-5 minute window while the coffee brews -- ideal for a brief meditation. The user is neither holding nor consuming anything, their hands are free, and the coffee maker becomes an automatic environmental cue.
 
@@ -342,7 +346,7 @@ Design two versions of the stack from the start: a primary version for when the 
 1. After I **place my lunch on my desk**, I will **pick up my water bottle and drink 8 oz (roughly half a standard bottle) before my first bite** (90 seconds).
 2. After I **finish the water**, I will **begin eating** (completion signal). [DONE]
 
-*Note: The hydration habit is intentionally kept small even in its full version because the goal is to install a consistent mid-day hydration trigger, not to consume a large volume in one sitting. The habit creates a midday baseline; natural thirst throughout the afternoon will compound total intake.*
+_Note: The hydration habit is intentionally kept small even in its full version because the goal is to install a consistent mid-day hydration trigger, not to consume a large volume in one sitting. The habit creates a midday baseline; natural thirst throughout the afternoon will compound total intake._
 
 ---
 
@@ -363,51 +367,51 @@ Design two versions of the stack from the start: a primary version for when the 
 **Morning:**
 
 Press coffee maker button
-       |
-       v
+|
+v
 Sit at kitchen table, eyes closed
-       |
-       v
+|
+v
 5 breath cycles (starter) / 10-min meditation (full)
-       |
-       v
+|
+v
 Pour coffee [DONE] <- completion signal / natural reward
 
 **Midday:**
 
 Place lunch on desk
-       |
-       v
+|
+v
 Pick up water bottle
-       |
-       v
+|
+v
 5 long sips (starter) / 8 oz water (full)
-       |
-       v
+|
+v
 Begin eating lunch [DONE] <- completion signal / natural reward
 
 **Evening:**
 
 Toothbrush in holder
-       |
-       v
+|
+v
 Walk to yoga mat (already unrolled beside bed)
-       |
-       v
+|
+v
 1 quad stretch per side (starter) / 10-min stretch sequence (full)
-       |
-       v
+|
+v
 Get into bed [DONE] <- completion signal / natural reward
 
 ---
 
 ### Habit Complexity Ratings
 
-| New Habit | Behavioral Complexity | Motivation (1-10) | Start Phase |
-|-----------|----------------------|-------------------|-------------|
-| Morning meditation | Low-Medium (past attempts failed -- MVH approach critical) | 8/10 | Phase 1 |
-| Midday hydration | Low | 7/10 | Phase 1 |
-| Evening stretching | Low | 8/10 | Phase 1 |
+| New Habit          | Behavioral Complexity                                      | Motivation (1-10) | Start Phase |
+| ------------------ | ---------------------------------------------------------- | ----------------- | ----------- |
+| Morning meditation | Low-Medium (past attempts failed -- MVH approach critical) | 8/10              | Phase 1     |
+| Midday hydration   | Low                                                        | 7/10              | Phase 1     |
+| Evening stretching | Low                                                        | 8/10              | Phase 1     |
 
 **Note on meditation:** The user has attempted meditation before without success. This is a flag for the anchor-habit design. The failure is almost certainly not motivational (motivation is 8/10) but structural -- likely missing a reliable anchor, starting at too long a duration, or having no physical cue. The coffee maker anchor + 5-breath MVH directly addresses all three typical failure modes.
 
@@ -415,13 +419,14 @@ Get into bed [DONE] <- completion signal / natural reward
 
 ### 2-Week Commitment Plan
 
-| Phase | Days | Morning Stack | Midday Stack | Evening Stack | Total |
-|-------|------|--------------|--------------|---------------|-------|
-| Trigger Installation | 1-3 | 5 breath cycles (90 sec) | 5 sips water (60 sec) | 1 quad stretch per side (90 sec) | ~4 min |
-| Controlled Expansion | 4-7 | 4-min breathing or guided meditation | Full 8 oz water | 4-min stretch sequence | ~10 min |
-| Full Stack | 8-14 | 10-min meditation | 8 oz water (consistent) | 10-min stretch sequence | ~22 min |
+| Phase                | Days | Morning Stack                        | Midday Stack            | Evening Stack                    | Total   |
+| -------------------- | ---- | ------------------------------------ | ----------------------- | -------------------------------- | ------- |
+| Trigger Installation | 1-3  | 5 breath cycles (90 sec)             | 5 sips water (60 sec)   | 1 quad stretch per side (90 sec) | ~4 min  |
+| Controlled Expansion | 4-7  | 4-min breathing or guided meditation | Full 8 oz water         | 4-min stretch sequence           | ~10 min |
+| Full Stack           | 8-14 | 10-min meditation                    | 8 oz water (consistent) | 10-min stretch sequence          | ~22 min |
 
 **Day 7 Self-Check Questions:**
+
 1. Is the coffee maker being used every morning? (If no -- is there a backup anchor like "after I fill my kettle"?)
 2. Is any single step creating dread or avoidance? (If yes -- shrink that specific step further; the others can stay)
 3. Is the yoga mat unrolled and visible from the bathroom every night? (If no -- fix tonight)
@@ -432,14 +437,14 @@ Get into bed [DONE] <- completion signal / natural reward
 
 ### Recovery Rules
 
-| Scenario | Action |
-|----------|--------|
-| Missed 1 day | Resume at the current phase level the next day. Do not add a make-up session. Single misses do not damage the trigger circuit. |
-| Missed 2 consecutive days | Return to MVH level for exactly 2 days, then resume expansion. The circuit needs brief re-installation after a two-day gap. |
-| Missed 3+ days | Return to Days 1-3 protocol (MVH only) for 3 days before resuming expansion. |
-| Midday stack broken by a skipped lunch or working lunch | Resume the next day. Do not attempt to hydrate "extra" to compensate -- compensation behavior adds cognitive load and guilt. The next anchor is the next opportunity. |
-| Meditation keeps breaking -- coffee routine is inconsistent | Shift the meditation anchor to "after I pour my coffee and before I drink the first sip." This is a later linkage point in the same anchor sequence and works for days with different coffee timing. |
-| Evening stretching keeps getting skipped -- too tired | This is an energy-state mismatch. Move the stretching anchor to immediately after dinner while seated at the table: "after I push my dinner plate to the side, I will do 3 neck rolls and 3 shoulder circles." This is a dramatically lower-energy version appropriate for high-fatigue evenings while the circuit installs. Return to the bedtime version after 2 weeks. |
+| Scenario                                                    | Action                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Missed 1 day                                                | Resume at the current phase level the next day. Do not add a make-up session. Single misses do not damage the trigger circuit.                                                                                                                                                                                                                                            |
+| Missed 2 consecutive days                                   | Return to MVH level for exactly 2 days, then resume expansion. The circuit needs brief re-installation after a two-day gap.                                                                                                                                                                                                                                               |
+| Missed 3+ days                                              | Return to Days 1-3 protocol (MVH only) for 3 days before resuming expansion.                                                                                                                                                                                                                                                                                              |
+| Midday stack broken by a skipped lunch or working lunch     | Resume the next day. Do not attempt to hydrate "extra" to compensate -- compensation behavior adds cognitive load and guilt. The next anchor is the next opportunity.                                                                                                                                                                                                     |
+| Meditation keeps breaking -- coffee routine is inconsistent | Shift the meditation anchor to "after I pour my coffee and before I drink the first sip." This is a later linkage point in the same anchor sequence and works for days with different coffee timing.                                                                                                                                                                      |
+| Evening stretching keeps getting skipped -- too tired       | This is an energy-state mismatch. Move the stretching anchor to immediately after dinner while seated at the table: "after I push my dinner plate to the side, I will do 3 neck rolls and 3 shoulder circles." This is a dramatically lower-energy version appropriate for high-fatigue evenings while the circuit installs. Return to the bedtime version after 2 weeks. |
 
 ---
 
@@ -448,16 +453,19 @@ Get into bed [DONE] <- completion signal / natural reward
 Complete this tonight before Day 1. These are not optional.
 
 **Equipment Placement (Cue Setup):**
+
 - [ ] Place a chair at the kitchen table in a position that faces away from the phone/TV, usable for seated eyes-closed meditation -- this should already be there but confirm it is not facing a screen
 - [ ] Place a full 16-20 oz water bottle at the corner of the desk where lunch is eaten -- fill it the night before and refill each morning
 - [ ] Unroll your yoga mat and place it beside your bed, parallel to the bed, so that walking from the bathroom after brushing teeth takes you directly past it
 - [ ] If you do not have a yoga mat, fold a bath towel on the floor beside the bed -- the cue placement matters more than the equipment quality
 
 **Competing Stimuli to Remove:**
+
 - [ ] Move your phone charger to a surface outside the bedroom (hallway, bathroom counter) -- this removes the scrolling competitor that fights with the evening stretch and sleep onset
 - [ ] If your phone is typically on the kitchen table during morning coffee, move it to the counter or another room during the coffee brew window to protect the meditation time
 
 **Day-Before Prep Ritual (do each night, takes 2 minutes):**
+
 - [ ] Refill the desk water bottle and place it at the lunch corner of the desk
 - [ ] Confirm the yoga mat is unrolled beside the bed (if you moved it during the day, return it)
 - [ ] Set a gentle alarm or coffee maker timer if needed to keep the morning window consistent

@@ -31,14 +31,23 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels, funnels-conviction-webinar, funnels-offer, convert-webinar-reg-page, convert-vsl, convert-sales-page, funnels-daily-pivot]
+    related_skills:
+      [
+        funnels,
+        funnels-conviction-webinar,
+        funnels-offer,
+        convert-webinar-reg-page,
+        convert-vsl,
+        convert-sales-page,
+        funnels-daily-pivot,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - evergreen-funnel methodology grounded in Brunson auto-webinar mechanics + Kern stick strategy applied to async + standard deadline-funnel scarcity + trust-disclosure rules to preserve long-term brand integrity"
+  lineage: 'Wayland Business Suite (Original) - evergreen-funnel methodology grounded in Brunson auto-webinar mechanics + Kern stick strategy applied to async + standard deadline-funnel scarcity + trust-disclosure rules to preserve long-term brand integrity'
 ---
 
 # Funnels Evergreen - The Auto-Webinar Funnel
 
-> *"Evergreen is the live webinar's compound-interest version - but only if the live one already converted."*
+> _"Evergreen is the live webinar's compound-interest version - but only if the live one already converted."_
 
 This skill designs an **evergreen / auto-webinar funnel** - a webinar that runs 24/7 on autopilot, with simulated-live mechanics, deadline-driven scarcity, and an offer that converts on rotation. Evergreen is leverage: the live webinar that converts at 8% live should convert at 2–4% evergreen, scaling without the operator's calendar constraint.
 
@@ -49,11 +58,13 @@ The hard rule: **never put a webinar evergreen until the live version has been v
 Trigger phrases: "evergreen webinar", "auto-webinar", "automated webinar", "evergreen funnel", "scale my webinar", "simulated live webinar", "deadline funnel", `/funnel evergreen <product>`.
 
 Use when:
+
 - The user has a validated live webinar (5%+ attendee-to-sale, 3+ runs) and wants to scale without delivering live
 - The user is launching an evergreen course business and wants the funnel architecture from day one
 - The user has an evergreen funnel that's underperforming and needs to fix the simulated-live mechanics or the scarcity layer
 
 Do NOT use for:
+
 - Designing a live one-time webinar (use `funnels-conviction-webinar`)
 - Designing a launch-style cart-cycle event (use `funnels-cart-cycle-launch`)
 - Authoring the registration page alone (use `convert-webinar-reg-page`)
@@ -61,11 +72,11 @@ Do NOT use for:
 
 ## Conversion Benchmarks
 
-| Stage | Evergreen baseline (warm) | Evergreen baseline (cold ads) |
-|-------|---------------------------|-------------------------------|
-| Reg → "live" attendance | 30–55% | 25–40% |
-| Attendance → sale | 2–6% | 1–4% |
-| Reg-to-buyer (full funnel) | 1–3% | 0.5–2% |
+| Stage                      | Evergreen baseline (warm) | Evergreen baseline (cold ads) |
+| -------------------------- | ------------------------- | ----------------------------- |
+| Reg → "live" attendance    | 30–55%                    | 25–40%                        |
+| Attendance → sale          | 2–6%                      | 1–4%                          |
+| Reg-to-buyer (full funnel) | 1–3%                      | 0.5–2%                        |
 
 Evergreen typically runs at 20–40% of live performance. Live at 8% → evergreen at 2–3% is normal. Live at 12% → evergreen at 3–5% is normal.
 
@@ -85,7 +96,7 @@ Evergreen typically runs at 20–40% of live performance. Live at 8% → evergre
    - Bonus for live-attendance ("attendees get [X]; replays don't")
    - Disclosure that the broadcast is recorded (see Trust Disclosure below)
 
-2. **Time-slot rotation logic.** Default: offer 4–6 slots in the next 48 hours, with the *closest* slot always 1–4 hours away. The "next session in 90 minutes" mechanic drives 30–50% higher reg-to-attend than "next session tomorrow."
+2. **Time-slot rotation logic.** Default: offer 4–6 slots in the next 48 hours, with the _closest_ slot always 1–4 hours away. The "next session in 90 minutes" mechanic drives 30–50% higher reg-to-attend than "next session tomorrow."
 
 3. **Confirmation + reminder sequence.** Email 1 immediate, Email 2 (12-24 hours before "live"), Email 3 (60 min before), SMS (10 min before - if collected).
 
@@ -106,8 +117,8 @@ The disclosure is what separates evergreen from deceptive. **The viewer must, so
 
 **Acceptable disclosure modes (pick one or both):**
 
-1. **On the registration page** - small but visible: *"This is a recorded broadcast scheduled for your time zone. Click here to read more."* + a footer FAQ entry explaining the simulated-live format.
-2. **In the broadcast intro** - *"This is the recording of [date]'s session, replayed for you in full. Everything you'll see is exactly as I delivered it live."*
+1. **On the registration page** - small but visible: _"This is a recorded broadcast scheduled for your time zone. Click here to read more."_ + a footer FAQ entry explaining the simulated-live format.
+2. **In the broadcast intro** - _"This is the recording of [date]'s session, replayed for you in full. Everything you'll see is exactly as I delivered it live."_
 
 **The Wayland rule:** evergreen funnels that hide the recorded nature **suppress refund rate short-term but produce a chargeback / reputation crater within 6–18 months.** Do not skip the disclosure. The Bullshit Filter applies to the funnel architecture, not just the copy.
 
@@ -115,14 +126,14 @@ The disclosure is what separates evergreen from deceptive. **The viewer must, so
 
 **Job:** create a real, individual deadline that drives the buy decision.
 
-*The deadline-funnel principle (popularized in evergreen circles by Mark Thompson + Drew Mannings; lineage to Halbert's "limited-time offer" cadence + Cialdini scarcity).* Evergreen scarcity differs from launch scarcity: launch has one global deadline; evergreen has *per-buyer* deadlines that expire individually.
+_The deadline-funnel principle (popularized in evergreen circles by Mark Thompson + Drew Mannings; lineage to Halbert's "limited-time offer" cadence + Cialdini scarcity)._ Evergreen scarcity differs from launch scarcity: launch has one global deadline; evergreen has _per-buyer_ deadlines that expire individually.
 
 **Components:**
 
 1. **Cart-window starts at broadcast minute 60** (when the buy button reveals).
 2. **Cart-window ends 72 hours later** (per individual viewer). Default 72h; some operators use 24h or 7 days.
 3. **Tools:** Deadline Funnel, Thrivecart per-buyer deadlines, or custom tracking. Each buyer's countdown is tied to their email + IP, not a global clock.
-4. **Reason-why for the deadline.** *"Bonuses come off the table after Wednesday at midnight YOUR time"* - must include the *why*. Cialdini's because-effect.
+4. **Reason-why for the deadline.** _"Bonuses come off the table after Wednesday at midnight YOUR time"_ - must include the _why_. Cialdini's because-effect.
 
 **Trust rule for evergreen scarcity:** if the buyer revisits after the deadline, the price/bonus structure MUST actually change. Fake-resetting deadlines are the second-biggest evergreen trust killer (after fake live chat). Once the deadline is gone, it stays gone.
 
@@ -132,13 +143,13 @@ The disclosure is what separates evergreen from deceptive. **The viewer must, so
 
 Standard 5-email cart-window sequence (handoff to `funnels-daily-pivot` for authoring):
 
-| Email | Send time | Subject pattern | Job |
-|-------|-----------|----------------|-----|
-| 1 | 1 hr post-attend | "Replay link inside" | Deliver the replay + buy link |
-| 2 | 24 hr post-attend | "Story - [outcome]" | Story + soft pitch |
-| 3 | 48 hr post-attend | "Question I keep getting" | Objection handling + pitch |
-| 4 | 60 hr post-attend | "12 hours left" | Urgency + final case study |
-| 5 | 71 hr post-attend | "Last call - closes at midnight" | Final CTA + cart-close |
+| Email | Send time         | Subject pattern                  | Job                           |
+| ----- | ----------------- | -------------------------------- | ----------------------------- |
+| 1     | 1 hr post-attend  | "Replay link inside"             | Deliver the replay + buy link |
+| 2     | 24 hr post-attend | "Story - [outcome]"              | Story + soft pitch            |
+| 3     | 48 hr post-attend | "Question I keep getting"        | Objection handling + pitch    |
+| 4     | 60 hr post-attend | "12 hours left"                  | Urgency + final case study    |
+| 5     | 71 hr post-attend | "Last call - closes at midnight" | Final CTA + cart-close        |
 
 ## Workflow
 
@@ -149,6 +160,7 @@ Standard 5-email cart-window sequence (handoff to `funnels-daily-pivot` for auth
 ### Phase 1 - Set the registration cadence
 
 Configure:
+
 - 4–6 time slots in the next 48 hours
 - Closest slot always 1–4 hours away
 - Time-zone auto-detection
@@ -227,13 +239,13 @@ Handoff to `funnels-daily-pivot` with the 5-email cadence above. Each email tied
 
 ## Layer 5 - Cart-Window Email Sequence
 
-| # | Send time | Subject | Job |
-|---|-----------|---------|-----|
-| 1 | +1 hr | "Replay link inside" | deliver replay + buy link |
-| 2 | +24 hr | "[Story-pivot subject]" | story + soft pitch |
-| 3 | +48 hr | "Question I keep getting" | objection handling |
-| 4 | +60 hr | "12 hours left" | urgency + case study |
-| 5 | +71 hr | "Last call - closes at midnight" | cart-close |
+| #   | Send time | Subject                          | Job                       |
+| --- | --------- | -------------------------------- | ------------------------- |
+| 1   | +1 hr     | "Replay link inside"             | deliver replay + buy link |
+| 2   | +24 hr    | "[Story-pivot subject]"          | story + soft pitch        |
+| 3   | +48 hr    | "Question I keep getting"        | objection handling        |
+| 4   | +60 hr    | "12 hours left"                  | urgency + case study      |
+| 5   | +71 hr    | "Last call - closes at midnight" | cart-close                |
 
 **Skill handoff:** `funnels-daily-pivot` for email authoring
 
@@ -255,11 +267,12 @@ Handoff to `funnels-daily-pivot` with the 5-email cadence above. Each email tied
 ## Lineage
 
 The evergreen-funnel methodology synthesizes:
-- *Brunson auto-webinar mechanics* - the simulated-live + per-buyer-deadline structure
-- *Frank Kern's stick strategy applied to async* - the broadcast pacing
-- *The deadline-funnel mechanic (popularized by Mark Thompson + Drew Mannings)* - per-buyer scarcity
-- *Cialdini scarcity* (Cialdini, Influence, 1984) - the believable cap + reason-why
-- *The Donahoe Bullshit Filter* - applied to disclosure rules
+
+- _Brunson auto-webinar mechanics_ - the simulated-live + per-buyer-deadline structure
+- _Frank Kern's stick strategy applied to async_ - the broadcast pacing
+- _The deadline-funnel mechanic (popularized by Mark Thompson + Drew Mannings)_ - per-buyer scarcity
+- _Cialdini scarcity_ (Cialdini, Influence, 1984) - the believable cap + reason-why
+- _The Donahoe Bullshit Filter_ - applied to disclosure rules
 
 The trust-disclosure rule is the Wayland-specific addition. The canon (Brunson, Kern, Walker) tend to underweight long-term trust impact of hidden recorded broadcasts. The Wayland rule treats trust as a long-term asset that compounds; the disclosure is non-negotiable.
 ```
