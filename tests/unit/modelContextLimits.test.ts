@@ -5,7 +5,11 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONTEXT_LIMIT, getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
+import {
+  DEFAULT_CONTEXT_LIMIT,
+  getModelContextLimit,
+  resolveModelContextLimit,
+} from '@/renderer/utils/model/modelContextLimits';
 
 describe('getModelContextLimit', () => {
   const M = 1_000_000;
@@ -82,5 +86,47 @@ describe('getModelContextLimit', () => {
       expect(getModelContextLimit(undefined)).toBe(DEFAULT_CONTEXT_LIMIT);
       expect(getModelContextLimit(null)).toBe(DEFAULT_CONTEXT_LIMIT);
     });
+  });
+});
+
+describe('resolveModelContextLimit (issue #733)', () => {
+  const M = 1_000_000;
+  const K200 = 200_000;
+
+  it('prefers the registry catalog window over the static table', () => {
+    // The reported bug: the picker (registry catalog) showed the correct 1M
+    // window while the usage indicator resolved the same model to a different
+    // number through the static table. The catalog value must win in both
+    // directions: table-says-200K/catalog-says-1M and vice versa.
+    expect(resolveModelContextLimit(new Map([['claude-opus-4-5', M]]), 'claude-opus-4-5')).toBe(M);
+    expect(resolveModelContextLimit(new Map([['claude-opus-4-6', K200]]), 'claude-opus-4-6')).toBe(K200);
+  });
+
+  it('resolves a brand-new model id the static table has never heard of', () => {
+    const catalog = new Map([['some-new-model-2027', 524_288]]);
+    expect(resolveModelContextLimit(catalog, 'some-new-model-2027')).toBe(524_288);
+  });
+
+  it('matches catalog ids case-insensitively on the lookup side', () => {
+    const catalog = new Map([['claude-opus-4-6', M]]);
+    expect(resolveModelContextLimit(catalog, 'Claude-Opus-4-6')).toBe(M);
+  });
+
+  it('falls back to the static table when the catalog has no entry', () => {
+    const catalog = new Map([['unrelated-model', M]]);
+    expect(resolveModelContextLimit(catalog, 'claude-opus-4-5')).toBe(K200);
+    expect(resolveModelContextLimit(new Map(), 'claude-haiku-4-5-20251001')).toBe(K200);
+  });
+
+  it('ignores zero/invalid catalog windows and falls back', () => {
+    const catalog = new Map([['claude-opus-4-5', 0]]);
+    expect(resolveModelContextLimit(catalog, 'claude-opus-4-5')).toBe(K200);
+  });
+
+  it('keeps the default for undefined/empty model ids', () => {
+    const catalog = new Map([['claude-opus-4-6', M]]);
+    expect(resolveModelContextLimit(catalog, undefined)).toBe(DEFAULT_CONTEXT_LIMIT);
+    expect(resolveModelContextLimit(catalog, null)).toBe(DEFAULT_CONTEXT_LIMIT);
+    expect(resolveModelContextLimit(catalog, '')).toBe(DEFAULT_CONTEXT_LIMIT);
   });
 });
