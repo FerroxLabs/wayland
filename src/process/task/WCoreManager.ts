@@ -177,7 +177,7 @@ export function dedupeThinkingDelta(prev: string, incoming: string): string {
  * debugging session needs; the full output still reaches the renderer via the
  * normal message stream.
  */
-const INFO_LOG_PREVIEW_MAX_CHARS = 400;
+export const INFO_LOG_PREVIEW_MAX_CHARS = 400;
 
 /**
  * Reduce a wcore `info` payload to something safe to persist to the on-disk
@@ -186,10 +186,22 @@ const INFO_LOG_PREVIEW_MAX_CHARS = 400;
  * runs FIRST so the redaction regexes never scan a multi-hundred-KB string; a
  * secret cut by the boundary either still matches (the prefixed-key regex
  * needs only 6 chars past the prefix) or has too little of it left to matter.
- * This is the desktop log-file surface; engine-side transports are #584.
+ * Non-string payloads (e.g. the `approval_required` diagnostic's structured
+ * data, whose engine-supplied `context` is free-form) are JSON-stringified so
+ * they stay readable AND pass through the same redaction. This is the desktop
+ * log-file surface; engine-side transports are #584.
  */
 export function toSafeInfoLogPreview(info: unknown): string {
-  const text = typeof info === 'string' ? info : String(info);
+  let text: string;
+  if (typeof info === 'string') {
+    text = info;
+  } else {
+    try {
+      text = JSON.stringify(info) ?? String(info);
+    } catch {
+      text = String(info); // circular/unserializable - type tag beats nothing
+    }
+  }
   const truncated =
     text.length > INFO_LOG_PREVIEW_MAX_CHARS
       ? `${text.slice(0, INFO_LOG_PREVIEW_MAX_CHARS)}… [+${text.length - INFO_LOG_PREVIEW_MAX_CHARS} chars truncated]`
@@ -1205,10 +1217,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // token: we can neither resume nor escalate, so surface a diagnostic.
         if (appr.reason && !isInfo) {
           if (autoMode && !appr.resumeToken) {
+            // Preview, not the raw payload: `context` is engine-supplied
+            // free-form text and this persists to the on-disk log (#714).
             mainError(
               '[WCoreManager]',
               `approval_required reason='${appr.reason}' in auto mode has no resume token and no HITL UI; turn may wedge`,
-              data.data
+              toSafeInfoLogPreview(data.data)
             );
           } else {
             mainLog(

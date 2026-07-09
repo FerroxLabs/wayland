@@ -5,7 +5,14 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { toSafeInfoLogPreview } from '@process/task/WCoreManager';
+import { INFO_LOG_PREVIEW_MAX_CHARS, toSafeInfoLogPreview } from '@process/task/WCoreManager';
+
+/** Assert no usable fragment of `secret` (any 10-char run) survives in `out`. */
+function expectNoUsableFragment(out: string, secret: string): void {
+  for (let i = 0; i + 10 <= secret.length; i++) {
+    expect(out).not.toContain(secret.slice(i, i + 10));
+  }
+}
 
 // #714: wcore `info` events carry full tool results and were persisted
 // verbatim to the daily electron-log file — a Grep over an exported provider
@@ -46,8 +53,35 @@ describe('toSafeInfoLogPreview (#714 persistent-log tool output)', () => {
     expect(out).toMatch(/\[\+\d+ chars truncated\]$/);
   });
 
-  it('stringifies non-string payloads instead of throwing', () => {
+  it('leaves no usable fragment when truncation cuts mid-secret', () => {
+    const secret = 'sk-or-v1-abcdef0123456789abcdef0123456789';
+    // A key in real tool output sits after a delimiter (quote/space/colon) —
+    // the redactor's `\b` needs one — so pad up to a space and let the CUT
+    // land mid-secret. Cut 5 chars in: too little survives to be a credential
+    // or to match the redactor — the fragment check guards this boundary.
+    const pad = (chars: number) => `${'x'.repeat(INFO_LOG_PREVIEW_MAX_CHARS - chars - 1)} ${secret}`;
+    expectNoUsableFragment(toSafeInfoLogPreview(pad(5)), secret);
+    // Cut 20 chars in: enough of the prefixed key survives that the redactor
+    // itself must catch and mask it.
+    expectNoUsableFragment(toSafeInfoLogPreview(pad(20)), secret);
+  });
+
+  it('JSON-stringifies structured payloads and redacts secrets inside them', () => {
+    // The approval_required diagnostic passes its structured payload through
+    // the same preview (#714) — engine-supplied `context` is free-form text.
+    const out = toSafeInfoLogPreview({
+      reason: 'exec',
+      context: 'run with Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.secretpayload',
+    });
+    expect(out).toContain('"reason":"exec"');
+    expect(out).not.toContain('eyJhbGciOiJIUzI1NiJ9.secretpayload');
+  });
+
+  it('stringifies non-JSON payloads instead of throwing', () => {
     expect(toSafeInfoLogPreview(undefined)).toBe('undefined');
     expect(toSafeInfoLogPreview(42)).toBe('42');
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    expect(toSafeInfoLogPreview(circular)).toBe('[object Object]');
   });
 });
