@@ -1090,6 +1090,17 @@ const handleAppReady = async (): Promise<void> => {
     }
   }
 
+  // #755/#738: async bundle-integrity self-check (macOS packaged builds only -
+  // the module gates itself too). A broken codesign seal makes hardened-runtime
+  // macOS block every child process the app spawns; surface the offending
+  // `file added/modified:` lines + remediation instead of failing silently.
+  // Fire-and-forget so it never delays startup.
+  if (process.platform === 'darwin' && app.isPackaged) {
+    import('./process/services/integrity/bundleIntegrity')
+      .then(({ runBundleIntegrityCheck }) => runBundleIntegrityCheck())
+      .catch((err) => console.warn('[Integrity] bundle self-check failed to start:', err));
+  }
+
   // Listen for system resume (wake from sleep/hibernate) to recover missed cron jobs
   powerMonitor.on('resume', () => {
     try {
