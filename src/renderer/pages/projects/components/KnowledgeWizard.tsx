@@ -6,6 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import Markdown from '@/renderer/components/Markdown';
+import { withDraftTimeout } from '@/renderer/services/draftTimeout';
 import { generateKnowledgeDraftHttp, type KnowledgeDraftError } from '@/renderer/services/ProjectDraftService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Button, Input, Message, Modal, Spin, Tag } from '@arco-design/web-react';
@@ -136,12 +137,16 @@ const KnowledgeWizard: React.FC<{
       };
       // Desktop uses Electron IPC; headless/remote WebUI uses the token-authed
       // HTTP route (#234). Both return the same shape, including #221's `detail`.
+      // The HTTP route carries its own deadline (AbortSignal.timeout, #682);
+      // withDraftTimeout (#684) gives the IPC path the same guarantee — the
+      // call settles even if the bridge transport never answers (e.g. an
+      // invocation rejected by the remote adapter).
       const {
         draft: out,
         error,
         detail,
       } = isElectronDesktop()
-        ? await ipcBridge.project.generateKnowledgeDraft.invoke(params)
+        ? await withDraftTimeout(ipcBridge.project.generateKnowledgeDraft.invoke(params))
         : await generateKnowledgeDraftHttp(params);
       if (error) {
         setGenError(error);
