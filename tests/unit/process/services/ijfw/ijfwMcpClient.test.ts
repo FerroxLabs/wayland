@@ -31,6 +31,20 @@ vi.mock('@process/services/ijfw/entryResolver', () => ({
   resolveEntry: vi.fn(async () => '/tmp/fake-ijfw-entry.js'),
 }));
 
+// #721 review: dropped-sample / stderr log lines persist raw child output into
+// the shareable electron-log file, so they must be redacted. Spy on the logger
+// to assert what actually gets written.
+const logWarnSpy = vi.fn();
+const logDebugSpy = vi.fn();
+vi.mock('electron-log', () => ({
+  default: {
+    debug: (...args: unknown[]) => logDebugSpy(...args),
+    info: vi.fn(),
+    warn: (...args: unknown[]) => logWarnSpy(...args),
+    error: vi.fn(),
+  },
+}));
+
 // #139: shutdown delegates child-tree teardown to the cross-platform killChild
 // helper (covered in depth by acpKillChild.test.ts). Mock it here so we assert
 // delegation without re-running its real ps/taskkill/process.kill logic.
@@ -99,6 +113,8 @@ beforeEach(() => {
   tmpHome = path.join(os.tmpdir(), `ijfw-mcp-client-test-${Date.now()}`);
   spawnSpy.mockClear();
   killChildSpy.mockClear();
+  logWarnSpy.mockClear();
+  logDebugSpy.mockClear();
   writeShouldError = false;
   currentChild = null;
 });
@@ -266,6 +282,47 @@ describe('ijfwMcpClient', () => {
       child.stdout.emit('data', Buffer.from(`more garbage ${i}\n`));
     }
     expect(child.killed).toBe(false);
+  });
+
+  it('#721 review: secrets in dropped-line samples are redacted before logging (#714 class)', async () => {
+    const { ijfwMcpClient } = await loadClient();
+    const promise = ijfwMcpClient.invoke('memory_recall', {});
+    await new Promise((r) => setImmediate(r));
+    const child = currentChild!;
+    const sent = JSON.parse(child.writes[0]!.toString().trim());
+
+    // Garbage line carrying a live-looking provider key, interleaved with a
+    // valid response - the sample must reach the log file redacted.
+    child.stdout.emit(
+      'data',
+      Buffer.from(
+        'auth retry with key sk-abc123def456ghi789\n' +
+          encodeNewline({ jsonrpc: '2.0', id: sent.id, result: mcpEnvelope('ok') })
+      )
+    );
+    const result = await promise;
+    expect(result.ok && result.data).toBe('ok');
+
+    const warnCall = logWarnSpy.mock.calls.find((c) => c[0] === '[ijfw-mcp] skipped non-JSON stdout line(s)');
+    expect(warnCall).toBeDefined();
+    const { samples } = warnCall![1] as { samples: string[] };
+    expect(samples.length).toBe(1);
+    expect(samples[0]).not.toContain('sk-abc123def456ghi789');
+    expect(samples[0]).toContain('••••••');
+    expect(samples[0]).toContain('auth retry with key');
+  });
+
+  it('#721 review: secrets in child stderr are redacted before logging', async () => {
+    const { ijfwMcpClient } = await loadClient();
+    void ijfwMcpClient.invoke('memory_recall', {});
+    await new Promise((r) => setImmediate(r));
+
+    currentChild!.stderr.emit('data', Buffer.from('warn: request failed, token sk-abc123def456ghi789\n'));
+
+    const debugCall = logDebugSpy.mock.calls.find((c) => c[0] === '[ijfw-mcp][stderr]');
+    expect(debugCall).toBeDefined();
+    expect(String(debugCall![1])).not.toContain('sk-abc123def456ghi789');
+    expect(String(debugCall![1])).toContain('••••••');
   });
 
   it('on stdin write error nulls process and rejects in-flight request', async () => {

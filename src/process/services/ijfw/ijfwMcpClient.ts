@@ -26,6 +26,7 @@ import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
 import { jsonRpcResponseSchema } from './ipcSchemas';
 import { killChild } from '@process/agent/acp/utils';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import type { IjfwErrorReason, IjfwInvokeResult } from '@/common/types/ijfw';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -330,7 +331,10 @@ class IjfwMcpClient {
 
     child.stdout?.on('data', (chunk: Buffer) => this.onStdout(chunk));
     child.stderr?.on('data', (chunk: Buffer) => {
-      log.debug('[ijfw-mcp][stderr]', chunk.toString('utf-8').trim());
+      // #721 review: child stderr is raw third-party output persisted into the
+      // shareable electron-log file - redact secret shapes before logging
+      // (same leak class as #714).
+      log.debug('[ijfw-mcp][stderr]', redactCommandSecrets(chunk.toString('utf-8').trim()));
     });
     child.on('error', (err) => {
       log.warn('[ijfw-mcp] child error', { err });
@@ -351,8 +355,8 @@ class IjfwMcpClient {
     } catch (err) {
       if (err instanceof DecodeError) {
         // #721: DecodeError now fires only on genuine resource abuse
-        // (line > MAX_LINE_BYTES, buffer > MAX_BUFFER_SIZE). Keep the
-        // kill/quarantine path for those.
+        // (line > MAX_LINE_BYTES, which also bounds the retained remainder).
+        // Keep the kill/quarantine path for those.
         log.error('[ijfw-mcp] decode error - killing child', { err: err.message });
         this.killBrokenChild();
         return;
@@ -363,9 +367,11 @@ class IjfwMcpClient {
     // #721: non-JSON stdout lines (e.g. a server console.logging progress to
     // stdout) are skipped, not fatal - NDJSON re-syncs at the next newline.
     if (decoded.droppedLines > 0) {
+      // #721 review: samples are raw child stdout persisted into the shareable
+      // electron-log file - redact secret shapes before logging (#714 class).
       log.warn('[ijfw-mcp] skipped non-JSON stdout line(s)', {
         count: decoded.droppedLines,
-        samples: decoded.droppedSamples,
+        samples: decoded.droppedSamples.map((s) => redactCommandSecrets(s)),
       });
       this.consecutiveGarbageLines += decoded.droppedLines;
     }

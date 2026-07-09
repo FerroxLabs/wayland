@@ -13,9 +13,12 @@
  * assumptions about the spec.
  *
  * Bounded-buffer hardenings retained from the prior Content-Length impl
- * (SEC-004 / GEM-R-03): MAX_LINE_BYTES caps each message, MAX_BUFFER_SIZE
- * prevents unbounded growth on missing newlines, DecodeError fires on
- * oversize lines/buffers so callers can quarantine the child.
+ * (SEC-004 / GEM-R-03): MAX_LINE_BYTES caps each message, and because the
+ * retained remainder is always a single unterminated partial line, the same
+ * cap bounds cumulative buffer growth on missing newlines. DecodeError fires
+ * on oversize lines so callers can quarantine the child. (#721 review: the
+ * former MAX_BUFFER_SIZE remainder check was unreachable - the MAX_LINE_BYTES
+ * check always threw first - so it was removed.)
  *
  * #721: malformed JSON on a well-terminated line is NOT a DecodeError.
  * NDJSON is self-synchronizing at newlines, so a garbage line (e.g. a
@@ -27,8 +30,7 @@
 
 const NEWLINE = 0x0a; // '\n'
 
-export const MAX_LINE_BYTES = 10 * 1024 * 1024; // 10 MiB per message
-export const MAX_BUFFER_SIZE = 16 * 1024 * 1024; // 16 MiB retained-buffer cap
+export const MAX_LINE_BYTES = 10 * 1024 * 1024; // 10 MiB per message (also caps the retained remainder)
 
 export function encode(message: object): Buffer {
   const body = Buffer.from(JSON.stringify(message), 'utf-8');
@@ -104,11 +106,7 @@ export function decode(buf: Buffer): DecodeResult {
     cursor = cursor.subarray(newlineIdx + 1);
   }
 
-  if (cursor.length > MAX_BUFFER_SIZE) {
-    throw new DecodeError(
-      `remainder exceeds MAX_BUFFER_SIZE (${cursor.length} > ${MAX_BUFFER_SIZE}) - possible slow loris`
-    );
-  }
-
+  // The remainder needs no separate cap: it is always an unterminated partial
+  // line, already bounded to MAX_LINE_BYTES by the check above.
   return { messages, remainder: cursor, droppedLines, droppedSamples };
 }

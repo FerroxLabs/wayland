@@ -107,6 +107,20 @@ describe('ijfw/mcpWireProtocol (newline-delimited)', () => {
       const oversized = Buffer.concat([Buffer.alloc(MAX_LINE_BYTES + 100, 0x41), Buffer.from([0x0a])]);
       expect(() => decode(oversized)).toThrow(/exceeds MAX_LINE_BYTES/);
     });
+
+    it('#721 review: MAX_LINE_BYTES bounds cumulative retained-buffer growth across chunks', () => {
+      // Simulate the client feed loop: each chunk is appended to the previous
+      // remainder and re-decoded, with no newline ever arriving. The retained
+      // remainder is always the unterminated partial line, so MAX_LINE_BYTES
+      // is the effective cap on total buffer growth (the former MAX_BUFFER_SIZE
+      // remainder check was unreachable and has been removed).
+      const chunk = Buffer.alloc(4 * 1024 * 1024, 0x41); // 4 MiB, no newline
+      let retained = decode(chunk).remainder; // 4 MiB retained
+      retained = decode(Buffer.concat([retained, chunk])).remainder; // 8 MiB retained
+      expect(retained.length).toBe(8 * 1024 * 1024);
+      // 12 MiB > MAX_LINE_BYTES (10 MiB) - the third chunk must throw.
+      expect(() => decode(Buffer.concat([retained, chunk]))).toThrow(DecodeError);
+    });
   });
 
   describe('tolerant framing for garbage lines (#721)', () => {
