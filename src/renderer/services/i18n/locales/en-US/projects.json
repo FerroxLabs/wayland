@@ -291,7 +291,10 @@
       "modelNote": "Best available model",
       "generating": "Drafting…",
       "noModel": "Connect a model with an API key to draft with AI.",
-      "failed": "Could not generate a draft.",
+      "failed": "The AI provider could not generate a draft.",
+      "authFailed": "Your session was rejected (sign-in or security token). Refresh the page, sign in again, and retry.",
+      "bridgeUnreachable": "Could not reach the Wayland app. Check that it is running and reachable, then retry.",
+      "timedOut": "Drafting took too long and was stopped. The model or connection may be slow — try again.",
       "failedReason": "Reason: {{detail}}",
       "retry": "Try again"
     },

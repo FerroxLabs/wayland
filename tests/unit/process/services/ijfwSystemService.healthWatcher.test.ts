@@ -54,6 +54,16 @@ vi.mock('@process/services/ijfw/preludeManager', () => ({
   discoverTargets: (dirs: unknown) => discoverTargetsSpy(dirs),
 }));
 
+// #716: getActiveProjectDirs lazily reads persisted project workspaces.
+// Mocked so unit tests never open a real SQLite database.
+vi.mock('@process/services/database/SqliteProjectRepository', () => ({
+  SqliteProjectRepository: class {
+    listProjects() {
+      return Promise.resolve([]);
+    }
+  },
+}));
+
 const mcpShutdownSpy = vi.fn().mockResolvedValue(undefined);
 vi.mock('@process/services/ijfw/ijfwMcpClient', () => ({
   ijfwMcpClient: {
@@ -102,7 +112,7 @@ describe('ijfwSystemService.startHealthWatcher', () => {
     lastWatcherCallback!('rename', 'mcp-server');
     for (let i = 0; i < 5; i++) await flush();
     expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'not_installed', reason: 'install_removed' }),
+      expect.objectContaining({ status: 'not_installed', reason: 'install_removed' })
     );
     expect(mcpShutdownSpy).toHaveBeenCalled();
     dispose();
@@ -116,7 +126,7 @@ describe('ijfwSystemService.startHealthWatcher', () => {
     lastWatcherCallback!('rename', 'mcp-server');
     for (let i = 0; i < 5; i++) await flush();
     expect(
-      emitSpy.mock.calls.filter((c) => (c[0] as { status: string }).status === 'not_installed').length,
+      emitSpy.mock.calls.filter((c) => (c[0] as { status: string }).status === 'not_installed').length
     ).toBeLessThanOrEqual(1);
     dispose();
   });

@@ -30,8 +30,9 @@
  */
 
 import path from 'path';
-import { existsSync, readFileSync } from 'fs';
+import { closeSync, existsSync, openSync, readFileSync, readSync } from 'fs';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
+import { PACK_BLOB_NAME, PACK_OFFSETS_NAME, type PackOffsets } from '@process/services/skills/SkillPack';
 import agentProfileSkills from './agentProfileSkills.json';
 
 const TAG = '[AgentProfileMerge]';
@@ -92,6 +93,63 @@ function resolveSkillsLibraryDir(): string | null {
     if (existsSync(path.join(c, 'index.json'))) return c;
   }
   return null;
+}
+
+/** Synchronous packed-body reader; `null` body means "not in the pack". */
+type SyncPackReader = { read(relPath: string): string | null; close(): void };
+
+/**
+ * Synchronous counterpart of `SkillPack.openSkillPack` for this overlay's
+ * one-shot sync `buildOverlay()` path (#502). Since #309, packaged builds ship
+ * skill bodies as `skill-bodies.bin` + `skill-bodies.offsets.json` with NO
+ * loose `bodies/<path>/SKILL.md` files, so the raw `readFileSync` here always
+ * hit ENOENT and every vendored agent-profile merged with an empty body.
+ *
+ * Returns `null` when no pack exists (dev tree / legacy loose layout) or when
+ * the pack is malformed, so callers transparently fall back to loose files -
+ * mirroring `SkillLibrary.loadBody`'s pack-then-loose order.
+ */
+function openSkillPackSync(dir: string): SyncPackReader | null {
+  const blobPath = path.join(dir, PACK_BLOB_NAME);
+  const offsetsPath = path.join(dir, PACK_OFFSETS_NAME);
+  if (!existsSync(blobPath) || !existsSync(offsetsPath)) return null;
+
+  let offsets: PackOffsets;
+  try {
+    offsets = JSON.parse(readFileSync(offsetsPath, 'utf-8')) as PackOffsets;
+  } catch {
+    return null;
+  }
+  if (!offsets || typeof offsets !== 'object' || !offsets.entries) return null;
+
+  let fd: number;
+  try {
+    fd = openSync(blobPath, 'r');
+  } catch {
+    return null;
+  }
+  return {
+    read: (relPath: string): string | null => {
+      const range = offsets.entries[relPath];
+      if (!range) return null;
+      const [offset, length] = range;
+      if (length === 0) return '';
+      try {
+        const buf = Buffer.allocUnsafe(length);
+        readSync(fd, buf, 0, length, offset);
+        return buf.toString('utf-8');
+      } catch {
+        return null;
+      }
+    },
+    close: (): void => {
+      try {
+        closeSync(fd);
+      } catch {
+        // Already closed - nothing to release.
+      }
+    },
+  };
 }
 
 function toDisplayName(slug: string): string {
@@ -239,6 +297,9 @@ function buildOverlay(): VendoredAgentProfile[] {
 
   const out: VendoredAgentProfile[] = [];
   const seen = new Set<string>();
+  // #502: packaged builds carry bodies in the packed blob (#309), not loose
+  // files. Open it once for the whole loop; null in the dev tree.
+  const pack = openSkillPackSync(dir);
 
   for (const entry of index) {
     if (!entry || typeof entry !== 'object') continue;
@@ -257,16 +318,34 @@ function buildOverlay(): VendoredAgentProfile[] {
 
     let body = '';
     if (relPath) {
-      const tried = path.join(dir, 'bodies', relPath);
-      try {
-        // index.json records paths relative to the library root WITHOUT the
-        // `bodies/` segment; the actual SKILL.md files live under bodies/.
-        body = readFileSync(tried, 'utf-8');
-      } catch (err) {
-        // Loud one-line warning so the next time someone wonders why a
-        // vendored agent-profile shows empty rules, the log says exactly
-        // which file failed to resolve and why.
-        console.warn(`${TAG} body read failed for ${name} at ${tried}: ${String(err).slice(0, 200)}`);
+      // Mirror SkillLibrary.loadBody's resolution order: packed blob first
+      // (packaged builds, #309), then the literal path, then `bodies/`
+      // (dev tree - index.json records paths relative to the library root
+      // WITHOUT the `bodies/` segment; the loose SKILL.md files live under
+      // bodies/).
+      const packed = pack?.read(relPath) ?? null;
+      if (packed !== null) {
+        body = packed;
+      } else {
+        const candidates = [path.join(dir, relPath), path.join(dir, 'bodies', relPath)];
+        let lastErr: unknown = null;
+        for (const tried of candidates) {
+          try {
+            body = readFileSync(tried, 'utf-8');
+            lastErr = null;
+            break;
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        if (lastErr !== null) {
+          // Loud one-line warning so the next time someone wonders why a
+          // vendored agent-profile shows empty rules, the log says exactly
+          // which file failed to resolve and why.
+          console.warn(
+            `${TAG} body read failed for ${name} at ${candidates[candidates.length - 1]}: ${String(lastErr).slice(0, 200)}`
+          );
+        }
       }
     }
 
@@ -292,6 +371,7 @@ function buildOverlay(): VendoredAgentProfile[] {
     });
   }
 
+  pack?.close();
   cached = out;
   return out;
 }

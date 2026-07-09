@@ -1,0 +1,3 @@
+# Default reviewers for everything in app.
+# Refine to teams/paths as the project grows, e.g. `/src/ @FerroxLabs/core`.
+* @FerroxLabs

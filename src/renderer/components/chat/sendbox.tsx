@@ -993,9 +993,24 @@ const SendBox: React.FC<{
     onFilesAdded,
     conversationId: conversationContext?.conversationId,
     onTextPaste: (text: string) => {
-      // Handle cleaned text paste; insert text at the current caret position instead of replacing entire content
+      // Handle cleaned text paste; insert at the caret through the browser's
+      // editing pipeline (execCommand('insertText')) so the edit is recorded
+      // on the native undo stack and Cmd+Z can undo the paste (#669). The
+      // resulting native input event flows through handleTextAreaChange,
+      // keeping React state in sync.
       const textarea = document.activeElement as HTMLTextAreaElement;
       if (textarea && textarea.tagName === 'TEXTAREA') {
+        let inserted = false;
+        try {
+          inserted = typeof document.execCommand === 'function' && document.execCommand('insertText', false, text);
+        } catch {
+          inserted = false;
+        }
+        if (inserted) {
+          return;
+        }
+        // Fallback when execCommand is unavailable: programmatic insertion.
+        // This path cannot populate the undo stack but keeps paste working.
         const cursorPosition = textarea.selectionStart;
         const currentValue = textarea.value;
         const start = textarea.selectionStart ?? textarea.value.length;
