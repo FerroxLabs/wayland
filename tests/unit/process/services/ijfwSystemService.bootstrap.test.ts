@@ -51,6 +51,16 @@ vi.mock('@process/services/ijfw/preludeManager', () => ({
   discoverTargets: (dirs: unknown) => discoverTargetsSpy(dirs),
 }));
 
+// #716: getActiveProjectDirs lazily reads persisted project workspaces.
+// Mocked so unit tests never open a real SQLite database.
+vi.mock('@process/services/database/SqliteProjectRepository', () => ({
+  SqliteProjectRepository: class {
+    listProjects() {
+      return Promise.resolve([]);
+    }
+  },
+}));
+
 const refreshAllSpy = vi.fn().mockResolvedValue(undefined);
 vi.mock('@process/agent/AgentRegistry', () => ({
   agentRegistry: {
