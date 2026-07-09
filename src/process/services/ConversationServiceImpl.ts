@@ -12,6 +12,7 @@ import { cronService } from './cron/cronServiceSingleton';
 import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
 import { loadProjectKnowledgeBlock, loadGlobalMemoryBlock } from '@process/services/projectKnowledge/knowledge';
 import { enforceProjectWorkspace, ensureProjectWorkspace } from '@process/services/projectWorkspace';
+import { assignAgentWorktree, removeAgentWorktree } from '@process/services/agentWorktree';
 import {
   createGeminiAgent,
   createAcpAgent,
@@ -41,7 +42,22 @@ export class ConversationServiceImpl implements IConversationService {
   }
 
   async deleteConversation(id: string): Promise<void> {
+    // Read the row before deleting so we can reclaim its agent worktree after.
+    let conversation: TChatConversation | undefined;
+    try {
+      conversation = await this.repo.getConversation(id);
+    } catch {
+      conversation = undefined;
+    }
     await this.repo.deleteConversation(id);
+    // Best-effort: remove this agent's git worktree (dir + branch) so isolated
+    // worktrees don't accumulate. Deletion already succeeded, so never throw.
+    const extra = conversation?.extra as Record<string, unknown> | undefined;
+    if (extra?.worktreePath) {
+      await removeAgentWorktree(extra).catch((err) =>
+        console.error('[ConversationServiceImpl] worktree cleanup failed:', err)
+      );
+    }
   }
 
   async updateConversation(id: string, updates: Partial<TChatConversation>, mergeExtra?: boolean): Promise<void> {
@@ -190,6 +206,13 @@ export class ConversationServiceImpl implements IConversationService {
       await ensureProjectWorkspace(extra.projectId as string);
     }
     await enforceProjectWorkspace(extra);
+    // Per-agent isolation: when this project chat's workspace is a git repo,
+    // give it its OWN worktree so concurrent agents never edit the same files
+    // on the same branch. Fail-safe - on any problem the agent shares the main
+    // checkout (see assignAgentWorktree). Skipped for user-picked workspaces.
+    if (extra?.projectId && !extra.customWorkspace) {
+      await assignAgentWorktree(extra);
+    }
   }
 
   async createConversation(params: CreateConversationParams): Promise<TChatConversation> {

@@ -46,3 +46,34 @@ export type ICreateProjectParams = {
 export type IUpdateProjectParams = Partial<
   Pick<IProject, 'name' | 'description' | 'workspace' | 'icon' | 'iconColor' | 'pinned' | 'pinnedAt'>
 >;
+
+/**
+ * How to authenticate a git clone/pull.
+ * - `none`  : public repo, no credentials.
+ * - `token` : HTTPS personal-access-token. Injected as a command-scoped Basic
+ *   auth header; never written into the cloned repo's `.git/config`.
+ * - `ssh`   : SSH transport. An optional private-key path is passed via
+ *   `GIT_SSH_COMMAND`; when omitted the user's default SSH agent/keys are used.
+ */
+export type IGitCloneAuth =
+  | { kind: 'none' }
+  | { kind: 'token'; username?: string; token: string }
+  | { kind: 'ssh'; privateKeyPath?: string };
+
+/** Parameters for cloning a git repo into a fresh project workspace. */
+export type IGitCloneParams = {
+  url: string;
+  auth?: IGitCloneAuth;
+  /** Overrides the repo-name derived from the URL. */
+  name?: string;
+  description?: string;
+};
+
+/** Result of a successful clone: the project now pointed at the cloned dir. */
+export type IGitCloneResult = { project: IProject };
+
+/** Result of pulling an existing project's workspace. */
+export type IGitPullResult = { ok: boolean; output?: string; error?: string };
+
+/** Result of merging an agent worktree branch back into the main checkout. */
+export type IGitMergeResult = { ok: boolean; output?: string; error?: string; conflict?: boolean };

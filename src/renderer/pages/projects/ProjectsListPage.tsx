@@ -8,7 +8,7 @@ import { ipcBridge } from '@/common';
 import type { IProject, ICreateProjectParams } from '@/common/types/project';
 import PageShell from '@/renderer/components/layout/PageShell';
 import { Button, Message, Modal } from '@arco-design/web-react';
-import { FolderKanban, FolderPlus, Plus } from 'lucide-react';
+import { FolderKanban, FolderPlus, GitBranch, Plus } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { useProjects } from './hooks/useProjects';
 import ProjectCard from './components/ProjectCard';
 import CreateProjectModal from './components/CreateProjectModal';
 import NewProjectWizard from './components/NewProjectWizard';
+import CloneFromGitModal from './components/CloneFromGitModal';
 
 /**
  * Top-level Projects surface: a grid of project tiles plus one obvious "New
@@ -30,6 +31,7 @@ const ProjectsListPage: React.FC = () => {
 
   const [editing, setEditing] = React.useState<IProject | undefined>(undefined);
   const [wizardOpen, setWizardOpen] = React.useState(false);
+  const [cloneOpen, setCloneOpen] = React.useState(false);
   const [canGenerate, setCanGenerate] = React.useState(false);
 
   useEffect(() => {
@@ -109,13 +111,21 @@ const ProjectsListPage: React.FC = () => {
     [updateProject]
   );
 
-  const newProjectButton = (
-    <Button type='primary' onClick={openCreate}>
-      <span className='flex items-center gap-6px'>
-        <Plus size={16} />
-        {t('projects.list.newButton')}
-      </span>
-    </Button>
+  const headerActions = (
+    <div className='flex items-center gap-8px'>
+      <Button onClick={() => setCloneOpen(true)}>
+        <span className='flex items-center gap-6px'>
+          <GitBranch size={16} />
+          {t('projects.clone.button')}
+        </span>
+      </Button>
+      <Button type='primary' onClick={openCreate}>
+        <span className='flex items-center gap-6px'>
+          <Plus size={16} />
+          {t('projects.list.newButton')}
+        </span>
+      </Button>
+    </div>
   );
 
   return (
@@ -123,7 +133,7 @@ const ProjectsListPage: React.FC = () => {
       title={t('projects.list.title')}
       icon={<FolderKanban size={20} />}
       subtitle={t('projects.list.subtitle')}
-      actions={newProjectButton}
+      actions={headerActions}
       width='full'
     >
       <div className='pb-24px'>
@@ -167,6 +177,7 @@ const ProjectsListPage: React.FC = () => {
         onClose={() => setWizardOpen(false)}
         onComplete={completeNewProject}
       />
+      <CloneFromGitModal visible={cloneOpen} onClose={() => setCloneOpen(false)} />
     </PageShell>
   );
 };

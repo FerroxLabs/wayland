@@ -34,6 +34,7 @@ import ProjectSettingsDrawer, { type SettingsSection } from './components/Projec
 import ProjectReferencePanel from './components/ProjectReferencePanel';
 import ProjectMemoryPanel from './components/ProjectMemoryPanel';
 import ProjectHistoryPanel from './components/ProjectHistoryPanel';
+import WorkspaceGitBar from './components/WorkspaceGitBar';
 import styles from './components/projectCards.module.css';
 
 type ProjectTab = 'chats' | 'files' | 'reference' | 'memory' | 'history';
@@ -263,6 +264,8 @@ const ProjectWorkspacePage: React.FC = () => {
             {t('missionControl.cost.totalSpend')}: {formatUsd(projectSpendUsd)}
           </div>
         )}
+
+        {projectId && <WorkspaceGitBar projectId={projectId} />}
 
         <Button type='text' icon={<SettingsIcon size={15} />} onClick={() => openSettings('general')}>
           {t('projects.workspace.settings')}

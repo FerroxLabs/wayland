@@ -2865,6 +2865,32 @@ export const project = {
     'project.update'
   ),
   remove: buildProvider<void, { id: string }>('project.remove'),
+  /**
+   * Clone a git repo into a fresh workspace and create a project pointed at it.
+   * Supports public repos, HTTPS token auth, and SSH-key auth (see IGitCloneAuth).
+   * Local-renderer-only: execs git + handles credentials (remote-denied).
+   */
+  cloneFromGit: buildProvider<
+    import('@/common/types/project').IGitCloneResult,
+    import('@/common/types/project').IGitCloneParams
+  >('project.clone-from-git'),
+  /** Pull the latest into a project's workspace, re-applying its stored git auth. */
+  pull: buildProvider<import('@/common/types/project').IGitPullResult, { id: string }>('project.pull'),
+  /**
+   * Git status of a project's workspace for the UI: whether it's a git repo and
+   * its per-agent worktrees. Each running agent in a git-backed workspace gets
+   * its own `wayland/agent-*` worktree so concurrent agents don't collide.
+   */
+  gitStatus: buildProvider<
+    { isGitRepo: boolean; worktreePerAgent: boolean; worktrees: Array<{ path: string; branch: string }> },
+    { id: string }
+  >('project.git-status'),
+  /** Merge one agent worktree branch back into the project's main checkout, then retire it. */
+  mergeWorktree: buildProvider<import('@/common/types/project').IGitMergeResult, { id: string; branch: string }>(
+    'project.merge-worktree'
+  ),
+  /** Toggle per-agent worktree isolation for a project (default on). */
+  setWorktreePref: buildProvider<void, { id: string; enabled: boolean }>('project.set-worktree-pref'),
   /** Conversations owned by a project, newest-first. */
   getConversations: buildProvider<import('@/common/config/storage').TChatConversation[], { projectId: string }>(
     'project.get-conversations'

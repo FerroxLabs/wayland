@@ -361,6 +361,20 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'memory.delete-entry',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
+  // --- Git clone/pull. clone-from-git spawns `git clone` against a caller-supplied
+  //     URL with caller-supplied credentials (exec + credential handling + fetches
+  //     arbitrary repo contents onto disk); pull execs `git pull` and re-applies a
+  //     stored token/SSH key. A paired-device WS token proves a remote browser, not
+  //     the local trusted user, so both are local-renderer-only. ---
+  'project.clone-from-git',
+  'project.pull',
+  // git-status execs git and discloses local worktree filesystem paths;
+  // read-only but local-renderer-only for defence-in-depth (same class as pull).
+  'project.git-status',
+  // merge-worktree execs git merge/commit/branch mutations; set-worktree-pref
+  // flips project isolation policy. Both are local-renderer-only.
+  'project.merge-worktree',
+  'project.set-worktree-pref',
   // --- Storage destructive / disk operations ---
   'storage:changeDir',
   'storage:clearDir',
