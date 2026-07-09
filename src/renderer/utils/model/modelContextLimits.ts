@@ -98,3 +98,32 @@ export function getModelContextLimit(modelName: string | undefined | null): numb
 
   return bestLimit;
 }
+
+/**
+ * Resolve a model's context limit preferring the live registry catalog over
+ * the static table above (#733).
+ *
+ * `catalogWindows` maps catalog model ids to their models.dev-enriched
+ * `contextWindow` — the SAME source the model picker rows render ("1M
+ * context"). The static `MODEL_CONTEXT_LIMITS` table is only a fallback: it
+ * goes stale as providers ship new models, and its fuzzy substring match can
+ * resolve a new/variant id to an older sibling's window (e.g. a dated Opus id
+ * falling to the bare `claude-opus-4` 200K entry) while the picker shows the
+ * correct 1M — the inconsistent denominator reported in #733.
+ *
+ * An id absent from the catalog (Flux routing aliases, disconnected
+ * providers, unenriched models with no `contextWindow`) keeps the previous
+ * static-table behavior, including its `DEFAULT_CONTEXT_LIMIT` fallback.
+ */
+export function resolveModelContextLimit(
+  catalogWindows: ReadonlyMap<string, number>,
+  modelName: string | undefined | null
+): number {
+  if (modelName) {
+    const window = catalogWindows.get(modelName) ?? catalogWindows.get(modelName.toLowerCase());
+    if (typeof window === 'number' && window > 0) {
+      return window;
+    }
+  }
+  return getModelContextLimit(modelName);
+}
