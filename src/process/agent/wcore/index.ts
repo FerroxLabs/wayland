@@ -615,6 +615,22 @@ export class WCoreAgent {
         this.mcpReadyResolve();
         break;
 
+      // ── #713: MCP server connection failure ────────────────────────
+      // Mirrors plugin_registration_failed: the session still runs, but
+      // the user must see that a configured MCP server failed to connect
+      // (its tools silently don't exist otherwise) and the engine's
+      // remediation text. Previously this fell through to the
+      // unknown-event arm and was dropped, so MCP connection failures
+      // were invisible outside the log file.
+      case 'mcp_failed':
+        console.warn('[WCoreAgent] mcp_failed', { name: event.name, reason: event.reason });
+        this.onStreamEvent({
+          type: 'info',
+          data: `MCP server "${event.name}" failed to connect: ${event.reason}`,
+          msg_id: this.activeMsgId ?? '',
+        });
+        break;
+
       case 'pong':
         this._onPong?.();
         break;
