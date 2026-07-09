@@ -32,6 +32,7 @@ import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ip
 import type { IjfwErrorReason } from '@/common/types/ijfw';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
 import { safeSpawn } from '@process/services/ijfw/safeSpawn';
+import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
 import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
 import { acquireLock, releaseLock, type LockMetadata } from '@process/services/ijfw/installLock';
 import {
@@ -587,9 +588,14 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     let child: ChildProcess;
     try {
+      // #755: explicit bundle-external cwd + IJFW_PROJECT_DIR so the probe
+      // server can never treat an inherited cwd (e.g. app.asar.unpacked in a
+      // worker) as a writable project root and write into the signed bundle.
+      const safeCwd = resolveSafeSpawnCwd();
       child = spawn(process.execPath, [entry], {
+        cwd: safeCwd,
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' }),
+        env: buildChildEnv({ ELECTRON_RUN_AS_NODE: '1', IJFW_PROJECT_DIR: safeCwd }),
       });
     } catch (err) {
       log.warn('[ijfw] spawnTestVerify - spawn threw', { err });

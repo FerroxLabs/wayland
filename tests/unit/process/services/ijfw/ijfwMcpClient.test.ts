@@ -155,13 +155,34 @@ describe('ijfwMcpClient', () => {
           jsonrpc: '2.0',
           id: parsed.id,
           result: mcpEnvelope({ hits: [] }),
-        }),
-      ),
+        })
+      )
     );
 
     const result = await promise;
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toEqual({ hits: [] });
+  });
+
+  it('#755: spawns with an explicit bundle-external cwd and matching IJFW_PROJECT_DIR', async () => {
+    const { ijfwMcpClient } = await loadClient();
+    const promise = ijfwMcpClient.invoke('memory_recall', {}, { timeoutMs: 25 });
+    await new Promise((r) => setImmediate(r));
+
+    expect(spawnSpy).toHaveBeenCalledTimes(1);
+    const opts = spawnSpy.mock.calls[0]![2] as { cwd?: string; env?: Record<string, string> };
+
+    // An explicit cwd MUST be set - inheriting the parent cwd is the #755 bug
+    // (in packaged builds a forked worker's cwd is app.asar.unpacked, and the
+    // ijfw server's safeProjectDir() then writes into the signed bundle).
+    expect(opts.cwd).toBeTruthy();
+    expect(opts.cwd).not.toMatch(/app\.asar/);
+    expect(opts.cwd).not.toMatch(/\.app[/\\]Contents/);
+    // IJFW_PROJECT_DIR pins the server's project root to the same safe dir so
+    // it never has to fall back to cwd heuristics at all.
+    expect(opts.env?.IJFW_PROJECT_DIR).toBe(opts.cwd);
+
+    await promise; // let the 25ms timeout settle before teardown
   });
 
   it('rejects with errorReason "timeout" when no response arrives', async () => {
@@ -221,15 +242,11 @@ describe('ijfwMcpClient', () => {
     // Resolve both. Use the real MCP envelope shape (Codex B2 unwrap).
     currentChild!.stdout.emit(
       'data',
-      Buffer.from(
-        encodeNewline({ jsonrpc: '2.0', id: first.id, result: mcpEnvelope('A') }),
-      ),
+      Buffer.from(encodeNewline({ jsonrpc: '2.0', id: first.id, result: mcpEnvelope('A') }))
     );
     currentChild!.stdout.emit(
       'data',
-      Buffer.from(
-        encodeNewline({ jsonrpc: '2.0', id: second.id, result: mcpEnvelope('B') }),
-      ),
+      Buffer.from(encodeNewline({ jsonrpc: '2.0', id: second.id, result: mcpEnvelope('B') }))
     );
 
     const [r1, r2] = await Promise.all([p1, p2]);
@@ -275,8 +292,8 @@ describe('ijfwMcpClient', () => {
           jsonrpc: '2.0',
           id: written.id,
           result: mcpEnvelope({ ok: true }),
-        }),
-      ),
+        })
+      )
     );
     const result = await promise;
     expect(result.ok).toBe(true);
@@ -298,8 +315,8 @@ describe('ijfwMcpClient', () => {
           jsonrpc: '2.0',
           id: sent.id,
           result: mcpEnvelope({ facts: [] }),
-        }),
-      ),
+        })
+      )
     );
     const result = await promise;
     expect(result.ok).toBe(true);
@@ -320,8 +337,8 @@ describe('ijfwMcpClient', () => {
           jsonrpc: '2.0',
           id: sent.id,
           result: mcpEnvelope({ entries: [] }),
-        }),
-      ),
+        })
+      )
     );
     const result = await promise;
     expect(result.ok).toBe(true);
@@ -351,8 +368,8 @@ describe('ijfwMcpClient', () => {
             content: [{ type: 'text', text: 'server crashed in tool handler' }],
             isError: true,
           },
-        }),
-      ),
+        })
+      )
     );
     const result = await promise;
     expect(result.ok).toBe(false);
@@ -377,8 +394,8 @@ describe('ijfwMcpClient', () => {
             content: [{ type: 'text', text: 'not-json-payload' }],
             isError: false,
           },
-        }),
-      ),
+        })
+      )
     );
     const result = await promise;
     expect(result.ok).toBe(true);
@@ -445,8 +462,8 @@ describe('ijfwMcpClient', () => {
           jsonrpc: '2.0',
           id: written.id,
           error: { code: -32601, message: 'method not found' },
-        }),
-      ),
+        })
+      )
     );
 
     const result = await promise;
