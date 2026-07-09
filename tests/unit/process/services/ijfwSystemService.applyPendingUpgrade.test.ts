@@ -130,6 +130,60 @@ function makeSpawnTestSuccessChild() {
   return child;
 }
 
+/**
+ * #721: a child that pollutes stdout with plaintext progress lines around a
+ * valid tools/list response. Tolerant framing must skip the garbage and still
+ * verify successfully.
+ */
+function makeGarbageThenSuccessChild() {
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+    stdin: { write: (data: Buffer | string) => void };
+    kill: () => void;
+  };
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.stdin = {
+    write: () => {
+      setImmediate(() => {
+        const response = {
+          jsonrpc: '2.0',
+          id: 1,
+          result: { tools: [{ name: 'ijfw_memory_recall' }, { name: 'ijfw_state' }] },
+        };
+        child.stdout.emit('data', Buffer.from('build.building wayland-desktop 42%\n'));
+        child.stdout.emit('data', Buffer.from('more plaintext noise\n' + JSON.stringify(response) + '\n'));
+      });
+    },
+  };
+  child.kill = () => {};
+  return child;
+}
+
+/** #721: a child whose stdout is ONLY garbage - never a valid JSON-RPC reply. */
+function makeGarbageOnlyChild() {
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+    stdin: { write: (data: Buffer | string) => void };
+    kill: () => void;
+  };
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.stdin = {
+    write: () => {
+      setImmediate(() => {
+        for (let i = 0; i < 5; i++) {
+          child.stdout.emit('data', Buffer.from(`build.progress ${i * 20}%\n`));
+        }
+      });
+    },
+  };
+  child.kill = () => {};
+  return child;
+}
+
 function makeSpawnTestFailureChild() {
   const child = new EventEmitter() as EventEmitter & {
     stdout: EventEmitter;
@@ -233,6 +287,48 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current' }));
     expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server'))).toBe(true);
     expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server.pending'))).toBe(false);
+  });
+
+  it('#721: spawn-test still verifies when garbage lines pollute a valid tools/list response', async () => {
+    writePendingDir();
+    spawnSpy.mockImplementation(() => makeGarbageThenSuccessChild());
+
+    await ijfwSystemService.applyPendingUpgrade();
+    for (let i = 0; i < 8; i++) await flush();
+
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current' }));
+    expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server'))).toBe(true);
+  });
+
+  it('#721: spawn-test settles false via its 5s timeout when the child emits only garbage', async () => {
+    // No current install seeded → the failed verify has no `.prev` to roll
+    // back to, so the flow exits via upgrade_failed_no_rollback after a
+    // SINGLE spawn-test - one 5s timer to advance.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      writePendingDir();
+      spawnSpy.mockImplementation(() => makeGarbageOnlyChild());
+
+      let settled = false;
+      const run = ijfwSystemService.applyPendingUpgrade().finally(() => {
+        settled = true;
+      });
+      // Interleave real macrotask flushes (child emits via setImmediate, fs is
+      // real) with fake-clock advances until the flow has created and fired
+      // the 5s verify timeout and run to completion.
+      for (let i = 0; i < 200 && !settled; i++) {
+        for (let j = 0; j < 4; j++) await flush();
+        await vi.advanceTimersByTimeAsync(500);
+      }
+      await run;
+
+      expect(spawnSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'install_failed', errorReason: 'upgrade_failed_no_rollback' })
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('Checkpoint B B2: acquires installLock and short-circuits when one is already held', async () => {
