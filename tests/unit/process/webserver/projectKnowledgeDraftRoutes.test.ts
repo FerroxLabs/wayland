@@ -9,8 +9,12 @@
  *
  * Coverage:
  *  - generateKnowledgeDraftLogic: happy path, no-model, failed-LLM, error enum
- *  - Route: rejects missing token; rejects when requireSecureConfigWrite fails;
- *    rejects invalid kind; accepts valid request; returns no-model; emits audit
+ *  - Route: rejects missing token; rejects invalid kind; accepts valid request;
+ *    returns no-model; emits audit
+ *  - Permission-class regression (#683): draft generation is NOT gated by the
+ *    secure-config-write floor (no 403 even from public internet over plain
+ *    HTTP), while requireSecureConfigWrite itself still refuses that context
+ *    for real config writes
  *  - Confinement regression (RT-F2-01): /etc/passwd path must not produce a
  *    draft with "passwd"/"root:", and the response must not echo the file path
  */
@@ -22,23 +26,23 @@ import { registerProjectKnowledgeDraftRoutes } from '@process/webserver/routes/p
 // ---------------------------------------------------------------------------
 // Hoisted mocks
 // ---------------------------------------------------------------------------
-const {
-  mockRequireSecureConfigWrite,
-  mockAppendAudit,
-  mockReadSourceFiles,
-  mockHasUsableModel,
-  mockOneShotCompleteBest,
-} = vi.hoisted(() => ({
-  mockRequireSecureConfigWrite: vi.fn((_req: Request, _res: Response) => true as boolean),
-  mockAppendAudit: vi.fn(() => Promise.resolve(true)),
-  mockReadSourceFiles: vi.fn(async (_paths: string[]) => ''),
-  mockHasUsableModel: vi.fn(async () => true as boolean),
-  mockOneShotCompleteBest: vi.fn(async (_prompt: string) => 'DRAFT_OUTPUT'),
-}));
+const { mockNetworkContext, mockAppendAudit, mockReadSourceFiles, mockHasUsableModel, mockOneShotCompleteBest } =
+  vi.hoisted(() => ({
+    mockNetworkContext: { reachedVia: 'loopback', isHttps: true },
+    mockAppendAudit: vi.fn(() => Promise.resolve(true)),
+    mockReadSourceFiles: vi.fn(async (_paths: string[]) => ''),
+    mockHasUsableModel: vi.fn(async () => true as boolean),
+    mockOneShotCompleteBest: vi.fn(async (_prompt: string) => 'DRAFT_OUTPUT'),
+  }));
 
-vi.mock('@process/webserver/routes/configWriteGuards', () => ({
-  requireSecureConfigWrite: mockRequireSecureConfigWrite,
-  redactSecrets: (s: string) => s,
+// configWriteGuards is intentionally NOT mocked: #683's regression tests below
+// exercise the REAL requireSecureConfigWrite to prove the gate is unweakened.
+// Its auth-layer imports are stubbed so importing it stays hermetic.
+vi.mock('@process/webserver/auth/repository/UserRepository', () => ({
+  UserRepository: { findById: vi.fn() },
+}));
+vi.mock('@process/webserver/auth/service/AuthService', () => ({
+  AuthService: { verifyPassword: vi.fn() },
 }));
 
 vi.mock('@process/webserver/audit/auditLog', () => ({
@@ -59,7 +63,7 @@ vi.mock('@process/webserver/middleware/security', () => ({
 }));
 
 vi.mock('@process/webserver/middleware/detectNetworkContext', () => ({
-  detectNetworkContext: () => ({ reachedVia: 'loopback', isHttps: true }),
+  detectNetworkContext: () => ({ ...mockNetworkContext }),
 }));
 
 // ---------------------------------------------------------------------------
@@ -171,7 +175,8 @@ describe('generateKnowledgeDraftLogic', () => {
 describe('POST /api/projects/generate-knowledge-draft (route)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRequireSecureConfigWrite.mockReturnValue(true);
+    mockNetworkContext.reachedVia = 'loopback';
+    mockNetworkContext.isHttps = true;
     mockHasUsableModel.mockResolvedValue(true);
     mockOneShotCompleteBest.mockResolvedValue('DRAFT_OUTPUT');
     mockReadSourceFiles.mockResolvedValue('');
@@ -203,17 +208,34 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
     expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 
-  it('returns early when requireSecureConfigWrite returns false', async () => {
-    mockRequireSecureConfigWrite.mockImplementation((_req: Request, res: Response) => {
-      res.status(403).json({ success: false, msg: 'HTTPS required' });
-      return false;
-    });
+  it('is not 403d by the secure-config-write floor: drafts succeed even from public internet over plain HTTP (#683)', async () => {
+    // The exact context requireSecureConfigWrite refuses. Drafting is a
+    // model/read operation, not a config write, so it must still succeed.
+    mockNetworkContext.reachedVia = 'public_internet';
+    mockNetworkContext.isHttps = false;
     const handler = getHandler(passThroughAuth);
     const res = mockRes();
     await handler(makeReq({ kind: 'context' }), res, vi.fn());
-    expect(mockRequireSecureConfigWrite).toHaveBeenCalled();
-    // Business logic must NOT run after the guard writes the 403.
-    expect(mockOneShotCompleteBest).not.toHaveBeenCalled();
+    expect(res.status as ReturnType<typeof vi.fn>).not.toHaveBeenCalledWith(403);
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: true,
+        data: expect.objectContaining({ draft: 'DRAFT_OUTPUT' }),
+      })
+    );
+  });
+
+  it('leaves the secure-config gate unweakened: requireSecureConfigWrite still 403s public plain-HTTP writes', async () => {
+    // The REAL guard (not a mock) under the same network context the draft
+    // route now permits — proving #683 reclassified the route, not the gate.
+    mockNetworkContext.reachedVia = 'public_internet';
+    mockNetworkContext.isHttps = false;
+    const { requireSecureConfigWrite } = await import('@process/webserver/routes/configWriteGuards');
+    const res = mockRes();
+    const allowed = requireSecureConfigWrite(makeReq({}), res);
+    expect(allowed).toBe(false);
+    expect(res.status as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(403);
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 
   it('returns 400 for a missing or invalid kind', async () => {
