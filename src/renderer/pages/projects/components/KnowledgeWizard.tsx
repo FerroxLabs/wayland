@@ -6,7 +6,8 @@
 
 import { ipcBridge } from '@/common';
 import Markdown from '@/renderer/components/Markdown';
-import { generateKnowledgeDraftHttp } from '@/renderer/services/ProjectDraftService';
+import { withDraftTimeout } from '@/renderer/services/draftTimeout';
+import { generateKnowledgeDraftHttp, type KnowledgeDraftError } from '@/renderer/services/ProjectDraftService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Button, Input, Message, Modal, Spin, Tag } from '@arco-design/web-react';
 import { FileText, RefreshCw, Sparkles, Upload, X } from 'lucide-react';
@@ -14,6 +15,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type WizardKind = 'context' | 'rules';
+
+/** One actionable message per failure class (#682) — which layer failed and what to do. */
+const GEN_ERROR_MESSAGE_KEY: Record<KnowledgeDraftError, string> = {
+  'no-model': 'projects.wizard.draft.noModel',
+  auth: 'projects.wizard.draft.authFailed',
+  bridge: 'projects.wizard.draft.bridgeUnreachable',
+  timeout: 'projects.wizard.draft.timedOut',
+  failed: 'projects.wizard.draft.failed',
+};
 
 /**
  * A small, AI-assisted wizard that turns a blank page into a best-practice
@@ -50,9 +60,12 @@ const KnowledgeWizard: React.FC<{
   // Step 2 - draft
   const [draft, setDraft] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [genError, setGenError] = useState<'no-model' | 'failed' | null>(null);
-  // Underlying provider cause for a 'failed' draft (e.g. '401: invalid key'), so
-  // the user sees WHY instead of a dead-end message (#221).
+  // Which layer failed, so the message is actionable instead of generic (#682):
+  // no-model (connect a provider), auth (session/CSRF rejected), bridge
+  // (backend unreachable), timeout, or failed (provider/backend error).
+  const [genError, setGenError] = useState<KnowledgeDraftError | null>(null);
+  // Underlying cause (e.g. '401: invalid key', 'Invalid or missing CSRF token'),
+  // so the user sees WHY instead of a dead-end message (#221).
   const [genDetail, setGenDetail] = useState<string | null>(null);
 
   const AUDIENCE_CHIPS = useMemo(
@@ -124,20 +137,28 @@ const KnowledgeWizard: React.FC<{
       };
       // Desktop uses Electron IPC; headless/remote WebUI uses the token-authed
       // HTTP route (#234). Both return the same shape, including #221's `detail`.
+      // The HTTP route carries its own deadline (AbortSignal.timeout, #682);
+      // withDraftTimeout (#684) gives the IPC path the same guarantee — the
+      // call settles even if the bridge transport never answers (e.g. an
+      // invocation rejected by the remote adapter).
       const {
         draft: out,
         error,
         detail,
       } = isElectronDesktop()
-        ? await ipcBridge.project.generateKnowledgeDraft.invoke(params)
+        ? await withDraftTimeout(ipcBridge.project.generateKnowledgeDraft.invoke(params))
         : await generateKnowledgeDraftHttp(params);
       if (error) {
         setGenError(error);
         setGenDetail(detail ?? null);
       } else if (out) setDraft(out);
       else setGenError('failed');
-    } catch {
-      setGenError('failed');
+    } catch (err) {
+      // The IPC handler and the HTTP client both return structured results
+      // instead of throwing, so a rejection here means the bridge transport
+      // itself failed — surface that, not a generic draft failure (#682).
+      setGenError('bridge');
+      setGenDetail(err instanceof Error && err.message ? err.message : null);
     } finally {
       setGenerating(false);
     }
@@ -297,15 +318,13 @@ const KnowledgeWizard: React.FC<{
                   </div>
                 ) : genError ? (
                   <div className='flex flex-col items-center justify-center gap-8px py-36px text-center'>
-                    <span className='text-13px text-t-secondary'>
-                      {genError === 'no-model' ? t('projects.wizard.draft.noModel') : t('projects.wizard.draft.failed')}
-                    </span>
-                    {genError === 'failed' && genDetail && (
+                    <span className='text-13px text-t-secondary'>{t(GEN_ERROR_MESSAGE_KEY[genError])}</span>
+                    {genError !== 'no-model' && genDetail && (
                       <span className='max-w-340px text-11px text-t-tertiary'>
                         {t('projects.wizard.draft.failedReason', { detail: genDetail })}
                       </span>
                     )}
-                    {genError === 'failed' && (
+                    {genError !== 'no-model' && (
                       <Button size='small' icon={<RefreshCw size={13} />} onClick={() => void generate()}>
                         {t('projects.wizard.draft.retry')}
                       </Button>

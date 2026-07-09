@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Crown, Maximize2, Minimize2, X } from 'lucid
 import { Message, Modal, Spin } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useSWR, { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { useLayoutContext } from '@renderer/hooks/context/LayoutContext';
 import { ipcBridge } from '@/common';
@@ -14,6 +14,7 @@ import type { PaletteKey } from '@/renderer/pages/guid/components/AssistantIconT
 import ChatLayout from '@/renderer/pages/conversation/components/ChatLayout';
 import ChatSider from '@/renderer/pages/conversation/components/ChatSider';
 import { useTeamPendingPermissions } from './hooks/useTeamPendingPermissions';
+import { useTeamConversation } from './hooks/useTeamConversation';
 import AcpModelSelector from '@/renderer/components/agent/AcpModelSelector';
 import GeminiModelSelector from '@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector';
 import { useGeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
@@ -74,9 +75,11 @@ const AgentChatSlot: React.FC<{
   palette?: PaletteKey;
 }> = ({ agent, teamId, isLeader, isFullscreen = false, onToggleFullscreen, onRemove, palette }) => {
   const { t } = useTranslation();
-  const { data: conversation } = useSWR(agent.conversationId ? ['team-conversation', agent.conversationId] : null, () =>
-    ipcBridge.conversation.get.invoke({ id: agent.conversationId })
-  );
+  // useTeamConversation (not a bare useSWR) so the shared record revalidates
+  // when the process persists an update - the header model selector and the
+  // send box hydrate separate model-selection instances from this record, and
+  // a stale cache left them showing different "active models" (#736).
+  const { data: conversation } = useTeamConversation(agent.conversationId);
 
   const isWCore = conversation?.type === 'wcore';
   const initialModelId = (conversation?.extra as { currentModelId?: string })?.currentModelId;
@@ -330,11 +333,9 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
   const isLeaderAgent = activeAgent?.role === 'leader';
   const allConversationIds = useMemo(() => agents.map((a) => a.conversationId).filter(Boolean), [agents]);
 
-  // Fetch leader agent's conversation for the workspace sider
-  const { data: dispatchConversation } = useSWR(
-    leadAgent?.conversationId ? ['team-conversation', leadAgent.conversationId] : null,
-    () => ipcBridge.conversation.get.invoke({ id: leadAgent!.conversationId })
-  );
+  // Fetch leader agent's conversation for the workspace sider (revalidates on
+  // conversation updates via useTeamConversation, same as the agent slots)
+  const { data: dispatchConversation } = useTeamConversation(leadAgent?.conversationId);
 
   // Use team workspace if specified, otherwise fall back to leader agent's conversation workspace (temp workspace)
   const effectiveWorkspace = team.workspace || (dispatchConversation?.extra as { workspace?: string })?.workspace || '';
