@@ -35,6 +35,7 @@ import {
   verifyDirectoryFiles,
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
+import { planPresetLocaleFileCopies } from './presetLocaleFiles';
 import { getOsUserName } from './osUserName';
 import { resolveFluxImageDefault } from './fluxImageDefault';
 import { readConnectedFluxKey } from '../connectors/fluxKey';
@@ -520,18 +521,20 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
     // Copy rule files
     const hasRuleFiles = Object.keys(preset.ruleFiles).length > 0;
     if (hasRuleFiles) {
-      for (const [locale, ruleFile] of Object.entries(preset.ruleFiles)) {
+      // Absent non-default locale variants are skipped silently: the read path
+      // falls back to the default locale, so per-file warnings are noise (#719).
+      const rulePlan = planPresetLocaleFileCopies(preset.ruleFiles, (file) =>
+        existsSync(path.join(presetRulesDir, file))
+      );
+      for (const { file } of rulePlan.missing) {
+        console.warn(`[Wayland] Source rule file not found: ${path.join(presetRulesDir, file)}`);
+      }
+      for (const { locale, file } of rulePlan.copies) {
         try {
-          const sourceRulesPath = path.join(presetRulesDir, ruleFile);
+          const sourceRulesPath = path.join(presetRulesDir, file);
           // Target file name format: {assistantId}.{locale}.md
           const targetFileName = `${assistantId}.${locale}.md`;
           const targetPath = path.join(assistantsDir, targetFileName);
-
-          // Check if source file exists
-          if (!existsSync(sourceRulesPath)) {
-            console.warn(`[Wayland] Source rule file not found: ${sourceRulesPath}`);
-            continue;
-          }
 
           // Always overwrite builtin assistant rule files to ensure users get the latest version
           let content = await fs.readFile(sourceRulesPath, 'utf-8');
@@ -540,7 +543,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing locale files
-          console.warn(`[Wayland] Failed to copy rule file ${ruleFile}:`, error);
+          console.warn(`[Wayland] Failed to copy rule file ${file}:`, error);
         }
       }
     } else {
@@ -561,18 +564,20 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
 
     // Copy skill files (if preset has skills)
     if (preset.skillFiles) {
-      for (const [locale, skillFile] of Object.entries(preset.skillFiles)) {
+      // Absent non-default locale variants are skipped silently: the read path
+      // falls back to the default locale, so per-file warnings are noise (#719).
+      const skillPlan = planPresetLocaleFileCopies(preset.skillFiles, (file) =>
+        existsSync(path.join(presetSkillsDir, file))
+      );
+      for (const { file } of skillPlan.missing) {
+        console.warn(`[Wayland] Source skill file not found: ${path.join(presetSkillsDir, file)}`);
+      }
+      for (const { locale, file } of skillPlan.copies) {
         try {
-          const sourceSkillsPath = path.join(presetSkillsDir, skillFile);
+          const sourceSkillsPath = path.join(presetSkillsDir, file);
           // Target file name format: {assistantId}-skills.{locale}.md
           const targetFileName = `${assistantId}-skills.${locale}.md`;
           const targetPath = path.join(assistantsDir, targetFileName);
-
-          // Check if source file exists
-          if (!existsSync(sourceSkillsPath)) {
-            console.warn(`[Wayland] Source skill file not found: ${sourceSkillsPath}`);
-            continue;
-          }
 
           // Always overwrite builtin assistant skill files to ensure users get the latest version
           let content = await fs.readFile(sourceSkillsPath, 'utf-8');
@@ -581,7 +586,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing skill files
-          console.warn(`[Wayland] Failed to copy skill file ${skillFile}:`, error);
+          console.warn(`[Wayland] Failed to copy skill file ${file}:`, error);
         }
       }
     } else {
