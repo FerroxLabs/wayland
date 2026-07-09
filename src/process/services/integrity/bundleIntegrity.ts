@@ -75,11 +75,13 @@ export function parseCodesignVerifyOutput(stderr: string, exitCode: number | nul
  * is not inside a bundle (dev builds, non-mac).
  */
 export function findBundleRoot(p: string): string | null {
-  const normalized = path.normalize(p);
-  const segments = normalized.split(path.sep);
+  // .app bundles only exist on macOS, so parse with POSIX semantics
+  // unconditionally — win32 path.normalize would flip the separators.
+  const normalized = path.posix.normalize(p);
+  const segments = normalized.split('/');
   for (let i = segments.length - 1; i >= 0; i--) {
     if (segments[i]!.endsWith('.app')) {
-      const root = segments.slice(0, i + 1).join(path.sep);
+      const root = segments.slice(0, i + 1).join('/');
       return root.length > 0 ? root : null;
     }
   }
