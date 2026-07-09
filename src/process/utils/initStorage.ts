@@ -59,6 +59,7 @@ import {
 import { resolveNpxPath } from './shellEnv';
 import { getPlaywrightBrowsersDir } from '../services/mcpServices/playwrightBrowsers';
 import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
+import { cleanupLegacyBundledExtensionCopies } from '../extensions/lifecycle/legacyBundledCopyCleanup';
 import { getBuiltinCatalogAssistants } from './builtinCatalog';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
@@ -1231,6 +1232,17 @@ const initStorage = async () => {
   // <userData>/extensions. ExtensionLoader reads them in place from inside the
   // app (asar) via the 'bundled' scan source — loose .md skill bodies tripped
   // AV content heuristics (#275). See getBundledExtensionsDir().
+  //
+  // #718: builds before #275 left their copied-out packs behind. Remove those
+  // stale copies once so they stop shadowing the asar set and re-triggering
+  // the "Skipping duplicate extension" warning per pack on every launch.
+  const BUNDLED_COPY_CLEANUP_KEY = 'migration.legacyBundledExtensionCopiesRemoved';
+  const bundledCleanupDone = await configFile.get(BUNDLED_COPY_CLEANUP_KEY).catch(() => false);
+  if (!bundledCleanupDone) {
+    if (await cleanupLegacyBundledExtensionCopies()) {
+      await configFile.set(BUNDLED_COPY_CLEANUP_KEY, true);
+    }
+  }
   mark('4.3 bundledExtensions');
 
   // 5. Initialize builtin assistants

@@ -243,6 +243,13 @@ export interface IConfigStorageRefer {
   'migration.promptsI18nAdded'?: boolean;
   /** Migration flag: split 'assistants' into presets-only + 'acp.customAgents' (user-defined customs). */
   'migration.assistantsSplitCustom'?: boolean;
+  /**
+   * Migration flag: stale pre-#275 bundled-extension copies removed from
+   * <userData>/extensions (#718). Builds before #275 copied the bundled packs
+   * out on every launch; the leftovers shadowed the asar 'bundled' scan source
+   * and triggered a duplicate-skip warning per pack per launch.
+   */
+  'migration.legacyBundledExtensionCopiesRemoved'?: boolean;
   /** Migration flag: Electron desktop config has been imported to server config */
   'migration.electronConfigImported'?: boolean;
   /**
