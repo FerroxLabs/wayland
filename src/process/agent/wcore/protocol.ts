@@ -150,6 +150,11 @@ export type WCoreEvent =
   | { type: 'info'; msg_id: string; message: string }
   | { type: 'config_changed'; capabilities: WCoreCapabilities }
   | { type: 'mcp_ready'; name: string; tools: string[] }
+  // #713: the engine failed to connect a configured MCP server. `reason`
+  // carries the engine's actionable remediation text (e.g. the `[security]
+  // egress_allow` hint). Emitted once per failed server, typically at
+  // session start while MCP servers are being registered.
+  | { type: 'mcp_failed'; name: string; reason: string }
   | { type: 'pong' }
   // ── W1: F9 structured trace ──────────────────────────────────────
   | {
