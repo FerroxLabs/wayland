@@ -106,6 +106,14 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
   // in flight. While inside this window, handleScroll bypasses the programmatic
   // guard so the resulting onScroll is evaluated on its true main-scroller delta.
   const userScrollIntentUntilRef = useRef(0);
+  // Cumulative upward travel (px) of the current user scroll gesture. A slow
+  // scroll-up (trackpad slow drag, wheel one notch at a time) emits many
+  // onScroll events whose individual deltas all sit below USER_SCROLL_UP_DELTA,
+  // so the single-event latch never fired and auto-follow kept snapping the
+  // user back to the bottom mid-read (#700). Travel accumulates only while a
+  // wheel/touch intent window is open (programmatic scrolls never emit those
+  // events, so they can never contribute) and resets when a new gesture starts.
+  const gestureUpTravelRef = useRef(0);
 
   // Capture Virtuoso's scroll container
   const handleScrollerRef = useCallback((ref: HTMLElement | Window | null) => {
@@ -181,7 +189,14 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
     if (!scrollerEl) return;
 
     const markIntent = () => {
-      userScrollIntentUntilRef.current = Date.now() + USER_SCROLL_INTENT_MS;
+      const now = Date.now();
+      // A fresh gesture (the previous intent window has lapsed) starts
+      // accumulating from zero, so stray jitter spread across long-separated
+      // gestures can never add up to a false latch.
+      if (now >= userScrollIntentUntilRef.current) {
+        gestureUpTravelRef.current = 0;
+      }
+      userScrollIntentUntilRef.current = now + USER_SCROLL_INTENT_MS;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -317,6 +332,7 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       const gap = target.scrollHeight - target.clientHeight - currentScrollTop;
       if (gap <= 2) {
         userScrolledRef.current = false;
+        gestureUpTravelRef.current = 0;
         setShowScrollButton(false);
       }
     }
@@ -331,11 +347,22 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       return;
     }
 
-    // Require a larger upward jump than the resting jitter a mid-stream layout
-    // shift (orbit/ThoughtDisplay appearing, Virtuoso reflow) can emit, so a
-    // spurious small negative delta doesn't permanently kill auto-follow. A
-    // real read-history scroll-up travels well past this and still pauses follow.
-    if (delta < -USER_SCROLL_UP_DELTA) {
+    // Accumulate this gesture's upward travel. A programmatic snap-down landing
+    // between the user's slow upward ticks must NOT erase progress - the user's
+    // intent is the total distance they tried to travel up, so only gesture
+    // expiry (markIntent on a fresh gesture) or an explicit resume resets it.
+    if (userGestureInFlight && delta < 0) {
+      gestureUpTravelRef.current -= delta;
+    }
+
+    // Latch on either a decisive single upward jump past the jitter threshold
+    // (fast scroll / flick - also covers inputs that emit no wheel/touch
+    // events), or on a slow gesture whose ACCUMULATED travel passes the same
+    // threshold across several small onScroll deltas (#700). Both stay above
+    // the resting jitter a mid-stream layout shift (orbit/ThoughtDisplay
+    // appearing, Virtuoso reflow) can emit, so a spurious small negative delta
+    // still doesn't permanently kill auto-follow.
+    if (delta < -USER_SCROLL_UP_DELTA || (userGestureInFlight && gestureUpTravelRef.current > USER_SCROLL_UP_DELTA)) {
       userScrolledRef.current = true;
       setShowScrollButton(true);
     }
@@ -423,12 +450,14 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
   // paused in one chat would leave the next chat stuck not-following.
   useEffect(() => {
     userScrolledRef.current = false;
+    gestureUpTravelRef.current = 0;
     setShowScrollButton(false);
   }, [conversationId]);
 
   // Hide scroll button handler
   const hideScrollButton = useCallback(() => {
     userScrolledRef.current = false;
+    gestureUpTravelRef.current = 0;
     setShowScrollButton(false);
   }, []);
 
