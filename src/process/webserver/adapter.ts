@@ -4,10 +4,39 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { WebSocketServer } from 'ws';
+import type { WebSocket, WebSocketServer } from 'ws';
 import { registerWebSocketBroadcaster, getBridgeEmitter } from '@/common/adapter/registry';
 import { isAllowedInboundName, isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
 import { WebSocketManager } from './websocket/WebSocketManager';
+
+/**
+ * Settle a rejected provider invocation so the caller fails fast (#684).
+ *
+ * A provider invocation arrives as `subscribe-<key>` carrying `{ id, data }`,
+ * and the platform bridge settles the caller's `invoke()` promise ONLY when
+ * `subscribe.callback-<key><id>` comes back - there is no reject path in the
+ * wire protocol. Silently dropping a rejected invocation therefore leaves that
+ * promise pending forever (e.g. the WebUI knowledge wizard stuck at
+ * "Drafting..."). Reply to the invoking socket with an error-shaped result so
+ * the caller settles immediately instead of hanging.
+ */
+function settleRejectedInvoke(ws: WebSocket, name: string, data: unknown, reason: string): void {
+  if (!name.startsWith('subscribe-')) return;
+  const id = (data as { id?: unknown } | null | undefined)?.id;
+  // The platform id is `<key><8hex>`; bound the echo defensively.
+  if (typeof id !== 'string' || id.length === 0 || id.length > 256) return;
+  const key = name.slice('subscribe-'.length);
+  try {
+    ws.send(
+      JSON.stringify({
+        name: `subscribe.callback-${key}${id}`,
+        data: { error: 'failed', detail: reason },
+      })
+    );
+  } catch {
+    // Socket may be closing; the caller-side timeout is the backstop.
+  }
+}
 
 // Store unregister function for cleanup when server stops
 let unregisterBroadcaster: (() => void) | null = null;
@@ -35,9 +64,10 @@ export function initWebAdapter(wss: WebSocketServer): void {
 
   // Setup WebSocket message handler to forward messages to bridge emitter.
   // C1: reject any name not in the bridge allowlist before dispatching.
-  wsManager.setupConnectionHandler((name, data, _ws) => {
+  wsManager.setupConnectionHandler((name, data, ws) => {
     if (!isAllowedInboundName(name)) {
       console.error('[adapter] Rejected disallowed WebSocket bridge event:', name);
+      settleRejectedInvoke(ws, name, data, 'not-allowed');
       return;
     }
     // WS-POSTAUTH-DISPATCH: the WebSocket token proves a paired browser, not the
@@ -46,6 +76,7 @@ export function initWebAdapter(wss: WebSocketServer): void {
     // fs.*/shell.*/skill-mutation/mcp-mutation/hub/app write/exec providers.
     if (!isAllowedForRemote(name)) {
       console.error('[adapter] Rejected remote-forbidden WebSocket bridge event:', name);
+      settleRejectedInvoke(ws, name, data, 'remote-forbidden');
       return;
     }
     const emitter = getBridgeEmitter();

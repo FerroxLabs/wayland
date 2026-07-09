@@ -10,6 +10,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   DecodeError,
+  MAX_DROPPED_SAMPLES,
+  MAX_DROPPED_SAMPLE_CHARS,
   MAX_LINE_BYTES,
   decode,
   encode,
@@ -102,28 +104,72 @@ describe('ijfw/mcpWireProtocol (newline-delimited)', () => {
     });
 
     it('throws DecodeError when a terminated line exceeds MAX_LINE_BYTES', () => {
-      const oversized = Buffer.concat([
-        Buffer.alloc(MAX_LINE_BYTES + 100, 0x41),
-        Buffer.from([0x0a]),
-      ]);
+      const oversized = Buffer.concat([Buffer.alloc(MAX_LINE_BYTES + 100, 0x41), Buffer.from([0x0a])]);
       expect(() => decode(oversized)).toThrow(/exceeds MAX_LINE_BYTES/);
+    });
+
+    it('#721 review: MAX_LINE_BYTES bounds cumulative retained-buffer growth across chunks', () => {
+      // Simulate the client feed loop: each chunk is appended to the previous
+      // remainder and re-decoded, with no newline ever arriving. The retained
+      // remainder is always the unterminated partial line, so MAX_LINE_BYTES
+      // is the effective cap on total buffer growth (the former MAX_BUFFER_SIZE
+      // remainder check was unreachable and has been removed).
+      const chunk = Buffer.alloc(4 * 1024 * 1024, 0x41); // 4 MiB, no newline
+      let retained = decode(chunk).remainder; // 4 MiB retained
+      retained = decode(Buffer.concat([retained, chunk])).remainder; // 8 MiB retained
+      expect(retained.length).toBe(8 * 1024 * 1024);
+      // 12 MiB > MAX_LINE_BYTES (10 MiB) - the third chunk must throw.
+      expect(() => decode(Buffer.concat([retained, chunk]))).toThrow(DecodeError);
     });
   });
 
-  describe('body validation', () => {
-    it('throws DecodeError on malformed JSON line', () => {
+  describe('tolerant framing for garbage lines (#721)', () => {
+    it('skips a malformed well-terminated line instead of throwing', () => {
       const buf = Buffer.from('{not json\n', 'utf-8');
-      expect(() => decode(buf)).toThrow(/invalid JSON line/);
+      const { messages, remainder, droppedLines, droppedSamples } = decode(buf);
+      expect(messages).toEqual([]);
+      expect(remainder.length).toBe(0);
+      expect(droppedLines).toBe(1);
+      expect(droppedSamples).toEqual(['{not json']);
     });
 
-    it('throws DecodeError naming the underlying parse error', () => {
-      try {
-        decode(Buffer.from('{"a":undefined}\n', 'utf-8'));
-        throw new Error('expected DecodeError');
-      } catch (err) {
-        expect(err).toBeInstanceOf(DecodeError);
-        expect((err as Error).message).toMatch(/invalid JSON line/);
-      }
+    it('decodes valid messages around an interleaved garbage line', () => {
+      // Customer-observed shape: the child console.logs a build.* progress
+      // line to stdout between JSON-RPC responses.
+      const buf = Buffer.concat([
+        encode({ jsonrpc: '2.0', id: 1, result: 'a' }),
+        Buffer.from('build.building wayland-desktop 42%\n', 'utf-8'),
+        encode({ jsonrpc: '2.0', id: 2, result: 'b' }),
+      ]);
+      const { messages, remainder, droppedLines, droppedSamples } = decode(buf);
+      expect(messages).toEqual([
+        { jsonrpc: '2.0', id: 1, result: 'a' },
+        { jsonrpc: '2.0', id: 2, result: 'b' },
+      ]);
+      expect(remainder.length).toBe(0);
+      expect(droppedLines).toBe(1);
+      expect(droppedSamples).toEqual(['build.building wayland-desktop 42%']);
+    });
+
+    it('reports zero dropped lines on a clean stream', () => {
+      const { droppedLines, droppedSamples } = decode(encode({ a: 1 }));
+      expect(droppedLines).toBe(0);
+      expect(droppedSamples).toEqual([]);
+    });
+
+    it('truncates dropped-line samples to MAX_DROPPED_SAMPLE_CHARS', () => {
+      const long = `garbage ${'x'.repeat(500)}`;
+      const { droppedSamples } = decode(Buffer.from(`${long}\n`, 'utf-8'));
+      expect(droppedSamples[0]).toBe(long.slice(0, MAX_DROPPED_SAMPLE_CHARS));
+      expect(droppedSamples[0]!.length).toBe(MAX_DROPPED_SAMPLE_CHARS);
+    });
+
+    it('caps collected samples at MAX_DROPPED_SAMPLES but counts every drop', () => {
+      const lines = Array.from({ length: MAX_DROPPED_SAMPLES + 3 }, (_, i) => `junk-${i}\n`);
+      const { droppedLines, droppedSamples } = decode(Buffer.from(lines.join(''), 'utf-8'));
+      expect(droppedLines).toBe(MAX_DROPPED_SAMPLES + 3);
+      expect(droppedSamples.length).toBe(MAX_DROPPED_SAMPLES);
+      expect(droppedSamples).toEqual(['junk-0', 'junk-1', 'junk-2']);
     });
   });
 });
