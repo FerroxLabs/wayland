@@ -21,7 +21,7 @@ import {
 } from '@office-ai/aioncli-core';
 import process from 'node:process';
 import path from 'node:path';
-import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
+import { defaultStdioMcpCwds } from './mcpServerCwd';
 import type { Settings } from './settings';
 import { annotateActiveExtensions } from './extension';
 import { getCurrentGeminiAgent } from '../index';
@@ -198,20 +198,10 @@ export async function loadCliConfig({
 
   let mcpServersConfig = mergeMcpServers(settings, activeExtensions, mcpServers);
 
-  // #755: stdio MCP servers spawned by aioncli-core inherit THIS process's cwd
-  // when their config carries none - and in packaged builds the forked agent
-  // worker runs with cwd = app.asar.unpacked (required for WASM resolution).
-  // A server that treats a writable cwd as its project root (ijfw's
-  // safeProjectDir() did exactly this) then writes inside the signed bundle,
-  // breaking the macOS codesign seal, after which the OS blocks every child
-  // process the app spawns (#738). Default missing cwds to the workspace -
-  // the same directory the shell tool already runs in.
-  for (const server of Object.values(mcpServersConfig)) {
-    if (server && typeof server === 'object' && typeof (server as { command?: unknown }).command === 'string') {
-      const stdioServer = server as { cwd?: string };
-      if (!stdioServer.cwd) stdioServer.cwd = workspace || resolveSafeSpawnCwd();
-    }
-  }
+  // #755: stdio MCP servers spawned by aioncli-core must never inherit this
+  // process's cwd (app.asar.unpacked in packaged forked workers). Default
+  // missing cwds to the workspace - see mcpServerCwd.ts for the full story.
+  defaultStdioMcpCwds(mcpServersConfig, workspace);
 
   // Use conversation-level tool config
   const toolConfig = conversationToolConfig.getConfig();
