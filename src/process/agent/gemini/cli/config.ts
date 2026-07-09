@@ -21,6 +21,7 @@ import {
 } from '@office-ai/aioncli-core';
 import process from 'node:process';
 import path from 'node:path';
+import { defaultStdioMcpCwds } from './mcpServerCwd';
 import type { Settings } from './settings';
 import { annotateActiveExtensions } from './extension';
 import { getCurrentGeminiAgent } from '../index';
@@ -196,6 +197,11 @@ export async function loadCliConfig({
   );
 
   let mcpServersConfig = mergeMcpServers(settings, activeExtensions, mcpServers);
+
+  // #755: stdio MCP servers spawned by aioncli-core must never inherit this
+  // process's cwd (app.asar.unpacked in packaged forked workers). Default
+  // missing cwds to the workspace - see mcpServerCwd.ts for the full story.
+  defaultStdioMcpCwds(mcpServersConfig, workspace);
 
   // Use conversation-level tool config
   const toolConfig = conversationToolConfig.getConfig();

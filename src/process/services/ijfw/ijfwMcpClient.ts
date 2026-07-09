@@ -24,6 +24,7 @@ import log from 'electron-log';
 import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
+import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
 import { jsonRpcResponseSchema } from './ipcSchemas';
 import { killChild } from '@process/agent/acp/utils';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
@@ -323,8 +324,17 @@ class IjfwMcpClient {
   private async spawnChild(): Promise<ChildProcess> {
     const mcpServerDir = path.join(os.homedir(), '.ijfw', 'mcp-server');
     const entry = await resolveEntry(mcpServerDir);
-    const env = buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' });
+    // #755: NEVER let the server inherit our cwd. When this client runs inside
+    // a forked worker, cwd is app.asar.unpacked (set by ForkTask for WASM
+    // resolution); ijfw's safeProjectDir() falls back to any writable cwd and
+    // its layout migration then writes `.ijfw/.layout-version` INSIDE the
+    // signed bundle - breaking the codesign seal, after which macOS blocks
+    // every child process the app spawns (#738). Pin both the process cwd and
+    // IJFW_PROJECT_DIR to an explicit safe, writable, bundle-external dir.
+    const safeCwd = resolveSafeSpawnCwd();
+    const env = buildChildEnv({ ELECTRON_RUN_AS_NODE: '1', IJFW_PROJECT_DIR: safeCwd });
     const child = spawn(process.execPath, [entry], {
+      cwd: safeCwd,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],
     });

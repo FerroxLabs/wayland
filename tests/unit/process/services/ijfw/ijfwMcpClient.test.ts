@@ -184,6 +184,27 @@ describe('ijfwMcpClient', () => {
     if (result.ok) expect(result.data).toEqual({ hits: [] });
   });
 
+  it('#755: spawns with an explicit bundle-external cwd and matching IJFW_PROJECT_DIR', async () => {
+    const { ijfwMcpClient } = await loadClient();
+    const promise = ijfwMcpClient.invoke('memory_recall', {}, { timeoutMs: 25 });
+    await new Promise((r) => setImmediate(r));
+
+    expect(spawnSpy).toHaveBeenCalledTimes(1);
+    const opts = spawnSpy.mock.calls[0]![2] as { cwd?: string; env?: Record<string, string> };
+
+    // An explicit cwd MUST be set - inheriting the parent cwd is the #755 bug
+    // (in packaged builds a forked worker's cwd is app.asar.unpacked, and the
+    // ijfw server's safeProjectDir() then writes into the signed bundle).
+    expect(opts.cwd).toBeTruthy();
+    expect(opts.cwd).not.toMatch(/app\.asar/);
+    expect(opts.cwd).not.toMatch(/\.app[/\\]Contents/);
+    // IJFW_PROJECT_DIR pins the server's project root to the same safe dir so
+    // it never has to fall back to cwd heuristics at all.
+    expect(opts.env?.IJFW_PROJECT_DIR).toBe(opts.cwd);
+
+    await promise; // let the 25ms timeout settle before teardown
+  });
+
   it('rejects with errorReason "timeout" when no response arrives', async () => {
     const { ijfwMcpClient } = await loadClient();
     // Use a small real timeout - quicker than swapping in fake timers across an
