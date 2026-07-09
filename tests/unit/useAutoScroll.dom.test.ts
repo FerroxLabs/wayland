@@ -874,6 +874,150 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
     expect(result.current.showScrollButton).toBe(false);
   });
 
+  it('#700 review: wheel bubbling from a MID-SCROLL nested child must not accumulate Virtuoso adjustments into a latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Nested overflow child (e.g. a code block) that is mid-scroll: it will
+    // consume upward wheel gestures itself, the main list does not move.
+    const child = document.createElement('div');
+    Object.defineProperty(child, 'scrollHeight', { get: () => 500, configurable: true });
+    Object.defineProperty(child, 'clientHeight', { get: () => 100, configurable: true });
+    child.scrollTop = 50;
+    scrollerEl.appendChild(child);
+
+    // Streaming keeps the guard fresh; baseline established.
+    act(() => {
+      result.current.handleFollowOutput(false);
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // The user wheel-reads the child; wheel events BUBBLE to the scroller.
+    // Between them, Virtuoso rAF micro-adjustments emit small negative deltas
+    // on the MAIN scroller (-15px each, below the 24px single-event threshold
+    // but 30px combined). They must NOT sum into a latch.
+    act(() => {
+      child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 531, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    act(() => {
+      child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 516, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#700 review: wheel over a child parked at its TOP chains to the main list and still accumulates', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Nested child already at its top: an upward wheel chains to the parent,
+    // so the resulting main-scroller movement IS user-driven.
+    const child = document.createElement('div');
+    Object.defineProperty(child, 'scrollHeight', { get: () => 500, configurable: true });
+    Object.defineProperty(child, 'clientHeight', { get: () => 100, configurable: true });
+    child.scrollTop = 0;
+    scrollerEl.appendChild(child);
+
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    for (const top of [538, 530, 522, 514]) {
+      act(() => {
+        child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#700 review: resume at the bottom clears accumulated travel - a following small tick does not re-latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Latch via slow accumulation (not one big delta).
+    for (const top of [538, 530, 522, 514]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+
+    // User scrolls back to the true bottom -> resume clears latch AND travel.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+
+    // A subsequent 8px tick must not instantly re-latch off stale travel.
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 538, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
   it('container resize should NOT correct when user has scrolled up', () => {
     const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
       initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
