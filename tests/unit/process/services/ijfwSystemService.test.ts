@@ -146,9 +146,7 @@ describe('getActiveProjectDirs - #716 project workspaces on GUI launch', () => {
 
   it('deduplicates a cwd that is also a project workspace', async () => {
     (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/Users/test-user/dev/myproject');
-    listProjectsSpy.mockResolvedValue([
-      { id: 'a', name: 'A', workspace: '/Users/test-user/dev/myproject' },
-    ]);
+    listProjectsSpy.mockResolvedValue([{ id: 'a', name: 'A', workspace: '/Users/test-user/dev/myproject' }]);
     await expect(getActiveProjectDirs()).resolves.toEqual(['/Users/test-user/dev/myproject']);
   });
 
