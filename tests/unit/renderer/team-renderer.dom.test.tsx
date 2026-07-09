@@ -31,6 +31,7 @@ vi.mock('@/common', () => ({
     conversation: {
       get: { invoke: (...args: unknown[]) => mockConversationGetInvoke(...args) },
       update: { invoke: (...args: unknown[]) => mockConversationUpdateInvoke(...args) },
+      listChanged: { on: vi.fn(() => vi.fn()), emit: vi.fn() },
       stop: { invoke: vi.fn() },
       responseStream: { on: vi.fn(() => vi.fn()), emit: vi.fn() },
       confirmation: {
