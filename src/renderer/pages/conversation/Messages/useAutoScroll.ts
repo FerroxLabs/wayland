@@ -106,6 +106,22 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
   // in flight. While inside this window, handleScroll bypasses the programmatic
   // guard so the resulting onScroll is evaluated on its true main-scroller delta.
   const userScrollIntentUntilRef = useRef(0);
+  // Cumulative upward travel (px) of the current user scroll gesture. A slow
+  // scroll-up (trackpad slow drag, wheel one notch at a time) emits many
+  // onScroll events whose individual deltas all sit below USER_SCROLL_UP_DELTA,
+  // so the single-event latch never fired and auto-follow kept snapping the
+  // user back to the bottom mid-read (#700). Travel accumulates only while an
+  // ACCUMULATION window is open - opened solely by wheel/touch gestures that
+  // target the MAIN scroller (see gestureTargetsMainScroller); gestures
+  // consumed by a mid-scroll nested child never open it, so Virtuoso's rAF
+  // micro-adjustments during a child read can never sum into a false latch.
+  // Travel resets when a new gesture starts, on resume at the true bottom, on
+  // an unguarded (user-driven) downward scroll, and on conversation switch.
+  const gestureUpTravelRef = useRef(0);
+  // Timestamp until which the current MAIN-scroller gesture keeps the travel
+  // accumulator armed. Always a subset of the eval window above: every gesture
+  // opens the eval window, only main-scroller gestures open this one.
+  const accumIntentUntilRef = useRef(0);
 
   // Capture Virtuoso's scroll container
   const handleScrollerRef = useCallback((ref: HTMLElement | Window | null) => {
@@ -180,12 +196,41 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
   useEffect(() => {
     if (!scrollerEl) return;
 
-    const markIntent = () => {
-      userScrollIntentUntilRef.current = Date.now() + USER_SCROLL_INTENT_MS;
+    // True when an upward gesture over `target` will move the MAIN scroller:
+    // no scrollable ancestor between the event target and the scroller is
+    // mid-scroll (scrollTop > 0). A nested overflow child that can still
+    // scroll up (code block, diff panel) consumes the gesture itself, so any
+    // main-scroller movement seen during that gesture is a Virtuoso
+    // adjustment, not the user - it must not feed the travel accumulator.
+    // A child parked at its top chains the scroll to the main list, which IS
+    // user-driven main movement, so it counts.
+    const gestureTargetsMainScroller = (target: EventTarget | null): boolean => {
+      let node: Node | null = target instanceof Node ? target : null;
+      while (node && node !== scrollerEl) {
+        if (node instanceof HTMLElement && node.scrollTop > 0 && node.scrollHeight > node.clientHeight + 1) {
+          return false;
+        }
+        node = node.parentNode;
+      }
+      return true;
+    };
+
+    const markIntent = (forMainScroller: boolean) => {
+      const now = Date.now();
+      // Every gesture opens the eval window (guard bypass in handleScroll).
+      userScrollIntentUntilRef.current = now + USER_SCROLL_INTENT_MS;
+      if (!forMainScroller) return;
+      // Only main-scroller gestures arm the accumulator. A fresh gesture (the
+      // previous accumulation window has lapsed) starts from zero, so stray
+      // jitter spread across long-separated gestures can never add up.
+      if (now >= accumIntentUntilRef.current) {
+        gestureUpTravelRef.current = 0;
+      }
+      accumIntentUntilRef.current = now + USER_SCROLL_INTENT_MS;
     };
 
     const onWheel = (e: WheelEvent) => {
-      if (e.deltaY < 0) markIntent();
+      if (e.deltaY < 0) markIntent(gestureTargetsMainScroller(e.target));
     };
 
     let lastTouchY: number | null = null;
@@ -200,7 +245,9 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       }
       // Finger dragging down (clientY increases) reveals earlier content, i.e.
       // the content scrolls up - the user is reading back through history.
-      if (y - lastTouchY > 0) markIntent();
+      // Same accumulation rule as wheel: a drag over a mid-scroll nested
+      // child does not arm the travel accumulator.
+      if (y - lastTouchY > 0) markIntent(gestureTargetsMainScroller(e.target));
       lastTouchY = y;
     };
 
@@ -317,6 +364,7 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       const gap = target.scrollHeight - target.clientHeight - currentScrollTop;
       if (gap <= 2) {
         userScrolledRef.current = false;
+        gestureUpTravelRef.current = 0;
         setShowScrollButton(false);
       }
     }
@@ -331,11 +379,34 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       return;
     }
 
-    // Require a larger upward jump than the resting jitter a mid-stream layout
-    // shift (orbit/ThoughtDisplay appearing, Virtuoso reflow) can emit, so a
-    // spurious small negative delta doesn't permanently kill auto-follow. A
-    // real read-history scroll-up travels well past this and still pauses follow.
-    if (delta < -USER_SCROLL_UP_DELTA) {
+    // An unguarded downward scroll is user-driven (every programmatic
+    // snap-down sets the guard immediately before moving scrollTop): the user
+    // abandoned the upward gesture, so discard its accumulated travel. A
+    // GUARDED positive delta is a mid-stream programmatic snap-down and must
+    // NOT erase progress - the user's intent is the total distance they tried
+    // to travel up across those snap-downs (#700).
+    if (delta > 0 && timeSinceGuard >= PROGRAMMATIC_SCROLL_GUARD_MS) {
+      gestureUpTravelRef.current = 0;
+    }
+
+    // Accumulate this gesture's upward travel while the MAIN-scroller
+    // accumulation window is armed. Gestures consumed by a mid-scroll nested
+    // child never arm it (see gestureTargetsMainScroller), so Virtuoso rAF
+    // micro-adjustments emitted while the user wheel-reads a code block
+    // cannot sum into a false latch.
+    const accumArmed = Date.now() < accumIntentUntilRef.current;
+    if (accumArmed && delta < 0) {
+      gestureUpTravelRef.current -= delta;
+    }
+
+    // Latch on either a decisive single upward jump past the jitter threshold
+    // (fast scroll / flick - also covers inputs that emit no wheel/touch
+    // events), or on a slow gesture whose ACCUMULATED travel passes the same
+    // threshold across several small onScroll deltas (#700). Both stay above
+    // the resting jitter a mid-stream layout shift (orbit/ThoughtDisplay
+    // appearing, Virtuoso reflow) can emit, so a spurious small negative delta
+    // still doesn't permanently kill auto-follow.
+    if (delta < -USER_SCROLL_UP_DELTA || (accumArmed && gestureUpTravelRef.current > USER_SCROLL_UP_DELTA)) {
       userScrolledRef.current = true;
       setShowScrollButton(true);
     }
@@ -423,12 +494,14 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
   // paused in one chat would leave the next chat stuck not-following.
   useEffect(() => {
     userScrolledRef.current = false;
+    gestureUpTravelRef.current = 0;
     setShowScrollButton(false);
   }, [conversationId]);
 
   // Hide scroll button handler
   const hideScrollButton = useCallback(() => {
     userScrolledRef.current = false;
+    gestureUpTravelRef.current = 0;
     setShowScrollButton(false);
   }, []);
 
