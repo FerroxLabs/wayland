@@ -129,12 +129,11 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
       if (res.ok) setInstalledVersion(res.version);
       else
         setInstallError(
-          'error' in res
-            ? res.error
-            : t('settings.wcoreConfig.overview.update.failedGeneric', { defaultValue: 'Update failed.' })
           'error' in res && res.error
             ? res.error
-            : t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
+            : t('settings.wcoreConfig.overview.update.errorGeneric', {
+                defaultValue: 'Update failed. Please try again.',
+              })
         );
     } catch (err) {
       setInstallError(err instanceof Error ? err.message : String(err));
@@ -295,14 +294,12 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         <div className={styles.section}>
           <div
             className={`${styles.updateCard} ${installedVersion ? styles.updateCardDone : ''} ${
-              installError && !installing ? styles.updateCardError : ''
               showError ? styles.updateCardError : ''
             }`}
           >
             <span className={styles.updateIcon}>
               {installedVersion ? (
                 <CheckCircle2 size={18} />
-              ) : installError && !installing ? (
               ) : showError ? (
                 <AlertTriangle size={18} />
               ) : (
@@ -336,19 +333,6 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                     <Progress percent={progress.percent} size='small' className={styles.updateProgress} />
                   )}
                 </>
-              ) : installError ? (
-                <>
-                  <div className={styles.updateTitle}>
-                    {t('settings.wcoreConfig.overview.update.failedTitle', {
-                      defaultValue: 'Wayland Core update failed',
-                    })}
-                  </div>
-                  <div className={styles.updateBody}>
-                    {t('settings.wcoreConfig.overview.update.failedBody', {
-                      defaultValue: '{{error}}',
-                      error: installError,
-                    })}
-                  </div>
               ) : showError ? (
                 <>
                   <div className={styles.updateTitle}>
@@ -383,8 +367,6 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                 onClick={() => void handleInstall()}
                 className={styles.updateBtn}
               >
-                {installError
-                  ? t('settings.wcoreConfig.overview.update.retryCta', { defaultValue: 'Retry update' })
                 {showError
                   ? t('settings.wcoreConfig.overview.update.retry', { defaultValue: 'Retry' })
                   : t('settings.wcoreConfig.overview.update.cta', { defaultValue: 'Update now' })}

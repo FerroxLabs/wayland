@@ -112,6 +112,31 @@ export type ChatGptOAuthResult =
   | { ok: false; error: 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'unknown' };
 
 /**
+ * Result of the native "Sign in with Claude" OAuth connect
+ * (`ipcBridge.anthropicAuth.login`).
+ *
+ * On success the Claude Pro / Max subscription token obtained via the standard
+ * OAuth 2.0 PKCE flow against `claude.ai` (the same public client Claude Code
+ * uses) has been persisted: the encrypted bundle for inference/refresh is saved,
+ * `~/.claude/.credentials.json` is written so the Claude Code ACP agent runs on
+ * the subscription (no API key), and the `claude-subscription` provider is
+ * registered so the Claude models appear in the picker.
+ *
+ * IMPORTANT: Anthropic actively blocks subscription-OAuth logins used inside
+ * third-party tools. A sign-in can succeed while a later inference turn is
+ * rejected by Anthropic; the ACP auth-failure recovery card handles that case.
+ * `planType` mirrors the subscription tier when Anthropic reports it.
+ *
+ * On failure the `error` is a stable, renderer-safe reason; it never carries the
+ * token or any raw network detail.
+ */
+export type AnthropicPlanLabel = 'free' | 'pro' | 'max' | 'team' | 'enterprise' | 'unknown';
+
+export type AnthropicOAuthResult =
+  | { ok: true; planType: AnthropicPlanLabel }
+  | { ok: false; error: 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'unknown' };
+
+/**
  * Result of connecting a single pasted API key during onboarding
  * (`ipcBridge.onboarding.connectPastedKey`). The provider is auto-detected via
  * the real `ProviderDetector` + `SkRaceResolver`, so a bare `sk-` key shared by

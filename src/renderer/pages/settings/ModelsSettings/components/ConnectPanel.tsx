@@ -9,6 +9,7 @@ import { getPendingDeepLinkSeed } from '../index';
 import DetectedStrip from './DetectedStrip';
 import XGrokButton from './XGrokButton';
 import ChatGptButton from './ChatGptButton';
+import ClaudeButton from './ClaudeButton';
 import styles from '../ModelsSettings.module.css';
 
 type Props = {
@@ -301,6 +302,9 @@ const ConnectPanel: React.FC<Props> = ({
       </div>
       <div className={styles.googleBtn}>
         <ChatGptButton />
+      </div>
+      <div className={styles.googleBtn}>
+        <ClaudeButton />
       </div>
 
       <div className={styles.browseLink}>

@@ -16,6 +16,11 @@ import { ipcBridge } from '@/common';
 import { promises as fsAsync } from 'node:fs';
 import { xaiOAuthLogin, xaiRefreshToken, xaiSubmitManualCode } from '@process/onboarding/xaiOAuth';
 import { chatgptOAuthLogin, chatgptRefreshToken } from '@process/onboarding/chatgptOAuth';
+import {
+  anthropicOAuthLogin,
+  anthropicRefreshToken,
+  anthropicSubmitManualCode,
+} from '@process/onboarding/anthropicOAuth';
 
 export function initAuthBridge(): void {
   // Native xAI "Sign in with X (Grok)" OAuth - PKCE loopback against
@@ -36,6 +41,17 @@ export function initAuthBridge(): void {
   // the renderer branches on the returned `ChatGptOAuthResult`.
   ipcBridge.chatgptAuth.login.provider(() => chatgptOAuthLogin());
   ipcBridge.chatgptAuth.refresh.provider(() => chatgptRefreshToken());
+
+  // Native "Sign in with Claude" OAuth - PKCE against claude.ai (the same public
+  // client Claude Code uses), persisted as the `claude-subscription` provider and
+  // bridged into `~/.claude/.credentials.json` so the Claude Code ACP agent runs
+  // on the subscription. All three are remote-denied in `bridgeAllowlist.ts` (they
+  // mint/persist a credential). They never reject - the renderer branches on the
+  // returned `AnthropicOAuthResult`. Anthropic shows a `code#state` to paste (no
+  // loopback), fed back through `submitCode`.
+  ipcBridge.anthropicAuth.login.provider(() => anthropicOAuthLogin());
+  ipcBridge.anthropicAuth.refresh.provider(() => anthropicRefreshToken());
+  ipcBridge.anthropicAuth.submitCode.provider(async ({ code }) => ({ accepted: anthropicSubmitManualCode(code) }));
 
   ipcBridge.googleAuth.status.provider(async ({ proxy }) => {
     try {

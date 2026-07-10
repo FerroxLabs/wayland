@@ -65,6 +65,7 @@
 import type { CatalogModel, CuratedModel } from '../types';
 import { isFluxModelId } from '@/common/config/flux';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from './chatgptSubscriptionModels';
+import { CLAUDE_SUBSCRIPTION_PROVIDER_ID } from './claudeSubscriptionModels';
 
 /**
  * The recency window - a family flagship is only eligible for `recommended`
@@ -335,6 +336,16 @@ function curateOne(model: CatalogModel, rank: number, familyEligible: boolean): 
   // shows its provider toggle OFF with zero usable models. Treat the whole set
   // as recommended + on so the connection is usable the moment it lands.
   if (model.providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID) {
+    return { ...model, recommended: true, enabled: true, role: 'flagship' };
+  }
+  // The Claude-subscription static catalog (Opus / Sonnet / Haiku) is the same
+  // class as the ChatGPT-subscription set above: a curated, unenriched virtual
+  // catalog with no `/v1/models` to enrich it (the subscription token can't hit
+  // api.anthropic.com). Without this branch every model fails the enrichment
+  // gate (Rule 4) and lands `enabled: false`, so a freshly connected Claude
+  // subscription shows its toggle OFF with zero usable models. Treat the set as
+  // recommended + on so the connection is usable the moment it lands.
+  if (model.providerId === CLAUDE_SUBSCRIPTION_PROVIDER_ID) {
     return { ...model, recommended: true, enabled: true, role: 'flagship' };
   }
   // Local Ollama (`ollama-local`) is keyless and unenriched by design - the

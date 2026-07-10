@@ -16,6 +16,7 @@ import {
   Pencil,
   Puzzle,
   Radio,
+  Rocket,
   ScrollText,
   SlashSquare,
   Stethoscope,
@@ -191,6 +192,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       icon: <Globe size={16} />,
       path: 'storage',
     },
+    tank: {
+      id: 'tank',
+      label: t('settings.sider.tank', { defaultValue: 'Tank' }),
+      icon: <Rocket size={16} />,
+      path: 'tank',
+    },
     ijfw: {
       id: 'ijfw',
       label: t('memory.settings.panel_title', { defaultValue: 'IJFW Memory' }),
@@ -200,7 +207,11 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
     about: { id: 'about', label: t('settings.about'), icon: <Info size={16} />, path: 'about' },
   };
 
-  return BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
+  // Guard: an id present in BUILTIN_TAB_IDS but missing from builtinMap (branch
+  // drift) yields `undefined`, which later crashes the nav useMemo on `.id`.
+  // Drop unmapped ids so a stale tab id degrades gracefully instead of
+  // white-screening the whole settings surface.
+  return BUILTIN_TAB_IDS.map((id) => builtinMap[id]).filter((item): item is NavItem => Boolean(item));
 }
 
 const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, className, contentClassName }) => {

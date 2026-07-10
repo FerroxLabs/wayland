@@ -331,6 +331,14 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     WS caller must never drive an OAuth mint or a refresh-token exchange. ---
   'chatgpt.auth.login',
   'chatgpt.auth.refresh',
+  // --- Native "Sign in with Claude" OAuth. All three mint/persist the
+  //     `claude-subscription` bundle (refresh + access tokens) and write the
+  //     Claude Code credential file - same credential-minting class as
+  //     chatgpt.auth.* above. A remote WS caller must never drive an OAuth mint,
+  //     a refresh-token exchange, or feed a pasted authorization code. ---
+  'anthropic.auth.login',
+  'anthropic.auth.refresh',
+  'anthropic.auth.submit-code',
   // --- Cost observability (WS-D / WS-F). The whole cost.* namespace is already
   //     denied to remote callers via the `cost.` prefix above; these exact keys
   //     are enumerated for documentation + defence-in-depth. byConversation +

@@ -76,6 +76,11 @@ import {
   buildChatGptSubscriptionCatalogLive,
   CHATGPT_SUBSCRIPTION_PROVIDER_ID,
 } from '../catalog/chatgptSubscriptionModels';
+import {
+  buildClaudeSubscriptionCatalog,
+  buildClaudeSubscriptionCatalogLive,
+  CLAUDE_SUBSCRIPTION_PROVIDER_ID,
+} from '../catalog/claudeSubscriptionModels';
 import { ConnectionTester } from '../detection/ConnectionTester';
 import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
@@ -436,6 +441,21 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       if (providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID) {
         const accessToken = 'key' in creds ? creds.key : '';
         const models = await buildChatGptSubscriptionCatalogLive(accessToken);
+        repo.replaceRegistryCatalog(providerId, models);
+        return { ok: true, models: models.length, sourceErrors: 0 };
+      }
+
+      // The Claude subscription's OAuth token is rejected by `api.anthropic.com`
+      // for INFERENCE (as an API key), but it CAN list the account's models via
+      // GET /v1/models with the `anthropic-beta: oauth-2025-04-20` header (the
+      // same call Claude Code makes). Fetch that list LIVE so the catalog always
+      // reflects the current Claude generation; fall back to a static snapshot
+      // only when the fetch fails. The generic API source below would fetch zero
+      // models and wipe the catalog, so this provider stays special. Inference is
+      // still delegated to the Claude Code ACP agent, not a direct API call.
+      if (providerId === CLAUDE_SUBSCRIPTION_PROVIDER_ID) {
+        const accessToken = 'key' in creds ? creds.key : '';
+        const models = await buildClaudeSubscriptionCatalogLive(accessToken);
         repo.replaceRegistryCatalog(providerId, models);
         return { ok: true, models: models.length, sourceErrors: 0 };
       }
@@ -817,12 +837,14 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         if (
           CLOUD_PROVIDERS.has(providerId) ||
           providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID ||
+          providerId === CLAUDE_SUBSCRIPTION_PROVIDER_ID ||
           stored.creds.useGoogleAuth === true
         ) {
-          // Cloud + google-auth + chatgpt-subscription - none can be HTTP-probed
-          // via the standard `/v1/models` path (the ChatGPT backend has no model
-          // listing and its token is rejected by api.openai.com). A stored
-          // credential is the strongest available signal; treat it as connected.
+          // Cloud + google-auth + chatgpt/claude-subscription - none can be
+          // HTTP-probed via the standard `/v1/models` path (a subscription token
+          // is rejected by the vendor's API host and there is no model listing).
+          // A stored credential is the strongest available signal; treat it as
+          // connected.
           repo.updateRegistryProviderState(providerId, 'connected');
           return { ok: true };
         }
@@ -2325,6 +2347,61 @@ export function connectChatGptSubscriptionProvider(params: {
         // Keep the static placeholder if the live upgrade can't be persisted.
       }
     });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'unknown' };
+  }
+}
+
+/**
+ * Register a Claude subscription connected via OAuth (`claude-subscription`).
+ *
+ * Like the ChatGPT subscription, this provider CANNOT go through
+ * `connectModelRegistryProvider`: a Claude subscription access token is rejected
+ * by `api.anthropic.com`, and Anthropic exposes no subscription model listing -
+ * so the standard HTTP-probe + models.dev catalog build would both fail. The
+ * connection is verified by the OAuth module that minted the token, so we skip
+ * the probe and seed a STATIC curated catalog of the Claude models a Pro / Max
+ * subscription can drive.
+ *
+ * The access token is stored on the registry row as `creds.key` and the
+ * Anthropic API base as `creds.baseUrl` for display/mirroring parity with the
+ * ChatGPT flow. In-app inference is delegated to the Claude Code ACP agent (which
+ * reads `~/.claude/.credentials.json`), NOT a direct desktop API call - Anthropic
+ * blocks the subscription token against its own API host.
+ *
+ * Returns `{ ok: false, error: 'unknown' }` if called before the registry repo
+ * is initialized.
+ */
+export function connectClaudeSubscriptionProvider(params: {
+  accessToken: string;
+  baseUrl: string;
+}): IModelRegistryConnectResult {
+  if (!_repo) {
+    console.error('[modelRegistry] connectClaudeSubscriptionProvider called before IPC init');
+    return { ok: false, error: 'unknown' };
+  }
+  try {
+    _repo.upsertRegistryProvider({
+      providerId: CLAUDE_SUBSCRIPTION_PROVIDER_ID,
+      connectedVia: 'Claude subscription',
+      state: 'connected',
+      creds: { key: params.accessToken, baseUrl: params.baseUrl },
+    });
+    // Seed the static snapshot immediately so the row lands connected + usable,
+    // then upgrade to the account's LIVE model list in the background (GET
+    // /v1/models). A live failure keeps the static placeholder.
+    _repo.replaceRegistryCatalog(CLAUDE_SUBSCRIPTION_PROVIDER_ID, buildClaudeSubscriptionCatalog());
+    void buildClaudeSubscriptionCatalogLive(params.accessToken).then((models) => {
+      try {
+        _repo?.replaceRegistryCatalog(CLAUDE_SUBSCRIPTION_PROVIDER_ID, models);
+        ipcBridge.modelRegistry.listChanged.emit();
+      } catch {
+        // Keep the static placeholder if the live upgrade can't be persisted.
+      }
+    });
+    void mirrorConnectOrRekey(_repo, CLAUDE_SUBSCRIPTION_PROVIDER_ID);
+    ipcBridge.modelRegistry.listChanged.emit();
     return { ok: true };
   } catch {
     return { ok: false, error: 'unknown' };

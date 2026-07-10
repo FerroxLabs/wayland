@@ -42,6 +42,7 @@ import type {
   WCoreUpdateProgress,
 } from '../update/wcoreUpdateTypes';
 import type {
+  AnthropicOAuthResult,
   ChatGptOAuthResult,
   ConnectFluxResult,
   ConnectPastedKeyResult,
@@ -767,6 +768,37 @@ export const chatgptAuth = {
    * token and re-register it. Surfaced for the proactive + 401 re-auth paths.
    */
   refresh: buildProvider<ChatGptOAuthResult, void>('chatgpt.auth.refresh'),
+};
+
+export const anthropicAuth = {
+  /**
+   * Native "Sign in with Claude" via OAuth 2.0 Authorization Code + PKCE, using
+   * the same public client Claude Code uses (`claude.ai/oauth/authorize`,
+   * token at `console.anthropic.com/v1/oauth/token`) - no `claude` CLI or API key
+   * required. Opens the system browser; Anthropic shows a `code#state` to copy
+   * (there is no loopback for this client), which the renderer's paste box feeds
+   * back via `submitCode`. On success the encrypted bundle is persisted,
+   * `~/.claude/.credentials.json` is written so the Claude Code ACP agent runs on
+   * the subscription, and the `claude-subscription` provider is registered.
+   * Resolves `{ ok: true, planType }` or a stable error reason - it never
+   * rejects, so the renderer can branch on the result alone.
+   *
+   * NOTE: Anthropic blocks subscription-OAuth inside third-party tools, so a
+   * later inference turn may still be rejected even after a successful sign-in.
+   */
+  login: buildProvider<AnthropicOAuthResult, void>('anthropic.auth.login'),
+  /**
+   * Silent re-auth: exchange the persisted refresh token for a fresh access
+   * token and re-register it. Surfaced for the proactive + 401 re-auth paths.
+   */
+  refresh: buildProvider<AnthropicOAuthResult, void>('anthropic.auth.refresh'),
+  /**
+   * Complete an in-flight sign-in with the code the user copied from the
+   * Anthropic consent page (Anthropic shows a `code#state` to paste rather than
+   * redirecting to a loopback). Returns `{ accepted }` - false when no flow is
+   * awaiting a code.
+   */
+  submitCode: buildProvider<{ accepted: boolean }, { code: string }>('anthropic.auth.submit-code'),
 };
 
 export const onboarding = {
@@ -2724,7 +2756,6 @@ export const cost = {
 
 import type {
   MemoryEntry,
-  MemoryStats,
   ListFilter,
   ProjectSummary,
   TagCount,

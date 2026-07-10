@@ -89,6 +89,18 @@ export const PROVIDER_META: Record<NativeProviderId, ProviderMeta> = {
     // Gated until the codex/Responses inference seam is wired + live-verified.
     hidden: true,
   },
+  'claude-subscription': {
+    id: 'claude-subscription',
+    displayName: 'Claude (subscription)',
+    mono: 'Cl',
+    bg: '#cc785c',
+    darkText: false,
+    group: 'frontier',
+    // Connected via the dedicated "Sign in with Claude" button, not a pasted key,
+    // so it is held out of the Browse grid (which is a key-connect surface). The
+    // ClaudeButton reads its connected state from the registry regardless.
+    hidden: true,
+  },
   mistral: { id: 'mistral', displayName: 'Mistral', mono: 'M', bg: '#fa5111', darkText: false, group: 'frontier' },
   cohere: { id: 'cohere', displayName: 'Cohere', mono: 'C', bg: '#39594d', darkText: false, group: 'frontier' },
   perplexity: {
