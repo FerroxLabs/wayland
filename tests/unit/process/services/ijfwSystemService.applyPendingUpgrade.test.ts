@@ -329,7 +329,10 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
     } finally {
       vi.useRealTimers();
     }
-  });
+    // The settle loop interleaves up to 200 rounds of real macrotask flushes
+    // with fake-clock advances; on loaded CI shards that legitimately exceeds
+    // the default 10s wall budget (observed flaking PR merge runs).
+  }, 30_000);
 
   it('Checkpoint B B2: acquires installLock and short-circuits when one is already held', async () => {
     // Pre-seed a lockfile that matches the current host+boot and points at the
