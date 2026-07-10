@@ -521,7 +521,7 @@ describe('TeammateManager', () => {
       mgr.dispose();
     });
 
-    it('marks a silent leader as failed after the 60s inactivity watchdog fires', async () => {
+    it('marks a silent leader as failed after the inactivity watchdog fires', async () => {
       vi.useFakeTimers();
       try {
         // Lead is the only agent - timeout escalates to 'failed' but has nobody to notify.
@@ -535,7 +535,7 @@ describe('TeammateManager', () => {
         await mgr.wake('slot-1');
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-1')?.status).toBe('active');
 
-        await vi.advanceTimersByTimeAsync(61_000);
+        await vi.advanceTimersByTimeAsync(181_000);
 
         // Previously the watchdog dropped the agent to 'idle' (hiding the stall).
         // It now marks the agent 'failed' so the team surface reflects the problem.
@@ -692,7 +692,7 @@ describe('TeammateManager', () => {
   // -------------------------------------------------------------------------
 
   describe('wake inactivity watchdog', () => {
-    it('notifies the leader when a teammate goes silent past the 60s watchdog', async () => {
+    it('notifies the leader when a teammate goes silent past the inactivity watchdog', async () => {
       vi.useFakeTimers();
       try {
         const leadAgent = makeAgent({
@@ -719,8 +719,8 @@ describe('TeammateManager', () => {
         await mgr.wake('slot-member');
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
 
-        // No stream activity arrives - push past the watchdog deadline.
-        await vi.advanceTimersByTimeAsync(61_000);
+        // No stream activity arrives - push past the 180s watchdog deadline (#747).
+        await vi.advanceTimersByTimeAsync(181_000);
 
         // Teammate is escalated to 'failed' (not silently dropped to 'idle').
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
@@ -783,13 +783,125 @@ describe('TeammateManager', () => {
           });
         }
 
-        // Still within 60s of the last heartbeat - watchdog must NOT have fired.
+        // Still within the inactivity budget of the last heartbeat - watchdog must NOT have fired.
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
         expect(mailbox.write).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'idle_notification' }));
 
         mgr.dispose();
       } finally {
         vi.useRealTimers();
+      }
+    });
+
+    // #747 regression: a teammate silent for 61s (past the OLD 60s watchdog, but
+    // within the raised 180s default) must NOT be flagged failed. A single silent
+    // tool/test run or slow first-token latency routinely exceeds a minute.
+    it('#747: does NOT flag a teammate failed at 61s of silence (raised default)', async () => {
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, mailbox, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+        // Past the old 60s watchdog, but well under the 180s default.
+        await vi.advanceTimersByTimeAsync(61_000);
+
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+        expect(mailbox.write).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'idle_notification' }));
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    // #747: the inactivity budget is env-configurable for slower models / longer
+    // tool runs. Resolved once at construction from WAYLAND_TEAM_WAKE_TIMEOUT_MS.
+    it('#747: honors WAYLAND_TEAM_WAKE_TIMEOUT_MS override', async () => {
+      vi.stubEnv('WAYLAND_TEAM_WAKE_TIMEOUT_MS', '90000');
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+
+        // At 80s: under the 90s override -> still active (would have failed at the 60s old default).
+        await vi.advanceTimersByTimeAsync(80_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+        // Past 90s -> now flagged.
+        await vi.advanceTimersByTimeAsync(11_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+        vi.unstubAllEnvs();
+      }
+    });
+
+    // #747: an absurd override above the 32-bit setTimeout ceiling must be clamped,
+    // not overflow-and-fire after ~1ms (which would flag every teammate instantly).
+    it('#747: clamps an overflow WAYLAND_TEAM_WAKE_TIMEOUT_MS instead of firing immediately', async () => {
+      vi.stubEnv('WAYLAND_TEAM_WAKE_TIMEOUT_MS', '9999999999'); // ~115 days, past 2^31-1 ms
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+        // Pre-clamp this would have overflowed and fired ~immediately. Advance a
+        // generous window; the teammate must still be active (clamped to ~24.8 days).
+        await vi.advanceTimersByTimeAsync(600_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+        vi.unstubAllEnvs();
       }
     });
   });

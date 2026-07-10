@@ -62,8 +62,9 @@ export const DEFAULT_RETRY_BUDGET = 3;
  * Task lease TTL (ms). Single source of truth for both the executor
  * (TeammateManager stamps/renews lease_expires_at = now + LEASE_TTL_MS) and the
  * point where a task transitions to `in_progress` (TaskManager stamps it too).
- * 3x the 60s wake timeout: a live turn renews well inside this window; only a
- * genuinely dead owner lets it lapse, which is when the Watchdog reclaims.
+ * 3x the 60s lease-renew throttle (TeammateManager.LEASE_RENEW_THROTTLE_MS): a
+ * live turn renews well inside this window; only a genuinely dead owner lets it
+ * lapse, which is when the Watchdog reclaims.
  */
 export const LEASE_TTL_MS = 3 * 60 * 1000;
 
