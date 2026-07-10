@@ -229,8 +229,25 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       accumIntentUntilRef.current = now + USER_SCROLL_INTENT_MS;
     };
 
+    // #777: start the ancestor walk from the composed-path origin rather than
+    // e.target. Agent markdown renders inside an OPEN shadow root (ShadowView),
+    // so for the most common scroll surface e.target is retargeted to the host
+    // while composedPath()[0] is the real inner element - they already differ.
+    // The result stays identical today only by two invariants, not by equality:
+    //   1. gestureTargetsMainScroller walks via parentNode, which does not cross
+    //      shadow boundaries (it stops at the ShadowRoot), so it never inspects
+    //      the host from inside; and
+    //   2. ShadowView's shadow tree has no vertical scroller (pre/katex/tables
+    //      are overflow-x only), so no `scrollTop > 0` node exists to consume the
+    //      gesture there.
+    // If a vertical `overflow-y` scroller is ever added inside ShadowView, this
+    // walk will (correctly) treat a gesture it consumes as child-targeted. Called
+    // synchronously during dispatch, so composedPath() is populated; `?? e.target`
+    // guards the post-dispatch empty-array case defensively.
+    const eventOrigin = (e: Event): EventTarget | null => e.composedPath()[0] ?? e.target;
+
     const onWheel = (e: WheelEvent) => {
-      if (e.deltaY < 0) markIntent(gestureTargetsMainScroller(e.target));
+      if (e.deltaY < 0) markIntent(gestureTargetsMainScroller(eventOrigin(e)));
     };
 
     let lastTouchY: number | null = null;
@@ -247,7 +264,7 @@ export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoSc
       // the content scrolls up - the user is reading back through history.
       // Same accumulation rule as wheel: a drag over a mid-scroll nested
       // child does not arm the travel accumulator.
-      if (y - lastTouchY > 0) markIntent(gestureTargetsMainScroller(e.target));
+      if (y - lastTouchY > 0) markIntent(gestureTargetsMainScroller(eventOrigin(e)));
       lastTouchY = y;
     };
 
