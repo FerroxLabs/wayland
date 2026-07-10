@@ -1181,8 +1181,37 @@ export class AcpAgent {
     }
   }
 
+  /**
+   * True when a permission request targets this team's own coordination MCP
+   * server (wayland-team-<teamId>, injected by TeamSessionService). Matches
+   * the codex-acp approval shape (rawInput.server_name) and fully-qualified
+   * MCP tool titles like "wayland-team-<teamId>__team_spawn_agent".
+   */
+  private isTeamCoordinationPermission(data: AcpPermissionRequest): boolean {
+    const serverName = this.extra.teamMcpStdioConfig?.name;
+    if (!serverName) return false;
+    if (data.toolCall?.rawInput?.server_name === serverName) return true;
+    return (data.toolCall?.title ?? '').includes(`${serverName}__`);
+  }
+
   private handlePermissionRequest(data: AcpPermissionRequest): Promise<{ optionId: string }> {
     return new Promise((resolve, reject) => {
+      // #781: auto-approve this team's own coordination tools. The team MCP
+      // server is injected by the app itself and a teammate cannot make
+      // progress while a human-facing dialog blocks a team_* call - codex-acp
+      // raises an approval request per MCP tool call, which stalled the leader
+      // forever on "add a member" (claude only avoided this because clicked
+      // approvals persist to the workspace .claude/settings.local.json).
+      // Server-side capability gates in TeamMcpServer still apply to every call.
+      if (this.isTeamCoordinationPermission(data)) {
+        const allowOption =
+          data.options?.find((o) => o.kind === 'allow_always') ?? data.options?.find((o) => o.kind === 'allow_once');
+        if (allowOption) {
+          resolve({ optionId: allowOption.optionId });
+          return;
+        }
+      }
+
       // Ensure every permission request has a stable toolCallId so UI + pending map stay in sync
       if (data.toolCall && !data.toolCall.toolCallId) {
         data.toolCall.toolCallId = uuid();

@@ -811,6 +811,32 @@ export class TeammateManager extends EventEmitter {
         // This prevents death loops where each idle notification triggers a new leader turn.
         this.maybeWakeLeaderWhenAllIdle(leadAgent.slotId);
       }
+
+      // #781: a mailbox message that arrives while this agent's wake is in
+      // flight is skipped by the activeWakes guard and would otherwise sit
+      // undelivered until some unrelated future wake. Observed live: the
+      // leader's shutdown_request landed during the member's long spawn turn,
+      // the member never saw it, and "fire the member" hung forever. Now that
+      // the turn is over, drain anything still unread. wake() re-checks the
+      // mailbox atomically (readUnreadAndMark), so a concurrent wake cannot
+      // double-deliver. Leader re-delivery stays gated by
+      // maybeWakeLeaderWhenAllIdle to avoid notification-per-turn churn.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        if (pending.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(${agent.agentName}): ${pending.length} unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
     }
   }
 
