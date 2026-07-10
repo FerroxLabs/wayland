@@ -126,6 +126,16 @@ describe('RightDrawer', () => {
     expect(screen.getByTestId('drawer-score-fill')).toBeTruthy();
   });
 
+  // #751: @icon-park icons don't forwardRef, so an unwrapped Arco <Tooltip>
+  // trigger yields a null DOM node and crashes on hover positioning - which
+  // blanked the whole app. The score help icon must sit inside a host element.
+  it('#751: wraps the score help icon in a span so the tooltip cannot crash on hover', () => {
+    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} />);
+    const wrapper = screen.getByTestId('icon-help').parentElement;
+    expect(wrapper?.tagName).toBe('SPAN');
+    expect(wrapper?.style.display).toBe('inline-flex');
+  });
+
   it('shows source path (Q5 acceptance)', () => {
     render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} />);
     const sourcePath = screen.getByTestId('drawer-source-path');
