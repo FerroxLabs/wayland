@@ -68,6 +68,7 @@ function makeMailbox(): Mailbox {
         type: 'message',
       },
     ]),
+    peekUnread: vi.fn().mockResolvedValue([]),
     getHistory: vi.fn().mockResolvedValue([]),
   } as unknown as Mailbox;
 }
@@ -1196,6 +1197,96 @@ describe('TeammateManager', () => {
         .mocked(mbox.write)
         .mock.calls.filter((args) => args[0].type === 'idle_notification' && args[0].toAgentId === 'slot-lead');
       expect(idleCalls).toHaveLength(1);
+      mgr.dispose();
+    });
+
+    // #781 regression: a mailbox message that arrives while a member's wake is
+    // in flight (e.g. the leader's shutdown_request landing during the member's
+    // long spawn turn) is skipped by the activeWakes guard. finalizeTurn must
+    // re-wake the member so the message is delivered instead of rotting unread.
+    it('re-wakes a member whose mailbox has unread messages at turn end (#781)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+      });
+      const memberAgent = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'active',
+        agentName: 'Member',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent, memberAgent]);
+
+      // A shutdown_request arrived mid-turn and is still unread
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-shutdown',
+          teamId: 'team-1',
+          toAgentId: 'slot-member',
+          fromAgentId: 'slot-lead',
+          content: 'The team leader has requested you to shut down.',
+          type: 'shutdown_request',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+      vi.mocked(mbox.readUnread).mockResolvedValue([
+        {
+          id: 'msg-shutdown',
+          teamId: 'team-1',
+          toAgentId: 'slot-member',
+          fromAgentId: 'slot-lead',
+          content: 'The team leader has requested you to shut down.',
+          type: 'shutdown_request',
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'msg-1',
+        data: null,
+      });
+
+      // The member must be re-woken to drain the unread shutdown_request
+      await vi.waitFor(() => expect(workerTaskManager.getOrBuildTask).toHaveBeenCalledWith('conv-member'), {
+        timeout: 2000,
+      });
+      mgr.dispose();
+    });
+
+    it('does not re-wake a member whose mailbox is empty at turn end', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+      });
+      const memberAgent = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'active',
+        agentName: 'Member',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent, memberAgent]);
+      vi.mocked(mbox.peekUnread).mockResolvedValue([]);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'msg-1',
+        data: null,
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      // peekUnread was consulted but no wake was dispatched for the member
+      expect(mbox.peekUnread).toHaveBeenCalledWith('team-1', 'slot-member');
+      expect(workerTaskManager.getOrBuildTask).not.toHaveBeenCalledWith('conv-member');
       mgr.dispose();
     });
   });
