@@ -1181,60 +1181,8 @@ export class AcpAgent {
     }
   }
 
-  /**
-   * True when a permission request targets this team's own coordination MCP
-   * server (wayland-team-<teamId>, injected by TeamSessionService).
-   *
-   * Matching is deliberately strict - titles and rawInput can embed
-   * model-controlled text on some backends (exec approvals carry the command
-   * string), so an unanchored substring match would let a prompt-injected
-   * agent smuggle the server name into an unrelated approval and bypass the
-   * dialog:
-   * - codex-acp MCP approvals: rawInput is constructed by the codex CLI
-   *   itself (not echoed from model tool input), identified by the
-   *   mcp_tool_call_approval id prefix; only trusted on the codex backend.
-   * - Fully-qualified MCP tool titles: the title must BE the qualified tool
-   *   name ("[mcp__]<server>__<tool>"), nothing more.
-   */
-  private isTeamCoordinationPermission(data: AcpPermissionRequest): boolean {
-    const serverName = this.extra.teamMcpStdioConfig?.name;
-    if (!serverName) return false;
-
-    if (this.extra.backend === 'codex') {
-      const rawInput = data.toolCall?.rawInput;
-      const approvalId = rawInput?.id;
-      if (
-        rawInput?.server_name === serverName &&
-        typeof approvalId === 'string' &&
-        approvalId.startsWith('mcp_tool_call_approval')
-      ) {
-        return true;
-      }
-    }
-
-    const title = data.toolCall?.title ?? '';
-    const escaped = serverName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp(`^(mcp__)?${escaped}__[A-Za-z0-9_-]+$`).test(title);
-  }
-
   private handlePermissionRequest(data: AcpPermissionRequest): Promise<{ optionId: string }> {
     return new Promise((resolve, reject) => {
-      // #781: auto-approve this team's own coordination tools. The team MCP
-      // server is injected by the app itself and a teammate cannot make
-      // progress while a human-facing dialog blocks a team_* call - codex-acp
-      // raises an approval request per MCP tool call, which stalled the leader
-      // forever on "add a member" (claude only avoided this because clicked
-      // approvals persist to the workspace .claude/settings.local.json).
-      // Server-side capability gates in TeamMcpServer still apply to every call.
-      if (this.isTeamCoordinationPermission(data)) {
-        const allowOption =
-          data.options?.find((o) => o.kind === 'allow_always') ?? data.options?.find((o) => o.kind === 'allow_once');
-        if (allowOption) {
-          resolve({ optionId: allowOption.optionId });
-          return;
-        }
-      }
-
       // Ensure every permission request has a stable toolCallId so UI + pending map stay in sync
       if (data.toolCall && !data.toolCall.toolCallId) {
         data.toolCall.toolCallId = uuid();
