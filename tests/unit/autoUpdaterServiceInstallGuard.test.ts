@@ -136,6 +136,19 @@ describe('autoUpdaterService install guard (#286)', () => {
     expect(s.error).toMatch(/manually/i);
   });
 
+  it('Windows silent-noop failure names the actual blocker: administrator approval (#492)', () => {
+    setPlatform('win32');
+    fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
+    (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
+
+    service.reconcilePendingInstall();
+
+    const s = lastStatus();
+    expect(s.status).toBe('install-failed');
+    expect(s.reason).toBe('silent-noop');
+    expect(s.error).toMatch(/administrator/i);
+  });
+
   it('suppresses a re-offer of the version whose install silently failed', () => {
     fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
     service.reconcilePendingInstall();
