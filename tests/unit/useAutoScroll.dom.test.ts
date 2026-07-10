@@ -706,6 +706,318 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
     expect(result.current.showScrollButton).toBe(false);
   });
 
+  it('#700: a SLOW wheel scroll-up (small per-event deltas) latches once cumulative travel passes the threshold', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Baseline at the true bottom.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Slow wheel: each notch emits a wheel event plus an onScroll whose delta
+    // (-8px) is far below the single-event USER_SCROLL_UP_DELTA (24px).
+    const tick = (scrollTop: number) => {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    };
+
+    tick(538); // travel 8
+    tick(530); // travel 16
+    expect(result.current.handleFollowOutput(false)).toBe('auto'); // not yet past threshold
+
+    tick(522); // travel 24
+    tick(514); // travel 32 > 24 -> latch
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#700: a programmatic snap-down between slow upward ticks does not erase the gesture travel', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Baseline, then two slow upward ticks (travel 16).
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    for (const top of [538, 530]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    // Streaming snaps the view back to the bottom (positive delta, no wheel event).
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // The user keeps slowly scrolling up - travel resumes at 16, passes 24.
+    for (const top of [538, 530]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#700: small negative deltas WITHOUT a wheel/touch gesture never accumulate to a latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Baseline.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Repeated reflow jitter (no wheel/touch events), each below the threshold.
+    for (const top of [538, 530, 522, 514, 506]) {
+      vi.advanceTimersByTime(200); // guard expired - jitter is evaluated, not guarded
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    // 40px of cumulative jitter, but no user gesture -> auto-follow stays on.
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#700: gesture travel resets when a new gesture starts after the intent window lapses', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // First gesture: 16px of travel, then the intent window lapses.
+    for (const top of [538, 530]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+    vi.advanceTimersByTime(300);
+
+    // Second gesture starts fresh: another 16px must NOT combine with the first.
+    for (const top of [522, 514]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#700 review: wheel bubbling from a MID-SCROLL nested child must not accumulate Virtuoso adjustments into a latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Nested overflow child (e.g. a code block) that is mid-scroll: it will
+    // consume upward wheel gestures itself, the main list does not move.
+    const child = document.createElement('div');
+    Object.defineProperty(child, 'scrollHeight', { get: () => 500, configurable: true });
+    Object.defineProperty(child, 'clientHeight', { get: () => 100, configurable: true });
+    child.scrollTop = 50;
+    scrollerEl.appendChild(child);
+
+    // Streaming keeps the guard fresh; baseline established.
+    act(() => {
+      result.current.handleFollowOutput(false);
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // The user wheel-reads the child; wheel events BUBBLE to the scroller.
+    // Between them, Virtuoso rAF micro-adjustments emit small negative deltas
+    // on the MAIN scroller (-15px each, below the 24px single-event threshold
+    // but 30px combined). They must NOT sum into a latch.
+    act(() => {
+      child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 531, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    act(() => {
+      child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 516, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#700 review: wheel over a child parked at its TOP chains to the main list and still accumulates', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Nested child already at its top: an upward wheel chains to the parent,
+    // so the resulting main-scroller movement IS user-driven.
+    const child = document.createElement('div');
+    Object.defineProperty(child, 'scrollHeight', { get: () => 500, configurable: true });
+    Object.defineProperty(child, 'clientHeight', { get: () => 100, configurable: true });
+    child.scrollTop = 0;
+    scrollerEl.appendChild(child);
+
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    for (const top of [538, 530, 522, 514]) {
+      act(() => {
+        child.dispatchEvent(new WheelEvent('wheel', { deltaY: -10, bubbles: true }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#700 review: resume at the bottom clears accumulated travel - a following small tick does not re-latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 546 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Latch via slow accumulation (not one big delta).
+    for (const top of [538, 530, 522, 514]) {
+      act(() => {
+        scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+      });
+      act(() => {
+        result.current.handleScroll({
+          target: { scrollTop: top, scrollHeight: 1050, clientHeight: 504 },
+        } as unknown as React.UIEvent<HTMLDivElement>);
+      });
+    }
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+
+    // User scrolls back to the true bottom -> resume clears latch AND travel.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 546, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+
+    // A subsequent 8px tick must not instantly re-latch off stale travel.
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -10 }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 538, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
   it('container resize should NOT correct when user has scrolled up', () => {
     const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
       initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
