@@ -58,6 +58,7 @@ import { ConversationTabsProvider } from '../../../src/renderer/pages/conversati
 
 const TAB_A = { id: 'conv-a', name: 'Chat A', workspace: '/ws/a', type: 'gemini' as const };
 const TAB_B = { id: 'conv-b', name: 'Chat B', workspace: '/ws/b', type: 'gemini' as const };
+const TAB_C = { id: 'conv-c', name: 'Chat C', workspace: '/ws/c', type: 'gemini' as const };
 
 const ConversationContent: React.FC = () => {
   const { id } = useParams();
@@ -87,6 +88,14 @@ const closeButtonOfTab = (tabName: string) => {
   const tab = tabLabel.closest('.group\\/tab') as HTMLElement;
   expect(tab).not.toBeNull();
   return within(tab).getByTestId('icon-X');
+};
+
+/** The tab element (the context-menu target). */
+const tabElement = (tabName: string) => {
+  const tabLabel = screen.getByText(tabName);
+  const tab = tabLabel.closest('.group\\/tab') as HTMLElement;
+  expect(tab).not.toBeNull();
+  return tab;
 };
 
 describe('ConversationTabs close (#678)', () => {
@@ -131,5 +140,67 @@ describe('ConversationTabs close (#678)', () => {
     // Closed tab is gone; the active conversation stays on screen.
     expect(screen.queryByText('Chat A')).not.toBeInTheDocument();
     expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-b');
+  });
+});
+
+describe('ConversationTabs bulk close (#762)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  it('close-tabs-to-left navigates to the anchor when the active tab is in the closed range', async () => {
+    seedTabs([TAB_A, TAB_B, TAB_C], TAB_A.id); // active A is left of the anchor C
+    renderTabsApp(TAB_A.id);
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-a');
+
+    // Right-click tab C, choose "close left" (closes A and B; active A was in range).
+    fireEvent.contextMenu(tabElement('Chat C'));
+    fireEvent.click(await screen.findByText('conversation.tabs.closeLeft'));
+
+    expect(screen.queryByText('Chat A')).not.toBeInTheDocument();
+    expect(screen.queryByText('Chat B')).not.toBeInTheDocument();
+    // Content followed to the surviving anchor tab - not stale on the closed conv-a.
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-c');
+  });
+
+  it('close-tabs-to-right navigates to the anchor when the active tab is in the closed range', async () => {
+    seedTabs([TAB_A, TAB_B, TAB_C], TAB_C.id); // active C is right of the anchor A
+    renderTabsApp(TAB_C.id);
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-c');
+
+    fireEvent.contextMenu(tabElement('Chat A'));
+    fireEvent.click(await screen.findByText('conversation.tabs.closeRight'));
+
+    expect(screen.queryByText('Chat B')).not.toBeInTheDocument();
+    expect(screen.queryByText('Chat C')).not.toBeInTheDocument();
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-a');
+  });
+
+  it('close-tabs-to-left leaves an unaffected active tab in place', async () => {
+    seedTabs([TAB_A, TAB_B, TAB_C], TAB_C.id); // active C is the anchor - not in the closed range
+    renderTabsApp(TAB_C.id);
+
+    fireEvent.contextMenu(tabElement('Chat C'));
+    fireEvent.click(await screen.findByText('conversation.tabs.closeLeft'));
+
+    // A and B closed, but the active tab C was not in range - content unchanged.
+    expect(screen.queryByText('Chat A')).not.toBeInTheDocument();
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-c');
+  });
+
+  it('close-tabs-to-left with a mid-strip anchor leaves an active tab to its right in place', async () => {
+    // [A, B, C, D], active D, close-left on B -> closes A only; D is right of B,
+    // NOT in the closed range, so content must stay on D.
+    const TAB_D = { id: 'conv-d', name: 'Chat D', workspace: '/ws/d', type: 'gemini' as const };
+    seedTabs([TAB_A, TAB_B, TAB_C, TAB_D], TAB_D.id);
+    renderTabsApp(TAB_D.id);
+
+    fireEvent.contextMenu(tabElement('Chat B'));
+    fireEvent.click(await screen.findByText('conversation.tabs.closeLeft'));
+
+    expect(screen.queryByText('Chat A')).not.toBeInTheDocument();
+    expect(screen.getByText('Chat B')).toBeInTheDocument();
+    expect(screen.getByTestId('conversation-content')).toHaveTextContent('content-of-conv-d');
   });
 });
