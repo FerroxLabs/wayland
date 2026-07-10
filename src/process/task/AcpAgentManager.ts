@@ -1222,6 +1222,13 @@ ${collectedResponses.join('\n')}`;
       return true;
     }
 
+    // codex-only: on other ACP backends rawInput is the model's own tool-call
+    // arguments (see ApprovalStore's {command,path,...} handling), so server_name
+    // and the non-secret mcp_tool_call_approval id prefix would both be
+    // model-forgeable - a prompt-injected member could smuggle them onto an
+    // unrelated tool call and get it silently approved. Only codex-acp builds
+    // this rawInput itself, so the trust is valid solely on that backend.
+    if (this.options.backend !== 'codex') return false;
     const rawInput = toolCall.rawInput as { server_name?: unknown; id?: unknown } | undefined;
     const approvalId = rawInput?.id;
     return (
