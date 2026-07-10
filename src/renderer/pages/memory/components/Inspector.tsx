@@ -73,13 +73,7 @@ const scoreBarClass = (score: number, threshold: number): string => {
 function EmptyState(): React.ReactElement {
   return (
     <div className={styles.empty} data-testid='inspector-empty'>
-      <FileCode
-        className={styles.emptyIcon}
-        theme='outline'
-        size='32'
-        aria-hidden
-        data-testid='inspector-empty-icon'
-      />
+      <FileCode className={styles.emptyIcon} theme='outline' size='32' aria-hidden data-testid='inspector-empty-icon' />
       <span>Select a memory to inspect it</span>
       <div className={styles.emptyHint}>
         <span className={styles.kbdChip}>↑/↓ navigate</span>
@@ -122,7 +116,7 @@ const Inspector: React.FC<InspectorProps> = ({
       onCopy?.(text);
       // Parent onCopy shows its own toast - do not add a second one here.
     },
-    [onCopy],
+    [onCopy]
   );
 
   if (entry === null) {
@@ -224,12 +218,11 @@ const Inspector: React.FC<InspectorProps> = ({
             Promotion score {entry.promotionScore}/100 - auto-promotes at {promotionThreshold}
           </span>
           <Tooltip content={SCORE_TOOLTIP} position='top'>
-            <Help
-              theme='outline'
-              size='13'
-              style={{ cursor: 'help', opacity: 0.6 }}
-              aria-label='Score formula'
-            />
+            {/* #751: wrap so Arco gets a real DOM node - @icon-park icons don't
+                forwardRef, and an unwrapped trigger crashes on hover positioning. */}
+            <span style={{ display: 'inline-flex' }}>
+              <Help theme='outline' size='13' style={{ cursor: 'help', opacity: 0.6 }} aria-label='Score formula' />
+            </span>
           </Tooltip>
         </div>
         <div className={styles.scoreBar} data-testid='inspector-score-bar'>
@@ -255,11 +248,7 @@ const Inspector: React.FC<InspectorProps> = ({
         <div className={styles.section} data-testid='inspector-section-why'>
           <h3 className={styles.sectionLabel}>Why</h3>
           <div className={styles.sectionContent}>
-            {entry.why ? (
-              <p>{entry.why}</p>
-            ) : (
-              <span className={styles.sectionAbsent}>No "Why" recorded</span>
-            )}
+            {entry.why ? <p>{entry.why}</p> : <span className={styles.sectionAbsent}>No "Why" recorded</span>}
           </div>
         </div>
 
