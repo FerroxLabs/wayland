@@ -40,6 +40,7 @@ const SlashCommandsSettings = React.lazy(() => import('@renderer/pages/settings/
 const StorageSettings = React.lazy(() => import('@renderer/pages/settings/StorageSettings'));
 const DoctorSettings = React.lazy(() => import('@renderer/pages/settings/DoctorSettings'));
 const TankSettings = React.lazy(() => import('@renderer/pages/settings/TankSettings'));
+const DevActionsSettings = React.lazy(() => import('@renderer/pages/settings/DevActionsSettings'));
 const WCoreSettings = React.lazy(() => import('@renderer/pages/settings/WCoreSettings'));
 const WCoreConfig = React.lazy(() => import('@renderer/pages/settings/WCoreConfig'));
 const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiSettings'));
@@ -165,6 +166,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/doctor' element={withRouteFallback(DoctorSettings)} />
             {/* Tank - autopilot server connection (URL + token). */}
             <Route path='/settings/tank' element={withRouteFallback(TankSettings)} />
+            <Route path='/settings/devActions' element={withRouteFallback(DevActionsSettings)} />
             {/* IJFW MEMORY (Decision 3b: the ONLY Skip toggle in the app) */}
             <Route path='/settings/ijfw' element={withRouteFallback(IjfwSettingsPanel)} />
             {/* ABOUT */}

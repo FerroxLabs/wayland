@@ -18,6 +18,7 @@ import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
 import { initProjectBridge } from './projectBridge';
+import { initDevActionsBridge } from './devActionsBridge';
 import { initDatabaseBridge } from './databaseBridge';
 import { initDialogBridge } from './dialogBridge';
 import { initDocumentBridge } from './documentBridge';
@@ -117,6 +118,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initCronBridge();
   initConciergeConfigBridge();
   initProjectBridge();
+  initDevActionsBridge();
   initKickoffBridge();
   initSystemSettingsBridge();
   initTerminalBridge();
