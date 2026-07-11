@@ -378,6 +378,13 @@ export class AcpSession {
     }
 
     this.promptExecutor.resetTimer();
+
+    // A tool has run, so this turn is no longer safe to replay wholesale on a
+    // transient error (#774) - re-sending the prompt could re-execute it.
+    if (update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update') {
+      this.promptExecutor.noteToolActivity();
+    }
+
     const messages = this.messageTranslator.translate(notification);
     for (const msg of messages) {
       this.callbacks.onMessage(msg);
