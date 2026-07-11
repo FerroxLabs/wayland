@@ -64,6 +64,31 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   'claude-3-opus': 200_000,
   'claude-3-sonnet': 200_000,
   'claude-3-haiku': 200_000,
+
+  // Claude Code ACP "slot" aliases. The claude backend has no session/set_model
+  // and only honors the three ANTHROPIC_MODEL aliases, so it reports its current
+  // model as a bare SLOT (`opus`/`sonnet`/`haiku`) rather than a catalog id - see
+  // CLAUDE_SLOT_MODELS in src/process/agent/acp/utils.ts. Without these rows the
+  // context meter cannot size a window from what the agent actually reports and
+  // silently falls back to DEFAULT_CONTEXT_LIMIT (1M) for EVERY slot - so Haiku
+  // (really 200K) showed a 1M denominator. (#733)
+  //
+  // The fuzzy match is longest-key-wins, so these short keys never shadow a full
+  // catalog id (`claude-3-opus` still resolves via its own 13-char key, not `opus`).
+  //
+  // Only slots whose window we can state with CONFIDENCE are listed:
+  //   - `opus`: utils.ts verifies live that `--model opus` / `ANTHROPIC_MODEL=opus`
+  //     resolve to claude-opus-4-8 → 1M.
+  //   - `haiku`: version-independent - EVERY Haiku (4.5, 4.0, 3.5) is 200K, so the
+  //     window holds whichever one the alias picks.
+  // `sonnet` is deliberately OMITTED: its window depends on which Sonnet the alias
+  // resolves to (4.6 is 1M, but 4.5/4.0 are 200K) and that is NOT verified anywhere
+  // in-repo. Guessing 1M would show a 1M denominator for a 200K model - the exact
+  // over-sized-max half of this bug. Omitted, it falls through to
+  // DEFAULT_CONTEXT_LIMIT, i.e. today's behaviour - no better, but no new lie.
+  // Verify the alias against the claude CLI (as was done for opus) before adding it.
+  opus: 1_000_000, // → claude-opus-4-8 (verified)
+  haiku: 200_000, // → any claude-haiku-* (all 200K)
 };
 
 /**

@@ -12,6 +12,7 @@ import ThoughtDisplay from '@/renderer/components/chat/ThoughtDisplay';
 import FileAttachButton from '@/renderer/components/media/FileAttachButton';
 import FilePreview from '@/renderer/components/media/FilePreview';
 import HorizontalFileList from '@/renderer/components/media/HorizontalFileList';
+import { useModelContextLimit } from '@/renderer/hooks/agent/useModelContextLimit';
 import { useAutoTitle } from '@/renderer/hooks/chat/useAutoTitle';
 import { getSendBoxDraftHook, type FileOrFolderItem } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useSendBoxFiles';
@@ -120,10 +121,18 @@ const AcpSendBox: React.FC<{
     resetState,
     tokenUsage,
     contextLimit,
+    currentModelId,
     hasThinkingMessage,
     routing,
     fluxTurnError,
   } = useAcpMessage(conversation_id);
+  // #733: when the ACP agent reports usage but NO context window (`size` 0/absent),
+  // the indicator used to fall back to the generic DEFAULT_CONTEXT_LIMIT (1M) for
+  // EVERY model - so the same Claude model could show a 200K max on one turn and
+  // 1M on another. Resolve the real window from the registry catalog (falling back
+  // to the static table) exactly like the Gemini/WCore send boxes already do.
+  // Agent-reported window still wins when present - it is the ground truth.
+  const getContextLimit = useModelContextLimit(backend);
   const { t } = useTranslation();
   const teamPermission = useTeamPermission();
   // In team mode, all agents show the permission mode selector (members don't propagate)
@@ -491,7 +500,7 @@ Please check your local CLI tool authentication status`,
           tokenUsage ? (
             <ContextUsageIndicator
               tokenUsage={tokenUsage}
-              contextLimit={contextLimit > 0 ? contextLimit : undefined}
+              contextLimit={contextLimit > 0 ? contextLimit : getContextLimit(currentModelId)}
               size={24}
             />
           ) : undefined
