@@ -585,7 +585,8 @@ let spawnTestTimeoutMs = DEFAULT_SPAWN_TEST_TIMEOUT_MS;
  * interleaved the two — a race that hung the turn outright on sharded runners.
  */
 export function _setSpawnTestTimeoutForTests(ms?: number): void {
-  spawnTestTimeoutMs = ms ?? DEFAULT_SPAWN_TEST_TIMEOUT_MS;
+  // `=== undefined`, not `??`: 0 is a legitimate value to ask for, not a reset.
+  spawnTestTimeoutMs = ms === undefined ? DEFAULT_SPAWN_TEST_TIMEOUT_MS : ms;
 }
 
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
