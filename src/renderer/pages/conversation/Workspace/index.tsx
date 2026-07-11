@@ -420,40 +420,40 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
               </div>
             ) : (
               <div data-appearance-role='workspace-tree'>
-              <Tree
-                className={`${isMobile ? '!pl-20px !pr-10px chat-workspace-tree--mobile' : '!pl-32px !pr-16px'} workspace-tree`}
-                showLine
-                key={treeHook.treeKey}
-                selectedKeys={treeHook.selected}
-                expandedKeys={treeHook.expandedKeys}
-                treeData={treeData}
-                fieldNames={{
-                  children: 'children',
-                  title: 'name',
-                  key: 'relativePath',
-                  isLeaf: 'isFile',
-                }}
-                multiple
-                draggable
-                allowDrop={({ dropNode, dropPosition }) => {
-                  // An onto-drop (dropPosition 0) moves INTO the target, so only
-                  // folders may accept it. A gap drop (non-zero) places the entry
-                  // as a sibling of the target, so any node type is a valid gap
-                  // anchor - its parent directory is the destination (issue #49).
-                  if (dropPosition === 0) {
-                    const target = extractNodeData(dropNode);
-                    return Boolean(target?.isDir) && !target?.isFile;
-                  }
-                  return true;
-                }}
-                onDrop={({ dragNode, dropNode, dropPosition }) => {
-                  void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode), dropPosition);
-                }}
-                renderTitle={(node) => {
-                  const relativePath = node.dataRef.relativePath;
-                  const isFile = node.dataRef.isFile;
-                  const isPasteTarget = !isFile && pasteHook.pasteTargetFolder === relativePath;
-                  const nodeData = node.dataRef as IDirOrFile;
+                <Tree
+                  className={`${isMobile ? '!pl-20px !pr-10px chat-workspace-tree--mobile' : '!pl-32px !pr-16px'} workspace-tree`}
+                  showLine
+                  key={treeHook.treeKey}
+                  selectedKeys={treeHook.selected}
+                  expandedKeys={treeHook.expandedKeys}
+                  treeData={treeData}
+                  fieldNames={{
+                    children: 'children',
+                    title: 'name',
+                    key: 'relativePath',
+                    isLeaf: 'isFile',
+                  }}
+                  multiple
+                  draggable
+                  allowDrop={({ dropNode, dropPosition }) => {
+                    // An onto-drop (dropPosition 0) moves INTO the target, so only
+                    // folders may accept it. A gap drop (non-zero) places the entry
+                    // as a sibling of the target, so any node type is a valid gap
+                    // anchor - its parent directory is the destination (issue #49).
+                    if (dropPosition === 0) {
+                      const target = extractNodeData(dropNode);
+                      return Boolean(target?.isDir) && !target?.isFile;
+                    }
+                    return true;
+                  }}
+                  onDrop={({ dragNode, dropNode, dropPosition }) => {
+                    void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode), dropPosition);
+                  }}
+                  renderTitle={(node) => {
+                    const relativePath = node.dataRef.relativePath;
+                    const isFile = node.dataRef.isFile;
+                    const isPasteTarget = !isFile && pasteHook.pasteTargetFolder === relativePath;
+                    const nodeData = node.dataRef as IDirOrFile;
 
                     return (
                       <div
@@ -523,24 +523,24 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                     const isFileNode = Boolean(nodeData?.isFile);
                     const wasSelected = clickedKey ? treeHook.selectedKeysRef.current.includes(clickedKey) : false;
 
-                  if (isFileNode) {
-                    // Single-click file only opens preview without changing selection state
-                    if (clickedKey) {
-                      const filteredKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
-                      treeHook.selectedKeysRef.current = filteredKeys;
-                      treeHook.setSelected(filteredKeys);
+                    if (isFileNode) {
+                      // Single-click file only opens preview without changing selection state
+                      if (clickedKey) {
+                        const filteredKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
+                        treeHook.selectedKeysRef.current = filteredKeys;
+                        treeHook.setSelected(filteredKeys);
+                      }
+                      treeHook.selectedNodeRef.current = null;
+                      // Always open preview on a file click - including when the
+                      // same file was previously selected (issue #49).
+                      if (nodeData && clickedKey) {
+                        void fileOpsHook.handlePreviewFile(nodeData);
+                      }
+                      return;
                     }
-                    treeHook.selectedNodeRef.current = null;
-                    // Always open preview on a file click - including when the
-                    // same file was previously selected (issue #49).
-                    if (nodeData && clickedKey) {
-                      void fileOpsHook.handlePreviewFile(nodeData);
-                    }
-                    return;
-                  }
 
-                  // Keep existing selection logic for folders
-                  let newKeys: string[];
+                    // Keep existing selection logic for folders
+                    let newKeys: string[];
 
                     if (clickedKey && wasSelected) {
                       newKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
