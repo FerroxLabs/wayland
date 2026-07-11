@@ -376,12 +376,18 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
                 {t('archive.drawer.autoPromotesAt', 'auto-promotes at {{n}}', { n: promotionThreshold })}
               </span>
               <Tooltip content={SCORE_TOOLTIP} position='top'>
-                <Help
-                  theme='outline'
-                  size='13'
-                  style={{ cursor: 'help', opacity: 0.6 }}
-                  aria-label={t('archive.drawer.scoreFormula', 'Score formula')}
-                />
+                {/* #751: wrap the icon so Arco gets a real DOM node. @icon-park
+                    icons don't forwardRef, so an unwrapped trigger yields a null
+                    getRootDOMNode/findDOMNode and Arco crashes while positioning
+                    on hover - which blanked the whole app (no error boundary). */}
+                <span style={{ display: 'inline-flex' }}>
+                  <Help
+                    theme='outline'
+                    size='13'
+                    style={{ cursor: 'help', opacity: 0.6 }}
+                    aria-label={t('archive.drawer.scoreFormula', 'Score formula')}
+                  />
+                </span>
               </Tooltip>
             </div>
             <div className={styles.scoreTrack} data-testid='drawer-score-track'>

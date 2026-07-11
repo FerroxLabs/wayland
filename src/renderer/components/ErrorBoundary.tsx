@@ -12,6 +12,13 @@ type State = { error: Error | null };
 type Props = {
   children: React.ReactNode;
   fallback?: (error: Error, reset: () => void) => React.ReactNode;
+  /**
+   * When the boundary is showing a fallback and any value in this array changes
+   * (shallow compare), the error state is cleared and the children are
+   * re-rendered. Lets a caller auto-recover on a relevant change (e.g. the user
+   * selecting a different item) without remounting the children on every render.
+   */
+  resetKeys?: ReadonlyArray<unknown>;
 };
 
 export class ErrorBoundary extends React.Component<Props, State> {
@@ -23,6 +30,17 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     log.error('[ErrorBoundary]', error, info.componentStack);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    // Only relevant while a fallback is showing: if the caller's reset keys
+    // changed, clear the error so the (now hopefully healthy) children render.
+    if (!this.state.error) return;
+    const prev = prevProps.resetKeys;
+    const next = this.props.resetKeys;
+    if (next && (!prev || prev.length !== next.length || next.some((k, i) => !Object.is(k, prev[i])))) {
+      this.reset();
+    }
   }
 
   reset = () => this.setState({ error: null });

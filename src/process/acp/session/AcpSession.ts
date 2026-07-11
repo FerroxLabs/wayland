@@ -7,7 +7,7 @@ import type {
 import * as path from 'node:path';
 import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
-import { buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
+import { buildAcpAdapterCorruptionGuidance, buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
@@ -435,10 +435,13 @@ export class AcpSession {
 
   enterError(message: string): void {
     // If the backend failed because it's installed but missing a runtime extra
-    // (e.g. Hermes without the ACP adapter), rewrite the raw stderr into
-    // actionable install guidance with the correct command. Otherwise pass the
-    // original message through unchanged.
-    const displayMessage = buildAcpSetupGuidance(this.agentConfig.agentBackend, message) ?? message;
+    // (e.g. Hermes without the ACP adapter), or because a bunx-spawned adapter
+    // install is corrupt (#676), rewrite the raw stderr into actionable guidance.
+    // Otherwise pass the original message through unchanged.
+    const displayMessage =
+      buildAcpSetupGuidance(this.agentConfig.agentBackend, message) ??
+      buildAcpAdapterCorruptionGuidance(this.agentConfig.agentBackend, message) ??
+      message;
     this.promptExecutor.clearPending();
     this.permissionResolver.rejectAll(new Error(displayMessage));
     this.promptExecutor.stopTimer();

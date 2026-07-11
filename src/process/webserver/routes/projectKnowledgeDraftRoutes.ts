@@ -8,10 +8,13 @@
  * Headless-WebUI route for the Project AI Knowledge Wizard draft step
  * (remote-secure-config W1.C, issue #234).
  *
- * Trust model: this is a CONFIG-WRITE-TIER route. The IPC action
+ * Trust model: this is an AUTHENTICATED MODEL/DRAFT route, NOT a config write
+ * (#683). It mutates no config and touches no secret — it drafts text from
+ * user-provided context — so the CONFIG-WRITE floor (`requireSecureConfigWrite`,
+ * the HTTPS-when-public refusal for secret writes) does NOT apply here. Gating
+ * it there wrongly 403'd legitimate draft generation. The IPC action
  * `project.generate-knowledge-draft` remains in the remote-deny list (defense
- * in depth); headless renderers use this authenticated HTTP route instead —
- * exactly mirroring how provider-connect (W1.A) works for headless.
+ * in depth); headless renderers use this authenticated HTTP route instead.
  *
  * Security invariants:
  *  - `confinePath` is called for EVERY caller-supplied file path before the
@@ -22,13 +25,12 @@
  *    enum). It never echoes file paths, file names, or any path metadata back
  *    to the caller (§0 invariant: no exfiltration channel).
  *  - Auth middleware stack: `validateApiAccess` (token) + tiny-csrf (global)
- *    + `requireSecureConfigWrite` (HTTPS-when-public floor). This mirrors the
- *    provider-connect route (W1.A) exactly.
+ *    + `apiRateLimiter`. Real config/secret writes (provider keys, MCP config,
+ *    channels, ...) keep `requireSecureConfigWrite` unchanged.
  */
 
 import { type Express, type Request, type RequestHandler, type Response } from 'express';
 import { apiRateLimiter } from '../middleware/security';
-import { requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import { readSourceFiles } from '@process/bridge/projectBridge';
@@ -163,9 +165,10 @@ export function registerProjectKnowledgeDraftRoutes(app: Express, validateApiAcc
     apiRateLimiter,
     validateApiAccess,
     async (req: Request, res: Response) => {
-      // CONFIG-WRITE floor: refuse over plain HTTP from the public internet.
-      if (!requireSecureConfigWrite(req, res)) return;
-
+      // No CONFIG-WRITE floor here (#683): drafting writes no config/secret,
+      // so it must not be refused by the secure-config-write gate. Auth
+      // (validateApiAccess), CSRF (global tiny-csrf) and rate-limit
+      // (apiRateLimiter) above are the correct permission class.
       const body = (req.body ?? {}) as DraftRequestBody;
       const kind = bodyString(body.kind).trim();
       if (kind !== 'context' && kind !== 'rules') {

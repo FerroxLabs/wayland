@@ -72,6 +72,15 @@ export class Mailbox {
   }
 
   /**
+   * Peek at unread messages WITHOUT marking them as read.
+   * Used by finalizeTurn to detect messages that arrived while a wake was in
+   * flight (and were therefore skipped by the activeWakes guard).
+   */
+  async peekUnread(teamId: string, agentId: string): Promise<MailboxMessage[]> {
+    return this.repo.readUnread(teamId, agentId);
+  }
+
+  /**
    * Get message history for an agent (newest first).
    */
   async getHistory(teamId: string, agentId: string, limit?: number): Promise<MailboxMessage[]> {

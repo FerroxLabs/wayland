@@ -28,6 +28,7 @@ import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 import { parseQuestionTool } from './questionTool';
+import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
@@ -349,11 +350,20 @@ export class WCoreAgent {
       }
     });
 
-    // Log stderr as diagnostics and retain the tail for failure surfacing (#484).
+    // Retain the raw stderr tail for failure surfacing (#484).
     this.childProcess.stderr?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString();
-      console.error('[wcore]', text);
-      this.stderrTail = (this.stderrTail + text).slice(-WCORE_STDERR_TAIL_MAX);
+      this.stderrTail = (this.stderrTail + chunk.toString()).slice(-WCORE_STDERR_TAIL_MAX);
+    });
+
+    // Log each stderr line at the engine's own severity instead of blanket
+    // [error] (#717): the engine self-labels lines (tracing format), and
+    // routine INFO chatter re-tagged as host errors drowned real errors.
+    // ANSI colour codes are stripped so the log file stays plain text.
+    const stderrLines = createInterface({ input: this.childProcess.stderr! });
+    stderrLines.on('line', (rawLine) => {
+      const line = stripAnsi(rawLine);
+      if (!line.trim()) return;
+      console[wcoreStderrLevel(line)]('[wcore]', line);
     });
 
     // Handle process exit
@@ -364,7 +374,7 @@ export class WCoreAgent {
         // exit code so callers see the cause, not just "exited with code N"
         // (#484). The "exited with code" wording distinguishes an engine that
         // died during init from the separate 30s ready-timeout below.
-        const detail = redactSecrets(this.stderrTail.trim());
+        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         this.readyReject(
           new Error(
             detail
@@ -387,7 +397,7 @@ export class WCoreAgent {
     // engine that exited during init (handled above).
     const timeout = new Promise<void>((_, reject) => {
       setTimeout(() => {
-        const detail = redactSecrets(this.stderrTail.trim());
+        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         reject(new Error(detail ? `wcore ready timeout (30s): ${detail}` : 'wcore ready timeout (30s)'));
       }, 30000);
     });
@@ -603,6 +613,22 @@ export class WCoreAgent {
 
       case 'mcp_ready':
         this.mcpReadyResolve();
+        break;
+
+      // ── #713: MCP server connection failure ────────────────────────
+      // Mirrors plugin_registration_failed: the session still runs, but
+      // the user must see that a configured MCP server failed to connect
+      // (its tools silently don't exist otherwise) and the engine's
+      // remediation text. Previously this fell through to the
+      // unknown-event arm and was dropped, so MCP connection failures
+      // were invisible outside the log file.
+      case 'mcp_failed':
+        console.warn('[WCoreAgent] mcp_failed', { name: event.name, reason: event.reason });
+        this.onStreamEvent({
+          type: 'info',
+          data: `MCP server "${event.name}" failed to connect: ${event.reason}`,
+          msg_id: this.activeMsgId ?? '',
+        });
         break;
 
       case 'pong':

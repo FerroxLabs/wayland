@@ -100,6 +100,16 @@ describe('Inspector', () => {
     expect(screen.getByTestId('inspector-section-howto')).toBeTruthy();
   });
 
+  // #751: @icon-park icons don't forwardRef, so an unwrapped Arco <Tooltip>
+  // trigger yields a null DOM node and crashes on hover positioning. The score
+  // help icon must be wrapped in a host element.
+  it('#751: wraps the score help icon in a span so the tooltip cannot crash on hover', () => {
+    render(<Inspector {...defaultProps()} />);
+    const wrapper = screen.getByTestId('icon-help').parentElement;
+    expect(wrapper?.tagName).toBe('SPAN');
+    expect(wrapper?.style.display).toBe('inline-flex');
+  });
+
   it('renders the empty state when entry is null', () => {
     render(<Inspector {...defaultProps({ entry: null })} />);
     expect(screen.getByTestId('inspector-empty')).toBeTruthy();
@@ -203,9 +213,7 @@ describe('Inspector', () => {
     const btn = screen.getByTestId('inspector-promote-btn');
     expect(btn.textContent).toContain('✓');
     // Arco Button disabled sets aria-disabled or the DOM disabled attribute
-    expect(btn.getAttribute('disabled') !== null || btn.getAttribute('aria-disabled') === 'true').toBe(
-      true,
-    );
+    expect(btn.getAttribute('disabled') !== null || btn.getAttribute('aria-disabled') === 'true').toBe(true);
   });
 
   // ----- H6: no double toast on source path copy -----

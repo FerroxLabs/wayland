@@ -64,8 +64,8 @@ export class TeamSessionService {
     this.eventLogger = new EventLogger(repo);
     // P2 - one Watchdog per process (TeamSessionService is constructed once at
     // boot in initBridge). Sweep every 60s, matching TeammateManager's
-    // WAKE_TIMEOUT_MS; the lease TTL is 3x that, so a lapsed lease is reclaimed
-    // within one TTL window after the owner dies. Stopped in stopAllSessions.
+    // LEASE_RENEW_THROTTLE_MS; the lease TTL is 3x that, so a lapsed lease is
+    // reclaimed within one TTL window after the owner dies. Stopped in stopAllSessions.
     // checkUnblocks is roster-agnostic (it derives the team from the task), so a
     // bare TaskManager over the repo is enough to release dependents when the
     // Watchdog completes-through a verify-orphan.

@@ -89,4 +89,57 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText('recovered content')).toBeInTheDocument();
   });
+
+  // #792: resetKeys lets a host auto-recover the boundary when a relevant value
+  // changes (e.g. selecting a different memory entry), without remounting the
+  // children on every render.
+  it('auto-resets when a resetKeys value changes', () => {
+    let shouldThrow = true;
+    const Conditional: React.FC = () => {
+      if (shouldThrow) throw new Error('entry A crashes');
+      return <div>healthy entry</div>;
+    };
+
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={['A']}>
+        <Conditional />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
+
+    // The relevant selection changed AND the new render is healthy → recover.
+    shouldThrow = false;
+    rerender(
+      <ErrorBoundary resetKeys={['B']}>
+        <Conditional />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('healthy entry')).toBeInTheDocument();
+  });
+
+  it('does NOT reset while resetKeys are unchanged (a re-render is not a reset)', () => {
+    let shouldThrow = true;
+    const Conditional: React.FC = () => {
+      if (shouldThrow) throw new Error('still crashing');
+      return <div>should not appear yet</div>;
+    };
+
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={['A']}>
+        <Conditional />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
+
+    // Same reset key on a re-render must not clear the fallback, even if the
+    // child would now render cleanly - the caller hasn't signalled a change.
+    shouldThrow = false;
+    rerender(
+      <ErrorBoundary resetKeys={['A']}>
+        <Conditional />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
+    expect(screen.queryByText('should not appear yet')).toBeNull();
+  });
 });
