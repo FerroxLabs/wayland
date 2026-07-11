@@ -147,6 +147,13 @@ export interface IConfigStorageRefer {
   'assistant.presetAgentTypeOverrides'?: Record<string, string>;
   // Cached initialize results per ACP backend (persisted across sessions)
   'acp.cachedInitializeResult'?: Record<string, import('@/common/types/acpTypes').AcpInitializeResult>;
+  /**
+   * #672: durable, per-workspace "allow always" ACP approval decisions. Keyed by
+   * workspace cwd → serialized approval key → optionId. The live PermissionResolver
+   * cache is otherwise in-memory/session-scoped, so an "allow always" was lost on
+   * restart and re-prompted. Rehydrated on session start; main-process only.
+   */
+  'acp.workspaceApprovals'?: Record<string, Record<string, string>>;
   // Cached model lists per ACP backend for Guid page pre-selection
   'acp.cachedModels'?: Record<string, import('@/common/types/acpTypes').AcpModelInfo>;
   // Cached config options per ACP backend for Guid page pre-selection

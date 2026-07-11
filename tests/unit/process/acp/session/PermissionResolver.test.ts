@@ -142,4 +142,115 @@ describe('PermissionResolver', () => {
     await expect(p2).rejects.toThrow('disconnect');
     expect(resolver.hasPending).toBe(false);
   });
+
+  // #672: "allow always" must survive an app restart via durable persistence,
+  // instead of the in-memory-only session cache re-prompting every restart.
+  describe('durable persistence (#672)', () => {
+    it('write-throughs an allow_always grant to persist()', async () => {
+      const persisted = new Map<string, string>();
+      const resolver = new PermissionResolver({ autoApproveAll: false, persist: (k, v) => persisted.set(k, v) });
+      const p = resolver.evaluate(makeRequest('bash', 'c1', { kind: 'execute', rawInput: { command: 'ls' } }), vi.fn());
+      resolver.resolve('c1', 'allow_always');
+      await p;
+      expect(persisted.size).toBe(1);
+      expect([...persisted.values()]).toEqual(['allow_always']);
+    });
+
+    it('does NOT persist a one-time allow or a deny', async () => {
+      const persisted = new Map<string, string>();
+      const resolver = new PermissionResolver({ autoApproveAll: false, persist: (k, v) => persisted.set(k, v) });
+      const p1 = resolver.evaluate(
+        makeRequest('bash', 'c1', { kind: 'execute', rawInput: { command: 'ls' } }),
+        vi.fn()
+      );
+      resolver.resolve('c1', 'allow'); // one-time
+      await p1;
+      const p2 = resolver.evaluate(
+        makeRequest('bash', 'c2', { kind: 'execute', rawInput: { command: 'rm' } }),
+        vi.fn()
+      );
+      resolver.resolve('c2', 'reject_once'); // deny
+      await p2;
+      expect(persisted.size).toBe(0);
+    });
+
+    it('rehydrates a persisted grant so a NEW resolver (restart) auto-approves without UI', async () => {
+      // Session 1: user grants "allow always"; capture what gets persisted.
+      const persisted = new Map<string, string>();
+      const r1 = new PermissionResolver({ autoApproveAll: false, persist: (k, v) => persisted.set(k, v) });
+      const p = r1.evaluate(makeRequest('bash', 'c1', { kind: 'execute', rawInput: { command: 'ls' } }), vi.fn());
+      r1.resolve('c1', 'allow_always');
+      await p;
+      expect(persisted.size).toBe(1);
+
+      // Session 2 (simulated app restart): fresh resolver hydrated from persistence.
+      const uiCallback = vi.fn();
+      const r2 = new PermissionResolver({ autoApproveAll: false, hydrate: async () => [...persisted.entries()] });
+      const result = await r2.evaluate(
+        makeRequest('bash', 'c2', { kind: 'execute', rawInput: { command: 'ls' } }),
+        uiCallback
+      );
+      expect(uiCallback).not.toHaveBeenCalled();
+      expect(result.outcome).toEqual({ outcome: 'selected', optionId: 'allow_always' });
+    });
+
+    it('hydrate runs at most once across many evaluations (memoized)', async () => {
+      let hydrateCalls = 0;
+      const resolver = new PermissionResolver({
+        autoApproveAll: false,
+        hydrate: async () => {
+          hydrateCalls++;
+          return [];
+        },
+      });
+      // With persistence, evaluate registers the pending entry only AFTER the
+      // hydration await, so wait for it before resolving (in production, resolve
+      // is user-driven long after the UI callback, so this race never occurs).
+      const p1 = resolver.evaluate(makeRequest('a', 'c1'), vi.fn());
+      await vi.waitFor(() => expect(resolver.hasPending).toBe(true));
+      resolver.resolve('c1', 'allow');
+      await p1;
+      const p2 = resolver.evaluate(makeRequest('b', 'c2'), vi.fn());
+      await vi.waitFor(() => expect(resolver.hasPending).toBe(true));
+      resolver.resolve('c2', 'allow');
+      await p2;
+      expect(hydrateCalls).toBe(1);
+    });
+
+    it('ignores a persisted entry whose optionId is not an allow_always grant (tamper defense)', async () => {
+      // A tampered store maps a command key to a non-always decision. Hydration
+      // must drop it, so the request still delegates to the UI (no silent action).
+      const key = JSON.stringify({ kind: 'execute', title: 'bash', rawInput: { command: 'ls' } });
+      const uiCallback = vi.fn();
+      const resolver = new PermissionResolver({
+        autoApproveAll: false,
+        hydrate: async () => [
+          [key, 'reject_once'], // not an allow_always - must be ignored
+          [key, 'allow'], // one-time allow - must be ignored
+        ],
+      });
+      const p = resolver.evaluate(
+        makeRequest('bash', 'c1', { kind: 'execute', rawInput: { command: 'ls' } }),
+        uiCallback
+      );
+      await vi.waitFor(() => expect(uiCallback).toHaveBeenCalledOnce());
+      resolver.resolve('c1', 'allow');
+      await p;
+    });
+
+    it('a failed hydrate does not block permission evaluation', async () => {
+      const uiCallback = vi.fn();
+      const resolver = new PermissionResolver({
+        autoApproveAll: false,
+        hydrate: async () => {
+          throw new Error('config read failed');
+        },
+      });
+      const p = resolver.evaluate(makeRequest('write_file', 'c1'), uiCallback);
+      await vi.waitFor(() => expect(uiCallback).toHaveBeenCalledOnce());
+      resolver.resolve('c1', 'allow');
+      const result = await p;
+      expect(result.outcome).toEqual({ outcome: 'selected', optionId: 'allow' });
+    });
+  });
 });
