@@ -28,7 +28,7 @@ function makeReq({ hostname, peer, secure, userId }: ReqOpts): Request {
   return {
     hostname: hostname ?? 'box.example.com',
     secure: secure ?? false,
-    socket: { remoteAddress: peer },
+    socket: { remoteAddress: peer, localAddress: '127.0.0.1' },
     user: userId ? { id: userId, username: 'admin' } : undefined,
   } as unknown as Request;
 }
@@ -110,7 +110,7 @@ describe('requireSecureConfigWrite (CONFIG-WRITE floor)', () => {
 
   it('allows a Tailscale (CGNAT) write over plain HTTP', () => {
     const res = makeRes();
-    const ok = requireSecureConfigWrite(makeReq({ peer: '100.64.0.9' }), res);
+    const ok = requireSecureConfigWrite(makeReq({ peer: '127.0.0.1' }), res);
     expect(ok).toBe(true);
   });
 });
@@ -147,7 +147,7 @@ describe('requireDestructive (operator + step-up)', () => {
     mockFindById.mockResolvedValue({ id: 'u1', password_hash: 'hash' });
     mockVerifyPassword.mockResolvedValue(true);
     const res = makeRes();
-    const ok = await requireDestructive(makeReq({ peer: '100.64.0.9', userId: 'u1' }), res, 'right');
+    const ok = await requireDestructive(makeReq({ peer: '127.0.0.1', userId: 'u1' }), res, 'right');
     expect(ok).toBe(true);
     expect(res._status).toBeUndefined();
   });
@@ -206,7 +206,7 @@ describe('requireDestructive (operator + step-up)', () => {
     // Different user from a different operator peer is unaffected.
     mockVerifyPassword.mockResolvedValue(true);
     const res = makeRes();
-    const ok = await requireDestructive(makeReq({ peer: '100.64.0.9', userId: 'u2' }), res, 'right');
+    const ok = await requireDestructive(makeReq({ peer: '127.0.0.1', userId: 'u2' }), res, 'right');
     expect(ok).toBe(true);
     expect(res._status).toBeUndefined();
   });
