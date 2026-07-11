@@ -222,7 +222,22 @@ function writePendingDir(): string {
 }
 
 // eslint-disable-next-line import/first
-import { ijfwSystemService } from '@process/services/ijfwSystemService';
+import { ijfwSystemService, _setSpawnTestTimeoutForTests } from '@process/services/ijfwSystemService';
+
+/**
+ * Bound an await that is supposed to settle. #806: the unbounded `await run` in
+ * the #721 case turned a lost race into an infinite hang, so the shard died on
+ * the suite wall-clock with no clue as to which promise was stuck. Fail loudly.
+ */
+function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<never>((_, reject) => {
+      const t = setTimeout(() => reject(new Error(`${what} (waited ${ms}ms)`)), ms);
+      void p.finally(() => clearTimeout(t));
+    }),
+  ]);
+}
 
 // The pending-upgrade activator stages the MCP server via symlink-ownership
 // checks and `.pending` -> live directory moves (moveWithExdevFallback, i.e.
@@ -300,39 +315,35 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
     expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'mcp-server'))).toBe(true);
   });
 
-  it('#721: spawn-test settles false via its 5s timeout when the child emits only garbage', async () => {
-    // No current install seeded → the failed verify has no `.prev` to roll
-    // back to, so the flow exits via upgrade_failed_no_rollback after a
-    // SINGLE spawn-test - one 5s timer to advance.
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  it('#721: spawn-test settles false via its verify timeout when the child emits only garbage', async () => {
+    // No current install seeded → the failed verify has no `.prev` to roll back
+    // to, so the flow exits via upgrade_failed_no_rollback after a SINGLE
+    // spawn-test.
+    //
+    // #806: this used to fake ONLY setTimeout/clearTimeout while the child kept
+    // emitting over the REAL macrotask queue, then hand-interleaved 200 rounds of
+    // real flushes against the fake clock. That is a race, and when it was lost
+    // the unbounded `await run` hung until the suite's wall budget killed it —
+    // reliably, on windows/ubuntu shard 3/4. (Raising the budget 10s→30s was
+    // tried in #775 and did not work, because slowness was never the problem.)
+    //
+    // No fake clock now: shorten the real timer instead. Everything runs on one
+    // real macrotask queue, in the real order, and the test settles in ~50ms.
+    _setSpawnTestTimeoutForTests(50);
     try {
       writePendingDir();
       spawnSpy.mockImplementation(() => makeGarbageOnlyChild());
 
-      let settled = false;
-      const run = ijfwSystemService.applyPendingUpgrade().finally(() => {
-        settled = true;
-      });
-      // Interleave real macrotask flushes (child emits via setImmediate, fs is
-      // real) with fake-clock advances until the flow has created and fired
-      // the 5s verify timeout and run to completion.
-      for (let i = 0; i < 200 && !settled; i++) {
-        for (let j = 0; j < 4; j++) await flush();
-        await vi.advanceTimersByTimeAsync(500);
-      }
-      await run;
+      await withTimeout(ijfwSystemService.applyPendingUpgrade(), 5_000, 'applyPendingUpgrade never settled');
 
       expect(spawnSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenCalledWith(
         expect.objectContaining({ status: 'install_failed', errorReason: 'upgrade_failed_no_rollback' })
       );
     } finally {
-      vi.useRealTimers();
+      _setSpawnTestTimeoutForTests();
     }
-    // The settle loop interleaves up to 200 rounds of real macrotask flushes
-    // with fake-clock advances; on loaded CI shards that legitimately exceeds
-    // the default 10s wall budget (observed flaking PR merge runs).
-  }, 30_000);
+  });
 
   it('Checkpoint B B2: acquires installLock and short-circuits when one is already held', async () => {
     // Pre-seed a lockfile that matches the current host+boot and points at the

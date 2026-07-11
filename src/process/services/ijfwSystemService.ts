@@ -575,6 +575,19 @@ async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
   throw lastErr instanceof Error ? lastErr : new Error('EBUSY retry exhausted');
 }
 
+const DEFAULT_SPAWN_TEST_TIMEOUT_MS = 5000;
+let spawnTestTimeoutMs = DEFAULT_SPAWN_TEST_TIMEOUT_MS;
+
+/**
+ * Shorten the spawn-test's settle timeout so a test can drive the real timer
+ * instead of faking the clock (#806). The previous test faked only setTimeout
+ * while the child still emitted over the real macrotask queue, then hand-
+ * interleaved the two — a race that hung the turn outright on sharded runners.
+ */
+export function _setSpawnTestTimeoutForTests(ms?: number): void {
+  spawnTestTimeoutMs = ms ?? DEFAULT_SPAWN_TEST_TIMEOUT_MS;
+}
+
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
@@ -616,7 +629,7 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       resolve(value);
     };
 
-    const timeout = setTimeout(() => settle(false), 5000);
+    const timeout = setTimeout(() => settle(false), spawnTestTimeoutMs);
     let buf: Buffer = Buffer.alloc(0);
 
     child.stdout?.on('data', (chunk: Buffer) => {
