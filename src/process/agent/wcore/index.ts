@@ -414,6 +414,10 @@ export class WCoreAgent {
 
     // Handle process exit
     this.childProcess.on('exit', (code) => {
+      // #746: the engine is gone — disarm the watchdog rather than leave a timer armed
+      // against a turn nothing can finish. (activeMsgId is nulled below too, so
+      // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
+      this.stopStallWatchdog();
       this.restoreProjectConfig();
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
