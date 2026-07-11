@@ -6,16 +6,17 @@
 
 /**
  * #774: a transient mid-run error killed the turn outright. The agent halted,
- * the prompt was dropped on the floor, and the task sat dead until a human
- * typed "retry" — at which point it resumed fine, proving recovery was always
- * possible. PromptExecutor now retries the turn itself.
+ * the prompt was dropped on the floor, and the task sat dead until a human typed
+ * "retry" — at which point it resumed fine, proving recovery was always possible.
+ * PromptExecutor now retries the turn itself.
  *
- * The safety rule these tests pin down: a replay re-asks the model to carry out
- * the request, so it is only allowed while the turn has NOT executed a tool.
- * Once a tool has run, replaying could run it twice.
+ * Retrying a turn is only safe under narrow conditions, so every guard gets its
+ * own test: delete any check in `canRetryPrompt` or in the post-backoff re-check
+ * and something below must go red.
  *
- * Backoff is injected as 0ms — real timers, no fake clock, so there is no
- * fake-clock/real-macrotask interleaving to hang a sharded runner.
+ * Backoff is injected as 0ms and the clock is REAL. No fake timers — the guards
+ * under test are precisely about what changes across a genuine await, and a fake
+ * clock interleaved with real macrotasks is how you hang a sharded runner.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -23,149 +24,222 @@ import { PromptExecutor, type PromptHost } from '@process/acp/session/PromptExec
 import { AcpError } from '@process/acp/errors/AcpError';
 import type { PromptContent } from '@process/acp/types';
 
-const NO_BACKOFF = { attempts: 3, backoff: { initialMs: 0, maxMs: 0, factor: 1, jitter: 0 } };
+const FAST_RETRY = { attempts: 3, backoff: { initialMs: 0, maxMs: 0, factor: 1, jitter: 0 } };
 
 const CONTENT = [{ type: 'text', text: 'do the thing' }] as unknown as PromptContent;
 
+/** The agent was alive and answered: -32603, where bridges dump the provider's error. */
+function providerBlip(msg = 'Failed to generate content: Connection error') {
+  return new AcpError('AGENT_INTERNAL_ERROR', msg, { retryable: true });
+}
+
 function createHost() {
   const prompt = vi.fn().mockResolvedValue({ stopReason: 'end_turn' });
-  const statuses: string[] = [];
+  const client = { prompt, cancel: vi.fn().mockResolvedValue(undefined) };
 
   const host = {
     status: 'active',
     lifecycle: {
-      client: { prompt },
+      client,
       sessionId: 'sess-1',
       reassertConfig: vi.fn().mockResolvedValue(undefined),
+      setAuthPendingForPrompt: vi.fn(),
+      teardown: vi.fn().mockResolvedValue(undefined),
     },
     messageTranslator: { onTurnStart: vi.fn(), onTurnEnd: vi.fn() },
-    authNegotiator: { buildAuthRequiredData: vi.fn() },
+    authNegotiator: { buildAuthRequiredData: vi.fn().mockReturnValue({}) },
     callbacks: { onSignal: vi.fn(), onContextUsage: vi.fn() },
     metrics: { recordError: vi.fn() },
     agentConfig: { agentBackend: 'test' },
     setStatus: vi.fn((s: string) => {
-      statuses.push(s);
       host.status = s;
     }),
     enterError: vi.fn(),
-  } as unknown as PromptHost & { status: string };
+  } as unknown as PromptHost & {
+    status: string;
+    lifecycle: { client: unknown; sessionId: string | null; setAuthPendingForPrompt: ReturnType<typeof vi.fn> };
+  };
 
-  return { host, prompt, statuses };
-}
-
-function transient(msg = 'Connection error') {
-  return new AcpError('CONNECTION_FAILED', msg, { retryable: true });
+  return { host, prompt };
 }
 
 describe('PromptExecutor - transient turn errors are retried (#774)', () => {
   let host: ReturnType<typeof createHost>['host'];
   let prompt: ReturnType<typeof vi.fn>;
+  let executor: PromptExecutor;
 
   beforeEach(() => {
     ({ host, prompt } = createHost());
+    executor = new PromptExecutor(host, 60_000, FAST_RETRY);
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('retries a transient failure and completes the turn, with no error thrown', async () => {
-    prompt.mockRejectedValueOnce(transient()).mockResolvedValueOnce({ stopReason: 'end_turn' });
+  it('retries a provider blip and completes the turn, without rejecting', async () => {
+    prompt.mockRejectedValueOnce(providerBlip()).mockResolvedValueOnce({ stopReason: 'end_turn' });
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await expect(executor.execute(CONTENT)).resolves.toBeUndefined();
 
     expect(prompt).toHaveBeenCalledTimes(2);
-    // Same prompt content replayed, not a synthesized "keep going" string.
+    // The SAME prompt is replayed — not a synthesized "keep going" string.
     expect(prompt.mock.calls[1][1]).toEqual(CONTENT);
-    // The turn finished normally: the manager must not see a rejection, or it
-    // would emit a turn-error banner and synthesize a premature finish.
+    // The manager awaits this turn: a rejection would make it paint a turn-error
+    // banner and synthesize a premature finish for a blip we recovered from.
     expect(host.callbacks.onSignal).toHaveBeenCalledWith({ type: 'turn_finished' });
     expect(host.enterError).not.toHaveBeenCalled();
   });
 
-  it('surfaces a recoverable "retrying" banner rather than failing silently', async () => {
-    prompt.mockRejectedValueOnce(transient('Failed to generate content')).mockResolvedValueOnce({ stopReason: 'end_turn' });
-
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
+  it('says it is retrying instead of failing silently', async () => {
+    prompt.mockRejectedValueOnce(providerBlip()).mockResolvedValueOnce({ stopReason: 'end_turn' });
     await executor.execute(CONTENT);
 
     const signals = (host.callbacks.onSignal as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]);
-    const retryBanner = signals.find((s) => s.type === 'error');
-    expect(retryBanner).toMatchObject({ recoverable: true });
-    expect(retryBanner.message).toContain('retrying (1/3)');
+    const banner = signals.find((s) => s.type === 'error');
+    expect(banner).toMatchObject({ recoverable: true });
+    expect(banner.message).toContain('retrying (1/3)');
   });
 
-  it('gives up after the attempt cap and reports the failure', async () => {
-    prompt.mockRejectedValue(transient());
+  it('gives up at the attempt cap rather than retrying forever', async () => {
+    prompt.mockRejectedValue(providerBlip());
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
-
-    // 3 attempts total = original + 2 retries. It must not retry forever.
-    expect(prompt).toHaveBeenCalledTimes(3);
+    expect(prompt).toHaveBeenCalledTimes(3); // original + 2 retries
   });
 
-  it('does NOT retry a non-retryable error (a malformed request would just fail again)', async () => {
-    prompt.mockRejectedValue(new AcpError('ACP_INVALID_PARAMS', 'missing field tool_call_id', { retryable: false }));
+  // ─── Guard: only a live agent's own transient answer may be replayed ───────
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
+  it('does NOT replay a crashed agent — resumeFromDisconnect owns that recovery', async () => {
+    // The stream died, so we cannot know what the agent already did: a tool_call
+    // notification can be lost with the pipe. Replaying could re-run the tool.
+    prompt.mockRejectedValue(new AcpError('PROCESS_CRASHED', 'ACP connection closed', { retryable: true }));
+
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT replay a transport errno (CONNECTION_FAILED)', async () => {
+    prompt.mockRejectedValue(new AcpError('CONNECTION_FAILED', 'ECONNRESET', { retryable: true }));
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT replay AUTH_REQUIRED — it needs the user, and is re-queued for after auth', async () => {
+    // AUTH_REQUIRED is retryable:true, so only the explicit exclusion stops us
+    // firing three prompts at an agent that is asking someone to log in.
+    prompt.mockRejectedValue(new AcpError('AUTH_REQUIRED', 'login required', { retryable: true }));
+
+    await executor.execute(CONTENT);
 
     expect(prompt).toHaveBeenCalledTimes(1);
-    expect(host.enterError).toHaveBeenCalled();
+    expect(host.lifecycle.setAuthPendingForPrompt).toHaveBeenCalled();
+    expect(executor.hasPending()).toBe(true); // the prompt is preserved, not dropped
   });
 
-  it('does NOT replay a turn that already executed a tool — that could run it twice', async () => {
-    // Turn streams a tool_call, THEN the connection drops. Replaying the prompt
-    // would re-ask the model to do the work, re-running the tool's side effects.
+  it('does NOT replay a deterministic failure hiding inside -32603 (the #774 400)', async () => {
+    // The reported "400 ... missing field 'tool_call_id'" arrives as an agent
+    // internal error, but replaying identical bytes fails identically.
+    prompt.mockRejectedValue(
+      providerBlip("API Error: 400 BadRequestError - missing field 'tool_call_id' at messages[31]")
+    );
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT hammer a provider that just rate-limited us', async () => {
+    prompt.mockRejectedValue(providerBlip('429 rate limit exceeded, please slow down'));
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  // ─── Guard: never replay a turn that could already have had side effects ───
+
+  it('does NOT replay a turn that already ran a tool — it could run it twice', async () => {
     prompt.mockImplementationOnce(() => {
-      executor.noteToolActivity();
-      return Promise.reject(transient());
+      executor.noteToolActivity(); // a tool_call streamed, THEN the provider blipped
+      return Promise.reject(providerBlip());
     });
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
-
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 
-  it('a tool in a PREVIOUS turn does not poison the next turn (flag is per-turn)', async () => {
-    // First turn runs a tool and succeeds.
+  it('a tool in a PREVIOUS turn does not poison the next one', async () => {
     prompt.mockImplementationOnce(() => {
       executor.noteToolActivity();
       return Promise.resolve({ stopReason: 'end_turn' });
     });
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await executor.execute(CONTENT);
 
-    // Second turn: transient failure before any tool runs → still retryable.
-    prompt.mockRejectedValueOnce(transient()).mockResolvedValueOnce({ stopReason: 'end_turn' });
     host.status = 'active';
+    prompt.mockRejectedValueOnce(providerBlip()).mockResolvedValueOnce({ stopReason: 'end_turn' });
     await executor.execute(CONTENT);
 
     expect(prompt).toHaveBeenCalledTimes(3); // turn1, turn2-fail, turn2-retry
   });
 
-  it('does not resume a retry after the turn is cancelled', async () => {
+  // ─── Guard: the post-backoff re-check ─────────────────────────────────────
+
+  it('does not retry a cancelled turn, and does not claim to be retrying it', async () => {
+    // Stop lands as the turn fails. Beyond not re-prompting, it must not announce
+    // a retry it will never make — the user pressed Stop; they should not watch a
+    // "retrying (1/3)" banner and a backoff play out first.
     prompt.mockImplementationOnce(() => {
-      executor.cancel();
-      return Promise.reject(transient());
+      queueMicrotask(() => executor.cancel());
+      return Promise.reject(providerBlip());
     });
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
 
     expect(prompt).toHaveBeenCalledTimes(1);
+    const signals = (host.callbacks.onSignal as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]);
+    expect(signals.some((s) => String(s.message ?? '').includes('retrying'))).toBe(false);
   });
 
-  it('does not retry into a dead session after the agent process is gone', async () => {
+  it('does not fire a retry into a client that was REPLACED during the backoff', async () => {
+    // The real crash path: onDisconnect clears the client and resumeFromDisconnect
+    // SYNCHRONOUSLY spawns a replacement, so a "is there a client?" check passes
+    // against a brand-new, still-initializing one. We bind to the turn's client.
     prompt.mockImplementationOnce(() => {
-      // Agent crashed during the turn; onDisconnect cleared the client.
-      (host.lifecycle as { client: unknown }).client = null;
-      return Promise.reject(transient());
+      host.lifecycle.client = { prompt: vi.fn(), cancel: vi.fn() }; // respawned
+      return Promise.reject(providerBlip());
     });
 
-    const executor = new PromptExecutor(host, 60_000, NO_BACKOFF);
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
 
+  it('does not fire a retry after the session left prompting (stop/teardown)', async () => {
+    prompt.mockImplementationOnce(() => {
+      host.status = 'idle'; // e.g. stop() during the backoff
+      return Promise.reject(providerBlip());
+    });
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry into a dead session', async () => {
+    prompt.mockImplementationOnce(() => {
+      host.lifecycle.client = null;
+      return Promise.reject(providerBlip());
+    });
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops retrying once the turn deadline is spent, so a turn cannot run 3x its timeout', async () => {
+    // A 0ms turn budget: the first failure is already past the deadline.
+    const shortLived = new PromptExecutor(host, 0, {
+      attempts: 3,
+      backoff: { initialMs: 5, maxMs: 5, factor: 1, jitter: 0 },
+    });
+    prompt.mockRejectedValue(providerBlip());
+
+    await expect(shortLived.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 });

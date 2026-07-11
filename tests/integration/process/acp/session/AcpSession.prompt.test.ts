@@ -193,10 +193,11 @@ describe('AcpSession prompt flow', () => {
     void session.sendMessage('second');
     expect(promptMock).toHaveBeenCalledTimes(1);
 
-    // Fail the first turn transiently. Before #774 this DROPPED 'first' on the
-    // floor and went straight to 'second'; now the turn is retried, and only
-    // then does the queue drain. The send must not reject — the blip recovered.
-    rejectFirstTurn(new AcpError('CONNECTION_FAILED', 'transient', { retryable: true }));
+    // Fail the first turn the way a live agent reports a provider blip (-32603).
+    // Before #774 this DROPPED 'first' on the floor and went straight to
+    // 'second'; now the turn is retried, and only then does the queue drain. The
+    // send must not reject — the blip was recovered from.
+    rejectFirstTurn(new AcpError('AGENT_INTERNAL_ERROR', 'Connection error', { retryable: true }));
     await expect(firstSend).resolves.toBeUndefined();
 
     // 'first' is replayed (not skipped)...

@@ -1,4 +1,4 @@
-import type { AcpError } from '@process/acp/errors/AcpError';
+import type { AcpError, AcpErrorCode } from '@process/acp/errors/AcpError';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import type { AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import type { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
@@ -16,7 +16,38 @@ import { type BackoffPolicy, computeBackoff, sleepWithAbort } from '@process/uti
  * 3 attempts = the original + 2 retries, ~1s then ~2s apart.
  */
 const MAX_PROMPT_ATTEMPTS = 3;
-const PROMPT_RETRY_BACKOFF: BackoffPolicy = { initialMs: 1000, maxMs: 8000, factor: 2, jitter: 0.2 };
+const PROMPT_RETRY_BACKOFF: BackoffPolicy = { initialMs: 1000, maxMs: 4000, factor: 2, jitter: 0.2 };
+
+/**
+ * Replay is allowed for exactly ONE failure shape: the agent was ALIVE, answered
+ * our prompt, and the answer was an internal failure (-32603 — where every ACP
+ * bridge dumps the provider's error, including the "Failed to generate content:
+ * Connection error" of #774).
+ *
+ * Deliberately NOT here, though `AcpError.retryable` marks them retryable:
+ *
+ *  - PROCESS_CRASHED / a dead stream. The agent died mid-turn, so we cannot know
+ *    what it already DID — a `tool_call` notification it wrote can be lost with
+ *    the pipe, which would make `turnRanTool` lie and let us re-run a tool. It is
+ *    also already owned: `AcpSession.onDisconnect` → `resumeFromDisconnect()`
+ *    respawns and re-flushes the pending prompt. Two recovery mechanisms racing
+ *    over one session is worse than either alone.
+ *  - CONNECTION_FAILED (an errno on OUR transport) — same reasoning.
+ *  - AUTH_REQUIRED — needs the user, and `handlePromptError` already re-queues
+ *    the prompt to replay once they have authenticated.
+ *  - ACP_PARSE_ERROR — the agent could not parse the bytes; identical bytes fail
+ *    identically.
+ */
+const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTERNAL_ERROR']);
+
+/**
+ * -32603 is a catch-all, so the code alone cannot tell a blip from a verdict.
+ * These never improve by sending the identical prompt again: a rate limit gets
+ * angrier, and a bad request / oversized context / refusal is deterministic.
+ * (#774's own 400 `missing field 'tool_call_id'` is caught here.)
+ */
+const NON_TRANSIENT_DETAIL =
+  /\b(4\d\d|rate.?limit|quota|resource.?exhausted|context.?length|too\s+many\s+tokens|maximum\s+context|bad.?request|invalid.?request|safety|content.?policy)\b/i;
 
 /** Overridable so tests can drive the retry path without sleeping for real. */
 export type PromptRetryOptions = {
@@ -45,6 +76,8 @@ export class PromptExecutor {
   private turnRanTool = false;
   /** Set by cancel(), so a retry sleeping on its backoff does not wake up and fire anyway. */
   private turnCancelled = false;
+  /** Aborts the backoff sleep, so Stop takes effect immediately rather than seconds late. */
+  private turnAbort: AbortController | undefined;
   private readonly timer: PromptTimer;
 
   private readonly maxAttempts: number;
@@ -52,7 +85,7 @@ export class PromptExecutor {
 
   constructor(
     private readonly host: PromptHost,
-    timeoutMs: number,
+    private readonly timeoutMs: number,
     retry: PromptRetryOptions = {}
   ) {
     this.timer = new PromptTimer(timeoutMs, () => this.handleTimeout());
@@ -82,11 +115,16 @@ export class PromptExecutor {
     if (this.flushing || this.pendingPrompts.length === 0 || this.host.status !== 'active') return;
     this.flushing = true;
     const content = this.pendingPrompts.shift()!;
-    void this.execute(content).finally(() => {
-      this.flushing = false;
-      // Chain the next queued prompt if one arrived while this turn was running.
-      this.flush();
-    });
+    // execute() rejects on a terminal turn error; the error is already surfaced
+    // via onSignal/enterError, so swallow it here rather than leaving an
+    // unhandled rejection in the Electron main process.
+    void this.execute(content)
+      .catch(() => {})
+      .finally(() => {
+        this.flushing = false;
+        // Chain the next queued prompt if one arrived while this turn was running.
+        this.flush();
+      });
   }
 
   // ─── Execute ──────────────────────────────────────────────────
@@ -103,6 +141,20 @@ export class PromptExecutor {
 
     this.turnRanTool = false;
     this.turnCancelled = false;
+    this.turnAbort = new AbortController();
+
+    // Bind the retry to THIS turn's client, not to `lifecycle.client` — that is a
+    // live getter, and a crash mid-turn makes `onDisconnect` → `resumeFromDisconnect`
+    // SYNCHRONOUSLY spawn a replacement before its first await. A "is there still a
+    // client?" check would happily pass against that new, still-initializing client
+    // and fire this prompt into a session it has never loaded.
+    const turnClient = lifecycle.client;
+    const turnSessionId = lifecycle.sessionId;
+
+    // One deadline for the whole turn. The PromptTimer resets per attempt, so
+    // without this a 3-attempt turn could run 3x the prompt timeout.
+    const deadline = Date.now() + this.timeoutMs;
+
     this.host.setStatus('prompting');
 
     try {
@@ -119,7 +171,7 @@ export class PromptExecutor {
     for (let attempt = 1; ; attempt++) {
       try {
         this.timer.start();
-        const result = await lifecycle.client.prompt(lifecycle.sessionId, content);
+        const result = await turnClient.prompt(turnSessionId, content);
         this.timer.stop();
 
         // Fallback: emit usage from PromptResponse for backends that don't send usage_update
@@ -134,8 +186,9 @@ export class PromptExecutor {
       } catch (err) {
         this.timer.stop();
         const acpErr = normalizeError(err);
+        const backoffMs = computeBackoff(this.retryBackoff, attempt);
 
-        if (!this.canRetryPrompt(acpErr, attempt)) {
+        if (!this.canRetryPrompt(acpErr, attempt) || Date.now() + backoffMs >= deadline) {
           this.host.messageTranslator.onTurnEnd();
           this.handlePromptError(acpErr, content);
           return;
@@ -151,11 +204,21 @@ export class PromptExecutor {
           recoverable: true,
         });
 
-        await sleepWithAbort(computeBackoff(this.retryBackoff, attempt));
+        try {
+          await sleepWithAbort(backoffMs, this.turnAbort.signal);
+        } catch {
+          /* aborted by cancel() - fall through to the guard below */
+        }
 
-        // Re-check AFTER the wait: cancel() or a crash during the backoff must
-        // not be steamrolled by the next attempt.
-        if (this.turnCancelled || !lifecycle.client || !lifecycle.sessionId) {
+        // Re-check EVERYTHING after the wait. The session can be cancelled, torn
+        // down, crashed-and-respawned, or driven to another state while we sleep;
+        // none of those may be steamrolled by the next attempt.
+        if (
+          this.turnCancelled ||
+          this.host.status !== 'prompting' ||
+          lifecycle.client !== turnClient ||
+          lifecycle.sessionId !== turnSessionId
+        ) {
           this.host.messageTranslator.onTurnEnd();
           this.handlePromptError(acpErr, content);
           return;
@@ -188,12 +251,12 @@ export class PromptExecutor {
    */
   private canRetryPrompt(acpErr: AcpError, attempt: number): boolean {
     if (attempt >= this.maxAttempts) return false;
-    if (!acpErr.retryable) return false;
-    // Auth is not a blip: it needs the user, and handlePromptError re-queues the
-    // prompt to be replayed once they finish authenticating.
-    if (acpErr.code === 'AUTH_REQUIRED') return false;
-    if (this.turnRanTool) return false;
     if (this.turnCancelled) return false;
+    if (this.turnRanTool) return false;
+    // NOT `acpErr.retryable`: that flag was tuned for session start/resume, a
+    // different decision. Replaying a PROMPT is its own judgement call.
+    if (!REPLAYABLE_PROMPT_CODES.has(acpErr.code)) return false;
+    if (NON_TRANSIENT_DETAIL.test(acpErr.message)) return false;
     return true;
   }
 
@@ -251,12 +314,14 @@ export class PromptExecutor {
     // 'prompting' while we wait, so without this the cancelled turn would wake
     // up and re-prompt anyway.
     this.turnCancelled = true;
+    this.turnAbort?.abort();
     lifecycle.client.cancel(lifecycle.sessionId).catch(() => {});
   }
 
   cancelAll(): void {
     this.pendingPrompts = [];
     this.turnCancelled = true;
+    this.turnAbort?.abort();
     if (this.host.status === 'prompting') this.cancel();
   }
 

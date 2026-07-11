@@ -328,6 +328,10 @@ export class AcpSession {
       },
       onWriteTextFile: async (req) => {
         this.assertPathAllowed(req.path);
+        // An irreversible side effect that never passes through handleMessage, so
+        // it would otherwise leave `turnRanTool` false and let a retry replay the
+        // turn and write the file a second time (#774).
+        this.promptExecutor.noteToolActivity();
         try {
           fs.writeFileSync(req.path, req.content, 'utf-8');
           return {};
@@ -392,6 +396,9 @@ export class AcpSession {
   }
 
   private async handlePermissionRequest(request: RequestPermissionRequest): Promise<RequestPermissionResponse> {
+    // A permission request means a tool is about to run — enough to make replaying
+    // this turn unsafe, even if its `tool_call` update never reaches us (#774).
+    this.promptExecutor.noteToolActivity();
     this.promptExecutor.pauseTimer();
     try {
       return await this.permissionResolver.evaluate(request, (data) => {
