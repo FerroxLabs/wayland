@@ -1680,14 +1680,49 @@ export interface IExtensionInfo {
   displayName: string;
   version: string;
   description?: string;
+  author?: string;
+  homepage?: string;
+  icon?: string;
+  apiVersion?: string;
+  engine?: { wayland?: string };
+  dependencies?: Record<string, string>;
   source: string;
   directory: string;
   /** Whether the extension is currently enabled */
   enabled: boolean;
+  /** Last disabled reason, when available */
+  disabledReason?: string;
+  /** Install/load error captured by the extension state store, when available */
+  installError?: string;
   /** Overall permission risk level */
   riskLevel: 'safe' | 'moderate' | 'dangerous';
+  /** User review/approval state for elevated or risky permissions */
+  permissionReview?: {
+    approvedAt: string;
+    approvedRiskLevel: 'safe' | 'moderate' | 'dangerous';
+    approvedPermissions: string[];
+  };
   /** Whether the extension has lifecycle hooks */
   hasLifecycle: boolean;
+  /** Contribution counts grouped by extension surface */
+  contributes: {
+    acpAdapters: number;
+    mcpServers: number;
+    assistants: number;
+    agents: number;
+    skills: number;
+    channelPlugins: number;
+    webuiApiRoutes: number;
+    webuiStaticAssets: number;
+    themes: number;
+    settingsTabs: number;
+    modelProviders: number;
+    acronyms: number;
+    workspacePanels: number;
+    filePreviewActions: number;
+    scheduledTaskTemplates: number;
+    workflowTemplates: number;
+  };
 }
 
 /** Permission summary for extension management UI (Figma-inspired) */
@@ -1696,6 +1731,39 @@ export interface IExtensionPermissionSummary {
   description: string;
   level: 'safe' | 'moderate' | 'dangerous';
   granted: boolean;
+}
+
+export interface IExtensionBuilderPlan {
+  name: string;
+  slug: string;
+  summary: string;
+  riskLevel: 'safe' | 'moderate' | 'dangerous';
+  permissions: string[];
+  contributions: string[];
+  files: string[];
+  reviewItems: string[];
+  creationPath?: string;
+}
+
+export interface IExtensionBuilderMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface IExtensionBuilderDraftResult {
+  plan: IExtensionBuilderPlan;
+  reply: string;
+  source: 'ai' | 'fallback';
+  model?: string;
+  error?: string;
+}
+
+export interface IExtensionBuilderCreateResult {
+  name: string;
+  displayName: string;
+  directory: string;
+  files: string[];
+  restartRequired: boolean;
 }
 
 /** Settings tab contributed by an extension, consumed by settings UI */
@@ -1717,6 +1785,57 @@ export interface IExtensionWebuiContribution {
   extensionName: string;
   apiRoutes: Array<{ path: string; auth: boolean }>;
   staticAssets: Array<{ urlPrefix: string; directory: string }>;
+}
+
+export interface IExtensionAcronym {
+  id: string;
+  acronym: string;
+  expansion: string;
+  description?: string;
+  enabled: boolean;
+  _extensionName: string;
+}
+
+export interface IExtensionWorkspacePanel {
+  id: string;
+  name: string;
+  icon?: string;
+  entryUrl: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionFilePreviewAction {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  matchExtensions?: string[];
+  promptTemplate?: string;
+  entryUrl?: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionScheduledTaskTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  promptTemplate: string;
+  scheduleHint?: string;
+  order: number;
+  _extensionName: string;
+}
+
+export interface IExtensionWorkflowTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  promptTemplate?: string;
+  steps?: string[];
+  order: number;
+  _extensionName: string;
 }
 
 export type AgentActivityState = 'idle' | 'writing' | 'researching' | 'executing' | 'syncing' | 'error';
@@ -1778,10 +1897,23 @@ export const extensions = {
   getExtI18nForLocale: buildProvider<Record<string, unknown>, { locale: string }>('extensions.get-ext-i18n-for-locale'),
 
   // --- Extension Management API (NocoBase-inspired) ---
+  /** Draft a reviewable extension plan from a plain-English builder conversation */
+  draftBuilderPlan: buildProvider<
+    IBridgeResponse<IExtensionBuilderDraftResult>,
+    { messages: IExtensionBuilderMessage[]; fallbackIdea: string }
+  >('extensions.draft-builder-plan'),
+  /** Scaffold an update-safe user-data extension package from an approved builder plan */
+  createFromBuilder: buildProvider<IBridgeResponse<IExtensionBuilderCreateResult>, { plan: IExtensionBuilderPlan }>(
+    'extensions.create-from-builder'
+  ),
   /** Enable a disabled extension */
   enableExtension: buildProvider<IBridgeResponse, { name: string }>('extensions.enable'),
   /** Disable an extension */
   disableExtension: buildProvider<IBridgeResponse, { name: string; reason?: string }>('extensions.disable'),
+  /** Mark elevated/risky extension permissions as reviewed and approved */
+  approvePermissions: buildProvider<IBridgeResponse, { name: string }>('extensions.approve-permissions'),
+  /** Revoke a previous elevated/risky permission approval */
+  revokePermissionApproval: buildProvider<IBridgeResponse, { name: string }>('extensions.revoke-permission-approval'),
   /** Get permission summary for an extension (Figma-inspired) */
   getPermissions: buildProvider<IExtensionPermissionSummary[], { name: string }>('extensions.get-permissions'),
   /** Get overall risk level for an extension */

@@ -218,6 +218,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
       {shouldRenderLocalMessageContext && messageContext}
       <div
         className='chat-workspace size-full flex flex-col relative'
+        data-appearance-surface='workspace-browser'
         tabIndex={0}
         onFocus={pasteHook.onFocusPaste}
         onClick={pasteHook.onFocusPaste}
@@ -418,179 +419,181 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                 />
               </div>
             ) : (
-              <Tree
-                className={`${isMobile ? '!pl-20px !pr-10px chat-workspace-tree--mobile' : '!pl-32px !pr-16px'} workspace-tree`}
-                showLine
-                key={treeHook.treeKey}
-                selectedKeys={treeHook.selected}
-                expandedKeys={treeHook.expandedKeys}
-                treeData={treeData}
-                fieldNames={{
-                  children: 'children',
-                  title: 'name',
-                  key: 'relativePath',
-                  isLeaf: 'isFile',
-                }}
-                multiple
-                draggable
-                allowDrop={({ dropNode, dropPosition }) => {
-                  // An onto-drop (dropPosition 0) moves INTO the target, so only
-                  // folders may accept it. A gap drop (non-zero) places the entry
-                  // as a sibling of the target, so any node type is a valid gap
-                  // anchor - its parent directory is the destination (issue #49).
-                  if (dropPosition === 0) {
-                    const target = extractNodeData(dropNode);
-                    return Boolean(target?.isDir) && !target?.isFile;
-                  }
-                  return true;
-                }}
-                onDrop={({ dragNode, dropNode, dropPosition }) => {
-                  void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode), dropPosition);
-                }}
-                renderTitle={(node) => {
-                  const relativePath = node.dataRef.relativePath;
-                  const isFile = node.dataRef.isFile;
-                  const isPasteTarget = !isFile && pasteHook.pasteTargetFolder === relativePath;
-                  const nodeData = node.dataRef as IDirOrFile;
+              <div data-appearance-role='workspace-tree'>
+                <Tree
+                  className={`${isMobile ? '!pl-20px !pr-10px chat-workspace-tree--mobile' : '!pl-32px !pr-16px'} workspace-tree`}
+                  showLine
+                  key={treeHook.treeKey}
+                  selectedKeys={treeHook.selected}
+                  expandedKeys={treeHook.expandedKeys}
+                  treeData={treeData}
+                  fieldNames={{
+                    children: 'children',
+                    title: 'name',
+                    key: 'relativePath',
+                    isLeaf: 'isFile',
+                  }}
+                  multiple
+                  draggable
+                  allowDrop={({ dropNode, dropPosition }) => {
+                    // An onto-drop (dropPosition 0) moves INTO the target, so only
+                    // folders may accept it. A gap drop (non-zero) places the entry
+                    // as a sibling of the target, so any node type is a valid gap
+                    // anchor - its parent directory is the destination (issue #49).
+                    if (dropPosition === 0) {
+                      const target = extractNodeData(dropNode);
+                      return Boolean(target?.isDir) && !target?.isFile;
+                    }
+                    return true;
+                  }}
+                  onDrop={({ dragNode, dropNode, dropPosition }) => {
+                    void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode), dropPosition);
+                  }}
+                  renderTitle={(node) => {
+                    const relativePath = node.dataRef.relativePath;
+                    const isFile = node.dataRef.isFile;
+                    const isPasteTarget = !isFile && pasteHook.pasteTargetFolder === relativePath;
+                    const nodeData = node.dataRef as IDirOrFile;
 
-                  return (
-                    <div
-                      className='flex items-center justify-between gap-6px min-w-0'
-                      style={{ color: 'inherit' }}
-                      onDoubleClick={() => {
-                        if (isFile) {
-                          fileOpsHook.handleAddToChat(nodeData);
-                        }
-                      }}
-                      onContextMenu={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        openNodeContextMenu(nodeData, event.clientX, event.clientY);
-                      }}
-                    >
-                      <span className='flex items-center gap-4px min-w-0'>
-                        <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{node.title}</span>
-                        {isPasteTarget && (
-                          <span className='ml-1 text-xs text-blue-700 font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded'>
-                            PASTE
-                          </span>
-                        )}
-                      </span>
-                      {isMobile && (
-                        <button
-                          type='button'
-                          className='workspace-header__toggle workspace-node-more-btn h-28px w-28px rd-8px flex items-center justify-center text-t-secondary hover:text-t-primary active:text-t-primary flex-shrink-0'
-                          aria-label={t('common.more')}
-                          onMouseDown={(event) => {
-                            event.stopPropagation();
-                          }}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
-                            const menuWidth = 220;
-                            const menuHeight = 220;
-                            const maxX =
-                              typeof window !== 'undefined'
-                                ? Math.max(8, window.innerWidth - menuWidth - 8)
-                                : rect.left;
-                            const maxY =
-                              typeof window !== 'undefined'
-                                ? Math.max(8, window.innerHeight - menuHeight - 8)
-                                : rect.bottom;
-                            const menuX = Math.min(Math.max(8, rect.left - menuWidth + rect.width), maxX);
-                            const menuY = Math.min(Math.max(8, rect.bottom + 4), maxY);
-                            openNodeContextMenu(nodeData, menuX, menuY);
-                          }}
-                        >
-                          <div
-                            className='flex flex-col gap-2px items-center justify-center'
-                            style={{ width: '12px', height: '12px' }}
+                    return (
+                      <div
+                        className='flex items-center justify-between gap-6px min-w-0'
+                        style={{ color: 'inherit' }}
+                        onDoubleClick={() => {
+                          if (isFile) {
+                            fileOpsHook.handleAddToChat(nodeData);
+                          }
+                        }}
+                        onContextMenu={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          openNodeContextMenu(nodeData, event.clientX, event.clientY);
+                        }}
+                      >
+                        <span className='flex items-center gap-4px min-w-0'>
+                          <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{node.title}</span>
+                          {isPasteTarget && (
+                            <span className='ml-1 text-xs text-blue-700 font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded'>
+                              PASTE
+                            </span>
+                          )}
+                        </span>
+                        {isMobile && (
+                          <button
+                            type='button'
+                            className='workspace-header__toggle workspace-node-more-btn h-28px w-28px rd-8px flex items-center justify-center text-t-secondary hover:text-t-primary active:text-t-primary flex-shrink-0'
+                            aria-label={t('common.more')}
+                            onMouseDown={(event) => {
+                              event.stopPropagation();
+                            }}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                              const menuWidth = 220;
+                              const menuHeight = 220;
+                              const maxX =
+                                typeof window !== 'undefined'
+                                  ? Math.max(8, window.innerWidth - menuWidth - 8)
+                                  : rect.left;
+                              const maxY =
+                                typeof window !== 'undefined'
+                                  ? Math.max(8, window.innerHeight - menuHeight - 8)
+                                  : rect.bottom;
+                              const menuX = Math.min(Math.max(8, rect.left - menuWidth + rect.width), maxX);
+                              const menuY = Math.min(Math.max(8, rect.bottom + 4), maxY);
+                              openNodeContextMenu(nodeData, menuX, menuY);
+                            }}
                           >
-                            <div className='w-2px h-2px rounded-full bg-current'></div>
-                            <div className='w-2px h-2px rounded-full bg-current'></div>
-                            <div className='w-2px h-2px rounded-full bg-current'></div>
-                          </div>
-                        </button>
-                      )}
-                    </div>
-                  );
-                }}
-                onSelect={(keys, extra) => {
-                  const clickedKey = extractNodeKey(extra?.node);
-                  const nodeData = extra && extra.node ? extractNodeData(extra.node) : null;
-                  const isFileNode = Boolean(nodeData?.isFile);
-                  const wasSelected = clickedKey ? treeHook.selectedKeysRef.current.includes(clickedKey) : false;
+                            <div
+                              className='flex flex-col gap-2px items-center justify-center'
+                              style={{ width: '12px', height: '12px' }}
+                            >
+                              <div className='w-2px h-2px rounded-full bg-current'></div>
+                              <div className='w-2px h-2px rounded-full bg-current'></div>
+                              <div className='w-2px h-2px rounded-full bg-current'></div>
+                            </div>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }}
+                  onSelect={(keys, extra) => {
+                    const clickedKey = extractNodeKey(extra?.node);
+                    const nodeData = extra && extra.node ? extractNodeData(extra.node) : null;
+                    const isFileNode = Boolean(nodeData?.isFile);
+                    const wasSelected = clickedKey ? treeHook.selectedKeysRef.current.includes(clickedKey) : false;
 
-                  if (isFileNode) {
-                    // Single-click file only opens preview without changing selection state
-                    if (clickedKey) {
-                      const filteredKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
-                      treeHook.selectedKeysRef.current = filteredKeys;
-                      treeHook.setSelected(filteredKeys);
-                    }
-                    treeHook.selectedNodeRef.current = null;
-                    // Always open preview on a file click - including when the
-                    // same file was previously selected (issue #49).
-                    if (nodeData && clickedKey) {
-                      void fileOpsHook.handlePreviewFile(nodeData);
-                    }
-                    return;
-                  }
-
-                  // Keep existing selection logic for folders
-                  let newKeys: string[];
-
-                  if (clickedKey && wasSelected) {
-                    newKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
-                  } else if (clickedKey) {
-                    newKeys = [...treeHook.selectedKeysRef.current, clickedKey];
-                  } else {
-                    newKeys = keys.filter((key) => key !== workspace);
-                  }
-
-                  treeHook.setSelected(newKeys);
-                  treeHook.selectedKeysRef.current = newKeys;
-
-                  if (extra && extra.node && nodeData && nodeData.fullPath && nodeData.relativePath != null) {
-                    treeHook.selectedNodeRef.current = {
-                      relativePath: nodeData.relativePath,
-                      fullPath: nodeData.fullPath,
-                    };
-                  } else {
-                    treeHook.selectedNodeRef.current = null;
-                  }
-
-                  const items: Array<{ path: string; name: string; isFile: boolean }> = [];
-                  for (const k of newKeys) {
-                    const node = findNodeByKey(treeHook.files, k);
-                    if (node && node.fullPath) {
-                      items.push({
-                        path: node.fullPath,
-                        name: node.name,
-                        isFile: node.isFile,
-                      });
-                    }
-                  }
-                  emitter.emit(`${eventPrefix}.selected.file`, items);
-                }}
-                onExpand={(keys) => {
-                  treeHook.setExpandedKeys(keys);
-                }}
-                loadMore={(treeNode) => {
-                  const path = treeNode.props.dataRef.fullPath;
-                  return ipcBridge.conversation.getWorkspace
-                    .invoke({ conversation_id, workspace, path })
-                    .then((res) => {
-                      if (res[0]?.children) {
-                        treeNode.props.dataRef.children = res[0].children;
-                        treeHook.setFiles([...treeHook.files]);
+                    if (isFileNode) {
+                      // Single-click file only opens preview without changing selection state
+                      if (clickedKey) {
+                        const filteredKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
+                        treeHook.selectedKeysRef.current = filteredKeys;
+                        treeHook.setSelected(filteredKeys);
                       }
-                    })
-                    .catch((err) => {
-                      console.error('[Workspace] loadMore failed:', err);
-                    });
-                }}
-              ></Tree>
+                      treeHook.selectedNodeRef.current = null;
+                      // Always open preview on a file click - including when the
+                      // same file was previously selected (issue #49).
+                      if (nodeData && clickedKey) {
+                        void fileOpsHook.handlePreviewFile(nodeData);
+                      }
+                      return;
+                    }
+
+                    // Keep existing selection logic for folders
+                    let newKeys: string[];
+
+                    if (clickedKey && wasSelected) {
+                      newKeys = treeHook.selectedKeysRef.current.filter((key) => key !== clickedKey);
+                    } else if (clickedKey) {
+                      newKeys = [...treeHook.selectedKeysRef.current, clickedKey];
+                    } else {
+                      newKeys = keys.filter((key) => key !== workspace);
+                    }
+
+                    treeHook.setSelected(newKeys);
+                    treeHook.selectedKeysRef.current = newKeys;
+
+                    if (extra && extra.node && nodeData && nodeData.fullPath && nodeData.relativePath != null) {
+                      treeHook.selectedNodeRef.current = {
+                        relativePath: nodeData.relativePath,
+                        fullPath: nodeData.fullPath,
+                      };
+                    } else {
+                      treeHook.selectedNodeRef.current = null;
+                    }
+
+                    const items: Array<{ path: string; name: string; isFile: boolean }> = [];
+                    for (const k of newKeys) {
+                      const node = findNodeByKey(treeHook.files, k);
+                      if (node && node.fullPath) {
+                        items.push({
+                          path: node.fullPath,
+                          name: node.name,
+                          isFile: node.isFile,
+                        });
+                      }
+                    }
+                    emitter.emit(`${eventPrefix}.selected.file`, items);
+                  }}
+                  onExpand={(keys) => {
+                    treeHook.setExpandedKeys(keys);
+                  }}
+                  loadMore={(treeNode) => {
+                    const path = treeNode.props.dataRef.fullPath;
+                    return ipcBridge.conversation.getWorkspace
+                      .invoke({ conversation_id, workspace, path })
+                      .then((res) => {
+                        if (res[0]?.children) {
+                          treeNode.props.dataRef.children = res[0].children;
+                          treeHook.setFiles([...treeHook.files]);
+                        }
+                      })
+                      .catch((err) => {
+                        console.error('[Workspace] loadMore failed:', err);
+                      });
+                  }}
+                ></Tree>
+              </div>
             )}
           </FlexFullContainer>
         )}

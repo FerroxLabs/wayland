@@ -3891,6 +3891,7 @@ export type I18nKey =
   | 'settings.sider.constitution'
   | 'settings.sider.doctor'
   | 'settings.sider.editor'
+  | 'settings.sider.extensions'
   | 'settings.sider.general'
   | 'settings.sider.groupAbout'
   | 'settings.sider.groupAiModels'

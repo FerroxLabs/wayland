@@ -105,10 +105,10 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
   );
 
   return (
-    <div className='px-12px'>
+    <div className='px-12px' data-appearance-role='workspace-toolbar'>
       {/* Search Input */}
       {(showSearch || searchText) && (
-        <div className='pb-8px workspace-toolbar-search'>
+        <div className='pb-8px workspace-toolbar-search' data-appearance-role='workspace-search'>
           <Input
             className='w-full workspace-search-input'
             ref={searchInputRef}
@@ -134,7 +134,8 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
           onClick={() => setIsWorkspaceCollapsed(!isWorkspaceCollapsed)}
         >
           <ChevronDown
-            size={16} color={iconColors.primary}
+            size={16}
+            color={iconColors.primary}
             className={`line-height-0 transition-transform duration-200 flex-shrink-0 ${isWorkspaceCollapsed ? '-rotate-90' : 'rotate-0'}`}
           />
           {isTemporaryWorkspace ? (
@@ -169,7 +170,9 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
             <Dropdown droplist={workspaceUploadMenu} trigger='click' position='bl'>
               <span>
                 <Plus
-                  className='workspace-toolbar-icon-btn lh-[1] flex cursor-pointer' size={16} color={iconColors.secondary}
+                  className='workspace-toolbar-icon-btn lh-[1] flex cursor-pointer'
+                  size={16}
+                  color={iconColors.secondary}
                 />
               </span>
             </Dropdown>
@@ -191,7 +194,9 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
                   loading
                     ? 'workspace-toolbar-icon-btn loading lh-[1] flex cursor-pointer'
                     : 'workspace-toolbar-icon-btn flex cursor-pointer'
-                } size={16} color={iconColors.secondary}
+                }
+                size={16}
+                color={iconColors.secondary}
                 onClick={() => refreshWorkspace()}
               />
             </span>
