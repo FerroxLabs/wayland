@@ -2,6 +2,13 @@ import type { ProviderId, Capability } from '../types';
 
 export type CapabilityRule = { match: RegExp; capabilities: Capability[] };
 
+const EMBEDDING_MODEL_ID_RE = /(?:^|[\s/.:_-])(?:text[-_]?embedding|embeddings?|embed|rerank|bge)(?=$|[\s/.:_-])/i;
+
+/** True when a provider model id reads like an embedding/retrieval model. */
+export function looksLikeEmbeddingModelId(modelId: string): boolean {
+  return EMBEDDING_MODEL_ID_RE.test(modelId);
+}
+
 /**
  * Per-provider id-pattern → capability rules.
  * All rules are evaluated (additive); duplicates are deduped by the detector.
@@ -34,17 +41,11 @@ export const CAPABILITY_RULES: Partial<Record<ProviderId, CapabilityRule[]>> = {
     { match: /.+/i, capabilities: ['chat'] },
   ],
 
-  elevenlabs: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  elevenlabs: [{ match: /.+/i, capabilities: ['audio'] }],
 
-  deepgram: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  deepgram: [{ match: /.+/i, capabilities: ['audio'] }],
 
-  assemblyai: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  assemblyai: [{ match: /.+/i, capabilities: ['audio'] }],
 
   deepseek: [
     { match: /r1|reasoner/i, capabilities: ['chat', 'reasoning'] },
@@ -72,9 +73,7 @@ export const CAPABILITY_RULES: Partial<Record<ProviderId, CapabilityRule[]>> = {
     { match: /.+/i, capabilities: ['chat'] },
   ],
 
-  moonshot: [
-    { match: /.+/i, capabilities: ['chat'] },
-  ],
+  moonshot: [{ match: /.+/i, capabilities: ['chat'] }],
 
   qwen: [
     { match: /qwen-vl|vl/i, capabilities: ['chat', 'vision'] },

@@ -157,6 +157,16 @@ describe('CatalogAssembler', () => {
     expect(m.releaseDate).toBeUndefined();
   });
 
+  it('classifies unenriched bge models as embedding models', async () => {
+    const source = fixedSource('api', 'ollama-local', [{ id: 'bge-m3:latest', providerId: 'ollama-local' }]);
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
+
+    expect(catalog).toHaveLength(1);
+    expect(catalog[0].enriched).toBe(false);
+    expect(catalog[0].kind).toBe('embedding');
+    expect(catalog[0].tags).toEqual(['embeddings']);
+  });
+
   it('derives kind=image from modalities.output', async () => {
     const source = fixedSource('api', 'openai', [{ id: 'gpt-image-1', providerId: 'openai' }]);
     const { models: catalog } = await assembler.assemble([source], buildRegistry());
