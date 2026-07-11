@@ -1,14 +1,21 @@
-// src/process/resources/builtinMcp/conciergeDiagServer.redact.bun.test.ts
-// Run with: bun test src/process/resources/builtinMcp/conciergeDiagServer.redact.bun.test.ts
-//
-// Regression for #701 (Doctor report): the base64url catch-all masked
-// legitimate all-lowercase identifiers, garbling the report. Concretely the
-// `model_registry_providers` source label rendered as `••••ders` and long
-// reverse-DNS MCP server names as `com.••••-mcp`, hiding the very names the
-// report exists to surface. Real high-entropy tokens must still be masked.
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-import { describe, it, expect } from 'bun:test';
-import { redact } from './conciergeDiagServer';
+/**
+ * Regression for #701 (Doctor report): the base64url catch-all masked legitimate
+ * all-lowercase identifiers, garbling the report. The `model_registry_providers`
+ * source label rendered as `••••ders` and long reverse-DNS MCP server names as
+ * `com.••••-mcp`, hiding the very names the report exists to surface.
+ *
+ * Real high-entropy tokens must still be masked — including all-lowercase ones,
+ * which the entropy lookahead alone would wave through (see the third block).
+ */
+
+import { describe, it, expect } from 'vitest';
+import { redact } from '@process/resources/builtinMcp/conciergeDiagServer';
 
 describe('redact - lowercase identifiers are not over-masked (#701)', () => {
   const preserved = [
@@ -38,11 +45,15 @@ describe('redact - real secrets are still masked', () => {
   }
 });
 
-// The entropy lookahead ("must contain an uppercase letter or a digit") exempts
-// every all-lowercase run — including token-shaped ones. These are the cases the
-// other layers do NOT catch: no `key=` prefix (KEY_VALUE_REGEX), no `:`/`=`/`@`
-// in front (DELIM_TOKEN_REGEX), under the 32-char hex floor. Before the
-// unbroken-lowercase-run rule they printed in the clear.
+/**
+ * The entropy lookahead ("the run must contain an uppercase letter or a digit")
+ * exempts EVERY all-lowercase run — including token-shaped ones. These are the
+ * cases no other layer catches: no `key=` in front (KEY_VALUE_REGEX), no `:`/`=`/`@`
+ * immediately before (DELIM_TOKEN_REGEX), and under the 32-char hex floor.
+ *
+ * An identifier is only lowercase-and-safe because a separator breaks it up, so the
+ * unbroken-run rule keys off exactly that.
+ */
 describe('redact - bare all-lowercase tokens are still masked', () => {
   const secrets = [
     'zzzytqwerlkjhgfdsamnbvcxsw', // 26 lowercase letters, no separator
@@ -58,7 +69,7 @@ describe('redact - bare all-lowercase tokens are still masked', () => {
   }
 
   it('masks a bare lowercase token in free text, where no key name precedes it', () => {
-    const out = redact(`auth failed for ${'zzzytqwerlkjhgfdsamnbvcxsw'}, retrying`);
+    const out = redact('auth failed for zzzytqwerlkjhgfdsamnbvcxsw, retrying');
     expect(out).not.toContain('zzzytqwerlkjhgfdsamnbvcxsw');
     expect(out).toContain('••••');
   });
