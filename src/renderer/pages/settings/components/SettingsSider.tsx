@@ -5,6 +5,7 @@ import {
   Brain,
   Cable,
   Cpu,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   Info,
@@ -62,6 +63,7 @@ export const BUILTIN_TAB_IDS = [
   'notifications',
   'storage',
   'tank',
+  'devActions',
   'ijfw',
   'doctor',
   // ABOUT
@@ -323,6 +325,12 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         label: t('settings.sider.tank', { defaultValue: 'Tank' }),
         icon: <Rocket />,
         path: 'tank',
+      },
+      devActions: {
+        id: 'devActions',
+        label: t('settings.sider.devActions', { defaultValue: 'Dev Actions' }),
+        icon: <GitBranch />,
+        path: 'devActions',
       },
       doctor: {
         id: 'doctor',

@@ -3006,6 +3006,37 @@ export const project = {
 };
 
 /**
+ * Dev Actions - one-click git/GitHub developer chores for a fork maintainer.
+ * All handlers exec local `git` / `gh` (remote-denied): `commitAndPr` runs on a
+ * local checkout; `buildRelease` / `syncForks` only dispatch GitHub Actions
+ * workflows on named repos via the authenticated `gh` CLI. Each action streams
+ * progress through the shared `log` emitter (keyed by `action`).
+ */
+export const devActions = {
+  /**
+   * Stage tracked changes, commit, push a branch, and open a PR on the checkout
+   * at `cwd`. Stages `-u` (tracked only) so an untidy working tree's untracked
+   * junk is never swept into the commit. If already on a feature branch it
+   * commits there; on the default branch it first cuts `chore/<slug>`.
+   */
+  commitAndPr: buildProvider<
+    { ok: boolean; prUrl?: string; branch?: string; error?: string },
+    { cwd: string; message: string; base?: string }
+  >('dev-actions.commit-and-pr'),
+  /** Dispatch the "Manual Build" CI workflow (build-manual.yml) for a repo. */
+  buildRelease: buildProvider<
+    { ok: boolean; runUrl?: string; error?: string },
+    { repo: string; branch: string; platform: string }
+  >('dev-actions.build-release'),
+  /** Dispatch the upstream-sync workflow for one or more fork repos. */
+  syncForks: buildProvider<{ results: Array<{ repo: string; ok: boolean; error?: string }> }, { repos: string[] }>(
+    'dev-actions.sync-forks'
+  ),
+  /** Streamed progress lines for any in-flight dev action. */
+  log: buildEmitter<{ action: 'commitAndPr' | 'buildRelease' | 'syncForks'; line: string }>('dev-actions.log'),
+};
+
+/**
  * Migrate config (provider keys, MCP servers) from a sibling agent tool
  * (Hermes, OpenClaw) into Wayland (#migrate). `scan` is read-only and returns a
  * secret-free plan; `apply` re-reads the source in the main process to recover

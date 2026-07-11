@@ -6,6 +6,7 @@ import {
   Cable,
   ChevronDown,
   Cpu,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   Info,
@@ -197,6 +198,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       label: t('settings.sider.tank', { defaultValue: 'Tank' }),
       icon: <Rocket size={16} />,
       path: 'tank',
+    },
+    devActions: {
+      id: 'devActions',
+      label: t('settings.sider.devActions', { defaultValue: 'Dev Actions' }),
+      icon: <GitBranch size={16} />,
+      path: 'devActions',
     },
     ijfw: {
       id: 'ijfw',
