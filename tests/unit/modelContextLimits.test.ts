@@ -130,3 +130,46 @@ describe('resolveModelContextLimit (issue #733)', () => {
     expect(resolveModelContextLimit(catalog, '')).toBe(DEFAULT_CONTEXT_LIMIT);
   });
 });
+
+/**
+ * #733: the Claude Code ACP backend has no session/set_model, so it reports its
+ * current model as a bare SLOT alias (`opus`/`sonnet`/`haiku`, see
+ * CLAUDE_SLOT_MODELS) rather than a catalog id. Those slots previously matched
+ * nothing - not the registry catalog (real ids) and not the static table (the
+ * fuzzy match is `id.includes(key)`, and 'opus'.includes('claude-opus-4') is
+ * false) - so EVERY Claude slot silently fell back to DEFAULT_CONTEXT_LIMIT
+ * (1M). Haiku, a 200K model, showed a 1M denominator.
+ */
+describe('Claude ACP slot aliases resolve to a real window (#733)', () => {
+  it('resolves the opus slot to the 1M window (--model opus -> claude-opus-4-8)', () => {
+    expect(getModelContextLimit('opus')).toBe(1_000_000);
+  });
+
+  // `sonnet` is deliberately NOT in the table: which Sonnet the alias resolves to
+  // (4.6 = 1M vs 4.5/4.0 = 200K) is unverified, and guessing 1M would show an
+  // over-sized max for a 200K model. It must keep falling through to the default.
+  it('leaves the UNVERIFIED sonnet slot on the default rather than guessing', () => {
+    expect(getModelContextLimit('sonnet')).toBe(DEFAULT_CONTEXT_LIMIT);
+  });
+
+  // The slot rows duplicate a family row's literal; pin them so they cannot drift.
+  it('keeps the slot rows in lockstep with the model they alias', () => {
+    expect(getModelContextLimit('opus')).toBe(getModelContextLimit('claude-opus-4-8'));
+    expect(getModelContextLimit('haiku')).toBe(getModelContextLimit('claude-haiku-4-5'));
+  });
+
+  it('resolves the haiku slot to 200K - NOT the 1M default', () => {
+    expect(getModelContextLimit('haiku')).toBe(200_000);
+    expect(getModelContextLimit('haiku')).not.toBe(DEFAULT_CONTEXT_LIMIT);
+  });
+
+  // The slot keys are short; longest-match must still let a full catalog id win
+  // so they can never shadow a real model's window.
+  it('does not let the short slot keys shadow full catalog ids', () => {
+    expect(getModelContextLimit('claude-3-opus')).toBe(200_000);
+    expect(getModelContextLimit('claude-opus-4-5')).toBe(200_000);
+    expect(getModelContextLimit('claude-3-5-sonnet')).toBe(200_000);
+    expect(getModelContextLimit('claude-haiku-4-5')).toBe(200_000);
+    expect(getModelContextLimit('claude-opus-4-8')).toBe(1_000_000);
+  });
+});

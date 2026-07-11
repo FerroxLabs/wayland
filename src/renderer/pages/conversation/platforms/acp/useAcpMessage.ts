@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import type { AcpModelInfo } from '@/common/types/acpTypes';
 import type { TokenUsageData } from '@/common/config/storage';
 import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
 import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
@@ -26,6 +27,13 @@ type UseAcpMessageReturn = {
   resetState: () => void;
   tokenUsage: TokenUsageData | null;
   contextLimit: number;
+  /**
+   * Model the agent reports for this session (`acp_model_info`), or null before
+   * any arrives. The context-usage indicator sizes its denominator from this
+   * when `contextLimit` is 0 - i.e. the agent reported usage but no window -
+   * instead of falling back to the generic 1M default for every model (#733).
+   */
+  currentModelId: string | null;
   hasThinkingMessage: boolean;
   routing: 'flux' | 'native' | 'unknown';
   fluxTurnError: boolean;
@@ -46,6 +54,10 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
   const [aiProcessing, setAiProcessing] = useState(false); // New loading state for AI response
   const [tokenUsage, setTokenUsage] = useState<TokenUsageData | null>(null);
   const [contextLimit, setContextLimit] = useState<number>(0);
+  // The model the ACP agent reports it is running (`acp_model_info`). Only used
+  // to size the context-usage denominator when the agent does NOT report a
+  // window of its own - see the `currentModelId` note on the return value (#733).
+  const [currentModelId, setCurrentModelId] = useState<string | null>(null);
 
   // Use refs to sync state for immediate access in event handlers
   const runningRef = useRef(running);
@@ -247,9 +259,24 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
           }
           addOrUpdateMessage(transformedMessage);
           break;
-        case 'acp_model_info':
-          // Model info updates are handled by AcpModelSelector, no action needed here
+        case 'acp_model_info': {
+          // The SELECTOR owns rendering this event; we only mirror the current
+          // model id so the context-usage indicator can size its denominator
+          // from the real model window when the agent reports usage WITHOUT a
+          // window of its own (#733).
+          //
+          // The payload is an `AcpModelInfo` - the id lives on `currentModelId`
+          // (NOT `model`; that key only exists on the separate `codex_model_info`
+          // event). For the `claude` backend this is a SLOT id (`opus`/`sonnet`/
+          // `haiku`) rather than a catalog id; `getModelContextLimit` knows those
+          // slots, so the window still resolves.
+          const info = message.data as AcpModelInfo | undefined;
+          const reported = info?.currentModelId;
+          if (typeof reported === 'string' && reported.length > 0) {
+            setCurrentModelId(reported);
+          }
           break;
+        }
         case 'slash_commands_updated':
           // Slash commands became available (often during bootstrap when
           // agent_status events are suppressed). Update acpStatus so
@@ -321,7 +348,18 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
           break;
       }
     },
-    [conversation_id, addOrUpdateMessage, throttledSetThought, setThought, setRunning, setAiProcessing, setAcpStatus, setRouting, setFluxTurnError, t]
+    [
+      conversation_id,
+      addOrUpdateMessage,
+      throttledSetThought,
+      setThought,
+      setRunning,
+      setAiProcessing,
+      setAcpStatus,
+      setRouting,
+      setFluxTurnError,
+      t,
+    ]
   );
 
   useEffect(() => {
@@ -336,6 +374,7 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
     setAcpStatus(null);
     setTokenUsage(null);
     setContextLimit(0);
+    setCurrentModelId(null);
     hasContentInTurnRef.current = false;
     turnFinishedRef.current = false;
     hasThinkingMessageRef.current = false;
@@ -382,6 +421,23 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
         if (lastContextLimit && lastContextLimit > 0) {
           setContextLimit(lastContextLimit);
         }
+      }
+
+      // Seed the model the context meter sizes from (#733).
+      //
+      // The conversation row's `currentModelId` is the AUTHORITATIVE answer to
+      // "what model is this session running": it is what the manager persists
+      // (persistedModelId) and what becomes ANTHROPIC_MODEL at spawn. Deliberately
+      // NOT the `getModelInfo` IPC - with no task yet that falls back to
+      // getStaticModelInfo(), which reads the local Claude CLI config
+      // (~/.claude/settings.json / cc-switch) and knows nothing about THIS
+      // conversation's pick; it defaults to opus/sonnet and would confidently size
+      // the meter from a model the session isn't even running.
+      //
+      // Seed only - a later acp_model_info stream event still wins.
+      const persistedModelId = (res.extra as { currentModelId?: unknown } | undefined)?.currentModelId;
+      if (typeof persistedModelId === 'string' && persistedModelId.length > 0) {
+        setCurrentModelId((prev) => prev ?? persistedModelId);
       }
     });
 
@@ -437,6 +493,14 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
     resetState,
     tokenUsage,
     contextLimit,
+    /**
+     * Model the agent reports for this session, or null before any
+     * `acp_model_info` arrives. The context-usage indicator resolves its
+     * denominator from this when `contextLimit` is 0 (agent reported usage but
+     * no window), instead of silently falling back to the generic 1M default
+     * (#733).
+     */
+    currentModelId,
     hasThinkingMessage,
     routing,
     fluxTurnError,
