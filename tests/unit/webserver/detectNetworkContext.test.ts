@@ -1,9 +1,25 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import os from 'os';
 import type { Request } from 'express';
 import {
   detectNetworkContext,
   __resetTailscaleIfaceCacheForTests,
 } from '@process/webserver/middleware/detectNetworkContext';
+
+/**
+ * `hasTailscaleInterface()` probes the REAL host via os.networkInterfaces(), so without this stub
+ * these assertions silently depend on whether the machine running the suite happens to have
+ * Tailscale up: a private-range peer resolves to 'tailscale' on a host with a `tailscale*` iface and
+ * to 'private_network' otherwise. That passed on CI (no Tailscale) and on macOS (Tailscale binds
+ * `utun*`, which doesn't match the `tailscale` prefix) while failing on any Linux host with
+ * Tailscale up. Stub the probe so the host can never decide the outcome.
+ */
+function stubIfaces(names: string[]): void {
+  vi.spyOn(os, 'networkInterfaces').mockReturnValue(
+    Object.fromEntries(names.map((n) => [n, []])) as ReturnType<typeof os.networkInterfaces>
+  );
+  __resetTailscaleIfaceCacheForTests(); // the probe is memoised — drop the cache so the stub is read
+}
 
 type ReqOpts = { hostname?: string; peer?: string; secure?: boolean };
 
@@ -28,7 +44,7 @@ describe('detectNetworkContext', () => {
     delete process.env.SERVER_BASE_URL;
     delete process.env.HTTPS;
     process.env.NODE_ENV = 'test';
-    __resetTailscaleIfaceCacheForTests();
+    stubIfaces(['lo', 'eth0']); // default: a host WITHOUT Tailscale, whatever the real machine is
   });
 
   afterEach(() => {
@@ -36,6 +52,8 @@ describe('detectNetworkContext', () => {
       if (v === undefined) delete process.env[k];
       else process.env[k] = v;
     }
+    vi.restoreAllMocks();
+    __resetTailscaleIfaceCacheForTests();
   });
 
   it('isHttps reflects WAYLAND_HTTPS env', () => {
@@ -86,9 +104,18 @@ describe('detectNetworkContext', () => {
     );
   });
 
-  it('reachedVia=private_network for a bare RFC1918 peer', () => {
+  it('reachedVia=private_network for a bare RFC1918 peer on a host without Tailscale', () => {
     expect(detectNetworkContext(makeReq({ hostname: 'box.example.com', peer: '192.168.1.10' })).reachedVia).toBe(
       'private_network'
+    );
+  });
+
+  // The other half of the same branch, previously unasserted (and the reason the test above was
+  // host-dependent): the SAME private peer reads as 'tailscale' when the host has a Tailscale iface.
+  it('reachedVia=tailscale for an RFC1918 peer when the host HAS a Tailscale interface', () => {
+    stubIfaces(['lo', 'eth0', 'tailscale0']);
+    expect(detectNetworkContext(makeReq({ hostname: 'box.example.com', peer: '192.168.1.10' })).reachedVia).toBe(
+      'tailscale'
     );
   });
 
