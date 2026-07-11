@@ -3028,12 +3028,35 @@ export const devActions = {
     { ok: boolean; runUrl?: string; error?: string },
     { repo: string; branch: string; platform: string }
   >('dev-actions.build-release'),
+  /** Run an npm script (`<pm> run <script>`) locally inside a checkout. */
+  buildLocal: buildProvider<{ ok: boolean; error?: string }, { cwd: string; script: string }>(
+    'dev-actions.build-local'
+  ),
   /** Dispatch the upstream-sync workflow for one or more fork repos. */
   syncForks: buildProvider<{ results: Array<{ repo: string; ok: boolean; error?: string }> }, { repos: string[] }>(
     'dev-actions.sync-forks'
   ),
+  /**
+   * Read-only working-copy status for local checkouts: branch + change counts.
+   * `changed` is tracked changes (what Commit + Push stages); `untracked` is info.
+   */
+  repoStatus: buildProvider<
+    {
+      results: Array<{
+        path: string;
+        name: string;
+        branch?: string;
+        changed: number;
+        untracked: number;
+        error?: string;
+      }>;
+    },
+    { paths: string[] }
+  >('dev-actions.repo-status'),
   /** Streamed progress lines for any in-flight dev action. */
-  log: buildEmitter<{ action: 'commitAndPr' | 'buildRelease' | 'syncForks'; line: string }>('dev-actions.log'),
+  log: buildEmitter<{ action: 'commitAndPr' | 'buildRelease' | 'buildLocal' | 'syncForks'; line: string }>(
+    'dev-actions.log'
+  ),
 };
 
 /**

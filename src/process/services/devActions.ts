@@ -22,6 +22,8 @@
  */
 
 import { execFile } from 'node:child_process';
+import { readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { scrubSecrets } from './gitClone';
 
@@ -29,6 +31,8 @@ const execFileAsync = promisify(execFile);
 
 /** git/gh operations here are quick (commit/push/dispatch), not big clones. */
 const OPERATION_TIMEOUT_MS = 3 * 60 * 1000;
+/** A local build (electron-vite / installer) can run for many minutes. */
+const BUILD_TIMEOUT_MS = 30 * 60 * 1000;
 const MAX_BUFFER = 8 * 1024 * 1024;
 
 const NON_INTERACTIVE_ENV: NodeJS.ProcessEnv = {
@@ -81,7 +85,7 @@ async function step(
   label: string,
   file: string,
   args: string[],
-  opts: { cwd?: string; allowFail?: boolean } = {}
+  opts: { cwd?: string; allowFail?: boolean; timeoutMs?: number } = {}
 ): Promise<{ ok: boolean; stdout: string; stderr: string }> {
   onLog(`$ ${label}`);
   try {
@@ -89,7 +93,7 @@ async function step(
       cwd: opts.cwd,
       env: { ...process.env, ...NON_INTERACTIVE_ENV },
       maxBuffer: MAX_BUFFER,
-      timeout: OPERATION_TIMEOUT_MS,
+      timeout: opts.timeoutMs ?? OPERATION_TIMEOUT_MS,
       windowsHide: true,
     });
     const out = scrubSecrets(`${stdout}${stderr}`).trim();
@@ -212,6 +216,65 @@ export async function commitAndPr(
   }
 }
 
+/**
+ * Run a read-only git query without streaming to the shared log (status polls
+ * would otherwise spam it). Never throws: a failure returns `{ ok: false }`.
+ */
+async function gitQuiet(args: string[]): Promise<{ ok: boolean; stdout: string }> {
+  try {
+    const { stdout } = await execFileAsync('git', args, {
+      env: { ...process.env, ...NON_INTERACTIVE_ENV },
+      maxBuffer: MAX_BUFFER,
+      timeout: OPERATION_TIMEOUT_MS,
+      windowsHide: true,
+    });
+    return { ok: true, stdout };
+  } catch (e) {
+    const err = e as { stdout?: string };
+    return { ok: false, stdout: err?.stdout || '' };
+  }
+}
+
+export type RepoStatus = {
+  path: string;
+  name: string;
+  branch?: string;
+  /** Tracked changes (what a Commit + Push would stage via `add -u`). */
+  changed: number;
+  /** Untracked files — shown as info only; never committed by this panel. */
+  untracked: number;
+  error?: string;
+};
+
+/**
+ * Read-only working-copy status for local checkouts: branch + change counts.
+ * `changed` counts only TRACKED changes (matches what {@link commitAndPr} stages
+ * with `add -u`); `untracked` is reported separately and never committed here.
+ */
+export async function repoStatus(params: { paths: string[] }): Promise<{ results: RepoStatus[] }> {
+  const paths = (params.paths || []).map((p) => p.trim()).filter(Boolean);
+  const results: RepoStatus[] = [];
+  for (const path of paths) {
+    const name = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop() || path;
+    const inside = await gitQuiet(['-C', path, 'rev-parse', '--is-inside-work-tree']);
+    if (!inside.ok || inside.stdout.trim() !== 'true') {
+      results.push({ path, name, changed: 0, untracked: 0, error: 'Not a git repository.' });
+      continue;
+    }
+    const head = await gitQuiet(['-C', path, 'rev-parse', '--abbrev-ref', 'HEAD']);
+    const status = await gitQuiet(['-C', path, 'status', '--porcelain']);
+    let changed = 0;
+    let untracked = 0;
+    for (const line of status.stdout.split('\n')) {
+      if (!line.trim()) continue;
+      if (line.startsWith('??')) untracked++;
+      else changed++;
+    }
+    results.push({ path, name, branch: head.ok ? head.stdout.trim() : undefined, changed, untracked });
+  }
+  return { results };
+}
+
 /** First https URL found in text (the PR/run link gh prints). */
 function firstUrl(text: string): string | undefined {
   const m = (text || '').match(/https:\/\/\S+/);
@@ -244,6 +307,73 @@ export async function buildRelease(
     const runUrl = `https://github.com/${repo}/actions/workflows/build-manual.yml`;
     onLog(`Build dispatched. Watch it here: ${runUrl}`);
     return { ok: true, runUrl };
+  } catch (e) {
+    return { ok: false, error: e instanceof DevActionError ? e.message : scrubSecrets(String(e)) };
+  }
+}
+
+/** npm-script name shape accepted for a local build (no flags, no shell chars). */
+const BUILD_SCRIPT = /^[A-Za-z0-9:._-]+$/;
+
+async function fileExists(p: string): Promise<boolean> {
+  try {
+    await stat(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pick the package manager from the checkout's lockfile. `bun` ships `bun.exe`;
+ * `npm` / `pnpm` / `yarn` are `.cmd` shims on Windows, so execFile needs the
+ * `.cmd` suffix there (args stay an argv array, so no shell injection).
+ */
+async function resolvePackageManager(cwd: string): Promise<{ cmd: string; label: string }> {
+  let pm = 'npm';
+  if ((await fileExists(join(cwd, 'bun.lock'))) || (await fileExists(join(cwd, 'bun.lockb')))) pm = 'bun';
+  else if (await fileExists(join(cwd, 'pnpm-lock.yaml'))) pm = 'pnpm';
+  else if (await fileExists(join(cwd, 'yarn.lock'))) pm = 'yarn';
+  const cmd = process.platform === 'win32' && pm !== 'bun' ? `${pm}.cmd` : pm;
+  return { cmd, label: pm };
+}
+
+/**
+ * Run an npm script (`<pm> run <script>`) inside a local checkout, streaming its
+ * output. The package manager is auto-detected from the lockfile; the script
+ * must exist in package.json (checked first so a typo fails clean, not mid-run).
+ *
+ * ponytail: output is buffered, not live-streamed — a long build shows nothing
+ * until it finishes. Upgrade to `spawn` + piped stdout if live logs are needed.
+ */
+export async function buildLocal(
+  params: { cwd: string; script: string },
+  onLog: LogFn
+): Promise<{ ok: boolean; error?: string }> {
+  const cwd = params.cwd?.trim();
+  const script = params.script?.trim();
+  if (!cwd) return { ok: false, error: 'No repository folder selected.' };
+  if (!script || !BUILD_SCRIPT.test(script)) return { ok: false, error: 'Invalid build script name.' };
+
+  try {
+    const dir = await stat(cwd).catch((): null => null);
+    if (!dir || !dir.isDirectory()) return { ok: false, error: 'That folder does not exist.' };
+
+    let pkg: { scripts?: Record<string, string> };
+    try {
+      pkg = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'));
+    } catch {
+      return { ok: false, error: 'No package.json in that folder.' };
+    }
+    if (!pkg.scripts?.[script]) {
+      return { ok: false, error: `No "${script}" script in package.json.` };
+    }
+
+    const { cmd, label } = await resolvePackageManager(cwd);
+    onLog(`Building ${cwd} — ${label} run ${script} (this can take several minutes)…`);
+    await step(onLog, `${label} run ${script}`, cmd, ['run', script], { cwd, timeoutMs: BUILD_TIMEOUT_MS });
+    onLog('Local build finished.');
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof DevActionError ? e.message : scrubSecrets(String(e)) };
   }

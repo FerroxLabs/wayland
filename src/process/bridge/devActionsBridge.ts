@@ -5,7 +5,7 @@
  */
 
 import { ipcBridge } from '@/common';
-import { commitAndPr, buildRelease, syncForks } from '@process/services/devActions';
+import { commitAndPr, buildRelease, buildLocal, syncForks, repoStatus } from '@process/services/devActions';
 
 /**
  * IPC surface for the one-click Dev Actions panel. Each provider forwards its
@@ -21,7 +21,14 @@ export function initDevActionsBridge(): void {
     buildRelease(params, (line) => ipcBridge.devActions.log.emit({ action: 'buildRelease', line }))
   );
 
+  ipcBridge.devActions.buildLocal.provider((params) =>
+    buildLocal(params, (line) => ipcBridge.devActions.log.emit({ action: 'buildLocal', line }))
+  );
+
   ipcBridge.devActions.syncForks.provider((params) =>
     syncForks(params, (line) => ipcBridge.devActions.log.emit({ action: 'syncForks', line }))
   );
+
+  // Read-only status poll: no log streaming (would spam the shared console).
+  ipcBridge.devActions.repoStatus.provider((params) => repoStatus(params));
 }
