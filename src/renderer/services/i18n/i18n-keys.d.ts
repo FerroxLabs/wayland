@@ -773,6 +773,7 @@ export type I18nKey =
   | 'conversation.workspace.terminal.exited'
   | 'conversation.workspace.terminal.missingCli'
   | 'conversation.workspace.terminal.notFound'
+  | 'conversation.workspace.terminal.profileUnresolved'
   | 'conversation.workspace.terminal.tab'
   | 'conversation.workspace.terminal.unsupported'
   | 'conversation.workspace.title'

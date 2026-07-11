@@ -218,7 +218,8 @@
       "unsupported": "This agent has no terminal view yet.",
       "missingCli": "The agent's command-line tool is not installed or not on PATH. Install it, then reopen this tab.",
       "atCapacity": "Too many terminals are open. Close one and try again.",
-      "notFound": "This chat could not be found."
+      "notFound": "This chat could not be found.",
+      "profileUnresolved": "The active profile's folder could not be opened, so the terminal was not started — it would have used the default profile's data instead."
     }
   },
   "minimap": {

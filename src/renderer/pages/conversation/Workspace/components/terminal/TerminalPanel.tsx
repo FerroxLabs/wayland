@@ -59,6 +59,7 @@ const TerminalPanel: React.FC<TerminalPanelProps> = ({ conversationId }) => {
         'missing-cli': 'conversation.workspace.terminal.missingCli',
         'at-capacity': 'conversation.workspace.terminal.atCapacity',
         'not-found': 'conversation.workspace.terminal.notFound',
+        'profile-unresolved': 'conversation.workspace.terminal.profileUnresolved',
       }[reason];
       return t(key);
     };
