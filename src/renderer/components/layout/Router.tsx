@@ -44,6 +44,7 @@ const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiS
 const SystemSettings = React.lazy(() => import('@renderer/pages/settings/SystemSettings'));
 const VoiceSettings = React.lazy(() => import('@renderer/pages/settings/VoiceSettings'));
 const WebuiSettings = React.lazy(() => import('@renderer/pages/settings/WebuiSettings'));
+const ExtensionsSettings = React.lazy(() => import('@renderer/pages/settings/ExtensionsSettings'));
 const ExtensionSettingsPage = React.lazy(() => import('@renderer/pages/settings/ExtensionSettingsPage'));
 const LoginPage = React.lazy(() => import('@renderer/pages/login'));
 const ComponentsShowcase = React.lazy(() => import('@renderer/pages/TestShowcase'));
@@ -147,6 +148,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
               path='/settings/mcp-library/installed'
               element={<Navigate to='/settings/mcp-library/browse' replace />}
             />
+            <Route path='/settings/extensions' element={withRouteFallback(ExtensionsSettings)} />
             <Route path='/settings/mcp-library/:entryId' element={withRouteFallback(McpLibraryDetailPage)} />
             {/* Legacy redirect - old `/settings/tools/mcp` route now lands on Browse. */}
             <Route path='/settings/tools/mcp' element={<Navigate to='/settings/mcp-library/browse' replace />} />
