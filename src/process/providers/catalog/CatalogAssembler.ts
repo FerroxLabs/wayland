@@ -34,6 +34,7 @@ import type { CatalogSource } from '../sources/CatalogSource';
 import type { ModelsDevModel, ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import type { CatalogModel, ModelKind, ProviderId, RawModel, UsageTag } from '../types';
 import { ModelDisplayNames } from './ModelDisplayNames';
+import { EMBEDDING_MODEL } from '@/common/utils/modelCapabilities';
 
 /**
  * Maps our `ProviderId` to the provider key models.dev uses in its registry.
@@ -176,8 +177,7 @@ function findModelsDevModel(raw: RawModel, registry: ModelsDevRegistry): ModelsD
  *
  * `modalities.output` carries `image`/`audio` for those model kinds. Embedding
  * models are NOT distinguishable by modality - they declare a `text` output
- * like a chat model - so they are detected by name (`family`/`id` containing
- * `embed`). Everything else is `text`.
+ * like a chat model - so they are detected by name. Everything else is `text`.
  */
 function deriveKind(model: ModelsDevModel): ModelKind {
   const output = model.modalities?.output ?? [];
@@ -187,10 +187,15 @@ function deriveKind(model: ModelsDevModel): ModelKind {
   return 'text';
 }
 
-/** True when a model's name/family/id reads like an embedding model. */
+/**
+ * True when a model's name/family/id reads like an embedding/retrieval model.
+ * Reuses the shared {@link EMBEDDING_MODEL} pattern so this catalog stays
+ * consistent with the capability picker - many embeddings (`bge-m3`, `gte-*`,
+ * `e5-*`) are not named with the literal `embed`. See #740.
+ */
 function looksLikeEmbedding(model: ModelsDevModel): boolean {
   const haystack = `${model.family ?? ''} ${model.id}`.toLowerCase();
-  return haystack.includes('embed');
+  return EMBEDDING_MODEL.test(haystack);
 }
 
 /**

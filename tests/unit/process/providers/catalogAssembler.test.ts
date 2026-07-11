@@ -99,6 +99,22 @@ function buildRegistry(): ModelsDevRegistry {
         }),
       },
     },
+    // A family-named embedding model that is NOT called "embed" (#740). It
+    // declares a `text` output like a chat model, so kind must come from the
+    // name pattern, not the modality.
+    ollama: {
+      id: 'ollama',
+      name: 'Ollama',
+      env: [],
+      models: {
+        'bge-m3': devModel({
+          id: 'bge-m3',
+          name: 'BGE M3',
+          family: 'bge-m3',
+          modalities: { input: ['text'], output: ['text'] },
+        }),
+      },
+    },
   };
 }
 
@@ -173,6 +189,16 @@ describe('CatalogAssembler', () => {
     const source = fixedSource('api', 'openai', [{ id: 'text-embedding-3-large', providerId: 'openai' }]);
     const { models: catalog } = await assembler.assemble([source], buildRegistry());
     expect(catalog[0].kind).toBe('embedding');
+  });
+
+  // #740: family-named embeddings (bge-m3, gte-*, e5-*) lack the literal "embed"
+  // but must still classify as embedding, not chat.
+  it('derives kind=embedding for a family-named embedding model (bge-m3)', async () => {
+    const source = fixedSource('api', 'ollama', [{ id: 'bge-m3', providerId: 'ollama' }]);
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
+    expect(catalog[0].kind).toBe('embedding');
+    expect(catalog[0].tags).toContain('embeddings');
+    expect(catalog[0].tags).not.toContain('chat');
   });
 
   it('skips a source that throws without aborting the rest of the assemble', async () => {
