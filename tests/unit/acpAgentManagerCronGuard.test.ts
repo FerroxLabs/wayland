@@ -161,6 +161,34 @@ describe('AcpAgentManager.sendMessage - real class cronBusyGuard cleanup', () =>
     expect(manager.status).toBe('finished');
   });
 
+  // #787: the REAL signal-channel finish carries the engine's per-turn turn_id
+  // on the message itself (wired from AcpConnection). handleFinishSignal must
+  // stamp it onto the team-bus finish (via `options.turnId ?? message.turnId`)
+  // so the signal path is deduped by turn — this is the path core PR #219
+  // unblocked. A mutation dropping the `?? message.turnId` fallback fails here.
+  it('#787: forwards a signal-channel finish turnId (from the wire) to the team bus', async () => {
+    const emitSpy = vi.spyOn(teamEventBus, 'emit');
+    try {
+      const { manager } = makeManager('conv-sig-787');
+      await (
+        manager as unknown as {
+          handleSignalEvent: (v: unknown, backend: string) => Promise<void>;
+        }
+      ).handleSignalEvent(
+        { type: 'finish', conversation_id: 'conv-sig-787', msg_id: 'm-sig', data: null, turnId: 'wire-uuid-1' },
+        'claude'
+      );
+
+      const finishEmit = emitSpy.mock.calls.find(
+        ([evt, msg]) => evt === 'responseStream' && (msg as { type?: string }).type === 'finish'
+      );
+      expect(finishEmit).toBeDefined();
+      expect((finishEmit![1] as { turnId?: string }).turnId).toBe('wire-uuid-1');
+    } finally {
+      emitSpy.mockRestore();
+    }
+  });
+
   // #787: the synthesized finish must carry the PRODUCING turn's id so
   // TeammateManager can key its dedup by (conversation, turn). Without the
   // turnId stamp the finish reaches the team bus conversation-keyed and a late
