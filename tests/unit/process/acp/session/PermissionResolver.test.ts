@@ -217,6 +217,27 @@ describe('PermissionResolver', () => {
       expect(hydrateCalls).toBe(1);
     });
 
+    it('ignores a persisted entry whose optionId is not an allow_always grant (tamper defense)', async () => {
+      // A tampered store maps a command key to a non-always decision. Hydration
+      // must drop it, so the request still delegates to the UI (no silent action).
+      const key = JSON.stringify({ kind: 'execute', title: 'bash', rawInput: { command: 'ls' } });
+      const uiCallback = vi.fn();
+      const resolver = new PermissionResolver({
+        autoApproveAll: false,
+        hydrate: async () => [
+          [key, 'reject_once'], // not an allow_always - must be ignored
+          [key, 'allow'], // one-time allow - must be ignored
+        ],
+      });
+      const p = resolver.evaluate(
+        makeRequest('bash', 'c1', { kind: 'execute', rawInput: { command: 'ls' } }),
+        uiCallback
+      );
+      await vi.waitFor(() => expect(uiCallback).toHaveBeenCalledOnce());
+      resolver.resolve('c1', 'allow');
+      await p;
+    });
+
     it('a failed hydrate does not block permission evaluation', async () => {
       const uiCallback = vi.fn();
       const resolver = new PermissionResolver({

@@ -127,6 +127,10 @@ export class PermissionResolver {
       this.hydration = this.hydrateFn()
         .then((entries) => {
           for (const [key, optionId] of entries) {
+            // Defense-in-depth: only honor persisted "allow always" grants (the
+            // only shape we ever write). A tampered on-disk store therefore
+            // can't inject some other decision to auto-select from the cache.
+            if (!(optionId.startsWith('allow_') && optionId.includes('always'))) continue;
             // Do not clobber a decision the user made this session (already in
             // cache) with a stale persisted one; only fill gaps.
             if (this.cache.get(key) === undefined) this.cache.set(key, optionId);
