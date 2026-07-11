@@ -32,10 +32,23 @@ export type ResolvedSettingsTab = {
   _extensionName: string;
 };
 
+/** Loopback is not MITM-able, so cleartext there is safe (and is how a hosted tab is developed). */
+function isLoopbackHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
 /**
  * Resolve `contributes.settingsTabs` from all enabled extensions.
  * - local entryPoint: validate path + convert to wayland-asset:// URL
- * - external entryPoint (http/https): validate URL + pass through as-is
+ * - external entryPoint (https, or http on loopback): validate URL + pass through as-is
+ *
+ * An external tab is rendered as remote content INSIDE the app's own settings chrome
+ * (ExtensionSettingsTabContent -> WebviewHost), so cleartext http is rejected: anyone on
+ * the network path could otherwise inject arbitrary content into a surface the user reads
+ * as Wayland's own UI (#818). https stays supported - hosted settings pages are a
+ * deliberate capability, and that webview is already hardened (contextIsolation, sandbox,
+ * nodeIntegration=no, no preload, isolated partition, no postMessage bridge).
  */
 export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSettingsTab[] {
   const result: ResolvedSettingsTab[] = [];
@@ -67,6 +80,12 @@ export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSett
           if (external.protocol !== 'http:' && external.protocol !== 'https:') {
             console.warn(
               `[Extensions] Unsupported settings tab external protocol: ${tab.entryPoint} (extension: ${extName})`
+            );
+            continue;
+          }
+          if (external.protocol === 'http:' && !isLoopbackHost(external.hostname)) {
+            console.warn(
+              `[Extensions] Refusing cleartext http settings tab (use https): ${tab.entryPoint} (extension: ${extName})`
             );
             continue;
           }
