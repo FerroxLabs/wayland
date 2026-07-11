@@ -121,6 +121,14 @@ function socketPeer(req: Request): string | undefined {
 }
 
 /**
+ * The address the connection LANDED ON. A CGNAT peer is only operator when it
+ * arrived over the tailnet, which this is what proves - see networkTrust (#529).
+ */
+function socketLocal(req: Request): string | undefined {
+  return req.socket?.localAddress ?? undefined;
+}
+
+/**
  * Mask known secret formats in arbitrary text so an upstream error body echoed
  * to a remote client cannot leak the very key that was just planted (R6).
  *
@@ -176,8 +184,9 @@ export async function requireDestructive(req: Request, res: Response, password: 
   // CONFIG-WRITE floor first (also handles plain-http-public refusal).
   if (!requireSecureConfigWrite(req, res)) return false;
 
-  // Operator network: judged from the DIRECT socket peer.
-  if (classifyClientTrust(socketPeer(req)) !== 'operator') {
+  // Operator network: judged from the DIRECT socket peer, plus the address the
+  // connection landed on (so a CGNAT peer must have arrived over the tailnet, #529).
+  if (classifyClientTrust(socketPeer(req), socketLocal(req)) !== 'operator') {
     res.status(403).json({
       success: false,
       msg: 'This action is only available from a trusted local network (loopback or Tailscale).',
