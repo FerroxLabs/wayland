@@ -1141,7 +1141,11 @@ const GuidPage: React.FC = () => {
             onFocus={guidInput.handleTextareaFocus}
             onBlur={guidInput.handleTextareaBlur}
             textareaRef={guidInput.textareaRef}
-            placeholder={`${mention.selectedAgentLabel}, ${typewriterPlaceholder || t('conversation.welcome.placeholder')}`}
+            placeholder={
+              mention.selectedAgentLabel
+                ? `${mention.selectedAgentLabel}, ${typewriterPlaceholder || t('conversation.welcome.placeholder')}`
+                : typewriterPlaceholder || t('conversation.welcome.placeholder')
+            }
             isInputActive={guidInput.isInputFocused}
             isFileDragging={guidInput.isFileDragging}
             activeBorderColor={activeBorderColor}
