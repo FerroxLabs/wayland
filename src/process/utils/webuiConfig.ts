@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { app, Notification } from 'electron';
+import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { setWebServerInstance } from '../bridge/webuiBridge';
 import { ProcessConfig } from './initStorage';
 import { startWebServerWithInstance } from '../webserver';
-import { getLanIP } from '../bridge/lanAddress';
 import { SERVER_CONFIG } from '../webserver/config/constants';
 
 const WEBUI_CONFIG_FILE = 'webui.config.json';
@@ -102,38 +101,8 @@ export const restoreDesktopWebUIFromPreferences = async (): Promise<void> => {
     const instance = await startWebServerWithInstance(preferredPort, allowRemote);
     setWebServerInstance(instance);
     console.log(`[WebUI] Auto-restored from desktop preferences (port=${instance.port}, allowRemote=${allowRemote})`);
-
-    // #722: a console.log is not a notice. Restoring `allowRemote` re-binds the WebUI
-    // to 0.0.0.0 - reachable by every device on the LAN, login over plaintext HTTP -
-    // and it happens on EVERY start, forever, from a switch the user may have flipped
-    // once months ago. Tell them, with the actual URL, so an exposed listener can never
-    // be running without their knowledge. Localhost-only restores say nothing.
-    if (allowRemote) {
-      notifyLanExposureRestored(instance.port);
-    }
   } catch (error) {
     console.error('[WebUI] Failed to auto-restore from desktop preferences:', error);
   }
 };
 
-/**
- * Surface a restored LAN-exposed WebUI as a native OS notification.
- *
- * Native rather than in-app on purpose: the re-arm happens at startup, when no window
- * may be open yet, and the whole point is that the user should not have to go looking.
- * Best-effort — a platform with notifications unavailable or denied must never take the
- * app down over a notice, so every failure is swallowed after logging.
- */
-function notifyLanExposureRestored(port: number): void {
-  try {
-    if (!Notification.isSupported()) return;
-    const lanIP = getLanIP();
-    const url = lanIP ? `http://${lanIP}:${port}` : `port ${port}`;
-    new Notification({
-      title: 'WebUI is exposed on your local network',
-      body: `Reachable at ${url} by any device on this network, over unencrypted HTTP. Turn off "Allow Remote Access" in Settings → WebUI to stop this.`,
-    }).show();
-  } catch (error) {
-    console.warn('[WebUI] Could not surface the LAN-exposure notice:', error);
-  }
-}

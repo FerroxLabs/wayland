@@ -212,6 +212,31 @@ function displayInitialCredentials(
 }
 
 /**
+ * Tell the user, out loud, that the WebUI is now reachable from the local network.
+ *
+ * Best-effort by construction: a notice must never be able to take the server down, so
+ * every failure is swallowed after logging. The console line is unconditional (it is the
+ * only channel in headless/standalone, where the desktop notification is a no-op), and
+ * the OS notification is the one that reaches a user who never opens Settings — which is
+ * exactly the user #722 is about.
+ */
+async function announceLanExposure(where: string): Promise<void> {
+  console.warn(
+    `[WebUI] SECURITY: bound to ${SERVER_CONFIG.REMOTE_HOST} — reachable at ${where} by any device on this network, over unencrypted HTTP.`
+  );
+  try {
+    const { showNotification } = await import('@process/bridge/notificationBridge');
+    const i18n = (await import('@process/services/i18n')).default;
+    await showNotification({
+      title: i18n.t('settings.webui.lanExposureNoticeTitle'),
+      body: i18n.t('settings.webui.lanExposureNoticeBody', { url: where }),
+    });
+  } catch (error) {
+    console.warn('[WebUI] Could not surface the LAN-exposure notice:', error);
+  }
+}
+
+/**
  * WebUI server instance type
  */
 export interface WebServerInstance {
@@ -327,6 +352,19 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
       const localUrl = `http://localhost:${port}`;
       const serverIP = await getServerIP();
       const displayUrl = serverIP ? `http://${serverIP}:${port}` : localUrl;
+
+      // #722: announce EVERY LAN bind, here at the bind itself.
+      //
+      // Deliberately not in the settings toggle or the preference-restore path: those
+      // are only two of the doors. `resolveRemoteAccess()` also arms 0.0.0.0 from
+      // WAYLAND_ALLOW_REMOTE / WAYLAND_HOST, from --remote, and from `allowRemote` in
+      // webui.config.json on disk - and the desktop preference itself is writable over
+      // the config-storage bridge. Any of those could expose the WebUI with the user
+      // never seeing a dialog. This is the one line every exposed listener must pass
+      // through, so it is the only place the guarantee actually holds.
+      if (allowRemote) {
+        void announceLanExposure(displayUrl !== localUrl ? displayUrl : `port ${port}`);
+      }
 
       // Display initial credentials (if first startup)
       if (initialCredentials) {

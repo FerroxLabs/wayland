@@ -101,6 +101,8 @@ const WebuiModalContent: React.FC = () => {
   const [qrExpiresAt, setQrExpiresAt] = useState<number | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
   const qrRefreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Serialises LAN-toggle changes: a restart takes seconds and the modal is unbounded.
+  const allowRemoteBusyRef = useRef(false);
 
   // Load status
   const loadStatus = useCallback(async () => {
@@ -1012,7 +1014,7 @@ const WebuiModalContent: React.FC = () => {
               </span>
             }
           >
-            <Switch checked={allowRemotePreference} onChange={handleAllowRemoteChange} />
+            <Switch checked={allowRemotePreference} onChange={handleAllowRemoteChange} loading={startLoading} disabled={startLoading} />
           </PreferenceRow>
 
           {/*
@@ -1026,9 +1028,19 @@ const WebuiModalContent: React.FC = () => {
               data-testid='webui-lan-exposure-warning'
               className='mb-12px px-12px py-8px rd-8px border-1 border-solid border-[var(--color-warning-light-3)] bg-[var(--color-warning-light-1)]'
             >
-              <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteActive')}</span>
-              {status?.running && status.networkUrl && (
-                <span className='text-12px text-t-secondary ml-4px'>{status.networkUrl}</span>
+              {status?.running ? (
+                <>
+                  <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteActive')}</span>
+                  {status.networkUrl && (
+                    <span className='text-12px text-t-secondary ml-4px'>{status.networkUrl}</span>
+                  )}
+                </>
+              ) : (
+                // The pref survives the server being switched off, so a present-tense
+                // "reachable by every device" would be a lie whenever the WebUI is idle -
+                // and a warning that cries wolf is how you teach someone to ignore the
+                // real one. Say what is actually true: armed, not yet listening.
+                <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteArmed')}</span>
               )}
             </div>
           )}

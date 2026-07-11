@@ -30,6 +30,11 @@ const CONSENT_KEYS = [
   'webui.allowRemoteConfirmBody',
   'webui.allowRemoteConfirmOk',
   'webui.allowRemoteActive',
+  'webui.allowRemoteArmed',
+  // The OS notice is the ONLY surface that reaches the user who never opens Settings —
+  // exactly the victim of #722 — so it must exist in every language, not just English.
+  'webui.lanExposureNoticeTitle',
+  'webui.lanExposureNoticeBody',
 ];
 
 function locales(): string[] {
@@ -50,10 +55,14 @@ describe('#722: the LAN-exposure copy must not promise security it does not prov
 
   for (const locale of locales()) {
     describe(locale, () => {
-      it('does not call remote access "secure"', () => {
-        const desc = settings(locale)['webui.allowRemoteDesc'];
-        expect(desc, `${locale} is missing webui.allowRemoteDesc`).toBeTruthy();
-        expect(desc).not.toMatch(SECURE_CLAIM);
+      it('does not call remote access "secure" in ANY of the consent strings', () => {
+        const s = settings(locale);
+        // Not just the description: a future translator could reintroduce the claim in
+        // the confirm body, which is the last thing read before exposing the listener.
+        for (const key of CONSENT_KEYS) {
+          expect(s[key], `${locale} is missing ${key}`).toBeTruthy();
+          expect(s[key], `${locale}.${key} claims security it does not provide`).not.toMatch(SECURE_CLAIM);
+        }
       });
 
       it('has every consent string, so no user is shown an untranslated key', () => {
@@ -64,6 +73,12 @@ describe('#722: the LAN-exposure copy must not promise security it does not prov
       });
     });
   }
+
+  it('the LAN notice interpolates the actual URL in every locale', () => {
+    for (const locale of locales()) {
+      expect(settings(locale)['webui.lanExposureNoticeBody'], locale).toContain('{{url}}');
+    }
+  });
 
   it('the English copy names both the exposure and the plaintext transport', () => {
     const en = settings('en-US');

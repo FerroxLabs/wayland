@@ -123,12 +123,12 @@ function lanSwitch(): HTMLElement {
   return switches[switches.length - 1];
 }
 
-async function mount(allowRemoteSaved: boolean) {
+async function mount(allowRemoteSaved: boolean, running = true) {
   mockConfigGet.mockImplementation((key: string) => Promise.resolve(key === ALLOW_REMOTE_KEY ? allowRemoteSaved : true));
   mockGetStatus.mockResolvedValue({
     success: true,
     data: {
-      running: true,
+      running,
       port: 25808,
       allowRemote: allowRemoteSaved,
       localUrl: 'http://localhost:25808',
@@ -229,5 +229,17 @@ describe('#722: exposing the WebUI to the LAN requires explicit consent', () => 
   it('a localhost-only listener shows no exposure warning', async () => {
     await mount(false);
     expect(screen.queryByTestId('webui-lan-exposure-warning')).toBeNull();
+  });
+
+  it('does NOT claim the WebUI is reachable while the server is stopped', async () => {
+    // The pref outlives the server: disabling the WebUI without touching this toggle is
+    // common. Saying "reachable by every device on your local network" present-tense
+    // while nothing is listening is a false alarm — and false alarms are exactly how you
+    // train someone to ignore the real one.
+    await mount(true, /* running */ false);
+
+    const warning = screen.getByTestId('webui-lan-exposure-warning');
+    expect(warning.textContent).toContain('settings.webui.allowRemoteArmed');
+    expect(warning.textContent).not.toContain('settings.webui.allowRemoteActive');
   });
 });
