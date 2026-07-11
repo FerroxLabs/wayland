@@ -50,13 +50,24 @@ describe('resolveSettingsTabs', () => {
     expect(tabs[0].entryUrl).toMatch(/^wayland-asset:\/\//);
   });
 
-  it('skips settings tabs from non-bundled extensions', async () => {
-    const tabs = resolveSettingsTabs([
-      await makeExtension('local'),
-      await makeExtension('appdata'),
-      await makeExtension('env'),
-    ]);
+  // REGRESSION GUARD (#817). A `source === 'bundled'` gate here silently removes the
+  // settings UI of every local/appdata/env extension that contributes a tab - a
+  // capability that works on main. Relocating the tabs out of the settings sidebar
+  // into the Extensions page is fine; dropping non-bundled sources on the way is not.
+  // Assert the tabs RESOLVE, not merely that the array is non-empty.
+  it('resolves settings tabs from non-bundled extensions too (local / appdata / env)', async () => {
+    for (const source of ['local', 'appdata', 'env'] as const) {
+      const tabs = resolveSettingsTabs([await makeExtension(source)]);
 
-    expect(tabs).toEqual([]);
+      expect(tabs).toHaveLength(1);
+      expect(tabs[0]).toMatchObject({ name: 'Settings' });
+      expect(tabs[0].entryUrl).toMatch(/^wayland-asset:\/\//);
+    }
+  });
+
+  it('resolves tabs from bundled and non-bundled extensions together', async () => {
+    const tabs = resolveSettingsTabs([await makeExtension('bundled'), await makeExtension('local')]);
+
+    expect(tabs).toHaveLength(2);
   });
 });

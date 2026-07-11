@@ -1883,18 +1883,6 @@ export const extensions = {
   getSettingsTabs: buildProvider<IExtensionSettingsTab[], void>('extensions.get-settings-tabs'),
   /** Get extension-contributed webui routes/assets metadata */
   getWebuiContributions: buildProvider<IExtensionWebuiContribution[], void>('extensions.get-webui-contributions'),
-  /** Get native composer acronym expansions contributed by extensions */
-  getAcronyms: buildProvider<IExtensionAcronym[], void>('extensions.get-acronyms'),
-  /** Get native workspace side panels contributed by extensions */
-  getWorkspacePanels: buildProvider<IExtensionWorkspacePanel[], void>('extensions.get-workspace-panels'),
-  /** Get native file preview actions contributed by extensions */
-  getFilePreviewActions: buildProvider<IExtensionFilePreviewAction[], void>('extensions.get-file-preview-actions'),
-  /** Get native scheduled task templates contributed by extensions */
-  getScheduledTaskTemplates: buildProvider<IExtensionScheduledTaskTemplate[], void>(
-    'extensions.get-scheduled-task-templates'
-  ),
-  /** Get native workflow builder templates contributed by extensions */
-  getWorkflowTemplates: buildProvider<IExtensionWorkflowTemplate[], void>('extensions.get-workflow-templates'),
   /** Snapshot of all agent activities, for extension settings tabs */
   getAgentActivitySnapshot: buildProvider<IExtensionAgentActivitySnapshot, void>(
     'extensions.get-agent-activity-snapshot'

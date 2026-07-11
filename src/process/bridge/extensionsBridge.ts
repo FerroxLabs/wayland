@@ -703,61 +703,6 @@ export function initExtensionsBridge(repo: IConversationRepository, taskManager:
     }
   });
 
-  // Get native composer acronym expansions
-  ipcBridge.extensions.getAcronyms.provider(async () => {
-    try {
-      const registry = ExtensionRegistry.getInstance();
-      return registry.getAcronyms();
-    } catch (error) {
-      console.error('[Extensions] Failed to get acronyms:', error);
-      return [];
-    }
-  });
-
-  // Get native workspace side panels
-  ipcBridge.extensions.getWorkspacePanels.provider(async () => {
-    try {
-      const registry = ExtensionRegistry.getInstance();
-      return registry.getWorkspacePanels();
-    } catch (error) {
-      console.error('[Extensions] Failed to get workspace panels:', error);
-      return [];
-    }
-  });
-
-  // Get native file preview actions
-  ipcBridge.extensions.getFilePreviewActions.provider(async () => {
-    try {
-      const registry = ExtensionRegistry.getInstance();
-      return registry.getFilePreviewActions();
-    } catch (error) {
-      console.error('[Extensions] Failed to get file preview actions:', error);
-      return [];
-    }
-  });
-
-  // Get native scheduled task templates
-  ipcBridge.extensions.getScheduledTaskTemplates.provider(async () => {
-    try {
-      const registry = ExtensionRegistry.getInstance();
-      return registry.getScheduledTaskTemplates();
-    } catch (error) {
-      console.error('[Extensions] Failed to get scheduled task templates:', error);
-      return [];
-    }
-  });
-
-  // Get native workflow templates
-  ipcBridge.extensions.getWorkflowTemplates.provider(async () => {
-    try {
-      const registry = ExtensionRegistry.getInstance();
-      return registry.getWorkflowTemplates();
-    } catch (error) {
-      console.error('[Extensions] Failed to get workflow templates:', error);
-      return [];
-    }
-  });
-
   // Get activity snapshot for extension settings tabs (e.g. Star Office)
   ipcBridge.extensions.getAgentActivitySnapshot.provider(async () => {
     try {
