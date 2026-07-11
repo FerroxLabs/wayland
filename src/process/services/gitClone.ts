@@ -18,8 +18,9 @@
  *   - The token is NEVER embedded in the remote URL (which WOULD persist it in
  *     `.git/config` and every future `git remote -v`).
  *   - A malicious URL cannot smuggle git options: the URL is passed after `--`.
- *   - `GIT_TERMINAL_PROMPT=0` makes auth failures fail fast instead of hanging
- *     on an invisible credential prompt.
+ *   - `GIT_TERMINAL_PROMPT=0`, `GCM_INTERACTIVE=never`, and a disabled
+ *     credential helper make auth failures fail fast instead of hanging on an
+ *     invisible prompt.
  *   - {@link scrubSecrets} redacts any Basic header / userinfo before an error
  *     message leaves this module.
  */
@@ -32,6 +33,21 @@ const execFileAsync = promisify(execFile);
 
 /** 32 MiB - a large clone's progress output can be chatty. */
 const MAX_BUFFER = 32 * 1024 * 1024;
+
+/**
+ * Ten minutes is enough for a large repo while still bounding invisible git
+ * prompts/network stalls.
+ */
+const GIT_OPERATION_TIMEOUT_MS = 10 * 60 * 1000;
+
+const DISABLE_CREDENTIAL_HELPER_ARGS = ['-c', 'credential.helper='];
+
+const NON_INTERACTIVE_ENV: NodeJS.ProcessEnv = {
+  GIT_TERMINAL_PROMPT: '0',
+  GCM_INTERACTIVE: 'never',
+};
+
+const SSH_NON_INTERACTIVE_OPTIONS = '-o BatchMode=yes -o StrictHostKeyChecking=accept-new';
 
 export type CloneParams = {
   url: string;
@@ -76,8 +92,8 @@ export function deriveRepoName(url: string): string {
  * Exported for unit testing.
  */
 export function buildAuthArgs(auth?: IGitCloneAuth): { args: string[]; env: NodeJS.ProcessEnv } {
-  const env: NodeJS.ProcessEnv = { GIT_TERMINAL_PROMPT: '0' };
-  const args: string[] = [];
+  const env: NodeJS.ProcessEnv = { ...NON_INTERACTIVE_ENV };
+  const args: string[] = [...DISABLE_CREDENTIAL_HELPER_ARGS];
   if (!auth || auth.kind === 'none') return { args, env };
 
   if (auth.kind === 'token') {
@@ -85,12 +101,15 @@ export function buildAuthArgs(auth?: IGitCloneAuth): { args: string[]; env: Node
     const basic = Buffer.from(`${username}:${auth.token}`).toString('base64');
     // `credential.helper=` (empty) disables any configured helper so nothing
     // caches/persists the credential; extraHeader carries the Basic auth.
-    args.push('-c', 'credential.helper=', '-c', `http.extraHeader=Authorization: Basic ${basic}`);
+    args.push('-c', `http.extraHeader=Authorization: Basic ${basic}`);
   } else if (auth.kind === 'ssh') {
     const keyPath = auth.privateKeyPath?.trim();
     if (keyPath) {
       // IdentitiesOnly stops ssh from offering other agent keys first.
-      env.GIT_SSH_COMMAND = `ssh -i "${keyPath}" -o IdentitiesOnly=yes`;
+      const escapedKeyPath = keyPath.replace(/"/g, '\\"');
+      env.GIT_SSH_COMMAND = `ssh -i "${escapedKeyPath}" -o IdentitiesOnly=yes ${SSH_NON_INTERACTIVE_OPTIONS}`;
+    } else {
+      env.GIT_SSH_COMMAND = `ssh ${SSH_NON_INTERACTIVE_OPTIONS}`;
     }
   }
   return { args, env };
@@ -113,7 +132,10 @@ export function scrubSecrets(text: string): string {
 }
 
 function errText(e: unknown): string {
-  const err = e as { stderr?: string; message?: string };
+  const err = e as { stderr?: string; message?: string; killed?: boolean };
+  if (err?.killed === true) {
+    return `git command timed out after ${GIT_OPERATION_TIMEOUT_MS / 60000} minutes`;
+  }
   return scrubSecrets(err?.stderr?.trim() || err?.message || String(e));
 }
 
@@ -124,7 +146,12 @@ export async function cloneRepo(params: CloneParams): Promise<void> {
   }
   const { args, env } = buildCloneArgs(params);
   try {
-    await execFileAsync('git', args, { env: { ...process.env, ...env }, maxBuffer: MAX_BUFFER });
+    await execFileAsync('git', args, {
+      env: { ...process.env, ...env },
+      maxBuffer: MAX_BUFFER,
+      timeout: GIT_OPERATION_TIMEOUT_MS,
+      windowsHide: true,
+    });
   } catch (e) {
     // Attach a SCRUBBED cause (never the raw `e`) so credentials in the
     // original message/stderr/argv can't leak through the error chain. This is
@@ -143,6 +170,8 @@ export async function pullRepo(workspace: string, auth?: IGitCloneAuth): Promise
     const { stdout, stderr } = await execFileAsync('git', args, {
       env: { ...process.env, ...env },
       maxBuffer: MAX_BUFFER,
+      timeout: GIT_OPERATION_TIMEOUT_MS,
+      windowsHide: true,
     });
     return `${stdout}${stderr}`.trim();
   } catch (e) {

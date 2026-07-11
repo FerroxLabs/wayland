@@ -43,11 +43,12 @@ describe('gitClone — repo-name derivation', () => {
 });
 
 describe('gitClone — auth arg construction', () => {
-  it('none/undefined adds no flags but sets a non-interactive env', () => {
+  it('none/undefined disables credential prompts and sets a non-interactive env', () => {
     const { args, env } = buildAuthArgs(undefined);
-    expect(args).toEqual([]);
+    expect(args).toContain('credential.helper=');
     expect(env.GIT_TERMINAL_PROMPT).toBe('0');
-    expect(buildAuthArgs({ kind: 'none' }).args).toEqual([]);
+    expect(env.GCM_INTERACTIVE).toBe('never');
+    expect(buildAuthArgs({ kind: 'none' }).args).toContain('credential.helper=');
   });
 
   it('token defaults the username and injects a command-scoped Basic header', () => {
@@ -63,16 +64,18 @@ describe('gitClone — auth arg construction', () => {
     expect(args).toContain(`http.extraHeader=Authorization: Basic ${expected}`);
   });
 
-  it('ssh with a key path sets GIT_SSH_COMMAND and no args', () => {
+  it('ssh with a key path sets a non-interactive GIT_SSH_COMMAND', () => {
     const { args, env } = buildAuthArgs({ kind: 'ssh', privateKeyPath: '/home/u/.ssh/id_ed25519' });
-    expect(args).toEqual([]);
+    expect(args).toContain('credential.helper=');
     expect(env.GIT_SSH_COMMAND).toContain('-i "/home/u/.ssh/id_ed25519"');
     expect(env.GIT_SSH_COMMAND).toContain('IdentitiesOnly=yes');
+    expect(env.GIT_SSH_COMMAND).toContain('BatchMode=yes');
   });
 
-  it('ssh without a key path leaves GIT_SSH_COMMAND unset (use the agent)', () => {
+  it('ssh without a key path uses the agent without interactive prompts', () => {
     const { env } = buildAuthArgs({ kind: 'ssh' });
-    expect(env.GIT_SSH_COMMAND).toBeUndefined();
+    expect(env.GIT_SSH_COMMAND).toContain('BatchMode=yes');
+    expect(env.GIT_SSH_COMMAND).not.toContain('-i');
   });
 });
 
