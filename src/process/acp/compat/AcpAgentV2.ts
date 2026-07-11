@@ -127,6 +127,20 @@ export class AcpAgentV2 {
   // and cleared when a new start begins or the session reaches 'active'.
   private lastErrorMessage: string | null = null;
 
+  // Stable msg_id for the CURRENT error/crash episode. The renderer upserts
+  // stream messages by msg_id (Messages/hooks.ts), so a unique id per emission
+  // (the old `signal_${Date.now()}`) made every retry crash a NEW transcript row
+  // — a start-retry storm (maxStartRetries) flooded the chat with identical
+  // "process exited unexpectedly" banners (#676). Reusing one id across a burst
+  // collapses them into a single, upserted banner (mirrors the agent_status fix
+  // that uses `status_${conversationId}`). It is reset on forward progress (a new
+  // turn, the session reaching 'active', or a turn finishing) so a later,
+  // unrelated error still gets its own banner instead of overwriting an old one.
+  private errorBannerId: string | null = null;
+  // Monotonic episode counter so each new episode's id is unique even when two
+  // episodes open within the same millisecond (a Date.now() suffix could collide).
+  private errorEpisodeSeq = 0;
+
   // Promise bridges for async methods (Tasks 4-6)
   private startOp: PendingOp<void> | null = null;
   private modelOp: PendingOp<AcpModelInfo | null> | null = null;
@@ -348,6 +362,12 @@ export class AcpAgentV2 {
         this.lastStatus = status;
         this.persistStatus(status);
 
+        // Session made forward progress — end the current error/crash episode so a
+        // later, unrelated error surfaces as its own banner (#676).
+        if (status === 'active') {
+          this.errorBannerId = null;
+        }
+
         // Resolve startOp when reaching active/error
         if (status === 'active' && this.startOp) {
           this.lastErrorMessage = null;
@@ -491,6 +511,8 @@ export class AcpAgentV2 {
 
         switch (event.type) {
           case 'turn_finished':
+            // Forward progress — end the current error/crash episode (#676).
+            this.errorBannerId = null;
             this.onSignalEvent({
               type: 'finish',
               conversation_id: this.conversationId,
@@ -546,10 +568,15 @@ export class AcpAgentV2 {
               event.message.includes('PROCESS_CRASHED') ||
               event.message.includes('Process disconnected');
 
+            // Collapse a burst of error/crash banners (start-retry storm, #676)
+            // into ONE upserted transcript row by reusing a stable per-episode
+            // msg_id. The id is reset on forward progress (new turn / active /
+            // turn_finished), so an unrelated later error still gets its own row.
+            this.errorBannerId ??= `error_${this.conversationId}_${++this.errorEpisodeSeq}`;
             this.onSignalEvent({
               type: 'error',
               conversation_id: this.conversationId,
-              msg_id: `signal_${Date.now()}`,
+              msg_id: this.errorBannerId,
               data: event.message,
             });
 
@@ -710,6 +737,9 @@ export class AcpAgentV2 {
 
   async sendMessage(data: { content: string; files?: string[]; msg_id?: string }): Promise<AcpResult> {
     try {
+      // A new user turn starts a fresh error/crash episode (#676) so a failure
+      // here surfaces as its own banner rather than overwriting a prior one.
+      this.errorBannerId = null;
       // Auto-reconnect if session is in error/idle state (mirrors V1 behavior).
       // V1 checks isConnected/hasActiveSession before every prompt and calls start().
       if (this.lastStatus === 'error' || this.lastStatus === 'idle') {
