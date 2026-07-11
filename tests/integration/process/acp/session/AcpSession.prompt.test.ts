@@ -3,11 +3,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type {
-  RequestPermissionRequest,
-  SessionNotification,
-  WriteTextFileRequest,
-} from '@agentclientprotocol/sdk';
+import type { RequestPermissionRequest, SessionNotification, WriteTextFileRequest } from '@agentclientprotocol/sdk';
 import { AcpSession } from '@process/acp/session/AcpSession';
 import { AcpError } from '@process/acp/errors/AcpError';
 import type { AcpClient, ClientFactory } from '@process/acp/infra/IAcpClient';

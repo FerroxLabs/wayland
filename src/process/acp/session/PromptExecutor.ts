@@ -210,7 +210,9 @@ export class PromptExecutor {
 
         // Tell the user we are recovering rather than leaving a dead spinner.
         // `recoverable: true` keeps this a banner, not a turn-ending error.
-        console.warn(`[PromptExecutor] prompt attempt ${attempt}/${this.maxAttempts} failed (${acpErr.code}); retrying`);
+        console.warn(
+          `[PromptExecutor] prompt attempt ${attempt}/${this.maxAttempts} failed (${acpErr.code}); retrying`
+        );
         this.host.metrics.recordError(this.host.agentConfig.agentBackend, acpErr.code);
         this.host.callbacks.onSignal({
           type: 'error',
