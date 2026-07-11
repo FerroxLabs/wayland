@@ -199,7 +199,10 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/projects' element={withRouteFallback(ProjectsListPage)} />
             <Route path='/conversations' element={withRouteFallback(ConversationsListPage)} />
             <Route path='/project/:projectId' element={withRouteFallback(ProjectWorkspacePage)} />
-            <Route path='/memory' element={withRouteFallback(MemoryPage)} />
+            {/* #792: a render error in the memory subtree must not bubble to the
+              app-root boundary and blank the whole app. Mirror /conversation's
+              route-level boundary so a memory crash is contained to the page. */}
+            <Route path='/memory' element={<ErrorBoundary>{withRouteFallback(MemoryPage)}</ErrorBoundary>} />
             <Route path='/wiki' element={withRouteFallback(WikiHomePage)} />
             <Route path='/wiki/:slug' element={withRouteFallback(WikiDetailPage)} />
           </Route>
