@@ -66,7 +66,7 @@ export async function saveWorkspaceApproval(
   if (!workspace) return;
   try {
     const all = await readAll();
-    const forWorkspace = { ...(all[workspace] ?? {}) };
+    const forWorkspace = { ...all[workspace] };
     if (forWorkspace[approvalKey] === optionId) return; // already persisted - avoid a redundant write
     forWorkspace[approvalKey] = optionId;
     await ProcessConfig.set(CONFIG_KEY, { ...all, [workspace]: forWorkspace });
