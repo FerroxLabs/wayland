@@ -6,7 +6,12 @@
 
 import type { WebSocket, WebSocketServer } from 'ws';
 import { registerWebSocketBroadcaster, getBridgeEmitter } from '@/common/adapter/registry';
-import { isAllowedInboundName, isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
+import {
+  isAllowedInboundName,
+  isAllowedForRemote,
+  isAllowedOutboundToRemote,
+  isRemoteDeniedConfigWrite,
+} from '@/common/adapter/bridgeAllowlist';
 import { WebSocketManager } from './websocket/WebSocketManager';
 
 /**
@@ -76,6 +81,15 @@ export function initWebAdapter(wss: WebSocketServer): void {
     // fs.*/shell.*/skill-mutation/mcp-mutation/hub/app write/exec providers.
     if (!isAllowedForRemote(name)) {
       console.error('[adapter] Rejected remote-forbidden WebSocket bridge event:', name);
+      settleRejectedInvoke(ws, name, data, 'remote-forbidden');
+      return;
+    }
+    // #819: the config setter wire key stays allowed (the paired WebUI writes
+    // legitimate config), so gate the DANGEROUS VALUES here - a remote peer must
+    // not write `webui.desktop.*` and arm LAN exposure without ever hitting
+    // `webui.start`. The pref is the consent record; deny forging it.
+    if (isRemoteDeniedConfigWrite(name, data)) {
+      console.error('[adapter] Rejected remote config write to a protected key:', name);
       settleRejectedInvoke(ws, name, data, 'remote-forbidden');
       return;
     }
