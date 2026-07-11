@@ -922,6 +922,12 @@ export class WCoreAgent {
           callId: event.call_id,
           reason: event.reason,
         });
+        // #746: HITL escalation — the engine is now blocked on a HUMAN, not idling.
+        // This path does NOT go through tool_request/tool_result (WCoreManager's #264
+        // escalation raises it when the engine's own --auto-approve self-resolve fails),
+        // and these frames carry no msg_id, so without an explicit pause the watchdog
+        // would keep ticking and stall-kill the turn while the user is still deciding.
+        this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'approval_required',
           data: {
@@ -936,6 +942,8 @@ export class WCoreAgent {
         break;
 
       case 'suspend':
+        // #746: engine suspended awaiting an out-of-band resume — not agent inactivity.
+        this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'suspend',
           data: { reason: event.reason, resumeToken: event.resume_token },
@@ -944,6 +952,9 @@ export class WCoreAgent {
         break;
 
       case 'approval_resume':
+        // #746: the human answered (or the engine self-resolved) — the agent owes us
+        // progress again. Keyed on resume_token, matching the pause above.
+        this.resumeStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'approval_resume',
           data: { resumeToken: event.resume_token, approved: event.approved },

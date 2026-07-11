@@ -162,6 +162,52 @@ describe('WCoreAgent turn stall watchdog (#746)', () => {
     expect(stallErrors(onStreamEvent)).toHaveLength(1);
   });
 
+  // The HITL escalation path does NOT go through tool_request/tool_result: WCoreManager
+  // (#264) raises `approval_required` when the engine's own --auto-approve self-resolve
+  // fails, and waits for the user to answer the Confirming card. These frames carry no
+  // msg_id, so without an explicit pause the watchdog would keep ticking and kill the
+  // turn while the human was still deciding — a false cancel of live work.
+  it('is PAUSED across an approval_required HITL wait (human deliberating is not a stall)', async () => {
+    const onStreamEvent = vi.fn<(e: StreamEvent) => void>();
+    const agent = makeAgent(onStreamEvent);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await startTurn(agent);
+    dispatch(agent, {
+      type: 'approval_required',
+      call_id: 'c1',
+      resume_token: 'rt-1',
+      reason: 'needs approval',
+      context: 'rm -rf',
+    });
+
+    // The user stares at the approve/deny card for an hour. Must NOT be cancelled.
+    vi.advanceTimersByTime(TIMEOUT_MS * 6);
+    expect(stallErrors(onStreamEvent)).toHaveLength(0);
+
+    // They answer → the agent owes us progress again → idling now IS a stall.
+    dispatch(agent, { type: 'approval_resume', resume_token: 'rt-1', approved: true });
+    vi.advanceTimersByTime(TIMEOUT_MS + 1);
+    expect(stallErrors(onStreamEvent)).toHaveLength(1);
+  });
+
+  it('is PAUSED across a suspend/resume window (out-of-band engine wait)', async () => {
+    const onStreamEvent = vi.fn<(e: StreamEvent) => void>();
+    const agent = makeAgent(onStreamEvent);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await startTurn(agent);
+    dispatch(agent, { type: 'suspend', reason: 'awaiting external', resume_token: 'rt-2' });
+
+    vi.advanceTimersByTime(TIMEOUT_MS * 6);
+    expect(stallErrors(onStreamEvent)).toHaveLength(0);
+
+    dispatch(agent, { type: 'approval_resume', resume_token: 'rt-2', approved: true });
+    vi.advanceTimersByTime(TIMEOUT_MS + 1);
+    expect(stallErrors(onStreamEvent)).toHaveLength(1);
+  });
+
   it('is disarmed by stream_end (a completed turn is never stall-halted)', async () => {
     const onStreamEvent = vi.fn<(e: StreamEvent) => void>();
     const agent = makeAgent(onStreamEvent);
