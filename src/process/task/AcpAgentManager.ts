@@ -2300,6 +2300,49 @@ ${collectedResponses.join('\n')}`;
     } catch (error) {
       mainWarn('[AcpAgentManager]', 'Failed to save model ID', error);
     }
+
+    // The DB row is the AUTHORITATIVE model id and the renderer seeds the context
+    // meter from it on load (#733) - but only on load. A mid-chat switch wrote the
+    // row and told nobody, so the meter kept sizing itself from the PREVIOUS model:
+    // switching opus (1M) -> haiku (200K) left a 1M denominator on a 200K window,
+    // i.e. the meter reported ~5x the headroom that actually existed and the user
+    // hit the ceiling with no warning. Push the new id to the live renderer. (#801)
+    this.emitModelInfoUpdate(modelId);
+  }
+
+  /**
+   * Tell the renderer the active model changed, so anything sized from the model's
+   * context window (the ACP context meter) re-sizes immediately instead of at the
+   * next conversation load.
+   *
+   * MERGES onto the agent's current info rather than emitting a fresh payload: an
+   * `acp_model_info` whose `availableModels` is EMPTY reverts the in-chat picker to
+   * "Select Model" (#184 - AcpAgentV2.onModelUpdate guards the same hazard for the
+   * bridge's own empty snapshots). Spreading `info` means this emit can only ever
+   * change `currentModelId`/`currentModelLabel`; it can never shrink the model list.
+   */
+  private emitModelInfoUpdate(modelId: string): void {
+    const info = this.getModelInfo();
+    // Nothing authoritative to merge onto -> stay silent. An EMPTY availableModels
+    // is not merely useless, it is destructive: the renderer's selector adopts an
+    // incoming acp_model_info unconditionally, so an empty list reverts the in-chat
+    // picker to "Select Model" (#184). Two reachable states produce a non-null but
+    // EMPTY info - the no-agent/persisted-id branch of getModelInfo(), and a
+    // non-claude bridge whose first snapshot (or 10s timeout fallback) was empty -
+    // so guarding on `!info` alone is not enough. The renderer still seeds the
+    // model id from the conversation row on its next load (#733).
+    if (!info || info.availableModels.length === 0) return;
+
+    ipcBridge.acpConversation.responseStream.emit({
+      type: 'acp_model_info',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: {
+        ...info,
+        currentModelId: modelId,
+        currentModelLabel: info.availableModels.find((m) => m.id === modelId)?.label ?? modelId,
+      },
+    });
   }
 
   /**
