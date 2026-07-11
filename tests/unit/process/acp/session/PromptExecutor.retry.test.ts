@@ -155,23 +155,53 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
   });
 
   /**
-   * What actually reaches us is rarely prose: withErrorDetail JSON-stringifies the
-   * provider's `data`, so the message carries the MACHINE-READABLE code. An earlier
-   * cut of this regex ended in `\b`, and since `_` is a word character every one of
-   * these sailed through and got replayed 3x — including a live rate limit.
+   * The replay decision is an ALLOWLIST: name what is transient, treat everything
+   * else as final. An earlier cut denied the known-deterministic failures and
+   * replayed the rest — and leaked, because the ways a provider can say "no" are
+   * not enumerable. `prompt is too long` (the commonest deterministic -32603 in a
+   * long session) was being replayed 3x, burning 3x the input tokens.
+   *
+   * Left column = must be replayed. Right = must NOT be, and unknown counts as
+   * must-not: failing closed just leaves the user where they were before #774.
    */
-  const providerCodes = [
+  const TRANSIENT = [
+    'Failed to generate content: Connection error', // the #774 report
+    'Connection reset by peer',
+    'socket hang up',
+    'upstream connect error',
+    'read ECONNRESET',
+    '503 Service Unavailable',
+    'Overloaded',
+    'request timed out',
+  ];
+  for (const msg of TRANSIENT) {
+    it(`replays the transient "${msg}"`, async () => {
+      prompt.mockRejectedValueOnce(providerBlip(msg)).mockResolvedValueOnce({ stopReason: 'end_turn' });
+      await executor.execute(CONTENT);
+      expect(prompt).toHaveBeenCalledTimes(2);
+    });
+  }
+
+  const FINAL = [
+    "API Error: 400 BadRequestError - missing field 'tool_call_id'", // the #774 400
     'rate_limit_error', // Anthropic error.type
+    '429 rate limit exceeded',
     'insufficient_quota', // OpenAI
     'context_length_exceeded', // OpenAI
-    'invalid_request_error', // Anthropic / OpenAI
+    'prompt is too long: 205000 tokens > 200000 maximum', // Anthropic, very common
+    'Input is too long for requested model.',
+    'Your credit balance is too low to access the API',
+    'billing_hard_limit_reached',
+    'model_not_found',
+    'permission_error',
+    'invalid_request_error',
     'content_policy_violation',
     'Error: Too Many Requests',
+    'something nobody has ever seen before', // unknown ⇒ fail closed
   ];
-  for (const code of providerCodes) {
-    it(`does NOT replay the deterministic/limit code "${code}"`, async () => {
-      prompt.mockRejectedValue(providerBlip(`{"type":"${code}","message":"..."}`));
-
+  for (const msg of FINAL) {
+    it(`does NOT replay the final/limit "${msg}"`, async () => {
+      prompt.mockRejectedValue(providerBlip(msg));
       await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
       expect(prompt).toHaveBeenCalledTimes(1);
     });
@@ -186,6 +216,24 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     });
 
     await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT fire attempt 2 if a tool landed DURING the backoff sleep', async () => {
+    // canRetryPrompt only sees the state BEFORE the sleep. Without re-reading
+    // turnRanTool afterwards, the no-double-execution guarantee would rest on the
+    // SDK dispatching notifications ahead of the response, rather than holding by
+    // construction. A tool that lands in the ~1s gap must still stop the replay.
+    const slow = new PromptExecutor(host, 60_000, {
+      attempts: 3,
+      backoff: { initialMs: 300, maxMs: 300, factor: 1, jitter: 0 },
+    });
+    prompt.mockImplementationOnce(() => {
+      setTimeout(() => slow.noteToolActivity(), 50); // arrives mid-backoff
+      return Promise.reject(providerBlip());
+    });
+
+    await expect(slow.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 
@@ -238,6 +286,39 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     await expect(slow.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
 
     // Without the signal wired into sleepWithAbort, Stop lands ~5s late.
+    expect(Date.now() - started).toBeLessThan(2000);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
+  it('AUTH_REQUIRED does not tear down a session that is already being respawned', async () => {
+    // The AUTH branch unshifts the prompt and then calls teardown(). If the session
+    // has already left 'prompting' (a crashed agent that answers -32000 and exits),
+    // that teardown kills the replacement client doResume is mid-way through
+    // spawning — and the respawn then fails into enterError → clearPending, dropping
+    // the very prompt AUTH just preserved. Ownership check must sit ABOVE the branch.
+    prompt.mockImplementationOnce(() => {
+      host.status = 'resuming'; // onDisconnect → resumeFromDisconnect is driving
+      return Promise.reject(new AcpError('AUTH_REQUIRED', 'login required', { retryable: true }));
+    });
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+
+    expect(host.lifecycle.setAuthPendingForPrompt).not.toHaveBeenCalled(); // did not race the respawn
+    expect(executor.hasPending()).toBe(true); // prompt preserved for whoever owns recovery
+  });
+
+  it('cancelAll() also aborts an in-flight backoff', async () => {
+    const slow = new PromptExecutor(host, 60_000, {
+      attempts: 3,
+      backoff: { initialMs: 5000, maxMs: 5000, factor: 1, jitter: 0 },
+    });
+    prompt.mockImplementationOnce(() => {
+      setTimeout(() => slow.cancelAll(), 50);
+      return Promise.reject(providerBlip());
+    });
+
+    const started = Date.now();
+    await expect(slow.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
     expect(Date.now() - started).toBeLessThan(2000);
     expect(prompt).toHaveBeenCalledTimes(1);
   });

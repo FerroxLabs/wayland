@@ -41,19 +41,24 @@ const PROMPT_RETRY_BACKOFF: BackoffPolicy = { initialMs: 1000, maxMs: 4000, fact
 const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTERNAL_ERROR']);
 
 /**
- * -32603 is a catch-all, so the code alone cannot tell a blip from a verdict.
- * These never improve by sending the identical prompt again: a rate limit only
- * gets angrier, and a bad request / oversized context / refusal is deterministic.
- * (#774's own 400 `missing field 'tool_call_id'` is caught here.)
+ * -32603 is a catch-all, so the code alone cannot tell a blip from a verdict. This
+ * says which ones are worth sending again.
+ *
+ * It is an ALLOWLIST on purpose. The first cut denied the deterministic failures
+ * (rate limits, oversized context, refusals) and replayed everything else — but a
+ * denylist over a catch-all bucket leaks by construction, and it did: `prompt is
+ * too long`, `credit balance is too low`, `model_not_found` and friends all sailed
+ * through and got replayed. Every leak costs real money or real tokens, and the
+ * list of ways a provider can say "no" is not enumerable. So: name what is
+ * genuinely transient, and treat everything unrecognised as final. Unknown fails
+ * CLOSED — the worst case is an error the user must retry by hand, which is
+ * exactly where they were before #774.
  *
  * Matched against `acpErr.message`, into which `withErrorDetail` JSON-stringifies
- * the provider's `data` — so what we actually see is usually the machine-readable
- * code (`rate_limit_error`, `insufficient_quota`, `context_length_exceeded`), NOT
- * prose. Hence no trailing `\b`: `_` is a word character, so `rate.?limit\b` does
- * not match `rate_limit_error` and every snake_case code sailed through.
+ * the provider's `data`, so both prose and machine-readable codes land here.
  */
-const NON_TRANSIENT_DETAIL =
-  /\b4\d\d\b|rate.?limit|quota|resource.?exhausted|context.?length|too\s+many\s+(tokens|requests)|maximum\s+context|bad.?request|invalid.?request|safety|content.?policy/i;
+const TRANSIENT_DETAIL =
+  /\b5\d\d\b|connection\s+(error|reset|closed|refused)|econnreset|econnrefused|epipe|etimedout|socket\s+hang\s*up|timed?\s*out|timeout|overloaded|temporarily\s+unavailable|service\s+unavailable|try\s+again|upstream\s+(connect\s+)?(error|disconnect)/i;
 
 /** Overridable so tests can drive the retry path without sleeping for real. */
 export type PromptRetryOptions = {
@@ -224,6 +229,12 @@ export class PromptExecutor {
         // none of those may be steamrolled by the next attempt.
         if (
           this.turnCancelled ||
+          // A tool_call that lands DURING the backoff. canRetryPrompt only saw the
+          // state before the sleep, so without this the no-double-execution
+          // guarantee would rest on the SDK dispatching notifications ahead of the
+          // response — true as far as I can tell, but not a thing to bet an `rm` on
+          // when re-reading the flag makes it hold by construction.
+          this.turnRanTool ||
           this.host.status !== 'prompting' ||
           lifecycle.client !== turnClient ||
           lifecycle.sessionId !== turnSessionId
@@ -265,7 +276,7 @@ export class PromptExecutor {
     // NOT `acpErr.retryable`: that flag was tuned for session start/resume, a
     // different decision. Replaying a PROMPT is its own judgement call.
     if (!REPLAYABLE_PROMPT_CODES.has(acpErr.code)) return false;
-    if (NON_TRANSIENT_DETAIL.test(acpErr.message)) return false;
+    if (!TRANSIENT_DETAIL.test(acpErr.message)) return false;
     return true;
   }
 
@@ -280,6 +291,19 @@ export class PromptExecutor {
   private handlePromptError(err: unknown, content: PromptContent): void {
     // Idempotent: an AcpError (which is what execute() hands us) passes straight through.
     const acpErr = normalizeError(err);
+
+    // If the session already LEFT 'prompting', someone else is driving recovery and
+    // OWNS the pending queue — on a crash that is onDisconnect → resumeFromDisconnect,
+    // which respawns the agent and re-flushes the queue itself. Every branch below
+    // races it: the retryable one flips 'resuming' → 'active' (a legal transition!)
+    // and fires the queued prompt into a client that has not finished initialize();
+    // enterError() clearPending()s it; and the AUTH branch tears down the very client
+    // the respawn is mid-way through spawning. Preserve the prompt and get out of the
+    // way — whoever owns recovery will flush it.
+    if (this.host.status !== 'prompting') {
+      this.pendingPrompts.unshift(content);
+      throw acpErr;
+    }
 
     if (acpErr.code === 'AUTH_REQUIRED') {
       // Preserve the failed message at the front of the queue so it is
@@ -299,16 +323,6 @@ export class PromptExecutor {
 
     console.error(`[PromptExecutor] prompt failed (${acpErr.code}):`, acpErr.message);
     this.host.metrics.recordError(this.host.agentConfig.agentBackend, acpErr.code);
-
-    // If the session already LEFT 'prompting', someone else is driving recovery and
-    // owns the pending queue — on a crash that is onDisconnect → resumeFromDisconnect,
-    // which respawns the agent and re-flushes the queue itself. Touching status or
-    // flushing here races it: 'resuming' → 'active' is a legal transition, so we would
-    // yank the session out of its respawn and fire the user's queued prompt into a
-    // client that has not finished initialize() — dropping it. That is the #774 symptom
-    // reintroduced by its own fix, so bail before either branch (enterError() in the
-    // else would clearPending() and drop the follow-up just as dead).
-    if (this.host.status !== 'prompting') throw acpErr;
 
     if (acpErr.retryable) {
       this.host.setStatus('active');
