@@ -178,9 +178,22 @@ const SHAPE_REGEXES: readonly RegExp[] = [
   // Common provider token prefixes: slack, github (incl fine-grained PAT),
   // gitlab, groq, xai, replicate, digitalocean, google (incl 1// refresh).
   /\b(?:xox[abprs]-|gh[posru]_|github_pat_|glpat-|gsk_|xai-|r8_|dop_v1_|ya29\.|AIza|1\/\/)[A-Za-z0-9_./-]{6,}/g,
-  // base64url-aware opaque blobs / long tokens (lowered floor; covers - and _,
-  // so OAuth/JWT/refresh tokens no longer fragment below the threshold).
-  /[A-Za-z0-9_-]{24,}={0,2}/g,
+  // base64url-aware opaque blobs / long tokens (covers - and _, so OAuth/JWT/
+  // refresh tokens no longer fragment below the threshold). The leading lookahead
+  // requires at least one uppercase letter OR digit in the run: real base64/hex
+  // tokens always carry that entropy, but all-lowercase snake/kebab identifiers
+  // (our own `model_registry_providers` source label, reverse-DNS MCP server
+  // names like `com.acme-something-mcp`) do not — masking those garbled the
+  // Doctor report's section labels and the very server names it exists to name.
+  /(?=[A-Za-z0-9_-]*[A-Z0-9])[A-Za-z0-9_-]{24,}={0,2}/g,
+  // ...but an all-lowercase run is only an identifier if it is BROKEN UP by a
+  // separator: `model_registry_providers`, `com.acme-…-mcp`. An unbroken
+  // lowercase run of 24+ is token-shaped, not name-shaped, so the entropy
+  // lookahead above must not exempt it — otherwise a bare lowercase secret in
+  // free-text (an error string with no `key=` and no `:`/`=`/`@` in front, which
+  // is all that KEY_VALUE_REGEX and DELIM_TOKEN_REGEX key off) would print in
+  // the clear. `_`/`-` are excluded from the class, so identifiers never match.
+  /\b[a-z0-9]{24,}\b/g,
   // Long hex runs (keys, hashes, signatures).
   /\b[A-Fa-f0-9]{32,}\b/g,
 ];
