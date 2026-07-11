@@ -23,11 +23,9 @@ import {
   Zap,
 } from 'lucide-react';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
-import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
-import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
-import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip } from '@arco-design/web-react';
@@ -51,6 +49,7 @@ export const BUILTIN_TAB_IDS = [
   'webui',
   'channels',
   'mcp-library',
+  'extensions',
   'migrate',
   // APPEARANCE
   'theme',
@@ -136,64 +135,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
   const { pathname } = useLocation();
   const isDesktop = isElectronDesktop();
 
-  const [extensionTabs, setExtensionTabs] = useState<IExtensionSettingsTab[]>([]);
-  const { resolveExtTabName } = useExtI18n();
-
-  const loadExtensionTabs = useCallback(async (): Promise<IExtensionSettingsTab[]> => {
-    const maxAttempts = 20;
-    const retryDelayCapMs = 300;
-    let lastError: unknown;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const tabs = (await extensionsIpc.getSettingsTabs.invoke()) ?? [];
-        if (tabs.length > 0 || attempt === maxAttempts - 1) {
-          return tabs;
-        }
-      } catch (error) {
-        lastError = error;
-        if (attempt === maxAttempts - 1) {
-          throw error;
-        }
-      }
-
-      await new Promise((resolve) => window.setTimeout(resolve, Math.min(100 * (attempt + 1), retryDelayCapMs)));
-    }
-
-    if (lastError) {
-      throw lastError;
-    }
-
-    return [];
-  }, []);
-
-  useEffect(() => {
-    let disposed = false;
-
-    const syncExtensionTabs = async () => {
-      try {
-        const tabs = await loadExtensionTabs();
-        if (!disposed) {
-          setExtensionTabs(tabs);
-        }
-      } catch (err) {
-        if (!disposed) {
-          console.error('[SettingsSider] Failed to load extension settings tabs:', err);
-        }
-      }
-    };
-
-    void syncExtensionTabs();
-    const unsubscribe = extensionsIpc.stateChanged.on(() => {
-      void syncExtensionTabs();
-    });
-
-    return () => {
-      disposed = true;
-      unsubscribe();
-    };
-  }, [loadExtensionTabs]);
-
   const { menus, groupHeaderAt } = useMemo(() => {
     const builtinMap: Record<string, SiderItem> = {
       assistants: {
@@ -268,6 +209,12 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         icon: <Server />,
         path: 'mcp-library/browse',
       },
+      extensions: {
+        id: 'extensions',
+        label: t('settings.sider.extensions', { defaultValue: 'Extensions' }),
+        icon: <Puzzle />,
+        path: 'extensions',
+      },
       migrate: {
         id: 'migrate',
         label: t('settings.sider.migrate', { defaultValue: 'Migrate' }),
@@ -332,68 +279,16 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
 
     const result: SiderItem[] = BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
 
-    // Extension tabs with position anchoring
-    const beforeMap = new Map<string, IExtensionSettingsTab[]>();
-    const afterMap = new Map<string, IExtensionSettingsTab[]>();
-    const unanchored: IExtensionSettingsTab[] = [];
-
-    for (const tab of extensionTabs) {
-      if (!tab.position) {
-        unanchored.push(tab);
-        continue;
-      }
-      const { anchor: rawAnchor, placement } = tab.position;
-      const anchor = LEGACY_ANCHOR_REMAP[rawAnchor] ?? rawAnchor;
-      const map = placement === 'before' ? beforeMap : afterMap;
-      let list = map.get(anchor);
-      if (!list) {
-        list = [];
-        map.set(anchor, list);
-      }
-      list.push(tab);
-    }
-
-    const toSiderItem = (tab: IExtensionSettingsTab): SiderItem => {
-      const resolvedIcon = resolveExtensionAssetUrl(tab.icon) || tab.icon;
-      return {
-        id: tab.id,
-        label: resolveExtTabName(tab),
-        icon: resolvedIcon ? <ExtensionMaskIcon src={resolvedIcon} /> : <Puzzle />,
-        maskIconUrl: resolvedIcon,
-        path: `ext/${tab.id}`,
-      };
-    };
-
-    for (let i = result.length - 1; i >= 0; i--) {
-      const builtinId = result[i].id;
-      const afters = afterMap.get(builtinId);
-      if (afters) {
-        result.splice(i + 1, 0, ...afters.map(toSiderItem));
-      }
-      const befores = beforeMap.get(builtinId);
-      if (befores) {
-        result.splice(i, 0, ...befores.map(toSiderItem));
-      }
-    }
-
-    // Append unanchored before "general" (system group)
-    if (unanchored.length > 0) {
-      const generalIdx = result.findIndex((item) => item.id === 'general');
-      const insertIdx = generalIdx >= 0 ? generalIdx : result.length;
-      result.splice(insertIdx, 0, ...unanchored.map(toSiderItem));
-    }
-
     // Compute group header render positions
     const headerAt = new Map<number, string>();
     for (const [builtinId, headerKey] of Object.entries(GROUP_HEADER_BEFORE)) {
       const builtinIdx = result.findIndex((item) => item.id === builtinId);
       if (builtinIdx < 0) continue;
-      const beforeCount = beforeMap.get(builtinId)?.length ?? 0;
-      headerAt.set(builtinIdx - beforeCount, headerKey);
+      headerAt.set(builtinIdx, headerKey);
     }
 
     return { menus: result, groupHeaderAt: headerAt };
-  }, [t, isDesktop, extensionTabs, resolveExtTabName]);
+  }, [t, isDesktop]);
 
   const siderTooltipProps = getSiderTooltipProps(tooltipEnabled);
 

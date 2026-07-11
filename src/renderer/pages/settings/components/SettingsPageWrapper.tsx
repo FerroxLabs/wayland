@@ -24,19 +24,17 @@ import {
   Zap,
 } from 'lucide-react';
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import CommandPalette from '@/renderer/components/settings/shared/CommandPalette/CommandPalette';
 import ShortcutsOverlay from '@/renderer/components/settings/shared/ShortcutsOverlay/ShortcutsOverlay';
 import { useGlobalKeybind } from '@/renderer/hooks/settings/useGlobalKeybind';
 import { SettingsViewModeProvider } from '@/renderer/components/settings/SettingsModal/settingsViewContext';
-import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
-import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Dropdown, Menu } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
-import { BUILTIN_TAB_IDS, LEGACY_ANCHOR_REMAP } from './SettingsSider';
+import { BUILTIN_TAB_IDS } from './SettingsSider';
 import './settings.css';
 
 interface SettingsPageWrapperProps {
@@ -149,6 +147,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       icon: <Server size={16} />,
       path: 'mcp-library/browse',
     },
+    extensions: {
+      id: 'extensions',
+      label: t('settings.sider.extensions', { defaultValue: 'Extensions' }),
+      icon: <Puzzle size={16} />,
+      path: 'extensions',
+    },
     migrate: {
       id: 'migrate',
       label: t('settings.sider.migrate', { defaultValue: 'Migrate' }),
@@ -211,7 +215,6 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
   const { t } = useTranslation();
   const isDesktop = isElectronDesktop();
 
-  const [extensionTabs, setExtensionTabs] = useState<IExtensionSettingsTab[]>([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
@@ -222,66 +225,7 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
   const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
   useGlobalKeybind('?', openShortcuts, { meta: false, skipInputs: true });
 
-  useEffect(() => {
-    void extensionsIpc.getSettingsTabs
-      .invoke()
-      .then((tabs) => setExtensionTabs(tabs ?? []))
-      .catch((err) => console.error('[SettingsPageWrapper] Failed to load extension tabs:', err));
-  }, []);
-
-  const { resolveExtTabName } = useExtI18n();
-
-  const menuItems = React.useMemo(() => {
-    const builtins = getBuiltinSettingsNavItems(isDesktop, t);
-
-    // Insert extension tabs before system (unanchored default) or at anchor position
-    const result = [...builtins];
-    const unanchored: IExtensionSettingsTab[] = [];
-    const beforeMap = new Map<string, IExtensionSettingsTab[]>();
-    const afterMap = new Map<string, IExtensionSettingsTab[]>();
-
-    for (const tab of extensionTabs) {
-      if (!tab.position) {
-        unanchored.push(tab);
-        continue;
-      }
-      const { anchor: rawAnchor, placement } = tab.position;
-      const anchor = LEGACY_ANCHOR_REMAP[rawAnchor] ?? rawAnchor;
-      const map = placement === 'before' ? beforeMap : afterMap;
-      let list = map.get(anchor);
-      if (!list) {
-        list = [];
-        map.set(anchor, list);
-      }
-      list.push(tab);
-    }
-
-    const toNavItem = (tab: IExtensionSettingsTab): NavItem => {
-      const resolvedIcon = resolveExtensionAssetUrl(tab.icon) || tab.icon;
-      return {
-        id: tab.id,
-        label: resolveExtTabName(tab),
-        icon: resolvedIcon ? <ExtensionMaskIcon src={resolvedIcon} /> : <Puzzle size={16} />,
-        path: `ext/${tab.id}`,
-      };
-    };
-
-    for (let i = result.length - 1; i >= 0; i--) {
-      const id = result[i].id;
-      const afters = afterMap.get(id);
-      if (afters) result.splice(i + 1, 0, ...afters.map(toNavItem));
-      const befores = beforeMap.get(id);
-      if (befores) result.splice(i, 0, ...befores.map(toNavItem));
-    }
-
-    if (unanchored.length > 0) {
-      const sysIdx = result.findIndex((item) => item.id === 'system');
-      const idx = sysIdx >= 0 ? sysIdx : result.length;
-      result.splice(idx, 0, ...unanchored.map(toNavItem));
-    }
-
-    return result;
-  }, [isDesktop, t, extensionTabs, resolveExtTabName]);
+  const menuItems = React.useMemo(() => getBuiltinSettingsNavItems(isDesktop, t), [isDesktop, t]);
 
   const activeNavItem = React.useMemo(
     () => menuItems.find((item) => pathname.includes(`/settings/${item.path}`)),

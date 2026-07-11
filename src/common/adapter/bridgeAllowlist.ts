@@ -422,6 +422,55 @@ export function isAllowedForRemote(name: string): boolean {
 }
 
 /**
+ * Wire key for the shared `agent.config` config store's setter. `ConfigStorage`
+ * and `ProcessConfig` are the same store (initStorage.ts), so a value written
+ * here is what `restoreDesktopWebUIFromPreferences` reads on the next launch.
+ */
+const CONFIG_STORAGE_SET_KEY = 'agent.config.storage.set';
+
+/**
+ * Config keys a REMOTE (paired-device WebSocket) caller must never WRITE, even
+ * though the generic `agent.config.storage.set` wire key stays allowed for the
+ * config reads/writes the paired WebUI legitimately needs.
+ *
+ * #819: `webui.start`/`webui.stop` are correctly remote-denied, but arming LAN
+ * exposure does not require them - it only needs the PREFERENCE. A paired peer
+ * writing `webui.desktop.allowRemote=true` (+ `enabled=true`) makes the app bind
+ * `0.0.0.0` itself on the next launch, no dialog, no `webui.start`. The pref IS
+ * the consent record, so the denylist has to guard the DECLARATIVE door too, not
+ * just the imperative one. `restoreDesktopWebUIFromPreferences` reads only the
+ * `webui.desktop.*` keys (enabled / allowRemote / port), so the prefix covers the
+ * whole re-arm surface.
+ */
+const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = ['webui.desktop.'];
+
+/**
+ * True iff `(name, data)` is a remote config write to a protected key.
+ *
+ * Applied AFTER {@link isAllowedForRemote} on the WS dispatch path. The setter's
+ * wire key (`agent.config.storage.set`) is intentionally NOT in the remote
+ * denylist - denying it wholesale would break every legitimate remote config
+ * write - so the gate has to be VALUE-level: inspect the target key carried in
+ * the invocation payload and reject only the protected prefixes. The per-call
+ * remote signal a `buildProvider` handler lacks exists here at the wire, which is
+ * exactly why this belongs in the adapter and not in the storage provider.
+ *
+ * @param name Full inbound wire name (`subscribe-agent.config.storage.set`).
+ * @param data Invocation payload as received: `{ id, data: { key, data } }`.
+ */
+export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean {
+  if (typeof name !== 'string' || name !== `subscribe-${CONFIG_STORAGE_SET_KEY}`) return false;
+
+  const targetKey = (data as { data?: { key?: unknown } } | null | undefined)?.data?.key;
+  if (typeof targetKey !== 'string') return false;
+
+  for (const prefix of REMOTE_DENIED_CONFIG_KEY_PREFIXES) {
+    if (targetKey.startsWith(prefix)) return true;
+  }
+  return false;
+}
+
+/**
  * Emitter/broadcast (main -> client) names that must NOT be forwarded to a
  * remote WebSocket peer. Inbound denial (isAllowedForRemote) stops a peer
  * INVOKING a provider; this stops a peer passively RECEIVING an emitter stream.

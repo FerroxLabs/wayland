@@ -20,7 +20,7 @@
  * still present per the spec).
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -28,6 +28,10 @@ import { MemoryRouter } from 'react-router-dom';
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
+
+const { extensionTabsMock } = vi.hoisted(() => ({
+  extensionTabsMock: vi.fn(() => []),
+}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -51,7 +55,7 @@ vi.mock('react-i18next', () => ({
 // subscription so the sidebar settles on its builtin order.
 vi.mock('@/common/adapter/ipcBridge', () => ({
   extensions: {
-    getSettingsTabs: { invoke: vi.fn().mockResolvedValue([]) },
+    getSettingsTabs: { invoke: vi.fn(() => Promise.resolve(extensionTabsMock())) },
     stateChanged: { on: vi.fn(() => () => {}) },
   },
 }));
@@ -70,13 +74,16 @@ import SettingsSider, {
   BUILTIN_TAB_IDS,
   LEGACY_ANCHOR_REMAP,
 } from '../../../src/renderer/pages/settings/components/SettingsSider';
-import { extensions as extensionsIpc } from '../../../src/common/adapter/ipcBridge';
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
 describe('SettingsSider - Packet 3A nav restructure', () => {
+  beforeEach(() => {
+    extensionTabsMock.mockReturnValue([]);
+  });
+
   it('renames the legacy Providers sidebar entry to "Models" pointing at /settings/models', () => {
     render(
       <MemoryRouter>
@@ -145,16 +152,13 @@ describe('SettingsSider - Packet 3A nav restructure', () => {
     expect(header.compareDocumentPosition(modelsItem as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('renders extension settings icons as monochrome masks instead of full-color images', async () => {
-    vi.mocked(extensionsIpc.getSettingsTabs.invoke).mockResolvedValueOnce([
+  it('keeps extension settings tabs out of the main Settings sidebar', async () => {
+    extensionTabsMock.mockReturnValue([
       {
-        id: 'ext-wayland-updater-updater',
-        name: 'Updater',
-        icon: '/api/ext-asset?path=updater.svg',
-        entryUrl: '/api/ext-asset?path=updater.html',
-        position: { anchor: 'storage', placement: 'after' },
-        order: 10,
-        _extensionName: 'wayland-updater',
+        id: 'ext-noisy-tools',
+        name: 'Noisy Tools',
+        entryUrl: 'wayland-asset://extension/noisy/settings.html',
+        position: { anchor: 'extensions', placement: 'after' },
       },
     ]);
 
@@ -164,15 +168,7 @@ describe('SettingsSider - Packet 3A nav restructure', () => {
       </MemoryRouter>
     );
 
-    let updaterItem: Element | null = null;
-    await waitFor(() => {
-      updaterItem = document.querySelector('[data-settings-id="ext-wayland-updater-updater"]');
-      expect(updaterItem).not.toBeNull();
-    });
-    expect(updaterItem).not.toBeNull();
-    expect(updaterItem?.querySelector('img')).toBeNull();
-    const maskIcon = updaterItem?.querySelector('[aria-hidden="true"]') as HTMLElement | null;
-    expect(maskIcon?.style.maskImage).toContain('updater.svg');
-    expect(maskIcon?.className).toContain('text-t-secondary');
+    expect(document.querySelector('[data-settings-id="extensions"]')).not.toBeNull();
+    expect(document.querySelector('[data-settings-id="ext-noisy-tools"]')).toBeNull();
   });
 });
