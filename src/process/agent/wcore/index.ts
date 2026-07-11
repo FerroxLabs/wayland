@@ -922,12 +922,23 @@ export class WCoreAgent {
           callId: event.call_id,
           reason: event.reason,
         });
-        // #746: HITL escalation — the engine is now blocked on a HUMAN, not idling.
-        // This path does NOT go through tool_request/tool_result (WCoreManager's #264
-        // escalation raises it when the engine's own --auto-approve self-resolve fails),
-        // and these frames carry no msg_id, so without an explicit pause the watchdog
-        // would keep ticking and stall-kill the turn while the user is still deciding.
-        this.pauseStallWatchdog(`approval:${event.resume_token}`);
+        // #746: pause ONLY for a genuine HITL escalation — i.e. one that carries a
+        // resume_token. That path (WCoreManager's #264 wedge: the engine's own
+        // --auto-approve self-resolve failed) does NOT go through
+        // tool_request/tool_result and carries no msg_id, so without an explicit pause
+        // the watchdog would keep ticking and stall-kill the turn while the human is
+        // still deciding.
+        //
+        // A token-LESS approval_required is a different animal: in interactive mode the
+        // engine emits it as a parallel *signal* on every ordinary exec/mcp approval
+        // (see WCoreManager #390 — "a normal exec/mcp approval legitimately carries no
+        // resume token"), and that wait is already paused by this call's
+        // `tool:${call_id}` reason and released by its tool_result. Pausing on it here
+        // would add an `approval:undefined` reason that NOTHING ever resumes — the user's
+        // answer goes back via approveTool()/tool_approve, not approval_resume — wedging
+        // the watchdog paused for the rest of the turn and silently restoring the very
+        // #746 hang this fix exists to kill.
+        if (event.resume_token) this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'approval_required',
           data: {
@@ -943,7 +954,9 @@ export class WCoreAgent {
 
       case 'suspend':
         // #746: engine suspended awaiting an out-of-band resume — not agent inactivity.
-        this.pauseStallWatchdog(`approval:${event.resume_token}`);
+        // Same token guard as approval_required: a reason we can never resume would wedge
+        // the watchdog paused for the rest of the turn.
+        if (event.resume_token) this.pauseStallWatchdog(`approval:${event.resume_token}`);
         this.onStreamEvent({
           type: 'suspend',
           data: { reason: event.reason, resumeToken: event.resume_token },

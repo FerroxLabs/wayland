@@ -192,6 +192,47 @@ describe('WCoreAgent turn stall watchdog (#746)', () => {
     expect(stallErrors(onStreamEvent)).toHaveLength(1);
   });
 
+  // In INTERACTIVE mode the engine emits a token-LESS `approval_required` as a parallel
+  // signal on every ordinary exec/mcp approval (WCoreManager #390: "a normal exec/mcp
+  // approval legitimately carries no resume token"). That wait is already covered by the
+  // call's tool_request/tool_result pause, and the user's answer returns via
+  // approveTool()/tool_approve — NOT approval_resume. So pausing on it would add a reason
+  // nothing can ever resume, wedging the watchdog paused for the rest of the turn and
+  // silently restoring the #746 hang. The watchdog must still fire after the tool finishes.
+  it('is NOT wedged by a token-less approval_required (the ordinary interactive approval)', async () => {
+    const onStreamEvent = vi.fn<(e: StreamEvent) => void>();
+    const agent = makeAgent(onStreamEvent);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await startTurn(agent);
+    dispatch(agent, {
+      type: 'tool_request',
+      msg_id: MSG,
+      call_id: 'c1',
+      tool: { name: 'bash', description: 'Execute: rm -rf build' },
+    });
+    // The engine's parallel signal for a normal approval — no resume_token.
+    dispatch(agent, { type: 'approval_required', call_id: 'c1', reason: 'destructive_operation', context: '' });
+
+    // User approves via the Confirming card → tool runs → result. No approval_resume ever
+    // arrives, so an `approval:undefined` reason would never be cleared.
+    dispatch(agent, {
+      type: 'tool_result',
+      msg_id: MSG,
+      call_id: 'c1',
+      tool_name: 'bash',
+      status: 'success',
+      output: 'ok',
+      output_type: 'text',
+    });
+
+    // The agent now owes us progress. If the watchdog were wedged paused, this would
+    // never fire and the 24h hang would be back.
+    vi.advanceTimersByTime(TIMEOUT_MS + 1);
+    expect(stallErrors(onStreamEvent)).toHaveLength(1);
+  });
+
   it('is PAUSED across a suspend/resume window (out-of-band engine wait)', async () => {
     const onStreamEvent = vi.fn<(e: StreamEvent) => void>();
     const agent = makeAgent(onStreamEvent);
