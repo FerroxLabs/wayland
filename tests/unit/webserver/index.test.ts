@@ -298,7 +298,16 @@ describe('startWebServerWithInstance default admin initialization', () => {
  * only place a "you are exposed" guarantee can actually hold.
  */
 describe('#722: every LAN bind announces itself', () => {
+  let priorDisplay: string | undefined;
+
   beforeEach(() => {
+    // getServerIP() treats Linux-without-DISPLAY as headless and makes a REAL HTTPS call
+    // to api.ipify.org for a public IP. That is live on an ubuntu CI runner (and dead on
+    // a mac), so the URL under assertion would differ by platform. Pin the desktop branch
+    // so this test measures OUR announcement, not the runner's network.
+    priorDisplay = process.env.DISPLAY;
+    process.env.DISPLAY = ':0';
+
     vi.resetModules();
     vi.clearAllMocks();
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -309,6 +318,8 @@ describe('#722: every LAN bind announces itself', () => {
   });
 
   afterEach(() => {
+    if (priorDisplay === undefined) delete process.env.DISPLAY;
+    else process.env.DISPLAY = priorDisplay;
     vi.restoreAllMocks();
   });
 
