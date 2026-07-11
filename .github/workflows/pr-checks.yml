@@ -191,6 +191,25 @@ jobs:
   # failed, so a single failing unit test anywhere blocks the merge. GitHub's
   # `needs.<job>.result` for a matrix job is success only when every cell
   # succeeded.
+  #
+  # The `always()` guard is LOAD-BEARING — do NOT "fix" it to `!cancelled()`.
+  # It is tempting, because on a run cancelled by the concurrency group above
+  # `needs.unit-tests.result` is "cancelled", which trips the != "success" check
+  # and stamps a red required check from a dead run (three of them, so it reads as
+  # "unit tests failing on all three platforms" when nothing is broken at all).
+  # But `!cancelled()` would SKIP these jobs on a cancelled run, and GitHub counts
+  # a skipped required check as a PASS. Since the live run publishes no
+  # "Unit Tests (<os>)" check until all 12 shards finish (~10-20 min), the PR would
+  # go CLEAN — and auto-merge would fire — while the real tests were still running.
+  # That trades a cosmetic false-red for a fail-open merge gate. Never do it.
+  #
+  # So the red stays (it is fail-closed and correct), and the step below instead
+  # makes the superseded case unmistakable in the log + job summary. The stale red
+  # is transient: the newest run stamps these same check names and supersedes it.
+  #
+  # KNOWN LIMITATION (follow-up): each aggregator gates on the WHOLE 12-cell matrix,
+  # so one macOS-only shard failure also reds out "Unit Tests (ubuntu-latest)" and
+  # "Unit Tests (windows-2022)". Per-OS gating needs the matrix restructured.
   unit-tests-ubuntu:
     name: Unit Tests (ubuntu-latest)
     if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
@@ -201,11 +220,30 @@ jobs:
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
         run: |
-          if [ "$SHARDS_RESULT" != "success" ]; then
-            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          if [ "$SHARDS_RESULT" = "success" ]; then
+            echo "All unit-test shards passed."
+            exit 0
+          fi
+
+          if [ "$SHARDS_RESULT" = "cancelled" ]; then
+            echo "::warning::SUPERSEDED RUN - NOT A REAL TEST FAILURE. The shards were cancelled because a newer run replaced this one for the same PR. The newest run is authoritative."
+            {
+              echo "### Superseded run - NOT a real test failure"
+              echo ""
+              echo 'The unit-test shards were `cancelled`: a newer run replaced this one for the'
+              echo 'same PR (the `pr-checks-<pr>` concurrency group is `cancel-in-progress`).'
+              echo ""
+              echo 'This job still fails **on purpose** - a required check must never report green'
+              echo 'when the tests it gates did not actually run. The red is correct but STALE: the'
+              echo 'newest run stamps its own verdict on these same check names and supersedes it.'
+              echo ""
+              echo '**Do not go bug-hunting.** Open the newest `PR Checks` run for this commit.'
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          echo "All unit-test shards passed."
+
+          echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          exit 1
 
   unit-tests-macos:
     name: Unit Tests (macos-14)
@@ -217,11 +255,30 @@ jobs:
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
         run: |
-          if [ "$SHARDS_RESULT" != "success" ]; then
-            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          if [ "$SHARDS_RESULT" = "success" ]; then
+            echo "All unit-test shards passed."
+            exit 0
+          fi
+
+          if [ "$SHARDS_RESULT" = "cancelled" ]; then
+            echo "::warning::SUPERSEDED RUN - NOT A REAL TEST FAILURE. The shards were cancelled because a newer run replaced this one for the same PR. The newest run is authoritative."
+            {
+              echo "### Superseded run - NOT a real test failure"
+              echo ""
+              echo 'The unit-test shards were `cancelled`: a newer run replaced this one for the'
+              echo 'same PR (the `pr-checks-<pr>` concurrency group is `cancel-in-progress`).'
+              echo ""
+              echo 'This job still fails **on purpose** - a required check must never report green'
+              echo 'when the tests it gates did not actually run. The red is correct but STALE: the'
+              echo 'newest run stamps its own verdict on these same check names and supersedes it.'
+              echo ""
+              echo '**Do not go bug-hunting.** Open the newest `PR Checks` run for this commit.'
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          echo "All unit-test shards passed."
+
+          echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          exit 1
 
   unit-tests-windows:
     name: Unit Tests (windows-2022)
@@ -233,11 +290,30 @@ jobs:
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
         run: |
-          if [ "$SHARDS_RESULT" != "success" ]; then
-            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          if [ "$SHARDS_RESULT" = "success" ]; then
+            echo "All unit-test shards passed."
+            exit 0
+          fi
+
+          if [ "$SHARDS_RESULT" = "cancelled" ]; then
+            echo "::warning::SUPERSEDED RUN - NOT A REAL TEST FAILURE. The shards were cancelled because a newer run replaced this one for the same PR. The newest run is authoritative."
+            {
+              echo "### Superseded run - NOT a real test failure"
+              echo ""
+              echo 'The unit-test shards were `cancelled`: a newer run replaced this one for the'
+              echo 'same PR (the `pr-checks-<pr>` concurrency group is `cancel-in-progress`).'
+              echo ""
+              echo 'This job still fails **on purpose** - a required check must never report green'
+              echo 'when the tests it gates did not actually run. The red is correct but STALE: the'
+              echo 'newest run stamps its own verdict on these same check names and supersedes it.'
+              echo ""
+              echo '**Do not go bug-hunting.** Open the newest `PR Checks` run for this commit.'
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          echo "All unit-test shards passed."
+
+          echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+          exit 1
 
   # Job 3: Coverage test (Linux only) + Codecov upload
   coverage-tests:
