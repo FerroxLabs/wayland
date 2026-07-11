@@ -173,6 +173,13 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     '503 Service Unavailable',
     'Overloaded',
     'request timed out',
+    'Internal server error', // OpenAI 500 prose
+    'fetch failed', // undici's generic network error — very common
+    'network error',
+    'Bad Gateway',
+    'UNAVAILABLE', // bare gRPC/Gemini status
+    'EAI_AGAIN', // DNS
+    'Premature close',
   ];
   for (const msg of TRANSIENT) {
     it(`replays the transient "${msg}"`, async () => {
@@ -305,6 +312,22 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
 
     expect(host.lifecycle.setAuthPendingForPrompt).not.toHaveBeenCalled(); // did not race the respawn
     expect(executor.hasPending()).toBe(true); // prompt preserved for whoever owns recovery
+  });
+
+  it('does not re-queue an AUTH_REQUIRED turn that had already run a tool', async () => {
+    // The re-queue is what makes AUTH safe to replay: the agent refused to run, so
+    // nothing happened. If a tool DID run before the auth demand — and the session has
+    // left 'prompting', so the respawn's flush owns the queue — handing the prompt back
+    // would replay a tool-bearing turn through flush() → execute(), which never checks
+    // turnRanTool. Both conditions must hold, not just the code.
+    prompt.mockImplementationOnce(() => {
+      executor.noteToolActivity();
+      host.status = 'resuming';
+      return Promise.reject(new AcpError('AUTH_REQUIRED', 'login required', { retryable: true }));
+    });
+
+    await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+    expect(executor.hasPending()).toBe(false); // dropped, not handed to the respawn
   });
 
   it('cancelAll() also aborts an in-flight backoff', async () => {

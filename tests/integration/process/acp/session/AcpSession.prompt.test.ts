@@ -444,4 +444,97 @@ describe('AcpSession prompt flow', () => {
     expect(events.indexOf('loadSession:1')).toBeGreaterThanOrEqual(0);
     expect(events.indexOf('loadSession:1')).toBeLessThan(events.indexOf('prompt:1'));
   });
+
+  /**
+   * The re-queue on a non-prompting exit must be gated on "nothing has happened yet".
+   *
+   * An unconditional unshift looked right and was a back door: it re-queued THE DEAD
+   * TURN'S OWN PROMPT, and resumeFromDisconnect's flushPendingPrompt() then replayed
+   * it — through flush() → execute(), which never consults turnRanTool. A turn that
+   * had already run `rm -rf` got run again. These two tests pin the distinction that
+   * makes it safe: the dead turn's prompt is dropped, a queued follow-up is not.
+   */
+  it('a crashed turn that already ran a tool is NOT replayed on the respawned session (#774)', async () => {
+    const clients: AcpClient[] = [];
+    let disconnect!: () => void;
+    clientFactory = {
+      create: vi.fn(() => {
+        const c = createMockClient();
+        (c.onDisconnect as ReturnType<typeof vi.fn>).mockImplementation((cb: () => void) => {
+          disconnect = cb;
+        });
+        clients.push(c);
+        return c;
+      }),
+    };
+
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    let killTurn!: (e: unknown) => void;
+    (clients[0].prompt as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
+      // The tool RAN. Whatever happens next, this turn must never be sent again.
+      handlersOf().onSessionUpdate({
+        sessionId: 'sess-1',
+        update: { sessionUpdate: 'tool_call', toolCallId: 't1', title: 'rm -rf build', status: 'in_progress' },
+      } as unknown as SessionNotification);
+      return new Promise((_r, reject) => {
+        killTurn = reject;
+      });
+    });
+
+    const send = session.sendMessage('rm -rf build').catch(() => {});
+    await vi.waitFor(() => expect(session.status).toBe('prompting'));
+
+    disconnect();
+    killTurn(new AcpError('PROCESS_CRASHED', 'ACP connection closed', { retryable: true }));
+    await send;
+
+    await vi.waitFor(() => expect(clients.length).toBe(2));
+    await new Promise((r) => setTimeout(r, 250)); // let the respawn finish and flush
+
+    expect(clients[1].prompt).not.toHaveBeenCalled();
+  });
+
+  it('but a QUEUED follow-up still survives the crash and is delivered after the respawn (#774)', async () => {
+    const clients: AcpClient[] = [];
+    let disconnect!: () => void;
+    clientFactory = {
+      create: vi.fn(() => {
+        const c = createMockClient();
+        (c.onDisconnect as ReturnType<typeof vi.fn>).mockImplementation((cb: () => void) => {
+          disconnect = cb;
+        });
+        clients.push(c);
+        return c;
+      }),
+    };
+
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    let killTurn!: (e: unknown) => void;
+    (clients[0].prompt as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () =>
+        new Promise((_r, reject) => {
+          killTurn = reject;
+        })
+    );
+
+    const send = session.sendMessage('first').catch(() => {});
+    await vi.waitFor(() => expect(session.status).toBe('prompting'));
+    void session.sendMessage('queued-follow-up'); // never sent — nothing ran for it
+
+    disconnect();
+    killTurn(new AcpError('PROCESS_CRASHED', 'ACP connection closed', { retryable: true }));
+    await send;
+
+    await vi.waitFor(() => expect(clients.length).toBe(2));
+    await vi.waitFor(() => expect(clients[1].prompt).toHaveBeenCalled(), { timeout: 3000 });
+
+    const sent = (clients[1].prompt as ReturnType<typeof vi.fn>).mock.calls[0][1] as Array<{ text: string }>;
+    expect(sent[0].text).toBe('queued-follow-up');
+  });
 });

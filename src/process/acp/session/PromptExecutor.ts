@@ -58,7 +58,7 @@ const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTER
  * the provider's `data`, so both prose and machine-readable codes land here.
  */
 const TRANSIENT_DETAIL =
-  /\b5\d\d\b|connection\s+(error|reset|closed|refused)|econnreset|econnrefused|epipe|etimedout|socket\s+hang\s*up|timed?\s*out|timeout|overloaded|temporarily\s+unavailable|service\s+unavailable|try\s+again|upstream\s+(connect\s+)?(error|disconnect)/i;
+  /\b5\d\d\b|connection\s+(error|reset|closed|refused)|econnreset|econnrefused|epipe|etimedout|econnaborted|eai_again|socket\s+hang\s*up|timed?\s*out|timeout|overloaded|temporarily\s+unavailable|service\s+unavailable|\bunavailable\b|try\s+again|upstream\s+(connect\s+)?(error|disconnect)|internal\s+server\s+error|had\s+an\s+error\s+while\s+processing|fetch\s+failed|network\s+error|bad\s+gateway|premature\s+close|other\s+side\s+closed|stream\s+(closed|disconnected)/i;
 
 /** Overridable so tests can drive the retry path without sleeping for real. */
 export type PromptRetryOptions = {
@@ -301,7 +301,20 @@ export class PromptExecutor {
     // the respawn is mid-way through spawning. Preserve the prompt and get out of the
     // way — whoever owns recovery will flush it.
     if (this.host.status !== 'prompting') {
-      this.pendingPrompts.unshift(content);
+      // Hand the prompt back ONLY when replaying it is still side-effect-free.
+      //
+      // AUTH_REQUIRED is a framed answer from a LIVE agent that refused to run: nothing
+      // happened, so the prompt should replay once the user logs in. Anything else here
+      // means the turn died MID-FLIGHT, and on a dead stream we cannot know what it had
+      // already done — the pipe can swallow the very `tool_call` that would have told us.
+      // Re-queueing that hands the respawn's `flushPendingPrompt()` a turn that may have
+      // already run `rm`, and flush() → execute() never consults `turnRanTool`, so it
+      // would walk straight around the double-execution guard. Same reasoning that keeps
+      // PROCESS_CRASHED out of REPLAYABLE_PROMPT_CODES.
+      //
+      // A QUEUED FOLLOW-UP (never sent, parked by setPending) is untouched by this and is
+      // still flushed by the respawn — that is a different prompt, and nothing ran for it.
+      if (acpErr.code === 'AUTH_REQUIRED' && !this.turnRanTool) this.pendingPrompts.unshift(content);
       throw acpErr;
     }
 
