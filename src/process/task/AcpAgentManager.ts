@@ -424,11 +424,12 @@ ${collectedResponses.join('\n')}`;
     const finishMessage: IResponseMessage = {
       ...(message as IResponseMessage),
       conversation_id: this.conversation_id,
-      // #787: stamp the producing turn so TeammateManager can key its dedup by
-      // (conversation, turn). Only set from callers that hold an explicit,
-      // race-free turnId (the synthesized-finish fallbacks); the signal-channel
-      // finish has no reliable turn provenance desktop-side (that requires
-      // wayland-core to stamp the terminal event) and is left conversation-keyed.
+      // #787: carry the producing turn so TeammateManager keys its dedup by
+      // (conversation, turn). The real signal finish already carries the
+      // engine's per-turn `turn_id` on `message` (spread above, wired from
+      // AcpConnection via handleEndTurn — this now covers the signal path that
+      // core PR #219 unblocked); the synthesized-finish fallbacks have no id on
+      // `message` and pass it explicitly via `options.turnId`.
       ...(options.turnId !== undefined ? { turnId: options.turnId } : {}),
     };
     ipcBridge.acpConversation.responseStream.emit(finishMessage);

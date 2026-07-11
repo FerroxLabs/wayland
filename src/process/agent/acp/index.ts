@@ -215,8 +215,8 @@ export class AcpAgent {
     this.connection.onPermissionRequest = (data: AcpPermissionRequest) => {
       return this.handlePermissionRequest(data);
     };
-    this.connection.onEndTurn = () => {
-      this.handleEndTurn();
+    this.connection.onEndTurn = (turnId) => {
+      this.handleEndTurn(turnId);
     };
     this.connection.onPromptUsage = (usage: AcpPromptResponseUsage) => {
       this.handlePromptUsage(usage);
@@ -1259,7 +1259,7 @@ export class AcpAgent {
     });
   }
 
-  private handleEndTurn(): void {
+  private handleEndTurn(turnId?: string): void {
     if (this.turnHasThought && !this.turnHasContent) {
       console.warn(
         `[ACP-STREAM] End turn with thought but no content (conversation=${this.id}, backend=${this.extra.backend})`
@@ -1273,6 +1273,10 @@ export class AcpAgent {
         conversation_id: this.id,
         msg_id: uuid(),
         data: null,
+        // #787: carry the engine's per-turn turn_id so TeammateManager dedups
+        // this real signal finish by (conversation, turn) and a late duplicate
+        // after a re-wake can't fire a second idle_notification.
+        ...(turnId !== undefined ? { turnId } : {}),
       });
     }
   }
