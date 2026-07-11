@@ -53,6 +53,7 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   'claude-opus-4-5': 200_000,
   'claude-opus-4-1': 200_000,
   'claude-opus-4': 200_000,
+  'claude-sonnet-5': 1_000_000,
   'claude-sonnet-4-6': 1_000_000,
   'claude-sonnet-4-5': 200_000,
   'claude-sonnet-4': 200_000,
@@ -69,26 +70,32 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   // and only honors the three ANTHROPIC_MODEL aliases, so it reports its current
   // model as a bare SLOT (`opus`/`sonnet`/`haiku`) rather than a catalog id - see
   // CLAUDE_SLOT_MODELS in src/process/agent/acp/utils.ts. Without these rows the
-  // context meter cannot size a window from what the agent actually reports and
-  // silently falls back to DEFAULT_CONTEXT_LIMIT (1M) for EVERY slot - so Haiku
-  // (really 200K) showed a 1M denominator. (#733)
+  // meter cannot size a window from what the agent actually reports and falls back
+  // to DEFAULT_CONTEXT_LIMIT for EVERY slot - so Haiku (really 200K) showed a ~1M
+  // denominator. (#733)
   //
-  // The fuzzy match is longest-key-wins, so these short keys never shadow a full
-  // catalog id (`claude-3-opus` still resolves via its own 13-char key, not `opus`).
+  // Each alias is resolved LIVE against the claude CLI (`ANTHROPIC_MODEL=<slot>`,
+  // verified 2026-07-11):
+  //   opus   -> claude-opus-4-8            -> 1M
+  //   sonnet -> claude-sonnet-5            -> 1M   (#802)
+  //   haiku  -> claude-haiku-4-5-20251001  -> 200K
   //
-  // Only slots whose window we can state with CONFIDENCE are listed:
-  //   - `opus`: utils.ts verifies live that `--model opus` / `ANTHROPIC_MODEL=opus`
-  //     resolve to claude-opus-4-8 → 1M.
-  //   - `haiku`: version-independent - EVERY Haiku (4.5, 4.0, 3.5) is 200K, so the
-  //     window holds whichever one the alias picks.
-  // `sonnet` is deliberately OMITTED: its window depends on which Sonnet the alias
-  // resolves to (4.6 is 1M, but 4.5/4.0 are 200K) and that is NOT verified anywhere
-  // in-repo. Guessing 1M would show a 1M denominator for a 200K model - the exact
-  // over-sized-max half of this bug. Omitted, it falls through to
-  // DEFAULT_CONTEXT_LIMIT, i.e. today's behaviour - no better, but no new lie.
-  // Verify the alias against the claude CLI (as was done for opus) before adding it.
-  opus: 1_000_000, // → claude-opus-4-8 (verified)
-  haiku: 200_000, // → any claude-haiku-* (all 200K)
+  // These short keys stay in the FUZZY table ON PURPOSE. Real catalog ids like
+  // `claude-4.5-haiku`, `anthropic/claude-haiku-latest` and `duo-chat-haiku-4-5`
+  // match NONE of the `claude-haiku-*` keys above and reach 200K only through the
+  // bare `haiku` key. Moving the slots to an exact-match-only table sounds safer
+  // but is strictly worse: those ids then fall through to DEFAULT_CONTEXT_LIMIT
+  // (1,048,576) - a 5.2x over-size on a 200K window. Every Haiku ever shipped is
+  // 200K, so the bare key cannot over-size anything.
+  //
+  // The bare keys do NOT rescue ids like `opus-4-5`/`sonnet-4` (really 200K, still
+  // sized ~1M) - but removing them does not either, because DEFAULT_CONTEXT_LIMIT
+  // is itself LARGER than 1M. That over-sizing belongs to the optimistic default,
+  // not to these keys. Tracked separately (#807) - a too-large default is the
+  // unsafe direction: it promises headroom that isn't there.
+  opus: 1_000_000,
+  sonnet: 1_000_000,
+  haiku: 200_000,
 };
 
 /**
