@@ -575,6 +575,16 @@ async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
   throw lastErr instanceof Error ? lastErr : new Error('EBUSY retry exhausted');
 }
 
+/**
+ * Verify-probe timeout. Defaults to 5s in prod; overridable via env (same
+ * pattern as IJFW_AUTO_INSTALL) so tests can drive the timeout path in real
+ * time instead of interleaving real fs macrotasks with a fake clock.
+ */
+function resolveVerifyTimeoutMs(): number {
+  const raw = Number(process.env.IJFW_SPAWN_VERIFY_TIMEOUT_MS);
+  return Number.isFinite(raw) && raw > 0 ? raw : 5000;
+}
+
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
@@ -616,7 +626,7 @@ async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
       resolve(value);
     };
 
-    const timeout = setTimeout(() => settle(false), 5000);
+    const timeout = setTimeout(() => settle(false), resolveVerifyTimeoutMs());
     let buf: Buffer = Buffer.alloc(0);
 
     child.stdout?.on('data', (chunk: Buffer) => {

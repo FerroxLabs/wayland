@@ -303,36 +303,33 @@ describe('ijfwSystemService.applyPendingUpgrade', () => {
   it('#721: spawn-test settles false via its 5s timeout when the child emits only garbage', async () => {
     // No current install seeded → the failed verify has no `.prev` to roll
     // back to, so the flow exits via upgrade_failed_no_rollback after a
-    // SINGLE spawn-test - one 5s timer to advance.
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    // SINGLE spawn-test.
+    //
+    // #806: the previous version faked the clock and hand-interleaved REAL fs
+    // macrotasks with fake-clock advances across 200 rounds — settlement then
+    // depended on how many real event-loop turns the OS granted per round,
+    // which starves under parallel CI shard load and hangs (false red on the
+    // merge train). Instead we shrink the verify timeout to a small REAL value
+    // and run with real timers: the garbage child never produces a valid reply
+    // and never exits, so the real timeout is the only settle path and the flow
+    // completes deterministically in real time — no fake/real interleaving.
+    const prevTimeout = process.env.IJFW_SPAWN_VERIFY_TIMEOUT_MS;
+    process.env.IJFW_SPAWN_VERIFY_TIMEOUT_MS = '30';
     try {
       writePendingDir();
       spawnSpy.mockImplementation(() => makeGarbageOnlyChild());
 
-      let settled = false;
-      const run = ijfwSystemService.applyPendingUpgrade().finally(() => {
-        settled = true;
-      });
-      // Interleave real macrotask flushes (child emits via setImmediate, fs is
-      // real) with fake-clock advances until the flow has created and fired
-      // the 5s verify timeout and run to completion.
-      for (let i = 0; i < 200 && !settled; i++) {
-        for (let j = 0; j < 4; j++) await flush();
-        await vi.advanceTimersByTimeAsync(500);
-      }
-      await run;
+      await ijfwSystemService.applyPendingUpgrade();
 
       expect(spawnSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenCalledWith(
         expect.objectContaining({ status: 'install_failed', errorReason: 'upgrade_failed_no_rollback' })
       );
     } finally {
-      vi.useRealTimers();
+      if (prevTimeout === undefined) delete process.env.IJFW_SPAWN_VERIFY_TIMEOUT_MS;
+      else process.env.IJFW_SPAWN_VERIFY_TIMEOUT_MS = prevTimeout;
     }
-    // The settle loop interleaves up to 200 rounds of real macrotask flushes
-    // with fake-clock advances; on loaded CI shards that legitimately exceeds
-    // the default 10s wall budget (observed flaking PR merge runs).
-  }, 30_000);
+  });
 
   it('Checkpoint B B2: acquires installLock and short-circuits when one is already held', async () => {
     // Pre-seed a lockfile that matches the current host+boot and points at the
