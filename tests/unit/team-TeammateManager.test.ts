@@ -30,6 +30,12 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: vi.fn(async () => null) },
 }));
+// #787: finalizeTurn reads the last assistant excerpt from the DB for the leader
+// notification; keep it hermetic (no real SQLite) — an empty result yields the
+// bare "Turn completed" notification, which is all the dedup tests care about.
+vi.mock('@process/services/database', () => ({
+  getDatabase: vi.fn(async () => ({ getConversationMessages: () => ({ data: [] }) })),
+}));
 
 import { TeammateManager, computeUsageDelta } from '@process/team/TeammateManager';
 import { teamEventBus } from '@process/team/teamEventBus';
@@ -925,6 +931,92 @@ describe('TeammateManager', () => {
 
       // No IPC calls should have been made for unowned conversation
       expect(mockIpcBridge.team.agentStatusChanged.emit).not.toHaveBeenCalled();
+      mgr.dispose();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // #787: finalize dedup keyed by (conversation, turn) survives re-wake
+  // -------------------------------------------------------------------------
+
+  describe('#787 finalize dedup survives re-wake', () => {
+    const idleWrites = (mailbox: Mailbox): number =>
+      (mailbox.write as ReturnType<typeof vi.fn>).mock.calls.filter(
+        ([m]) => (m as { type?: string }).type === 'idle_notification'
+      ).length;
+
+    // finalizeTurn runs fire-and-forget off the sync stream handler and awaits a
+    // DB read + mailbox write; drain those real macrotasks before asserting.
+    const drain = async (): Promise<void> => {
+      for (let i = 0; i < 6; i++) await new Promise((r) => setTimeout(r, 0));
+    };
+
+    function makeLeaderAndMember() {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+      });
+      const teammate = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'idle',
+        agentName: 'Codex',
+      });
+      const harness = makeTeammateManager([leadAgent, teammate]);
+      const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(harness.workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: mockSendMessage,
+      } as never);
+      return harness;
+    }
+
+    const finish = (conversationId: string, msgId: string, turnId?: number) =>
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: conversationId,
+        msg_id: msgId,
+        data: null,
+        ...(turnId === undefined ? {} : { turnId }),
+      });
+
+    it('suppresses a late duplicate of the SAME turn arriving after a re-wake', async () => {
+      const { mgr, mailbox } = makeLeaderAndMember();
+
+      await mgr.wake('slot-member');
+      finish('conv-member', 'm1', 1); // turn 1 finishes -> one leader notification
+      await drain();
+      expect(idleWrites(mailbox)).toBe(1);
+
+      // Agent re-woken: wake() clears the conversation-level fallback key. A
+      // straggler duplicate of turn 1 then arrives. Pre-#787 (conversation-only
+      // keying) this slipped past the just-cleared dedup and fired a SECOND
+      // notification; per-turn keying keeps turn 1 deduped across the re-wake.
+      await mgr.wake('slot-member');
+      finish('conv-member', 'm1-dup', 1);
+      await drain();
+      expect(idleWrites(mailbox)).toBe(1);
+
+      mgr.dispose();
+    });
+
+    it('still finalizes a genuinely new turn after a re-wake (no over-dedup)', async () => {
+      const { mgr, mailbox } = makeLeaderAndMember();
+
+      await mgr.wake('slot-member');
+      finish('conv-member', 'm1', 1);
+      await drain();
+      expect(idleWrites(mailbox)).toBe(1);
+
+      // A real second turn (distinct turnId) MUST notify — the fix must not
+      // collapse legitimately separate turns.
+      await mgr.wake('slot-member');
+      finish('conv-member', 'm2', 2);
+      await drain();
+      expect(idleWrites(mailbox)).toBe(2);
+
       mgr.dispose();
     });
   });

@@ -359,14 +359,14 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
         data: null,
       },
       this.options.backend,
-      { trackActiveTurn: false }
+      { trackActiveTurn: false, turnId }
     );
   }
 
   private async handleFinishSignal(
     message: IResponseMessage,
     backend: AcpBackend,
-    options: { trackActiveTurn?: boolean } = {}
+    options: { trackActiveTurn?: boolean; turnId?: number } = {}
   ): Promise<void> {
     if (options.trackActiveTurn !== false) {
       this.markActiveTurnFinished();
@@ -424,6 +424,12 @@ ${collectedResponses.join('\n')}`;
     const finishMessage: IResponseMessage = {
       ...(message as IResponseMessage),
       conversation_id: this.conversation_id,
+      // #787: stamp the producing turn so TeammateManager can key its dedup by
+      // (conversation, turn). Only set from callers that hold an explicit,
+      // race-free turnId (the synthesized-finish fallbacks); the signal-channel
+      // finish has no reliable turn provenance desktop-side (that requires
+      // wayland-core to stamp the terminal event) and is left conversation-keyed.
+      ...(options.turnId !== undefined ? { turnId: options.turnId } : {}),
     };
     ipcBridge.acpConversation.responseStream.emit(finishMessage);
     teamEventBus.emit('responseStream', finishMessage);
@@ -487,7 +493,7 @@ ${collectedResponses.join('\n')}`;
               data: null,
             },
             this.options.backend,
-            { trackActiveTurn: false }
+            { trackActiveTurn: false, turnId }
           );
         }
         return result;
@@ -518,7 +524,7 @@ ${collectedResponses.join('\n')}`;
           data: null,
         },
         this.options.backend,
-        { trackActiveTurn: false }
+        { trackActiveTurn: false, turnId }
       );
       return result;
     } catch (error) {
