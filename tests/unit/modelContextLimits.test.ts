@@ -145,17 +145,50 @@ describe('Claude ACP slot aliases resolve to a real window (#733)', () => {
     expect(getModelContextLimit('opus')).toBe(1_000_000);
   });
 
-  // `sonnet` is deliberately NOT in the table: which Sonnet the alias resolves to
-  // (4.6 = 1M vs 4.5/4.0 = 200K) is unverified, and guessing 1M would show an
-  // over-sized max for a 200K model. It must keep falling through to the default.
-  it('leaves the UNVERIFIED sonnet slot on the default rather than guessing', () => {
-    expect(getModelContextLimit('sonnet')).toBe(DEFAULT_CONTEXT_LIMIT);
+  // #733 left `sonnet` on the default because which Sonnet the alias resolved to was
+  // UNVERIFIED (4.6 = 1M vs 4.5/4.0 = 200K) and guessing 1M would have shown an
+  // over-sized max for a 200K model. It is now verified live (#802): the alias
+  // resolves to claude-sonnet-5, which models.dev puts at 1M. No longer a guess.
+  it('resolves the sonnet slot to 1M (ANTHROPIC_MODEL=sonnet -> claude-sonnet-5)', () => {
+    expect(getModelContextLimit('sonnet')).toBe(1_000_000);
+    expect(getModelContextLimit('sonnet')).not.toBe(DEFAULT_CONTEXT_LIMIT);
+  });
+
+  it('knows the Claude 5 family the static table used to miss entirely', () => {
+    expect(getModelContextLimit('claude-sonnet-5')).toBe(1_000_000);
+    // A dated/variant id must fuzzy-match the family row, not the default.
+    expect(getModelContextLimit('claude-sonnet-5-20260101')).toBe(1_000_000);
   });
 
   // The slot rows duplicate a family row's literal; pin them so they cannot drift.
   it('keeps the slot rows in lockstep with the model they alias', () => {
     expect(getModelContextLimit('opus')).toBe(getModelContextLimit('claude-opus-4-8'));
+    expect(getModelContextLimit('sonnet')).toBe(getModelContextLimit('claude-sonnet-5'));
     expect(getModelContextLimit('haiku')).toBe(getModelContextLimit('claude-haiku-4-5'));
+  });
+
+  // REGRESSION GUARD. The bare `haiku` key looks like a fuzzy-matching hazard and
+  // is tempting to "harden" into an exact-match-only table. Doing that silently
+  // over-sizes every real Haiku id that matches none of the `claude-haiku-*` keys:
+  // they fall through to DEFAULT_CONTEXT_LIMIT (1,048,576) on a 200K window - a
+  // 5.2x over-size, i.e. the meter promises 5x the headroom that exists. All of
+  // these ids are real and present in resources/modelsdev-snapshot.json.
+  //
+  // Note the assertion is `toBe(200_000)`, NOT `not.toBe(1_000_000)`: DEFAULT is
+  // 1,048,576, so a "not 1M" assertion PASSES on the over-sized default and would
+  // certify this very regression as a fix.
+  it('sizes every real Haiku catalog id at 200K, not the ~1M default', () => {
+    for (const id of [
+      'claude-4.5-haiku',
+      'anthropic/claude-3.5-haiku',
+      'anthropic/claude-haiku-latest',
+      'duo-chat-haiku-4-5',
+      'claude-haiku-4-5',
+      'haiku',
+    ]) {
+      expect(getModelContextLimit(id)).toBe(200_000);
+      expect(getModelContextLimit(id)).not.toBe(DEFAULT_CONTEXT_LIMIT);
+    }
   });
 
   it('resolves the haiku slot to 200K - NOT the 1M default', () => {
