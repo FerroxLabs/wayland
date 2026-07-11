@@ -27,10 +27,16 @@ describe('networkTrust - private-network classification (#83)', () => {
     expect(classifyClientTrust('172.15.0.1')).toBe('restricted');
   });
 
-  it('treats the Tailscale CGNAT range (100.64.0.0/10) as operator', () => {
-    expect(classifyClientTrust('100.105.198.32')).toBe('operator'); // the DGX reporter's tailnet IP
-    expect(classifyClientTrust('100.64.0.0')).toBe('operator');
-    expect(classifyClientTrust('100.127.255.255')).toBe('operator');
+  // 100.64.0.0/10 is RFC 6598 carrier-grade NAT space, NOT a Tailscale identity, so
+  // membership alone is no longer enough: the connection must have ARRIVED over the
+  // tailnet (#529). With no local address to prove that, a CGNAT peer FAILS CLOSED.
+  // The arrival-based cases live in tests/unit/webserver/networkTrust.test.ts, which
+  // mocks the host's interfaces; this file stays hermetic and asserts the fail-closed
+  // contract only.
+  it('treats a CGNAT peer (100.64.0.0/10) as restricted when arrival cannot be proven', () => {
+    expect(classifyClientTrust('100.105.198.32')).toBe('restricted');
+    expect(classifyClientTrust('100.64.0.0')).toBe('restricted');
+    expect(classifyClientTrust('100.127.255.255')).toBe('restricted');
     // 100.128 is OUTSIDE the /10 - public. 100.63 is below it - public.
     expect(classifyClientTrust('100.128.0.1')).toBe('restricted');
     expect(classifyClientTrust('100.63.0.1')).toBe('restricted');
