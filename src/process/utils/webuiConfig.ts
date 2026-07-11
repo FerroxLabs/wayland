@@ -105,4 +105,3 @@ export const restoreDesktopWebUIFromPreferences = async (): Promise<void> => {
     console.error('[WebUI] Failed to auto-restore from desktop preferences:', error);
   }
 };
-

@@ -1014,7 +1014,12 @@ const WebuiModalContent: React.FC = () => {
               </span>
             }
           >
-            <Switch checked={allowRemotePreference} onChange={handleAllowRemoteChange} loading={startLoading} disabled={startLoading} />
+            <Switch
+              checked={allowRemotePreference}
+              onChange={handleAllowRemoteChange}
+              loading={startLoading}
+              disabled={startLoading}
+            />
           </PreferenceRow>
 
           {/*
@@ -1031,9 +1036,7 @@ const WebuiModalContent: React.FC = () => {
               {status?.running ? (
                 <>
                   <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteActive')}</span>
-                  {status.networkUrl && (
-                    <span className='text-12px text-t-secondary ml-4px'>{status.networkUrl}</span>
-                  )}
+                  {status.networkUrl && <span className='text-12px text-t-secondary ml-4px'>{status.networkUrl}</span>}
                 </>
               ) : (
                 // The pref survives the server being switched off, so a present-tense

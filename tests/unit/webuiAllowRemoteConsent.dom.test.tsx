@@ -124,7 +124,9 @@ function lanSwitch(): HTMLElement {
 }
 
 async function mount(allowRemoteSaved: boolean, running = true) {
-  mockConfigGet.mockImplementation((key: string) => Promise.resolve(key === ALLOW_REMOTE_KEY ? allowRemoteSaved : true));
+  mockConfigGet.mockImplementation((key: string) =>
+    Promise.resolve(key === ALLOW_REMOTE_KEY ? allowRemoteSaved : true)
+  );
   mockGetStatus.mockResolvedValue({
     success: true,
     data: {
