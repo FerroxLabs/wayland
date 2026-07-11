@@ -11,8 +11,10 @@
  * detail panel (RightDrawer / Inspector) must NOT take down the whole memory
  * page. Before the fix there was no error boundary between RightDrawer and the
  * app-root boundary, so any throw blanked the entire app. FullPanelShell now
- * wraps RightDrawer in a keyed <ErrorBoundary>, so a detail-panel crash is
- * contained: the memory list stays mounted and switching entries recovers.
+ * wraps RightDrawer in an <ErrorBoundary resetKeys={[selectedId]}> - a
+ * resetKeys-based recovery (NOT a React key, which would remount the drawer and
+ * break its width transition), so a detail-panel crash is contained: the memory
+ * list stays mounted and selecting another entry clears the fallback.
  *
  * The real ErrorBoundary is intentionally NOT mocked here — it is the unit
  * under test. Everything else FullPanelShell pulls in is stubbed to keep the
@@ -153,12 +155,13 @@ describe('FullPanelShell detail-panel error boundary (#792)', () => {
     expect(screen.queryByTestId('right-drawer-stub')).toBeNull();
   });
 
-  it('recovers when a different entry is selected (boundary is keyed on selectedId)', () => {
+  it('recovers when a different entry is selected (boundary resetKeys on selectedId)', () => {
     const { rerender } = render(<FullPanelShell />);
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
 
     // Simulate the user selecting a different, healthy entry: the id changes and
-    // the drawer no longer throws. The keyed boundary remounts and recovers.
+    // the drawer no longer throws. selectedId is the boundary's resetKey, so the
+    // fallback clears and the healthy drawer renders (no remount of the drawer).
     drawerThrows = false;
     mockSelectedId = 'entry-B';
     rerender(<FullPanelShell />);
