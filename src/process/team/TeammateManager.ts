@@ -787,7 +787,7 @@ export class TeammateManager extends EventEmitter {
    * All agent coordination (send_message, task_create, etc.) is handled via MCP tool calls
    * in TeamMcpServer - this method only needs to manage lifecycle.
    */
-  private async finalizeTurn(conversationId: string, turnId?: number): Promise<void> {
+  private async finalizeTurn(conversationId: string, turnId?: string | number): Promise<void> {
     // #787: dedup per (conversation, turn). A late duplicate of a prior turn's
     // finish that arrives AFTER the agent was re-woken must still be suppressed,
     // yet the re-wake's own fresh turn must be free to finalize. Keying by

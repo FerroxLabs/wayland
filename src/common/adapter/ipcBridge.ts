@@ -1590,15 +1590,21 @@ export interface IResponseMessage {
   conversation_id: string;
   hidden?: boolean;
   /**
-   * #787: monotonic per-conversation turn id of the turn that PRODUCED this
-   * terminal (`finish`/`error`) event, stamped at emission by AcpAgentManager.
-   * TeammateManager keys its finalize-dedup on `${conversation_id}#${turnId}`
-   * so a late duplicate of a prior turn's finish (arriving after the agent was
-   * re-woken) can't collapse the re-wake's fresh dedup window. Absent for
-   * non-ACP / signal-channel finishes, which fall back to conversation-only
-   * keying (unchanged behaviour).
+   * #787: per-conversation turn id of the turn that PRODUCED this terminal
+   * (`finish`/`error`) event. TeammateManager keys its finalize-dedup on
+   * `${conversation_id}#${turnId}` so a late duplicate of a prior turn's finish
+   * (arriving after the agent was re-woken) can't collapse the re-wake's fresh
+   * dedup window. Two producers:
+   *  - the real ACP signal finish carries the engine's per-turn `turn_id` (a
+   *    string uuid = the turn's `msg_id`, stamped by wayland-core on the
+   *    `Done`/`Error` terminal frames, wired through here from AcpConnection);
+   *  - the desktop-synthesized fallback finishes carry the local sequential
+   *    `beginTrackedTurn()` id (a number).
+   * Both are stable-per-turn and distinct-across-turns, which is all the dedup
+   * key needs (it stringifies either). Absent for non-ACP finishes, which fall
+   * back to conversation-only keying (unchanged behaviour).
    */
-  turnId?: number;
+  turnId?: string | number;
 }
 
 export interface IConversationTurnCompletedEvent {
