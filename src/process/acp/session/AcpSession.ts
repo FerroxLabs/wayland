@@ -14,6 +14,7 @@ import { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
+import { loadWorkspaceApprovals, saveWorkspaceApproval } from '@process/acp/session/ApprovalPersistence';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
 import { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type {
@@ -108,6 +109,13 @@ export class AcpSession {
     this.permissionResolver = new PermissionResolver({
       autoApproveAll: agentConfig.yoloMode ?? false,
       cacheMaxSize: options?.approvalCacheMaxSize,
+      // #672: persist "allow always" grants per workspace (cwd) so they survive
+      // an app restart instead of re-prompting. hydrate loads them lazily on the
+      // first permission check; persist write-throughs new grants.
+      hydrate: () => loadWorkspaceApprovals(agentConfig.cwd),
+      persist: (cacheKey, optionId) => {
+        void saveWorkspaceApproval(agentConfig.cwd, cacheKey, optionId);
+      },
     });
 
     this.lifecycle = new SessionLifecycle(
