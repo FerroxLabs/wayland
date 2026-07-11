@@ -204,7 +204,9 @@ function singleForwardedValue(header: string | string[] | undefined): string | u
  * on a cross-origin credentialed request (the preflight OPTIONS never carries it).
  */
 export function deriveTrustedProxyOrigin(req: Request): string | null {
-  if (classifyClientTrust(req.socket?.remoteAddress) !== 'operator') {
+  // localAddress rides along so a CGNAT peer is only trusted when the connection
+  // actually ARRIVED over the tailnet, not merely because this host is on one (#529).
+  if (classifyClientTrust(req.socket?.remoteAddress, req.socket?.localAddress) !== 'operator') {
     return null;
   }
 
