@@ -166,9 +166,9 @@ describe('AcpSession prompt flow', () => {
     expect(thirdCallContent[0].text).toBe('third');
   });
 
-  // ─── F2: queued message survives a retryable turn error ──────────
+  // ─── F2: a retryable turn error is retried, and the queue survives it ──────
 
-  it('queued message is delivered after a retryable turn error (F2)', async () => {
+  it('retries the failed turn, then delivers the queued message (F2, #774)', async () => {
     const session = await startSession();
 
     const promptMock = client.prompt as ReturnType<typeof vi.fn>;
@@ -182,24 +182,30 @@ describe('AcpSession prompt flow', () => {
           rejectFirstTurn = reject;
         })
     );
-    // Second prompt succeeds.
+    // The retry of 'first' succeeds, then 'second' is flushed.
+    promptMock.mockImplementationOnce(() => Promise.resolve({ stopReason: 'end_turn' }));
     promptMock.mockImplementationOnce(() => Promise.resolve({ stopReason: 'end_turn' }));
 
-    // sendMessage('first') will reject (handlePromptError re-throws) — suppress the unhandled rejection.
-    const firstSend = session.sendMessage('first').catch(() => {});
+    const firstSend = session.sendMessage('first');
     await vi.waitFor(() => expect(session.status).toBe('prompting'));
 
     // Queue a follow-up while the first turn is in-flight.
     void session.sendMessage('second');
     expect(promptMock).toHaveBeenCalledTimes(1);
 
-    // Reject the first turn with a retryable AcpError.
+    // Fail the first turn transiently. Before #774 this DROPPED 'first' on the
+    // floor and went straight to 'second'; now the turn is retried, and only
+    // then does the queue drain. The send must not reject — the blip recovered.
     rejectFirstTurn(new AcpError('CONNECTION_FAILED', 'transient', { retryable: true }));
-    await firstSend;
+    await expect(firstSend).resolves.toBeUndefined();
 
-    // The queued 'second' message should still be delivered after the retryable error.
-    await vi.waitFor(() => expect(promptMock).toHaveBeenCalledTimes(2), { timeout: 2000 });
-    const secondCallContent = promptMock.mock.calls[1][1] as Array<{ type: string; text: string }>;
+    // 'first' is replayed (not skipped)...
+    const retryContent = promptMock.mock.calls[1][1] as Array<{ type: string; text: string }>;
+    expect(retryContent[0].text).toBe('first');
+
+    // ...and the queued 'second' still lands afterwards.
+    await vi.waitFor(() => expect(promptMock).toHaveBeenCalledTimes(3), { timeout: 5000 });
+    const secondCallContent = promptMock.mock.calls[2][1] as Array<{ type: string; text: string }>;
     expect(secondCallContent[0].text).toBe('second');
   });
 
