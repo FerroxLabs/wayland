@@ -154,6 +154,29 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * What actually reaches us is rarely prose: withErrorDetail JSON-stringifies the
+   * provider's `data`, so the message carries the MACHINE-READABLE code. An earlier
+   * cut of this regex ended in `\b`, and since `_` is a word character every one of
+   * these sailed through and got replayed 3x — including a live rate limit.
+   */
+  const providerCodes = [
+    'rate_limit_error', // Anthropic error.type
+    'insufficient_quota', // OpenAI
+    'context_length_exceeded', // OpenAI
+    'invalid_request_error', // Anthropic / OpenAI
+    'content_policy_violation',
+    'Error: Too Many Requests',
+  ];
+  for (const code of providerCodes) {
+    it(`does NOT replay the deterministic/limit code "${code}"`, async () => {
+      prompt.mockRejectedValue(providerBlip(`{"type":"${code}","message":"..."}`));
+
+      await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+      expect(prompt).toHaveBeenCalledTimes(1);
+    });
+  }
+
   // ─── Guard: never replay a turn that could already have had side effects ───
 
   it('does NOT replay a turn that already ran a tool — it could run it twice', async () => {
@@ -198,6 +221,27 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     expect(signals.some((s) => String(s.message ?? '').includes('retrying'))).toBe(false);
   });
 
+  it('cancel() ABORTS the backoff sleep rather than waiting it out', async () => {
+    // A real 5s backoff. cancel() must land while the sleep is in progress — a
+    // microtask would land before canRetryPrompt even runs, so the sleep would never
+    // be entered and the AbortSignal would go untested.
+    const slow = new PromptExecutor(host, 60_000, {
+      attempts: 3,
+      backoff: { initialMs: 5000, maxMs: 5000, factor: 1, jitter: 0 },
+    });
+    prompt.mockImplementationOnce(() => {
+      setTimeout(() => slow.cancel(), 50);
+      return Promise.reject(providerBlip());
+    });
+
+    const started = Date.now();
+    await expect(slow.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+
+    // Without the signal wired into sleepWithAbort, Stop lands ~5s late.
+    expect(Date.now() - started).toBeLessThan(2000);
+    expect(prompt).toHaveBeenCalledTimes(1);
+  });
+
   it('does not fire a retry into a client that was REPLACED during the backoff', async () => {
     // The real crash path: onDisconnect clears the client and resumeFromDisconnect
     // SYNCHRONOUSLY spawns a replacement, so a "is there a client?" check passes
@@ -231,8 +275,10 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 
-  it('stops retrying once the turn deadline is spent, so a turn cannot run 3x its timeout', async () => {
-    // A 0ms turn budget: the first failure is already past the deadline.
+  it('does not START a new retry past the deadline, so attempts cannot multiply the budget', async () => {
+    // NOT a hard turn duration — PromptTimer is an idle timer, so an attempt already
+    // streaming is bounded by idleness, as on main. This pins the attempt COUNT only.
+    // A 0ms budget: the first failure is already past the deadline.
     const shortLived = new PromptExecutor(host, 0, {
       attempts: 3,
       backoff: { initialMs: 5, maxMs: 5, factor: 1, jitter: 0 },

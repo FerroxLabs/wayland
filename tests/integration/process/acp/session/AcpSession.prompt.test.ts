@@ -1,10 +1,17 @@
 // tests/integration/process/acp/session/AcpSession.prompt.test.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import type {
+  RequestPermissionRequest,
+  SessionNotification,
+  WriteTextFileRequest,
+} from '@agentclientprotocol/sdk';
 import { AcpSession } from '@process/acp/session/AcpSession';
 import { AcpError } from '@process/acp/errors/AcpError';
 import type { AcpClient, ClientFactory } from '@process/acp/infra/IAcpClient';
-import type { AgentConfig, SessionCallbacks } from '@process/acp/types';
+import type { AgentConfig, ProtocolHandlers, SessionCallbacks } from '@process/acp/types';
 
 function createMockCallbacks(): SessionCallbacks {
   return {
@@ -283,5 +290,158 @@ describe('AcpSession prompt flow', () => {
     // Wait a tick to ensure no additional flush fires.
     await new Promise((r) => setTimeout(r, 50));
     expect(promptMock).toHaveBeenCalledTimes(2);
+  });
+  // ─── #774: the double-execution guard, wired end-to-end ────────────────────
+  //
+  // PromptExecutor only refuses to replay a turn if AcpSession actually TELLS it a
+  // tool ran. These pin that wiring: unit-testing noteToolActivity() directly
+  // proves nothing if no one calls it. Each case fails the turn with the one
+  // replayable error (-32603) and asserts the side effect suppresses the replay —
+  // and the control below proves the same turn WOULD have been replayed otherwise.
+
+  /** Capture the handlers AcpSession hands to the client, so we can drive them. */
+  function handlersOf(): ProtocolHandlers {
+    return (clientFactory.create as ReturnType<typeof vi.fn>).mock.calls[0][1] as ProtocolHandlers;
+  }
+
+  function blip() {
+    return new AcpError('AGENT_INTERNAL_ERROR', 'Connection error', { retryable: true });
+  }
+
+  it('CONTROL: a blip with no tool activity IS replayed', async () => {
+    const session = await startSession();
+    const promptMock = client.prompt as ReturnType<typeof vi.fn>;
+    promptMock.mockRejectedValueOnce(blip()).mockResolvedValueOnce({ stopReason: 'end_turn' });
+
+    await session.sendMessage('go');
+
+    expect(promptMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('a streamed tool_call stops the replay (#774)', async () => {
+    const session = await startSession();
+    const promptMock = client.prompt as ReturnType<typeof vi.fn>;
+    promptMock.mockImplementationOnce(() => {
+      handlersOf().onSessionUpdate({
+        sessionId: 'sess-1',
+        update: { sessionUpdate: 'tool_call', toolCallId: 't1', title: 'rm -rf', status: 'in_progress' },
+      } as unknown as SessionNotification);
+      return Promise.reject(blip());
+    });
+
+    await expect(session.sendMessage('go')).rejects.toBeInstanceOf(AcpError);
+
+    // Replaying would re-ask the model to do the work — and re-run the tool.
+    expect(promptMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('a permission request stops the replay, even with no tool_call update (#774)', async () => {
+    const session = await startSession();
+    const promptMock = client.prompt as ReturnType<typeof vi.fn>;
+    promptMock.mockImplementationOnce(() => {
+      void handlersOf().onRequestPermission({
+        sessionId: 'sess-1',
+        toolCall: { toolCallId: 't1', title: 'run' },
+        options: [{ optionId: 'allow', name: 'Allow', kind: 'allow_once' }],
+      } as unknown as RequestPermissionRequest);
+      return Promise.reject(blip());
+    });
+
+    await expect(session.sendMessage('go')).rejects.toBeInstanceOf(AcpError);
+    expect(promptMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('an agent-driven file write stops the replay — it never passes through handleMessage (#774)', async () => {
+    const session = await startSession();
+    const promptMock = client.prompt as ReturnType<typeof vi.fn>;
+    const target = path.join(baseConfig.cwd, `wl-774-${Date.now()}.txt`); // MUST be inside cwd or assertPathAllowed throws
+    promptMock.mockImplementationOnce(async () => {
+      await handlersOf().onWriteTextFile({
+        sessionId: 'sess-1',
+        path: target,
+        content: 'written once',
+      } as unknown as WriteTextFileRequest);
+      throw blip();
+    });
+
+    await expect(session.sendMessage('go')).rejects.toBeInstanceOf(AcpError);
+
+    // A replay here would write the file a second time.
+    expect(promptMock).toHaveBeenCalledTimes(1);
+    fs.rmSync(target, { force: true });
+  });
+
+  /**
+   * B1' (#774): on a mid-turn crash, onDisconnect → resumeFromDisconnect owns the
+   * recovery — it respawns the agent AND re-flushes the pending queue itself.
+   * handlePromptError must not race it. It used to: PROCESS_CRASHED is
+   * `retryable: true`, so it took the retryable branch, and 'resuming' → 'active' is
+   * a LEGAL transition — so it yanked the session out of its respawn and fired the
+   * user's queued follow-up into a client that had not finished initialize(). The
+   * prompt was then silently dropped: exactly the #774 headline, reintroduced by
+   * its own fix.
+   */
+  it('a crash mid-turn does not fire the queued prompt into a half-initialized client (#774)', async () => {
+    const events: string[] = [];
+    const clients: AcpClient[] = [];
+    let disconnect!: () => void;
+
+    clientFactory = {
+      create: vi.fn(() => {
+        const c = createMockClient();
+        const idx = clients.length;
+        if (idx > 0) {
+          // The respawn is SLOW (spawn + initialize). This is the window the bug
+          // lived in: with a mock that resolves instantly it never opens, and the
+          // race is unobservable.
+          (c.start as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+            await new Promise((r) => setTimeout(r, 150));
+            events.push(`start:${idx}`);
+            return { protocolVersion: '0.1', capabilities: {} };
+          });
+        }
+        (c.onDisconnect as ReturnType<typeof vi.fn>).mockImplementation((cb: () => void) => {
+          disconnect = cb;
+        });
+        (c.loadSession as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+          events.push(`loadSession:${idx}`);
+          return { sessionId: 'sess-1' };
+        });
+        (c.prompt as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+          events.push(`prompt:${idx}`);
+          return { stopReason: 'end_turn' };
+        });
+        clients.push(c);
+        return c;
+      }),
+    };
+
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('active'));
+
+    // Turn in flight on client 0, with a follow-up queued behind it.
+    let killTurn!: (e: unknown) => void;
+    (clients[0].prompt as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () =>
+        new Promise((_r, reject) => {
+          killTurn = reject;
+        })
+    );
+    const firstSend = session.sendMessage('first').catch(() => {});
+    await vi.waitFor(() => expect(session.status).toBe('prompting'));
+    void session.sendMessage('queued-follow-up');
+
+    // The agent process dies: the transport reports it, and the turn rejects.
+    disconnect();
+    killTurn(new AcpError('PROCESS_CRASHED', 'ACP connection closed', { retryable: true }));
+    await firstSend;
+
+    // The respawned client must have loaded the session BEFORE it is ever prompted.
+    await vi.waitFor(() => expect(clients.length).toBe(2));
+    await vi.waitFor(() => expect(events).toContain('prompt:1'), { timeout: 3000 });
+
+    expect(events.indexOf('loadSession:1')).toBeGreaterThanOrEqual(0);
+    expect(events.indexOf('loadSession:1')).toBeLessThan(events.indexOf('prompt:1'));
   });
 });

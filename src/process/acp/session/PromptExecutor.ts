@@ -42,12 +42,18 @@ const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTER
 
 /**
  * -32603 is a catch-all, so the code alone cannot tell a blip from a verdict.
- * These never improve by sending the identical prompt again: a rate limit gets
- * angrier, and a bad request / oversized context / refusal is deterministic.
+ * These never improve by sending the identical prompt again: a rate limit only
+ * gets angrier, and a bad request / oversized context / refusal is deterministic.
  * (#774's own 400 `missing field 'tool_call_id'` is caught here.)
+ *
+ * Matched against `acpErr.message`, into which `withErrorDetail` JSON-stringifies
+ * the provider's `data` — so what we actually see is usually the machine-readable
+ * code (`rate_limit_error`, `insufficient_quota`, `context_length_exceeded`), NOT
+ * prose. Hence no trailing `\b`: `_` is a word character, so `rate.?limit\b` does
+ * not match `rate_limit_error` and every snake_case code sailed through.
  */
 const NON_TRANSIENT_DETAIL =
-  /\b(4\d\d|rate.?limit|quota|resource.?exhausted|context.?length|too\s+many\s+tokens|maximum\s+context|bad.?request|invalid.?request|safety|content.?policy)\b/i;
+  /\b4\d\d\b|rate.?limit|quota|resource.?exhausted|context.?length|too\s+many\s+(tokens|requests)|maximum\s+context|bad.?request|invalid.?request|safety|content.?policy/i;
 
 /** Overridable so tests can drive the retry path without sleeping for real. */
 export type PromptRetryOptions = {
@@ -151,9 +157,12 @@ export class PromptExecutor {
     const turnClient = lifecycle.client;
     const turnSessionId = lifecycle.sessionId;
 
-    // One deadline for the whole turn. The PromptTimer resets per attempt, so
-    // without this a 3-attempt turn could run 3x the prompt timeout.
-    const deadline = Date.now() + this.timeoutMs;
+    // No new retry may START past this. It is NOT a hard turn duration: PromptTimer
+    // is an IDLE timer (reset by every sessionUpdate), so an attempt already in
+    // flight and actively streaming is bounded by idleness, not by wall clock —
+    // exactly as on main. This only stops the attempt COUNT from multiplying the
+    // budget, which is what the retry loop newly made possible.
+    const retryDeadline = Date.now() + this.timeoutMs;
 
     this.host.setStatus('prompting');
 
@@ -188,7 +197,7 @@ export class PromptExecutor {
         const acpErr = normalizeError(err);
         const backoffMs = computeBackoff(this.retryBackoff, attempt);
 
-        if (!this.canRetryPrompt(acpErr, attempt) || Date.now() + backoffMs >= deadline) {
+        if (!this.canRetryPrompt(acpErr, attempt) || Date.now() + backoffMs >= retryDeadline) {
           this.host.messageTranslator.onTurnEnd();
           this.handlePromptError(acpErr, content);
           return;
@@ -290,6 +299,16 @@ export class PromptExecutor {
 
     console.error(`[PromptExecutor] prompt failed (${acpErr.code}):`, acpErr.message);
     this.host.metrics.recordError(this.host.agentConfig.agentBackend, acpErr.code);
+
+    // If the session already LEFT 'prompting', someone else is driving recovery and
+    // owns the pending queue — on a crash that is onDisconnect → resumeFromDisconnect,
+    // which respawns the agent and re-flushes the queue itself. Touching status or
+    // flushing here races it: 'resuming' → 'active' is a legal transition, so we would
+    // yank the session out of its respawn and fire the user's queued prompt into a
+    // client that has not finished initialize() — dropping it. That is the #774 symptom
+    // reintroduced by its own fix, so bail before either branch (enterError() in the
+    // else would clearPending() and drop the follow-up just as dead).
+    if (this.host.status !== 'prompting') throw acpErr;
 
     if (acpErr.retryable) {
       this.host.setStatus('active');
