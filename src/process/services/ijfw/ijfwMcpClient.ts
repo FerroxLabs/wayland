@@ -7,8 +7,10 @@
  *
  * Speaks to the local `~/.ijfw/mcp-server` install via Electron's main-process
  * Node runtime (`ELECTRON_RUN_AS_NODE=1`). Multiplexes requests by id,
- * serializes stdin writes, and treats decode failures + crashes as triggers
- * to null the process handle so the next `invoke()` respawns from scratch.
+ * serializes stdin writes, and treats resource-abuse decode failures +
+ * crashes as triggers to null the process handle so the next `invoke()`
+ * respawns from scratch. Garbage (non-JSON) stdout lines are skipped and
+ * logged instead of killing the child (#721).
  *
  * Replaces the Wave 1 stub at `ijfwMcpClientStub.ts`.
  */
@@ -22,14 +24,21 @@ import log from 'electron-log';
 import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
+import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
 import { jsonRpcResponseSchema } from './ipcSchemas';
 import { killChild } from '@process/agent/acp/utils';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import type { IjfwErrorReason, IjfwInvokeResult } from '@/common/types/ijfw';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 // Wave 7 H1: respawn backoff. Prevents thrashing if entry resolution / fork
 // fail repeatedly (missing install, bad permissions, syntax error in entry).
 const RESPAWN_BACKOFF_MS = 5_000;
+// #721: garbage stdout lines are skipped (log-and-skip, matching the official
+// MCP SDK stdio transport) instead of killing the child. But a stream that is
+// ONLY garbage is genuinely broken - if this many garbage lines arrive with no
+// valid JSON-RPC message in between, quarantine the child as before.
+export const MAX_CONSECUTIVE_GARBAGE_LINES = 50;
 
 // Codex B1: the renderer (and our own bridge) speaks the schema-allowlisted
 // verb names ('memory_facts', 'wiki.get', 'think', etc.). The REAL IJFW MCP
@@ -152,6 +161,8 @@ class IjfwMcpClient {
   // refuses to respawn within RESPAWN_BACKOFF_MS of this timestamp so a
   // permanently-broken install doesn't fork a child on every invoke().
   private lastSpawnFailureAt: number = 0;
+  // #721: garbage stdout lines seen since the last valid JSON-RPC message.
+  private consecutiveGarbageLines = 0;
 
   getMode(): RuntimeMode {
     return this.mode;
@@ -264,6 +275,7 @@ class IjfwMcpClient {
     this.writing = false;
     this.nextId = 1;
     this.readBuffer = Buffer.alloc(0);
+    this.consecutiveGarbageLines = 0;
     this.exitWaiters = [];
     if (this.child) {
       try {
@@ -312,15 +324,27 @@ class IjfwMcpClient {
   private async spawnChild(): Promise<ChildProcess> {
     const mcpServerDir = path.join(os.homedir(), '.ijfw', 'mcp-server');
     const entry = await resolveEntry(mcpServerDir);
-    const env = buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' });
+    // #755: NEVER let the server inherit our cwd. When this client runs inside
+    // a forked worker, cwd is app.asar.unpacked (set by ForkTask for WASM
+    // resolution); ijfw's safeProjectDir() falls back to any writable cwd and
+    // its layout migration then writes `.ijfw/.layout-version` INSIDE the
+    // signed bundle - breaking the codesign seal, after which macOS blocks
+    // every child process the app spawns (#738). Pin both the process cwd and
+    // IJFW_PROJECT_DIR to an explicit safe, writable, bundle-external dir.
+    const safeCwd = resolveSafeSpawnCwd();
+    const env = buildChildEnv({ ELECTRON_RUN_AS_NODE: '1', IJFW_PROJECT_DIR: safeCwd });
     const child = spawn(process.execPath, [entry], {
+      cwd: safeCwd,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     child.stdout?.on('data', (chunk: Buffer) => this.onStdout(chunk));
     child.stderr?.on('data', (chunk: Buffer) => {
-      log.debug('[ijfw-mcp][stderr]', chunk.toString('utf-8').trim());
+      // #721 review: child stderr is raw third-party output persisted into the
+      // shareable electron-log file - redact secret shapes before logging
+      // (same leak class as #714).
+      log.debug('[ijfw-mcp][stderr]', redactCommandSecrets(chunk.toString('utf-8').trim()));
     });
     child.on('error', (err) => {
       log.warn('[ijfw-mcp] child error', { err });
@@ -340,18 +364,37 @@ class IjfwMcpClient {
       decoded = decode(this.readBuffer);
     } catch (err) {
       if (err instanceof DecodeError) {
+        // #721: DecodeError now fires only on genuine resource abuse
+        // (line > MAX_LINE_BYTES, which also bounds the retained remainder).
+        // Keep the kill/quarantine path for those.
         log.error('[ijfw-mcp] decode error - killing child', { err: err.message });
-        try {
-          this.child?.kill();
-        } catch {
-          /* ignore */
-        }
-        this.handleChildLoss();
+        this.killBrokenChild();
         return;
       }
       throw err;
     }
     this.readBuffer = decoded.remainder;
+    // #721: non-JSON stdout lines (e.g. a server console.logging progress to
+    // stdout) are skipped, not fatal - NDJSON re-syncs at the next newline.
+    if (decoded.droppedLines > 0) {
+      // #721 review: samples are raw child stdout persisted into the shareable
+      // electron-log file - redact secret shapes before logging (#714 class).
+      log.warn('[ijfw-mcp] skipped non-JSON stdout line(s)', {
+        count: decoded.droppedLines,
+        samples: decoded.droppedSamples.map((s) => redactCommandSecrets(s)),
+      });
+      this.consecutiveGarbageLines += decoded.droppedLines;
+    }
+    if (decoded.messages.length > 0) {
+      this.consecutiveGarbageLines = 0;
+    } else if (this.consecutiveGarbageLines >= MAX_CONSECUTIVE_GARBAGE_LINES) {
+      // Stream is emitting nothing but garbage - treat it as genuinely broken.
+      log.error('[ijfw-mcp] stdout stream is all garbage - killing child', {
+        consecutiveGarbageLines: this.consecutiveGarbageLines,
+      });
+      this.killBrokenChild();
+      return;
+    }
     for (const raw of decoded.messages) {
       const parsed = jsonRpcResponseSchema.safeParse(raw);
       if (!parsed.success) {
@@ -375,6 +418,16 @@ class IjfwMcpClient {
         handler.resolve(unwrapMcpResult(parsed.data.result));
       }
     }
+  }
+
+  /** Kill a genuinely-broken child (bounds violation / all-garbage stream). */
+  private killBrokenChild(): void {
+    try {
+      this.child?.kill();
+    } catch {
+      /* ignore */
+    }
+    this.handleChildLoss();
   }
 
   private async enqueueWrite(payload: Buffer): Promise<void> {
@@ -411,6 +464,7 @@ class IjfwMcpClient {
     this.child = null;
     this.mode = 'degraded';
     this.readBuffer = Buffer.alloc(0);
+    this.consecutiveGarbageLines = 0;
 
     // Reject every pending request - they will never receive a response.
     for (const [id, handler] of this.pending) {

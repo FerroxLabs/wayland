@@ -68,6 +68,34 @@ type TeammateManagerParams = {
   taskRepo?: ITaskRepository;
 };
 
+/** One reading of the ACP cumulative usage gauge for an agent session. */
+export type UsageSnapshot = { used: number; cost: number };
+
+/**
+ * DESK-1 - per-event spend delta between two CUMULATIVE usage snapshots.
+ *
+ * ACP's `acp_context_usage` gauge is a running session total, so summing raw
+ * snapshots N-counts. The meter must sum deltas instead:
+ *   - no previous snapshot (genuinely fresh session) -> delta = full `next`
+ *     (a fresh session's first snapshot is real new spend);
+ *   - gauge grew  -> delta = next - prev;
+ *   - gauge dropped (compaction / session reset) -> delta = 0. The spend that
+ *     produced the drop is unknowable; undercounting is safer than
+ *     overcounting. The caller then tracks `next` as the new baseline so
+ *     growth from the lower value is counted again.
+ * Token and cost gauges are clamped independently.
+ */
+export function computeUsageDelta(
+  prev: UsageSnapshot | undefined,
+  next: UsageSnapshot
+): { tokensDelta: number; costDelta: number } {
+  if (!prev) return { tokensDelta: next.used, costDelta: next.cost };
+  return {
+    tokensDelta: next.used >= prev.used ? next.used - prev.used : 0,
+    costDelta: next.cost >= prev.cost ? next.cost - prev.cost : 0,
+  };
+}
+
 /**
  * Core orchestration engine that manages teammate state machines
  * and coordinates agent communication via mailbox and task board.
@@ -103,23 +131,58 @@ export class TeammateManager extends EventEmitter {
   private readonly renamedAgents = new Map<string, string>();
 
   /**
-   * Per-conversation high-water mark of the ACP cumulative usage gauge
-   * (`acp_context_usage.used` + `cost.amount`). ACP re-emits these CUMULATIVE
-   * values on every update, so writing one `token_usage` row per event with the
-   * raw `used`/`cost` made the meter (useTeamCostMeter, which SUMS rows)
-   * N-count. We now write the per-event DELTA against this baseline (clamped
-   * >= 0) and advance the baseline, so summing the rows reconstructs the true
-   * running total exactly once.
+   * DESK-1 - previous ACP cumulative usage gauge snapshot per agent session,
+   * keyed by conversationId (one conversation per (teamId, slotId) session in
+   * this team-scoped manager). ACP re-emits `acp_context_usage.used` +
+   * `cost.amount` as CUMULATIVE session values on every update; each
+   * `token_usage` row records the raw snapshot PLUS the per-event spend delta
+   * against this previous snapshot (see {@link computeUsageDelta}). Cleared
+   * whenever the agent session ends/restarts (killAgentProcess /
+   * handleAgentCrash / removeAgent / dispose) so a fresh session's first
+   * snapshot counts fully.
    */
-  private readonly tokenUsageBaselines = new Map<string, { used: number; cost: number }>();
+  private readonly tokenUsageBaselines = new Map<string, UsageSnapshot>();
 
-  /** Maximum time (ms) to wait for a turnCompleted event before force-releasing a wake */
-  private static readonly WAKE_TIMEOUT_MS = 60 * 1000;
+  /**
+   * Lease-renew throttle (ms): maybeRenewLease writes the persisted lease at
+   * most once per this window. MUST stay well under LEASE_TTL_MS (180s) so a
+   * live owner's lease never lapses between renewals and the out-of-process
+   * Watchdog can't falsely reclaim its task. Deliberately distinct from the
+   * inactivity watchdog below - conflating them is why #747 bit.
+   */
+  private static readonly LEASE_RENEW_THROTTLE_MS = 60 * 1000;
+
+  /**
+   * Default inactivity-watchdog budget (ms): if a teammate streams NO activity
+   * (text, tool call, or thought) for this long, the leader is told it may be
+   * stalled. Raised from 60s (#747): a single silent tool/test run or slow
+   * first-token latency routinely exceeds a minute, which falsely flagged live,
+   * still-working teammates (and the leader itself) as "failed" and derailed
+   * runs. 180s aligns with LEASE_TTL_MS so the in-memory watchdog and the
+   * persisted-lease Watchdog surface a genuine stall at the same horizon.
+   * Override with env WAYLAND_TEAM_WAKE_TIMEOUT_MS (floored at 30s to reject
+   * garbage / a value low enough to re-introduce the false positives).
+   */
+  private static readonly DEFAULT_INACTIVITY_TIMEOUT_MS = 3 * 60 * 1000;
+
+  private static resolveInactivityTimeoutMs(): number {
+    const raw = process.env.WAYLAND_TEAM_WAKE_TIMEOUT_MS;
+    if (!raw) return TeammateManager.DEFAULT_INACTIVITY_TIMEOUT_MS;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed < 30_000) return TeammateManager.DEFAULT_INACTIVITY_TIMEOUT_MS;
+    // Clamp to the 32-bit setTimeout ceiling: a larger delay overflows and fires
+    // after ~1ms, which would flag every teammate failed immediately - the exact
+    // opposite of a long timeout. 2^31-1 ms is ~24.8 days, far past any real use.
+    return Math.min(parsed, 2_147_483_647);
+  }
+
+  /** Resolved once per manager: the inactivity-watchdog budget for this team. */
+  private readonly inactivityTimeoutMs = TeammateManager.resolveInactivityTimeoutMs();
 
   /**
    * P2 - the persisted lease ({@link LEASE_TTL_MS}, shared with TaskManager) is
    * stamped at wake start, RENEWED on streaming activity (throttled to once per
-   * WAKE_TIMEOUT_MS, see {@link maybeRenewLease}) REGARDLESS of in-memory status,
+   * LEASE_RENEW_THROTTLE_MS, see {@link maybeRenewLease}) REGARDLESS of in-memory status,
    * and renewed again at turn completion - so a still-alive turn keeps its lease
    * fresh even after a soft `failed` flip (inactivity/429 that did not kill the
    * process) and is never falsely reclaimed. The lease only lapses when the owner
@@ -217,6 +280,9 @@ export class TeammateManager extends EventEmitter {
       this.unregisterAcpTeamContext(agent.conversationId);
       this.workerTaskManager.kill(agent.conversationId);
       this.finalizedTurns.delete(agent.conversationId);
+      // DESK-1: the session died - the next process starts a fresh cumulative
+      // gauge, whose first snapshot must count fully (no stale baseline).
+      this.tokenUsageBaselines.delete(agent.conversationId);
     }
 
     const timeoutHandle = this.wakeTimeouts.get(slotId);
@@ -427,7 +493,7 @@ export class TeammateManager extends EventEmitter {
 
       // Arm the inactivity watchdog. Any streaming output from this agent
       // resets it via handleResponseStream → resetWakeTimeout. It only fires
-      // when the agent has been silent for WAKE_TIMEOUT_MS with no finish event.
+      // when the agent has been silent for inactivityTimeoutMs with no finish event.
       this.resetWakeTimeout(slotId);
 
       // W1e: log the successful wake (post-sendMessage, before turn completes).
@@ -462,6 +528,7 @@ export class TeammateManager extends EventEmitter {
     }
     this.wakeTimeouts.clear();
     this.activeWakes.clear();
+    this.tokenUsageBaselines.clear();
     // W5 audit HIGH-2 fix (2026-05-19): drain ACP team-context registry
     // entries for every owned conversation so a disposed session cannot
     // leak gate-routing data into the next team that reuses any of these
@@ -541,15 +608,20 @@ export class TeammateManager extends EventEmitter {
     const agent = this.agents.find((a) => a.conversationId === msg.conversation_id);
     if (!agent) return;
 
-    // W1e: token-usage events flow through the response stream as `acp_context_usage`.
-    // Capture them as `'token_usage'` rows so the W2d cost meter can sum tokens
-    // and cost across teammates. ACP emits `used`/`cost` as a per-conversation
-    // CUMULATIVE gauge re-sent on every update, and useTeamCostMeter SUMS the
-    // rows, so we write the per-event DELTA against a per-conversation baseline
-    // (clamped >= 0) and advance the baseline - the sum then equals the true
-    // running total exactly once instead of N-counting (R1). We still lack a
-    // clean prompt/completion split (ACP gives `used` total only), so the split
-    // fields stay 0 with the per-turn delta preserved as `total_tokens`.
+    // W1e/DESK-1: token-usage events flow through the response stream as
+    // `acp_context_usage`. ACP emits `used`/`cost` as a per-conversation
+    // CUMULATIVE session gauge re-sent on every update (acpTypes: "total
+    // tokens currently in context"), so summing raw rows N-counts. Each
+    // `token_usage` row therefore carries BOTH the raw snapshot fields
+    // (prompt_tokens / total_tokens / cost_estimate_usd - the original W1e
+    // shape, kept for back-compat) AND the per-event spend deltas
+    // (`tokens_delta` / `cost_delta`) computed against the previous snapshot
+    // for this agent session ({@link computeUsageDelta}). The W2d cost meter
+    // sums ONLY the delta fields. The baseline tracks the LATEST snapshot
+    // (not a high-water mark): after a compaction/reset drop the gauge
+    // legitimately grows again from the lower value, and that growth is real
+    // new spend that must be counted. ACP gives a `used` total only (no
+    // prompt/completion split), so completion_tokens stays 0.
     if (msg.type === 'acp_context_usage') {
       const usage = msg.data as { used?: number; size?: number; cost?: { amount?: number; currency?: string } } | null;
       if (usage && typeof usage.used === 'number') {
@@ -560,17 +632,12 @@ export class TeammateManager extends EventEmitter {
         // currencies are recorded but normalized to 0 in cost_estimate_usd.
         const cumulativeCostUsd = currency === 'USD' ? costAmount : 0;
 
-        const baseline = this.tokenUsageBaselines.get(msg.conversation_id) ?? { used: 0, cost: 0 };
-        const deltaTokens = Math.max(0, cumulativeUsed - baseline.used);
-        const deltaCostUsd = Math.max(0, cumulativeCostUsd - baseline.cost);
-        // Advance to the new high-water mark; never regress (survives the
-        // cumulative gauge dropping after a session reset / compaction).
-        this.tokenUsageBaselines.set(msg.conversation_id, {
-          used: Math.max(baseline.used, cumulativeUsed),
-          cost: Math.max(baseline.cost, cumulativeCostUsd),
-        });
+        const prev = this.tokenUsageBaselines.get(msg.conversation_id);
+        const next: UsageSnapshot = { used: cumulativeUsed, cost: cumulativeCostUsd };
+        const { tokensDelta, costDelta } = computeUsageDelta(prev, next);
+        this.tokenUsageBaselines.set(msg.conversation_id, next);
 
-        if (this.eventLogger && (deltaTokens > 0 || deltaCostUsd > 0)) {
+        if (this.eventLogger && (tokensDelta > 0 || costDelta > 0)) {
           void this.eventLogger.append({
             teamId: this.teamId,
             eventType: 'token_usage',
@@ -578,10 +645,14 @@ export class TeammateManager extends EventEmitter {
             payload: {
               slot_id: agent.slotId,
               backend: agent.agentType,
-              prompt_tokens: deltaTokens,
+              // Raw cumulative session snapshot (back-compat W1e shape).
+              prompt_tokens: cumulativeUsed,
               completion_tokens: 0,
-              cost_estimate_usd: deltaCostUsd,
-              total_tokens: deltaTokens,
+              total_tokens: cumulativeUsed,
+              cost_estimate_usd: cumulativeCostUsd,
+              // Per-event spend deltas - the ONLY fields the meter sums.
+              tokens_delta: tokensDelta,
+              cost_delta: costDelta,
               currency,
               context_window: typeof usage.size === 'number' ? usage.size : 0,
             },
@@ -634,8 +705,8 @@ export class TeammateManager extends EventEmitter {
 
   /**
    * P2 - renew the persisted lease on streaming activity, at most once per
-   * WAKE_TIMEOUT_MS to avoid spamming the DB. Without this the persisted lease
-   * would only refresh at wake start / turn end, so a turn that streams for
+   * LEASE_RENEW_THROTTLE_MS to avoid spamming the DB. Without this the persisted
+   * lease would only refresh at wake start / turn end, so a turn that streams for
    * longer than LEASE_TTL_MS would let its lease lapse and be falsely reclaimed
    * while still alive.
    */
@@ -643,7 +714,7 @@ export class TeammateManager extends EventEmitter {
     if (!this.taskRepo) return;
     const now = Date.now();
     const last = this.lastLeaseRenewMs.get(slotId) ?? 0;
-    if (now - last < TeammateManager.WAKE_TIMEOUT_MS) return;
+    if (now - last < TeammateManager.LEASE_RENEW_THROTTLE_MS) return;
     this.lastLeaseRenewMs.set(slotId, now);
     void this.stampTaskLease(slotId, now);
   }
@@ -652,8 +723,8 @@ export class TeammateManager extends EventEmitter {
    * (Re)arm the inactivity watchdog for an agent's current wake.
    * Fired from wake() after dispatching the prompt, and from handleResponseStream
    * whenever fresh streaming activity arrives. When it finally fires (agent silent
-   * for WAKE_TIMEOUT_MS), escalates to handleInactivityTimeout so the leader learns
-   * about the stall instead of the agent dropping silently to idle.
+   * for inactivityTimeoutMs), escalates to handleInactivityTimeout so the leader
+   * learns about the stall instead of the agent dropping silently to idle.
    */
   private resetWakeTimeout(slotId: string): void {
     const existing = this.wakeTimeouts.get(slotId);
@@ -665,23 +736,24 @@ export class TeammateManager extends EventEmitter {
       if (currentAgent?.status === 'active') {
         void this.handleInactivityTimeout(currentAgent);
       }
-    }, TeammateManager.WAKE_TIMEOUT_MS);
+    }, this.inactivityTimeoutMs);
     this.wakeTimeouts.set(slotId, timeoutHandle);
   }
 
   /**
-   * A teammate went silent for WAKE_TIMEOUT_MS with no streaming activity and no
-   * finish event. Treat it as a soft failure: mark the agent 'failed' (not 'idle',
-   * which hides the problem), write an explanatory message into the leader's mailbox,
-   * and wake the leader so it can decide the next move (retry, replace, escalate).
+   * A teammate went silent for inactivityTimeoutMs with no streaming activity and
+   * no finish event. Treat it as a soft failure: mark the agent 'failed' (not
+   * 'idle', which hides the problem), write an explanatory message into the
+   * leader's mailbox, and wake the leader so it can decide the next move (retry,
+   * replace, escalate).
    *
    * Previously the timeout just setStatus(slotId, 'idle'), which left the leader
    * unaware - it would eventually re-wake on some other signal and guess that
    * the teammate was "idle-spinning" with no concrete evidence.
    */
   private async handleInactivityTimeout(agent: TeamAgent): Promise<void> {
-    const timeoutSeconds = Math.floor(TeammateManager.WAKE_TIMEOUT_MS / 1000);
-    const reason = `stopped responding after ${timeoutSeconds}s without sending any update`;
+    const timeoutSeconds = Math.floor(this.inactivityTimeoutMs / 1000);
+    const reason = `has not streamed any update in ${timeoutSeconds}s and may be stalled`;
 
     console.warn(`[TeammateManager] ${agent.agentName} (${agent.slotId}) ${reason}`);
     this.setStatus(agent.slotId, 'failed', reason);
@@ -773,6 +845,62 @@ export class TeammateManager extends EventEmitter {
         // This prevents death loops where each idle notification triggers a new leader turn.
         this.maybeWakeLeaderWhenAllIdle(leadAgent.slotId);
       }
+
+      // #781: a mailbox message that arrives while this agent's wake is in
+      // flight is skipped by the activeWakes guard and would otherwise sit
+      // undelivered until some unrelated future wake. Observed live: the
+      // leader's shutdown_request landed during the member's long spawn turn,
+      // the member never saw it, and "fire the member" hung forever. Now that
+      // the turn is over, drain anything still unread. wake() re-checks the
+      // mailbox atomically (readUnreadAndMark), so a concurrent wake cannot
+      // double-deliver. Leader re-delivery stays gated by
+      // maybeWakeLeaderWhenAllIdle to avoid notification-per-turn churn.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        if (pending.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(${agent.agentName}): ${pending.length} unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+    } else {
+      // #786: the leader has the SAME mid-wake delivery race as members - a
+      // message written to the leader's mailbox while its wake is in flight is
+      // skipped by the activeWakes guard (e.g. a user follow-up sent during the
+      // leader's long first-spawn turn). The member drain above intentionally
+      // excludes the leader because an unconditional re-wake would re-introduce
+      // the notification-per-turn churn that maybeWakeLeaderWhenAllIdle exists to
+      // prevent. So drain the leader's own unread mailbox here, but re-wake ONLY
+      // when it holds real content (a user follow-up or a member report) - never
+      // for idle_notifications alone. Otherwise a leader message can rot when no
+      // member finishes a turn afterward (or there are no members at all) to
+      // trip maybeWakeLeaderWhenAllIdle. wake() drains ALL unread atomically
+      // (readUnreadAndMark), so any idle_notifications ride along on that wake.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        const actionable = pending.filter((m) => m.type !== 'idle_notification');
+        if (actionable.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(leader ${agent.agentName}): ${actionable.length} actionable unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn leader re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(leader ${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
     }
   }
 
@@ -849,6 +977,12 @@ export class TeammateManager extends EventEmitter {
    * For **leader**: only marks it as failed - leader must never be auto-removed.
    */
   private async handleAgentCrash(agent: TeamAgent, errorMessage: string): Promise<void> {
+    // DESK-1: crashed session -> reset the usage-gauge baseline so the
+    // recovered session's first cumulative snapshot counts fully.
+    if (agent.conversationId) {
+      this.tokenUsageBaselines.delete(agent.conversationId);
+    }
+
     // Leader crash: mark as failed so the frontend shows the error, but never auto-remove.
     if (agent.role === 'leader') {
       console.warn(
@@ -961,6 +1095,7 @@ export class TeammateManager extends EventEmitter {
       this.ownedConversationIds.delete(agent.conversationId);
       this.unregisterAcpTeamContext(agent.conversationId);
       this.finalizedTurns.delete(agent.conversationId);
+      this.tokenUsageBaselines.delete(agent.conversationId);
     }
 
     this.agents = this.agents.filter((a) => a.slotId !== slotId);

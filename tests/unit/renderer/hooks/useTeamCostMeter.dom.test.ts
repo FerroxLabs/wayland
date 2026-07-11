@@ -10,7 +10,9 @@
  * W2d - useTeamCostMeter hook tests. Covers:
  *   - Invokes ipcBridge.team.listEvents with the correct args
  *     (teamId + sliding-window `since` + eventType: 'token_usage' filter)
- *   - Aggregates prompt + completion tokens AND cost_estimate_usd
+ *   - DESK-1 aggregation: SUMS `tokens_delta` / `cost_delta` on delta-aware
+ *     rows; for legacy rows without delta fields (cumulative snapshots) it
+ *     counts only the NEWEST row per actor - snapshots are never summed
  *   - Re-polls on interval; subsequent calls advance `since` past the
  *     last-seen createdAt so each event is counted exactly once
  *   - Clears the interval on unmount (no leaked timers)
@@ -40,7 +42,7 @@ const makeTokenEvent = (over: Partial<TeamEvent> & { payload?: Record<string, un
   teamId: 'team-1',
   eventType: 'token_usage',
   createdAt: Date.now(),
-  payload: { prompt_tokens: 100, completion_tokens: 50, cost_estimate_usd: 0.01 },
+  payload: { tokens_delta: 100, cost_delta: 0.01 },
   ...over,
 });
 
@@ -71,22 +73,52 @@ describe('useTeamCostMeter', () => {
     expect(call.since).toBeLessThanOrEqual(before - sevenDays + 500);
   });
 
-  it('aggregates prompt + completion tokens AND cost_estimate_usd across events', async () => {
+  it('sums tokens_delta and cost_delta across delta-aware rows', async () => {
+    const events: TeamEvent[] = [
+      makeTokenEvent({ id: 'a', createdAt: 1000, payload: { tokens_delta: 100, cost_delta: 0.012 } }),
+      makeTokenEvent({ id: 'b', createdAt: 2000, payload: { tokens_delta: 250, cost_delta: 0.034 } }),
+      makeTokenEvent({ id: 'c', createdAt: 3000, payload: { tokens_delta: 50, cost_delta: 0.005 } }),
+    ];
+    listEventsInvoke.mockResolvedValue(events);
+
+    const { result } = renderHook(() => useTeamCostMeter('team-1', { pollIntervalMs: 10_000 }));
+
+    await waitFor(() => {
+      expect(result.current.totalTokens).toBe(100 + 250 + 50); // 400
+    });
+    expect(result.current.totalUsd).toBeCloseTo(0.012 + 0.034 + 0.005, 5);
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('never sums legacy snapshot rows - counts only the newest per actor', async () => {
+    // Legacy rows (no tokens_delta / cost_delta) hold a CUMULATIVE session
+    // snapshot. Three snapshots from the same actor must contribute the
+    // NEWEST value (400), not the inflated sum (100 + 250 + 400 = 750).
     const events: TeamEvent[] = [
       makeTokenEvent({
         id: 'a',
         createdAt: 1000,
-        payload: { prompt_tokens: 100, completion_tokens: 50, cost_estimate_usd: 0.012 },
+        actorSlotId: 'slot-1',
+        payload: { prompt_tokens: 100, completion_tokens: 0, cost_estimate_usd: 0.01 },
       }),
       makeTokenEvent({
         id: 'b',
         createdAt: 2000,
-        payload: { prompt_tokens: 200, completion_tokens: 75, cost_estimate_usd: 0.034 },
+        actorSlotId: 'slot-1',
+        payload: { prompt_tokens: 250, completion_tokens: 0, cost_estimate_usd: 0.025 },
       }),
       makeTokenEvent({
         id: 'c',
         createdAt: 3000,
-        payload: { prompt_tokens: 50, completion_tokens: 25, cost_estimate_usd: 0.005 },
+        actorSlotId: 'slot-1',
+        payload: { prompt_tokens: 400, completion_tokens: 0, cost_estimate_usd: 0.04 },
+      }),
+      // A second actor's snapshot is tracked independently.
+      makeTokenEvent({
+        id: 'd',
+        createdAt: 2500,
+        actorSlotId: 'slot-2',
+        payload: { prompt_tokens: 60, completion_tokens: 40, cost_estimate_usd: 0.01 },
       }),
     ];
     listEventsInvoke.mockResolvedValue(events);
@@ -94,25 +126,51 @@ describe('useTeamCostMeter', () => {
     const { result } = renderHook(() => useTeamCostMeter('team-1', { pollIntervalMs: 10_000 }));
 
     await waitFor(() => {
-      expect(result.current.totalTokens).toBe(100 + 50 + 200 + 75 + 50 + 25); // 500
+      expect(result.current.totalTokens).toBe(400 + 100); // newest per actor
     });
-    expect(result.current.totalUsd).toBeCloseTo(0.012 + 0.034 + 0.005, 5);
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.totalUsd).toBeCloseTo(0.04 + 0.01, 5);
   });
 
-  it('treats missing prompt_tokens / completion_tokens / cost_estimate_usd as 0', async () => {
+  it('combines delta-aware rows (summed) with legacy snapshot rows (newest per actor)', async () => {
+    const events: TeamEvent[] = [
+      makeTokenEvent({ id: 'a', createdAt: 1000, payload: { tokens_delta: 100, cost_delta: 0.01 } }),
+      makeTokenEvent({ id: 'b', createdAt: 2000, payload: { tokens_delta: 50, cost_delta: 0.005 } }),
+      // Legacy snapshots from one actor: only the newest (300) counts.
+      makeTokenEvent({
+        id: 'c',
+        createdAt: 1500,
+        actorSlotId: 'slot-legacy',
+        payload: { prompt_tokens: 200, completion_tokens: 0, cost_estimate_usd: 0.02 },
+      }),
+      makeTokenEvent({
+        id: 'd',
+        createdAt: 2500,
+        actorSlotId: 'slot-legacy',
+        payload: { prompt_tokens: 300, completion_tokens: 0, cost_estimate_usd: 0.03 },
+      }),
+    ];
+    listEventsInvoke.mockResolvedValue(events);
+
+    const { result } = renderHook(() => useTeamCostMeter('team-1', { pollIntervalMs: 10_000 }));
+
+    await waitFor(() => {
+      expect(result.current.totalTokens).toBe(100 + 50 + 300);
+    });
+    expect(result.current.totalUsd).toBeCloseTo(0.01 + 0.005 + 0.03, 5);
+  });
+
+  it('treats a missing tokens_delta / cost_delta as 0 on delta-aware rows', async () => {
     listEventsInvoke.mockResolvedValue([
-      makeTokenEvent({ id: 'a', payload: { prompt_tokens: 100 } }), // no completion, no cost
-      makeTokenEvent({ id: 'b', payload: { completion_tokens: 50 } }), // no prompt, no cost
-      makeTokenEvent({ id: 'c', payload: {} }), // empty payload
+      makeTokenEvent({ id: 'a', payload: { tokens_delta: 100 } }), // no cost_delta
+      makeTokenEvent({ id: 'b', payload: { cost_delta: 0.02 } }), // no tokens_delta
     ]);
 
     const { result } = renderHook(() => useTeamCostMeter('team-1', { pollIntervalMs: 10_000 }));
 
     await waitFor(() => {
-      expect(result.current.totalTokens).toBe(150);
+      expect(result.current.totalTokens).toBe(100);
     });
-    expect(result.current.totalUsd).toBe(0);
+    expect(result.current.totalUsd).toBeCloseTo(0.02, 5);
   });
 
   it('re-polls on the interval and only counts new events (advances cursor past seen createdAt)', async () => {
@@ -124,18 +182,10 @@ describe('useTeamCostMeter', () => {
     const tB = now - 30_000; // 30s ago
     listEventsInvoke
       .mockResolvedValueOnce([
-        makeTokenEvent({
-          id: 'a',
-          createdAt: tA,
-          payload: { prompt_tokens: 100, completion_tokens: 0, cost_estimate_usd: 0.01 },
-        }),
+        makeTokenEvent({ id: 'a', createdAt: tA, payload: { tokens_delta: 100, cost_delta: 0.01 } }),
       ])
       .mockResolvedValueOnce([
-        makeTokenEvent({
-          id: 'b',
-          createdAt: tB,
-          payload: { prompt_tokens: 50, completion_tokens: 50, cost_estimate_usd: 0.02 },
-        }),
+        makeTokenEvent({ id: 'b', createdAt: tB, payload: { tokens_delta: 100, cost_delta: 0.02 } }),
       ])
       .mockResolvedValue([]);
 
@@ -176,13 +226,14 @@ describe('useTeamCostMeter', () => {
   });
 
   it('resets totals + cursor when teamId changes', async () => {
-    listEventsInvoke.mockResolvedValue([
-      makeTokenEvent({ payload: { prompt_tokens: 1000, completion_tokens: 0, cost_estimate_usd: 0.5 } }),
-    ]);
+    listEventsInvoke.mockResolvedValue([makeTokenEvent({ payload: { tokens_delta: 1000, cost_delta: 0.5 } })]);
 
-    const { result, rerender } = renderHook(({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }), {
-      initialProps: { id: 'team-A' },
-    });
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }),
+      {
+        initialProps: { id: 'team-A' },
+      }
+    );
 
     await waitFor(() => {
       expect(result.current.totalTokens).toBe(1000);

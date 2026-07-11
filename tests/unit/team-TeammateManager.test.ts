@@ -31,7 +31,7 @@ vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: vi.fn(async () => null) },
 }));
 
-import { TeammateManager } from '@process/team/TeammateManager';
+import { TeammateManager, computeUsageDelta } from '@process/team/TeammateManager';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { TeamAgent } from '@process/team/types';
 import type { Mailbox } from '@process/team/Mailbox';
@@ -68,6 +68,7 @@ function makeMailbox(): Mailbox {
         type: 'message',
       },
     ]),
+    peekUnread: vi.fn().mockResolvedValue([]),
     getHistory: vi.fn().mockResolvedValue([]),
   } as unknown as Mailbox;
 }
@@ -520,7 +521,7 @@ describe('TeammateManager', () => {
       mgr.dispose();
     });
 
-    it('marks a silent leader as failed after the 60s inactivity watchdog fires', async () => {
+    it('marks a silent leader as failed after the inactivity watchdog fires', async () => {
       vi.useFakeTimers();
       try {
         // Lead is the only agent - timeout escalates to 'failed' but has nobody to notify.
@@ -534,7 +535,7 @@ describe('TeammateManager', () => {
         await mgr.wake('slot-1');
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-1')?.status).toBe('active');
 
-        await vi.advanceTimersByTimeAsync(61_000);
+        await vi.advanceTimersByTimeAsync(181_000);
 
         // Previously the watchdog dropped the agent to 'idle' (hiding the stall).
         // It now marks the agent 'failed' so the team surface reflects the problem.
@@ -691,7 +692,7 @@ describe('TeammateManager', () => {
   // -------------------------------------------------------------------------
 
   describe('wake inactivity watchdog', () => {
-    it('notifies the leader when a teammate goes silent past the 60s watchdog', async () => {
+    it('notifies the leader when a teammate goes silent past the inactivity watchdog', async () => {
       vi.useFakeTimers();
       try {
         const leadAgent = makeAgent({
@@ -718,8 +719,8 @@ describe('TeammateManager', () => {
         await mgr.wake('slot-member');
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
 
-        // No stream activity arrives - push past the watchdog deadline.
-        await vi.advanceTimersByTimeAsync(61_000);
+        // No stream activity arrives - push past the 180s watchdog deadline (#747).
+        await vi.advanceTimersByTimeAsync(181_000);
 
         // Teammate is escalated to 'failed' (not silently dropped to 'idle').
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
@@ -782,13 +783,125 @@ describe('TeammateManager', () => {
           });
         }
 
-        // Still within 60s of the last heartbeat - watchdog must NOT have fired.
+        // Still within the inactivity budget of the last heartbeat - watchdog must NOT have fired.
         expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
         expect(mailbox.write).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'idle_notification' }));
 
         mgr.dispose();
       } finally {
         vi.useRealTimers();
+      }
+    });
+
+    // #747 regression: a teammate silent for 61s (past the OLD 60s watchdog, but
+    // within the raised 180s default) must NOT be flagged failed. A single silent
+    // tool/test run or slow first-token latency routinely exceeds a minute.
+    it('#747: does NOT flag a teammate failed at 61s of silence (raised default)', async () => {
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, mailbox, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+        // Past the old 60s watchdog, but well under the 180s default.
+        await vi.advanceTimersByTimeAsync(61_000);
+
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+        expect(mailbox.write).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'idle_notification' }));
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    // #747: the inactivity budget is env-configurable for slower models / longer
+    // tool runs. Resolved once at construction from WAYLAND_TEAM_WAKE_TIMEOUT_MS.
+    it('#747: honors WAYLAND_TEAM_WAKE_TIMEOUT_MS override', async () => {
+      vi.stubEnv('WAYLAND_TEAM_WAKE_TIMEOUT_MS', '90000');
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+
+        // At 80s: under the 90s override -> still active (would have failed at the 60s old default).
+        await vi.advanceTimersByTimeAsync(80_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+        // Past 90s -> now flagged.
+        await vi.advanceTimersByTimeAsync(11_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+        vi.unstubAllEnvs();
+      }
+    });
+
+    // #747: an absurd override above the 32-bit setTimeout ceiling must be clamped,
+    // not overflow-and-fire after ~1ms (which would flag every teammate instantly).
+    it('#747: clamps an overflow WAYLAND_TEAM_WAKE_TIMEOUT_MS instead of firing immediately', async () => {
+      vi.stubEnv('WAYLAND_TEAM_WAKE_TIMEOUT_MS', '9999999999'); // ~115 days, past 2^31-1 ms
+      vi.useFakeTimers();
+      try {
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const teammate = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'idle',
+          agentName: 'Codex',
+        });
+        const mockSendMessage = vi.fn().mockResolvedValue(undefined);
+        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, teammate]);
+        vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: mockSendMessage } as never);
+
+        await mgr.wake('slot-member');
+        // Pre-clamp this would have overflowed and fired ~immediately. Advance a
+        // generous window; the teammate must still be active (clamped to ~24.8 days).
+        await vi.advanceTimersByTimeAsync(600_000);
+        expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+        mgr.dispose();
+      } finally {
+        vi.useRealTimers();
+        vi.unstubAllEnvs();
       }
     });
   });
@@ -817,11 +930,15 @@ describe('TeammateManager', () => {
   });
 
   // -------------------------------------------------------------------------
-  // token_usage delta accounting (R1 N-count fix)
+  // token_usage snapshot-diff accounting (DESK-1, supersedes R1 N-count fix)
   // -------------------------------------------------------------------------
 
   describe('acp_context_usage token_usage delta', () => {
-    it('writes per-turn deltas of the cumulative gauge, not the raw cumulative value', () => {
+    type TokenRow = { eventType?: string; payload: Record<string, unknown> };
+    const tokenRowsOf = (append: ReturnType<typeof vi.fn>): TokenRow[] =>
+      append.mock.calls.map((c) => c[0] as TokenRow).filter((e) => e.eventType === 'token_usage');
+
+    it('writes the raw cumulative snapshot AND per-event tokens_delta on each row', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
@@ -837,24 +954,20 @@ describe('TeammateManager', () => {
         });
       }
 
-      const tokenRows = append.mock.calls
-        .map((c) => c[0])
-        .filter((e: { eventType?: string }) => e.eventType === 'token_usage');
-      // Three deltas: 100, 150, 150 (summing to 400 - the true running total),
-      // NOT the N-counted 100+250+400 = 750.
-      expect(tokenRows.map((r: { payload: { total_tokens: number } }) => r.payload.total_tokens)).toEqual([
-        100, 150, 150,
-      ]);
-      const summed = tokenRows.reduce(
-        (acc: number, r: { payload: { total_tokens: number } }) => acc + r.payload.total_tokens,
-        0
-      );
+      const tokenRows = tokenRowsOf(append);
+      // Raw snapshot fields stay cumulative (back-compat W1e shape) ...
+      expect(tokenRows.map((r) => r.payload.total_tokens)).toEqual([100, 250, 400]);
+      expect(tokenRows.map((r) => r.payload.prompt_tokens)).toEqual([100, 250, 400]);
+      // ... while the deltas are per-event spend: 100, 150, 150 - the ONLY
+      // fields the meter sums (total 400, NOT the N-counted 750).
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([100, 150, 150]);
+      const summed = tokenRows.reduce((acc, r) => acc + (r.payload.tokens_delta as number), 0);
       expect(summed).toBe(400);
 
       mgr.dispose();
     });
 
-    it('keeps per-conversation baselines independent and clamps a regressed gauge to 0', () => {
+    it('keeps per-conversation baselines independent and clamps a dropped gauge to a 0 delta', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agents = [
@@ -876,7 +989,7 @@ describe('TeammateManager', () => {
         msg_id: 'm',
         data: { used: 300 },
       });
-      // A regressed gauge on conv-1 (compaction/reset) clamps to a 0 delta and
+      // A dropped gauge on conv-1 (compaction/reset) clamps to a 0 delta and
       // therefore writes no row.
       teamEventBus.emit('responseStream', {
         type: 'acp_context_usage',
@@ -885,12 +998,104 @@ describe('TeammateManager', () => {
         data: { used: 200 },
       });
 
-      const tokenRows = append.mock.calls
-        .map((c) => c[0])
-        .filter((e: { eventType?: string }) => e.eventType === 'token_usage');
-      expect(tokenRows.map((r: { payload: { total_tokens: number } }) => r.payload.total_tokens)).toEqual([500, 300]);
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
 
       mgr.dispose();
+    });
+
+    it('counts growth after a compaction drop from the new lower baseline', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      // 500 -> compaction drop to 200 (delta 0, no row) -> grow to 350.
+      // The post-drop growth (150) is real new spend and must be counted - a
+      // high-water baseline would wrongly swallow it until 500 was passed.
+      for (const used of [500, 200, 350]) {
+        teamEventBus.emit('responseStream', {
+          type: 'acp_context_usage',
+          conversation_id: 'conv-1',
+          msg_id: 'm',
+          data: { used },
+        });
+      }
+
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 150]);
+
+      mgr.dispose();
+    });
+
+    it('resets the baseline when the agent process is killed so a fresh session counts fully', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      teamEventBus.emit('responseStream', {
+        type: 'acp_context_usage',
+        conversation_id: 'conv-1',
+        msg_id: 'm',
+        data: { used: 500 },
+      });
+
+      // Session restart reuses the conversationId; without the reset the new
+      // session's first snapshot (300) would be misread as a drop (delta 0).
+      mgr.killAgentProcess('slot-1');
+
+      teamEventBus.emit('responseStream', {
+        type: 'acp_context_usage',
+        conversation_id: 'conv-1',
+        msg_id: 'm',
+        data: { used: 300 },
+      });
+
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
+
+      mgr.dispose();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // computeUsageDelta - pure snapshot-diff semantics (DESK-1)
+  // -------------------------------------------------------------------------
+
+  describe('computeUsageDelta', () => {
+    it('counts the full snapshot when there is no previous snapshot (fresh session)', () => {
+      expect(computeUsageDelta(undefined, { used: 1234, cost: 0.5 })).toEqual({
+        tokensDelta: 1234,
+        costDelta: 0.5,
+      });
+    });
+
+    it('returns the growth when the gauge grew', () => {
+      const delta = computeUsageDelta({ used: 100, cost: 0.1 }, { used: 250, cost: 0.35 });
+      expect(delta.tokensDelta).toBe(150);
+      expect(delta.costDelta).toBeCloseTo(0.25, 10);
+    });
+
+    it('clamps to 0 when the gauge dropped (compaction/reset)', () => {
+      expect(computeUsageDelta({ used: 500, cost: 0.5 }, { used: 200, cost: 0.1 })).toEqual({
+        tokensDelta: 0,
+        costDelta: 0,
+      });
+    });
+
+    it('clamps tokens and cost independently', () => {
+      // Tokens dropped (compaction) while cumulative cost kept growing.
+      const delta = computeUsageDelta({ used: 500, cost: 0.5 }, { used: 200, cost: 0.6 });
+      expect(delta.tokensDelta).toBe(0);
+      expect(delta.costDelta).toBeCloseTo(0.1, 10);
+    });
+
+    it('returns 0 deltas for an unchanged gauge', () => {
+      expect(computeUsageDelta({ used: 500, cost: 0.5 }, { used: 500, cost: 0.5 })).toEqual({
+        tokensDelta: 0,
+        costDelta: 0,
+      });
     });
   });
 
@@ -1104,6 +1309,181 @@ describe('TeammateManager', () => {
         .mocked(mbox.write)
         .mock.calls.filter((args) => args[0].type === 'idle_notification' && args[0].toAgentId === 'slot-lead');
       expect(idleCalls).toHaveLength(1);
+      mgr.dispose();
+    });
+
+    // #781 regression: a mailbox message that arrives while a member's wake is
+    // in flight (e.g. the leader's shutdown_request landing during the member's
+    // long spawn turn) is skipped by the activeWakes guard. finalizeTurn must
+    // re-wake the member so the message is delivered instead of rotting unread.
+    it('re-wakes a member whose mailbox has unread messages at turn end (#781)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+      });
+      const memberAgent = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'active',
+        agentName: 'Member',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent, memberAgent]);
+
+      // A shutdown_request arrived mid-turn and is still unread
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-shutdown',
+          teamId: 'team-1',
+          toAgentId: 'slot-member',
+          fromAgentId: 'slot-lead',
+          content: 'The team leader has requested you to shut down.',
+          type: 'shutdown_request',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+      vi.mocked(mbox.readUnread).mockResolvedValue([
+        {
+          id: 'msg-shutdown',
+          teamId: 'team-1',
+          toAgentId: 'slot-member',
+          fromAgentId: 'slot-lead',
+          content: 'The team leader has requested you to shut down.',
+          type: 'shutdown_request',
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'msg-1',
+        data: null,
+      });
+
+      // The member must be re-woken to drain the unread shutdown_request
+      await vi.waitFor(() => expect(workerTaskManager.getOrBuildTask).toHaveBeenCalledWith('conv-member'), {
+        timeout: 2000,
+      });
+      mgr.dispose();
+    });
+
+    it('does not re-wake a member whose mailbox is empty at turn end', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+      });
+      const memberAgent = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'active',
+        agentName: 'Member',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent, memberAgent]);
+      vi.mocked(mbox.peekUnread).mockResolvedValue([]);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'msg-1',
+        data: null,
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      // peekUnread was consulted but no wake was dispatched for the member
+      expect(mbox.peekUnread).toHaveBeenCalledWith('team-1', 'slot-member');
+      expect(workerTaskManager.getOrBuildTask).not.toHaveBeenCalledWith('conv-member');
+      mgr.dispose();
+    });
+
+    // #786 regression: the LEADER has the same mid-wake race as a member. A
+    // message written to the leader's mailbox while its wake is in flight (e.g.
+    // a user follow-up during the leader's long first-spawn turn) is skipped by
+    // activeWakes. Since the member re-wake above excludes the leader (to avoid
+    // idle-notification churn), finalizeTurn must drain the leader's own mailbox
+    // and re-wake it - but ONLY for actionable (non-idle_notification) content.
+    it('re-wakes the leader when an actionable message is unread at turn end (#786)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'active',
+        agentName: 'Leader',
+      });
+      // Solo leader (no members) - maybeWakeLeaderWhenAllIdle can never fire, so
+      // without the leader drain this message would rot forever.
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent]);
+
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-user',
+          teamId: 'team-1',
+          toAgentId: 'slot-lead',
+          fromAgentId: 'user',
+          content: 'Actually, also add tests.',
+          type: 'message',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-lead',
+        msg_id: 'm1',
+        data: null,
+      });
+
+      // The leader is re-woken to drain the unread follow-up.
+      await vi.waitFor(() => expect(workerTaskManager.getOrBuildTask).toHaveBeenCalledWith('conv-lead'), {
+        timeout: 2000,
+      });
+      mgr.dispose();
+    });
+
+    it('does NOT re-wake the leader when only idle_notifications are unread (no churn) (#786)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'active',
+        agentName: 'Leader',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent]);
+
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-idle',
+          teamId: 'team-1',
+          toAgentId: 'slot-lead',
+          fromAgentId: 'slot-member',
+          content: 'Turn completed',
+          type: 'idle_notification',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-lead',
+        msg_id: 'm1',
+        data: null,
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      // The leader mailbox WAS drained (peeked), but a pure idle_notification set
+      // must not trigger a re-wake - that would re-introduce the churn the
+      // maybeWakeLeaderWhenAllIdle gate exists to prevent.
+      expect(mbox.peekUnread).toHaveBeenCalledWith('team-1', 'slot-lead');
+      expect(workerTaskManager.getOrBuildTask).not.toHaveBeenCalledWith('conv-lead');
       mgr.dispose();
     });
   });

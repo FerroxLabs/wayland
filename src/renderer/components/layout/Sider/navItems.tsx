@@ -8,7 +8,7 @@
  * Config-driven registry for the sider top-zone nav entries (#118).
  *
  * The nine entries used to be hand-composed as JSX in `Sider/index.tsx`. This
- * registry owns their ORDER (Mission Control first) and exposes the metadata the
+ * registry owns their ORDER (Mission Control last, below Memory) and exposes the metadata the
  * Settings > Navigation pane needs to toggle each one's visibility. Each entry's
  * bespoke `isActive` logic and per-entry props stay encapsulated in its `render`
  * closure, so the live components (and their collapsed icon-rail behaviour) are
@@ -61,28 +61,12 @@ export type SiderNavItem = {
 };
 
 /**
- * The nav entries in display order. Mission Control is first (#118). Adding an
+ * The nav entries in display order. Mission Control is last, below Memory. Adding an
  * entry here automatically surfaces it in the sider AND in the Settings >
  * Navigation visibility list; it defaults to visible (absent from the
  * hidden-set).
  */
 export const SIDER_NAV_ITEMS: SiderNavItem[] = [
-  {
-    id: 'mission-control',
-    labelKey: 'missionControl.sidebarLabel',
-    defaultLabel: 'Mission Control',
-    icon: <Gauge size={16} />,
-    render: (ctx) => (
-      <SiderMissionControlEntry
-        key='mission-control'
-        isMobile={ctx.isMobile}
-        isActive={ctx.pathname.startsWith('/mission-control')}
-        collapsed={ctx.collapsed}
-        siderTooltipProps={ctx.siderTooltipProps}
-        onClick={() => ctx.onTopZoneNav('/mission-control')}
-      />
-    ),
-  },
   {
     id: 'sessions',
     labelKey: 'conversations.siderEntry',
@@ -207,6 +191,22 @@ export const SIDER_NAV_ITEMS: SiderNavItem[] = [
         isActive={ctx.pathname.startsWith('/memory') || ctx.pathname.startsWith('/wiki')}
         collapsed={ctx.collapsed}
         siderTooltipProps={ctx.siderTooltipProps}
+      />
+    ),
+  },
+  {
+    id: 'mission-control',
+    labelKey: 'missionControl.sidebarLabel',
+    defaultLabel: 'Mission Control',
+    icon: <Gauge size={16} />,
+    render: (ctx) => (
+      <SiderMissionControlEntry
+        key='mission-control'
+        isMobile={ctx.isMobile}
+        isActive={ctx.pathname.startsWith('/mission-control')}
+        collapsed={ctx.collapsed}
+        siderTooltipProps={ctx.siderTooltipProps}
+        onClick={() => ctx.onTopZoneNav('/mission-control')}
       />
     ),
   },

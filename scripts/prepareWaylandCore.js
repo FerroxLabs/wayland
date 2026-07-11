@@ -184,7 +184,7 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // FerroxLabs/wayland-core; Desktop integrates against a specific tag rather
 // than tracking `latest` so version drift can't sneak in via a release made
 // while a CI build is mid-flight. Override with WCORE_VERSION=... when bumping.
-const DEFAULT_WCORE_VERSION = 'v0.12.22';
+const DEFAULT_WCORE_VERSION = 'v0.12.24';
 
 function getVersion() {
   return (process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION).trim();

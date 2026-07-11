@@ -8,10 +8,19 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
+import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process/secrets';
 import { resolveWCoreBinary } from './binaryResolver';
-import { buildEngineSpawnEnv, buildSpawnConfig, engineInheritsShellKey, MissingApiKeyError } from './envBuilder';
+import {
+  buildEngineSpawnEnv,
+  buildSpawnConfig,
+  engineInheritsShellKey,
+  MissingApiKeyError,
+  planVaultPassphraseDelivery,
+  type VaultPassphraseDelivery,
+} from './envBuilder';
 import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
@@ -19,6 +28,7 @@ import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 import { parseQuestionTool } from './questionTool';
+import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
@@ -293,11 +303,37 @@ export class WCoreAgent {
     } catch (err) {
       console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
     }
+    // #710: hand the engine the profile's vault passphrase so it encrypts its
+    // credential store (WAYLAND_HOME spawns otherwise fall back to a warned
+    // plaintext credentials.toml). Delivery is fd-based on Unix (an extra pipe
+    // at stdio index 3, invisible in /proc environ) and env-based on Windows.
+    // Best-effort by design: `resolveSpawnVaultPassphrase` returns null on any
+    // keychain/provisioning failure - and when the profile already holds
+    // plaintext secrets the engine cannot migrate (no plaintext→vault import
+    // exists engine-side) - in which case the spawn proceeds exactly as before.
+    let vaultDelivery: VaultPassphraseDelivery | undefined;
+    if (waylandHome) {
+      const vaultPassphrase = await resolveSpawnVaultPassphrase(waylandHome);
+      if (vaultPassphrase !== null) {
+        vaultDelivery = planVaultPassphraseDelivery(vaultPassphrase);
+      }
+    }
     this.childProcess = spawn(binaryPath, args, {
-      env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome }),
-      stdio: ['pipe', 'pipe', 'pipe'],
+      env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome, vaultPassphraseEnv: vaultDelivery?.env }),
+      stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
       cwd: this.options.workspace,
     });
+    if (vaultDelivery?.mode === 'fd') {
+      // Write the passphrase into the extra pipe and close our end so the
+      // engine's read-to-EOF completes. The engine reads it lazily (first
+      // credential access); the pipe buffers the short payload until then.
+      // Swallow EPIPE - an engine that dies before reading must not crash us.
+      const fdStream = this.childProcess.stdio[VAULT_PASSPHRASE_CHILD_FD] as Writable | null;
+      if (fdStream) {
+        fdStream.on('error', () => {});
+        fdStream.end(vaultDelivery.fdPayload);
+      }
+    }
     // #443: register with the last-resort reaper so a quit that truncates the
     // graceful per-agent kill still force-kills this engine child (auto-removed
     // on exit / graceful kill).
@@ -314,11 +350,20 @@ export class WCoreAgent {
       }
     });
 
-    // Log stderr as diagnostics and retain the tail for failure surfacing (#484).
+    // Retain the raw stderr tail for failure surfacing (#484).
     this.childProcess.stderr?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString();
-      console.error('[wcore]', text);
-      this.stderrTail = (this.stderrTail + text).slice(-WCORE_STDERR_TAIL_MAX);
+      this.stderrTail = (this.stderrTail + chunk.toString()).slice(-WCORE_STDERR_TAIL_MAX);
+    });
+
+    // Log each stderr line at the engine's own severity instead of blanket
+    // [error] (#717): the engine self-labels lines (tracing format), and
+    // routine INFO chatter re-tagged as host errors drowned real errors.
+    // ANSI colour codes are stripped so the log file stays plain text.
+    const stderrLines = createInterface({ input: this.childProcess.stderr! });
+    stderrLines.on('line', (rawLine) => {
+      const line = stripAnsi(rawLine);
+      if (!line.trim()) return;
+      console[wcoreStderrLevel(line)]('[wcore]', line);
     });
 
     // Handle process exit
@@ -329,7 +374,7 @@ export class WCoreAgent {
         // exit code so callers see the cause, not just "exited with code N"
         // (#484). The "exited with code" wording distinguishes an engine that
         // died during init from the separate 30s ready-timeout below.
-        const detail = redactSecrets(this.stderrTail.trim());
+        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         this.readyReject(
           new Error(
             detail
@@ -352,7 +397,7 @@ export class WCoreAgent {
     // engine that exited during init (handled above).
     const timeout = new Promise<void>((_, reject) => {
       setTimeout(() => {
-        const detail = redactSecrets(this.stderrTail.trim());
+        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         reject(new Error(detail ? `wcore ready timeout (30s): ${detail}` : 'wcore ready timeout (30s)'));
       }, 30000);
     });
@@ -568,6 +613,22 @@ export class WCoreAgent {
 
       case 'mcp_ready':
         this.mcpReadyResolve();
+        break;
+
+      // ── #713: MCP server connection failure ────────────────────────
+      // Mirrors plugin_registration_failed: the session still runs, but
+      // the user must see that a configured MCP server failed to connect
+      // (its tools silently don't exist otherwise) and the engine's
+      // remediation text. Previously this fell through to the
+      // unknown-event arm and was dropped, so MCP connection failures
+      // were invisible outside the log file.
+      case 'mcp_failed':
+        console.warn('[WCoreAgent] mcp_failed', { name: event.name, reason: event.reason });
+        this.onStreamEvent({
+          type: 'info',
+          data: `MCP server "${event.name}" failed to connect: ${event.reason}`,
+          msg_id: this.activeMsgId ?? '',
+        });
         break;
 
       case 'pong':

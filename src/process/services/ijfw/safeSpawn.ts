@@ -13,6 +13,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { buildChildEnv } from './envAllowlist';
+import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
 
 export type Cmd = 'npm' | 'npx' | 'node';
 
@@ -164,7 +165,11 @@ export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
 
   return spawn(argv0, argv, {
     stdio: ['pipe', 'pipe', 'pipe'],
-    cwd: opts.cwd,
+    // #755: never inherit the parent's cwd - in forked workers it is
+    // app.asar.unpacked, and npm/npx treat cwd as a project root (package.json
+    // discovery, potential node_modules writes) which must never point inside
+    // the signed bundle.
+    cwd: opts.cwd ?? resolveSafeSpawnCwd(),
     env,
   });
 }

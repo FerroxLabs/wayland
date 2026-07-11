@@ -31,7 +31,7 @@ import { iconColors } from '@/renderer/styles/colors';
 import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file/messageFiles';
-import { getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
+import { useModelContextLimit } from '@/renderer/hooks/agent/useModelContextLimit';
 import { Message, Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -105,6 +105,10 @@ const GeminiSendBox: React.FC<{
 
   const { currentModel, getDisplayModelName, providers, geminiModeLookup, getAvailableModels, handleSelectModel } =
     modelSelection;
+
+  // #733: registry-backed context window (same source as the picker rows), so
+  // the usage indicator's max stays consistent with what the picker shows.
+  const getContextLimit = useModelContextLimit('gemini');
 
   // Check if no auth (no Google login AND no API key configured)
   const hasNoAuth = providers.length === 0;
@@ -472,7 +476,7 @@ const GeminiSendBox: React.FC<{
         sendButtonPrefix={
           <ContextUsageIndicator
             tokenUsage={tokenUsage}
-            contextLimit={getModelContextLimit(currentModel?.useModel)}
+            contextLimit={getContextLimit(currentModel?.useModel)}
             size={24}
           />
         }

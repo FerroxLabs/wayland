@@ -121,7 +121,12 @@ const skipSingleInstanceLock = isE2ETestMode || process.env.WAYLAND_MULTI_INSTAN
 const deepLinkFromArgv = process.argv.find((arg) => arg.startsWith(`${PROTOCOL_SCHEME}://`));
 const gotTheLock = skipSingleInstanceLock ? true : app.requestSingleInstanceLock({ deepLinkUrl: deepLinkFromArgv });
 if (!gotTheLock) {
-  console.warn('[Wayland] Another instance is already running; current process will exit.');
+  // Expected path: with close-to-tray enabled, every launch while Wayland is
+  // tray-resident lands here. This is benign single-instance forwarding, not a
+  // failure — keep it at info so external log audits don't read it as a crash.
+  console.info(
+    '[Wayland] Activation forwarded to the running instance (close-to-tray keeps Wayland running in the background); this launcher process is exiting — expected behavior.'
+  );
   app.quit();
 } else {
   app.on('second-instance', (_event, argv, _workingDirectory, additionalData) => {
@@ -829,6 +834,20 @@ const handleAppReady = async (): Promise<void> => {
 
   _sentry?.setUser({ id: getOrCreateAnalyticsId() });
 
+  // Activate a staged engine update from a previous session BEFORE the engine
+  // subsystem initializes and can spawn (and re-lock) the binary. The in-app
+  // engine update stages to `<binary>.pending` when the live binary is locked
+  // (Windows, where the running engine holds an exclusive handle); this swaps it
+  // into place while no engine is running yet.
+  try {
+    const { applyPendingWCoreUpdate } = await import('./process/agent/wcore/wcoreUpdater');
+    if (applyPendingWCoreUpdate().applied) {
+      console.log('[Wayland] applied staged engine update on startup');
+    }
+  } catch (err) {
+    console.error('[Wayland] applyPendingWCoreUpdate failed:', err);
+  }
+
   try {
     await initializeProcess();
     mark('initializeProcess');
@@ -1074,6 +1093,17 @@ const handleAppReady = async (): Promise<void> => {
     } else {
       console.warn(`[CDP] Warning: Remote debugging port ${cdpPort} not responding`);
     }
+  }
+
+  // #755/#738: async bundle-integrity self-check (macOS packaged builds only -
+  // the module gates itself too). A broken codesign seal makes hardened-runtime
+  // macOS block every child process the app spawns; surface the offending
+  // `file added/modified:` lines + remediation instead of failing silently.
+  // Fire-and-forget so it never delays startup.
+  if (process.platform === 'darwin' && app.isPackaged) {
+    import('./process/services/integrity/bundleIntegrity')
+      .then(({ runBundleIntegrityCheck }) => runBundleIntegrityCheck())
+      .catch((err) => console.warn('[Integrity] bundle self-check failed to start:', err));
   }
 
   // Listen for system resume (wake from sleep/hibernate) to recover missed cron jobs

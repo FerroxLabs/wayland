@@ -50,7 +50,7 @@ import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file/messageFiles';
 import { mergeWithCapabilities, type AgentModeOption } from '@/renderer/utils/model/agentModes';
-import { getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
+import { useModelContextLimit } from '@/renderer/hooks/agent/useModelContextLimit';
 import { Message, Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -122,6 +122,9 @@ const WCoreSendBox: React.FC<{
   const { t } = useTranslation();
   const { checkAndUpdateTitle } = useAutoTitle();
   const { currentModel, getDisplayModelName } = modelSelection;
+  // #733: registry-backed context window (same source as the picker rows), so
+  // the usage indicator's max stays consistent with what the picker shows.
+  const getContextLimit = useModelContextLimit('wcore');
   const readiness = useProviderReadiness();
   // The engine is "asleep" when no working inference provider is configured.
   // While asleep we still let the user compose + send: the message is held in
@@ -583,7 +586,7 @@ const WCoreSendBox: React.FC<{
         sendButtonPrefix={
           <ContextUsageIndicator
             tokenUsage={tokenUsage}
-            contextLimit={getModelContextLimit(currentModel?.useModel)}
+            contextLimit={getContextLimit(currentModel?.useModel)}
             size={24}
           />
         }

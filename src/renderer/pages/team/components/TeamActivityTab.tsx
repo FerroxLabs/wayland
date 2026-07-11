@@ -14,17 +14,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertTriangle,
-  ArrowRight,
-  ClipboardList,
-  Coins,
-  Inbox,
-  Power,
-  Sparkles,
-  UserPlus,
-  Wand2,
-} from 'lucide-react';
+import { AlertTriangle, ArrowRight, ClipboardList, Coins, Inbox, Power, Sparkles, UserPlus, Wand2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { TeamEvent, TeamEventType } from '@process/team/types';
 
@@ -98,10 +88,22 @@ const summarizeEvent = (event: TeamEvent): string => {
       return duration ? `${label} (${duration})` : label;
     }
     case 'token_usage': {
-      const total = typeof p.total_tokens === 'number' ? p.total_tokens : undefined;
-      const cost = typeof p.cost_estimate_usd === 'number' ? p.cost_estimate_usd : undefined;
       const backend = typeof p.backend === 'string' ? p.backend : undefined;
       const parts: string[] = [];
+      // DESK-1: delta-aware rows carry this event's spend in `tokens_delta` /
+      // `cost_delta` - show that (prefixed `+`), not the cumulative session
+      // snapshot the raw fields hold.
+      const tokensDelta = typeof p.tokens_delta === 'number' ? p.tokens_delta : undefined;
+      const costDelta = typeof p.cost_delta === 'number' ? p.cost_delta : undefined;
+      if (tokensDelta !== undefined || costDelta !== undefined) {
+        if (tokensDelta !== undefined) parts.push(`+${tokensDelta.toLocaleString()} tokens`);
+        if (costDelta !== undefined && costDelta > 0) parts.push(`+$${costDelta.toFixed(4)}`);
+        if (backend) parts.push(backend);
+        return parts.length > 0 ? parts.join(' · ') : 'token usage';
+      }
+      // Legacy rows without delta fields: keep the original snapshot rendering.
+      const total = typeof p.total_tokens === 'number' ? p.total_tokens : undefined;
+      const cost = typeof p.cost_estimate_usd === 'number' ? p.cost_estimate_usd : undefined;
       if (total !== undefined) parts.push(`${total.toLocaleString()} tokens`);
       if (cost !== undefined) parts.push(`$${cost.toFixed(4)}`);
       if (backend) parts.push(backend);

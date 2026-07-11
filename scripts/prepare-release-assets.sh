@@ -30,7 +30,8 @@ mapfile -t DISTRIBUTABLES < <(find "$ARTIFACTS_DIR" -type f \( \
   -name "*.deb" -o \
   -name "*.AppImage" -o \
   -name "*.rpm" -o \
-  -name "*.zip" \
+  -name "*.zip" -o \
+  -name "*.blockmap" \
 \) | sort)
 
 DUPLICATE_BASENAMES=$(for file in "${DISTRIBUTABLES[@]}"; do basename "$file"; done | sort | uniq -d || true)

@@ -16,6 +16,18 @@ vi.mock('electron', () => ({
   },
 }));
 
+// #716: getActiveProjectDirs reads persisted project workspaces (lazily) so a
+// GUI launch with cwd '/' still scans tracked projects. Mocked so unit tests
+// never touch a real SQLite database.
+const listProjectsSpy = vi.fn().mockResolvedValue([]);
+vi.mock('@process/services/database/SqliteProjectRepository', () => ({
+  SqliteProjectRepository: class {
+    listProjects() {
+      return listProjectsSpy();
+    }
+  },
+}));
+
 // eslint-disable-next-line import/first
 import { ijfwSystemService, getActiveProjectDirs } from '@process/services/ijfwSystemService';
 
@@ -56,6 +68,7 @@ describe('getActiveProjectDirs - Gemini B2 unsafe-root guard', () => {
 
   beforeEach(() => {
     vi.spyOn(process, 'cwd');
+    listProjectsSpy.mockReset().mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -69,26 +82,77 @@ describe('getActiveProjectDirs - Gemini B2 unsafe-root guard', () => {
     }
   });
 
-  it('returns [] when cwd is "/" (macOS GUI Dock launch)', () => {
+  it('returns [] when cwd is "/" (macOS GUI Dock launch) and no projects exist', async () => {
     (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/');
-    expect(getActiveProjectDirs()).toEqual([]);
+    await expect(getActiveProjectDirs()).resolves.toEqual([]);
   });
 
-  it('returns [] when cwd is the bare HOME directory', () => {
+  it('returns [] when cwd is the bare HOME directory', async () => {
     process.env.HOME = '/Users/test-user';
     (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/Users/test-user');
-    expect(getActiveProjectDirs()).toEqual([]);
+    await expect(getActiveProjectDirs()).resolves.toEqual([]);
   });
 
-  it('returns [] for system paths like /etc, /var, /System', () => {
+  it('returns [] for system paths like /etc, /var, /System', async () => {
     for (const sys of ['/etc', '/var', '/System', '/Library', '/Applications']) {
       (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue(sys);
-      expect(getActiveProjectDirs()).toEqual([]);
+      await expect(getActiveProjectDirs()).resolves.toEqual([]);
     }
   });
 
-  it('returns [cwd] for a normal project directory', () => {
+  it('returns [cwd] for a normal project directory', async () => {
     (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/Users/test-user/dev/myproject');
-    expect(getActiveProjectDirs()).toEqual(['/Users/test-user/dev/myproject']);
+    await expect(getActiveProjectDirs()).resolves.toEqual(['/Users/test-user/dev/myproject']);
+  });
+});
+
+describe('getActiveProjectDirs - #716 project workspaces on GUI launch', () => {
+  const originalHome = process.env.HOME;
+
+  beforeEach(() => {
+    vi.spyOn(process, 'cwd');
+    listProjectsSpy.mockReset().mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    process.env.HOME = originalHome;
+  });
+
+  it('returns project workspaces when cwd is "/" (macOS GUI Dock launch)', async () => {
+    (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/');
+    listProjectsSpy.mockResolvedValue([
+      { id: 'a', name: 'A', workspace: '/Users/test-user/WaylandProjects/alpha' },
+      { id: 'b', name: 'B', workspace: '/Users/test-user/WaylandProjects/beta' },
+    ]);
+    await expect(getActiveProjectDirs()).resolves.toEqual([
+      '/Users/test-user/WaylandProjects/alpha',
+      '/Users/test-user/WaylandProjects/beta',
+    ]);
+  });
+
+  it('skips projects without a workspace and unsafe workspace values', async () => {
+    process.env.HOME = '/Users/test-user';
+    (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/');
+    listProjectsSpy.mockResolvedValue([
+      { id: 'a', name: 'A' },
+      { id: 'b', name: 'B', workspace: '  ' },
+      { id: 'c', name: 'C', workspace: '/' },
+      { id: 'd', name: 'D', workspace: '/Users/test-user' },
+      { id: 'e', name: 'E', workspace: '/Users/test-user/dev/ok' },
+    ]);
+    await expect(getActiveProjectDirs()).resolves.toEqual(['/Users/test-user/dev/ok']);
+  });
+
+  it('deduplicates a cwd that is also a project workspace', async () => {
+    (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/Users/test-user/dev/myproject');
+    listProjectsSpy.mockResolvedValue([{ id: 'a', name: 'A', workspace: '/Users/test-user/dev/myproject' }]);
+    await expect(getActiveProjectDirs()).resolves.toEqual(['/Users/test-user/dev/myproject']);
+  });
+
+  it('falls back to a safe cwd when the project store read fails', async () => {
+    (process.cwd as ReturnType<typeof vi.fn>).mockReturnValue('/Users/test-user/dev/myproject');
+    listProjectsSpy.mockRejectedValue(new Error('db not ready'));
+    await expect(getActiveProjectDirs()).resolves.toEqual(['/Users/test-user/dev/myproject']);
   });
 });

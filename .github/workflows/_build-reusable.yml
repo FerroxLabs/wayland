@@ -687,6 +687,7 @@ jobs:
             out/Wayland-*-win32-*.zip
             out/Wayland-*-mac-*.zip
             out/*.yml
+            out/*.blockmap
           if-no-files-found: warn
           retention-days: 7
 

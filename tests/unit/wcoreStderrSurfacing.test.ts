@@ -18,6 +18,14 @@ vi.mock('@process/agent/wcore/binaryResolver', () => ({ resolveWCoreBinary: () =
 vi.mock('@process/agent/wcore/envBuilder', () => ({
   buildEngineSpawnEnv: () => ({}),
   buildSpawnConfig: () => ({ args: [], env: {}, projectConfig: undefined, resolvedMaxTokens: undefined }),
+  planVaultPassphraseDelivery: () => ({ mode: 'env', env: {}, stdio: ['pipe', 'pipe', 'pipe'] }),
+}));
+// #710: vault provisioning is out of scope here - resolve "no unlock material"
+// so the spawn takes the legacy three-slot stdio path (and never touches the
+// real keychain/config dir from a unit test).
+vi.mock('@process/secrets', () => ({
+  VAULT_PASSPHRASE_CHILD_FD: 3,
+  resolveSpawnVaultPassphrase: () => Promise.resolve(null),
 }));
 vi.mock('@process/agent/wcore/profilePaths', () => ({
   resolveActiveConfigDir: () => Promise.resolve('/fake/home'),

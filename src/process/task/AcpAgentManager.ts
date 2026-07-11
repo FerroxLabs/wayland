@@ -114,6 +114,17 @@ interface AcpAgentManagerData {
   effort?: 'low' | 'medium' | 'high';
   /** Per-conversation active MCP server ids (#348): undefined = all enabled, [] = none. */
   activeMcpServers?: string[];
+  /**
+   * Team MCP stdio bridge config, present only when this agent belongs to a
+   * team (injected by TeamSessionService). `.name` is `wayland-team-<teamId>` -
+   * used to auto-approve the team's own coordination tool calls.
+   */
+  teamMcpStdioConfig?: {
+    name: string;
+    command: string;
+    args: string[];
+    env: Array<{ name: string; value: string }>;
+  };
 }
 
 type BufferedStreamTextMessage = {
@@ -1185,6 +1196,49 @@ ${collectedResponses.join('\n')}`;
   }
 
   /**
+   * True when a permission request targets THIS session's own team coordination
+   * MCP server (wayland-team-<teamId>, injected by TeamSessionService). Those
+   * are internal Wayland tools with their own server-side capability gates
+   * (TeamMcpServer), so blocking them behind a human dialog only deadlocks a
+   * teammate nobody is watching.
+   *
+   * Matching is strict so a prompt-injected agent cannot smuggle the marker into
+   * an unrelated approval (tool titles and rawInput can carry model-controlled
+   * text on some backends - e.g. an exec approval's title is the command):
+   * - The title must BE the fully-qualified tool name ("[mcp__]<server>__<tool>"),
+   *   not merely contain it (the claude-style shape).
+   * - codex-acp uses a generic "Approve MCP tool call" title and puts the target
+   *   in rawInput. That rawInput is codex-CLI-constructed (not echoed model tool
+   *   input) and tagged with an `mcp_tool_call_approval` id, so server_name is
+   *   trustworthy only alongside that id prefix.
+   */
+  private isTeamMcpPermission(toolCall: AcpPermissionRequest['toolCall']): boolean {
+    const teamServerName = this.options.teamMcpStdioConfig?.name;
+    if (!teamServerName) return false;
+
+    const title = toolCall.title || '';
+    const escaped = teamServerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`^(mcp__)?${escaped}__[A-Za-z0-9_-]+$`).test(title)) {
+      return true;
+    }
+
+    // codex-only: on other ACP backends rawInput is the model's own tool-call
+    // arguments (see ApprovalStore's {command,path,...} handling), so server_name
+    // and the non-secret mcp_tool_call_approval id prefix would both be
+    // model-forgeable - a prompt-injected member could smuggle them onto an
+    // unrelated tool call and get it silently approved. Only codex-acp builds
+    // this rawInput itself, so the trust is valid solely on that backend.
+    if (this.options.backend !== 'codex') return false;
+    const rawInput = toolCall.rawInput as { server_name?: unknown; id?: unknown } | undefined;
+    const approvalId = rawInput?.id;
+    return (
+      rawInput?.server_name === teamServerName &&
+      typeof approvalId === 'string' &&
+      approvalId.startsWith('mcp_tool_call_approval')
+    );
+  }
+
+  /**
    * Handle signal events (permission requests, finish, errors) from the ACP agent.
    * Auto-approves permissions in yolo mode and for team MCP tools,
    * delegates finish handling to handleFinishSignal.
@@ -1205,9 +1259,14 @@ ${collectedResponses.join('\n')}`;
         return;
       }
 
-      // Auto-approve team MCP tools - internal tools provided by Wayland.
-      const toolTitle = toolCall.title || '';
-      if (toolTitle.includes('wayland-team') && options.length > 0) {
+      // Auto-approve this team's own coordination tools - internal MCP tools
+      // injected by Wayland (TeamSessionService), never a human decision. A
+      // teammate cannot make progress while a dialog nobody watches blocks a
+      // team_* call. #781: codex-acp raises a per-call approval whose title is
+      // the generic "Approve MCP tool call" (the target server lives in
+      // rawInput.server_name, not the title), so the old title-substring check
+      // missed it and the codex leader stalled forever on "add a member".
+      if (this.isTeamMcpPermission(toolCall) && options.length > 0) {
         const autoOption = options[0];
         setTimeout(() => {
           void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, autoOption);

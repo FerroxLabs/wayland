@@ -35,6 +35,16 @@ export function convertLatexDelimiters(text: string): string {
 }
 
 function replaceDelimiters(text: string): string {
+  // Neutralize currency before remark-math runs. A lone `$` immediately followed by a
+  // digit or a decimal point then a digit (`$2k`, `$25`, `$10k`, `$50k+`, `$.99`) is a
+  // dollar amount, not a math delimiter — without this, remark-math pairs two such `$`
+  // into an inline-math span and renders the text between them in italic KaTeX with
+  // spaces collapsed (prices garbled in chat). Escaping to `\$` makes it a literal `$`.
+  // Skips `$$` display delimiters (a `$` preceded by `$`) and already-escaped `\$`
+  // (preceded by `\`). The `\.?\d` lookahead requires a digit after the optional dot, so
+  // a closing math `$` followed by a period (`$x$.`) is left alone. Real inline math
+  // (`$x$`, `$\alpha$`) starts with a non-digit and is unaffected.
+  text = text.replace(/(?<![\\$])\$(?=\.?\d)/g, () => '\\$');
   // Replace \[...\] with $$...$$ (block display math, supports multiline)
   text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_match, content: string) => `$$${content}$$`);
   // Replace \(...\) with $...$ (inline math)

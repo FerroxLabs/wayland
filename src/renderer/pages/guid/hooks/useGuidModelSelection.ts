@@ -68,8 +68,30 @@ export const isExperimentalProvider = (provider: { platform?: string; name?: str
 type UsageModel = { modelId: string; useCount: number; lastUsedMs: number };
 type ModelChoice = { provider: IProvider; useModel: string; accountId?: string };
 
-const providerForModelId = (modelList: IProvider[], modelId: string): IProvider | undefined =>
-  modelList.find((p) => p.model?.includes(modelId));
+/**
+ * Registry-bridge tag stamped on the ChatGPT-subscription provider row
+ * (`v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`). Hardcoded rather than imported
+ * because this renderer hook must not reach into @process.
+ */
+const CHATGPT_SUBSCRIPTION_BRIDGE_TAG = 'v2:chatgpt-subscription';
+const isChatGptSubscriptionProvider = (provider: IProvider): boolean =>
+  (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge === CHATGPT_SUBSCRIPTION_BRIDGE_TAG;
+
+/**
+ * The provider that owns `modelId`. Prefer the ChatGPT-subscription provider
+ * (OAuth, no per-token cost) when it also lists the id, so a recently-used /
+ * frequent bare id (e.g. `gpt-5.5`) is not hijacked by a metered look-alike
+ * (direct OpenAI / OpenRouter) that merely lists the same id first in
+ * `model.config` and bills there - the same #555 anti-hijack the team resolver
+ * (TeamSessionService.resolveOwningProviderModelById) already applies. Telemetry
+ * stores a BARE model id with no provider identity, so without this preference
+ * the default resolver could bind the subscription's model to the disabled /
+ * metered OpenAI provider.
+ */
+const providerForModelId = (modelList: IProvider[], modelId: string): IProvider | undefined => {
+  const owns = (p: IProvider): boolean => p.model?.includes(modelId) === true && p.modelEnabled?.[modelId] !== false;
+  return modelList.find((p) => owns(p) && isChatGptSubscriptionProvider(p)) ?? modelList.find(owns);
+};
 
 /**
  * First usage entry (in the order given) whose model still exists in the

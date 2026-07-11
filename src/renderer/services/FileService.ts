@@ -329,6 +329,10 @@ export function isTextFile(fileName: string): boolean {
  * excluded, and every real text/code file stays expandable (#655).
  */
 export function isLikelyTextFile(fileName: string): boolean {
+  // SVG is XML text and is diffable, even though isImageFile classifies it as an
+  // image (for the attach-as-image path). Treat it as text here so the Workspace
+  // diff viewer can expand and diff SVG changes (#655).
+  if (getFileExtension(fileName) === '.svg') return true;
   return !isImageFile(fileName) && !isDocumentFile(fileName);
 }
 

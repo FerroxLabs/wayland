@@ -535,10 +535,11 @@ class AutoUpdaterService extends EventEmitter {
     // Persist the pending-install marker so the next launch can verify the apply
     // actually advanced the version (#286), same as the manual path.
     this.writePendingInstallMarker();
-    // isSilent=true, isForceRunAfter=false: install on quit without relaunching
-    // (apply-on-quit semantics, like VS Code/Slack) and without the force-exit
-    // timer — the caller is already quitting.
-    autoUpdater.quitAndInstall(true, false);
+    // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
+    // the "Install and restart" button's promise and the pre-#651 behavior. We
+    // omit the force-exit timer (unlike the manual quitAndInstall) because the
+    // caller is already inside the quit sequence.
+    autoUpdater.quitAndInstall(true, true);
     return true;
   }
 
@@ -746,8 +747,18 @@ class AutoUpdaterService extends EventEmitter {
         ? `${subject} can't be installed because Wayland is running from outside your Applications folder ` +
           `(macOS blocks in-place updates from temporary or read-only locations). Move Wayland to ` +
           `/Applications, reopen it, and try again.`
-        : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
-          `previous version). Please download and install it manually from the Releases page.`;
+        : process.platform === 'win32'
+          ? // Windows installs are per-machine (UPD-04), so applying an update
+            // writes to %ProgramFiles% and needs administrator approval; the most
+            // common cause of a silent no-op is an elevation (UAC) prompt that was
+            // declined, dismissed, or never completed (#492).
+            `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
+            `previous version). Wayland is installed for all users, so updating needs administrator approval — ` +
+            `this usually means the elevation (UAC) prompt was declined or couldn't be completed. Please ` +
+            `download the installer manually from the Releases page and approve the administrator prompt ` +
+            `when it appears.`
+          : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
+            `previous version). Please download and install it manually from the Releases page.`;
     this.broadcastStatus({ status: 'install-failed', reason, version, error: message });
   }
 

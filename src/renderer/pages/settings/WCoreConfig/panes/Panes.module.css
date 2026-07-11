@@ -341,6 +341,8 @@
 .pane {
   --wc-warning: #fbbf24;
   --wc-warning-dim: rgba(251, 191, 36, 0.14);
+  --wc-error: #f87171;
+  --wc-error-dim: rgba(248, 113, 113, 0.14);
 }
 
 /* ---- Scope label (refinement B) ---- */
@@ -864,6 +866,19 @@
 }
 .updateCardDone {
   border-color: var(--wc-success);
+}
+.updateCardError {
+  border-color: var(--wc-error);
+}
+.updateCardError .updateIcon {
+  color: var(--wc-error);
+  background: var(--wc-error-dim);
+}
+.updateError {
+  font-size: 0.78rem;
+  color: var(--wc-error);
+  line-height: 1.45;
+  word-break: break-word;
 }
 .updateIcon {
   display: flex;

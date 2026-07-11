@@ -365,6 +365,13 @@ vi.mock('@/renderer/utils/file/messageFiles', () => ({
 
 vi.mock('@/renderer/utils/model/modelContextLimits', () => ({
   getModelContextLimit: vi.fn(() => 8192),
+  resolveModelContextLimit: vi.fn(() => 8192),
+}));
+
+// #733: the send boxes resolve the indicator's max via the registry-backed
+// hook; mock it so the test graph never loads useModelRegistry / ipcBridge.
+vi.mock('@/renderer/hooks/agent/useModelContextLimit', () => ({
+  useModelContextLimit: vi.fn(() => vi.fn(() => 8192)),
 }));
 
 vi.mock('@arco-design/web-react', () => ({
