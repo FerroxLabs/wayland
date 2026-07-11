@@ -684,7 +684,7 @@ export class TeammateManager extends EventEmitter {
 
     // Detect terminal stream messages and trigger turn completion.
     if (msg.type === 'finish' || msg.type === 'error') {
-      void this.finalizeTurn(msg.conversation_id);
+      void this.finalizeTurn(msg.conversation_id, msg.turnId);
       return;
     }
 
@@ -787,12 +787,24 @@ export class TeammateManager extends EventEmitter {
    * All agent coordination (send_message, task_create, etc.) is handled via MCP tool calls
    * in TeamMcpServer - this method only needs to manage lifecycle.
    */
-  private async finalizeTurn(conversationId: string): Promise<void> {
+  private async finalizeTurn(conversationId: string, turnId?: number): Promise<void> {
+    // #787: dedup per (conversation, turn). A late duplicate of a prior turn's
+    // finish that arrives AFTER the agent was re-woken must still be suppressed,
+    // yet the re-wake's own fresh turn must be free to finalize. Keying by
+    // conversation alone can't distinguish them: `wake()` clears the entry so
+    // the new turn isn't wrongly deduped, which simultaneously un-dedups the old
+    // turn's straggler → a duplicate idle_notification. A per-turn key fixes
+    // both: the straggler (turnId=A) stays deduped while the re-wake (turnId=B)
+    // uses a distinct key. Non-ACP / signal-channel finishes carry no turnId and
+    // fall back to conversation-only keying (unchanged behaviour) — and note
+    // `wake()`'s bare-`conversationId` delete only removes that fallback key, so
+    // it never disturbs a live `${conv}#${turnId}` entry.
+    const dedupKey = turnId === undefined ? conversationId : `${conversationId}#${turnId}`;
     // Dedup: skip if this turn was already finalized
-    if (this.finalizedTurns.has(conversationId)) return;
-    this.finalizedTurns.add(conversationId);
+    if (this.finalizedTurns.has(dedupKey)) return;
+    this.finalizedTurns.add(dedupKey);
     // Clean up the dedup entry after a short delay so future turns can be processed
-    setTimeout(() => this.finalizedTurns.delete(conversationId), 5000);
+    setTimeout(() => this.finalizedTurns.delete(dedupKey), 5000);
 
     const agent = this.agents.find((a) => a.conversationId === conversationId);
     if (!agent) return;
