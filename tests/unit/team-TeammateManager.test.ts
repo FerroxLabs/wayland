@@ -1401,6 +1401,91 @@ describe('TeammateManager', () => {
       expect(workerTaskManager.getOrBuildTask).not.toHaveBeenCalledWith('conv-member');
       mgr.dispose();
     });
+
+    // #786 regression: the LEADER has the same mid-wake race as a member. A
+    // message written to the leader's mailbox while its wake is in flight (e.g.
+    // a user follow-up during the leader's long first-spawn turn) is skipped by
+    // activeWakes. Since the member re-wake above excludes the leader (to avoid
+    // idle-notification churn), finalizeTurn must drain the leader's own mailbox
+    // and re-wake it - but ONLY for actionable (non-idle_notification) content.
+    it('re-wakes the leader when an actionable message is unread at turn end (#786)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'active',
+        agentName: 'Leader',
+      });
+      // Solo leader (no members) - maybeWakeLeaderWhenAllIdle can never fire, so
+      // without the leader drain this message would rot forever.
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent]);
+
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-user',
+          teamId: 'team-1',
+          toAgentId: 'slot-lead',
+          fromAgentId: 'user',
+          content: 'Actually, also add tests.',
+          type: 'message',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-lead',
+        msg_id: 'm1',
+        data: null,
+      });
+
+      // The leader is re-woken to drain the unread follow-up.
+      await vi.waitFor(() => expect(workerTaskManager.getOrBuildTask).toHaveBeenCalledWith('conv-lead'), {
+        timeout: 2000,
+      });
+      mgr.dispose();
+    });
+
+    it('does NOT re-wake the leader when only idle_notifications are unread (no churn) (#786)', async () => {
+      const leadAgent = makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'active',
+        agentName: 'Leader',
+      });
+      const { mgr, mailbox: mbox, workerTaskManager } = makeTeammateManager([leadAgent]);
+
+      vi.mocked(mbox.peekUnread).mockResolvedValue([
+        {
+          id: 'msg-idle',
+          teamId: 'team-1',
+          toAgentId: 'slot-lead',
+          fromAgentId: 'slot-member',
+          content: 'Turn completed',
+          type: 'idle_notification',
+          read: false,
+          createdAt: Date.now(),
+        },
+      ] as never);
+
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-lead',
+        msg_id: 'm1',
+        data: null,
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      // The leader mailbox WAS drained (peeked), but a pure idle_notification set
+      // must not trigger a re-wake - that would re-introduce the churn the
+      // maybeWakeLeaderWhenAllIdle gate exists to prevent.
+      expect(mbox.peekUnread).toHaveBeenCalledWith('team-1', 'slot-lead');
+      expect(workerTaskManager.getOrBuildTask).not.toHaveBeenCalledWith('conv-lead');
+      mgr.dispose();
+    });
   });
 
   // -------------------------------------------------------------------------

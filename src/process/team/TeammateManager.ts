@@ -871,6 +871,36 @@ export class TeammateManager extends EventEmitter {
           err instanceof Error ? err.message : String(err)
         );
       }
+    } else {
+      // #786: the leader has the SAME mid-wake delivery race as members - a
+      // message written to the leader's mailbox while its wake is in flight is
+      // skipped by the activeWakes guard (e.g. a user follow-up sent during the
+      // leader's long first-spawn turn). The member drain above intentionally
+      // excludes the leader because an unconditional re-wake would re-introduce
+      // the notification-per-turn churn that maybeWakeLeaderWhenAllIdle exists to
+      // prevent. So drain the leader's own unread mailbox here, but re-wake ONLY
+      // when it holds real content (a user follow-up or a member report) - never
+      // for idle_notifications alone. Otherwise a leader message can rot when no
+      // member finishes a turn afterward (or there are no members at all) to
+      // trip maybeWakeLeaderWhenAllIdle. wake() drains ALL unread atomically
+      // (readUnreadAndMark), so any idle_notifications ride along on that wake.
+      try {
+        const pending = await this.mailbox.peekUnread(this.teamId, agent.slotId);
+        const actionable = pending.filter((m) => m.type !== 'idle_notification');
+        if (actionable.length > 0) {
+          console.log(
+            `[TeammateManager] finalizeTurn(leader ${agent.agentName}): ${actionable.length} actionable unread message(s) arrived mid-turn, re-waking`
+          );
+          void this.wake(agent.slotId).catch((err) => {
+            console.error(`[TeammateManager] finalizeTurn leader re-wake(${agent.slotId}) failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.warn(
+          `[TeammateManager] finalizeTurn(leader ${agent.slotId}) unread-mailbox check failed:`,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
     }
   }
 
