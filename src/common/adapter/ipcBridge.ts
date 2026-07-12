@@ -1336,7 +1336,9 @@ export const cron = {
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
   addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
-  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob> }>('cron.update-job'),
+  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
+    'cron.update-job'
+  ),
   removeJob: buildProvider<void, { jobId: string }>('cron.remove-job'),
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
@@ -1456,6 +1458,8 @@ export interface ICreateCronJobParams {
   createdBy: 'user' | 'agent';
   executionMode?: 'existing' | 'new_conversation';
   agentConfig?: ICronAgentConfig;
+  /** #163: opt-in past the every-minute + new_conversation footgun guard. */
+  allowHighFrequency?: boolean;
 }
 
 interface ISendMessageParams {

@@ -36,8 +36,8 @@ export function initCronBridge(): void {
     return cronService.addJob(params);
   });
 
-  ipcBridge.cron.updateJob.provider(async ({ jobId, updates }) => {
-    return cronService.updateJob(jobId, updates);
+  ipcBridge.cron.updateJob.provider(async ({ jobId, updates, allowHighFrequency }) => {
+    return cronService.updateJob(jobId, updates, allowHighFrequency);
   });
 
   ipcBridge.cron.removeJob.provider(async ({ jobId }) => {
