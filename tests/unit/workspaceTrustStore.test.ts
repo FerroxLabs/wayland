@@ -81,8 +81,13 @@ describe('WorkspaceTrustStore (#671)', () => {
     const s = await freshStore();
     await Promise.all([s.setWorkspaceTrust('/ws/a', 'cowork'), s.setWorkspaceTrust('/ws/b', 'cowork')]);
     // Without a serialized read-modify-write the second set would clobber the
-    // first's key on disk; both must survive.
-    expect(store['workspace.trustLevel']).toMatchObject({ '/ws/a': 'cowork', '/ws/b': 'cowork' });
+    // first's key on disk, leaving ONE entry; both must survive. Assert on the
+    // persisted map's shape (count + values) rather than literal keys, since the
+    // normalized key is platform-dependent (path.resolve yields C:\ws\a on win32).
+    const persisted = (store['workspace.trustLevel'] ?? {}) as Record<string, string>;
+    expect(Object.keys(persisted)).toHaveLength(2);
+    expect(Object.values(persisted).every((v) => v === 'cowork')).toBe(true);
+    // Per-workspace reads round-trip through normalize on both sides (platform-agnostic).
     expect(s.getWorkspaceTrustSync('/ws/a')).toBe('cowork');
     expect(s.getWorkspaceTrustSync('/ws/b')).toBe('cowork');
   });
