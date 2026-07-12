@@ -14,6 +14,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { buildChildEnv } from './envAllowlist';
 import { resolveSafeSpawnCwd } from '@process/utils/safeSpawnCwd';
+import { resolveJsRuntime } from '@process/utils/jsRuntime';
 
 export type Cmd = 'npm' | 'npx' | 'node';
 
@@ -147,21 +148,28 @@ export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
   let argv0: string;
   let argv: string[];
 
+  // #706: packaged (fused) builds ignore ELECTRON_RUN_AS_NODE, so the app binary
+  // can no longer stand in for Node. Resolve a real runtime (bundled Bun when
+  // packaged; the app binary as Node in dev). The trusted npm-cli.js resolution
+  // (SEC-007) is unchanged — only the interpreter running it changes, and Bun
+  // ships inside the signed bundle.
+  const runtime = resolveJsRuntime();
+
   if (opts.cmd === 'node') {
-    argv0 = process.execPath;
+    argv0 = runtime.command;
     argv = [...opts.args];
   } else if (opts.cmd === 'npm') {
     const npmCli = await resolveTrustedNpmCli();
-    argv0 = process.execPath;
+    argv0 = runtime.command;
     argv = [npmCli, ...opts.args];
   } else {
     const npmCli = await resolveTrustedNpmCli();
     const npxCli = path.join(path.dirname(npmCli), 'npx-cli.js');
-    argv0 = process.execPath;
+    argv0 = runtime.command;
     argv = [npxCli, ...opts.args];
   }
 
-  const env = buildChildEnv({ ...opts.extraEnv, ELECTRON_RUN_AS_NODE: '1' });
+  const env = buildChildEnv({ ...opts.extraEnv, ...runtime.env });
 
   return spawn(argv0, argv, {
     stdio: ['pipe', 'pipe', 'pipe'],

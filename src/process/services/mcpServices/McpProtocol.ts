@@ -14,6 +14,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { getEnhancedEnv, normalizeNpxArgsForBundledBun, resolveNpxPath } from '@/process/utils/shellEnv';
 import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
+import { resolveJsRuntime } from '@/process/utils/jsRuntime';
 import { isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
 
 /**
@@ -213,12 +214,13 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // Bundled @wayland MCPs are stored as { command: 'node', args: ['builtin-mcp-<name>.mjs'] }.
       // End-user Macs frequently have no system `node` on PATH, so spawning the
       // bare command dies on launch and surfaces only as -32000 "Connection
-      // closed". Run our own builtins through the app's Electron binary as Node
-      // (ELECTRON_RUN_AS_NODE=1) — always present, correct arch, no system Node
-      // required — mirroring the IJFW stdio client. The bare filename is also
-      // rewritten to an absolute path under out/main (dev) or
-      // app.asar.unpacked/out/main (packaged).
+      // closed". Run our own builtins through a resolved JS runtime — bundled Bun
+      // in packaged builds (the app binary can't be used: #706, the RunAsNode
+      // fuse makes ELECTRON_RUN_AS_NODE a no-op so it would boot as the app), or
+      // the app binary as Node in dev. The bare filename is also rewritten to an
+      // absolute path under out/main (dev) or app.asar.unpacked/out/main (packaged).
       const isBuiltinWaylandMcp = transport.command === 'node' && isBuiltinWaylandMcpArg(rawArgs[0]);
+      const builtinRuntime = isBuiltinWaylandMcp ? resolveJsRuntime() : null;
 
       // Use enhanced env (includes shell PATH) instead of bare process.env
       // so CLI tools installed via nvm/fnm/volta are discoverable in packaged mode
@@ -226,11 +228,11 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         ...getEnhancedEnv(transport.env),
         TERM: 'dumb',
         NO_COLOR: '1',
-        ...(isBuiltinWaylandMcp ? { ELECTRON_RUN_AS_NODE: '1' } : {}),
+        ...(builtinRuntime ? builtinRuntime.env : {}),
       };
 
-      command = isBuiltinWaylandMcp
-        ? process.execPath
+      command = builtinRuntime
+        ? builtinRuntime.command
         : transport.command === 'npx'
           ? resolveNpxPath(enhancedEnv)
           : transport.command;
