@@ -652,6 +652,22 @@ export const imports = {
   singleSkillMd: buildProvider<ImportSummary, { srcPath: string }>('imports.single-skill-md'),
 };
 
+/** Result of a portable export (#512). `redacted` warns a masked secret was found. */
+export interface PortableExportResult {
+  ok: boolean;
+  canceled?: boolean;
+  path?: string;
+  redacted?: boolean;
+  error?: string;
+}
+
+// #512: credential-redacted export of an assistant to a portable agent-profile
+// SKILL.md that round-trips through the importer above. (Workflow export is a
+// fast-follow — it needs path-confinement of the skill's on-disk location.)
+export const dataExport = {
+  assistant: buildProvider<PortableExportResult, { id: string }>('data-export.assistant'),
+};
+
 export const voiceAsset = {
   download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),

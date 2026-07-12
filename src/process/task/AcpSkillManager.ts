@@ -77,8 +77,11 @@ export function parseFrontmatter(content: string): ParsedFrontmatter | null {
 
   // Parse name - required; reject if absent or blank.
   // Use [ \t]* (not \s*) so the match cannot consume the newline and bleed
-  // into the next frontmatter line.
-  const nameMatch = frontmatter.match(/^name:[ \t]*['"]?([^'"\n]+?)['"]?[ \t]*$/m);
+  // into the next frontmatter line. The value is `.+?` (not `[^'"\n]+?`) so a
+  // name with an embedded apostrophe/quote - e.g. `Sam's Assistant`, which
+  // js-yaml emits unquoted - parses in full instead of truncating at the quote
+  // (`.` never matches `\n`, so the no-line-bleed property holds). #512.
+  const nameMatch = frontmatter.match(/^name:[ \t]*['"]?(.+?)['"]?[ \t]*$/m);
   const name = nameMatch ? nameMatch[1].trim() : '';
   if (!name) return null;
 
@@ -90,9 +93,7 @@ export function parseFrontmatter(content: string): ParsedFrontmatter | null {
   const typeMatch = frontmatter.match(/^type:[ \t]*['"]?([^'"\n]+?)['"]?[ \t]*$/m);
   const rawType = typeMatch ? typeMatch[1].trim() : undefined;
   const skillType: SkillType | undefined =
-    rawType === 'skill' || rawType === 'workflow' || rawType === 'agent-profile'
-      ? rawType
-      : undefined;
+    rawType === 'skill' || rawType === 'workflow' || rawType === 'agent-profile' ? rawType : undefined;
 
   // Parse metadata: block - everything indented under "metadata:"
   const metadata: SkillMetadata = { tags: [] };
@@ -194,9 +195,7 @@ export class AcpSkillManager {
     const enabledPart = enabledSkills?.toSorted().join(',') || 'all';
     const excludePart = excludeBuiltinSkills?.toSorted().join(',') || '';
     const revPart = prefsRevision !== undefined ? `|rev:${prefsRevision}` : '';
-    const cacheKey = excludePart
-      ? `${enabledPart}|exclude:${excludePart}${revPart}`
-      : `${enabledPart}${revPart}`;
+    const cacheKey = excludePart ? `${enabledPart}|exclude:${excludePart}${revPart}` : `${enabledPart}${revPart}`;
 
     // If cache key changed, need to recreate instance
     if (AcpSkillManager.instance && AcpSkillManager.instanceKey === cacheKey) {
