@@ -64,13 +64,34 @@ function ipv4ToInt(octets: [number, number, number, number]): number {
 }
 
 /**
- * Whether an IP is loopback (IPv4 127.0.0.0/8 or IPv6 ::1). Always operator.
+ * Whether an IP is loopback (IPv4 127.0.0.0/8 or IPv6 ::1).
  */
 function isLoopback(ip: string): boolean {
   if (ip === '::1') return true;
   const octets = parseIpv4(ip);
   if (!octets) return false;
   return octets[0] === 127;
+}
+
+/**
+ * Whether the operator has DECLARED that this instance sits behind a same-host reverse
+ * proxy (`WAYLAND_TRUSTED_PROXY`). When they have, loopback can no longer be read as
+ * "the local human": the documented Caddy/nginx/cloudflared deployment forwards public
+ * internet traffic to the app on `127.0.0.1`, so an unconditional loopback ⇒ operator
+ * grant would hand the destructive gate to the entire internet (#808).
+ *
+ * Opt-in on purpose: the default (unset) keeps loopback ⇒ operator for the local-desktop
+ * case (a browser on the same machine), so there is no regression. Operators who set it
+ * prove operator another way - WAYLAND_OPERATOR_CIDRS or tailnet arrival. Note the
+ * tradeoff: most destructive routes (restore, keys-included export) are reached over
+ * HTTP loopback (StorageService.*Http), so with the proxy declared and no CIDR/tailnet
+ * operator path they are unavailable over the WebUI by design (fail closed). Only the
+ * password reset has a direct IPC path (webui-direct-reset-password) that bypasses this
+ * classifier entirely.
+ */
+function trustedProxyDeclared(): boolean {
+  const raw = process.env.WAYLAND_TRUSTED_PROXY?.trim().toLowerCase();
+  return raw === '1' || raw === 'true' || raw === 'yes';
 }
 
 /**
@@ -293,6 +314,11 @@ function matchesOperatorCidr(ip: string): boolean {
  * 172.16.x / 192.168.x with no allowlist entry, and every public address - is
  * `restricted`. Unparseable/empty addresses fail safe to `restricted`.
  *
+ * EXCEPTION (#808): when `WAYLAND_TRUSTED_PROXY` is declared, loopback is NOT operator
+ * - a same-host reverse proxy forwards public traffic as a `127.0.0.1` peer, so a
+ * loopback grant there would be operator-for-the-internet. Operator must then come from
+ * the CIDR/tailnet checks (or be done from the desktop app over IPC).
+ *
  * CALLERS MUST PASS `req.socket.remoteAddress`, never `req.ip` (XFF is spoofable).
  */
 export function classifyClientTrust(
@@ -301,7 +327,11 @@ export function classifyClientTrust(
 ): NetworkTrust {
   if (!rawIp) return 'restricted';
   const ip = normalizeIp(rawIp);
-  if (isLoopback(ip)) return 'operator';
+  // Loopback is the local human ONLY when the app is not knowingly proxied. If the
+  // operator declared a same-host reverse proxy, a loopback peer may be that proxy
+  // forwarding a stranger, so it is not an operator on its own - it must still clear
+  // the CIDR/tailnet checks below (which a bare 127.0.0.1 never will). (#808)
+  if (isLoopback(ip) && !trustedProxyDeclared()) return 'operator';
   // 100.64.0.0/10 is RFC 6598 CGNAT, not a Tailscale identity. Honour it as operator
   // ONLY when this connection actually ARRIVED over the tailnet - i.e. it landed on
   // one of our own tailnet addresses. Callers MUST pass `socket.localAddress`; a
