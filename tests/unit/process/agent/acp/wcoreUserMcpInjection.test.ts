@@ -18,6 +18,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { shouldInjectSessionMcpServer, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { resolveNpxPath } from '@process/utils/shellEnv';
 import type { IMcpServer } from '@/common/config/storage';
 
 const server = (over: Partial<IMcpServer>): IMcpServer =>
@@ -90,6 +91,22 @@ describe('buildWCoreUserStdioMcpServers', () => {
         env: [{ name: 'TOKEN', value: 't' }],
       },
     ]);
+  });
+
+  it('#827 rewrites an npx stdio connector to bundled Bun so wcore can spawn it (Windows, no system npx)', () => {
+    const playwright = server({
+      id: 'pw',
+      name: 'playwright',
+      status: undefined,
+      transport: { type: 'stdio', command: 'npx', args: ['-y', '@playwright/mcp'], env: {} },
+    });
+    const [out] = buildWCoreUserStdioMcpServers([playwright]);
+    expect(out).toMatchObject({
+      type: 'stdio',
+      name: 'playwright',
+      command: resolveNpxPath({}), // env-agnostic: bundled bun path, or bare 'bun'/'bun.exe'
+      args: ['x', '--bun', '@playwright/mcp'],
+    });
   });
 
   it('excludes builtins (handled by wcore via its own mechanisms)', () => {

@@ -8,6 +8,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import { BUILTIN_CONCIERGE_DIAG_ID } from '@process/resources/builtinMcp/constants';
 import { sanitizeMcpServerName } from '@process/services/mcpServices/validateMcpServer';
+import { resolveStdioMcpCommand } from '@process/utils/mcpStdioResolve';
 
 export interface AcpSessionMcpNameValue {
   name: string;
@@ -107,15 +108,19 @@ export function buildAcpSessionMcpServers(
       .filter((server) => server.id !== BUILTIN_CONCIERGE_DIAG_ID || allowConciergeDiag)
       .map((server): AcpSessionMcpServer | null => {
         switch (server.transport.type) {
-          case 'stdio':
+          case 'stdio': {
             if (!capabilities.stdio) return null;
+            // Resolve `npx` to bundled Bun so tools actually load at session
+            // start where no system npx exists (#827, Windows).
+            const stdio = resolveStdioMcpCommand(server.transport.command, server.transport.args || []);
             return {
               type: 'stdio',
               name: server.name,
-              command: server.transport.command,
-              args: server.transport.args || [],
+              command: stdio.command,
+              args: stdio.args,
               env: toNameValueEntries(server.transport.env) ?? [],
             };
+          }
           case 'http':
           case 'streamable_http':
             if (!capabilities.http) return null;
@@ -183,11 +188,14 @@ export function buildWCoreUserStdioMcpServers(
     .filter((server) => server.transport.type === 'stdio')
     .map((server): AcpSessionMcpServerStdio => {
       const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
+      // Resolve `npx` to bundled Bun so the wcore engine spawns a runtime that
+      // exists on machines with no system npx (#827, Windows).
+      const stdio = resolveStdioMcpCommand(transport.command, transport.args || []);
       return {
         type: 'stdio',
         name: sanitizeMcpServerName(server.name),
-        command: transport.command,
-        args: transport.args || [],
+        command: stdio.command,
+        args: stdio.args,
         env: toNameValueEntries(transport.env) ?? [],
       };
     })

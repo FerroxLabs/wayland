@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IMcpServer } from '../../src/common/config/storage';
 import { buildAcpSessionMcpServers } from '../../src/process/agent/acp/mcpSessionConfig';
 import { parseAgentCapabilities } from '../../src/common/types/acpTypes';
+import { resolveNpxPath } from '../../src/process/utils/shellEnv';
 
 describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
   it('injects the seeded builtin search-skills entry into session/new with the correct stdio transport', () => {
@@ -224,12 +225,16 @@ describe('ACP custom MCP session config (#56)', () => {
 
     const result = buildAcpSessionMcpServers(servers, { stdio: true, http: false, sse: false });
 
+    // #827: a bare `npx` command is rewritten to Wayland's bundled Bun runtime
+    // (`bun x --bun ...`, npm-only flags like -y stripped) so tools actually
+    // load at session start on machines with no system npx (Windows). The #56
+    // guarantee — a custom server reaches Codex/Claude — is unchanged.
     expect(result).toEqual([
       {
         type: 'stdio',
         name: 'chrome-devtools',
-        command: 'npx',
-        args: ['-y', 'chrome-devtools-mcp@latest'],
+        command: resolveNpxPath({}),
+        args: ['x', '--bun', 'chrome-devtools-mcp@latest'],
         env: [],
       },
     ]);

@@ -2,6 +2,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
+import { resolveStdioMcpCommand } from '@process/utils/mcpStdioResolve';
 
 type MergeParams = {
   userServers?: McpServer[];
@@ -63,14 +64,18 @@ export class McpConfig {
       )
       .map((server): McpServer | null => {
         switch (server.transport.type) {
-          case 'stdio':
+          case 'stdio': {
             if (!caps.stdio) return null;
+            // Resolve `npx` to bundled Bun so the server actually spawns at
+            // session start on machines with no system npx (#827, Windows).
+            const stdio = resolveStdioMcpCommand(server.transport.command, server.transport.args || []);
             return {
               name: server.name,
-              command: server.transport.command,
-              args: server.transport.args || [],
+              command: stdio.command,
+              args: stdio.args,
               env: toNameValueArray(server.transport.env),
             };
+          }
           case 'http':
           case 'streamable_http':
             if (!caps.http) return null;
