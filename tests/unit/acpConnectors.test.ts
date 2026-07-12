@@ -539,4 +539,30 @@ describe('connectCodex - official bridge package', () => {
     expect(JSON.stringify(mockSpawn.mock.calls)).toContain(resolvedOfficialPackage);
     expect(JSON.stringify(mockSpawn.mock.calls)).not.toContain('@zed-industries');
   });
+
+  it('does not retry another package after an ordinary startup failure', async () => {
+    const startupError = new Error('ordinary codex bridge startup failure');
+    const hooks = {
+      setup: vi.fn(async () => {
+        throw startupError;
+      }),
+      cleanup: vi.fn(async () => {}),
+    };
+
+    await expect(connectCodex('C:\\Work Folder\\repo', hooks)).rejects.toBe(startupError);
+
+    expect({
+      resolverCalls: resolveBridgePackageMock.mock.calls,
+      spawnCalls: mockSpawn.mock.calls.length,
+      setupCalls: hooks.setup.mock.calls.length,
+      cleanupCalls: hooks.cleanup.mock.calls.length,
+    }).toEqual({
+      resolverCalls: [['@agentclientprotocol/codex-acp@1.1.2']],
+      spawnCalls: 1,
+      setupCalls: 1,
+      cleanupCalls: 1,
+    });
+    expect(JSON.stringify(mockSpawn.mock.calls)).toContain(resolvedOfficialPackage);
+    expect(JSON.stringify(mockSpawn.mock.calls)).not.toContain('@zed-industries');
+  });
 });
