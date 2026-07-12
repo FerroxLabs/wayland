@@ -661,11 +661,13 @@ export interface PortableExportResult {
   error?: string;
 }
 
-// #512: credential-redacted export of an assistant to a portable agent-profile
-// SKILL.md that round-trips through the importer above. (Workflow export is a
-// fast-follow — it needs path-confinement of the skill's on-disk location.)
+// #512: credential-redacted export of an assistant / workflow to a portable
+// SKILL.md that round-trips through the importer above. The workflow body is
+// resolved through SkillLibrary by NAME (never a renderer-supplied path), so
+// there is no on-disk path-traversal surface.
 export const dataExport = {
   assistant: buildProvider<PortableExportResult, { id: string }>('data-export.assistant'),
+  workflow: buildProvider<PortableExportResult, { name: string }>('data-export.workflow'),
 };
 
 export const voiceAsset = {
