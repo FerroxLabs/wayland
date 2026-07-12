@@ -1,4 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import path from 'node:path';
+
+// #706: the builtin-MCP path resolves a JS runtime keyed on isPackaged() +
+// getBundledBunDir(). Steer both from tests via this hoisted holder; default is
+// the unpackaged (dev) shape so pre-existing assertions stay valid.
+const h = vi.hoisted(() => ({ isPackaged: false, bundledBunDir: null as string | null }));
 
 // Mock platform services
 vi.mock('@/common/platform', () => ({
@@ -6,6 +12,7 @@ vi.mock('@/common/platform', () => ({
     paths: {
       getName: () => 'Wayland',
       getVersion: () => '1.0.0',
+      isPackaged: () => h.isPackaged,
     },
   }),
 }));
@@ -30,6 +37,7 @@ vi.mock('@process/utils/shellEnv', () => ({
     args.filter((arg) => arg !== '-y' && arg !== '--yes' && arg !== '--prefer-offline')
   ),
   resolveNpxPath: vi.fn().mockReturnValue('/usr/local/bin/bun'),
+  getBundledBunDir: () => h.bundledBunDir,
 }));
 vi.mock('fs', () => ({ promises: { access: vi.fn() } }));
 vi.mock('@process/utils/safeExec', () => ({
@@ -70,6 +78,9 @@ describe('AbstractMcpAgent', () => {
 
   beforeEach(async () => {
     vi.resetModules();
+    // #706: reset runtime-resolution state to the dev default before each test.
+    h.isPackaged = false;
+    h.bundledBunDir = null;
     isOAuthProtectedEndpointMock.mockReset().mockResolvedValue(false);
 
     const { AbstractMcpAgent } = await import('@process/services/mcpServices/McpProtocol');
@@ -332,6 +343,32 @@ describe('AbstractMcpAgent', () => {
       // builtin name (accept either path separator — Windows uses '\').
       expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBe('1');
+    });
+
+    it('#706 packaged: launches a builtin @wayland MCP under bundled Bun, not the app binary', async () => {
+      // In a packaged (fused) build ELECTRON_RUN_AS_NODE is a no-op, so the
+      // builtin must run under a real runtime (bundled Bun), never process.execPath.
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['builtin-mcp-apple.mjs'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe(
+        path.join('/res/bundled-bun/darwin-arm64', process.platform === 'win32' ? 'bun.exe' : 'bun')
+      );
+      expect(cfg.command).not.toBe(process.execPath);
+      // The .mjs builtin entry is still resolved to an absolute path and launched.
+      expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
+      // A real runtime must NOT carry the Electron-as-Node env var.
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
     });
 
     it('does NOT rewrite a user-defined node stdio server (only our bundled builtins)', async () => {

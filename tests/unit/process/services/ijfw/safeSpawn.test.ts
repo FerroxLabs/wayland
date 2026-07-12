@@ -14,6 +14,15 @@ vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
 }));
 
+// #706: the packaged runtime path resolves the bundled Bun dir. Override just
+// that one export (keep the rest of shellEnv real) so packaged tests can steer
+// it without touching the filesystem / a real resources dir.
+const h = vi.hoisted(() => ({ bundledBunDir: null as string | null }));
+vi.mock('@process/utils/shellEnv', async (orig) => ({
+  ...(await orig<typeof import('@process/utils/shellEnv')>()),
+  getBundledBunDir: () => h.bundledBunDir,
+}));
+
 import * as childProcess from 'node:child_process';
 // eslint-disable-next-line import/first
 import {
@@ -201,6 +210,58 @@ describe('ijfw/safeSpawn', () => {
       } finally {
         spy.mockRestore();
       }
+    });
+  });
+
+  // #706: in a packaged (fused) build ELECTRON_RUN_AS_NODE is a no-op, so the
+  // interpreter must be a real runtime — bundled Bun, never the app binary. The
+  // global NodePlatformServices reads process.env.IS_PACKAGED, so flip it here.
+  describe('packaged runtime (#706)', () => {
+    const BUN_DIR = '/res/bundled-bun/darwin-arm64';
+    // The resolver derives the binary name from the platform (bun.exe on Windows).
+    const bunBin = path.join(BUN_DIR, process.platform === 'win32' ? 'bun.exe' : 'bun');
+
+    beforeEach(() => {
+      process.env.IS_PACKAGED = 'true';
+      h.bundledBunDir = BUN_DIR;
+    });
+    afterEach(() => {
+      delete process.env.IS_PACKAGED;
+      h.bundledBunDir = null;
+    });
+
+    const spawnCalls = () => (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+
+    it("runs 'node' entries under bundled Bun, not the app binary, with no ELECTRON_RUN_AS_NODE", async () => {
+      await safeSpawn({ cmd: 'node', args: ['x'] });
+      const [argv0, argv, opts] = spawnCalls()[0];
+      expect(argv0).toBe(bunBin);
+      expect(argv0).not.toBe(process.execPath);
+      expect(argv).toEqual(['x']);
+      expect((opts as { env: NodeJS.ProcessEnv }).env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    it('runs the trusted npm-cli.js under bundled Bun (SEC-007 resolution unchanged)', async () => {
+      await safeSpawn({ cmd: 'npm', args: ['install', 'foo'] });
+      const [argv0, argv] = spawnCalls()[0];
+      expect(argv0).toBe(bunBin);
+      expect(argv[0]).toBe(trustedNpmCli); // still the trusted, resolved cli path
+      expect(argv.slice(1)).toEqual(['install', 'foo']);
+    });
+
+    it('runs the sibling npx-cli.js under bundled Bun', async () => {
+      await safeSpawn({ cmd: 'npx', args: ['cowsay'] });
+      const [argv0, argv] = spawnCalls()[0];
+      expect(argv0).toBe(bunBin);
+      expect(argv[0]).toBe(trustedNpxCli);
+    });
+
+    it('falls back to system node (not the app binary) when bundled Bun is absent', async () => {
+      h.bundledBunDir = null;
+      await safeSpawn({ cmd: 'node', args: ['x'] });
+      const [argv0] = spawnCalls()[0];
+      expect(argv0).toBe(process.platform === 'win32' ? 'node.exe' : 'node');
+      expect(argv0).not.toBe(process.execPath);
     });
   });
 });
