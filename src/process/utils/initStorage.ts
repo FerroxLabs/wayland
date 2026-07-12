@@ -61,6 +61,7 @@ import { getPlaywrightBrowsersDir } from '../services/mcpServices/playwrightBrow
 import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
 import { cleanupLegacyBundledExtensionCopies } from '../extensions/lifecycle/legacyBundledCopyCleanup';
 import { getBuiltinCatalogAssistants } from './builtinCatalog';
+import { seedHermesProfileAssistants } from '../services/skills/hermesProfileSeeder';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
@@ -1436,6 +1437,21 @@ const initStorage = async () => {
   } catch (error) {
     console.error('[Wayland] Failed to initialize builtin assistants:', error);
   }
+
+  // 5.4 Seed one preset Assistant per Hermes profile (~/.hermes/profiles/<name>/).
+  // Isolated from the builtin block so a profile-scan failure can't blank builtin
+  // init; runs after it so it reads the freshly-persisted assistants list.
+  try {
+    await seedHermesProfileAssistants({
+      getAssistants: async () => (await configFile.get('assistants').catch((): undefined => undefined)) ?? [],
+      setAssistants: async (next) => {
+        await configFile.set('assistants', next);
+      },
+    });
+  } catch (error) {
+    console.error('[Wayland] Failed to seed Hermes profile assistants:', error);
+  }
+  mark('5.4 hermes profile assistants');
 
   // 6. Initialize the database (better-sqlite3)
   try {
