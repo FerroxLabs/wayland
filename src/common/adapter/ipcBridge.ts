@@ -16,6 +16,7 @@ import type { MicPermissionStatus } from '../../process/services/macPermissions/
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
+import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
@@ -649,6 +650,22 @@ export const imports = {
   folder: buildProvider<ImportSummary, { srcPath: string }>('imports.folder'),
   git: buildProvider<ImportSummary, { url: string }>('imports.git'),
   singleSkillMd: buildProvider<ImportSummary, { srcPath: string }>('imports.single-skill-md'),
+};
+
+/** Result of a portable export (#512). `redacted` warns a masked secret was found. */
+export interface PortableExportResult {
+  ok: boolean;
+  canceled?: boolean;
+  path?: string;
+  redacted?: boolean;
+  error?: string;
+}
+
+// #512: credential-redacted export of an assistant to a portable agent-profile
+// SKILL.md that round-trips through the importer above. (Workflow export is a
+// fast-follow — it needs path-confinement of the skill's on-disk location.)
+export const dataExport = {
+  assistant: buildProvider<PortableExportResult, { id: string }>('data-export.assistant'),
 };
 
 export const voiceAsset = {
@@ -1335,7 +1352,9 @@ export const cron = {
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
   addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
-  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob> }>('cron.update-job'),
+  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
+    'cron.update-job'
+  ),
   removeJob: buildProvider<void, { jobId: string }>('cron.remove-job'),
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
@@ -1455,6 +1474,8 @@ export interface ICreateCronJobParams {
   createdBy: 'user' | 'agent';
   executionMode?: 'existing' | 'new_conversation';
   agentConfig?: ICronAgentConfig;
+  /** #163: opt-in past the every-minute + new_conversation footgun guard. */
+  allowHighFrequency?: boolean;
 }
 
 interface ISendMessageParams {
@@ -3110,4 +3131,24 @@ export const terminal = {
   output: buildEmitter<TerminalOutputPayload>('terminal.output'),
   /** PTY exited → renderer (filter by terminalId). */
   exit: buildEmitter<TerminalExitPayload>('terminal.exit'),
+};
+
+/**
+ * #671 Per-workspace trust axis — the composer Chat<->Cowork toggle.
+ *
+ * A 'cowork' workspace auto-approves read/edit tools across every local backend
+ * while STILL prompting on exec/network; 'chat' prompts on everything. Persisted
+ * per workspace (keyed by cwd) in the main process.
+ *
+ * SECURITY: both keys are namespaced `workspaceTrust.*` so bridgeAllowlist's
+ * `workspaceTrust.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer
+ * from ever reading OR arming trust — `set` would let a remote peer switch a
+ * workspace into unattended edit auto-approve, and `get` would disclose the
+ * security posture. This is a LOCAL desktop control only.
+ */
+export const workspaceTrust = {
+  /** Read the persisted trust level for a workspace cwd. */
+  get: buildProvider<WorkspaceTrustLevel, { workspace: string }>('workspaceTrust.get'),
+  /** Set + persist the trust level for a workspace cwd. */
+  set: buildProvider<void, { workspace: string; level: WorkspaceTrustLevel }>('workspaceTrust.set'),
 };

@@ -13,6 +13,10 @@
   "smart": "Akıllı",
   "build": "Build Mode",
   "permission": "İzin",
+  "chat": "Sohbet",
+  "cowork": "Cowork",
+  "chatTooltip": "Sohbet: her araçtan önce sor. Buradaki okuma ve düzenlemeleri otomatik onaylamak için Cowork'e geç.",
+  "coworkTooltip": "Cowork: bu çalışma alanındaki okuma ve düzenlemeleri otomatik onaylar; komutları çalıştırmadan önce yine de sorar.",
   "switchMode": "Switch Mode",
   "switchSuccess": "Mode switched successfully",
   "switchFailed": "Failed to switch mode"

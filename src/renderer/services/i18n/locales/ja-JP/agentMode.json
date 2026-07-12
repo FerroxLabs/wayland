@@ -13,6 +13,10 @@
   "smart": "スマート",
   "build": "ビルドモード",
   "permission": "権限",
+  "chat": "チャット",
+  "cowork": "コワーク",
+  "chatTooltip": "チャット：すべてのツールで確認します。Cowork に切り替えると、このワークスペースの読み取りと編集を自動承認します。",
+  "coworkTooltip": "Cowork：このワークスペースの読み取りと編集を自動承認します。コマンドの実行前には確認します。",
   "switchMode": "モード切替",
   "switchSuccess": "モードを切り替えました",
   "switchFailed": "モードの切り替えに失敗しました"

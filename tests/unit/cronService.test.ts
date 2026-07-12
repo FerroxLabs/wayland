@@ -485,8 +485,7 @@ describe('CronService', () => {
     // emitJobUpdated may still be called by startTimer; only assert NO missed-status update.
     const updateCalls = vi.mocked(repo.update).mock.calls;
     const missedUpdate = updateCalls.find(
-      ([, updates]) =>
-        updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
+      ([, updates]) => updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
     );
     expect(missedUpdate).toBeUndefined();
   });
@@ -518,5 +517,101 @@ describe('CronService', () => {
       })
     );
     expect(emitter.emitJobUpdated).toHaveBeenCalledWith(expect.objectContaining({ id: 'bad-cron', enabled: false }));
+  });
+
+  // --- #163: high-frequency + new_conversation footgun guard ---
+  describe('#163 addJob footgun guard', () => {
+    const footgunParams = () => ({
+      name: 'outbox poller',
+      schedule: { kind: 'cron' as const, expr: '* * * * *', description: 'every minute' },
+      prompt: 'check outbox',
+      conversationId: '',
+      agentType: 'wcore' as const,
+      createdBy: 'user' as const,
+      executionMode: 'new_conversation' as const,
+    });
+
+    it('rejects an every-minute new_conversation job by default', async () => {
+      await expect(service.addJob(footgunParams())).rejects.toThrow('cron:error.highFreqNewConversation');
+      expect(repo.insert).not.toHaveBeenCalled();
+    });
+
+    it('allows it when the user explicitly overrides', async () => {
+      await service.addJob({ ...footgunParams(), allowHighFrequency: true });
+      expect(repo.insert).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows every-minute in reuse (existing) mode', async () => {
+      await service.addJob({ ...footgunParams(), executionMode: 'existing', conversationId: 'conv-x' });
+      expect(repo.insert).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows a lower-frequency new_conversation job', async () => {
+      await service.addJob({
+        ...footgunParams(),
+        schedule: { kind: 'cron', expr: '*/10 * * * *', description: 'every 10 min' },
+      });
+      expect(repo.insert).toHaveBeenCalledTimes(1);
+    });
+
+    it('updateJob rejects raising an existing new_conversation job to every-minute', async () => {
+      const job = makeJob({
+        id: 'j-up',
+        schedule: { kind: 'cron', expr: '0 9 * * *', description: 'daily' },
+        target: { payload: { kind: 'message', text: 'x' }, executionMode: 'new_conversation' },
+      });
+      vi.mocked(repo.getById).mockResolvedValue(job);
+      await expect(
+        service.updateJob('j-up', { schedule: { kind: 'cron', expr: '* * * * *', description: 'm' } })
+      ).rejects.toThrow('cron:error.highFreqNewConversation');
+    });
+
+    it('updateJob allows raising frequency with the explicit override', async () => {
+      const job = makeJob({
+        id: 'j-up2',
+        schedule: { kind: 'cron', expr: '0 9 * * *', description: 'daily' },
+        target: { payload: { kind: 'message', text: 'x' }, executionMode: 'new_conversation' },
+      });
+      vi.mocked(repo.getById).mockResolvedValue(job);
+      await service.updateJob('j-up2', { schedule: { kind: 'cron', expr: '* * * * *', description: 'm' } }, true);
+      expect(repo.update).toHaveBeenCalled();
+    });
+  });
+
+  // --- #163: per-job overlap guard ---
+  describe('#163 overlap guard', () => {
+    type Runner = { executeJob: (job: CronJob) => Promise<void> };
+    const run = (job: CronJob) => (service as unknown as Runner).executeJob(job);
+
+    it('skips an overlapping run and re-runs once the previous finishes', async () => {
+      let resolveRun: () => void = () => {};
+      // Run 1 parks in the executor; later runs resolve immediately.
+      vi.mocked(executor.executeJob)
+        .mockImplementationOnce(() => new Promise<string | void>((resolve) => (resolveRun = () => resolve(undefined))))
+        .mockResolvedValue(undefined);
+      const job = makeJob({
+        id: 'ov',
+        schedule: { kind: 'cron', expr: '* * * * *', description: 'm' },
+        target: { payload: { kind: 'message', text: 'x' }, executionMode: 'new_conversation' },
+      });
+      vi.mocked(repo.getById).mockResolvedValue(job);
+
+      // runningJobs.add happens synchronously before the executor await, so run 2
+      // sees the flag without any intervening microtask flush.
+      const p1 = run(job); // run 1 — parks in the executor, flag held
+      await run(job); // run 2 — overlaps, must be skipped
+
+      expect(executor.executeJob).toHaveBeenCalledTimes(1);
+      expect(repo.update).toHaveBeenCalledWith(
+        'ov',
+        expect.objectContaining({ state: expect.objectContaining({ lastStatus: 'skipped' }) })
+      );
+
+      resolveRun();
+      await p1; // run 1 finishes → flag cleared
+
+      await run(job); // run 3 proceeds
+      expect(executor.executeJob).toHaveBeenCalledTimes(2);
+    });
   });
 });

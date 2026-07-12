@@ -6,9 +6,11 @@
 
 import path from 'node:path';
 import { homedir } from 'node:os';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { app, dialog } from 'electron';
 import type { ImportSummary, ImportItemResult } from '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
+import { exportAssistantToSkillMd } from '@process/services/skills/agentProfileExport';
 import { SkillGuard } from '@process/services/skills/SkillGuard';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { SkillImport, type ImportResult } from '@process/services/skills/SkillImport';
@@ -22,6 +24,15 @@ import { getDatabase } from '@process/services/database';
 
 /** Emit a scan-progress tick to the renderer every N swept skills. */
 const SCAN_PROGRESS_EVERY = 10;
+
+/** Filesystem-safe base name for an exported file (#512). */
+function exportFileSlug(name: string): string {
+  const slug = (name || 'export')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'export';
+}
 
 /**
  * Run the batched library sweep, streaming progress to the renderer every
@@ -73,6 +84,43 @@ export function initSkillsBridge(): void {
   ipcBridge.skills.import.git.provider(async ({ url }) => importer.importGit(url));
   ipcBridge.skills.import.zip.provider(async ({ zipPath }) => importer.importZip(zipPath));
   ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) => importer.importSingleSkillMd(srcPath));
+
+  // #512: credential-redacted export of an assistant to a portable agent-profile
+  // SKILL.md. The credential boundary is exportAssistantToSkillMd (allowlist); the
+  // system prompt is additionally secret-masked. Round-trips through the importer.
+  ipcBridge.dataExport.assistant.provider(async ({ id }) => {
+    try {
+      const assistants = (await ProcessConfig.get('assistants')) ?? [];
+      const custom = (await ProcessConfig.get('acp.customAgents')) ?? [];
+      const assistant = [...assistants, ...custom].find((a) => a.id === id);
+      if (!assistant) return { ok: false, error: 'Assistant not found' };
+
+      // The rule file is the edit source of truth for the system prompt; fall
+      // back to the in-config context for a preset with no rule file on disk.
+      let systemPrompt = assistant.context ?? '';
+      try {
+        systemPrompt = await readFile(path.join(getAssistantsDir(), `${id}.en-US.md`), 'utf-8');
+      } catch {
+        // no rule file — use config context
+      }
+
+      const { content, redacted } = exportAssistantToSkillMd(assistant, systemPrompt, {
+        appVersion: app.getVersion(),
+        exportedAt: new Date().toISOString(),
+      });
+
+      const result = await dialog.showSaveDialog({
+        title: 'Export assistant',
+        defaultPath: `${exportFileSlug(assistant.name)}.SKILL.md`,
+        filters: [{ name: 'SKILL.md', extensions: ['md'] }],
+      });
+      if (result.canceled || !result.filePath) return { ok: true, canceled: true };
+      await writeFile(result.filePath, content, 'utf-8');
+      return { ok: true, path: result.filePath, redacted };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  });
 
   // C3: register a previously-swept, user-approved `review` skill. Idempotent
   // and replay-safe (keyed by the imported on-disk path + the contentHash the

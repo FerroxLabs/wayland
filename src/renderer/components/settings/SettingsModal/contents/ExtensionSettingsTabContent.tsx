@@ -13,6 +13,15 @@ import { runWaylandUpdaterExtensionCheck } from '@/renderer/pages/settings/utils
 
 const isExternalSettingsUrl = (url?: string): boolean => /^https?:\/\//i.test(url || '');
 
+/**
+ * Wayland's resolved app theme ('light' | 'dark'), as set by useTheme on the
+ * host document. Sandboxed extension iframes can't read the parent DOM, so we
+ * forward this to them; without it a local extension page falls back to the OS
+ * `prefers-color-scheme` and renders light inside always-dark Wayland (#730).
+ */
+const getResolvedAppTheme = (): 'light' | 'dark' =>
+  document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+
 interface ExtensionSettingsTabContentProps {
   /** wayland-asset:// local page URL or external https:// URL */
   entryUrl: string;
@@ -59,6 +68,7 @@ const ExtensionSettingsTabContent: React.FC<ExtensionSettingsTabContentProps> = 
           locale: i18n.language,
           extensionName,
           translations,
+          theme: getResolvedAppTheme(),
         },
         '*'
       );
@@ -66,6 +76,21 @@ const ExtensionSettingsTabContent: React.FC<ExtensionSettingsTabContentProps> = 
       console.error('[ExtensionSettingsTabContent] Failed to post locale init:', err);
     }
   }, [extensionName, i18n.language, isExternalTab]);
+
+  // Keep a local extension iframe's theme in sync when the user switches the
+  // app theme while its settings tab is open (#730). useTheme flips data-theme
+  // on the host <html>; forward the resolved value so the iframe restyles live.
+  useEffect(() => {
+    if (isExternalTab) return;
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      const frameWindow = iframeRef.current?.contentWindow;
+      if (!frameWindow) return;
+      frameWindow.postMessage({ type: 'aion:theme', theme: getResolvedAppTheme() }, '*');
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, [isExternalTab]);
 
   // postMessage bridge for local iframe tabs (wayland-asset://)
   useEffect(() => {

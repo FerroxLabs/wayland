@@ -98,7 +98,7 @@
     "panel_title": "IJFW Memory (Ferrox Labs)",
     "skip_label": "IJFW 자동 설정 건너뛰기",
     "skip_description": "활성화하면 Wayland가 IJFW를 설치하거나 업그레이드하지 않습니다. 나중에 메모리 페이지를 통해 수동으로 설치할 수 있습니다.",
-    "manual_install_hint": "수동으로 설치하려면 터미널에서 `npx -y @ijfw/install@latest`를 실행하세요",
+    "manual_install_hint": "수동으로 설치하려면 터미널에서 `npx -y --package @ijfw/install@latest ijfw-install --yes`를 실행하세요",
     "about_title": "IJFW Memory",
     "about_body": "Ferrox Labs가 개발한 오픈소스 영구 메모리 엔진입니다.",
     "setup_status_title": "설정 상태",

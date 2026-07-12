@@ -98,7 +98,7 @@
     "panel_title": "IJFW Memory（Ferrox Labs）",
     "skip_label": "略過 IJFW 自動設定",
     "skip_description": "啟用後，Wayland 將不會安裝或升級 IJFW。你之後可以透過記憶頁面手動安裝。",
-    "manual_install_hint": "手動安裝：在終端機中執行 `npx -y @ijfw/install@latest`",
+    "manual_install_hint": "手動安裝：在終端機中執行 `npx -y --package @ijfw/install@latest ijfw-install --yes`",
     "about_title": "IJFW Memory",
     "about_body": "由 Ferrox Labs 出品的開源持久化記憶引擎。",
     "setup_status_title": "設定狀態",

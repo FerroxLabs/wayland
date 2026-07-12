@@ -13,6 +13,10 @@
   "smart": "智能",
   "build": "構建模式",
   "permission": "權限",
+  "chat": "對話",
+  "cowork": "協作",
+  "chatTooltip": "對話：每個工具都會先詢問。切換到協作可自動核准此工作區的讀取和編輯。",
+  "coworkTooltip": "協作：自動核准此工作區的讀取和編輯；執行命令前仍會詢問。",
   "switchMode": "切換模式",
   "switchSuccess": "模式切換成功",
   "switchFailed": "模式切換失敗"

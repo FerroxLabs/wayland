@@ -13,6 +13,10 @@
   "smart": "Inteligente",
   "build": "Modo de construcción",
   "permission": "Permiso",
+  "chat": "Chat",
+  "cowork": "Cowork",
+  "chatTooltip": "Chat: preguntar antes de cada herramienta. Cambia a Cowork para aprobar automáticamente lecturas y ediciones aquí.",
+  "coworkTooltip": "Cowork: aprueba automáticamente lecturas y ediciones en este espacio de trabajo; sigue preguntando antes de ejecutar comandos.",
   "switchMode": "Cambiar de modo",
   "switchSuccess": "Modo cambiado correctamente",
   "switchFailed": "No se pudo cambiar de modo"
