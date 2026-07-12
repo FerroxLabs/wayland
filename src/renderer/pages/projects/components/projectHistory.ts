@@ -12,47 +12,35 @@ import type { IProject } from '@/common/types/project';
 export type ReferenceFile = { name: string; path: string; size: number };
 
 /**
- * A Mail Drop / remote attachment link captured from an email. The email-ingest
- * backend does not exist on this branch yet, so the panel feeds an empty list;
- * the shape is modelled here so the timeline lights up the moment a source lands.
+ * The timeline is built ONLY from provenance a project actually records: its own
+ * create/update stamps, the conversations assigned to it, and the reference files
+ * on disk.
+ *
+ * It previously also modelled email-ingest records, Mail Drop links and remote
+ * attachment imports. There is no email-INGEST-INTO-PROJECT backend in this
+ * codebase — no service, no table — so the panel fed them a hard-coded empty
+ * array and every user saw permanently-empty "Emails 0" and "Remote 0" filter
+ * pills. (The `email-imap` channel is a chat TRANSPORT: inbound mail becomes a
+ * conversation, which this timeline already surfaces as a `chat` event. It never
+ * writes project files.) They were carried over from a fork the reporter
+ * prototyped on. Removed rather than left as scaffolding: a filter that can never
+ * match anything is not a placeholder, it is a broken control. Re-add the kinds
+ * WITH the backend that populates them.
  */
-export type RemoteAttachmentLink = {
-  url: string;
-  label?: string;
-  filename?: string;
-  size?: string;
-  status?: 'pending' | 'saved' | 'failed' | 'ignored';
-  savedReferenceFile?: string;
-  downloadedAt?: number;
-  bytes?: number;
-  lastError?: string;
-  ignoredAt?: number;
-};
+export type HistoryKind = 'project' | 'chat' | 'inventory';
 
-/** One project email that was ingested (with any attachments it produced). */
-export type EmailIngestRecord = {
-  id: string;
-  from: string;
-  subject: string;
-  receivedAt: number;
-  status: 'saved' | 'rejected' | 'failed';
-  reason?: string;
-  referenceFiles: string[];
-  attachmentCount: number;
-  remoteAttachmentLinks?: RemoteAttachmentLink[];
-};
+/**
+ * The filter pills, as DATA. The type is derived from this array rather than the
+ * other way round, so the panel and the "no dead pill" test both enumerate the
+ * same single source of truth at RUNTIME.
+ *
+ * That matters: test files are not part of the `tsc --noEmit` program, so a
+ * compile-time exhaustiveness trick in a test never actually runs. Adding a
+ * filter here — with no kind behind it — turns the guard red.
+ */
+export const HISTORY_FILTERS = ['all', 'chat', 'reference'] as const;
 
-export type HistoryKind =
-  | 'project'
-  | 'chat'
-  | 'email'
-  | 'reference'
-  | 'remote-import'
-  | 'remote-ignore'
-  | 'remote-pending'
-  | 'inventory';
-
-export type HistoryFilter = 'all' | 'chat' | 'email' | 'reference' | 'remote';
+export type HistoryFilter = (typeof HISTORY_FILTERS)[number];
 
 export type HistoryRelatedRow = { label: string; value: string };
 
@@ -72,7 +60,6 @@ export type HistoryItem = {
 export type TimelineInput = {
   project: IProject;
   conversations: TChatConversation[];
-  emailHistory: EmailIngestRecord[];
   references: ReferenceFile[];
 };
 
@@ -91,23 +78,19 @@ const fmtSize = (bytes?: number): string | undefined => {
 
 const eyebrowKey = (kind: HistoryKind): string => {
   if (kind === 'chat') return 'projects.timeline.eyebrow.chat';
-  if (kind === 'email') return 'projects.timeline.eyebrow.email';
-  if (kind === 'reference' || kind === 'inventory') return 'projects.timeline.eyebrow.reference';
-  if (kind === 'remote-import' || kind === 'remote-ignore' || kind === 'remote-pending')
-    return 'projects.timeline.eyebrow.remote';
+  if (kind === 'inventory') return 'projects.timeline.eyebrow.reference';
   return 'projects.timeline.eyebrow.project';
 };
 
 /**
- * Fold every project artifact (creation, chats, ingested emails, reference saves
- * and remote attachment actions) into a single time-ordered event list. Summaries
- * are derived honestly from data that exists — no transcript summarisation. All
- * copy goes through `t` so the timeline is fully localised.
+ * Fold the project's own provenance (creation, updates, its chats, and the
+ * reference files it holds) into one time-ordered event list. Summaries are
+ * derived honestly from data that exists — no transcript summarisation. All copy
+ * goes through `t` so the timeline is fully localised.
  */
 export function buildProjectTimeline(t: TFunction, input: TimelineInput): HistoryItem[] {
-  const { project, conversations, emailHistory, references } = input;
+  const { project, conversations, references } = input;
   const items: HistoryItem[] = [];
-  const knownReferenceNames = new Set<string>();
 
   const eyebrow = (kind: HistoryKind): string => t(eyebrowKey(kind));
 
@@ -158,113 +141,7 @@ export function buildProjectTimeline(t: TFunction, input: TimelineInput): Histor
     });
   }
 
-  for (const record of emailHistory) {
-    const receivedAt = normalizeTime(record.receivedAt);
-    const remoteLinks = record.remoteAttachmentLinks ?? [];
-    const savedReferenceCount = record.referenceFiles?.length ?? 0;
-    const emailTitle = record.subject?.trim() || t('projects.timeline.event.email.noSubject');
-
-    items.push({
-      id: `email-${record.id}`,
-      kind: 'email',
-      time: receivedAt,
-      title: emailTitle,
-      eyebrow: eyebrow('email'),
-      summary: record.from
-        ? t('projects.timeline.event.email.summaryFrom', { from: record.from, status: record.status })
-        : t('projects.timeline.event.email.summary', { status: record.status }),
-      meta: record.status,
-      related: [
-        ...(record.from ? [{ label: t('projects.timeline.field.from'), value: record.from }] : []),
-        { label: t('projects.timeline.field.status'), value: record.status },
-        ...(record.attachmentCount
-          ? [{ label: t('projects.timeline.field.attachments'), value: String(record.attachmentCount) }]
-          : []),
-        ...(savedReferenceCount
-          ? [{ label: t('projects.timeline.field.referencesSaved'), value: String(savedReferenceCount) }]
-          : []),
-        ...(remoteLinks.length
-          ? [{ label: t('projects.timeline.field.remoteLinks'), value: String(remoteLinks.length) }]
-          : []),
-        ...(record.reason ? [{ label: t('projects.timeline.field.reason'), value: record.reason }] : []),
-      ],
-    });
-
-    for (const fileName of record.referenceFiles ?? []) {
-      knownReferenceNames.add(fileName);
-      items.push({
-        id: `email-reference-${record.id}-${fileName}`,
-        kind: 'reference',
-        time: receivedAt,
-        title: t('projects.timeline.event.reference.title'),
-        eyebrow: eyebrow('reference'),
-        summary: t('projects.timeline.event.reference.summary', { file: fileName, subject: emailTitle }),
-        meta: emailTitle,
-        related: [
-          { label: t('projects.timeline.field.file'), value: fileName },
-          { label: t('projects.timeline.field.sourceEmail'), value: emailTitle },
-          ...(record.from ? [{ label: t('projects.timeline.field.from'), value: record.from }] : []),
-        ],
-      });
-    }
-
-    remoteLinks.forEach((link, index) => {
-      const label = link.savedReferenceFile || link.filename || link.label || t('projects.timeline.field.attachment');
-      if (link.savedReferenceFile) knownReferenceNames.add(link.savedReferenceFile);
-      const sizeMeta = link.size || fmtSize(link.bytes);
-      const baseRelated: HistoryRelatedRow[] = [
-        { label: t('projects.timeline.field.attachment'), value: label },
-        { label: t('projects.timeline.field.sourceEmail'), value: emailTitle },
-        ...(sizeMeta ? [{ label: t('projects.timeline.field.size'), value: sizeMeta }] : []),
-      ];
-
-      if (link.status === 'saved') {
-        items.push({
-          id: `remote-import-${record.id}-${index}`,
-          kind: 'remote-import',
-          time: normalizeTime(link.downloadedAt) ?? receivedAt,
-          title: t('projects.timeline.event.remoteImport.title'),
-          eyebrow: eyebrow('remote-import'),
-          summary: t('projects.timeline.event.remoteImport.summary', { subject: emailTitle }),
-          meta: sizeMeta,
-          related: baseRelated,
-        });
-      } else if (link.status === 'ignored') {
-        items.push({
-          id: `remote-ignore-${record.id}-${index}`,
-          kind: 'remote-ignore',
-          time: normalizeTime(link.ignoredAt) ?? receivedAt,
-          title: t('projects.timeline.event.remoteIgnore.title'),
-          eyebrow: eyebrow('remote-ignore'),
-          summary: t('projects.timeline.event.remoteIgnore.summary', { subject: emailTitle }),
-          meta: sizeMeta,
-          related: baseRelated,
-        });
-      } else {
-        const failed = link.status === 'failed';
-        items.push({
-          id: `remote-pending-${record.id}-${index}`,
-          kind: 'remote-pending',
-          time: receivedAt,
-          title: failed
-            ? t('projects.timeline.event.remoteFailed.title')
-            : t('projects.timeline.event.remotePending.title'),
-          eyebrow: eyebrow('remote-pending'),
-          summary: failed
-            ? t('projects.timeline.event.remoteFailed.summary', { subject: emailTitle })
-            : t('projects.timeline.event.remotePending.summary', { subject: emailTitle }),
-          meta: sizeMeta,
-          related: [
-            ...baseRelated,
-            ...(link.lastError ? [{ label: t('projects.timeline.field.lastError'), value: link.lastError }] : []),
-          ],
-        });
-      }
-    });
-  }
-
   for (const reference of references) {
-    if (knownReferenceNames.has(reference.name)) continue;
     items.push({
       id: `inventory-${reference.name}`,
       kind: 'inventory',
@@ -288,9 +165,8 @@ export function buildProjectTimeline(t: TFunction, input: TimelineInput): Histor
 /** Does a timeline item belong to the selected filter pill? */
 export function itemMatchesFilter(item: HistoryItem, filter: HistoryFilter): boolean {
   if (filter === 'all') return true;
-  if (filter === 'reference') return item.kind === 'reference' || item.kind === 'inventory';
-  if (filter === 'remote')
-    return item.kind === 'remote-import' || item.kind === 'remote-ignore' || item.kind === 'remote-pending';
+  // The "Refs" pill selects reference files, which are recorded as `inventory`.
+  if (filter === 'reference') return item.kind === 'inventory';
   return item.kind === filter;
 }
 
@@ -305,15 +181,10 @@ export function filterTimeline(items: HistoryItem[], filter: HistoryFilter): His
  */
 export function timelineCounts(input: TimelineInput): {
   chat: number;
-  email: number;
   reference: number;
-  remote: number;
 } {
-  const remote = input.emailHistory.reduce((n, r) => n + (r.remoteAttachmentLinks?.length ?? 0), 0);
   return {
     chat: input.conversations.length,
-    email: input.emailHistory.length,
     reference: input.references.length,
-    remote,
   };
 }
