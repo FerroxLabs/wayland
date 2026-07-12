@@ -439,5 +439,16 @@
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
     "manageModels": "Manage models"
+  },
+  "notification": {
+    "untitled": "Чат без названия",
+    "agentFinished": {
+      "title": "Задача выполнена",
+      "body": "{{title}} завершено и ожидает вас."
+    },
+    "agentError": {
+      "title": "Задача не выполнена",
+      "body": "{{title}} остановлено с ошибкой. {{detail}}"
+    }
   }
 }

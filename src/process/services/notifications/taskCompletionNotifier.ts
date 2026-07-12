@@ -40,6 +40,8 @@ import { ipcBridge } from '@/common';
 import type { IConversationTurnCompletedEvent } from '@/common/adapter/ipcBridge';
 import type { TChatConversation } from '@/common/config/storage';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
+import { DEFAULT_QUIET_HOURS } from '@/common/config/notificationDefaults';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { showNotification } from '@process/bridge/notificationBridge';
 import i18n, { i18nReady } from '@process/services/i18n';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -52,6 +54,13 @@ export type TaskCompletionNotifierDeps = {
    * module has no business being Electron-only.
    */
   isAppFocused: () => boolean;
+  /**
+   * The conversation the user is currently LOOKING AT (foreground window's open
+   * chat), or null when no chat is in view. Lets the focus gate stay quiet only
+   * about the exact conversation on screen — not every conversation while the app
+   * happens to be focused on a different one.
+   */
+  getForegroundConversationId: () => string | null;
   getConversation: (id: string) => Promise<TChatConversation | undefined>;
   /** The workflow session driving this conversation, if any. */
   findWorkflowByConversationId: (id: string) => WorkflowSession | null;
@@ -141,11 +150,15 @@ async function resolveSilent(now: Date): Promise<boolean> {
   const playSound = (await ProcessConfig.get('notifications.playSound')) ?? true;
   if (!playSound) return true;
 
-  const quiet = await ProcessConfig.get('notifications.quietHours');
+  // Fall back to the DEFAULT window when nothing is persisted. Quiet hours has no
+  // on/off toggle, and the settings page shows this same default — so it must be
+  // in effect on a fresh install, not silently inert until the user happens to
+  // edit a field (#579 follow-up: it was, so a fresh install rang at 3am).
+  const quiet = (await ProcessConfig.get('notifications.quietHours')) ?? DEFAULT_QUIET_HOURS;
   // Quiet hours suppress the SOUND, not the notification — the settings copy
   // promises exactly that ("Suppress sound between these times"). NB Electron
   // honours `silent` on macOS/Windows; on Linux it is up to the notification daemon.
-  return quiet ? isWithinQuietHours(now, quiet) : false;
+  return isWithinQuietHours(now, quiet);
 }
 
 async function handleTurnCompleted(
@@ -155,8 +168,11 @@ async function handleTurnCompleted(
   if (!isTaskComplete(event)) return;
   if (event.runtime?.hasTask) return; // cron-driven; CronService owns that banner.
 
-  // The user is looking right at it — including in a popped-out window.
-  if (deps.isAppFocused()) return;
+  // Only stay quiet when the user is looking right AT THIS conversation: the app
+  // is focused AND the foreground chat is the one that just finished. App-focused
+  // but on a different chat (the multitask "switched to another chat" case #579
+  // is for) — or on a non-conversation view — still earns a banner.
+  if (deps.isAppFocused() && deps.getForegroundConversationId() === event.sessionId) return;
 
   const conversation = await deps.getConversation(event.sessionId);
   if (!conversation) {
@@ -181,7 +197,10 @@ async function handleTurnCompleted(
   // The conversation's own title, not the model id. `event.model.name` falls back
   // to the backend string, so it routinely reads "acp" — which tells the user nothing.
   const title = conversation.name?.trim() || i18n.t('conversation.notification.untitled');
-  const detail = (event.detail ?? '').trim();
+  // The engine error string is third-party output that lands verbatim in a
+  // system banner (persisted by the OS notification centre) — redact secret
+  // shapes first, same leak class as the child-stderr logging (#714/#721).
+  const detail = redactCommandSecrets((event.detail ?? '').trim());
 
   // `showNotification` still applies the master switch (system.notificationEnabled).
   await showNotification({

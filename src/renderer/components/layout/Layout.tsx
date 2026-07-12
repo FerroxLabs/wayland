@@ -35,6 +35,7 @@ import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/common/types/acpTypes';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { useIsPopoutMode } from '@renderer/hooks/system/useIsPopoutMode';
+import { useForegroundConversationReporter } from '@renderer/hooks/system/useForegroundConversationReporter';
 import {
   computeCssSyncDecision,
   resolveCssByActiveTheme,
@@ -129,6 +130,10 @@ const Layout: React.FC<{
   // onboarding, no command palette) - just the custom titlebar + the routed
   // conversation. Fixed for the window's lifetime.
   const isPopout = useIsPopoutMode();
+
+  // #579: report the on-screen conversation to the main process so completion
+  // notifications stay quiet only for the chat actually in view.
+  useForegroundConversationReporter();
 
   // #47: expose the orthogonal signals alongside the legacy `isMobile` composite
   // (which is left untouched above) so consumers can pick LAYOUT (isNarrow) vs

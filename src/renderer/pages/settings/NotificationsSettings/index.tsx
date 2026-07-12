@@ -6,6 +6,7 @@ import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
 import { Card, PreferenceRow } from '@renderer/components/settings/shared';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
+import { DEFAULT_QUIET_HOURS } from '@/common/config/notificationDefaults';
 
 type State = {
   master: boolean;
@@ -25,8 +26,9 @@ const DEFAULTS: State = {
   agentError: true,
   channelMessage: false,
   playSound: true,
-  quietStart: '22:00',
-  quietEnd: '07:00',
+  // Shared with the notifier so the shown default and the effective default match.
+  quietStart: DEFAULT_QUIET_HOURS.start,
+  quietEnd: DEFAULT_QUIET_HOURS.end,
 };
 
 const NotificationsSettings: React.FC = () => {
@@ -100,9 +102,11 @@ const NotificationsSettings: React.FC = () => {
   const persistQuiet = useCallback((field: 'start' | 'end', value: string) => {
     setState((s) => {
       const next = { ...s, [field === 'start' ? 'quietStart' : 'quietEnd']: value };
-      void ConfigStorage.set('notifications.quietHours', { start: next.quietStart, end: next.quietEnd }).catch((err) => {
-        console.error('[NotificationsSettings] quiet hours persist failed:', err);
-      });
+      void ConfigStorage.set('notifications.quietHours', { start: next.quietStart, end: next.quietEnd }).catch(
+        (err) => {
+          console.error('[NotificationsSettings] quiet hours persist failed:', err);
+        }
+      );
       return next;
     });
   }, []);
@@ -131,11 +135,7 @@ const NotificationsSettings: React.FC = () => {
             'Fires when a long-running task or team launcher completes.'
           )}
         >
-          <Switch
-            checked={state.agentFinished}
-            disabled={disabled}
-            onChange={(v) => persist('agentFinished', v)}
-          />
+          <Switch checked={state.agentFinished} disabled={disabled} onChange={(v) => persist('agentFinished', v)} />
         </PreferenceRow>
         <PreferenceRow
           label={t('settings.notificationsPage.scheduledTask', 'Notify on scheduled task fire')}
@@ -156,11 +156,7 @@ const NotificationsSettings: React.FC = () => {
             'Telegram / Lark / DingTalk / WeChat messages from connected channels.'
           )}
         >
-          <Switch
-            checked={state.channelMessage}
-            disabled={disabled}
-            onChange={(v) => persist('channelMessage', v)}
-          />
+          <Switch checked={state.channelMessage} disabled={disabled} onChange={(v) => persist('channelMessage', v)} />
         </PreferenceRow>
       </Card>
 

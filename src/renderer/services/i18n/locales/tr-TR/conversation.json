@@ -441,5 +441,16 @@
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
     "manageModels": "Manage models"
+  },
+  "notification": {
+    "untitled": "Başlıksız sohbet",
+    "agentFinished": {
+      "title": "Görev tamamlandı",
+      "body": "{{title}} tamamlandı ve sizi bekliyor."
+    },
+    "agentError": {
+      "title": "Görev başarısız",
+      "body": "{{title}} bir hatayla durdu. {{detail}}"
+    }
   }
 }
