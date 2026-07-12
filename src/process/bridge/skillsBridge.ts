@@ -11,6 +11,7 @@ import { app, dialog } from 'electron';
 import type { ImportSummary, ImportItemResult } from '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
 import { exportAssistantToSkillMd } from '@process/services/skills/agentProfileExport';
+import { buildWorkflowExport } from '@process/services/skills/workflowExport';
 import { SkillGuard } from '@process/services/skills/SkillGuard';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { SkillImport, type ImportResult } from '@process/services/skills/SkillImport';
@@ -112,6 +113,38 @@ export function initSkillsBridge(): void {
       const result = await dialog.showSaveDialog({
         title: 'Export assistant',
         defaultPath: `${exportFileSlug(assistant.name)}.SKILL.md`,
+        filters: [{ name: 'SKILL.md', extensions: ['md'] }],
+      });
+      if (result.canceled || !result.filePath) return { ok: true, canceled: true };
+      await writeFile(result.filePath, content, 'utf-8');
+      return { ok: true, path: result.filePath, redacted };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  });
+
+  // #512: credential-redacted export of a workflow to a portable SKILL.md. The
+  // body is resolved through SkillLibrary by NAME against the trusted in-process
+  // index (never a renderer-supplied path), so there is no path-traversal
+  // surface; every frontmatter/body secret is masked by buildWorkflowExport.
+  ipcBridge.dataExport.workflow.provider(async ({ name }) => {
+    try {
+      const lib = SkillLibrary.getInstance();
+      const entry = await lib.get(name);
+      if (!entry || entry.type !== 'workflow') return { ok: false, error: 'Workflow not found' };
+      const body = await lib.loadBody(name);
+      if (body === null) return { ok: false, error: 'Workflow body unavailable' };
+
+      const { content, redacted } = buildWorkflowExport({
+        body,
+        fallbackName: entry.title ?? entry.name,
+        appVersion: app.getVersion(),
+        exportedAt: new Date().toISOString(),
+      });
+
+      const result = await dialog.showSaveDialog({
+        title: 'Export workflow',
+        defaultPath: `${exportFileSlug(entry.title ?? entry.name)}.SKILL.md`,
         filters: [{ name: 'SKILL.md', extensions: ['md'] }],
       });
       if (result.canceled || !result.filePath) return { ok: true, canceled: true };
