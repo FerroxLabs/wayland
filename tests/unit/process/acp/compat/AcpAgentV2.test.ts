@@ -737,6 +737,59 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
 
       expect(agent.getModelInfo()?.currentModelId).toBe('claude-4');
     });
+
+    it('blocks on conflicting provider model sources without replacing the confirmed model', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-old',
+        availableModels: [
+          { modelId: 'gpt-old', name: 'GPT Old' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+        confirmationSource: 'session-models',
+      });
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-old',
+        availableModels: [
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+        modelConflict: {
+          modelId: 'gpt-5.6-sol',
+          modelSource: 'session-models',
+          configModelId: 'gpt-5.5',
+          configSource: 'config-option-response',
+        },
+      });
+
+      expect(agent.getModelInfo()).toMatchObject({
+        currentModelId: 'gpt-old',
+        selectionState: 'blocked',
+        selectionFailureCode: 'model_mismatch',
+      });
+    });
+
+    it('preserves blocked provider conflict state through Claude catalog fallback', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: null,
+        availableModels: [],
+        modelConflict: {
+          modelId: 'claude-sonnet-4-8-20260701',
+          modelSource: 'session-models',
+          configModelId: 'claude-sonnet-4-7-20260601',
+          configSource: 'config-option-response',
+        },
+      });
+
+      expect(agent.getModelInfo()).toMatchObject({
+        currentModelId: null,
+        selectionState: 'blocked',
+        selectionFailureCode: 'model_mismatch',
+      });
+    });
   });
 
   describe('getConfigOptions()', () => {
@@ -939,13 +992,8 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         value: null,
         error: { code: 'model_mismatch' },
       });
-      expect(
-        (agent as unknown as { userModelOverride: string | null }).userModelOverride
-      ).toBeNull();
-      expect(
-        (agent as unknown as { pendingModelSwitchNotice: string | null })
-          .pendingModelSwitchNotice
-      ).toBeNull();
+      expect((agent as unknown as { userModelOverride: string | null }).userModelOverride).toBeNull();
+      expect((agent as unknown as { pendingModelSwitchNotice: string | null }).pendingModelSwitchNotice).toBeNull();
       expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
     });
 
@@ -989,9 +1037,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         value: null,
         error: { code: 'model_mismatch' },
       });
-      expect(
-        (agent as unknown as { userModelOverride: string | null }).userModelOverride
-      ).toBeNull();
+      expect((agent as unknown as { userModelOverride: string | null }).userModelOverride).toBeNull();
       expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
     });
 
@@ -1037,10 +1083,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       await Promise.resolve();
       await Promise.resolve();
 
-      expect(mockSessionMethods.setConfigOption).toHaveBeenCalledWith(
-        'model',
-        'gpt-5.6-sol'
-      );
+      expect(mockSessionMethods.setConfigOption).toHaveBeenCalledWith('model', 'gpt-5.6-sol', 1, expect.any(Function));
       expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
       expect(settled).toBe(false);
       expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
@@ -1282,9 +1325,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         ],
         confirmationSource: 'config-option-update',
       });
-      expect(agent.getModelInfo()?.availableModels.map((model) => model.id)).toContain(
-        'gpt-next'
-      );
+      expect(agent.getModelInfo()?.availableModels.map((model) => model.id)).toContain('gpt-next');
       expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
       await vi.advanceTimersByTimeAsync(59_999);
       expect(status).toBe('pending');
@@ -1422,7 +1463,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       });
     });
 
-    it('lets the latest selection win and ignores a late superseded confirmation', async () => {
+    it('lets the latest selection win and ignores a tagged late superseded response', async () => {
       const agent = await createStartedAgent();
       const availableModels = [
         { modelId: 'gpt-old', name: 'GPT Old' },
@@ -1433,6 +1474,20 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         currentModelId: 'gpt-old',
         availableModels,
         confirmationSource: 'session-models',
+      });
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-old',
+            options: availableModels.map((model) => ({ id: model.modelId, name: model.name })),
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
       });
 
       const first = agent.setModelByConfigOption('gpt-a');
@@ -1447,24 +1502,164 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         },
         (error: unknown) => ({ value: null, error })
       );
-      capturedCallbacks.onModelUpdate({
-        currentModelId: 'gpt-a',
-        availableModels,
-        confirmationSource: 'config-option-update',
-      });
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-a',
+          availableModels,
+          confirmationSource: 'config-option-response',
+        },
+        1
+      );
       await Promise.resolve();
       expect(secondSettled).toBe(false);
 
-      capturedCallbacks.onModelUpdate({
-        currentModelId: 'gpt-b',
-        availableModels,
-        confirmationSource: 'config-option-update',
-      });
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-b',
+          availableModels,
+          confirmationSource: 'config-option-response',
+        },
+        2
+      );
       expect(await secondOutcome).toMatchObject({
         value: { currentModelId: 'gpt-b' },
         error: null,
       });
       expect(agent.getModelInfo()?.currentModelId).toBe('gpt-b');
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-a',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-a');
+    });
+
+    it.each([
+      {
+        name: 'a third model',
+        lateCatalog: [
+          { modelId: 'gpt-old', name: 'GPT Old' },
+          { modelId: 'gpt-a', name: 'GPT A' },
+          { modelId: 'gpt-b', name: 'GPT B' },
+          { modelId: 'gpt-c', name: 'GPT C' },
+        ],
+      },
+      {
+        name: 'a catalog that omits the latest request',
+        lateCatalog: [
+          { modelId: 'gpt-old', name: 'GPT Old' },
+          { modelId: 'gpt-a', name: 'GPT A' },
+          { modelId: 'gpt-c', name: 'GPT C' },
+        ],
+      },
+    ])('keeps the latest selection pending after a superseded response reports $name', async ({ lateCatalog }) => {
+      const agent = await createStartedAgent();
+      const availableModels = [
+        { modelId: 'gpt-old', name: 'GPT Old' },
+        { modelId: 'gpt-a', name: 'GPT A' },
+        { modelId: 'gpt-b', name: 'GPT B' },
+        { modelId: 'gpt-c', name: 'GPT C' },
+      ];
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-old',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-old',
+            options: availableModels.map((model) => ({ id: model.modelId, name: model.name })),
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+
+      const first = agent.setModelByConfigOption('gpt-a');
+      const second = agent.setModelByConfigOption('gpt-b');
+      await expect(first).rejects.toMatchObject({ code: 'model_rejected' });
+
+      let secondSettled = false;
+      const secondOutcome = second.then(
+        (value) => {
+          secondSettled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-c',
+          availableModels: lateCatalog,
+          confirmationSource: 'config-option-response',
+        },
+        1
+      );
+      await Promise.resolve();
+      expect(secondSettled).toBe(false);
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-old');
+
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-b',
+          availableModels,
+          confirmationSource: 'config-option-response',
+        },
+        2
+      );
+      expect(await secondOutcome).toMatchObject({
+        value: { currentModelId: 'gpt-b' },
+        error: null,
+      });
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-b');
+    });
+
+    it('treats an untagged provider update as authoritative during the latest selection', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [
+        { modelId: 'gpt-old', name: 'GPT Old' },
+        { modelId: 'gpt-a', name: 'GPT A' },
+        { modelId: 'gpt-b', name: 'GPT B' },
+        { modelId: 'gpt-c', name: 'GPT C' },
+      ];
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-old',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-old',
+            options: availableModels.map((model) => ({ id: model.modelId, name: model.name })),
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+
+      const first = agent.setModelByConfigOption('gpt-a');
+      const second = agent.setModelByConfigOption('gpt-b');
+      await expect(first).rejects.toMatchObject({ code: 'model_rejected' });
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-c',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+
+      await expect(second).rejects.toMatchObject({ code: 'model_mismatch' });
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-c');
     });
 
     it('should clear timeout when callback fires', async () => {

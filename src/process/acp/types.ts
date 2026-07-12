@@ -105,6 +105,12 @@ export type ModelSnapshot = {
   currentModelId: string | null;
   availableModels: Array<{ modelId: string; name: string; description?: string }>;
   confirmationSource?: AcpModelConfirmationSource;
+  modelConflict?: {
+    modelId: string;
+    modelSource?: AcpModelConfirmationSource;
+    configModelId: string;
+    configSource?: AcpModelConfirmationSource;
+  };
 };
 
 export type ModeSnapshot = {
@@ -173,8 +179,8 @@ export type SessionCallbacks = {
   onMessage: (message: TMessage) => void;
   onSessionId: (sessionId: string) => void;
   onStatusChange: (status: SessionStatus) => void;
-  onConfigUpdate: (config: ConfigSnapshot) => void;
-  onModelUpdate: (model: ModelSnapshot) => void;
+  onConfigUpdate: (config: ConfigSnapshot, operationGeneration?: number) => void;
+  onModelUpdate: (model: ModelSnapshot, operationGeneration?: number) => void;
   onModeUpdate: (mode: ModeSnapshot) => void;
   onContextUsage: (usage: ContextUsage) => void;
   onPermissionRequest: (data: PermissionUIData) => void;

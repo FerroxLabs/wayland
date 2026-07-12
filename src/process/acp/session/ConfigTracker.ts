@@ -100,7 +100,32 @@ export class ConfigTracker {
     this.cwd = result.cwd;
     this.additionalDirectories = result.additionalDirectories;
     let modelUpdate: ModelSnapshot | null = null;
-    if (result.currentModelId !== undefined) {
+    const configModel = result.configOptions?.find(
+      (option) => option.category === 'model' && typeof option.currentValue === 'string'
+    );
+    const hasModelConflict =
+      result.currentModelId !== undefined &&
+      typeof configModel?.currentValue === 'string' &&
+      result.currentModelId !== configModel.currentValue;
+    if (hasModelConflict && result.currentModelId !== undefined && typeof configModel.currentValue === 'string') {
+      const configModels = (configModel.options ?? []).map((option) => ({
+        modelId: option.id,
+        name: option.name,
+        description: option.description,
+      }));
+      if (result.availableModels) this.availableModels = result.availableModels;
+      else if (configModels.length > 0) this.availableModels = configModels;
+      modelUpdate = {
+        currentModelId: this.currentModelId,
+        availableModels: [...this.availableModels],
+        modelConflict: {
+          modelId: result.currentModelId,
+          modelSource: result.modelConfirmationSource,
+          configModelId: configModel.currentValue,
+          configSource: result.configConfirmationSource,
+        },
+      };
+    } else if (result.currentModelId !== undefined) {
       modelUpdate = this.syncAuthoritativeModel(
         result.currentModelId,
         result.availableModels,
@@ -114,10 +139,7 @@ export class ConfigTracker {
     if (result.configOptions) {
       this.currentConfigOptions = result.configOptions;
       if (!modelUpdate) {
-        modelUpdate = this.syncModelFromConfigOptions(
-          result.configOptions,
-          result.configConfirmationSource
-        );
+        modelUpdate = this.syncModelFromConfigOptions(result.configOptions, result.configConfirmationSource);
       }
     }
     if (result.availableCommands) this.availableCommands = result.availableCommands;
@@ -168,9 +190,7 @@ export class ConfigTracker {
     return {
       currentModelId: this.currentModelId,
       availableModels: [...this.availableModels],
-      ...(this.currentModelConfirmationSource
-        ? { confirmationSource: this.currentModelConfirmationSource }
-        : {}),
+      ...(this.currentModelConfirmationSource ? { confirmationSource: this.currentModelConfirmationSource } : {}),
     };
   }
 
@@ -190,10 +210,7 @@ export class ConfigTracker {
     };
   }
 
-  updateConfigOptions(
-    options: ConfigOption[],
-    confirmationSource?: AcpModelConfirmationSource
-  ): ModelSnapshot | null {
+  updateConfigOptions(options: ConfigOption[], confirmationSource?: AcpModelConfirmationSource): ModelSnapshot | null {
     this.currentConfigOptions = options;
     for (const option of options) {
       if (this.desiredConfigOptions.get(option.id) === option.currentValue) {
@@ -207,9 +224,7 @@ export class ConfigTracker {
     options: ConfigOption[],
     confirmationSource?: AcpModelConfirmationSource
   ): ModelSnapshot | null {
-    const model = options.find(
-      (option) => option.category === 'model' && typeof option.currentValue === 'string'
-    );
+    const model = options.find((option) => option.category === 'model' && typeof option.currentValue === 'string');
     if (!model || typeof model.currentValue !== 'string') return null;
 
     const availableModels = (model.options ?? []).map((option) => ({
@@ -217,11 +232,7 @@ export class ConfigTracker {
       name: option.name,
       description: option.description,
     }));
-    return this.syncAuthoritativeModel(
-      model.currentValue,
-      availableModels,
-      confirmationSource
-    );
+    return this.syncAuthoritativeModel(model.currentValue, availableModels, confirmationSource);
   }
 
   updateAvailableCommands(commands: AvailableCommand[]): void {

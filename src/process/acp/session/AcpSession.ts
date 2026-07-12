@@ -15,10 +15,7 @@ import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
-import {
-  mapSessionConfigOptions,
-  SessionLifecycle,
-} from '@process/acp/session/SessionLifecycle';
+import { mapSessionConfigOptions, SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type {
   AgentConfig,
   InitialDesiredConfig,
@@ -266,19 +263,33 @@ export class AcpSession {
     }
   }
 
-  async setConfigOption(id: string, value: string | boolean): Promise<void> {
+  async setConfigOption(
+    id: string,
+    value: string | boolean,
+    operationGeneration?: number,
+    isOperationCurrent?: () => boolean
+  ): Promise<void> {
     this.configTracker.setDesiredConfigOption(id, value);
     const { client, sessionId } = this.lifecycle;
     if (this._status !== 'active' || !client || !sessionId) {
       return;
     }
     const response = await client.setConfigOption(sessionId, id, value);
+    if (operationGeneration !== undefined && isOperationCurrent && !isOperationCurrent()) {
+      return;
+    }
     const modelUpdate = this.configTracker.updateConfigOptions(
       mapSessionConfigOptions(response.configOptions),
       'config-option-response'
     );
-    this.callbacks.onConfigUpdate(this.configTracker.configSnapshot());
-    if (modelUpdate) this.callbacks.onModelUpdate(modelUpdate);
+    const configSnapshot = this.configTracker.configSnapshot();
+    if (operationGeneration === undefined) {
+      this.callbacks.onConfigUpdate(configSnapshot);
+      if (modelUpdate) this.callbacks.onModelUpdate(modelUpdate);
+    } else {
+      this.callbacks.onConfigUpdate(configSnapshot, operationGeneration);
+      if (modelUpdate) this.callbacks.onModelUpdate(modelUpdate, operationGeneration);
+    }
   }
 
   getConfigOptions() {

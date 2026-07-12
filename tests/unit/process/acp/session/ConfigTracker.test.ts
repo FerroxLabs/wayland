@@ -92,6 +92,50 @@ describe('ConfigTracker', () => {
     expect(ct.configSnapshot().configOptions).toHaveLength(1);
   });
 
+  it('reports conflicting provider model sources without confirming either value', () => {
+    const ct = new ConfigTracker({ model: 'gpt-5.6-sol' });
+
+    const update = ct.syncFromSessionResult({
+      currentModelId: 'gpt-5.6-sol',
+      availableModels: [
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+      ],
+      modelConfirmationSource: 'session-models',
+      configConfirmationSource: 'config-option-response',
+      configOptions: [
+        {
+          id: 'model',
+          name: 'Model',
+          type: 'select',
+          category: 'model',
+          currentValue: 'gpt-5.5',
+          options: [
+            { id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+            { id: 'gpt-5.5', name: 'GPT-5.5' },
+          ],
+        },
+      ],
+      cwd: '/tmp',
+    });
+
+    expect(update).toEqual({
+      currentModelId: null,
+      availableModels: [
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+      ],
+      modelConflict: {
+        modelId: 'gpt-5.6-sol',
+        modelSource: 'session-models',
+        configModelId: 'gpt-5.5',
+        configSource: 'config-option-response',
+      },
+    });
+    expect(ct.modelSnapshot().currentModelId).toBeNull();
+    expect(ct.getPendingChanges().model).toBe('gpt-5.6-sol');
+  });
+
   it('desired overrides current when both set', () => {
     const ct = new ConfigTracker();
     ct.setCurrentModel('claude-3');
