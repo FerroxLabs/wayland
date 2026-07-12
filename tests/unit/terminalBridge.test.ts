@@ -22,6 +22,7 @@ const m = vi.hoisted(() => {
     isEnabled: vi.fn(),
     resolveCmd: vi.fn(),
     resolvePath: vi.fn(),
+    resolveDir: vi.fn(),
     reg: {
       registerPty: vi.fn(),
       killPty: vi.fn(),
@@ -59,7 +60,14 @@ vi.mock('@process/terminal/terminalConfig', () => ({
 vi.mock('@process/terminal/terminalCommand', () => ({ resolveTerminalCommand: m.resolveCmd }));
 vi.mock('@process/terminal/terminalPath', () => ({ resolveCommandPath: m.resolvePath }));
 vi.mock('@process/terminal/terminalRegistry', () => m.reg);
+// #278: the real ProfileIsolationError class is kept (the bridge narrows on
+// `instanceof`), only the resolver is swapped.
+vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
+  const actual = await orig<typeof import('@process/agent/wcore/profilePaths')>();
+  return { ...actual, resolveActiveConfigDir: () => m.resolveDir() };
+});
 
+import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 
 function makeFakePty() {
@@ -83,8 +91,23 @@ beforeEach(() => {
   m.getConversation.mockResolvedValue({ type: 'acp', extra: { backend: 'claude', workspace: process.cwd() } });
   m.resolveCmd.mockReturnValue({ command: 'claude', args: [], cwd: process.cwd() });
   m.resolvePath.mockReturnValue('/usr/local/bin/claude');
+  m.resolveDir.mockResolvedValue('/native/wayland-core');
   initTerminalBridge();
 });
+
+/** The env handed to the PTY spawn. Fails loudly if the spawn never happened. */
+function spawnedPtyEnv(): Record<string, string | undefined> {
+  const opts = m.spawn.mock.calls[0]?.[2] as { env: Record<string, string | undefined> } | undefined;
+  if (!opts) throw new Error('expected the PTY to have been spawned, but spawn was never called');
+  return opts.env;
+}
+
+/** Make the session a `wcore` TUI — i.e. an ENGINE spawn. */
+function useWcoreSession() {
+  m.getConversation.mockResolvedValue({ type: 'wcore', extra: { workspace: process.cwd() } });
+  m.resolveCmd.mockReturnValue({ command: 'wayland-core', args: [], cwd: process.cwd() });
+  m.resolvePath.mockReturnValue('/opt/wayland/wayland-core');
+}
 
 const open = (p: object) =>
   m.handlers.open({ terminalId: 't1', sessionId: 's1', ...p }) as Promise<{ ok: boolean; reason?: string }>;
@@ -175,5 +198,53 @@ describe('terminalBridge input/resize/close (#645)', () => {
   it('close kills the PTY via the registry', async () => {
     await m.handlers.close({ terminalId: 't1' });
     expect(m.reg.killPty).toHaveBeenCalledWith('t1');
+  });
+});
+
+/**
+ * #278: the `wcore` terminal launches the ENGINE binary, so it is an engine spawn
+ * and the WAYLAND_HOME contract binds it. getEnhancedEnv() is the user's SHELL env
+ * and never carries WAYLAND_HOME, so before this fix the TUI read AND WROTE the
+ * DEFAULT profile's config.toml / memory.db / credentials no matter which profile
+ * was active — a live cross-profile bleed, and worse than the --json-stream one
+ * because the TUI writes.
+ */
+describe('#278: the wcore terminal must run as the ACTIVE profile', () => {
+  it('stamps WAYLAND_HOME onto the engine TUI spawn', async () => {
+    useWcoreSession();
+    m.resolveDir.mockResolvedValue('/home/u/.wayland/profiles/work');
+    m.spawn.mockReturnValue(makeFakePty());
+
+    expect(await open({})).toEqual({ ok: true });
+    expect(spawnedPtyEnv().WAYLAND_HOME).toBe('/home/u/.wayland/profiles/work');
+  });
+
+  it('does NOT stamp WAYLAND_HOME on a non-engine (ACP) TUI', async () => {
+    // The default session in beforeEach is `acp` — an agent CLI, not the engine.
+    // Forcing a profile home onto it would be scope creep at best and wrong at worst.
+    m.resolveDir.mockResolvedValue('/home/u/.wayland/profiles/work');
+    m.spawn.mockReturnValue(makeFakePty());
+
+    expect(await open({})).toEqual({ ok: true });
+    expect(spawnedPtyEnv().WAYLAND_HOME).toBeUndefined();
+  });
+
+  it('REFUSES to launch when a named profile is active but unresolvable', async () => {
+    useWcoreSession();
+    m.resolveDir.mockRejectedValue(new ProfileIsolationError('work', 'EACCES'));
+
+    expect(await open({})).toEqual({ ok: false, reason: 'profile-unresolved' });
+    expect(m.spawn).not.toHaveBeenCalled();
+  });
+
+  it('ANTI-BRICK: a non-profile fault still launches the TUI (no WAYLAND_HOME)', async () => {
+    // os.homedir() can throw ERR_SYSTEM_ERROR; that is not a profile problem and
+    // must not take the terminal away from ordinary default-profile users.
+    useWcoreSession();
+    m.resolveDir.mockRejectedValue(Object.assign(new Error('uv_os_homedir failed'), { code: 'ERR_SYSTEM_ERROR' }));
+    m.spawn.mockReturnValue(makeFakePty());
+
+    expect(await open({})).toEqual({ ok: true });
+    expect(spawnedPtyEnv().WAYLAND_HOME).toBeUndefined();
   });
 });

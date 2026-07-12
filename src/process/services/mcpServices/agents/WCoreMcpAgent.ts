@@ -4,12 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execSync } from 'child_process';
 import { promises as fs } from 'fs';
 import { dirname } from 'path';
 import { parse, stringify } from 'smol-toml';
-import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import { resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
@@ -39,33 +36,6 @@ type WCoreConfigFile = {
   [key: string]: unknown;
 };
 
-/** Cached config path resolved from `<binary> --config-path` */
-let cachedConfigPath: string | null = null;
-
-/**
- * Get the wayland-core global config path via the bundled binary's `--config-path` flag.
- * Uses resolveWCoreBinary() to locate the correct binary across platforms.
- * The result is cached because the path does not change at runtime.
- */
-function getWCoreConfigPath(cliPath?: string): string {
-  if (cachedConfigPath) return cachedConfigPath;
-
-  const cmd = cliPath || resolveWCoreBinary();
-  if (!cmd) {
-    throw new Error('wayland-core binary not found');
-  }
-
-  const result = execSync(`"${cmd}" --config-path`, {
-    encoding: 'utf-8',
-    timeout: 3000,
-    env: getEnhancedEnv(),
-    stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
-
-  cachedConfigPath = result;
-  return result;
-}
-
 /**
  * Resolve the config.toml path that the ENGINE actually reads for the active
  * profile (Design B: `WAYLAND_HOME` = the active profile's config dir, set on
@@ -79,16 +49,18 @@ function getWCoreConfigPath(cliPath?: string): string {
  * is the single source of truth both the spawn (`resolveActiveConfigDir`) and
  * the config bridge resolve through, so they can never disagree.
  *
- * Best-effort: a resolution failure falls back to the binary `--config-path`
- * (backward-compatible for the default profile) rather than throwing.
+ * #278: this FAILS CLOSED. The previous `--config-path` fallback was justified as
+ * "backward-compatible for the default profile", but it was UNREACHABLE for the
+ * default profile: resolveActiveConfigPath() -> resolveActiveConfigDir() can only
+ * throw on its named-profile branch (see the invariant on resolveActiveConfigDir).
+ * So the fallback could only ever fire while a NAMED profile was live - and it
+ * resolved to the NATIVE (default-profile) dir, writing that profile's connector
+ * into the DEFAULT profile's config.toml. That is the exact divergence the comment
+ * above says this function was introduced to fix, reintroduced in its own catch.
+ * Surface the failure instead of corrupting another profile's config.
  */
-async function getActiveWCoreConfigPath(cliPath?: string): Promise<string> {
-  try {
-    return await resolveActiveConfigPath();
-  } catch (error) {
-    console.warn('[WCoreMcpAgent] Failed to resolve active profile config path, falling back to --config-path:', error);
-    return getWCoreConfigPath(cliPath);
-  }
+async function getActiveWCoreConfigPath(): Promise<string> {
+  return resolveActiveConfigPath();
 }
 
 /**
@@ -174,13 +146,12 @@ function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
 /**
  * Wayland Core MCP agent implementation
  *
- * Manages MCP server configuration in the platform config directory (see getWCoreConfigPath())
+ * Manages MCP server configuration in the ACTIVE PROFILE's config directory
+ * (see getActiveWCoreConfigPath()) — not the platform-native dir, which would be
+ * the wrong file whenever a named profile is live (#278).
  * wayland-core uses TOML format with [mcp.servers.*] sections
  */
 export class WCoreMcpAgent extends AbstractMcpAgent {
-  /** Remembered cliPath from the most recent detectMcpServers call */
-  private resolvedCliPath?: string;
-
   constructor() {
     super('wcore');
   }
@@ -193,9 +164,9 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
   /**
    * Read and parse the wayland-core config file
    */
-  private async readConfig(cliPath?: string): Promise<WCoreConfigFile> {
+  private async readConfig(): Promise<WCoreConfigFile> {
     try {
-      const content = await fs.readFile(await getActiveWCoreConfigPath(cliPath), 'utf-8');
+      const content = await fs.readFile(await getActiveWCoreConfigPath(), 'utf-8');
       return parse(content) as WCoreConfigFile;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -212,7 +183,7 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
     // Ensure directory exists. Write to the ACTIVE-PROFILE config.toml so the
     // engine spawn (which reads via WAYLAND_HOME = active profile dir) sees what
     // we wrote - not the native default-profile path the binary reports.
-    const configPath = await getActiveWCoreConfigPath(this.resolvedCliPath);
+    const configPath = await getActiveWCoreConfigPath();
     await fs.mkdir(dirname(configPath), { recursive: true });
     await fs.writeFile(configPath, stringify(config), 'utf-8');
   }
@@ -220,11 +191,10 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
   /**
    * Detect MCP servers configured in wayland-core config.toml
    */
-  detectMcpServers(cliPath?: string): Promise<IMcpServer[]> {
+  detectMcpServers(_cliPath?: string): Promise<IMcpServer[]> {
     const detectOperation = async () => {
       try {
-        this.resolvedCliPath = cliPath;
-        const config = await this.readConfig(cliPath);
+        const config = await this.readConfig();
         const servers = config.mcp?.servers;
 
         if (!servers || Object.keys(servers).length === 0) {
