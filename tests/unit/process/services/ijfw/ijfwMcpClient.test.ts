@@ -27,6 +27,17 @@ vi.mock('electron', () => ({
   app: { getPath: (key: string) => `/tmp/wayland-test-${key}` },
 }));
 
+// #706: spawnChild now resolves a JS runtime via getPlatformServices().paths.
+// Unpackaged here → the resolver returns electron-node (process.execPath +
+// ELECTRON_RUN_AS_NODE), i.e. the exact behaviour these tests already assert.
+// getDataDir feeds resolveSafeSpawnCwd; point it at the test home so the spawn
+// cwd stays deterministic and bundle-external.
+vi.mock('@/common/platform', () => ({
+  getPlatformServices: () => ({
+    paths: { isPackaged: () => false, getDataDir: () => tmpHome },
+  }),
+}));
+
 vi.mock('@process/services/ijfw/entryResolver', () => ({
   resolveEntry: vi.fn(async () => '/tmp/fake-ijfw-entry.js'),
 }));
