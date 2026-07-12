@@ -83,7 +83,9 @@ vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn
 import AcpAgentManager from '../../src/process/task/AcpAgentManager';
 import { ACP_BACKENDS_ALL, type AcpBackend } from '../../src/common/types/acpTypes';
 
-type Resolver = (data: Record<string, unknown>) => Promise<{ cliPath?: string; customArgs?: string[]; customEnv?: Record<string, string> }>;
+type Resolver = (
+  data: Record<string, unknown>
+) => Promise<{ cliPath?: string; customArgs?: string[]; customEnv?: Record<string, string> }>;
 
 const ASSISTANTS = [
   // Thin builtin specialist: real backend, NO defaultCliPath (the regression case).
@@ -107,8 +109,7 @@ function resolver(backend: string): Resolver {
     backend: backend as AcpBackend,
     workspace: '/tmp/ws',
   });
-  return (data) =>
-    (manager as unknown as { resolveCustomAgentCliConfig: Resolver }).resolveCustomAgentCliConfig(data);
+  return (data) => (manager as unknown as { resolveCustomAgentCliConfig: Resolver }).resolveCustomAgentCliConfig(data);
 }
 
 describe('resolveCustomAgentCliConfig — thin-specialist fallthrough (#66)', () => {
