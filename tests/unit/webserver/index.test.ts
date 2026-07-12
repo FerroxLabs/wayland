@@ -126,6 +126,23 @@ vi.mock('@process/webserver/adapter', () => ({
   initWebAdapter: initWebAdapterMock,
 }));
 
+const showNotificationMock = vi.fn(async () => {});
+vi.mock('@process/bridge/notificationBridge', () => ({
+  showNotification: (...a: unknown[]) => showNotificationMock(...a),
+}));
+
+vi.mock('@process/services/i18n', () => ({
+  default: {
+    // Mirror i18next: return the key, with {{url}} interpolated, so the test can assert
+    // the URL actually reaches the user without depending on real translations.
+    t: (key: string, opts?: { url?: string }) => (opts?.url ? `${key}|${opts.url}` : key),
+  },
+}));
+
+vi.mock('@process/bridge/lanAddress', () => ({
+  getLanIP: () => '192.168.1.42',
+}));
+
 vi.mock('@process/bridge/webuiQR', () => ({
   generateQRLoginUrlDirect: vi.fn(() => ({ qrUrl: 'http://localhost:3000/qr' })),
 }));
@@ -267,5 +284,83 @@ describe('startWebServerWithInstance default admin initialization', () => {
     expect(setSystemUserCredentialsMock).not.toHaveBeenCalled();
     expect(updatePasswordMock).toHaveBeenCalledWith('legacy-admin', 'hashed-password');
     expect(createUserMock).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * #722: a LAN-exposed WebUI must announce itself.
+ *
+ * The notice lives here, at the bind, and NOT in the settings toggle or the
+ * preference-restore path - because those are only two of the doors. `resolveRemoteAccess`
+ * also arms 0.0.0.0 from WAYLAND_ALLOW_REMOTE / WAYLAND_HOST / --remote / webui.config.json,
+ * and the desktop preference itself is writable over the config-storage bridge (which is
+ * NOT remote-denied). Every one of those paths ends up in server.listen(), so this is the
+ * only place a "you are exposed" guarantee can actually hold.
+ */
+describe('#722: every LAN bind announces itself', () => {
+  let priorDisplay: string | undefined;
+
+  beforeEach(() => {
+    // getServerIP() treats Linux-without-DISPLAY as headless and makes a REAL HTTPS call
+    // to api.ipify.org for a public IP. That is live on an ubuntu CI runner (and dead on
+    // a mac), so the URL under assertion would differ by platform. Pin the desktop branch
+    // so this test measures OUR announcement, not the runner's network.
+    priorDisplay = process.env.DISPLAY;
+    process.env.DISPLAY = ':0';
+
+    vi.resetModules();
+    vi.clearAllMocks();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    getSystemUserMock.mockResolvedValue(makeUser({ password_hash: 'already-set' }));
+    findByUsernameMock.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    if (priorDisplay === undefined) delete process.env.DISPLAY;
+    else process.env.DISPLAY = priorDisplay;
+    vi.restoreAllMocks();
+  });
+
+  it('notifies the user, naming the LAN URL, when the server binds 0.0.0.0', async () => {
+    const { startWebServerWithInstance } = await import('@process/webserver/index');
+
+    await startWebServerWithInstance(25808, true);
+    await vi.waitFor(() => expect(showNotificationMock).toHaveBeenCalledTimes(1));
+
+    const { title, body } = showNotificationMock.mock.calls[0][0] as { title: string; body: string };
+    expect(title).toBe('settings.webui.lanExposureNoticeTitle');
+    // Translated, not hardcoded English - and carrying the real address.
+    expect(body).toBe('settings.webui.lanExposureNoticeBody|http://192.168.1.42:25808');
+  });
+
+  it('also warns on the console, the only channel a headless bind has', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { startWebServerWithInstance } = await import('@process/webserver/index');
+
+    await startWebServerWithInstance(25808, true);
+
+    expect(warn.mock.calls.some((c) => String(c[0]).includes('SECURITY'))).toBe(true);
+  });
+
+  it('says NOTHING for a localhost-only bind — that exposes no one', async () => {
+    const { startWebServerWithInstance } = await import('@process/webserver/index');
+
+    await startWebServerWithInstance(25808, false);
+    await new Promise((r) => setTimeout(r, 20));
+
+    expect(showNotificationMock).not.toHaveBeenCalled();
+  });
+
+  it('a failed notice must NOT take the server down with it', async () => {
+    showNotificationMock.mockRejectedValueOnce(new Error('notifications unavailable'));
+    const { startWebServerWithInstance } = await import('@process/webserver/index');
+
+    // The listener is already up by this point. A warning that fails to render must not
+    // look like a failed start, or we would trade a missing notice for a broken WebUI.
+    const instance = await startWebServerWithInstance(25808, true);
+    expect(instance.port).toBe(25808);
+    expect(instance.allowRemote).toBe(true);
   });
 });

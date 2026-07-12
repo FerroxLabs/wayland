@@ -20,7 +20,7 @@ import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { changeUsernameHttp } from '@/renderer/services/UsernameService';
 import { withCsrfToken } from '@process/webserver/middleware/csrfClient';
-import { Button, Form, Input, Message, Switch, Tooltip } from '@arco-design/web-react';
+import { Button, Form, Input, Message, Modal, Switch, Tooltip } from '@arco-design/web-react';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettingsViewMode } from '../settingsViewContext';
@@ -101,6 +101,8 @@ const WebuiModalContent: React.FC = () => {
   const [qrExpiresAt, setQrExpiresAt] = useState<number | null>(null);
   const [qrLoading, setQrLoading] = useState(false);
   const qrRefreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Serialises LAN-toggle changes: a restart takes seconds and the modal is unbounded.
+  const allowRemoteBusyRef = useRef(false);
 
   // Load status
   const loadStatus = useCallback(async () => {
@@ -326,6 +328,30 @@ const WebuiModalContent: React.FC = () => {
   // Handle allow remote toggle
   // Need to restart server to change binding address
   const handleAllowRemoteChange = async (checked: boolean) => {
+    // #722: enabling this binds the WebUI to 0.0.0.0, reachable by every device on
+    // the LAN, with the login travelling over plaintext HTTP - and it stays on across
+    // restarts. That is a consent-worthy change, so make the user say yes to what it
+    // actually does. Turning it OFF needs no confirmation: it only ever shrinks the
+    // exposure. A renderer-side dialog is sufficient here precisely because
+    // `webui.start`/`webui.stop` are in the remote denylist (bridgeAllowlist.ts), so
+    // this toggle can only be driven by the local operator, never by a paired remote
+    // client - a remote caller could not reach this code path to bypass it.
+    if (checked) {
+      const confirmed = await new Promise<boolean>((resolve) => {
+        Modal.confirm({
+          title: t('settings.webui.allowRemoteConfirmTitle'),
+          content: t('settings.webui.allowRemoteConfirmBody'),
+          okText: t('settings.webui.allowRemoteConfirmOk'),
+          okButtonProps: { status: 'warning' },
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+      // Leave the switch where it was. Without this an aborted confirm would still
+      // paint the toggle as on while the server stayed bound to localhost.
+      if (!confirmed) return;
+    }
+
     // Save original value for rollback
     const previousAllowRemote = allowRemotePreference;
     setAllowRemotePreference(checked);
@@ -988,8 +1014,39 @@ const WebuiModalContent: React.FC = () => {
               </span>
             }
           >
-            <Switch checked={allowRemotePreference} onChange={handleAllowRemoteChange} />
+            <Switch
+              checked={allowRemotePreference}
+              onChange={handleAllowRemoteChange}
+              loading={startLoading}
+              disabled={startLoading}
+            />
           </PreferenceRow>
+
+          {/*
+            #722: LAN exposure is restored on EVERY app start from the persisted
+            preference, so a listener the user armed once silently comes back for good.
+            The confirm dialog only fires at the moment they enable it; this states the
+            live exposure, with the actual URL, every time anyone looks at this panel.
+          */}
+          {allowRemotePreference && (
+            <div
+              data-testid='webui-lan-exposure-warning'
+              className='mb-12px px-12px py-8px rd-8px border-1 border-solid border-[var(--color-warning-light-3)] bg-[var(--color-warning-light-1)]'
+            >
+              {status?.running ? (
+                <>
+                  <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteActive')}</span>
+                  {status.networkUrl && <span className='text-12px text-t-secondary ml-4px'>{status.networkUrl}</span>}
+                </>
+              ) : (
+                // The pref survives the server being switched off, so a present-tense
+                // "reachable by every device" would be a lie whenever the WebUI is idle -
+                // and a warning that cries wolf is how you teach someone to ignore the
+                // real one. Say what is actually true: armed, not yet listening.
+                <span className='text-12px text-t-primary'>{t('settings.webui.allowRemoteArmed')}</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Login Info Card */}
