@@ -298,6 +298,10 @@ export const application = {
   updateSystemInfo: buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // Update system info
   getZoomFactor: buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: buildProvider<number, { factor: number }>('app.set-zoom-factor'),
+  // The conversation the user is currently looking at, or null when no chat is in
+  // view. Reported by the renderer so the task-completion notifier (#579) can stay
+  // quiet only about the on-screen chat, not every chat while the app is focused.
+  setForegroundConversation: buildProvider<void, { conversationId: string | null }>('app.set-foreground-conversation'),
   // Pop a main destination (e.g. Mission Control) out into its own window, reusing
   // the conversation pop-out window infrastructure. `route` is validated against an
   // allowlist in the main process. Returns alreadyOpen:true when an existing
