@@ -7,6 +7,8 @@ import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
 import { isCodexAutoApproveMode } from '@/common/types/codex/codexModes';
 import { isAutoGuardedMode, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
 import { classifyDestructiveToolCall } from '@/common/security/destructiveCommand';
+import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IConfigStorageRefer } from '@/common/config/storage';
@@ -1286,6 +1288,25 @@ ${collectedResponses.join('\n')}`;
       // so Wayland honors the mode here (mirroring Gemini autoEdit / WCore auto_edit).
       // Commands and other tool kinds still surface a confirmation.
       if (shouldAutoApproveAcpEdit(this.currentMode, toolCall.kind) && options.length > 0) {
+        const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
+        setTimeout(() => {
+          void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);
+        }, 50);
+        return;
+      }
+
+      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // STILL prompting on exec/network. Independent of the per-agent mode above
+      // and persisted per-workspace. Only the non-destructive, non-network raw
+      // kinds read/search/edit are auto-approved (see workspaceTrust.ts); execute,
+      // fetch (network), delete, move, and MCP kinds are NOT in that set and fall
+      // through to a confirmation - so exec/network/destructive always prompt
+      // without needing a separate command classifier here.
+      if (
+        isWorkspaceTrusted(this.workspace) &&
+        trustedWorkspaceAutoApprovesAcpKind(toolCall.kind) &&
+        options.length > 0
+      ) {
         const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
         setTimeout(() => {
           void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);

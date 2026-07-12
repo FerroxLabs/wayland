@@ -17,6 +17,8 @@ import { readWCoreConfigMcpServerNames } from '@process/agent/wcore/configMcpSer
 import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
+import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
@@ -612,6 +614,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent?.approveTool(content.callId, 'once');
         return true;
       }
+    }
+    // #671: trusted ("cowork") workspace auto-approves edits, still prompts on
+    // exec/network. Only 'edit' - NOT the 'info' catch-all (which the engine also
+    // uses for unclassified/network confirmations) - so a persisted always-on
+    // posture stays stricter than the user-chosen auto_edit mode. Persisted
+    // per-workspace; question/exec/mcp fall through to the confirmation dialog.
+    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+      this.agent?.approveTool(content.callId, 'once');
+      return true;
     }
     return false;
   }

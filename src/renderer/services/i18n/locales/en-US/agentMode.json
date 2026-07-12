@@ -13,6 +13,10 @@
   "smart": "Smart",
   "build": "Build Mode",
   "permission": "Permission",
+  "chat": "Chat",
+  "cowork": "Cowork",
+  "chatTooltip": "Chat: ask before every tool. Switch to Cowork to auto-approve reads & edits here.",
+  "coworkTooltip": "Cowork: auto-approve reads & edits in this workspace; still asks before running commands.",
   "switchMode": "Switch Mode",
   "switchSuccess": "Mode switched successfully",
   "switchFailed": "Failed to switch mode"
