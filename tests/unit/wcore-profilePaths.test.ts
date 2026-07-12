@@ -21,6 +21,7 @@ import {
   DEFAULT_PROFILE,
   getActiveProfile,
   nativeConfigDir,
+  ProfileIsolationError,
   profilesRoot,
   resolveActiveConfigDir,
   resolveActiveConfigPath,
@@ -95,5 +96,61 @@ describe('resolveActiveConfigDir - the default<->named fork', () => {
     await setActive('../../etc'); // fails the name regex => getActiveProfile => default
     const dir = await resolveActiveConfigDir();
     expect(dir).toBe(nativeConfigDir());
+  });
+});
+
+/**
+ * #278: the profile boundary must fail CLOSED.
+ *
+ * The load-bearing invariant is the ASYMMETRY: resolveActiveConfigDir() can throw
+ * ONLY on its named-profile branch. That is what makes "refuse to continue" a safe
+ * posture — it can never brick a `default`-profile user (i.e. every user today,
+ * since no profile UI ships yet), and it fires exactly where a silent fallback to
+ * the native dir would have bled one profile's data into another's.
+ *
+ * The trigger below is real, not synthetic: `CON` passes the MARKER validator
+ * (PROFILE_NAME_RE) so getActiveProfile() hands it back as a live named profile,
+ * but assertSafeProfileName() rejects it as a Windows-reserved device name, so
+ * resolveProfileDir() throws. The marker validator is strictly looser than the dir
+ * validator, so this is reachable from a plain on-disk marker.
+ */
+describe('#278: the profile boundary fails closed, never silently to the default dir', () => {
+  it('INVARIANT: `default` is throw-free with no marker at all', async () => {
+    await expect(resolveActiveConfigDir()).resolves.toBe(nativeConfigDir());
+  });
+
+  it('INVARIANT: `default` is throw-free even when the marker is garbage', async () => {
+    await setActive('../../etc');
+    await expect(resolveActiveConfigDir()).resolves.toBe(nativeConfigDir());
+  });
+
+  it('a named profile whose dir cannot be resolved THROWS, and does not resolve to the default dir', async () => {
+    await setActive('CON');
+    // Sanity: the marker really did register as a live NAMED profile.
+    expect(await getActiveProfile()).toBe('CON');
+    expect(await getActiveProfile()).not.toBe(DEFAULT_PROFILE);
+
+    const err = await resolveActiveConfigDir().then(
+      (dir) => ({ dir }),
+      (e: unknown) => ({ err: e })
+    );
+    expect(err).not.toHaveProperty('dir'); // must NOT have quietly returned nativeConfigDir()
+    expect(err).toHaveProperty('err');
+    const thrown = (err as { err: unknown }).err;
+    expect(thrown).toBeInstanceOf(ProfileIsolationError);
+    expect((thrown as ProfileIsolationError).profile).toBe('CON');
+  });
+
+  it('the failure is classifiable and can never be mistaken for a missing file (ENOENT)', async () => {
+    // WCoreMcpAgent.readConfig() treats ENOENT as "no config yet" and returns {}.
+    // A raw fs error escaping this resolver would silently downgrade "this profile
+    // is broken" into "this profile is empty" — and then write to the wrong file.
+    await setActive('NUL');
+    const thrown = await resolveActiveConfigDir().then(
+      () => null,
+      (e: unknown) => e
+    );
+    expect((thrown as ProfileIsolationError).code).toBe('PROFILE_ISOLATION');
+    expect((thrown as NodeJS.ErrnoException).code).not.toBe('ENOENT');
   });
 });

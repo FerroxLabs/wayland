@@ -14,7 +14,9 @@ export type TerminalOpenFailure =
   | 'unsupported' // agent has no native-TUI mapping
   | 'missing-cli' // mapped CLI not installed / not on PATH
   | 'at-capacity' // concurrent-PTY cap reached
-  | 'not-found'; // conversation id did not resolve
+  | 'not-found' // conversation id did not resolve
+  | 'profile-unresolved'; // #278: a named profile is active but its dir won't resolve —
+// launching the engine TUI anyway would read/write the DEFAULT profile's data
 
 export type TerminalOpenResult = { ok: true } | { ok: false; reason: TerminalOpenFailure };
 
