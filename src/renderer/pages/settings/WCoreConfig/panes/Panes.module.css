@@ -500,11 +500,22 @@
   height: 6px;
   border-radius: 50%;
 }
-.badge.connected {
+/* Status-colour semantics (#729). A badge reports the STATE of a thing, and the
+   colour carries that meaning:
+     .ok      green (--wc-success)  active / enabled / connected / running
+     .notset  muted (--wc-text-muted)  nothing configured — no state to report
+   amber (--wc-warning) = pending and red (--wc-error) = error have tokens but no
+   class yet; add one when a state first needs it rather than reaching elsewhere.
+
+   --wc-accent is the BRAND colour and marks SELECTION (.railItem.active, the
+   segmented control, focus rings), never health. An orange "Active" badge reads
+   as a warning — that is the bug the reporter hit. This is the same rule
+   .chipKey/.chipKey.ok below already follows (amber = key needed, green = ok). */
+.badge.ok {
   color: var(--wc-success);
   background: var(--wc-success-dim);
 }
-.badge.connected .bd {
+.badge.ok .bd {
   background: var(--wc-success);
   box-shadow: 0 0 6px var(--wc-success);
 }
@@ -514,14 +525,6 @@
 }
 .badge.notset .bd {
   background: var(--wc-text-muted);
-}
-.badge.activeBadge {
-  color: var(--wc-accent);
-  background: var(--wc-accent-dim);
-}
-.badge.activeBadge .bd {
-  background: var(--wc-accent);
-  box-shadow: 0 0 6px var(--wc-accent);
 }
 
 /* ---- Tool grid ---- */
