@@ -105,6 +105,8 @@ type PendingModelOp = PendingOp<AcpModelInfo> & {
   requestedModelId: string;
   generation: number;
   baselineModelId: string | null;
+  exactConfirmation: AcpModelInfo | null;
+  dispatchComplete: boolean;
 };
 
 function modelSelectionError(
@@ -462,7 +464,8 @@ export class AcpAgentV2 {
               )
             );
           } else if (reportedModelId === op.requestedModelId) {
-            this.resolveOp(op, next);
+            op.exactConfirmation = next;
+            if (op.dispatchComplete) this.resolveOp(op, next);
           } else {
             this.modelOp = null;
             this.rejectOp(
@@ -1016,24 +1019,35 @@ export class AcpAgentV2 {
         requestedModelId: modelId,
         generation,
         baselineModelId: this.cachedModelInfo?.currentModelId ?? null,
+        exactConfirmation: null,
+        dispatchComplete: false,
         resolve,
         reject,
         timer,
       };
     });
 
-    const dispatch = this.dispatchModelSelection(modelId).catch((error) => {
-      const failure = modelSelectionError(
-        'model_rejected',
-        error instanceof Error ? error.message : String(error)
-      );
-      if (this.modelOp?.generation === generation) {
+    const dispatch = this.dispatchModelSelection(modelId)
+      .then(() => {
         const op = this.modelOp;
-        this.modelOp = null;
-        this.rejectOp(op, failure);
-      }
-      throw failure;
-    });
+        if (op?.generation !== generation) return;
+        op.dispatchComplete = true;
+        if (op.exactConfirmation) {
+          this.resolveOp(op, op.exactConfirmation);
+        }
+      })
+      .catch((error) => {
+        const failure = modelSelectionError(
+          'model_rejected',
+          error instanceof Error ? error.message : String(error)
+        );
+        if (this.modelOp?.generation === generation) {
+          const op = this.modelOp;
+          this.modelOp = null;
+          this.rejectOp(op, failure);
+        }
+        throw failure;
+      });
 
     const [, confirmed] = await Promise.all([dispatch, confirmation]);
     if (generation !== this.modelGeneration) {
