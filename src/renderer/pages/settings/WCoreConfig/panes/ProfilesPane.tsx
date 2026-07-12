@@ -128,7 +128,7 @@ const ProfilesPane: React.FC = () => {
                 <div className={styles.profileName}>
                   {p.name}
                   {p.active && (
-                    <span className={`${styles.badge} ${styles.activeBadge}`}>
+                    <span className={`${styles.badge} ${styles.ok}`}>
                       <span className={styles.bd} />
                       {t('settings.wcoreConfig.profiles.active', { defaultValue: 'Active' })}
                     </span>
