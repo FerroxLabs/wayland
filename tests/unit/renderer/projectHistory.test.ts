@@ -4,6 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * #180 — the project provenance timeline.
+ *
+ * The timeline is built only from provenance a project ACTUALLY records: its own
+ * create/update stamps, its conversations, and its reference files. It previously
+ * also modelled email-ingest records, Mail Drop links and remote attachment
+ * imports — none of which exist in this codebase — fed by a hard-coded empty
+ * array, so every user saw permanently-empty "Emails 0" and "Remote 0" pills.
+ *
+ * The last describe block is the guard that stops that class of bug coming back.
+ */
 import { describe, expect, it } from 'vitest';
 import type { TFunction } from 'i18next';
 import type { TChatConversation } from '@/common/config/storage';
@@ -11,8 +22,9 @@ import type { IProject } from '@/common/types/project';
 import {
   buildProjectTimeline,
   filterTimeline,
+  HISTORY_FILTERS,
+  itemMatchesFilter,
   timelineCounts,
-  type EmailIngestRecord,
   type ReferenceFile,
 } from '@/renderer/pages/projects/components/projectHistory';
 
@@ -40,109 +52,54 @@ const chat = (id: string, modifyTime: number, name = `Chat ${id}`): TChatConvers
 
 describe('buildProjectTimeline', () => {
   it('always emits a project-created event and nothing else for a bare project', () => {
-    const items = buildProjectTimeline(t, { project, conversations: [], emailHistory: [], references: [] });
+    const items = buildProjectTimeline(t, { project, conversations: [], references: [] });
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ id: 'project-created', kind: 'project', time: project.createTime });
   });
 
   it('adds a project-updated event only when modifyTime differs from createTime', () => {
-    const updated: IProject = { ...project, modifyTime: project.createTime + 5_000 };
-    const items = buildProjectTimeline(t, { project: updated, conversations: [], emailHistory: [], references: [] });
-    expect(items.map((i) => i.id)).toContain('project-updated');
+    const updated = { ...project, modifyTime: project.createTime + 5_000 };
+    const items = buildProjectTimeline(t, { project: updated, conversations: [], references: [] });
+    expect(items.map((i) => i.id)).toEqual(['project-updated', 'project-created']);
   });
 
   it('maps conversations to chat events with an Open chat target, newest first', () => {
     const items = buildProjectTimeline(t, {
       project,
       conversations: [chat('a', project.createTime + 1_000), chat('b', project.createTime + 9_000)],
-      emailHistory: [],
       references: [],
     });
     const chats = items.filter((i) => i.kind === 'chat');
-    expect(chats.map((c) => c.id)).toEqual(['chat-b', 'chat-a']);
+    expect(chats.map((i) => i.id)).toEqual(['chat-b', 'chat-a']);
     expect(chats[0].target).toBe('/conversation/b');
-    expect(chats[0].targetLabel).toBeTruthy();
-  });
-
-  it('expands an email record into email + reference + remote events by status', () => {
-    const email: EmailIngestRecord = {
-      id: 'e1',
-      from: 'ada@example.com',
-      subject: 'Specs',
-      receivedAt: project.createTime + 20_000,
-      status: 'saved',
-      attachmentCount: 3,
-      referenceFiles: ['spec.pdf', 'brand.md'],
-      remoteAttachmentLinks: [
-        { url: 'u1', status: 'saved', savedReferenceFile: 'big.zip' },
-        { url: 'u2', status: 'ignored' },
-        { url: 'u3', status: 'pending' },
-        { url: 'u4', status: 'failed', lastError: 'timeout' },
-      ],
-    };
-    const items = buildProjectTimeline(t, { project, conversations: [], emailHistory: [email], references: [] });
-    const kinds = items.map((i) => i.kind);
-    expect(kinds.filter((k) => k === 'email')).toHaveLength(1);
-    expect(kinds.filter((k) => k === 'reference')).toHaveLength(2);
-    expect(kinds.filter((k) => k === 'remote-import')).toHaveLength(1);
-    expect(kinds.filter((k) => k === 'remote-ignore')).toHaveLength(1);
-    // pending + failed both fall under the remote-pending kind.
-    expect(kinds.filter((k) => k === 'remote-pending')).toHaveLength(2);
   });
 
   it('lists reference-folder files with no timestamp as inventory events, sorted last', () => {
-    const references: ReferenceFile[] = [{ name: 'old.pdf', path: '/x/old.pdf', size: 2048 }];
-    const items = buildProjectTimeline(t, { project, conversations: [], emailHistory: [], references });
-    const inv = items.find((i) => i.kind === 'inventory');
-    expect(inv).toBeDefined();
-    expect(inv?.time).toBeUndefined();
-    expect(items[items.length - 1].kind).toBe('inventory');
+    const references: ReferenceFile[] = [{ name: 'spec.pdf', path: '/r/spec.pdf', size: 2048 }];
+    const items = buildProjectTimeline(t, { project, conversations: [], references });
+    const last = items.at(-1)!;
+    expect(last).toMatchObject({ id: 'inventory-spec.pdf', kind: 'inventory' });
+    // Reference files carry no per-event timestamp (only an fs mtime), so they
+    // sort to the bottom rather than pretending to a time they do not have.
+    expect(last.time).toBeUndefined();
+    expect(last.meta).toBe('2 KB');
   });
 
-  it('does not double-count reference files already saved from an email', () => {
-    const email: EmailIngestRecord = {
-      id: 'e1',
-      from: 'ada@example.com',
-      subject: 'Specs',
-      receivedAt: project.createTime + 20_000,
-      status: 'saved',
-      attachmentCount: 1,
-      referenceFiles: ['spec.pdf'],
-    };
-    const references: ReferenceFile[] = [{ name: 'spec.pdf', path: '/x/spec.pdf', size: 1024 }];
-    const items = buildProjectTimeline(t, { project, conversations: [], emailHistory: [email], references });
-    expect(items.filter((i) => i.kind === 'inventory')).toHaveLength(0);
-    expect(items.filter((i) => i.kind === 'reference')).toHaveLength(1);
-  });
-
-  it('degrades gracefully with no email history (no email/remote events)', () => {
+  it('only ever emits kinds that a project can actually record', () => {
     const items = buildProjectTimeline(t, {
-      project,
+      project: { ...project, modifyTime: project.createTime + 1 },
       conversations: [chat('a', project.createTime + 1_000)],
-      emailHistory: [],
-      references: [{ name: 'r.pdf', path: '/x/r.pdf', size: 10 }],
+      references: [{ name: 'spec.pdf', path: '/r/spec.pdf', size: 10 }],
     });
-    expect(items.some((i) => i.kind === 'email')).toBe(false);
-    expect(items.some((i) => i.kind.startsWith('remote'))).toBe(false);
+    expect(new Set(items.map((i) => i.kind))).toEqual(new Set(['project', 'chat', 'inventory']));
   });
 });
 
 describe('filterTimeline', () => {
-  const email: EmailIngestRecord = {
-    id: 'e1',
-    from: 'ada@example.com',
-    subject: 'Specs',
-    receivedAt: project.createTime + 20_000,
-    status: 'saved',
-    attachmentCount: 1,
-    referenceFiles: ['spec.pdf'],
-    remoteAttachmentLinks: [{ url: 'u1', status: 'saved' }],
-  };
   const items = buildProjectTimeline(t, {
     project,
     conversations: [chat('a', project.createTime + 1_000)],
-    emailHistory: [email],
-    references: [{ name: 'loose.pdf', path: '/x/loose.pdf', size: 10 }],
+    references: [{ name: 'spec.pdf', path: '/r/spec.pdf', size: 10 }],
   });
 
   it('returns everything for the all filter', () => {
@@ -150,41 +107,53 @@ describe('filterTimeline', () => {
   });
 
   it('restricts to chat events', () => {
-    expect(filterTimeline(items, 'chat').every((i) => i.kind === 'chat')).toBe(true);
+    expect(filterTimeline(items, 'chat').map((i) => i.id)).toEqual(['chat-a']);
   });
 
-  it('treats reference and inventory as the reference filter', () => {
-    const kinds = new Set(filterTimeline(items, 'reference').map((i) => i.kind));
-    expect([...kinds].every((k) => k === 'reference' || k === 'inventory')).toBe(true);
-    expect(kinds.size).toBeGreaterThan(0);
-  });
-
-  it('collects all remote kinds under the remote filter', () => {
-    expect(filterTimeline(items, 'remote').every((i) => i.kind.startsWith('remote'))).toBe(true);
+  it('the reference filter selects the reference-file (inventory) events', () => {
+    expect(filterTimeline(items, 'reference').map((i) => i.id)).toEqual(['inventory-spec.pdf']);
   });
 });
 
 describe('timelineCounts', () => {
   it('counts by source, not by rendered event', () => {
-    const email: EmailIngestRecord = {
-      id: 'e1',
-      from: 'ada@example.com',
-      subject: 'Specs',
-      receivedAt: project.createTime + 20_000,
-      status: 'saved',
-      attachmentCount: 1,
-      referenceFiles: ['spec.pdf'],
-      remoteAttachmentLinks: [
-        { url: 'u1', status: 'saved' },
-        { url: 'u2', status: 'ignored' },
-      ],
-    };
-    const counts = timelineCounts({
-      project,
-      conversations: [chat('a', 1), chat('b', 2)],
-      emailHistory: [email],
-      references: [{ name: 'x.pdf', path: '/x.pdf', size: 1 }],
+    expect(
+      timelineCounts({
+        project,
+        conversations: [chat('a', 1), chat('b', 2)],
+        references: [{ name: 'spec.pdf', path: '/r/spec.pdf', size: 10 }],
+      })
+    ).toEqual({ chat: 2, reference: 1 });
+  });
+});
+
+/**
+ * The actual defect #180 shipped: filter pills the timeline can never populate.
+ * A pill is a promise that some event exists behind it — so every filter must be
+ * reachable from a kind the builder can genuinely emit.
+ */
+describe('#180: no filter may be permanently empty', () => {
+  it('every filter is satisfiable by a kind the builder actually emits', () => {
+    // A project exercising every source there is.
+    const everything = buildProjectTimeline(t, {
+      project: { ...project, modifyTime: project.createTime + 1 },
+      conversations: [chat('a', project.createTime + 1_000)],
+      references: [{ name: 'spec.pdf', path: '/r/spec.pdf', size: 10 }],
     });
-    expect(counts).toEqual({ chat: 2, email: 1, reference: 1, remote: 2 });
+
+    // Exhaustive at RUNTIME, off the same array the panel renders from.
+    //
+    // A hand-written `HistoryFilter[]` literal here would NOT be exhaustive — an
+    // array is assignable as a SUBSET of the union, so re-adding 'email' would
+    // type-check and this guard would silently skip it, missing the exact bug it
+    // exists to catch. Nor does a compile-time trick (`Record<HistoryFilter,…>`)
+    // help: test files are not in the `tsc --noEmit` program, so it would never
+    // run. Iterating the exported const is the only version that actually bites.
+    for (const filter of HISTORY_FILTERS) {
+      expect(
+        everything.some((item) => itemMatchesFilter(item, filter)),
+        `filter "${filter}" matches nothing the timeline can ever produce — it is a dead pill`
+      ).toBe(true);
+    }
   });
 });
