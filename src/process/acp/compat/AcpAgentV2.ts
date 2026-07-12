@@ -990,8 +990,6 @@ export class AcpAgentV2 {
         )
       );
     }
-    this.supersededModelIds.delete(modelId);
-
     const catalog = this.cachedModelInfo?.availableModels ?? [];
     if (
       catalog.length > 0 &&
@@ -1008,6 +1006,7 @@ export class AcpAgentV2 {
         this.cachedModelInfo?.currentModelId === modelId &&
         this.cachedModelInfo.confirmationSource
       ) {
+        this.supersededModelIds.delete(modelId);
         return this.cachedModelInfo;
       }
       throw modelSelectionError(
@@ -1015,6 +1014,8 @@ export class AcpAgentV2 {
         `Flux model requires provider session confirmation: ${modelId}`
       );
     }
+
+    this.supersededModelIds.delete(modelId);
 
     const confirmation = new Promise<AcpModelInfo>((resolve, reject) => {
       const timer = setTimeout(() => {

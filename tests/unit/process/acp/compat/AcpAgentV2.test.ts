@@ -1208,6 +1208,47 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       });
     });
 
+    it('keeps the tombstone when an unsupported retry fails before dispatch', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels: [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        ],
+        confirmationSource: 'session-models',
+      });
+
+      const first = agent.setModelByConfigOption('gpt-5.6-sol');
+      const firstOutcome = first.then(
+        () => null,
+        (error: unknown) => error
+      );
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.4',
+        availableModels: [
+          { modelId: 'gpt-5.4', name: 'GPT-5.4' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        ],
+        confirmationSource: 'config-option-update',
+      });
+      await expect(firstOutcome).resolves.toMatchObject({ code: 'unsupported_model' });
+
+      await expect(agent.setModelByConfigOption('gpt-5.6-sol')).rejects.toMatchObject({
+        code: 'unsupported_model',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        ],
+        confirmationSource: 'config-option-update',
+      });
+
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.4');
+    });
+
     it('ignores a null/empty provider snapshot and times out without confirmation', async () => {
       const agent = await createStartedAgent();
       vi.useFakeTimers();
