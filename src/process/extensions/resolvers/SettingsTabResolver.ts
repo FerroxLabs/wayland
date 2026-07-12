@@ -11,6 +11,7 @@ import { BUILTIN_SETTINGS_TAB_IDS } from '../types';
 import { isPathWithinDirectory } from '../sandbox/pathSafety';
 import { toAssetUrl } from '../protocol/assetProtocol';
 import { resolveRuntimeEntryPath } from './utils/entryPointResolver';
+import { resolveExternalEntryUrl } from './utils/externalEntryUrlResolver';
 
 /**
  * Resolved settings tab contribution - ready to be consumed by the renderer.
@@ -31,12 +32,6 @@ export type ResolvedSettingsTab = {
   /** Source extension name */
   _extensionName: string;
 };
-
-/** Loopback is not MITM-able, so cleartext there is safe (and is how a hosted tab is developed). */
-function isLoopbackHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-}
 
 /**
  * Resolve `contributes.settingsTabs` from all enabled extensions.
@@ -75,25 +70,9 @@ export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSett
       let entryUrl: string;
 
       if (isExternalEntry) {
-        try {
-          const external = new URL(tab.entryPoint);
-          if (external.protocol !== 'http:' && external.protocol !== 'https:') {
-            console.warn(
-              `[Extensions] Unsupported settings tab external protocol: ${tab.entryPoint} (extension: ${extName})`
-            );
-            continue;
-          }
-          if (external.protocol === 'http:' && !isLoopbackHost(external.hostname)) {
-            console.warn(
-              `[Extensions] Refusing cleartext http settings tab (use https): ${tab.entryPoint} (extension: ${extName})`
-            );
-            continue;
-          }
-          entryUrl = external.toString();
-        } catch {
-          console.warn(`[Extensions] Invalid settings tab external URL: ${tab.entryPoint} (extension: ${extName})`);
-          continue;
-        }
+        const resolved = resolveExternalEntryUrl(tab.entryPoint, 'settings tab', extName);
+        if (!resolved) continue;
+        entryUrl = resolved;
       } else {
         const absEntry = resolveRuntimeEntryPath(extDir, tab.entryPoint);
         if (!absEntry) {

@@ -17,6 +17,7 @@ import type {
 import { toAssetUrl } from '../protocol/assetProtocol';
 import { isPathWithinDirectory } from '../sandbox/pathSafety';
 import { resolveRuntimeEntryPath } from './utils/entryPointResolver';
+import { resolveExternalEntryUrl } from './utils/externalEntryUrlResolver';
 
 export type ResolvedExtensionAcronym = {
   id: string;
@@ -86,17 +87,9 @@ function resolveIcon(ext: LoadedExtension, icon: string | undefined, label: stri
 function resolveEntryUrl(ext: LoadedExtension, entryPoint: string, label: string): string | undefined {
   const isExternalEntry = /^https?:\/\//i.test(entryPoint);
   if (isExternalEntry) {
-    try {
-      const external = new URL(entryPoint);
-      if (external.protocol !== 'http:' && external.protocol !== 'https:') {
-        console.warn(`[Extensions] Unsupported ${label} external protocol: ${entryPoint} (${ext.manifest.name})`);
-        return undefined;
-      }
-      return external.toString();
-    } catch {
-      console.warn(`[Extensions] Invalid ${label} external URL: ${entryPoint} (${ext.manifest.name})`);
-      return undefined;
-    }
+    // #824: gate cleartext http (loopback-only) through the shared resolver so this
+    // surface can't reintroduce the MITM shape once it's wired into a webview.
+    return resolveExternalEntryUrl(entryPoint, label, ext.manifest.name);
   }
 
   const absEntry = resolveRuntimeEntryPath(ext.directory, entryPoint);
