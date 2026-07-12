@@ -11,6 +11,7 @@ import { uuid } from '@/common/utils';
 import { addMessage } from '@process/utils/message';
 import { getPlatformServices } from '@/common/platform';
 import { Cron } from 'croner';
+import { isNewConversationFootgun } from '@/common/cron/cronFrequency';
 import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -44,6 +45,12 @@ export type CreateCronJobParams = {
    * where this field is not surfaced.
    */
   bypassUniqueGuard?: boolean;
+  /**
+   * #163: explicit opt-in to create a minute-cadence job that spawns a new
+   * conversation every run (normally rejected as a footgun). Set only after the
+   * user is warned and confirms in the renderer.
+   */
+  allowHighFrequency?: boolean;
 };
 
 /**
@@ -56,6 +63,8 @@ export class CronService {
   private timers: Map<string, Cron | NodeJS.Timeout> = new Map();
   private retryTimers: Map<string, NodeJS.Timeout> = new Map();
   private retryCounts: Map<string, number> = new Map();
+  /** #163: job ids with a run currently executing, for the overlap guard. */
+  private readonly runningJobs = new Set<string>();
   private initialized = false;
   private powerSaveBlockerId: number | null = null;
 
@@ -228,6 +237,20 @@ export class CronService {
       }
     }
 
+    // #163: reject a minute-cadence job that creates a new conversation each run
+    // (floods history + spawns overlapping processes) unless the user explicitly
+    // overrode the warning. Reuse ('existing') mode is the safe path.
+    if (
+      !params.allowHighFrequency &&
+      isNewConversationFootgun(
+        params.schedule.kind,
+        params.schedule.kind === 'cron' ? params.schedule.expr : undefined,
+        params.executionMode
+      )
+    ) {
+      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
+    }
+
     const now = Date.now();
     const jobId = `cron_${uuid()}`;
 
@@ -291,10 +314,26 @@ export class CronService {
   /**
    * Update an existing cron job
    */
-  async updateJob(jobId: string, updates: Partial<CronJob>): Promise<CronJob> {
+  async updateJob(jobId: string, updates: Partial<CronJob>, allowHighFrequency = false): Promise<CronJob> {
     const existing = await this.repo.getById(jobId);
     if (!existing) {
       throw new Error(`Job not found: ${jobId}`);
+    }
+
+    // #163: block an EDIT that turns a job into the every-minute + new_conversation
+    // footgun (e.g. an agent CRON_UPDATE that raises the frequency), same guard as
+    // addJob. Evaluated against the effective (merged) schedule + execution mode.
+    const effectiveSchedule = updates.schedule ?? existing.schedule;
+    const effectiveMode = updates.target?.executionMode ?? existing.target.executionMode;
+    if (
+      !allowHighFrequency &&
+      isNewConversationFootgun(
+        effectiveSchedule.kind,
+        effectiveSchedule.kind === 'cron' ? effectiveSchedule.expr : undefined,
+        effectiveMode
+      )
+    ) {
+      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
     }
 
     // Stop existing timer
@@ -579,6 +618,31 @@ export class CronService {
    * Handles conversation busy state with retries and power management
    */
   private async executeJob(job: CronJob, preparedConversationId?: string): Promise<void> {
+    // #163 overlap guard: skip this fire if the same job's previous run is still
+    // executing. The conversation-busy check inside keys on conversationId,
+    // which is empty for new_conversation mode (a fresh conversation each run),
+    // so it cannot detect a job overlapping ITSELF — this per-job guard does.
+    if (this.runningJobs.has(job.id)) {
+      console.warn(`[CronService] Job ${job.id} is still running; skipping overlapping run (#163).`);
+      this.updateNextRunTime(job);
+      await this.repo.update(job.id, {
+        state: { ...job.state, lastStatus: 'skipped', lastError: i18n.t('cron:error.overlapSkipped') },
+      });
+      const skippedJob = await this.repo.getById(job.id);
+      if (skippedJob) {
+        this.emitter.emitJobUpdated(skippedJob);
+      }
+      return;
+    }
+    this.runningJobs.add(job.id);
+    try {
+      await this.executeJobInner(job, preparedConversationId);
+    } finally {
+      this.runningJobs.delete(job.id);
+    }
+  }
+
+  private async executeJobInner(job: CronJob, preparedConversationId?: string): Promise<void> {
     const conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Check if conversation is busy

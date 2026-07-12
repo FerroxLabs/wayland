@@ -230,8 +230,18 @@ describe('cronBridge', () => {
       const handler = providerMap.get('cron.updateJob');
       const result = await handler!({ jobId: 'job-1', updates });
 
-      expect(mockCronService.updateJob).toHaveBeenCalledWith('job-1', updates);
+      expect(mockCronService.updateJob).toHaveBeenCalledWith('job-1', updates, undefined);
       expect(result).toEqual(updatedJob);
+    });
+
+    it('should forward the allowHighFrequency override (#163)', async () => {
+      mockCronService.updateJob.mockResolvedValue({} as ICronJob);
+      const updates = { enabled: true };
+
+      const handler = providerMap.get('cron.updateJob');
+      await handler!({ jobId: 'job-1', updates, allowHighFrequency: true });
+
+      expect(mockCronService.updateJob).toHaveBeenCalledWith('job-1', updates, true);
     });
   });
 

@@ -28,6 +28,8 @@ import { getProviderAuthType } from '@/common/utils/platformAuthType';
 import { AuthType, getOauthInfoWithCache, Storage } from '@office-ai/aioncli-core';
 import { GeminiApprovalStore } from '../agent/gemini/GeminiApprovalStore';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
+import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
+import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { getDatabase } from '@process/services/database';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
@@ -776,6 +778,17 @@ export class GeminiAgentManager extends BaseAgentManager<
         void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
         return true;
       }
+    }
+    // #671: trusted ("cowork") workspace auto-approves edits while still
+    // prompting on exec/network. Unlike the autoEdit MODE above, trust does NOT
+    // auto-approve the 'info' catch-all: on Gemini/WCore 'info' is an
+    // engine-assigned bucket that can include network/URL-fetch confirmations,
+    // so a persisted always-on posture must stay stricter than the user-chosen
+    // mode and only auto-approve concrete file edits. Persisted per-workspace.
+    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+      console.log(`[GeminiAgentManager] Trusted-workspace auto-approving ${type}: callId=${content.callId}`);
+      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      return true;
     }
     return false;
   }
