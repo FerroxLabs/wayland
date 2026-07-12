@@ -7,6 +7,7 @@
 import { join } from 'node:path';
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { CODEX_ACP_NPX_PACKAGE } from '../../src/common/types/acpTypes';
 import {
   isBunxCacheCorruption,
   clearBunxCache,
@@ -159,6 +160,20 @@ describe('clearBunxWorkingDirsForPackage (#373)', () => {
     expect(rmSyncMock).not.toHaveBeenCalled();
   });
 
+  it('does not reuse an obsolete Zed working dir for the official Codex bridge', () => {
+    readdirSyncMock.mockImplementation((dir: unknown) =>
+      String(dir) === '/fake/tmp' ? (['bunx-501-@zed-industries'] as never) : ([] as never)
+    );
+    statSyncMock.mockReturnValue({ isDirectory: () => true } as never);
+
+    const removed = clearBunxWorkingDirsForPackage(CODEX_ACP_NPX_PACKAGE, {
+      BUN_TMPDIR: '/fake/tmp',
+    });
+
+    expect(removed).toEqual([]);
+    expect(rmSyncMock).not.toHaveBeenCalled();
+  });
+
   it('derives the bunx suffix for an unscoped package name', () => {
     readdirSyncMock.mockImplementation((dir: unknown) =>
       String(dir) === '/fake/tmp' ? (['bunx-777-claude-agent-acp'] as never) : ([] as never)
@@ -174,7 +189,7 @@ describe('clearBunxWorkingDirsForPackage (#373)', () => {
 describe('isBunCacheMoveFailed', () => {
   it('detects EPERM moving to cache dir error', () => {
     const stderr =
-      'error: moving "@zed-industries/codex-acp-win32-x64" to cache dir failed\n' +
+      'error: moving "@agentclientprotocol/codex-acp" to cache dir failed\n' +
       'EPERM: Operation not permitted (NtSetInformationFile())\n' +
       '  From: .bdbfbff4faf5dd89-00000013\n';
     expect(isBunCacheMoveFailed(stderr)).toBe(true);
@@ -182,7 +197,7 @@ describe('isBunCacheMoveFailed', () => {
 
   it('detects EPERM with different package names', () => {
     const stderr =
-      'error: moving "@zed-industries/codex-acp" to cache dir failed\nEPERM: Operation not permitted (NtSetInformationFile())';
+      'error: moving "@agentclientprotocol/codex-acp" to cache dir failed\nEPERM: Operation not permitted (NtSetInformationFile())';
     expect(isBunCacheMoveFailed(stderr)).toBe(true);
   });
 

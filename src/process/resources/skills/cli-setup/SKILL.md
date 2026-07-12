@@ -61,7 +61,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 ## Codex (command: `codex`), OpenAI
 
-**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. The ACP bridge `@zed-industries/codex-acp` is separate and requires `codex` on PATH.
+**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. Wayland launches the maintained `@agentclientprotocol/codex-acp` bridge, which includes a compatible Codex dependency; set `CODEX_PATH` only to override it with another Codex binary.
 
 **Auth (via `codex login`, NOT `codex auth`):**
 
@@ -70,11 +70,11 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 **Verify:** `codex --version`; `codex login status`; `codex doctor`.
 
-**ACP / connect to Wayland:** Wayland launches codex-acp (it is ACP by default, no extra args). The bridge wraps `codex` and passes credentials via env. Auth precedence: `CODEX_API_KEY`/`OPENAI_API_KEY` in the environment, or a prior `codex login` in `~/.codex/auth.json`. ChatGPT-subscription auth can be unreliable headless, so for an embedded backend an API key is the more reliable choice.
+**ACP / connect to Wayland:** Wayland launches `@agentclientprotocol/codex-acp` (it is ACP by default, no extra args). The bridge uses its compatible bundled Codex dependency unless `CODEX_PATH` overrides it, and passes credentials via env. Auth precedence: `CODEX_API_KEY`/`OPENAI_API_KEY` in the environment, or a prior `codex login` in `~/.codex/auth.json`. ChatGPT-subscription auth can be unreliable headless, so for an embedded backend an API key is the more reliable choice.
 
-**Top gotchas:** it is `codex login`, not `codex auth`; codex-acp needs `codex` on PATH; the spawn environment must carry `~/.codex/auth.json` (consistent HOME) or `OPENAI_API_KEY`; ChatGPT login fails headless without `--device-auth`; API-key billing is at API rates.
+**Top gotchas:** it is `codex login`, not `codex auth`; use `CODEX_PATH` only when deliberately overriding the bridge's bundled Codex dependency; the spawn environment must carry `~/.codex/auth.json` (consistent HOME) or `OPENAI_API_KEY`; ChatGPT login fails headless without `--device-auth`; API-key billing is at API rates.
 
-**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · bridge https://github.com/zed-industries/codex-acp
+**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · bridge https://github.com/agentclientprotocol/codex-acp
 
 ---
 

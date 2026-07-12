@@ -19,7 +19,6 @@ import path from 'path';
 import {
   CLAUDE_ACP_NPX_PACKAGE,
   CODEBUDDY_ACP_NPX_PACKAGE,
-  CODEX_ACP_BRIDGE_VERSION,
   CODEX_ACP_NPX_PACKAGE,
 } from '@/common/types/acpTypes';
 import { resolveBridgePackage } from './bridgeVersionResolver';
@@ -78,75 +77,6 @@ function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: st
   // Unquoted: first whitespace-delimited token is the command, the rest args.
   const parts = trimmed.split(/\s+/).filter(Boolean);
   return { command: parts[0] ?? '', inlineArgs: parts.slice(1) };
-}
-
-function resolveCodexAcpPlatformPackage(): string | null {
-  if (process.platform === 'win32') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-win32-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-win32-arm64';
-    }
-  }
-
-  if (process.platform === 'linux') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-linux-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-linux-arm64';
-    }
-  }
-
-  if (process.platform === 'darwin') {
-    if (process.arch === 'x64') {
-      return '@zed-industries/codex-acp-darwin-x64';
-    }
-
-    if (process.arch === 'arm64') {
-      return '@zed-industries/codex-acp-darwin-arm64';
-    }
-  }
-
-  return null;
-}
-
-function resolveCodexAcpPlatformPackageSpecifier(packageName: string): string {
-  return `${packageName}@${CODEX_ACP_BRIDGE_VERSION}`;
-}
-
-function resolvePreferredCodexAcpPlatformPackage(): string | null {
-  const packageName = resolveCodexAcpPlatformPackage();
-  return packageName ? resolveCodexAcpPlatformPackageSpecifier(packageName) : null;
-}
-
-function shouldPreferDirectCodexAcpPackage(): boolean {
-  return process.platform === 'win32' || process.platform === 'linux';
-}
-
-function extractCodexPlatformPackageFromError(errorMessage: string): string | null {
-  const packageMatch = errorMessage.match(/Cannot find package '(@zed-industries\/codex-acp-[^']+)'/i);
-  if (packageMatch) {
-    return packageMatch[1];
-  }
-
-  const binaryMatch = errorMessage.match(/Failed to locate (@zed-industries\/codex-acp-[^\s]+) binary/i);
-  if (binaryMatch) {
-    return binaryMatch[1];
-  }
-
-  return null;
-}
-
-function isCodexMetaPackageOptionalDependencyError(errorMessage: string): boolean {
-  return (
-    errorMessage.includes('optional dependency was not installed') ||
-    (errorMessage.includes('@zed-industries/codex-acp') &&
-      /ERR_MODULE_NOT_FOUND|Cannot find package|Failed to locate .* binary/i.test(errorMessage))
-  );
 }
 
 // ── Environment helpers ─────────────────────────────────────────────
@@ -548,7 +478,7 @@ async function prepareClaude(): Promise<NpxPrepareResult> {
 }
 
 /** Prepare clean env + resolve npx + run diagnostics for Codex ACP bridge. */
-async function prepareCodex(codexAcpPackage: string = CODEX_ACP_NPX_PACKAGE): Promise<NpxPrepareResult> {
+async function prepareCodex(codexAcpPackage: string): Promise<NpxPrepareResult> {
   const cleanEnv = await prepareCleanEnv();
 
   const diagStart = Date.now();
@@ -568,7 +498,7 @@ async function prepareCodex(codexAcpPackage: string = CODEX_ACP_NPX_PACKAGE): Pr
     hasOpenAiApiKey: boolean;
     hasChatGptSession: boolean;
   } = {
-    bridgeVersion: CODEX_ACP_BRIDGE_VERSION,
+    bridgeVersion: codexAcpPackage.slice(codexAcpPackage.lastIndexOf('@') + 1),
     bridgePackage: codexAcpPackage,
     codexCliVersion: 'unknown',
     loginStatus: 'unknown',
@@ -785,79 +715,20 @@ export function connectClaude(
 }
 
 /** Connect to Codex ACP bridge via npx. */
-export function connectCodex(
+export async function connectCodex(
   workingDir: string,
   hooks: NpxConnectHooks,
   customEnv?: Record<string, string>
 ): Promise<void> {
-  return (async () => {
-    const codexPlatformPackage = resolvePreferredCodexAcpPlatformPackage();
-    // Resolve the latest published codex-acp at spawn time (fallback to the
-    // pinned CODEX_ACP_NPX_PACKAGE offline).
-    const codexAcpPackage = await resolveBridgePackage(CODEX_ACP_NPX_PACKAGE);
-    const preferDirectPackage = codexPlatformPackage !== null && shouldPreferDirectCodexAcpPackage();
-    const codexPackageCandidates = preferDirectPackage
-      ? [codexPlatformPackage, codexAcpPackage]
-      : [codexAcpPackage, ...(codexPlatformPackage ? [codexPlatformPackage] : [])];
-
-    let lastError: Error | null = null;
-
-    for (const [index, npxPackage] of codexPackageCandidates.entries()) {
-      try {
-        await connectNpxBackend({
-          backend: 'codex',
-          npxPackage,
-          prepareFn: () => prepareCodex(npxPackage),
-          workingDir,
-          ...hooks,
-          customEnv,
-        });
-        return;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        const fallbackPackageName = extractCodexPlatformPackageFromError(lastError.message);
-        const fallbackPackage = fallbackPackageName
-          ? resolveCodexAcpPlatformPackageSpecifier(fallbackPackageName)
-          : null;
-        const canRetryWithPlatformPackage =
-          index === 0 &&
-          !preferDirectPackage &&
-          codexPlatformPackage !== null &&
-          npxPackage === codexAcpPackage &&
-          isCodexMetaPackageOptionalDependencyError(lastError.message);
-        const hasRemainingCandidates = index < codexPackageCandidates.length - 1;
-
-        await hooks.cleanup();
-
-        if (canRetryWithPlatformPackage) {
-          if (fallbackPackage && !codexPackageCandidates.includes(fallbackPackage)) {
-            codexPackageCandidates.push(fallbackPackage);
-          }
-
-          mainWarn(
-            '[ACP codex]',
-            `Meta bridge package failed to install its platform binary, retrying with direct package: ${codexPlatformPackage}`,
-            lastError.message
-          );
-          continue;
-        }
-
-        if (hasRemainingCandidates) {
-          mainWarn(
-            '[ACP codex]',
-            `Bridge package failed, retrying alternate package: ${npxPackage}`,
-            lastError.message
-          );
-          continue;
-        }
-
-        throw lastError;
-      }
-    }
-
-    throw lastError ?? new Error('Failed to start codex ACP bridge');
-  })();
+  const npxPackage = await resolveBridgePackage(CODEX_ACP_NPX_PACKAGE);
+  return connectNpxBackend({
+    backend: 'codex',
+    npxPackage,
+    prepareFn: () => prepareCodex(npxPackage),
+    workingDir,
+    ...hooks,
+    customEnv,
+  });
 }
 
 /** Connect to CodeBuddy ACP via npx. */
