@@ -148,7 +148,15 @@
     "jobNotFound": "Task not found: {{id}}",
     "conversationNotFound": "Conversation not found",
     "scheduledTimePassed": "Scheduled time has passed",
-    "conversationBusy": "Conversation busy after {{count}} retries"
+    "conversationBusy": "Conversation busy after {{count}} retries",
+    "highFreqNewConversation": "This task runs every minute and creates a new conversation each run, which floods your history and can spawn overlapping processes. Use \"Reuse conversation\" mode instead, or lower the frequency.",
+    "overlapSkipped": "Skipped: the previous run was still in progress"
+  },
+  "highFreqWarn": {
+    "title": "Run every minute in a new conversation?",
+    "body": "This task fires every minute and creates a NEW conversation each run. Over a day that is ~1,440 conversations, which floods your history and can spawn overlapping processes. \"Reuse conversation\" appends to one ongoing thread instead.",
+    "useReuse": "Use reuse mode",
+    "createAnyway": "Create anyway"
   },
   "propose": {
     "title": "Schedule confirmation",

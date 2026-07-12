@@ -130,14 +130,15 @@ const IjfwSettingsPanel: React.FC = () => {
         <div className='flex flex-col gap-6px'>
           <Typography.Text type='secondary' className='text-12px'>
             {t('memory.settings.manual_install_hint', {
-              defaultValue: 'To install manually: run `npx -y @ijfw/install@latest` in a terminal',
+              defaultValue:
+                'To install manually: run `npx -y --package @ijfw/install@latest ijfw-install --yes` in a terminal',
             })}
           </Typography.Text>
           <code
             data-testid='ijfw-settings-manual-install-code'
             className='inline-block self-start px-8px py-4px rd-6px bg-fill-2 text-12px text-t-primary font-mono'
           >
-            npx -y @ijfw/install@latest
+            npx -y --package @ijfw/install@latest ijfw-install --yes
           </code>
         </div>
 

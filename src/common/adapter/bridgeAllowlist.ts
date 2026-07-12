@@ -148,6 +148,12 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // no per-call remote signal, so the guarantee is enforced here at the wire by
   // name — a remote peer can never spawn or attach a PTY (acceptance §8.6).
   'terminal.',
+  // #671 Per-workspace trust axis. workspaceTrust.set switches a workspace into
+  // "cowork" (auto-approve read/edit unattended); workspaceTrust.get discloses
+  // the security posture. A paired-device WS token proves a remote browser, NOT
+  // the local trusted user, so the ENTIRE workspaceTrust.* namespace is denied to
+  // remote callers — a remote peer must never arm or read local trust.
+  'workspaceTrust.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -441,8 +447,16 @@ const CONFIG_STORAGE_SET_KEY = 'agent.config.storage.set';
  * just the imperative one. `restoreDesktopWebUIFromPreferences` reads only the
  * `webui.desktop.*` keys (enabled / allowRemote / port), so the prefix covers the
  * whole re-arm surface.
+ *
+ * #671: the same declarative-door lesson. The per-workspace trust level is
+ * persisted under `workspace.trustLevel` in the SAME ProcessConfig file, so
+ * denying only the dedicated `workspaceTrust.set` provider (which we do) leaves
+ * a side door: a paired peer could write `workspace.trustLevel` via the generic
+ * config setter, and `hydrateWorkspaceTrust` would load it into the gate cache on
+ * the next launch — arming Cowork (unattended read/edit auto-approve) with no
+ * local user ever toggling it. Guard the persisted key here too.
  */
-const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = ['webui.desktop.'];
+const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = ['webui.desktop.', 'workspace.trustLevel'];
 
 /**
  * True iff `(name, data)` is a remote config write to a protected key.

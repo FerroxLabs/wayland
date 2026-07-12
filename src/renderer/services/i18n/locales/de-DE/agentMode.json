@@ -13,6 +13,10 @@
   "smart": "Smart",
   "build": "Build-Modus",
   "permission": "Berechtigung",
+  "chat": "Chat",
+  "cowork": "Cowork",
+  "chatTooltip": "Chat: Vor jedem Tool nachfragen. Zu Cowork wechseln, um Lese- & Schreibzugriffe hier automatisch zu erlauben.",
+  "coworkTooltip": "Cowork: Lese- & Schreibzugriffe in diesem Workspace automatisch erlauben; fragt weiterhin vor dem Ausführen von Befehlen.",
   "switchMode": "Modus wechseln",
   "switchSuccess": "Modus erfolgreich gewechselt",
   "switchFailed": "Moduswechsel fehlgeschlagen"

@@ -2,6 +2,7 @@ import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { uuid } from '@/common/utils';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
+import CoworkToggle from '@/renderer/components/agent/CoworkToggle';
 import AgentSetupCard from '@/renderer/components/agent/AgentSetupCard';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
@@ -471,6 +472,7 @@ const GeminiSendBox: React.FC<{
                 onModeChanged={isLeaderInTeam ? teamPermission?.propagateMode : undefined}
               />
             )}
+            <CoworkToggle workspace={workspacePath} size='mini' />
           </div>
         }
         sendButtonPrefix={
