@@ -339,7 +339,13 @@ export const createAcpAgent = async (options: ICreateConversationParams): Promis
       backend: extra.backend as AcpBackend,
       cliPath: extra.cliPath,
       agentName: extra.agentName,
-      customAgentId: extra.customAgentId, // Also used to identify preset assistant
+      // Fall back to presetAssistantId so a 1:1 preset spawn can resolve its
+      // custom CLI config (env, cliPath). buildAgentConversationParams sets only
+      // presetAssistantId for presets, but AcpAgentManager keys the assistants-
+      // store lookup off customAgentId - without this, an env-bearing preset
+      // (e.g. a Hermes profile carrying HERMES_PROFILE) silently loses its env in
+      // 1:1 chat. Teams already has this fallback (TeamSessionService).
+      customAgentId: extra.customAgentId || extra.presetAssistantId, // Also used to identify preset assistant
       presetContext: extra.presetContext, // Preset rules/prompt for the smart assistant
       // Enabled skills list (loaded via SkillManager)
       enabledSkills: extra.enabledSkills,
