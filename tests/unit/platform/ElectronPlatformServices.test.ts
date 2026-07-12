@@ -3,6 +3,7 @@ import path from 'path';
 
 const mockGetPath = vi.fn();
 const mockGetAppPath = vi.fn().mockReturnValue('/app/path');
+const mockFork = vi.fn(() => ({ on: vi.fn(), once: vi.fn(), postMessage: vi.fn() }));
 
 vi.mock('electron', () => ({
   app: {
@@ -14,7 +15,7 @@ vi.mock('electron', () => ({
   },
   Notification: vi.fn(),
   powerSaveBlocker: { start: vi.fn(), stop: vi.fn() },
-  utilityProcess: { fork: vi.fn() },
+  utilityProcess: { fork: (...args: unknown[]) => mockFork(...args) },
 }));
 
 describe('ElectronPlatformServices.paths.getLogsDir', () => {
@@ -46,5 +47,41 @@ describe('ElectronPlatformServices.paths.getLogsDir', () => {
     const { ElectronPlatformServices } = await import('../../../src/common/platform/ElectronPlatformServices');
     const svc = new ElectronPlatformServices();
     expect(svc.paths.getLogsDir()).toBe(path.join(userData, 'logs'));
+  });
+});
+
+describe('ElectronPlatformServices.worker.fork env propagation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetPath.mockImplementation((name: string) => `/mock/${name}`);
+  });
+
+  it('#706: propagates IS_PACKAGED so forked workers resolve the right JS runtime', async () => {
+    // Utility processes fall back to NodePlatformServices, whose isPackaged()
+    // reads process.env.IS_PACKAGED. Without this, a forked worker in a packaged
+    // build reports isPackaged=false and resolveJsRuntime() picks the app binary
+    // as Node — which crash-loops once the RunAsNode fuse is blown (#706).
+    vi.resetModules();
+    const { ElectronPlatformServices } = await import('../../../src/common/platform/ElectronPlatformServices');
+    const svc = new ElectronPlatformServices();
+    svc.worker.fork('/some/worker.js', [], {});
+
+    expect(mockFork).toHaveBeenCalledTimes(1);
+    const env = mockFork.mock.calls[0]![2].env as Record<string, string>;
+    // app.isPackaged is mocked false here → String(false).
+    expect(env.IS_PACKAGED).toBe('false');
+    // The pre-existing DATA_DIR propagation must remain intact.
+    expect(env.DATA_DIR).toBe('/mock/userData');
+  });
+
+  it('#706: caller-supplied env is still merged (and can override)', async () => {
+    vi.resetModules();
+    const { ElectronPlatformServices } = await import('../../../src/common/platform/ElectronPlatformServices');
+    const svc = new ElectronPlatformServices();
+    svc.worker.fork('/some/worker.js', [], { env: { EXTRA: 'x' } });
+
+    const env = mockFork.mock.calls[0]![2].env as Record<string, string>;
+    expect(env.IS_PACKAGED).toBe('false');
+    expect(env.EXTRA).toBe('x');
   });
 });
