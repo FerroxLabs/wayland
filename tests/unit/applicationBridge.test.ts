@@ -241,6 +241,7 @@ describe('CDP configuration functions', () => {
           openDevTools: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getZoomFactor: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           setZoomFactor: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
+          setForegroundConversation: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           popoutRoute: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getCdpStatus: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           updateCdpConfig: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
@@ -273,6 +274,58 @@ describe('CDP configuration functions', () => {
     expect(capturedHandlers['restart']).toBeTypeOf('function');
     await capturedHandlers['restart']();
     expect(taskMgr.clear).toHaveBeenCalled();
+  });
+
+  it('#579: setForegroundConversation updates what getForegroundConversationId returns', async () => {
+    const capturedHandlers: Record<string, (...args: any[]) => any> = {};
+    vi.doMock('electron', () => mockElectronApp());
+    const appNs = (capture: string) =>
+      Object.fromEntries(
+        [
+          'restart',
+          'updateSystemInfo',
+          'systemInfo',
+          'getPath',
+          'isDevToolsOpened',
+          'openDevTools',
+          'getZoomFactor',
+          'setZoomFactor',
+          'setForegroundConversation',
+          'popoutRoute',
+          'getCdpStatus',
+          'updateCdpConfig',
+          'getStartOnBootStatus',
+          'setStartOnBoot',
+          'captureBugReport',
+        ].map((k) => [
+          k,
+          {
+            provider: vi.fn((fn: (...args: any[]) => any) => {
+              if (k === capture) capturedHandlers[k] = fn;
+            }),
+            emit: vi.fn(),
+            invoke: vi.fn(),
+          },
+        ])
+      );
+    vi.doMock('../../src/common', () => ({ ipcBridge: { application: appNs('setForegroundConversation') } }));
+    vi.doMock('@process/utils/initStorage', () => ({
+      getSystemDir: vi.fn(() => ({ cacheDir: '', workDir: '', platform: 'win32', arch: 'x64' })),
+      ProcessEnv: { set: vi.fn() },
+    }));
+    vi.doMock('@process/utils', () => ({ copyDirectoryRecursively: vi.fn() }));
+
+    vi.resetModules();
+    const mod = await import('../../src/process/bridge/applicationBridge');
+    mod.initApplicationBridge(makeTaskManager());
+
+    // Fresh module state: nothing on screen yet.
+    expect(mod.getForegroundConversationId()).toBeNull();
+    await capturedHandlers['setForegroundConversation']({ conversationId: 'conv-42' });
+    expect(mod.getForegroundConversationId()).toBe('conv-42');
+    // Navigating away from any chat clears it, so a completion there notifies again.
+    await capturedHandlers['setForegroundConversation']({ conversationId: null });
+    expect(mod.getForegroundConversationId()).toBeNull();
   });
 
   it('should provide unregisterInstance function', async () => {

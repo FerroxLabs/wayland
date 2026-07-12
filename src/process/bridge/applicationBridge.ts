@@ -174,6 +174,16 @@ export function isApplicationWindowFocused(): boolean {
   return BrowserWindow.getFocusedWindow() !== null;
 }
 
+// The conversation the user is currently looking at, reported by the renderer.
+// Null when no chat is in the foreground (list view, settings, blurred window).
+// Used by the #579 completion notifier to distinguish "watching THIS chat" from
+// "app focused, but on a different chat" (the multitask case).
+let foregroundConversationId: string | null = null;
+
+export function getForegroundConversationId(): string | null {
+  return foregroundConversationId;
+}
+
 export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): void {
   // Platform-agnostic handlers: systemInfo, updateSystemInfo, getPath
   initApplicationBridgeCore();
@@ -234,6 +244,12 @@ export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): vo
     } catch (e) {
       return { success: false, msg: e instanceof Error ? e.message : String(e) };
     }
+  });
+
+  // The renderer reports which conversation is on screen (or null) so the #579
+  // completion notifier can tell "watching this chat" from "on another chat".
+  ipcBridge.application.setForegroundConversation.provider(async ({ conversationId }) => {
+    foregroundConversationId = conversationId;
   });
 
   ipcBridge.application.getZoomFactor.provider(() => Promise.resolve(getZoomFactor()));

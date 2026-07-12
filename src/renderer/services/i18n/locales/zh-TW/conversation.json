@@ -439,5 +439,16 @@
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
     "manageModels": "Manage models"
+  },
+  "notification": {
+    "untitled": "未命名對話",
+    "agentFinished": {
+      "title": "任務完成",
+      "body": "{{title}} 已完成，正在等待你。"
+    },
+    "agentError": {
+      "title": "任務失敗",
+      "body": "{{title}} 因錯誤而停止。{{detail}}"
+    }
   }
 }
