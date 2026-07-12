@@ -8,15 +8,15 @@ import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
 import { Button } from '@arco-design/web-react';
-import { ArrowRight, Ban, Clock3, DownloadCloud, FileText, Mail, MessageSquare } from 'lucide-react';
+import { ArrowRight, Clock3, FileText, MessageSquare } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   buildProjectTimeline,
   filterTimeline,
+  HISTORY_FILTERS,
   timelineCounts,
-  type EmailIngestRecord,
   type HistoryFilter,
   type HistoryKind,
   type ReferenceFile,
@@ -25,19 +25,14 @@ import styles from './projectCards.module.css';
 
 function iconFor(kind: HistoryKind): React.ReactNode {
   if (kind === 'chat') return <MessageSquare size={15} />;
-  if (kind === 'email') return <Mail size={15} />;
-  if (kind === 'reference' || kind === 'inventory') return <FileText size={15} />;
-  if (kind === 'remote-import' || kind === 'remote-pending') return <DownloadCloud size={15} />;
-  if (kind === 'remote-ignore') return <Ban size={15} />;
+  if (kind === 'inventory') return <FileText size={15} />;
   return <Clock3 size={15} />;
 }
 
 /**
- * Project History timeline: chats, ingested emails, reference saves and remote
- * attachment actions folded into one selectable, filterable timeline with a
- * detail pane. References come from the project IPC bridge; the email-ingest
- * source has no backend on this branch yet, so it degrades to an empty list
- * (the timeline still shows project + chat + reference events).
+ * Project History timeline: the project's own create/update stamps, its chats,
+ * and its reference files, folded into one selectable, filterable timeline with
+ * a detail pane. References come from the project IPC bridge.
  */
 const ProjectHistoryPanel: React.FC<{
   project: IProject;
@@ -46,9 +41,6 @@ const ProjectHistoryPanel: React.FC<{
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [references, setReferences] = useState<ReferenceFile[]>([]);
-  // No email-ingest backend exists on this branch; kept as an empty source so
-  // the timeline lights up automatically once one lands. See projectHistory.ts.
-  const emailHistory = useMemo<EmailIngestRecord[]>(() => [], []);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<HistoryFilter>('all');
@@ -90,10 +82,7 @@ const ProjectHistoryPanel: React.FC<{
     void load();
   }, [load]);
 
-  const input = useMemo(
-    () => ({ project, conversations, emailHistory, references }),
-    [project, conversations, emailHistory, references]
-  );
+  const input = useMemo(() => ({ project, conversations, references }), [project, conversations, references]);
   const items = useMemo(() => buildProjectTimeline(t, input), [t, input]);
   const visibleItems = useMemo(() => filterTimeline(items, filter), [items, filter]);
   const counts = useMemo(() => timelineCounts(input), [input]);
@@ -110,13 +99,18 @@ const ProjectHistoryPanel: React.FC<{
 
   const selected = visibleItems.find((item) => item.id === selectedId) ?? visibleItems[0];
 
-  const filterOptions: Array<{ key: HistoryFilter; label: string; count: number }> = [
-    { key: 'all', label: t('projects.timeline.filter.all'), count: items.length },
-    { key: 'chat', label: t('projects.timeline.filter.chat'), count: counts.chat },
-    { key: 'email', label: t('projects.timeline.filter.email'), count: counts.email },
-    { key: 'reference', label: t('projects.timeline.filter.reference'), count: counts.reference },
-    { key: 'remote', label: t('projects.timeline.filter.remote'), count: counts.remote },
-  ];
+  // Rendered from HISTORY_FILTERS so the pills and the "no dead pill" guard can
+  // never drift apart: a filter added there shows up here and must have a source.
+  const filterCount: Record<HistoryFilter, number> = {
+    all: items.length,
+    chat: counts.chat,
+    reference: counts.reference,
+  };
+  const filterOptions = HISTORY_FILTERS.map((key) => ({
+    key,
+    label: t(`projects.timeline.filter.${key}` as 'projects.timeline.filter.all'),
+    count: filterCount[key],
+  }));
 
   if (loading) return null;
 
