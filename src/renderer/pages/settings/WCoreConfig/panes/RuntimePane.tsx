@@ -135,7 +135,7 @@ const RuntimePane: React.FC = () => {
               </div>
             </div>
             <div className={styles.lrControl}>
-              <span className={`${styles.badge} ${styles.connected}`}>
+              <span className={`${styles.badge} ${styles.ok}`}>
                 <span className={styles.bd} />
                 {t('settings.wcoreConfig.runtime.running', { defaultValue: 'Running' })}
               </span>
