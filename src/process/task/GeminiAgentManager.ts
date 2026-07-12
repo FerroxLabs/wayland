@@ -38,6 +38,7 @@ import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
@@ -49,7 +50,7 @@ import { teamEventBus } from '@process/team/teamEventBus';
 import * as fs from 'node:fs';
 
 // Gemini agent manager class
-type UiMcpServerConfig = {
+export type UiMcpServerConfig = {
   command?: string;
   args?: string[];
   env?: Record<string, string>;
@@ -58,6 +59,21 @@ type UiMcpServerConfig = {
   headers?: Record<string, string>;
   description?: string;
 };
+
+/**
+ * Build the aioncli-core stdio MCP entry for a stored server, resolving its
+ * runtime hint exactly like every other session-injection path (#827). This
+ * in-process Gemini fork runtime is the 5th injection consumer: a bare `npx`
+ * won't spawn on Windows (`npx.cmd` isn't found for a shell:false spawn), so it
+ * is rewritten to the bundled Bun runtime on win32. Exported for parity tests.
+ */
+export function buildGeminiStdioMcpConfig(
+  transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
+  description?: string
+): UiMcpServerConfig {
+  const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
+  return { command, args, env: transport.env || {}, description };
+}
 
 export class GeminiAgentManager extends BaseAgentManager<
   {
@@ -403,12 +419,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         )
         .forEach((server: IMcpServer) => {
           if (server.transport.type === 'stdio') {
-            mcpConfig[server.name] = {
-              command: server.transport.command,
-              args: server.transport.args || [],
-              env: server.transport.env || {},
-              description: server.description,
-            };
+            mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
           } else if (
             server.transport.type === 'sse' ||
             server.transport.type === 'http' ||
