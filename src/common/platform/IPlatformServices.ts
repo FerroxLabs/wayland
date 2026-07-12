@@ -98,7 +98,8 @@ export interface IPowerManager {
  * and are NOT modelled here.
  */
 export interface INotificationService {
-  send(options: { title: string; body: string; icon?: string }): void;
+  /** `silent: true` suppresses the OS notification sound; the banner still shows. */
+  send(options: { title: string; body: string; icon?: string; silent?: boolean }): void;
 }
 
 /**

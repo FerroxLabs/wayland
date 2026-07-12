@@ -10,7 +10,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { initAcpConversationBridge } from './acpConversationBridge';
-import { initApplicationBridge } from './applicationBridge';
+import { initApplicationBridge, isApplicationWindowFocused } from './applicationBridge';
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
@@ -55,6 +55,8 @@ import { initFluxConnectorBridge } from './fluxConnectorBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
 import { initNotificationBridge } from './notificationBridge';
+import { initTaskCompletionNotifier } from '@process/services/notifications/taskCompletionNotifier';
+import { getWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
 import { initPptPreviewBridge } from './pptPreviewBridge';
 import { initOfficeWatchBridge } from './officeWatchBridge';
 import { initExtensionsBridge } from './extensionsBridge';
@@ -130,6 +132,13 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initMigrationBridge();
   initAmbientBridge();
   initNotificationBridge();
+  initTaskCompletionNotifier({
+    isAppFocused: isApplicationWindowFocused,
+    getConversation: (id) => deps.conversationService.getConversation(id),
+    // Resolved lazily, at event time: the workflow singleton is wired later in
+    // initBridge than initAllBridges runs, so capturing it here would capture null.
+    findWorkflowByConversationId: (id) => getWorkflowSessionService()?.findByConversationId(id) ?? null,
+  });
   initTaskBridge(deps.workerTaskManager);
   initStarOfficeBridge();
   initSpeechToTextBridge();
