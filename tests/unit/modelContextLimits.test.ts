@@ -86,6 +86,16 @@ describe('getModelContextLimit', () => {
       expect(getModelContextLimit(undefined)).toBe(DEFAULT_CONTEXT_LIMIT);
       expect(getModelContextLimit(null)).toBe(DEFAULT_CONTEXT_LIMIT);
     });
+
+    // #807: the default is conservative, not optimistic. An unknown model must be
+    // sized at the safe 200K floor, NOT the old 1,048,576 that over-promised
+    // headroom (~19% shown at 100% real usage → no warning before running out).
+    // Pin the literal value: a "not 1M" assertion would pass on the old 1,048,576.
+    it('sizes an unknown model conservatively at 200K, never the optimistic 1M+ (#807)', () => {
+      expect(DEFAULT_CONTEXT_LIMIT).toBe(200_000);
+      expect(getModelContextLimit('router-alias-nobody-knows')).toBe(200_000);
+      expect(getModelContextLimit('some-finetune:v3')).toBe(200_000);
+    });
   });
 });
 
@@ -168,16 +178,17 @@ describe('Claude ACP slot aliases resolve to a real window (#733)', () => {
   });
 
   // REGRESSION GUARD. The bare `haiku` key looks like a fuzzy-matching hazard and
-  // is tempting to "harden" into an exact-match-only table. Doing that silently
-  // over-sizes every real Haiku id that matches none of the `claude-haiku-*` keys:
-  // they fall through to DEFAULT_CONTEXT_LIMIT (1,048,576) on a 200K window - a
-  // 5.2x over-size, i.e. the meter promises 5x the headroom that exists. All of
-  // these ids are real and present in resources/modelsdev-snapshot.json.
+  // is tempting to "harden" into an exact-match-only table. These ids are all real
+  // (present in resources/modelsdev-snapshot.json) and must every one size to 200K.
   //
-  // Note the assertion is `toBe(200_000)`, NOT `not.toBe(1_000_000)`: DEFAULT is
-  // 1,048,576, so a "not 1M" assertion PASSES on the over-sized default and would
-  // certify this very regression as a fix.
-  it('sizes every real Haiku catalog id at 200K, not the ~1M default', () => {
+  // Since #807 the default is itself a conservative 200K, so a Haiku id that fell
+  // through to the default would COINCIDENTALLY read 200K - value comparison can no
+  // longer distinguish "resolved via the bare key" from "fell to the default" here
+  // (that is why the old `not.toBe(DEFAULT)` companion is gone). The `toBe(200_000)`
+  // below still pins the required window; the structural guarantee that the bare
+  // slot keys RESOLVE rather than defaulting is enforced by the opus/sonnet slots
+  // above, whose real 1M window differs from the 200K default.
+  it('sizes every real Haiku catalog id at 200K (#733)', () => {
     for (const id of [
       'claude-4.5-haiku',
       'anthropic/claude-3.5-haiku',
@@ -187,13 +198,11 @@ describe('Claude ACP slot aliases resolve to a real window (#733)', () => {
       'haiku',
     ]) {
       expect(getModelContextLimit(id)).toBe(200_000);
-      expect(getModelContextLimit(id)).not.toBe(DEFAULT_CONTEXT_LIMIT);
     }
   });
 
-  it('resolves the haiku slot to 200K - NOT the 1M default', () => {
+  it('resolves the haiku slot to 200K (#733)', () => {
     expect(getModelContextLimit('haiku')).toBe(200_000);
-    expect(getModelContextLimit('haiku')).not.toBe(DEFAULT_CONTEXT_LIMIT);
   });
 
   // The slot keys are short; longest-match must still let a full catalog id win
