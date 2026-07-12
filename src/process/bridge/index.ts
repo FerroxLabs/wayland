@@ -10,7 +10,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { initAcpConversationBridge } from './acpConversationBridge';
-import { initApplicationBridge, isApplicationWindowFocused } from './applicationBridge';
+import { initApplicationBridge, isApplicationWindowFocused, getForegroundConversationId } from './applicationBridge';
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
@@ -136,6 +136,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initNotificationBridge();
   initTaskCompletionNotifier({
     isAppFocused: isApplicationWindowFocused,
+    getForegroundConversationId,
     getConversation: (id) => deps.conversationService.getConversation(id),
     // Resolved lazily, at event time: the workflow singleton is wired later in
     // initBridge than initAllBridges runs, so capturing it here would capture null.

@@ -377,6 +377,10 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'app.set-start-on-boot',
   'app.set-zoom-factor',
   'app.update-cdp-config',
+  // A paired remote/WebUI client must not steer the LOCAL desktop's completion
+  // focus gate: its "on-screen conversation" is not the desktop's, and letting it
+  // write the single foreground value would silently suppress desktop banners (#579).
+  'app.set-foreground-conversation',
   'restart-app',
   'open-external',
   'open-file',

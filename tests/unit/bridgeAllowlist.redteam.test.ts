@@ -177,3 +177,24 @@ describe('isAllowedForRemote - memory edit/delete denied (#414)', () => {
     }
   );
 });
+
+/**
+ * #579: the desktop completion notifier gates on a SINGLE main-process
+ * "foreground conversation" value written by the renderer. A paired remote/WebUI
+ * client shares that channel, so if it could write the value it would steer the
+ * LOCAL desktop's focus gate — silently suppressing the desktop's own banners for
+ * whatever conversation it names. Its foreground is not the desktop's; deny it,
+ * matching every other app.set-* mutation.
+ */
+describe('isAllowedForRemote - foreground-conversation write denied (#579)', () => {
+  it('denies subscribe-app.set-foreground-conversation for remote callers', () => {
+    expect(isAllowedForRemote('subscribe-app.set-foreground-conversation')).toBe(false);
+  });
+
+  it.each(['app.set-zoom-factor', 'app.set-start-on-boot'])(
+    'still denies the sibling mutation %s (regression anchor for the app.set-* denials)',
+    (key) => {
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+    }
+  );
+});
