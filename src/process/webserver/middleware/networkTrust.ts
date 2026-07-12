@@ -89,9 +89,15 @@ function isLoopback(ip: string): boolean {
  * password reset has a direct IPC path (webui-direct-reset-password) that bypasses this
  * classifier entirely.
  */
-function trustedProxyDeclared(): boolean {
+export function trustedProxyDeclared(): boolean {
   const raw = process.env.WAYLAND_TRUSTED_PROXY?.trim().toLowerCase();
   return raw === '1' || raw === 'true' || raw === 'yes';
+}
+
+/** Public helper: whether a raw peer address is loopback (after normalization). (#830) */
+export function isLoopbackAddress(rawIp: string | undefined | null): boolean {
+  if (!rawIp) return false;
+  return isLoopback(normalizeIp(rawIp));
 }
 
 /**
@@ -285,6 +291,12 @@ function parseCidr(token: string): Cidr | null {
  * Operator CIDR allowlist from `WAYLAND_OPERATOR_CIDRS` (comma-separated IPv4
  * CIDRs). Default empty: loopback + Tailscale are always operator regardless of
  * this var. Re-parsed only when the env value changes (so tests can flip it).
+ *
+ * FOOTGUN (#830): do NOT list loopback (`127.0.0.0/8`, or a superset like `0.0.0.0/0`)
+ * here when `WAYLAND_TRUSTED_PROXY` is set - it re-grants loopback => operator via
+ * `matchesOperatorCidr` and reopens the same-host-proxy hole #808 closed. If you are
+ * behind a proxy, prove operator by the tailnet path or a NON-loopback forwarded
+ * identity, never by allowlisting the loopback the proxy itself connects from.
  */
 function getOperatorCidrs(): Cidr[] {
   const raw = process.env.WAYLAND_OPERATOR_CIDRS ?? '';
