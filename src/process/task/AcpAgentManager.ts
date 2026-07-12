@@ -703,7 +703,14 @@ ${collectedResponses.join('\n')}`;
       // config pins model.provider=custom at the Flux openai surface + flux-auto
       // (reading FLUX_API_KEY at request time), so the user's real ~/.hermes
       // config (and active profile) stays native for non-flux model picks.
-      if (data.backend === 'hermes') {
+      //
+      // Opt profile presets out: a HERMES_PROFILE-bearing spawn resolves its
+      // persona from <HERMES_HOME>/profiles/<name>, which the flux-scoped home
+      // does NOT contain - repointing HERMES_HOME would lose the profile. Keep
+      // the native home so the profile still resolves (its model picks stay
+      // native rather than flux-routed, which is the correct trade for a
+      // profile the user explicitly selected).
+      if (data.backend === 'hermes' && !mergedEnv.HERMES_PROFILE) {
         try {
           // hermes ignores FLUX_API_KEY for a custom provider, so the connector
           // writes the connected flux key inline into the scoped config.
@@ -902,7 +909,17 @@ ${collectedResponses.join('\n')}`;
     }
 
     if (!customAgentConfig?.defaultCliPath) {
-      return { cliPath: data.cliPath };
+      // The matched row has no launch override: it's a "thin" specialist that
+      // just delegates to its backend's CLI (e.g. the builtin claude specialists,
+      // which carry a presetAgentType but no defaultCliPath). Resolve it exactly
+      // like a non-custom spawn so it still gets a real cliPath, the backend's
+      // acpArgs, and mode/yolo handling - instead of the bare, cliPath-less early
+      // return that would throw "No CLI path configured". This matters because a
+      // 1:1/Team preset now reaches here via the customAgentId||presetAssistantId
+      // fallback; only rows that DO carry defaultCliPath (a Hermes profile) take
+      // the custom path below that forwards their env. resolveBuiltinBackendConfig
+      // already prefers an explicit data.cliPath, so custom agents keep theirs.
+      return this.resolveBuiltinBackendConfig(data);
     }
 
     return {
