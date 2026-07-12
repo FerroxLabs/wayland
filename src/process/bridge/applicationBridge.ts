@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { BrowserWindow } from 'electron';
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -157,6 +156,22 @@ export function setStartOnBootEnabled(enabled: boolean): IStartOnBootStatus {
 
 export function setApplicationMainWindow(win: BrowserWindow): void {
   mainWindowRef = win;
+}
+
+/**
+ * Does ANY app window currently have focus? Used by the #579 completion notifier
+ * to stay quiet while the user is already watching.
+ *
+ * Deliberately NOT `mainWindowRef.isFocused()`: a conversation can be popped out
+ * into its own BrowserWindow, and someone watching a popped-out chat would have
+ * an unfocused MAIN window — so we would notify them about the very turn they are
+ * staring at.
+ *
+ * A minimised or background app reports false, which is what we want: those are
+ * exactly the users who need telling.
+ */
+export function isApplicationWindowFocused(): boolean {
+  return BrowserWindow.getFocusedWindow() !== null;
 }
 
 export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): void {
