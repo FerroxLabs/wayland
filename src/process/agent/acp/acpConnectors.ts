@@ -625,6 +625,40 @@ async function prepareCodebuddy(): Promise<NpxPrepareResult> {
  * when Electron's inherited env resolves to an old Node version.
  * Safe for native binaries too - they ignore NODE_OPTIONS and Node version checks.
  */
+/**
+ * #756: per-backend env hardening for headless stdio ACP spawns. Pure so the
+ * choice is unit-testable without spawning anything.
+ *
+ * Hermes is a Python CLI driven over a headless stdio pipe. Two documented
+ * (hermes-setup/SKILL.md) failure modes were never actually defended against in
+ * the spawn path, so a Hermes session would open and then STALL INDEFINITELY —
+ * disproportionately on Windows (fresh installs hit first-run hooks, and Windows
+ * anonymous-pipe buffering is harsher):
+ *   - a first-run interactive "hook" prompt blocks forever waiting on stdin that
+ *     the JSON-RPC driver never answers  → HERMES_ACCEPT_HOOKS=1 auto-accepts it;
+ *   - Python block-buffers stdout when it is not a TTY, so JSON-RPC replies can
+ *     sit unflushed in the pipe buffer     → PYTHONUNBUFFERED=1 forces line flush.
+ * Returned as DEFAULTS (applied before customEnv) so an explicit user/flux value
+ * still wins.
+ */
+/** ACP CLIs installed as Python packages (pip/uv). They block-buffer stdout off
+ *  a TTY, so their JSON-RPC replies stall in the pipe buffer — worst on Windows. */
+const PYTHON_ACP_BACKENDS = new Set(['hermes', 'kimi']);
+
+export function backendSpawnEnvHardening(backend: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  // Force line-buffered stdout for every Python-based backend, not just Hermes.
+  if (PYTHON_ACP_BACKENDS.has(backend)) {
+    out['PYTHONUNBUFFERED'] = '1';
+  }
+  // Hermes-specific: auto-accept its first-run interactive hook prompt, which
+  // otherwise blocks the headless spawn forever on stdin nobody answers.
+  if (backend === 'hermes') {
+    out['HERMES_ACCEPT_HOOKS'] = '1';
+  }
+  return out;
+}
+
 export async function spawnGenericBackend(
   backend: string,
   cliPath: string,
@@ -639,6 +673,8 @@ export async function spawnGenericBackend(
   }
 
   const cleanEnv = await prepareCleanEnv();
+  // #756: apply backend hardening as DEFAULTS, then let customEnv override.
+  Object.assign(cleanEnv, backendSpawnEnvHardening(backend));
   if (customEnv) {
     Object.assign(cleanEnv, customEnv);
   }

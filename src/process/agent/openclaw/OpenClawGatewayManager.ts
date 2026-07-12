@@ -12,6 +12,42 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
+/**
+ * #756: ordered PATH-dir candidates to probe for a bare command name.
+ *
+ * On Windows a bare `openclaw` in a PATH dir is usually npm's EXTENSIONLESS POSIX
+ * shim (a `#!/bin/sh` script) which cmd.exe cannot run — the runnable forms are
+ * the `.cmd`/`.exe`/`.bat` shims. So on win32 we probe the PATHEXT executable
+ * extensions ONLY (never the extensionless name), mirroring how CreateProcess
+ * would resolve it; on POSIX the bare name is correct. Pure/exported for tests.
+ */
+export function openClawCommandCandidates(
+  cmd: string,
+  pathValue: string,
+  platform: NodeJS.Platform,
+  pathext?: string
+): string[] {
+  const isWindows = platform === 'win32';
+  const sep = isWindows ? ';' : ':';
+  const extList = isWindows ? (pathext || '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean) : [''];
+  // If the command already carries an executable extension (e.g. a config
+  // cliPath of 'openclaw.cmd'), probe it as-is — don't append more and produce
+  // 'openclaw.cmd.EXE'. Otherwise probe each PATHEXT extension.
+  const hasExt = isWindows && extList.some((e) => cmd.toLowerCase().endsWith(e.toLowerCase()));
+  const exts = hasExt ? [''] : extList;
+  // Join with the TARGET platform's rules (not the host's) so candidate paths are
+  // correct regardless of where this runs — mirrors safeSpawn's __buildNpmCliCandidates.
+  const join = isWindows ? path.win32.join : path.posix.join;
+  const out: string[] = [];
+  for (const dir of pathValue.split(sep)) {
+    if (!dir) continue;
+    for (const ext of exts) {
+      out.push(join(dir, cmd + ext));
+    }
+  }
+  return out;
+}
+
 interface GatewayManagerConfig {
   /** Path to openclaw CLI (default: 'openclaw') */
   cliPath?: string;
@@ -68,10 +104,7 @@ export class OpenClawGatewayManager extends EventEmitter {
       }
     }
     const p = envPath || process.env.PATH || '';
-    const sep = process.platform === 'win32' ? ';' : ':';
-    for (const dir of p.split(sep)) {
-      if (!dir) continue;
-      const candidate = path.join(dir, cmd);
+    for (const candidate of openClawCommandCandidates(cmd, p, process.platform, process.env.PATHEXT)) {
       try {
         fs.accessSync(candidate, fs.constants.X_OK);
         return candidate;
