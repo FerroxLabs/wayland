@@ -83,8 +83,10 @@ export class ElectronPlatformServices implements IPlatformServices {
   };
 
   notification = {
-    send: ({ title, body }: { title: string; body: string; icon?: string }): void => {
-      new Notification({ title, body }).show();
+    // `icon` was accepted and then dropped on the floor: notificationBridge resolves
+    // an app-icon path and passed it in, but it never reached the Notification.
+    send: ({ title, body, icon, silent }: { title: string; body: string; icon?: string; silent?: boolean }): void => {
+      new Notification({ title, body, icon, silent }).show();
     },
   };
 

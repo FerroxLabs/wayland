@@ -523,5 +523,16 @@
   },
   "tool": {
     "openGoogleConsent": "Open Google sign-in"
+  },
+  "notification": {
+    "untitled": "Untitled chat",
+    "agentFinished": {
+      "title": "Task complete",
+      "body": "{{title}} finished and is waiting for you."
+    },
+    "agentError": {
+      "title": "Task failed",
+      "body": "{{title}} stopped with an error. {{detail}}"
+    }
   }
 }
