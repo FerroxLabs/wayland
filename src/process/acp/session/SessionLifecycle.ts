@@ -1,4 +1,4 @@
-import { getFullAutoMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
+import { getFullAutoMode, isAutoGuardedMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { isFluxModelId } from '@/common/config/flux';
 import { parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
@@ -279,11 +279,20 @@ export class SessionLifecycle {
    * and fires an immediate setMode call to the agent.
    */
   private applyYoloMode(): void {
+    const backend = this.host.agentConfig.agentBackend;
     const availableModes = this.host.configTracker.modeSnapshot().availableModes;
-    const yoloModeId = resolveYoloModeId(this.host.agentConfig.agentBackend, availableModes);
+    const yoloModeId = resolveYoloModeId(backend, availableModes);
     if (!yoloModeId) {
+      // A backend whose full-auto IS the Wayland-internal 'autoGuarded' mode (claude)
+      // has nothing to set on the agent: guarded-auto is enforced entirely client-side
+      // by the AcpAgentManager guardrail (auto-approve every escalated tool except a
+      // destructive one), and the bridge never advertises the internal mode. That is
+      // expected, not a missing capability - warning here reads as "claude has no
+      // full-auto", which is false and drove a bug report (#749). Full blind auto is
+      // still available via Autopilot ('bypassPermissions'), a separate advertised mode.
+      if (isAutoGuardedMode(getFullAutoMode(backend))) return;
       console.warn(
-        `[SessionLifecycle] No YOLO mode found for backend ${this.host.agentConfig.agentBackend}, ` +
+        `[SessionLifecycle] No YOLO mode found for backend ${backend}, ` +
           'falling back to client-side auto-approve only'
       );
       return;
