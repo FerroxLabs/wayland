@@ -84,24 +84,31 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   // `claude-4.5-haiku`, `anthropic/claude-haiku-latest` and `duo-chat-haiku-4-5`
   // match NONE of the `claude-haiku-*` keys above and reach 200K only through the
   // bare `haiku` key. Moving the slots to an exact-match-only table sounds safer
-  // but is strictly worse: those ids then fall through to DEFAULT_CONTEXT_LIMIT
-  // (1,048,576) - a 5.2x over-size on a 200K window. Every Haiku ever shipped is
-  // 200K, so the bare key cannot over-size anything.
+  // but is strictly worse: those ids then fall through to DEFAULT_CONTEXT_LIMIT.
+  // For `opus`/`sonnet` (really 1M) that would UNDER-size the window to the
+  // conservative default; the bare keys give the slot its true 1M. (`haiku` lands
+  // on 200K either way now, but stays explicit for the same reason.)
   //
-  // The bare keys do NOT rescue ids like `opus-4-5`/`sonnet-4` (really 200K, still
-  // sized ~1M) - but removing them does not either, because DEFAULT_CONTEXT_LIMIT
-  // is itself LARGER than 1M. That over-sizing belongs to the optimistic default,
-  // not to these keys. Tracked separately (#807) - a too-large default is the
-  // unsafe direction: it promises headroom that isn't there.
+  // The bare keys do NOT rescue ids like `opus-4-5`/`sonnet-4` (really 200K) - but
+  // they no longer NEED to: the default is now conservative (#807 fixed), so an
+  // unmatched id is sized at the safe 200K floor rather than an optimistic 1M+.
   opus: 1_000_000,
   sonnet: 1_000_000,
   haiku: 200_000,
 };
 
 /**
- * Default context limit (used when the model cannot be determined)
+ * Default context limit for a model we cannot identify at all — absent from the
+ * live catalog (resolveModelContextLimit) AND unmatched in the table above.
+ *
+ * Conservative ON PURPOSE (#807). An optimistic default is the UNSAFE direction:
+ * sizing an unknown model at ~1M when it is really 200K reports ~19% usage at the
+ * exact moment the user is at 100%, so they hit "out of headroom" with no warning
+ * at all. 200K is the overwhelmingly common floor, so an unknown model now nags
+ * early (safe) instead of never (unsafe). A genuinely-1M unknown is sized
+ * conservatively only until it appears in the catalog or the table.
  */
-export const DEFAULT_CONTEXT_LIMIT = 1_048_576;
+export const DEFAULT_CONTEXT_LIMIT = 200_000;
 
 /**
  * Get context limit by model name
