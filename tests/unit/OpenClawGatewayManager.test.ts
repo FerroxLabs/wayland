@@ -112,7 +112,12 @@ describe('OpenClawGatewayManager', () => {
 
   describe('start() with available CLI binary', () => {
     it('should spawn the process when CLI is found', async () => {
-      const expectedBinary = path.join(mockBinDir, 'openclaw');
+      // On Windows a bare `openclaw` in PATH is npm's extensionless #!/bin/sh
+      // shim (unrunnable by cmd.exe); the runnable form is the PATHEXT shim
+      // (`openclaw.CMD`), which is exactly what resolveCommandPath now probes
+      // (#756). So the resolvable binary must carry an executable extension on
+      // win32 — mirror what the resolver actually looks for on each platform.
+      const expectedBinary = path.join(mockBinDir, isWindows ? 'openclaw.CMD' : 'openclaw');
       mockAccessSync.mockImplementation((p: string) => {
         if (p === expectedBinary) return;
         throw new Error('ENOENT');
