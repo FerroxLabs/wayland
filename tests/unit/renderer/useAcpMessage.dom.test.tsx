@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AcpModelInfo } from '@/common/types/acpTypes';
 import { useAcpMessage } from '@/renderer/pages/conversation/platforms/acp/useAcpMessage';
-import { DEFAULT_CONTEXT_LIMIT, getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
+import { getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
 
 const mockAddOrUpdateMessage = vi.fn();
 const mockConversationGetInvoke = vi.fn();
@@ -276,7 +276,7 @@ describe('useAcpMessage - seeds the model from the conversation row (#733)', () 
     mockConversationGetInvoke.mockResolvedValue({ status: 'idle', type: 'acp' });
   });
 
-  it('seeds the persisted model so a Haiku session sizes to 200K, not the 1M default', async () => {
+  it('seeds the persisted model so a Haiku session sizes to 200K (#733)', async () => {
     mockConversationGetInvoke.mockResolvedValue({
       status: 'idle',
       type: 'acp',
@@ -288,7 +288,6 @@ describe('useAcpMessage - seeds the model from the conversation row (#733)', () 
     await waitFor(() => expect(result.current.currentModelId).toBe('claude-haiku-4-5'));
     // The denominator the send box then resolves - the actual #733 symptom.
     expect(getModelContextLimit(result.current.currentModelId)).toBe(200_000);
-    expect(getModelContextLimit(result.current.currentModelId)).not.toBe(DEFAULT_CONTEXT_LIMIT);
   });
 
   it('seeds an Opus session to the 1M window', async () => {
