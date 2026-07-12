@@ -25,7 +25,7 @@ import {
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
-import { resolveActiveConfigDir } from './profilePaths';
+import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
@@ -341,12 +341,31 @@ export class WCoreAgent {
     // Design B (directory-isolated profiles): point the engine's config root at
     // the active profile's dir so it reads that profile's own config.toml +
     // memory.db + skills. Resolves to the native dir for the `default` profile
-    // (backward-compatible). Best-effort - a resolution failure falls back to
-    // the engine's own default config dir rather than blocking the spawn.
+    // (backward-compatible).
+    //
+    // #278: FAIL CLOSED, but ONLY on the failure that actually means "a named
+    // profile is live and we cannot resolve its dir" - i.e. ProfileIsolationError.
+    //
+    // Spawning with WAYLAND_HOME unset tells the engine to use its DEFAULT home. Do
+    // that while a NAMED profile is active and you bind that profile's session to
+    // the default profile's config.toml / memory.db / credentials - the cross-account
+    // bleed this contract exists to prevent. So that case refuses the spawn (same
+    // posture as the #629 MissingApiKeyError guard above).
+    //
+    // Every OTHER failure is on the `default` branch - notably os.homedir(), which
+    // nativeConfigDir() calls unguarded and which throws ERR_SYSTEM_ERROR when
+    // uv_os_homedir fails. That fault has nothing to do with profiles, and refusing
+    // the spawn for it would brick ordinary default-profile users (today: everyone,
+    // since no profile UI ships yet) over a non-profile problem. Those keep the old
+    // warn-and-continue: the engine falls back to the same default home it would
+    // have used anyway, so behaviour is unchanged from before this fix.
+    //
+    // The narrowing is what makes fail-closed structurally unable to brick `default`.
     let waylandHome: string | undefined;
     try {
       waylandHome = await resolveActiveConfigDir();
     } catch (err) {
+      if (err instanceof ProfileIsolationError) throw err;
       console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
     }
     // #710: hand the engine the profile's vault passphrase so it encrypts its
