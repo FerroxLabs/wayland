@@ -15,8 +15,11 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const ccSwitchMocks = vi.hoisted(() => ({
+  readClaudeModelInfoFromCcSwitch: vi.fn(),
+}));
 vi.mock('@process/services/ccSwitchModelSource', () => ({
-  readClaudeModelInfoFromCcSwitch: vi.fn(() => null),
+  readClaudeModelInfoFromCcSwitch: ccSwitchMocks.readClaudeModelInfoFromCcSwitch,
 }));
 
 import { AcpAgentV2 } from '../../src/process/acp/compat/AcpAgentV2';
@@ -31,20 +34,53 @@ function makeAgent(backend: string): AcpAgentV2 {
 }
 
 describe('AcpAgentV2.getModelInfo (#184 live-class fallback)', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    ccSwitchMocks.readClaudeModelInfoFromCcSwitch.mockReturnValue(null);
+  });
 
-  it('returns the Sonnet/Opus/Haiku slots for claude when nothing real is advertised', () => {
+  it('exposes Claude slot catalogs without inventing a confirmed current model', () => {
     const info = makeAgent('claude').getModelInfo();
     expect(info?.availableModels.map((m) => m.id)).toEqual(['sonnet', 'opus', 'haiku']);
     expect(info?.canSwitch).toBe(true);
     expect(info?.sourceDetail).toBe('claude-slots');
-    expect(info?.currentModelId).toBe('sonnet');
+    expect(info?.currentModelId).toBeNull();
+    expect(info?.currentModelLabel).toBeNull();
   });
 
-  it('reflects the user override in the fallback', () => {
+  it('does not promote an unconfirmed user override in the fallback', () => {
     const agent = makeAgent('claude');
     (agent as unknown as { userModelOverride: string | null }).userModelOverride = 'opus';
-    expect(agent.getModelInfo()?.currentModelId).toBe('opus');
+    expect(agent.getModelInfo()?.currentModelId).toBeNull();
+  });
+
+  it('uses a cc-switch catalog without adopting its local current model', () => {
+    ccSwitchMocks.readClaudeModelInfoFromCcSwitch.mockReturnValue({
+      currentModelId: 'claude-opus-local',
+      currentModelLabel: 'Claude Opus Local',
+      availableModels: [
+        { id: 'claude-opus-local', label: 'Claude Opus Local' },
+        { id: 'claude-sonnet-local', label: 'Claude Sonnet Local' },
+      ],
+      canSwitch: true,
+      source: 'models',
+      sourceDetail: 'cc-switch',
+    });
+
+    const info = makeAgent('claude').getModelInfo();
+
+    expect(info?.availableModels.map((model) => model.id)).toEqual([
+      'claude-opus-local',
+      'claude-sonnet-local',
+    ]);
+    expect(info?.currentModelId).toBeNull();
+    expect(info?.currentModelLabel).toBeNull();
+  });
+
+  it('does not promote a Flux request echo to current model', () => {
+    const agent = makeAgent('claude');
+    (agent as unknown as { userModelOverride: string | null }).userModelOverride = 'flux-auto';
+    expect(agent.getModelInfo()?.currentModelId).toBeNull();
   });
 
   it('does NOT clobber a real advertised model list with the slots', () => {

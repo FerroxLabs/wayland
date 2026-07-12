@@ -15,7 +15,10 @@ import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
-import { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
+import {
+  mapSessionConfigOptions,
+  SessionLifecycle,
+} from '@process/acp/session/SessionLifecycle';
 import type {
   AgentConfig,
   InitialDesiredConfig,
@@ -236,17 +239,13 @@ export class AcpSession {
     this.promptExecutor.cancelAll();
   }
 
-  setModel(modelId: string): void {
+  async setModel(modelId: string): Promise<void> {
     this.configTracker.setDesiredModel(modelId);
-    if (this._status === 'idle' || this._status === 'error') return;
     const { client, sessionId } = this.lifecycle;
-    if (this._status === 'active' && client && sessionId) {
-      client
-        .setModel(sessionId, modelId)
-        .then(() => this.configTracker.setCurrentModel(modelId))
-        .then(() => this.callbacks.onModelUpdate(this.configTracker.modelSnapshot()))
-        .catch((err) => console.warn('[AcpSession] setModel failed:', err));
+    if (this._status !== 'active' || !client || !sessionId) {
+      throw new Error('ACP session is not active');
     }
+    await client.setModel(sessionId, modelId);
   }
 
   setMode(modeId: string): void {
@@ -267,15 +266,19 @@ export class AcpSession {
     }
   }
 
-  setConfigOption(id: string, value: string | boolean): void {
+  async setConfigOption(id: string, value: string | boolean): Promise<void> {
     this.configTracker.setDesiredConfigOption(id, value);
     const { client, sessionId } = this.lifecycle;
-    if (this._status === 'active' && client && sessionId) {
-      client
-        .setConfigOption(sessionId, id, value)
-        .then(() => this.configTracker.setCurrentConfigOption(id, value))
-        .catch((err) => console.warn('[AcpSession] setConfigOption failed:', err));
+    if (this._status !== 'active' || !client || !sessionId) {
+      return;
     }
+    const response = await client.setConfigOption(sessionId, id, value);
+    const modelUpdate = this.configTracker.updateConfigOptions(
+      mapSessionConfigOptions(response.configOptions),
+      'config-option-response'
+    );
+    this.callbacks.onConfigUpdate(this.configTracker.configSnapshot());
+    if (modelUpdate) this.callbacks.onModelUpdate(modelUpdate);
   }
 
   getConfigOptions() {
@@ -339,9 +342,15 @@ export class AcpSession {
         this.callbacks.onModeUpdate(this.configTracker.modeSnapshot());
         return;
 
-      case 'config_option_update':
+      case 'config_option_update': {
+        const modelUpdate = this.configTracker.updateConfigOptions(
+          mapSessionConfigOptions(update.configOptions),
+          'config-option-update'
+        );
         this.callbacks.onConfigUpdate(this.configTracker.configSnapshot());
+        if (modelUpdate) this.callbacks.onModelUpdate(modelUpdate);
         return;
+      }
 
       case 'available_commands_update': {
         const data = update as unknown as {

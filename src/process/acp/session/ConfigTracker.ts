@@ -1,5 +1,6 @@
 // src/process/acp/session/ConfigTracker.ts
 
+import type { AcpModelConfirmationSource } from '@/common/types/acpTypes';
 import type {
   AvailableCommand,
   ConfigOption,
@@ -18,6 +19,8 @@ type SyncResult = {
   cwd: string;
   additionalDirectories?: string[];
   availableCommands?: AvailableCommand[];
+  modelConfirmationSource?: AcpModelConfirmationSource;
+  configConfirmationSource?: AcpModelConfirmationSource;
 };
 
 type PendingChanges = {
@@ -35,6 +38,7 @@ export class ConfigTracker {
   private availableCommands: AvailableCommand[] = [];
 
   private currentModelId: string | null = null;
+  private currentModelConfirmationSource: AcpModelConfirmationSource | undefined;
   private currentModeId: string | null = null;
   private currentConfigOptions: ConfigOption[] = [];
   // Desired (user intent, not yet synced)
@@ -58,8 +62,19 @@ export class ConfigTracker {
   }
 
   setCurrentModel(modelId: string): void {
+    this.syncAuthoritativeModel(modelId);
+  }
+
+  syncAuthoritativeModel(
+    modelId: string,
+    availableModels?: ModelSnapshot['availableModels'],
+    confirmationSource?: AcpModelConfirmationSource
+  ): ModelSnapshot {
     this.currentModelId = modelId;
+    if (availableModels) this.availableModels = availableModels;
+    this.currentModelConfirmationSource = confirmationSource;
     if (this.desiredModelId === modelId) this.desiredModelId = null;
+    return this.modelSnapshot();
   }
 
   setDesiredMode(modeId: string): void {
@@ -81,15 +96,32 @@ export class ConfigTracker {
     this.desiredConfigOptions.delete(id);
   }
 
-  syncFromSessionResult(result: SyncResult): void {
+  syncFromSessionResult(result: SyncResult): ModelSnapshot | null {
     this.cwd = result.cwd;
     this.additionalDirectories = result.additionalDirectories;
-    if (result.currentModelId !== undefined) this.currentModelId = result.currentModelId;
-    if (result.availableModels) this.availableModels = result.availableModels;
+    let modelUpdate: ModelSnapshot | null = null;
+    if (result.currentModelId !== undefined) {
+      modelUpdate = this.syncAuthoritativeModel(
+        result.currentModelId,
+        result.availableModels,
+        result.modelConfirmationSource
+      );
+    } else if (result.availableModels) {
+      this.availableModels = result.availableModels;
+    }
     if (result.currentModeId !== undefined) this.currentModeId = result.currentModeId;
     if (result.availableModes) this.availableModes = result.availableModes;
-    if (result.configOptions) this.currentConfigOptions = result.configOptions;
+    if (result.configOptions) {
+      this.currentConfigOptions = result.configOptions;
+      if (!modelUpdate) {
+        modelUpdate = this.syncModelFromConfigOptions(
+          result.configOptions,
+          result.configConfirmationSource
+        );
+      }
+    }
     if (result.availableCommands) this.availableCommands = result.availableCommands;
+    return modelUpdate;
   }
 
   /**
@@ -136,6 +168,9 @@ export class ConfigTracker {
     return {
       currentModelId: this.currentModelId,
       availableModels: [...this.availableModels],
+      ...(this.currentModelConfirmationSource
+        ? { confirmationSource: this.currentModelConfirmationSource }
+        : {}),
     };
   }
 
@@ -155,8 +190,38 @@ export class ConfigTracker {
     };
   }
 
-  updateConfigOptions(options: ConfigOption[]): void {
+  updateConfigOptions(
+    options: ConfigOption[],
+    confirmationSource?: AcpModelConfirmationSource
+  ): ModelSnapshot | null {
     this.currentConfigOptions = options;
+    for (const option of options) {
+      if (this.desiredConfigOptions.get(option.id) === option.currentValue) {
+        this.desiredConfigOptions.delete(option.id);
+      }
+    }
+    return this.syncModelFromConfigOptions(options, confirmationSource);
+  }
+
+  private syncModelFromConfigOptions(
+    options: ConfigOption[],
+    confirmationSource?: AcpModelConfirmationSource
+  ): ModelSnapshot | null {
+    const model = options.find(
+      (option) => option.category === 'model' && typeof option.currentValue === 'string'
+    );
+    if (!model || typeof model.currentValue !== 'string') return null;
+
+    const availableModels = (model.options ?? []).map((option) => ({
+      modelId: option.id,
+      name: option.name,
+      description: option.description,
+    }));
+    return this.syncAuthoritativeModel(
+      model.currentValue,
+      availableModels,
+      confirmationSource
+    );
   }
 
   updateAvailableCommands(commands: AvailableCommand[]): void {

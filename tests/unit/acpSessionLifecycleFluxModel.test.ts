@@ -42,19 +42,29 @@ function makeLifecycle(desiredModelId: string) {
 
 describe('SessionLifecycle.reassertConfig() - Flux model guard', () => {
   it('does NOT call client.setModel for a Flux model id (env-carried routing)', async () => {
-    const { lifecycle, setModel } = makeLifecycle('flux-auto');
+    const { lifecycle, setModel, configTracker } = makeLifecycle('flux-auto');
 
     await lifecycle.reassertConfig();
 
     expect(setModel).not.toHaveBeenCalled();
+    expect(configTracker.modelSnapshot().currentModelId).toBeNull();
   });
 
   it('still calls client.setModel for a native model id', async () => {
-    const { lifecycle, setModel } = makeLifecycle('opus');
+    const { lifecycle, setModel, configTracker } = makeLifecycle('opus');
 
     await lifecycle.reassertConfig();
 
     expect(setModel).toHaveBeenCalledOnce();
     expect(setModel).toHaveBeenCalledWith('sess-1', 'opus');
+    expect(configTracker.modelSnapshot().currentModelId).toBeNull();
+  });
+
+  it('propagates a native model reassert rejection', async () => {
+    const { lifecycle, setModel, configTracker } = makeLifecycle('opus');
+    setModel.mockRejectedValueOnce(new Error('provider rejected model'));
+
+    await expect(lifecycle.reassertConfig()).rejects.toThrow('provider rejected model');
+    expect(configTracker.getPendingChanges().model).toBe('opus');
   });
 });

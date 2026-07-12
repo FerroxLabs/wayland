@@ -1,6 +1,7 @@
 // src/process/acp/types.ts
 
 import type { TMessage } from '@/common/chat/chatLib';
+import type { AcpModelConfirmationSource } from '@/common/types/acpTypes';
 import type {
   AuthMethod,
   ContentBlock,
@@ -103,6 +104,7 @@ export type ConfigSnapshot = {
 export type ModelSnapshot = {
   currentModelId: string | null;
   availableModels: Array<{ modelId: string; name: string; description?: string }>;
+  confirmationSource?: AcpModelConfirmationSource;
 };
 
 export type ModeSnapshot = {
@@ -123,7 +125,7 @@ export type ConfigOption = {
   type: 'select' | 'boolean';
   category?: 'mode' | 'model' | 'thought_level' | string;
   description?: string;
-  currentValue: string | boolean;
+  currentValue?: string | boolean;
   options?: Array<{ id: string; name: string; description?: string }>;
 };
 

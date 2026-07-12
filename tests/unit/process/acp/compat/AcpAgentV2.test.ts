@@ -809,6 +809,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
           capturedCallbacks.onModelUpdate({
             currentModelId: 'claude-4',
             availableModels: [{ modelId: 'claude-4', name: 'Claude 4', tier: 'premium' }],
+            confirmationSource: 'config-option-update',
           });
         }, 0);
       });
@@ -821,18 +822,22 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
         availableModels: [{ id: 'claude-4', label: 'Claude 4' }],
         canSwitch: true,
         source: 'models',
+        confirmationSource: 'config-option-update',
       });
       expect(mockSessionMethods.setModel).toHaveBeenCalledWith('claude-4');
     });
 
-    it('should resolve with cached info on timeout', async () => {
+    it('rejects on timeout instead of treating stale cached info as confirmation', async () => {
       const agent = await createStartedAgent();
       vi.useFakeTimers();
 
       // Set initial cached value
       capturedCallbacks.onModelUpdate({
         currentModelId: 'claude-3',
-        availableModels: [{ modelId: 'claude-3', name: 'Claude 3', tier: 'standard' }],
+        availableModels: [
+          { modelId: 'claude-3', name: 'Claude 3', tier: 'standard' },
+          { modelId: 'claude-4', name: 'Claude 4', tier: 'premium' },
+        ],
       });
 
       // Mock setModel that never triggers callback
@@ -841,21 +846,369 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       });
 
       const promise = agent.setModelByConfigOption('claude-4');
+      let status: 'pending' | 'resolved' | 'rejected' = 'pending';
+      const outcome = promise.then(
+        (value) => {
+          status = 'resolved';
+          return { value, error: null };
+        },
+        (error: unknown) => {
+          status = 'rejected';
+          return { value: null, error };
+        }
+      );
 
-      // Fast-forward past 10-second timeout
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(59_999);
+      expect(status).toBe('pending');
+      await vi.advanceTimersByTimeAsync(1);
 
-      const result = await promise;
-      expect(result).toEqual({
-        currentModelId: 'claude-3',
-        currentModelLabel: 'Claude 3',
-        availableModels: [{ id: 'claude-3', label: 'Claude 3' }],
-        canSwitch: true,
-        source: 'models',
-      });
+      expect((await outcome).error).toMatchObject({ code: 'model_switch_timeout' });
       expect(mockSessionMethods.setModel).toHaveBeenCalledWith('claude-4');
+      expect(agent.getModelInfo()?.currentModelId).not.toBe('claude-4');
+    });
 
-      vi.useRealTimers();
+    it('accepts an exact provider notification before the dispatch promise resolves', async () => {
+      const agent = await createStartedAgent();
+      let resolveDispatch!: () => void;
+      mockSessionMethods.setModel.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveDispatch = resolve;
+        })
+      );
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels: [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+        confirmationSource: 'config-option-update',
+      });
+      let settled = false;
+      const outcome = change.then(
+        (value) => {
+          settled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      expect(settled).toBe(false);
+
+      resolveDispatch();
+
+      expect(await outcome).toMatchObject({
+        value: {
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-update',
+        },
+        error: null,
+      });
+    });
+
+    it('uses an advertised model config option and waits for provider currentValue', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [
+        { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+      ];
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-5.5',
+            options: [
+              { id: 'gpt-5.5', name: 'GPT-5.5' },
+              { id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+            ],
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+      mockSessionMethods.setConfigOption.mockResolvedValueOnce(undefined);
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      let settled = false;
+      const outcome = change.then(
+        (value) => {
+          settled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSessionMethods.setConfigOption).toHaveBeenCalledWith(
+        'model',
+        'gpt-5.6-sol'
+      );
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+      expect(settled).toBe(false);
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels,
+        confirmationSource: 'config-option-response',
+      });
+
+      expect(await outcome).toMatchObject({
+        value: {
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-response',
+        },
+        error: null,
+      });
+    });
+
+    it('rejects an unconfirmed Flux request without dispatching a bridge call', async () => {
+      const agent = await createStartedAgent();
+
+      await expect(agent.setModelByConfigOption('flux-auto')).rejects.toMatchObject({
+        code: 'confirmation_unavailable',
+      });
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+      expect(mockSessionMethods.setConfigOption).not.toHaveBeenCalled();
+      expect(agent.getModelInfo()?.currentModelId).toBeNull();
+    });
+
+    it('accepts Flux only when provider session state already confirmed it', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'flux-auto',
+        availableModels: [{ modelId: 'flux-auto', name: 'Flux Auto' }],
+        confirmationSource: 'session-models',
+      });
+
+      await expect(agent.setModelByConfigOption('flux-auto')).resolves.toMatchObject({
+        currentModelId: 'flux-auto',
+        confirmationSource: 'session-models',
+      });
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+      expect(mockSessionMethods.setConfigOption).not.toHaveBeenCalled();
+    });
+
+    it('rejects a different non-baseline provider current model as model_mismatch', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.4',
+        availableModels: [
+          { modelId: 'gpt-5.4', name: 'GPT-5.4' },
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        ],
+        confirmationSource: 'session-models',
+      });
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      const outcome = change.then(
+        () => null,
+        (error: unknown) => error
+      );
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels: [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        ],
+        confirmationSource: 'config-option-update',
+      });
+
+      expect(await outcome).toMatchObject({ code: 'model_mismatch' });
+    });
+
+    it.each(['GPT-5.6-SOL', 'gpt-5.6', 'gpt-5.6-sol-latest'])(
+      'rejects near-equal provider ID %s instead of fuzzy-confirming it',
+      async (reportedModelId) => {
+        const agent = await createStartedAgent();
+        const availableModels = [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: reportedModelId, name: reportedModelId },
+        ];
+        capturedCallbacks.onModelUpdate({
+          currentModelId: 'gpt-5.5',
+          availableModels,
+          confirmationSource: 'session-models',
+        });
+
+        const change = agent.setModelByConfigOption('gpt-5.6-sol');
+        const outcome = change.then(
+          () => null,
+          (error: unknown) => error
+        );
+        capturedCallbacks.onModelUpdate({
+          currentModelId: reportedModelId,
+          availableModels,
+          confirmationSource: 'config-option-update',
+        });
+
+        expect(await outcome).toMatchObject({ code: 'model_mismatch' });
+      }
+    );
+
+    it('maps a set_model dispatch rejection to model_rejected', async () => {
+      const agent = await createStartedAgent();
+      mockSessionMethods.setModel.mockRejectedValueOnce(new Error('provider rejected model'));
+
+      await expect(agent.setModelByConfigOption('gpt-5.6-sol')).rejects.toMatchObject({
+        code: 'model_rejected',
+      });
+    });
+
+    it('rejects a requested exact ID omitted from a provider-advertised catalog', async () => {
+      const agent = await createStartedAgent();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels: [{ modelId: 'gpt-5.5', name: 'GPT-5.5' }],
+        confirmationSource: 'session-models',
+      });
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      const outcome = change.then(
+        () => null,
+        (error: unknown) => error
+      );
+
+      expect(await outcome).toMatchObject({ code: 'unsupported_model' });
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+    });
+
+    it('ignores a null/empty provider snapshot and times out without confirmation', async () => {
+      const agent = await createStartedAgent();
+      vi.useFakeTimers();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels: [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+        ],
+        confirmationSource: 'session-models',
+      });
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      let status: 'pending' | 'resolved' | 'rejected' = 'pending';
+      const outcome = change.then(
+        (value) => {
+          status = 'resolved';
+          return { value, error: null };
+        },
+        (error: unknown) => {
+          status = 'rejected';
+          return { value: null, error };
+        }
+      );
+      capturedCallbacks.onModelUpdate({
+        currentModelId: null,
+        availableModels: [
+          { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+          { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+          { modelId: 'gpt-next', name: 'GPT Next' },
+        ],
+        confirmationSource: 'config-option-update',
+      });
+      expect(agent.getModelInfo()?.availableModels.map((model) => model.id)).toContain(
+        'gpt-next'
+      );
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-5.5');
+      await vi.advanceTimersByTimeAsync(59_999);
+      expect(status).toBe('pending');
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect((await outcome).error).toMatchObject({ code: 'model_switch_timeout' });
+    });
+
+    it('ignores an unchanged provider baseline until an exact confirmation arrives', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [
+        { modelId: 'gpt-5.5', name: 'GPT-5.5' },
+        { modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+      ];
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      let settled = false;
+      const outcome = change.then(
+        (value) => {
+          settled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      await Promise.resolve();
+      expect(settled).toBe(false);
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      expect(await outcome).toMatchObject({
+        value: { currentModelId: 'gpt-5.6-sol' },
+        error: null,
+      });
+    });
+
+    it('lets the latest selection win and ignores a late superseded confirmation', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [
+        { modelId: 'gpt-old', name: 'GPT Old' },
+        { modelId: 'gpt-a', name: 'GPT A' },
+        { modelId: 'gpt-b', name: 'GPT B' },
+      ];
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-old',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+
+      const first = agent.setModelByConfigOption('gpt-a');
+      const second = agent.setModelByConfigOption('gpt-b');
+      await expect(first).rejects.toMatchObject({ code: 'model_rejected' });
+
+      let secondSettled = false;
+      const secondOutcome = second.then(
+        (value) => {
+          secondSettled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-a',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      await Promise.resolve();
+      expect(secondSettled).toBe(false);
+
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-b',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      expect(await secondOutcome).toMatchObject({
+        value: { currentModelId: 'gpt-b' },
+        error: null,
+      });
+      expect(agent.getModelInfo()?.currentModelId).toBe('gpt-b');
     });
 
     it('should clear timeout when callback fires', async () => {
@@ -884,7 +1237,7 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       });
 
       // Verify timeout was cleared by advancing past it
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(60_000);
 
       vi.useRealTimers();
     });
