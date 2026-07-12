@@ -16,6 +16,7 @@ import type { MicPermissionStatus } from '../../process/services/macPermissions/
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
+import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
@@ -3110,4 +3111,24 @@ export const terminal = {
   output: buildEmitter<TerminalOutputPayload>('terminal.output'),
   /** PTY exited → renderer (filter by terminalId). */
   exit: buildEmitter<TerminalExitPayload>('terminal.exit'),
+};
+
+/**
+ * #671 Per-workspace trust axis — the composer Chat<->Cowork toggle.
+ *
+ * A 'cowork' workspace auto-approves read/edit tools across every local backend
+ * while STILL prompting on exec/network; 'chat' prompts on everything. Persisted
+ * per workspace (keyed by cwd) in the main process.
+ *
+ * SECURITY: both keys are namespaced `workspaceTrust.*` so bridgeAllowlist's
+ * `workspaceTrust.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer
+ * from ever reading OR arming trust — `set` would let a remote peer switch a
+ * workspace into unattended edit auto-approve, and `get` would disclose the
+ * security posture. This is a LOCAL desktop control only.
+ */
+export const workspaceTrust = {
+  /** Read the persisted trust level for a workspace cwd. */
+  get: buildProvider<WorkspaceTrustLevel, { workspace: string }>('workspaceTrust.get'),
+  /** Set + persist the trust level for a workspace cwd. */
+  set: buildProvider<void, { workspace: string; level: WorkspaceTrustLevel }>('workspaceTrust.set'),
 };
