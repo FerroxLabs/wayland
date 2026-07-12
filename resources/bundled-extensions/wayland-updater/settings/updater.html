@@ -15,6 +15,25 @@
           BlinkMacSystemFont,
           'Segoe UI',
           sans-serif;
+        /* Default to Wayland's dark palette so this panel never flashes white
+           before the host declares the app theme. Wayland's own UI is always
+           dark unless the user chose light; the host forwards the resolved
+           theme via aion:init / aion:theme and light is applied only when it
+           explicitly sets data-theme="light" (#730). */
+        --bg: #111318;
+        --panel: #171a21;
+        --panel-soft: #20242d;
+        --text: #f5f7fb;
+        --muted: #9aa3b2;
+        --border: #2d3340;
+        --primary: #60a5fa;
+        --primary-strong: #3b82f6;
+        --success: #16a34a;
+        --warning: #d97706;
+        --danger: #dc2626;
+      }
+
+      :root[data-theme='light'] {
         --bg: #f7f8fa;
         --panel: #ffffff;
         --panel-soft: #f2f3f5;
@@ -23,22 +42,6 @@
         --border: #e5e7eb;
         --primary: #2563eb;
         --primary-strong: #1d4ed8;
-        --success: #16a34a;
-        --warning: #d97706;
-        --danger: #dc2626;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #111318;
-          --panel: #171a21;
-          --panel-soft: #20242d;
-          --text: #f5f7fb;
-          --muted: #9aa3b2;
-          --border: #2d3340;
-          --primary: #60a5fa;
-          --primary-strong: #3b82f6;
-        }
       }
 
       * {
@@ -166,9 +169,41 @@
         background: var(--primary-strong);
       }
 
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
       button.secondary {
         background: var(--panel-soft);
         color: var(--text);
+      }
+
+      .check-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: updater-spin 0.7s linear infinite;
+      }
+
+      @keyframes updater-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .last-checked {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
       }
 
       label {
@@ -204,13 +239,17 @@
             <h1>Updater</h1>
             <div class="subtitle">Wayland and Wayland Core update status from the extension host.</div>
           </div>
-          <button id="check">Check now</button>
+          <div class="check-wrap">
+            <span class="spinner" id="spinner" hidden></span>
+            <button id="check">Check now</button>
+          </div>
         </header>
         <div class="body">
           <div class="card row">
             <div>
               <div class="title">Release channel</div>
               <div class="meta" id="summary">Ready to check for updates.</div>
+              <div class="last-checked" id="lastChecked" hidden></div>
             </div>
             <label><input id="prerelease" type="checkbox" /> Include prereleases</label>
           </div>
@@ -269,8 +308,20 @@
           });
         }
 
+        function applyTheme(theme) {
+          if (theme === 'light' || theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+        }
+
         window.addEventListener('message', function (event) {
           var data = event.data || {};
+          // The host forwards Wayland's resolved app theme so this panel matches
+          // the app instead of the OS color-scheme (#730).
+          if (data.type === 'aion:init' || data.type === 'aion:theme') {
+            applyTheme(data.theme);
+            return;
+          }
           if (data.type !== 'wayland-updater:response' || !data.reqId) return;
           var resolve = pending.get(data.reqId);
           if (!resolve) return;
@@ -337,11 +388,30 @@
           resize();
         }
 
-        $('check').addEventListener('click', function () {
+        function setChecking(on) {
+          $('check').disabled = on;
+          $('spinner').hidden = !on;
+        }
+
+        function stampLastChecked() {
+          var el = $('lastChecked');
+          el.hidden = false;
+          el.textContent = 'Last checked: ' + new Date().toLocaleString();
+        }
+
+        function runCheck() {
+          setChecking(true);
           $('summary').textContent = 'Checking...';
           setBadge('waylandBadge', 'Checking', '');
-          request('check', { includePrerelease: $('prerelease').checked }).then(renderCheck);
-        });
+          return request('check', { includePrerelease: $('prerelease').checked }).then(function (result) {
+            setChecking(false);
+            stampLastChecked();
+            renderCheck(result);
+          });
+        }
+
+        $('check').addEventListener('click', runCheck);
+        $('prerelease').addEventListener('change', runCheck);
 
         $('openModal').addEventListener('click', function () {
           request('openModal', {});
@@ -349,7 +419,10 @@
 
         window.addEventListener('load', function () {
           resize();
-          request('check', { includePrerelease: $('prerelease').checked }).then(renderCheck);
+          // Ask the host to (re)send init incl. the resolved app theme, in case
+          // its automatic post raced ahead of this listener being registered (#730).
+          parent.postMessage({ type: 'aion:get-locale' }, '*');
+          runCheck();
         });
       })();
     </script>
