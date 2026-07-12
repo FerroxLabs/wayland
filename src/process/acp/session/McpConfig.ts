@@ -2,6 +2,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 
 type MergeParams = {
   userServers?: McpServer[];
@@ -63,14 +64,18 @@ export class McpConfig {
       )
       .map((server): McpServer | null => {
         switch (server.transport.type) {
-          case 'stdio':
+          case 'stdio': {
             if (!caps.stdio) return null;
+            // #827: resolve `npx`→bundled Bun so the ACP agent CLI spawns a
+            // real command in the live session (green-but-no-tools on Windows).
+            const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
             return {
               name: server.name,
-              command: server.transport.command,
-              args: server.transport.args || [],
+              command: spawn.command,
+              args: spawn.args,
               env: toNameValueArray(server.transport.env),
             };
+          }
           case 'http':
           case 'streamable_http':
             if (!caps.http) return null;

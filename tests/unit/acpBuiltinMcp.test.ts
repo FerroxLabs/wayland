@@ -9,6 +9,14 @@ import type { IMcpServer } from '../../src/common/config/storage';
 import { buildAcpSessionMcpServers } from '../../src/process/agent/acp/mcpSessionConfig';
 import { parseAgentCapabilities } from '../../src/common/types/acpTypes';
 
+// #827: buildAcpSessionMcpServers resolves a bare `npx` to the bundled Bun
+// runtime on Windows (a `npx.cmd` won't spawn shell:false); macOS/Linux keep raw
+// `npx`. Expectations that assert the injected npx server's spawn shape must be
+// platform-aware to stay green on the windows-2022 shard.
+const isWin = process.platform === 'win32';
+const expectedNpxCommand = isWin ? expect.stringContaining('bun') : 'npx';
+const expectedNpxArgs = isWin ? ['x', '--bun', 'chrome-devtools-mcp@latest'] : ['-y', 'chrome-devtools-mcp@latest'];
+
 describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
   it('injects the seeded builtin search-skills entry into session/new with the correct stdio transport', () => {
     // This is the C1 audit-blocker proof: confirms that the wayland-search-skills
@@ -228,8 +236,8 @@ describe('ACP custom MCP session config (#56)', () => {
       {
         type: 'stdio',
         name: 'chrome-devtools',
-        command: 'npx',
-        args: ['-y', 'chrome-devtools-mcp@latest'],
+        command: expectedNpxCommand,
+        args: expectedNpxArgs,
         env: [],
       },
     ]);
