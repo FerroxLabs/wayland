@@ -12,7 +12,8 @@ import {
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import type { AssistantListItem } from './types';
 import AssistantAvatar from './AssistantAvatar';
-import { Button, Input, Switch, Tabs, Tag } from '@arco-design/web-react';
+import { Button, Input, Switch, Tabs, Tag, Message } from '@arco-design/web-react';
+import { ipcBridge } from '@/common';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -161,6 +162,27 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
         >
           <span
             className='invisible group-hover:visible text-12px text-primary cursor-pointer hover:underline transition-all'
+            data-testid={`btn-export-${assistant.id}`}
+            onClick={() => {
+              void ipcBridge.dataExport.assistant.invoke({ id: assistant.id }).then((r) => {
+                if (!r.ok) {
+                  Message.error(r.error || t('settings.exportFailed', { defaultValue: 'Export failed' }));
+                } else if (!r.canceled) {
+                  Message.success(
+                    r.redacted
+                      ? t('settings.exportRedacted', {
+                          defaultValue: 'Exported. A possible secret was masked — review before sharing.',
+                        })
+                      : t('settings.exportOk', { defaultValue: 'Exported' })
+                  );
+                }
+              });
+            }}
+          >
+            {t('settings.exportButton', { defaultValue: 'Export' })}
+          </span>
+          <span
+            className='invisible group-hover:visible text-12px text-primary cursor-pointer hover:underline transition-all'
             data-testid={`btn-duplicate-${assistant.id}`}
             onClick={() => {
               onDuplicate(assistant);
@@ -247,13 +269,7 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
                 size='small'
                 data-testid='btn-search-toggle'
                 className='!rounded-10px !h-34px !w-34px !p-0 flex items-center justify-center !text-t-secondary hover:!bg-fill-1 hover:!text-t-primary'
-                icon={
-                  isSearchVisible ? (
-                    <X size={16} />
-                  ) : (
-                    <Search size={16} />
-                  )
-                }
+                icon={isSearchVisible ? <X size={16} /> : <Search size={16} />}
                 onClick={() => {
                   if (isSearchVisible) {
                     setSearchExpanded(false);
