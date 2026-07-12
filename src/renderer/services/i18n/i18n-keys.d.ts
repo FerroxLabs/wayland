@@ -3538,6 +3538,7 @@ export type I18nKey =
   | 'settings.modelsPage.connect.chatgptCancelled'
   | 'settings.modelsPage.connect.chatgptConnected'
   | 'settings.modelsPage.connect.chatgptFailed'
+  | 'settings.modelsPage.connect.chatgptHeadless'
   | 'settings.modelsPage.connect.chatgptNoCredit'
   | 'settings.modelsPage.connect.chatgptNote'
   | 'settings.modelsPage.connect.chatgptOffline'
