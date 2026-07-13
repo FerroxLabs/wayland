@@ -53,7 +53,15 @@ const OPENAI_KEY = 'sk-openai-sourced-key';
 describe('mapProvider - reliable-surface preference for catalog-only OpenAI-family models', () => {
   // The reported catalog-only models plus representative siblings. Each inherits
   // `platform: 'anthropic'` (the stale-default bug) and is rebound off Anthropic.
-  const openaiFamily = ['gpt-5.6-sol', 'gpt-5.6-luna', 'gpt-5.6-terra', 'gpt-4o', 'gpt-5.1', 'o3-mini', 'chatgpt-4o-latest'];
+  const openaiFamily = [
+    'gpt-5.6-sol',
+    'gpt-5.6-luna',
+    'gpt-5.6-terra',
+    'gpt-4o',
+    'gpt-5.1',
+    'o3-mini',
+    'chatgpt-4o-latest',
+  ];
 
   for (const model of openaiFamily) {
     // ── key available: the API-key `openai` surface WINS (the core fix) ──────
