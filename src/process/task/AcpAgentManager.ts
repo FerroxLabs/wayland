@@ -856,13 +856,47 @@ ${collectedResponses.join('\n')}`;
   private async computeFluxRouting(backend: string, selectedModelId: string | undefined): Promise<FluxRoutingResult> {
     const fluxKey = await this.readFluxKey();
     const routeThroughFlux = (await ProcessConfig.get('system.routeThroughFlux')) ?? false;
+    // Belt-and-suspenders for team + workflow spawns: they frequently arrive with
+    // NO explicit model (team_spawn_agent is usually called with no model), so the
+    // spawn's `currentModelId` is undefined. Without a resolved model, the global
+    // routeThroughFlux toggle would default the spawn to Flux and 400 a backend
+    // that natively runs the customer's model (codex on gpt-5.6-sol via an OpenAI
+    // key OR a ChatGPT subscription). Fall back to the model this backend itself
+    // resolved (its cached CLI model / configured preferred id) so the routing
+    // decision honors the native model instead of blindly routing to Flux.
+    const resolvedModelId = selectedModelId ? undefined : await this.resolveBackendModelId(backend);
     return resolveFluxRouting({
       backend,
       selectedModelId,
+      resolvedModelId,
       fluxConnected: Boolean(fluxKey),
       fluxKey,
       routeThroughFlux: Boolean(routeThroughFlux),
     });
+  }
+
+  /**
+   * The model id this backend resolved from its OWN provider identity when a
+   * spawn carries no explicit pick: the CLI's last-cached model, else the
+   * configured preferred model. Mirrors TeamSessionService.resolvePreferredAcpModelId
+   * (preferred first, then cached) so the routing choke point sees the same native
+   * model the spawn path would thread. Best-effort: any read failure yields
+   * undefined and the caller falls back to the routeThroughFlux default.
+   */
+  private async resolveBackendModelId(backend: string): Promise<string | undefined> {
+    try {
+      const acpConfig = await ProcessConfig.get('acp.config');
+      const preferred = (acpConfig as Record<string, { preferredModelId?: string } | undefined> | undefined)?.[backend]
+        ?.preferredModelId;
+      if (typeof preferred === 'string' && preferred.trim().length > 0) return preferred.trim();
+
+      const cachedModels = await ProcessConfig.get('acp.cachedModels');
+      const cached = cachedModels?.[backend]?.currentModelId;
+      if (typeof cached === 'string' && cached.trim().length > 0) return cached.trim();
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'resolveBackendModelId failed', err);
+    }
+    return undefined;
   }
 
   /** The connected flux-router key, or undefined when not connected (R13 safety gate). */

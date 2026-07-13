@@ -105,6 +105,36 @@ describe('resolveFluxRouting', () => {
   it('stays native when no model is selected and the toggle is off', () => {
     expect(resolveFluxRouting(ctx({ selectedModelId: undefined, routeThroughFlux: false })).routing).toBe('native');
   });
+
+  // resolvedModelId: the backend's OWN native identity when a team/workflow spawn
+  // carries no explicit pick. A concrete native model here must PIN native so the
+  // toggle can never route it to Flux (which 400s a non-flux id). #555-adjacent.
+  it('keeps a resolved native model native even with the toggle on + no explicit pick (codex/gpt-5.6-sol)', () => {
+    // The exact team/workflow failure: no explicit selectedModelId, toggle ON, but
+    // the codex backend natively runs gpt-5.6-sol (OpenAI key OR ChatGPT sub).
+    const out = resolveFluxRouting(
+      ctx({ backend: 'codex', selectedModelId: undefined, resolvedModelId: 'gpt-5.6-sol', routeThroughFlux: true })
+    );
+    expect(out.routing).toBe('native');
+  });
+  it('an explicit flux pick still wins over a resolved native model', () => {
+    const out = resolveFluxRouting(
+      ctx({ selectedModelId: 'flux-auto', resolvedModelId: 'gpt-5.6-sol', routeThroughFlux: false })
+    );
+    expect(out.routing).toBe('flux');
+  });
+  it('routes flux when the resolved model is itself a flux id (toggle off)', () => {
+    const out = resolveFluxRouting(
+      ctx({ selectedModelId: undefined, resolvedModelId: 'flux-auto', routeThroughFlux: false })
+    );
+    expect(out.routing).toBe('flux');
+  });
+  it('still defaults to flux when there is genuinely no model (explicit or resolved) + toggle on', () => {
+    const out = resolveFluxRouting(
+      ctx({ backend: 'codex', selectedModelId: undefined, resolvedModelId: undefined, routeThroughFlux: true })
+    );
+    expect(out.routing).toBe('flux');
+  });
   it('lists only the empirically-proven env-routable backends (qwen, goose)', () => {
     // Verified 2026-06-05 against a live capture server: qwen + goose route
     // flux-auto through Flux via R13-safe env injection. opencode/qoder need the
@@ -153,10 +183,14 @@ describe('resolveFluxRouting', () => {
     expect(out.stripKeys).toContain('DEEPSEEK_API_KEY');
   });
   it('keeps hermes native when an explicit native model is picked even with the toggle on', () => {
-    const out = resolveFluxRouting(ctx({ backend: 'hermes', selectedModelId: 'anthropic/claude-opus-4.6', routeThroughFlux: true }));
+    const out = resolveFluxRouting(
+      ctx({ backend: 'hermes', selectedModelId: 'anthropic/claude-opus-4.6', routeThroughFlux: true })
+    );
     expect(out.routing).toBe('native');
   });
   it('keeps hermes native when flux is not connected', () => {
-    expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe('native');
+    expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe(
+      'native'
+    );
   });
 });
