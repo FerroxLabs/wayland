@@ -184,6 +184,23 @@ function isChatGptSubscription(model: TProviderWithModel): boolean {
 }
 
 /**
+ * True when `modelId` is unmistakably an OpenAI-family model id — the GPT line
+ * (`gpt-*`, which includes the brand-new catalog-only `gpt-5.6-sol` /
+ * `gpt-5.6-luna` / `gpt-5.6-terra`), the o-series reasoning models
+ * (`o1`/`o3`/`o4`…), or a ChatGPT alias (`chatgpt-*`). These are served by
+ * OpenAI (`api.openai.com`) or the ChatGPT backend — NEVER by the native
+ * Anthropic surface (`api.anthropic.com`, which only speaks `claude-*`).
+ *
+ * Used purely as a defense-in-depth guard in {@link mapProvider}: a genuine
+ * Anthropic model id (`claude-*`, `claude-opus-*`, …) never matches this test,
+ * so real Anthropic routing is untouched.
+ */
+export function isOpenAIFamilyModelId(modelId: string | undefined): boolean {
+  if (!modelId) return false;
+  return /^(?:gpt-|chatgpt-|o\d)/i.test(modelId.trim());
+}
+
+/**
  * Map provider name to wcore provider name.
  *
  * Platform values: 'custom' | 'new-api' | 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'bedrock'
@@ -229,7 +246,25 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
     custom: 'openai',
     'new-api': 'openai',
   };
-  return mapping[model.platform] ?? 'openai';
+  const mapped = mapping[model.platform] ?? 'openai';
+
+  // Defense-in-depth: the native Anthropic surface (`api.anthropic.com`) can
+  // only serve Anthropic `claude-*` models. A brand-new OpenAI-family model
+  // that exists only in the models.dev catalog cache (e.g. `gpt-5.6-sol`) is
+  // NOT owned by any configured OpenAI provider, so on selection it inherits
+  // the agent's current/default `platform` — which is `'anthropic'` for a
+  // Claude-default agent (normal chat, and equally in Teams/Workflows, since
+  // every wcore spawn funnels through here). Routing it to `--provider anthropic`
+  // yields the reported `400 invalid_request_error` with an Anthropic-shaped
+  // error envelope ("The 'gpt-5.6-sol' model does not exist"). Re-bind such an
+  // OpenAI-family id to the OpenAI surface. This runs AFTER the ChatGPT-
+  // subscription / catalog / engine-native / openai-chatgpt precedence above,
+  // so those correct routings are never overridden; a real `claude-*` id never
+  // matches {@link isOpenAIFamilyModelId}, so genuine Anthropic routing stands.
+  if (mapped === 'anthropic' && isOpenAIFamilyModelId(model.useModel)) {
+    return 'openai';
+  }
+  return mapped;
 }
 
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
