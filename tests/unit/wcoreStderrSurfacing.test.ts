@@ -38,6 +38,10 @@ vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
 }));
 const killChildMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 vi.mock('@process/agent/acp/utils', () => ({ killChild: killChildMock }));
+// start() reads the ChatGPT OAuth token file (real fs I/O) to pick the keyless
+// provider surface; mock it so the read resolves on a microtask (the spawn flush
+// below only spins microtasks) and never touches the real ~/.codex/auth.json.
+vi.mock('@process/onboarding/codexAuthFile', () => ({ readCodexAuthFile: vi.fn().mockResolvedValue(null) }));
 
 import { WCoreAgent } from '@process/agent/wcore';
 import type { WCoreAgentOptions } from '@process/agent/wcore';

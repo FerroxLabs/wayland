@@ -204,8 +204,15 @@ export function isOpenAIFamilyModelId(modelId: string | undefined): boolean {
  * Map provider name to wcore provider name.
  *
  * Platform values: 'custom' | 'new-api' | 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'bedrock'
+ *
+ * `chatGptSubscriptionAvailable` is the caller's auth-availability signal (true
+ * when a ChatGPT-subscription OAuth token is present in `~/.codex/auth.json`).
+ * It ONLY influences the OpenAI-family-off-Anthropic guard below: it picks the
+ * keyless `openai-chatgpt` surface over the API-key `openai` surface for a
+ * model that would otherwise wrongly hit Anthropic. Every other routing arm is
+ * unaffected.
  */
-function mapProvider(model: TProviderWithModel): WCoreProvider {
+function mapProvider(model: TProviderWithModel, chatGptSubscriptionAvailable: boolean): WCoreProvider {
   // ChatGPT subscription (OAuth): route to the engine's native slug so it drives
   // the ChatGPT backend + reads the token from ~/.codex/auth.json, instead of
   // collapsing to `--provider openai` against api.openai.com (#243).
@@ -257,12 +264,22 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
   // every wcore spawn funnels through here). Routing it to `--provider anthropic`
   // yields the reported `400 invalid_request_error` with an Anthropic-shaped
   // error envelope ("The 'gpt-5.6-sol' model does not exist"). Re-bind such an
-  // OpenAI-family id to the OpenAI surface. This runs AFTER the ChatGPT-
+  // OpenAI-family id to an OpenAI-compatible surface. This runs AFTER the ChatGPT-
   // subscription / catalog / engine-native / openai-chatgpt precedence above,
   // so those correct routings are never overridden; a real `claude-*` id never
   // matches {@link isOpenAIFamilyModelId}, so genuine Anthropic routing stands.
+  //
+  // AUTH-AWARE fallback: the engine serves these models on BOTH the API-key
+  // `openai` surface (needs OPENAI_API_KEY) AND the keyless `openai-chatgpt`
+  // ChatGPT-OAuth surface (token from ~/.codex/auth.json). A user with only a
+  // ChatGPT subscription (no OpenAI API key) would hit "No API key found" on the
+  // `openai` surface, so when the subscription's OAuth is available we prefer the
+  // keyless surface. The preference holds even if the user ALSO has an API key
+  // (keyless has no per-token cost - the #555 subscription-preference rationale),
+  // so it works for a sub-only user and a both-connected user alike. With no sub
+  // connected we return `openai` - unchanged behavior for API-key users.
   if (mapped === 'anthropic' && isOpenAIFamilyModelId(model.useModel)) {
-    return 'openai';
+    return chatGptSubscriptionAvailable ? CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER : 'openai';
   }
   return mapped;
 }
@@ -411,6 +428,17 @@ export function buildSpawnConfig(
      * standalone CLI would for that session id. The `model` argument is ignored.
      */
     rawEngine?: boolean;
+    /**
+     * True when a ChatGPT subscription's OAuth is available for keyless inference
+     * (the caller resolved it from `~/.codex/auth.json` - the same store the
+     * engine reads for `--provider openai-chatgpt`). Consumed ONLY by
+     * {@link mapProvider}'s OpenAI-family-off-Anthropic guard: an OpenAI-family
+     * model that would wrongly hit the Anthropic surface routes to the keyless
+     * `openai-chatgpt` surface when this is true (so a sub-only user needs no
+     * OpenAI API key), and to the API-key `openai` surface otherwise. Every other
+     * routing arm ignores this flag. Defaults to false (API-key behavior).
+     */
+    chatGptSubscriptionAvailable?: boolean;
   }
 ): {
   args: string[];
@@ -459,7 +487,7 @@ export function buildSpawnConfig(
     return { args, env: {}, projectConfig: '', resolvedMaxTokens: undefined, missingRequiredApiKey: false };
   }
 
-  const provider = mapProvider(model);
+  const provider = mapProvider(model, options.chatGptSubscriptionAvailable ?? false);
   const env: Record<string, string> = {};
   const args: string[] = ['--json-stream', '--provider', provider, '--model', model.useModel];
 

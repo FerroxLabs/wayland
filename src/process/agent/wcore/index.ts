@@ -26,6 +26,7 @@ import {
   type VaultPassphraseDelivery,
 } from './envBuilder';
 import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
+import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
@@ -299,6 +300,26 @@ export class WCoreAgent {
     // (it uses the engine's own config.toml), so skip the lookup there.
     const spawnModel = this.options.rawEngineMode ? this.options.model : await hydrateModelForSpawn(this.options.model);
 
+    // Auth-aware surface selection (#865 follow-up): an OpenAI-family model that
+    // would wrongly inherit the Anthropic surface can be served keyless via the
+    // engine's `openai-chatgpt` provider when a ChatGPT subscription is connected,
+    // so a sub-only user (no OpenAI API key) is never dead-ended on "No API key
+    // found". We detect a live subscription by the presence of a ChatGPT OAuth
+    // token in `~/.codex/auth.json` - the SAME store the engine reads for that
+    // provider, so this signal is authoritative for "the keyless spawn will work".
+    // Skipped in raw-engine mode (which ignores the model entirely). The read is
+    // best-effort and must NEVER abort the spawn: on any failure we fall back to
+    // false (the API-key surface), so a transient/unavailable auth store degrades
+    // to unchanged behavior rather than breaking init.
+    let chatGptSubscriptionAvailable = false;
+    if (!this.options.rawEngineMode) {
+      try {
+        chatGptSubscriptionAvailable = (await readCodexAuthFile()) !== null;
+      } catch {
+        chatGptSubscriptionAvailable = false;
+      }
+    }
+
     const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
       spawnModel,
       {
@@ -309,6 +330,7 @@ export class WCoreAgent {
         sessionId: this.options.sessionId,
         resume: this.options.resume,
         rawEngine: this.options.rawEngineMode,
+        chatGptSubscriptionAvailable,
       }
     );
 
