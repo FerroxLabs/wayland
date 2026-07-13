@@ -40,6 +40,7 @@ vi.mock('@process/agent/wcore/toolKeyStore', () => ({
 }));
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
   hydrateModelForSpawn: (m: unknown) => Promise.resolve(m),
+  resolveModelSecretsForSpawn: () => Promise.resolve(null),
 }));
 vi.mock('@process/agent/acp/utils', () => ({ killChild: vi.fn().mockResolvedValue(undefined) }));
 

@@ -59,11 +59,29 @@ describe('mapProvider - OpenAI-family models never route to the Anthropic surfac
     });
   }
 
-  it('routes gpt-5.6-sol to openai and sets OPENAI_API_KEY (not ANTHROPIC_API_KEY)', () => {
-    const { args, env } = buildSpawnConfig(makeModel('anthropic', 'gpt-5.6-sol'), { workspace });
+  it('never leaks the model Anthropic key as OPENAI_API_KEY when no OpenAI key is sourced', () => {
+    // The catalog-only model's OWN apiKey is the ANTHROPIC key (makeModel default
+    // 'test-key'). With no OpenAI key sourced it must NOT be injected as
+    // OPENAI_API_KEY (that would be the doomed wrong-key spawn); instead the spawn
+    // is flagged missing-key so the caller shows the credential-recovery card.
+    const { args, env, missingRequiredApiKey } = buildSpawnConfig(makeModel('anthropic', 'gpt-5.6-sol'), { workspace });
     expect(providerArg(args)).toBe('openai');
-    expect(env.OPENAI_API_KEY).toBe('test-key');
+    expect(env.OPENAI_API_KEY).toBeUndefined();
     expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+    expect(missingRequiredApiKey).toBe(true);
+  });
+
+  it('injects the SEPARATELY-SOURCED OpenAI key (not the model Anthropic key) when one is available', () => {
+    const { args, env, missingRequiredApiKey } = buildSpawnConfig(
+      makeModel('anthropic', 'gpt-5.6-sol', { apiKey: 'sk-ant-model-key' }),
+      { workspace, openAiApiKey: 'sk-openai-sourced' }
+    );
+    expect(providerArg(args)).toBe('openai');
+    expect(env.OPENAI_API_KEY).toBe('sk-openai-sourced');
+    expect(env.OPENAI_API_KEY).not.toBe('sk-ant-model-key');
+    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+    expect(missingRequiredApiKey).toBe(false);
+    expect(args).not.toContain('--base-url');
   });
 
   it('leaves a genuine anthropic model on the anthropic surface', () => {

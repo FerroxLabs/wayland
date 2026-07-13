@@ -33,8 +33,14 @@ vi.mock('@process/agent/wcore/profilePaths', () => ({
 vi.mock('@process/agent/wcore/toolKeyStore', () => ({
   getToolKeyStore: () => Promise.resolve({ collectForwardedEnv: () => ({}) }),
 }));
+// start() may also resolve the connected `openai` provider's key (to prefer the
+// API-key surface for an OpenAI-family model rebound off Anthropic). This model is
+// platform 'openai' so that gated path never runs here, but mock the export so the
+// named import resolves and a future gate change can't turn it into a real
+// DB/keychain read that would break the microtask-only spawn flush below.
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
   hydrateModelForSpawn: (m: unknown) => Promise.resolve(m),
+  resolveModelSecretsForSpawn: () => Promise.resolve(null),
 }));
 const killChildMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 vi.mock('@process/agent/acp/utils', () => ({ killChild: killChildMock }));

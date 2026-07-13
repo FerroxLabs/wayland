@@ -47,6 +47,7 @@ vi.mock('@process/agent/wcore/toolKeyStore', () => ({
 
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
   hydrateModelForSpawn: async (model: unknown) => model,
+  resolveModelSecretsForSpawn: async () => null,
 }));
 
 vi.mock('@process/secrets', () => ({

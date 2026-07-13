@@ -21,6 +21,7 @@ import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
   engineInheritsShellKey,
+  isOpenAIFamilyModelId,
   MissingApiKeyError,
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
@@ -28,7 +29,8 @@ import {
 import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
@@ -320,6 +322,41 @@ export class WCoreAgent {
       }
     }
 
+    // #866 follow-up (reliable-surface preference): an OpenAI-family model rebound
+    // off the Anthropic surface (envBuilder's guard) is served RELIABLY only on the
+    // API-key `openai` surface (api.openai.com serves every gpt-5.6-*); the keyless
+    // ChatGPT-OAuth surface serves a model ONLY if the account is entitled to it
+    // (gpt-5.6-sol/luna 400/404 on many real subs). So prefer the key surface
+    // whenever the user has a configured OpenAI provider key. The catalog-only
+    // model's OWN `apiKey` is the ANTHROPIC key, NOT an OpenAI key, so we source the
+    // connected `openai` provider's key HERE and thread its value in, and the env
+    // builder injects OPENAI_API_KEY from it (never from `model.apiKey`).
+    //
+    // Gated to exactly the case the guard can fire (`platform: 'anthropic'` +
+    // OpenAI-family id) so no provider-store read happens on an ordinary spawn, and
+    // skipped in raw-engine mode (which ignores the model). Best-effort and never
+    // fatal: any resolution failure yields no key, so the guard degrades to the
+    // keyless OAuth fallback (or a recoverable missing-key) rather than aborting
+    // init - the same fail-safe posture as the ChatGPT-sub read above.
+    let openAiApiKey: string | undefined;
+    if (
+      !this.options.rawEngineMode &&
+      spawnModel.platform === 'anthropic' &&
+      isOpenAIFamilyModelId(spawnModel.useModel)
+    ) {
+      try {
+        const secrets = await resolveModelSecretsForSpawn({
+          providerId: 'openai',
+          accountId: spawnModel.accountId ?? DEFAULT_ACCOUNT_ID,
+          modelId: spawnModel.useModel,
+        });
+        const key = secrets?.apiKey?.trim();
+        if (key) openAiApiKey = key;
+      } catch {
+        openAiApiKey = undefined;
+      }
+    }
+
     const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
       spawnModel,
       {
@@ -331,6 +368,7 @@ export class WCoreAgent {
         resume: this.options.resume,
         rawEngine: this.options.rawEngineMode,
         chatGptSubscriptionAvailable,
+        openAiApiKey,
       }
     );
 
