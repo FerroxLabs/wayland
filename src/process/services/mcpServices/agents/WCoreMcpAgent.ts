@@ -13,6 +13,7 @@ import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
 import { ensurePlaywrightChromium } from '../playwrightBrowsers';
 import { BUILTIN_PLAYWRIGHT_ID } from '@process/resources/builtinMcp/constants';
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 
 /**
  * wayland-core config.toml transport type (kebab-case)
@@ -118,14 +119,17 @@ function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
 /**
  * Convert a wayland IMcpServer to a wayland-core server config entry
  */
-function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
+export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
   const wcoreType = toWCoreTransportType(server.transport.type);
 
   if (server.transport.type === 'stdio') {
+    // #827: resolve a bare `npx` runtime hint to the bundled Bun runtime so the
+    // wcore Rust engine spawns something it can actually launch on Windows.
+    const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
     const config: WCoreServerConfig = {
       transport: wcoreType,
-      command: server.transport.command,
-      args: server.transport.args?.length ? server.transport.args : undefined,
+      command: spawn.command,
+      args: spawn.args.length ? spawn.args : undefined,
     };
     if (server.transport.env && Object.keys(server.transport.env).length > 0) {
       config.env = server.transport.env;

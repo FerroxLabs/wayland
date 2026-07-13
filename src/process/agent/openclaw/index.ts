@@ -59,6 +59,17 @@ export interface OpenClawAgentConfig {
 }
 
 /**
+ * #756: normalize a gateway host so the already-listening probe and the actual
+ * WebSocket connection always target the SAME interface. 'localhost' is pinned to
+ * IPv4 (127.0.0.1) because on Windows it commonly resolves to ::1 first while the
+ * gateway binds 127.0.0.1 — a divergence that made the probe pass but the real
+ * connection land on the wrong interface. Pure/exported for tests.
+ */
+export function normalizeGatewayHost(host: string): string {
+  return host === 'localhost' ? '127.0.0.1' : host;
+}
+
+/**
  * OpenClaw Agent using Gateway WebSocket connection
  *
  * Similar to AcpAgent but uses WebSocket to communicate with
@@ -120,6 +131,13 @@ export class OpenClawAgent {
       const useExternal = gatewayConfig.useExternalGateway ?? false;
       const port = gatewayConfig.port || getGatewayPort();
       const host = gatewayConfig.host || 'localhost';
+      // #756: pin 'localhost' to IPv4. On Windows 'localhost' commonly resolves to
+      // ::1 (IPv6) first, but the gateway typically binds 127.0.0.1 — so the raw
+      // 'localhost' WebSocket lands on the wrong interface (connect failure, or a
+      // different service on ::1 that fails the handshake, surfacing as "protocol
+      // mismatch / connector failure"). Use one normalized host for BOTH the
+      // already-listening probe and the actual connection so they never diverge.
+      const connectHost = normalizeGatewayHost(host);
 
       // Auto-load token/password from OpenClaw config if not explicitly provided
       const token = gatewayConfig.token ?? getGatewayAuthToken() ?? undefined;
@@ -129,8 +147,7 @@ export class OpenClawAgent {
       if (!useExternal) {
         // If a gateway is already listening on the target port, don't try to spawn another one.
         // This avoids failures like "port already in use" when the user runs the Gateway service via launchd/systemd.
-        const probeHost = host === 'localhost' ? '127.0.0.1' : host;
-        const alreadyListening = await isTcpPortOpen(probeHost, port);
+        const alreadyListening = await isTcpPortOpen(connectHost, port);
         if (alreadyListening) {
           // Gateway already running, skip spawning
         } else {
@@ -150,7 +167,7 @@ export class OpenClawAgent {
 
       // Create and configure connection
       this.connection = new OpenClawGatewayConnection({
-        url: `ws://${host}:${port}`,
+        url: `ws://${connectHost}:${port}`,
         token,
         password,
         onEvent: (evt) => this.handleEvent(evt),

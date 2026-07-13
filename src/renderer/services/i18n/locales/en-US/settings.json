@@ -1805,6 +1805,7 @@
       "chatgptOffline": "Couldn't reach OpenAI. Check your connection and try again.",
       "chatgptCancelled": "ChatGPT sign-in was cancelled.",
       "chatgptFailed": "ChatGPT sign-in failed. Please try again.",
+      "chatgptHeadless": "This machine has no browser, so ChatGPT sign-in can't open one. Forward the sign-in port over SSH — run `ssh -L 1455:localhost:1455 user@host`, then click Sign in again and finish in your local browser. Or run `codex login` on your own machine, copy ~/.codex/auth.json to this host, and Wayland will reuse it.",
       "browse": "Browse all 30+ providers →",
       "thatProvider": "that provider",
       "errorUnauthorized": "That {{provider}} key was rejected, unauthorized. Check the key and try again.",

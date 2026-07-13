@@ -109,7 +109,12 @@ export type ChatGptPlanLabel = 'free' | 'plus' | 'pro' | 'team' | 'enterprise' |
 
 export type ChatGptOAuthResult =
   | { ok: true; planType: ChatGptPlanLabel }
-  | { ok: false; error: 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'unknown' };
+  | {
+      ok: false;
+      // 'headless' (#525): a headless/remote host with no local browser + an
+      // unreachable localhost callback — surfaced with SSH-port-forward guidance.
+      error: 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'headless' | 'unknown';
+    };
 
 /**
  * Result of connecting a single pasted API key during onboarding

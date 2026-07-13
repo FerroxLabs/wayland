@@ -53,6 +53,10 @@ type Extra = Record<string, unknown>;
 function arm(
   opts: {
     focused?: boolean;
+    /** Which chat is on screen. Defaults to the completed one ('conv-1'), so a
+     *  focused window means "watching this chat". Set to another id or null to
+     *  exercise the multitask case. */
+    foregroundConversationId?: string | null;
     extra?: Extra;
     workflowStatus?: string | null;
     source?: string;
@@ -62,6 +66,8 @@ function arm(
 ): void {
   initTaskCompletionNotifier({
     isAppFocused: () => opts.focused ?? false,
+    getForegroundConversationId: () =>
+      'foregroundConversationId' in opts ? (opts.foregroundConversationId ?? null) : 'conv-1',
     getConversation: async () =>
       opts.noConversation
         ? undefined
@@ -196,6 +202,18 @@ describe('#579 quiet hours — the window WRAPS midnight', () => {
 
 describe('#579 the notifier end-to-end', () => {
   it('CONTROL: notifies when a real task finishes and the app is in the background', async () => {
+    // Pin the clock to daytime: quiet hours now default to 22:00-07:00 even with
+    // no persisted config (see the quiet-hours-default test), so silent=false is
+    // only deterministic outside that window.
+    const RealDate = Date;
+    vi.stubGlobal(
+      'Date',
+      class extends RealDate {
+        constructor() {
+          super(2026, 6, 12, 12, 0); // 12:00, outside the default quiet window
+        }
+      }
+    );
     arm();
     turn();
     await settle();
@@ -208,6 +226,7 @@ describe('#579 the notifier end-to-end', () => {
     expect(arg.body).toContain('Refactor the parser');
     expect(arg.body).not.toContain('acp');
     expect(arg.silent).toBe(false);
+    vi.unstubAllGlobals();
   });
 
   it('does NOT notify on a tool-approval prompt', async () => {
@@ -263,11 +282,27 @@ describe('#579 the notifier end-to-end', () => {
     expect(m.showNotification).not.toHaveBeenCalled();
   });
 
-  it('stays SILENT when a window is focused — the user is already watching', async () => {
-    arm({ focused: true });
+  it('stays quiet when the focused window is showing THIS chat — already watching', async () => {
+    arm({ focused: true, foregroundConversationId: 'conv-1' });
     turn();
     await settle();
     expect(m.showNotification).not.toHaveBeenCalled();
+  });
+
+  it('#579 follow-up: STILL notifies when focused but on a DIFFERENT chat (multitask)', async () => {
+    // The whole point of #579: you kicked off a task, switched to another chat,
+    // and are no longer watching the first. An app-wide focus gate wrongly ate this.
+    arm({ focused: true, foregroundConversationId: 'conv-2' });
+    turn();
+    await settle();
+    expect(m.showNotification).toHaveBeenCalledTimes(1);
+  });
+
+  it('#579 follow-up: notifies when focused but on no chat at all (list/settings view)', async () => {
+    arm({ focused: true, foregroundConversationId: null });
+    turn();
+    await settle();
+    expect(m.showNotification).toHaveBeenCalledTimes(1);
   });
 
   it('respects notifications.agentFinished = false', async () => {
@@ -328,5 +363,37 @@ describe('#579 the notifier end-to-end', () => {
     expect(m.showNotification).toHaveBeenCalledTimes(1);
     expect(m.showNotification.mock.calls[0][0].silent).toBe(true);
     vi.unstubAllGlobals();
+  });
+
+  it('#579 follow-up: the DEFAULT quiet window applies with nothing persisted', async () => {
+    // The settings page shows 22:00-07:00 by default but only wrote it on edit, so
+    // a fresh install had no quietHours config and rang at 3am. The default must
+    // be in effect out of the box.
+    const RealDate = Date;
+    vi.stubGlobal(
+      'Date',
+      class extends RealDate {
+        constructor() {
+          super(2026, 6, 12, 3, 0); // 03:00, inside the default 22:00-07:00
+        }
+      }
+    );
+    config(); // NOTHING persisted — notifications.quietHours is undefined
+    arm();
+    turn();
+    await settle();
+    expect(m.showNotification).toHaveBeenCalledTimes(1);
+    expect(m.showNotification.mock.calls[0][0].silent).toBe(true); // silenced by the default window
+    vi.unstubAllGlobals();
+  });
+
+  it('#579 follow-up: a secret in an engine error is redacted before it hits the banner', async () => {
+    arm();
+    turn({ state: 'error', detail: 'auth failed: token=sk-ant-SECRETSECRETSECRETSECRET1234567890 rejected' });
+    await settle();
+
+    const body = m.showNotification.mock.calls[0][0].body as string;
+    expect(body).not.toContain('sk-ant-SECRETSECRETSECRETSECRET1234567890');
+    expect(body).toContain('agentError'); // still an error banner, just redacted
   });
 });
