@@ -2118,14 +2118,32 @@ ${collectedResponses.join('\n')}`;
    * cheap in-place path.
    */
   async setModel(modelId: string): Promise<AcpModelInfo | null> {
+    // Durable-first for codex and the generic ACP CLIs: persist the user's
+    // REQUESTED model id to the conversation record BEFORE the live init /
+    // set_model round-trip, so the pick survives a disconnected or unspawnable
+    // agent instead of silently snapping back (the codex "Select Model" revert).
+    // Claude is excluded — its pick is a cc-switch / native slot that is
+    // normalized and persisted by respawnForRoutingChange below, and writing the
+    // raw registry id here would fight that. Flux ids are carried by the spawn
+    // env and persisted by their own branch below, so they skip the early write.
+    const earlyPersistEligible = this.options.backend !== 'claude' && !isFluxModelId(modelId);
+    if (earlyPersistEligible) {
+      this.persistedModelId = modelId;
+      this.options.currentModelId = modelId;
+      await this.saveModelId(modelId);
+    }
+
     if (!this.agent) {
       try {
         await this.initAgent(this.options);
       } catch {
-        return null;
+        // Spawn failed, but for an early-persisted backend the pick is already
+        // durable on the record — report it back (persisted-model info) instead
+        // of null so the picker reflects the selection rather than reverting.
+        return earlyPersistEligible ? this.getModelInfo() : null;
       }
     }
-    if (!this.agent) return null;
+    if (!this.agent) return earlyPersistEligible ? this.getModelInfo() : null;
 
     // Detect a routing-boundary crossing: does the NEW model route differently
     // than what is currently live? `this.lastRouting` was set by the spawn that
@@ -2161,17 +2179,23 @@ ${collectedResponses.join('\n')}`;
 
     const result = await this.agent.setModelByConfigOption(modelId);
     if (result) {
-      this.persistedModelId = result.currentModelId;
+      // The bridge echoes the live model. On success `result.currentModelId`
+      // equals the requested id; on a 10s timeout setModelByConfigOption falls
+      // back to the agent's CACHED (default) info, whose currentModelId is NOT
+      // the user's pick. For an early-persisted backend, that stale echo must not
+      // clobber the requested id we already persisted — keep the requested id.
+      const confirmedId = earlyPersistEligible && result.currentModelId !== modelId ? modelId : result.currentModelId;
+      this.persistedModelId = confirmedId;
       // S6: await (was fire-and-forget) so a persist failure can't surface as an
       // unhandled rejection and the selected model is actually persisted before
       // returning (matters for resume).
-      await this.saveModelId(result.currentModelId);
+      await this.saveModelId(confirmedId);
       // Update cached models so Guid page defaults to the newly selected model
       if (result.availableModels?.length > 0) {
         void this.cacheModelList(result);
       }
     }
-    return result;
+    return result ?? (earlyPersistEligible ? this.getModelInfo() : null);
   }
 
   /**

@@ -64,6 +64,11 @@ import { validateProviderBaseUrl } from '../sources/validateBaseUrl';
 import { ModelRefreshScheduler } from '../scheduler/ModelRefreshScheduler';
 import { CliAgentSource, isEnumerableCliAgent } from '../sources/CliAgentSource';
 import type { CliAgentKey } from '../sources/CliAgentSource';
+import {
+  CLI_UNDERLYING_PROVIDER,
+  CLI_OAUTH_PROVIDERS,
+  ACP_BACKEND_UNDERLYING_PROVIDER,
+} from '../backendProviderResolution';
 import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAssembler';
 import { Curator } from '../catalog/Curator';
 import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/providerCatalogStore';
@@ -121,54 +126,10 @@ const CLOUD_REQUIRED_FIELDS: Record<string, readonly string[]> = {
 /** The CLI agent keys, mirrored from `CliAgentSource`. */
 const CLI_AGENT_KEYS: ReadonlySet<string> = new Set<CliAgentKey>(['claude', 'codex', 'gemini']);
 
-/** The provider each CLI agent runs (used for the not-connected models.dev
- * fallback - must be a models.dev-keyed provider). */
-const CLI_UNDERLYING_PROVIDER: Record<CliAgentKey, ProviderId> = {
-  claude: 'anthropic',
-  codex: 'openai',
-  gemini: 'google-gemini',
-};
-
-/**
- * OAuth/subscription providers a CLI may be authenticated through, BEYOND its
- * primary `CLI_UNDERLYING_PROVIDER` API-key provider (#374). Codex authenticates
- * via a ChatGPT subscription (`chatgpt-subscription`, OAuth) far more often than
- * an `openai` API key, and that connection persists its OWN live Codex-backend
- * catalog (`buildChatGptSubscriptionCatalogLive`). When one of these is
- * connected the home picker must use its real catalog instead of synthesizing
- * the (unconnected, therefore empty) API-key provider - the gap #377 missed,
- * which made the Codex picker fall back to Flux-only for subscription users.
- */
-const CLI_OAUTH_PROVIDERS: Record<CliAgentKey, ProviderId[]> = {
-  claude: [],
-  codex: [CHATGPT_SUBSCRIPTION_PROVIDER_ID],
-  gemini: [],
-};
-
-/**
- * Vendor-locked ACP backends (#374): single-provider CLIs whose home-picker
- * catalog is synthesized from the models.dev registry, exactly like a
- * non-enumerable CLI. Each maps to the one provider it runs, so the picker
- * surfaces real models BEFORE the first connection instead of dead-ending on
- * the "available after first connection" tooltip. Truly multi-provider CLIs
- * (goose, droid, auggie, cursor, …) are intentionally absent: they have no
- * single underlying provider, so they keep returning an empty curated set (the
- * picker then offers Flux Auto when the backend is Flux-routable).
- *
- * `opencode` is mapped to the `opencode-go` gateway it is vendored alongside
- * (#407): the OpenCode agent's picker dead-ended on the tooltip even with
- * opencode-go "Connected · N models", because nothing surfaced that connected
- * catalog. When opencode-go is connected, `synthesizeProvider` returns its real
- * catalog; when it is not, opencode-go has no models.dev slice so the result is
- * empty (cold-start parity with the old behavior, no misleading vendor list).
- */
-const ACP_BACKEND_UNDERLYING_PROVIDER: Record<string, ProviderId> = {
-  grok: 'xai',
-  kimi: 'moonshot',
-  qwen: 'qwen',
-  vibe: 'mistral',
-  opencode: 'opencode-go',
-};
+// `CLI_UNDERLYING_PROVIDER`, `CLI_OAUTH_PROVIDERS`, and
+// `ACP_BACKEND_UNDERLYING_PROVIDER` are the canonical backend -> provider maps,
+// now sourced from `../backendProviderResolution` so the Teams default-model
+// resolver shares the exact same knowledge and the two cannot drift.
 
 // ─── Injectable dependencies ──────────────────────────────────────────────────
 

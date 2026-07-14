@@ -43,8 +43,24 @@ export function resolvePinnedModelInfo(
     const match = next.availableModels.find(
       (m) => m.id === sel || (pins.backend === 'claude' && sel.toLowerCase().includes(m.id.toLowerCase()))
     );
-    if (match && next.currentModelId !== match.id) {
-      return { ...next, currentModelId: match.id, currentModelLabel: match.label || match.id };
+    if (match) {
+      if (next.currentModelId !== match.id) {
+        return { ...next, currentModelId: match.id, currentModelLabel: match.label || match.id };
+      }
+      return next;
+    }
+    // No advertised row matches the pick. Claude always advertises its slots, so a
+    // no-match here is a non-claude ACP backend (codex, qwen, …) whose background
+    // acp_model_info / poll reports the agent's DEFAULT, not the user's pick —
+    // dropping to `next` there silently reverts the selection (the codex pick
+    // vanishes). Hold the pick as currentModelId so it survives the event. Claude
+    // keeps its existing behavior, and the backend-less path (no `backend`, e.g. a
+    // solo cold-start before a backend is known) also stays unchanged so a truly
+    // no-longer-offered selection still falls through to the agent value. This
+    // never coerces onto a look-alike row (e.g. gpt-5-codex -> gpt-5); it holds
+    // the exact id the user chose.
+    if (pins.backend && pins.backend !== 'claude' && next.currentModelId !== sel) {
+      return { ...next, currentModelId: sel, currentModelLabel: sel };
     }
   }
   return next;

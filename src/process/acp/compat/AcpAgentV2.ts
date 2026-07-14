@@ -912,6 +912,29 @@ export class AcpAgentV2 {
       if (!this.cachedModelInfo || this.cachedModelInfo.availableModels.length === 0) {
         return buildClaudeSlotModelInfo(this.userModelOverride ?? this.cachedModelInfo?.currentModelId);
       }
+      return this.cachedModelInfo;
+    }
+
+    // Non-claude ACP backends (codex, qwen, …): a background model event / poll
+    // overwrites cachedModelInfo with the agent's DEFAULT after a turn, which
+    // drops the user's in-chat pick (userModelOverride) — the same revert #136/
+    // #146/#149 fixed for claude, but claude was the only backend the override
+    // was honored for. When we hold an override the cached list still offers (or
+    // the list is empty), report the override instead of the reverted default so
+    // a codex pick sticks. Flux ids ride the spawn env and are surfaced by the
+    // renderer's flux pin, so they are intentionally not overlaid here.
+    const override = this.userModelOverride;
+    const cached = this.cachedModelInfo;
+    if (override && !isFluxModelId(override) && cached && cached.currentModelId !== override) {
+      const models = cached.availableModels ?? [];
+      if (models.length === 0 || models.some((m) => m.id === override)) {
+        const selected = models.find((m) => m.id === override);
+        return {
+          ...cached,
+          currentModelId: override,
+          currentModelLabel: selected?.label ?? override,
+        };
+      }
     }
     return this.cachedModelInfo;
   }
