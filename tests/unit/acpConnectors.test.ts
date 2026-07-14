@@ -390,11 +390,15 @@ describe('connectClaude - detached process group', () => {
     const setup = vi.fn().mockResolvedValue(undefined);
     const cleanup = vi.fn().mockResolvedValue(undefined);
 
-    await connectClaude('/cwd', { setup, cleanup }, {
-      ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
-      ANTHROPIC_AUTH_TOKEN: 'sk-flux-key',
-      ANTHROPIC_MODEL: 'flux-auto',
-    });
+    await connectClaude(
+      '/cwd',
+      { setup, cleanup },
+      {
+        ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
+        ANTHROPIC_AUTH_TOKEN: 'sk-flux-key',
+        ANTHROPIC_MODEL: 'flux-auto',
+      }
+    );
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
@@ -483,7 +487,12 @@ describe('spawnGenericBackend - detached process group', () => {
   });
 });
 
-describe('connectCodex - Windows package selection', () => {
+function setPlatform(platform: NodeJS.Platform, arch: string): void {
+  Object.defineProperty(process, 'platform', { value: platform, configurable: true });
+  Object.defineProperty(process, 'arch', { value: arch, configurable: true });
+}
+
+describe('connectCodex - App Server adapter package', () => {
   let originalPlatform: PropertyDescriptor | undefined;
   let originalArch: PropertyDescriptor | undefined;
   const mockChild = { unref: vi.fn() };
@@ -491,8 +500,6 @@ describe('connectCodex - Windows package selection', () => {
   beforeEach(() => {
     originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
     originalArch = Object.getOwnPropertyDescriptor(process, 'arch');
-    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-    Object.defineProperty(process, 'arch', { value: 'x64', configurable: true });
     mockExecFileSync.mockImplementation(() => 'v20.10.0\n' as never);
     mockSpawn.mockReturnValue(mockChild as unknown as ReturnType<typeof spawn>);
     mockFsPromises.readdir.mockRejectedValue(new Error('cache not found'));
@@ -509,178 +516,45 @@ describe('connectCodex - Windows package selection', () => {
     vi.clearAllMocks();
   });
 
-  it('uses the direct Windows platform package first with bundled bun', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {}),
-      cleanup: vi.fn(async () => {}),
-    };
+  // The App-Server adapter (@agentclientprotocol/codex-acp) is a single pure-JS
+  // package with NO per-platform binary sub-packages, so every OS/arch launches
+  // the exact same specifier via bundled bun. (resolveBridgePackage is mocked to
+  // echo the pinned fallback, so we assert against CODEX_ACP_NPX_PACKAGE.)
+  it.each([
+    ['win32', 'x64', 'C:\\cwd'],
+    ['linux', 'x64', '/cwd'],
+    ['darwin', 'arm64', '/cwd'],
+  ])('launches the meta App Server adapter on %s/%s (no platform sub-package)', async (platform, arch, cwd) => {
+    setPlatform(platform as NodeJS.Platform, arch);
+    const hooks = { setup: vi.fn(async () => {}), cleanup: vi.fn(async () => {}) };
 
-    await connectCodex('C:\\cwd', hooks);
+    await connectCodex(cwd, hooks);
 
+    expect(mockSpawn).toHaveBeenCalledTimes(1);
     const [command, args] = mockSpawn.mock.calls[0];
     // SEC-ACP-04: bundled bun is spawned directly (shell: false), no chcp prefix.
     expect(command).toBe('/bundled/bun');
     expect(args).toContain('x');
     expect(args).toContain('--bun');
-    expect(args).toContain('@zed-industries/codex-acp-win32-x64@0.9.5');
+    expect(args).toContain('@agentclientprotocol/codex-acp@1.1.2');
+    // The retired Zed bridge (and its per-platform binaries) is never referenced.
+    expect((args as string[]).some((a) => typeof a === 'string' && a.includes('@zed-industries/codex-acp'))).toBe(
+      false
+    );
   });
 
-  it('uses the direct Windows platform package first when startup succeeds', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {}),
-      cleanup: vi.fn(async () => {}),
-    };
-
-    await connectCodex('C:\\cwd', hooks);
-
-    const [, args] = mockSpawn.mock.calls[0];
-    expect(args).toContain('@zed-industries/codex-acp-win32-x64@0.9.5');
-    expect(args).not.toContain('@zed-industries/codex-acp@0.9.5');
-    expect(mockChild.unref).not.toHaveBeenCalled();
-  });
-
-  it('falls back to the meta package when the direct Windows platform package times out', async () => {
+  it('makes a single spawn attempt and cleans up on startup failure (no platform-package retry)', async () => {
+    setPlatform('darwin', 'arm64');
     const hooks = {
       setup: vi.fn(async () => {
-        const [, args] = mockSpawn.mock.calls.at(-1) ?? [];
-        if (Array.isArray(args) && args.includes('@zed-industries/codex-acp-win32-x64@0.9.5')) {
-          throw new Error('Request initialize timed out after 60 seconds');
-        }
+        throw new Error('Request initialize timed out after 60 seconds');
       }),
       cleanup: vi.fn(async () => {}),
     };
 
-    await connectCodex('C:\\cwd', hooks);
-
-    const firstCallArgs = mockSpawn.mock.calls[0]?.[1];
-    const secondCallArgs = mockSpawn.mock.calls[1]?.[1];
-
-    expect(firstCallArgs).toContain('@zed-industries/codex-acp-win32-x64@0.9.5');
-    expect(secondCallArgs).toContain('@zed-industries/codex-acp@0.9.5');
-  });
-});
-
-describe('connectCodex - Linux package selection', () => {
-  let originalPlatform: PropertyDescriptor | undefined;
-  let originalArch: PropertyDescriptor | undefined;
-  const mockChild = { unref: vi.fn() };
-
-  beforeEach(() => {
-    originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
-    originalArch = Object.getOwnPropertyDescriptor(process, 'arch');
-    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
-    Object.defineProperty(process, 'arch', { value: 'x64', configurable: true });
-    mockExecFileSync.mockImplementation(() => 'v20.10.0\n' as never);
-    mockSpawn.mockReturnValue(mockChild as unknown as ReturnType<typeof spawn>);
-    mockFsPromises.readdir.mockRejectedValue(new Error('cache not found'));
-    mockFsPromises.stat.mockRejectedValue(new Error('not found'));
-  });
-
-  afterEach(() => {
-    if (originalPlatform) {
-      Object.defineProperty(process, 'platform', originalPlatform);
-    }
-    if (originalArch) {
-      Object.defineProperty(process, 'arch', originalArch);
-    }
-    vi.clearAllMocks();
-  });
-
-  it('uses the direct Linux platform package first with bundled bun', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {}),
-      cleanup: vi.fn(async () => {}),
-    };
-
-    await connectCodex('/cwd', hooks);
-
-    const [command, args] = mockSpawn.mock.calls[0];
-    expect(command).toBe('/bundled/bun');
-    expect(args).toContain('x');
-    expect(args).toContain('--bun');
-    expect(args).toContain('@zed-industries/codex-acp-linux-x64@0.9.5');
-  });
-
-  it('uses the direct Linux platform package first when startup succeeds', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {}),
-      cleanup: vi.fn(async () => {}),
-    };
-
-    await connectCodex('/cwd', hooks);
-
-    const [, args] = mockSpawn.mock.calls[0];
-    expect(args).toContain('@zed-industries/codex-acp-linux-x64@0.9.5');
-    expect(args).not.toContain('@zed-industries/codex-acp@0.9.5');
-    expect(mockChild.unref).not.toHaveBeenCalled();
-  });
-
-  it('falls back to the meta package when the direct Linux platform package times out', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {
-        const [, args] = mockSpawn.mock.calls.at(-1) ?? [];
-        if (Array.isArray(args) && args.includes('@zed-industries/codex-acp-linux-x64@0.9.5')) {
-          throw new Error('Request initialize timed out after 60 seconds');
-        }
-      }),
-      cleanup: vi.fn(async () => {}),
-    };
-
-    await connectCodex('/cwd', hooks);
-
-    const firstCallArgs = mockSpawn.mock.calls[0]?.[1];
-    const secondCallArgs = mockSpawn.mock.calls[1]?.[1];
-
-    expect(firstCallArgs).toContain('@zed-industries/codex-acp-linux-x64@0.9.5');
-    expect(secondCallArgs).toContain('@zed-industries/codex-acp@0.9.5');
-  });
-});
-
-describe('connectCodex - Darwin optional dependency fallback', () => {
-  let originalPlatform: PropertyDescriptor | undefined;
-  let originalArch: PropertyDescriptor | undefined;
-
-  beforeEach(() => {
-    originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
-    originalArch = Object.getOwnPropertyDescriptor(process, 'arch');
-    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
-    Object.defineProperty(process, 'arch', { value: 'x64', configurable: true });
-    mockExecFileSync.mockImplementation(() => 'v20.10.0\n' as never);
-    mockSpawn.mockReturnValue({ unref: vi.fn() } as unknown as ReturnType<typeof spawn>);
-    mockFsPromises.readdir.mockRejectedValue(new Error('cache not found'));
-    mockFsPromises.stat.mockRejectedValue(new Error('not found'));
-  });
-
-  afterEach(() => {
-    if (originalPlatform) {
-      Object.defineProperty(process, 'platform', originalPlatform);
-    }
-    if (originalArch) {
-      Object.defineProperty(process, 'arch', originalArch);
-    }
-    vi.clearAllMocks();
-  });
-
-  it('retries with the direct Darwin platform package when the meta package misses its optional binary', async () => {
-    const hooks = {
-      setup: vi.fn(async () => {
-        const [, args] = mockSpawn.mock.calls.at(-1) ?? [];
-        if (Array.isArray(args) && args.includes('@zed-industries/codex-acp@0.9.5')) {
-          throw new Error(
-            "Error resolving package: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@zed-industries/codex-acp-darwin-x64' imported from /tmp/codex-acp.js\n" +
-              'Failed to locate @zed-industries/codex-acp-darwin-x64 binary. This usually means the optional dependency was not installed.'
-          );
-        }
-      }),
-      cleanup: vi.fn(async () => {}),
-    };
-
-    await connectCodex('/cwd', hooks);
-
-    const firstCallArgs = mockSpawn.mock.calls[0]?.[1];
-    const secondCallArgs = mockSpawn.mock.calls[1]?.[1];
-
-    expect(firstCallArgs).toContain('@zed-industries/codex-acp@0.9.5');
-    expect(secondCallArgs).toContain('@zed-industries/codex-acp-darwin-x64@0.9.5');
+    await expect(connectCodex('/cwd', hooks)).rejects.toThrow(/timed out/);
+    // No candidate-fallback list anymore: one spawn, then propagate.
+    expect(mockSpawn).toHaveBeenCalledTimes(1);
+    expect(hooks.cleanup).toHaveBeenCalled();
   });
 });

@@ -8,8 +8,13 @@
 // the LATEST published version of each bridge via bridgeVersionResolver (so new
 // models/features land automatically); these pins are used only when the npm
 // registry is unreachable. Keep them at a recent known-good version.
-export const CODEX_ACP_BRIDGE_VERSION = '0.9.5';
-export const CODEX_ACP_NPX_PACKAGE = `@zed-industries/codex-acp@${CODEX_ACP_BRIDGE_VERSION}`;
+// Codex uses the actively-maintained App-Server adapter, NOT the retired
+// @zed-industries/codex-acp (which statically embedded codex-core rust-v0.137.0
+// and so version-gated out of new models like gpt-5.6-sol). The new adapter
+// drives the live `codex app-server`, so it tracks the current Codex release and
+// new models work automatically. Zed handed the project off here on 2026-06-22.
+export const CODEX_ACP_BRIDGE_VERSION = '1.1.2';
+export const CODEX_ACP_NPX_PACKAGE = `@agentclientprotocol/codex-acp@${CODEX_ACP_BRIDGE_VERSION}`;
 
 export const CLAUDE_ACP_BRIDGE_VERSION = '0.44.0';
 export const CLAUDE_ACP_NPX_PACKAGE = `@agentclientprotocol/claude-agent-acp@${CLAUDE_ACP_BRIDGE_VERSION}`;

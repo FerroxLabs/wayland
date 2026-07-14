@@ -45,6 +45,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 **Install:** `curl -fsSL https://claude.ai/install.sh | bash` (macOS/Linux/WSL, auto-updates). Windows PowerShell: `irm https://claude.ai/install.ps1 | iex`. Also `brew install --cask claude-code` (no auto-update) or `npm install -g @anthropic-ai/claude-code` (Node 18+). Never `sudo npm -g`. The native installer lands `claude` in `~/.local/bin`, so confirm that is on PATH.
 
 **Auth (two paths):**
+
 - Subscription (Pro/Max/Team/Enterprise), recommended: `claude auth login` (browser OAuth). Headless long-lived token: `claude setup-token`. The free Claude.ai plan does NOT include Claude Code.
 - API key (Console pay-as-you-go): `claude auth login --console`, or `export ANTHROPIC_API_KEY=sk-ant-...`.
 
@@ -60,9 +61,10 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 ## Codex (command: `codex`), OpenAI
 
-**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. The ACP bridge `@zed-industries/codex-acp` is separate and requires `codex` on PATH.
+**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. Wayland's ACP adapter is `@agentclientprotocol/codex-acp` (the App Server adapter — the retired `@zed-industries/codex-acp` embedded a frozen codex-core and version-gated out of new models). It bundles a compatible `codex`, so a PATH install is optional; set `CODEX_PATH` to force a specific binary.
 
 **Auth (via `codex login`, NOT `codex auth`):**
+
 - ChatGPT sign-in (Plus/Pro/Team/Enterprise quota): `codex login` (browser); headless `codex login --device-auth`.
 - API key (API rates): `printenv OPENAI_API_KEY | codex login --with-api-key`, or `codex login` and pick the API-key option. Stored in `~/.codex/auth.json`.
 
@@ -72,7 +74,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 **Top gotchas:** it is `codex login`, not `codex auth`; codex-acp needs `codex` on PATH; the spawn environment must carry `~/.codex/auth.json` (consistent HOME) or `OPENAI_API_KEY`; ChatGPT login fails headless without `--device-auth`; API-key billing is at API rates.
 
-**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · bridge https://github.com/zed-industries/codex-acp
+**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · adapter https://github.com/agentclientprotocol/codex-acp
 
 ---
 
@@ -81,6 +83,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 **Install:** `uv tool install kimi-cli` (package `kimi-cli`, binary `kimi`; needs `uv`; pin Python with `--python 3.14` if needed). Lands `~/.local/bin/kimi`.
 
 **Auth (the number-one trap: OAuth required, not an API key):**
+
 - `kimi login` (browser OAuth) writes `~/.kimi/credentials/kimi-code.json`. The default model `kimi-code/kimi-for-coding` uses the `managed:kimi-code` provider, which is satisfied ONLY by this OAuth login.
 - A static Moonshot `sk-...` key authenticates only the separate `managed:moonshot-ai` provider. A key alone will NOT make `kimi acp` work with the default coding model: the server returns AUTH_REQUIRED. To use the default model, you must run `kimi login`.
 
@@ -101,6 +104,7 @@ This is SST's `sst/opencode` (npm package `opencode-ai`), not the unrelated Go p
 **Install:** `curl -fsSL https://opencode.ai/install | bash`, or `npm install -g opencode-ai`, or `brew install opencode`. Detect by PATH/binary presence, not by package manager (brew may report "not installed" when it was installed via npm).
 
 **Auth / providers (BYOK):**
+
 - Interactive: `opencode auth login` (writes `~/.local/share/opencode/auth.json`); `-p <provider> -m <method>` to skip prompts.
 - Env vars: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`/`GOOGLE_GENERATIVE_AI_API_KEY`, `GROQ_API_KEY`, and the AWS/Azure/Vertex sets.
 - Config `~/.config/opencode/opencode.json`: provider blocks with `apiKey: "{env:VAR}"` interpolation plus `baseURL`/`headers` (the `baseURL` override is how you point OpenCode at a proxy or router).
@@ -122,6 +126,7 @@ A Gemini-CLI fork for Qwen3-Coder. Package `@qwen-code/qwen-code`.
 **Install:** `npm install -g @qwen-code/qwen-code@latest`, or `brew install qwen-code`. Node 20+. Shares Gemini-CLI's settings/extensions/MCP architecture.
 
 **Auth (the Qwen OAuth free tier was discontinued in April 2026, so do not lead with it):**
+
 - `qwen auth api-key` (BYOK, recommended: DashScope/OpenAI/Anthropic/Gemini).
 - `qwen auth coding-plan` (Alibaba Cloud Coding Plan; endpoint `https://coding.dashscope.aliyuncs.com/v1`).
 - `qwen auth openrouter`.
