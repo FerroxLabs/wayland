@@ -1966,8 +1966,13 @@ let _migrationScheduled = false;
  *    curated with the old "every unmatched id is a singleton family" rule.
  *  - 1            - polish pass adds usage tags + smarter Curator (legacy
  *    exclusion + recency floor + dedup). One-time refresh re-derives both.
+ *  - 2            - ChatGPT-subscription catalog now live-fetches with the FRESH
+ *    ~/.codex/auth.json token (not the connect-frozen key that expires and
+ *    stranded the catalog on the stale 3-model snapshot, hiding gpt-5.6-*). Bump
+ *    so every existing install auto-refreshes once on boot and picks up its real
+ *    current subscription models — no manual "Refresh models" click required.
  */
-export const CATALOG_DATA_VERSION = 1;
+export const CATALOG_DATA_VERSION = 2;
 
 /**
  * Schedule the one-time legacy-config migration to run once `app.whenReady()`
