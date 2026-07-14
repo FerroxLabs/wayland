@@ -107,7 +107,12 @@ describe('Curator flux hero-exception', () => {
       { ...fluxAuto, id: 'flux-voice', family: 'flux-voice', displayName: 'Flux Voice' },
       { ...fluxAuto, id: 'flux-voice-fast', family: 'flux-voice-fast', displayName: 'Flux Voice Fast' },
       // A real chat arm must survive alongside them.
-      { ...fluxAuto, id: 'perplexity/sonar-reasoning-pro', family: 'sonar', displayName: 'Flux Pinned Sonar Reasoning Pro' },
+      {
+        ...fluxAuto,
+        id: 'perplexity/sonar-reasoning-pro',
+        family: 'sonar',
+        displayName: 'Flux Pinned Sonar Reasoning Pro',
+      },
     ];
     const out = curator.curate(arms);
     expect(out.map((m) => m.id)).toEqual(['perplexity/sonar-reasoning-pro']);
