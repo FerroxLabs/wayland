@@ -192,15 +192,16 @@ export function ensureMinNodeVersion(
       const sep = isWindows ? ';' : ':';
       cleanEnv.PATH = suitableBinDir + sep + (cleanEnv.PATH || '');
 
-      // Verify the corrected PATH actually resolves to a good node (npx uses the same PATH)
+      // Verify the corrected PATH actually resolves to a good node (npx uses the
+      // same PATH). We only care that this does not throw — the version output
+      // itself is unused, so it is not captured.
       try {
-        const correctedVersion = execFileSync(isWindows ? 'node.exe' : 'node', ['--version'], {
+        execFileSync(isWindows ? 'node.exe' : 'node', ['--version'], {
           env: cleanEnv,
           encoding: 'utf-8',
           timeout: 5000,
           stdio: ['pipe', 'pipe', 'pipe'],
-        }).trim();
-        // Version auto-corrected silently
+        });
       } catch {
         console.warn(`[ACP] PATH corrected with ${suitableBinDir} but node verification failed - proceeding anyway`);
       }
