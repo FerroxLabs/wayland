@@ -71,6 +71,13 @@ const CoworkToggle: React.FC<CoworkToggleProps> = ({ workspace, size = 'small', 
 
   if (!workspace) return null;
 
+  // The Radio.Group is wrapped in a stable <span> so Arco's Trigger anchors its
+  // popup to a plain DOM node that stays mounted across composer re-renders.
+  // Anchoring directly to Radio.Group let `findDOMNode` return null mid-render
+  // (e.g. when the selected model is cleared and the send-box subtree churns),
+  // and Arco's `getPopupStyle` then dereferenced `null.offsetParent` — crashing
+  // the whole conversation view with "Cannot read properties of null". The span
+  // is always present while this toggle is mounted, so the anchor never vanishes.
   return (
     <Tooltip
       content={
@@ -85,17 +92,19 @@ const CoworkToggle: React.FC<CoworkToggleProps> = ({ workspace, size = 'small', 
             )
       }
     >
-      <Radio.Group
-        type='button'
-        size={size}
-        value={level}
-        onChange={handleChange}
-        className={className}
-        disabled={saving}
-      >
-        <Radio value='chat'>{t('agentMode.chat', 'Chat')}</Radio>
-        <Radio value='cowork'>{t('agentMode.cowork', 'Cowork')}</Radio>
-      </Radio.Group>
+      <span className='inline-flex'>
+        <Radio.Group
+          type='button'
+          size={size}
+          value={level}
+          onChange={handleChange}
+          className={className}
+          disabled={saving}
+        >
+          <Radio value='chat'>{t('agentMode.chat', 'Chat')}</Radio>
+          <Radio value='cowork'>{t('agentMode.cowork', 'Cowork')}</Radio>
+        </Radio.Group>
+      </span>
     </Tooltip>
   );
 };
