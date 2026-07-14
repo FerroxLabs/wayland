@@ -1449,12 +1449,20 @@ ${collectedResponses.join('\n')}`;
       // so DO NOT clear it as "unavailable" and DO NOT re-send it via set_model
       // (the claude bridge rejects an unlisted id). The env already selected it.
       const isFluxOnFluxBackend = isFluxModelId(this.persistedModelId) && Boolean(getFluxCompat(this.options.backend));
+      // Codex's session capabilities enumerate a narrower model list than the
+      // account can actually use: gpt-5.6-sol/luna/terra come from the live
+      // codex/models catalog the picker reads, but the codex-acp session/new
+      // response drops them. Silently clearing the user's pick then stranded the
+      // header on "Select Model" and ran the default model. Treat the backend as
+      // the source of truth for codex — attempt the switch and let set_model
+      // succeed or surface an honest "falling back" error (handled below).
+      const trustBackendModel = this.options.backend === 'codex';
       if (isFluxOnFluxBackend) {
         // Keep persistedModelId as-is; the env carries the route.
-      } else if (!isModelAvailable) {
+      } else if (!isModelAvailable && !trustBackendModel) {
         mainWarn('[AcpAgentManager]', `Persisted model ${this.persistedModelId} is not in available models, clearing`);
         this.persistedModelId = null;
-      } else if (currentInfo?.currentModelId !== this.persistedModelId) {
+      } else if (!isModelAvailable || currentInfo?.currentModelId !== this.persistedModelId) {
         try {
           await this.agent.setModelByConfigOption(this.persistedModelId);
         } catch (error) {

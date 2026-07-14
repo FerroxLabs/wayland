@@ -221,3 +221,58 @@ describe('AcpAgentManager.setModel durable persistence (codex / ACP)', () => {
     expect(agent.setModelByConfigOption).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * restorePersistedState: codex's session/new capabilities enumerate a narrower
+ * model list than the account can use (gpt-5.6-sol/luna/terra come from the live
+ * codex/models catalog the picker reads, but the session drops them). Clearing the
+ * pick when it is absent from that list stranded the conversation header on
+ * "Select Model" and silently ran the default. For codex we now attempt the switch
+ * instead of clearing; other backends keep the strict clear.
+ */
+type RestoreInternals = {
+  agent: { getModelInfo: ReturnType<typeof vi.fn>; setModelByConfigOption: ReturnType<typeof vi.fn> };
+  persistedModelId: string | null;
+  restorePersistedState: () => Promise<void>;
+};
+
+function enumeratingAgent() {
+  // Advertises only gpt-5 — the user's gpt-5.6-terra pick is NOT in the list.
+  return {
+    getModelInfo: vi.fn(() => ({
+      currentModelId: 'gpt-5',
+      currentModelLabel: 'GPT-5',
+      availableModels: [{ id: 'gpt-5', label: 'GPT-5' }],
+      canSwitch: true,
+      source: 'models' as const,
+    })),
+    setModelByConfigOption: vi.fn(() => Promise.resolve(null)),
+  };
+}
+
+describe('AcpAgentManager.restorePersistedState (unenumerated subscription models)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('codex: keeps a pick absent from the session list and attempts the switch (no silent clear)', async () => {
+    const manager = makeManager('codex', { withAgent: enumeratingAgent() });
+    const internals = manager as unknown as RestoreInternals;
+    internals.persistedModelId = 'gpt-5.6-terra';
+
+    await internals.restorePersistedState();
+
+    // The pick survives (header can confirm it) and the backend was asked to switch.
+    expect(internals.persistedModelId).toBe('gpt-5.6-terra');
+    expect(internals.agent.setModelByConfigOption).toHaveBeenCalledWith('gpt-5.6-terra');
+  });
+
+  it('non-codex: still clears a pick the session does not advertise (strict, no switch attempt)', async () => {
+    const manager = makeManager('qwen', { withAgent: enumeratingAgent() });
+    const internals = manager as unknown as RestoreInternals;
+    internals.persistedModelId = 'legacy-only-model';
+
+    await internals.restorePersistedState();
+
+    expect(internals.persistedModelId).toBeNull();
+    expect(internals.agent.setModelByConfigOption).not.toHaveBeenCalled();
+  });
+});
