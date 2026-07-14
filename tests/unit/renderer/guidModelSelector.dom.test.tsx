@@ -518,6 +518,30 @@ describe('GuidModelSelector home picker', () => {
     expect(screen.getByText('$')).toBeInTheDocument();
   });
 
+  it('labels the composer button from the curated set when a CLI model is picked with no session cache yet', async () => {
+    // Regression: on a brand-new Codex chat the ACP session cache is null, so the
+    // button label resolved only from `currentAcpCachedModelInfo` and fell back to
+    // "Default Model" even after the user picked gpt-5.6-sol — the selection looked
+    // like it did nothing. The label must resolve from the curated catalog (the
+    // same list the dropdown renders), so the pick shows immediately.
+    mockCuratedForAgent.mockResolvedValue([
+      curated({ id: 'gpt-5.6-sol', providerId: 'openai', displayName: 'GPT-5.6-Sol', family: 'GPT-5.6' }),
+      curated({ id: 'gpt-5.6-luna', providerId: 'openai', displayName: 'GPT-5.6-Luna', family: 'GPT-5.6' }),
+    ]);
+    render(
+      <GuidModelSelector
+        {...baseProps}
+        isGeminiMode={false}
+        agentKey='codex'
+        currentAcpCachedModelInfo={null}
+        selectedAcpModel='gpt-5.6-sol'
+      />
+    );
+
+    // The composer button (dropdown closed) reflects the pick, not the default.
+    expect(await screen.findByText('GPT-5.6-Sol')).toBeInTheDocument();
+  });
+
   it('passes the non-secret chat-start handle through to setCurrentModel (audit C4)', async () => {
     // The resolver hands back the NON-SECRET handle (platform + baseUrl +
     // account binding) - no decrypted key. The picker writes the binding into
