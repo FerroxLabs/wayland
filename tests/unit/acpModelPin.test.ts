@@ -105,7 +105,44 @@ describe('resolvePinnedModelInfo', () => {
       selectedModelId: 'gpt-5-codex',
       backend: 'codex',
     });
+    // The pick has no exact row, so it is neither coerced onto the look-alike
+    // "gpt-5" nor dropped back to the agent default "o3" — it is HELD verbatim so
+    // a background acp_model_info event can't revert the codex selection.
+    expect(out.currentModelId).toBe('gpt-5-codex');
+    expect(out.currentModelId).not.toBe('gpt-5');
+    expect(out.currentModelLabel).toBe('gpt-5-codex');
+  });
+
+  it('holds a codex pick when a background event reports the agent default (no exact row)', () => {
+    // The revert bug: the agent poll reports its default "gpt-5" with a list that
+    // does not include the user's picked "gpt-5-codex". Previously this fell
+    // through to the default; now the pick is held.
+    const out = resolvePinnedModelInfo(info('gpt-5', ['gpt-5', 'o3']), {
+      ...NO_PINS,
+      userChangedModel: true,
+      selectedModelId: 'gpt-5-codex',
+      backend: 'codex',
+    });
+    expect(out.currentModelId).toBe('gpt-5-codex');
+  });
+
+  it('pins the exact codex row when the event DOES advertise the pick', () => {
+    const out = resolvePinnedModelInfo(info('gpt-5', ['gpt-5', 'gpt-5-codex']), {
+      ...NO_PINS,
+      userChangedModel: true,
+      selectedModelId: 'gpt-5-codex',
+      backend: 'codex',
+    });
+    expect(out.currentModelId).toBe('gpt-5-codex');
+    expect(out.currentModelLabel).toBe('GPT-5-CODEX'); // friendly label from the row
+  });
+
+  it('does NOT hold a no-longer-offered selection when the backend is unknown (unchanged)', () => {
+    // Backend-less cold-start path keeps the historical "drop to agent value"
+    // behavior — only a known non-claude ACP backend holds an unmatched pick.
+    const next = info('default', ['opus', 'default']);
+    const out = resolvePinnedModelInfo(next, { ...NO_PINS, userChangedModel: true, selectedModelId: 'gone' });
     expect(out).toBe(next);
-    expect(out.currentModelId).toBe('o3');
+    expect(out.currentModelId).toBe('default');
   });
 });
