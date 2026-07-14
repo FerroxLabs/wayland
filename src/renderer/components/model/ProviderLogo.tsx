@@ -26,6 +26,10 @@ const LOGO_BY_NAME: Record<string, string> = Object.fromEntries(
  * curated provider ids; map the recognizable ones onto art we already ship.
  */
 const CATALOG_LOGO_ALIAS: Record<string, string> = {
+  // A ChatGPT subscription IS OpenAI (OAuth instead of an API key), so it must
+  // render OpenAI's real brand logo — not a monogram tile that reads like a
+  // different vendor. We ship `openai.svg`; alias the subscription id onto it.
+  'chatgpt-subscription': 'openai',
   siliconflow: 'siliconflow',
   'siliconflow-cn': 'siliconflow',
   novita: 'novita',
