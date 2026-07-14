@@ -487,15 +487,15 @@ describe('spawnGenericBackend - detached process group', () => {
   });
 });
 
+function setPlatform(platform: NodeJS.Platform, arch: string): void {
+  Object.defineProperty(process, 'platform', { value: platform, configurable: true });
+  Object.defineProperty(process, 'arch', { value: arch, configurable: true });
+}
+
 describe('connectCodex - App Server adapter package', () => {
   let originalPlatform: PropertyDescriptor | undefined;
   let originalArch: PropertyDescriptor | undefined;
   const mockChild = { unref: vi.fn() };
-
-  const setPlatform = (platform: NodeJS.Platform, arch: string) => {
-    Object.defineProperty(process, 'platform', { value: platform, configurable: true });
-    Object.defineProperty(process, 'arch', { value: arch, configurable: true });
-  };
 
   beforeEach(() => {
     originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
