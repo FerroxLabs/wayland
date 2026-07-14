@@ -60,7 +60,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 ## Codex (command: `codex`), OpenAI
 
-**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. The ACP bridge `@zed-industries/codex-acp` is separate and requires `codex` on PATH.
+**Install:** `npm install -g @openai/codex`, or `brew install --cask codex`. Self-update: `codex update`. Wayland's ACP adapter is `@agentclientprotocol/codex-acp` (the App Server adapter — the retired `@zed-industries/codex-acp` embedded a frozen codex-core and version-gated out of new models). It bundles a compatible `codex`, so a PATH install is optional; set `CODEX_PATH` to force a specific binary.
 
 **Auth (via `codex login`, NOT `codex auth`):**
 - ChatGPT sign-in (Plus/Pro/Team/Enterprise quota): `codex login` (browser); headless `codex login --device-auth`.
@@ -72,7 +72,7 @@ Two engine-level facts to keep in mind: Claude Code needs an external ACP adapte
 
 **Top gotchas:** it is `codex login`, not `codex auth`; codex-acp needs `codex` on PATH; the spawn environment must carry `~/.codex/auth.json` (consistent HOME) or `OPENAI_API_KEY`; ChatGPT login fails headless without `--device-auth`; API-key billing is at API rates.
 
-**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · bridge https://github.com/zed-industries/codex-acp
+**Docs:** https://github.com/openai/codex · https://developers.openai.com/codex/auth · adapter https://github.com/agentclientprotocol/codex-acp
 
 ---
 
