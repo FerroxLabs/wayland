@@ -81,8 +81,11 @@ export const PROVIDER_META: Record<NativeProviderId, ProviderMeta> = {
   xai: { id: 'xai', displayName: 'xAI Grok', mono: 'x', bg: '#1a1a1a', darkText: false, group: 'frontier' },
   'chatgpt-subscription': {
     id: 'chatgpt-subscription',
+    // Same brand mark as the `openai` provider — a ChatGPT subscription IS OpenAI,
+    // just authed via OAuth instead of an API key, so it must not render a
+    // stray 'C' tile that reads like a different vendor. Matches openai's 'O'/teal.
     displayName: 'ChatGPT (subscription)',
-    mono: 'C',
+    mono: 'O',
     bg: '#10a37f',
     darkText: false,
     group: 'frontier',

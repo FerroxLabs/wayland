@@ -43,6 +43,11 @@ vi.mock('electron', () => ({ safeStorage: mockSafeStorage }));
 vi.mock('@process/utils/fetchWithRetry', () => ({
   fetchWithRetry: vi.fn(async () => ({ ok: false, json: async () => ({}) })),
 }));
+// The chatgpt-subscription catalog fetch prefers the FRESH OAuth token from
+// ~/.codex/auth.json over the (expiring) token frozen in the stored creds.
+// Mock it so the tests are hermetic (no real ~/.codex read) and can assert which
+// token the live fetch is given. Default: no codex bridge -> fall back to creds.
+vi.mock('@process/onboarding/codexAuthFile', () => ({ readCodexAuthFile: vi.fn().mockResolvedValue(null) }));
 
 import {
   createModelRegistryHandlers,
@@ -51,6 +56,7 @@ import {
 } from '@process/providers/ipc/modelRegistryIpc';
 import type { ModelRegistryDeps, SpawnHandle } from '@process/providers/ipc/modelRegistryIpc';
 import { fetchWithRetry } from '@process/utils/fetchWithRetry';
+import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 
 describe('CloudRegistrySource - google-auth Gemini catalog (zero-models regression)', () => {
   // A google-auth Gemini connection routes through the cloud-synthesis path but
@@ -971,6 +977,52 @@ describe('modelRegistry IPC - refresh', () => {
     const ids = repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id);
     expect(ids).toEqual(['gpt-5.5', 'gpt-5.4-mini']);
     expect(apiListModels).not.toHaveBeenCalled();
+  });
+
+  it('on refresh, uses the FRESH ~/.codex/auth.json token (not the stale stored key) so the live 5.6 models appear', async () => {
+    // Regression: the stored `creds.key` is the OAuth token frozen at connect and
+    // it EXPIRES; refreshing with it 401s -> the catalog gets stranded on the old
+    // static list and never surfaces gpt-5.6-*. The fix reads the current token
+    // from ~/.codex/auth.json (kept fresh by codex) for the live fetch.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'ChatGPT subscription',
+      state: 'connected',
+      creds: { key: 'STALE-stored-token', baseUrl: 'https://chatgpt.com/backend-api' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', [
+      catalogModel({ id: 'gpt-5.5', providerId: 'chatgpt-subscription' }),
+    ]);
+    vi.mocked(readCodexAuthFile).mockResolvedValueOnce({ accessToken: 'FRESH-codex-token' } as never);
+    // The live endpoint answers ONLY when the fresh token is presented; a call
+    // with the stale stored token would 401 (and never surface 5.6).
+    vi.mocked(fetchWithRetry).mockImplementationOnce(async (_url, init) => {
+      const auth = (init as RequestInit | undefined)?.headers as Record<string, string> | undefined;
+      if (auth?.Authorization !== 'Bearer FRESH-codex-token') {
+        return { ok: false, json: async () => ({}) } as unknown as Response;
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          models: [
+            { slug: 'gpt-5.6-sol', display_name: 'GPT-5.6-Sol', visibility: 'list' },
+            { slug: 'gpt-5.6-terra', display_name: 'GPT-5.6-Terra', visibility: 'list' },
+            { slug: 'gpt-5.6-luna', display_name: 'GPT-5.6-Luna', visibility: 'list' },
+            { slug: 'gpt-5.5', display_name: 'GPT-5.5', visibility: 'list' },
+          ],
+        }),
+      } as unknown as Response;
+    });
+
+    const h = createModelRegistryHandlers(deps);
+    const result = await h.refresh({ providerId: 'chatgpt-subscription' });
+
+    expect(result).toEqual({ ok: true });
+    const ids = repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id);
+    expect(ids).toContain('gpt-5.6-sol');
+    expect(ids).toContain('gpt-5.6-terra');
+    expect(ids).toContain('gpt-5.6-luna');
   });
 
   it('falls back to the models.dev slice when an OAuth bearer (xai) lists no models', async () => {
