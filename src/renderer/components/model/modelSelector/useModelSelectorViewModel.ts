@@ -20,6 +20,7 @@ import { useRecentlyUsedModels } from '@renderer/hooks/usage/useRecentlyUsedMode
 import { marqueeProviderRank } from '@renderer/utils/model/marquee';
 import { providerLabel } from '@renderer/components/onboarding/providerLabel';
 import { describeModel, fluxTierDescriptor, modelKey, priceTier } from './modelRowHelpers';
+import { sortModelsNewestFirst } from '@renderer/utils/model/modelOrder';
 import type { ModelRow, ModelSelectorViewModel, ModelZone } from './modelSelectorTypes';
 
 /** Backends whose config supports an effort/reasoning knob. */
@@ -120,7 +121,10 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
     // is connected AND whose per-model toggle is on (`enabled`). Disabled /
     // disconnected-vendor models are HIDDEN, not greyed - never show a model you
     // cannot choose. Flux virtual ids are handled separately (the hero + zone).
-    const base = curated.filter((m) => !isFluxModelId(m.id) && m.enabled);
+    // Newest-first so the "More models" zone (and any provider grouping derived
+    // from it) shows e.g. GPT-5.6 above 5.5 above 5.4 instead of the catalog
+    // store's ascending alphabetical order.
+    const base = sortModelsNewestFirst(curated.filter((m) => !isFluxModelId(m.id) && m.enabled));
     const empty = base.length === 0 && !fluxConnected;
 
     if (empty) {

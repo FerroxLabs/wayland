@@ -21,6 +21,7 @@ import { resolveAgentScope } from '@/renderer/pages/settings/AgentSettings/agent
 import { iconColors } from '@/renderer/styles/colors';
 import FluxRouterMark from '@/renderer/components/icons/FluxRouterMark';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
+import { sortModelsNewestFirst } from '@/renderer/utils/model/modelOrder';
 import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/utils/model/modelSource';
 import type { AcpModelInfo } from '../types';
 import React from 'react';
@@ -417,9 +418,12 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // identically to a cached entry. This is what kills the cold-start dead-end.
   const acpModels = React.useMemo<AcpModelInfo['availableModels']>(() => {
     if (currentAcpCachedModelInfo?.availableModels?.length) {
-      return currentAcpCachedModelInfo.availableModels;
+      return sortModelsNewestFirst(currentAcpCachedModelInfo.availableModels);
     }
-    return (curated ?? []).map((m) => ({ id: m.id, label: m.displayName }));
+    // Sort the curated rows (which carry releaseDate) newest-first BEFORE mapping
+    // to `{id,label}`, so the picker shows e.g. GPT-5.6 above 5.5 above 5.4
+    // instead of the catalog store's ascending alphabetical order.
+    return sortModelsNewestFirst(curated ?? []).map((m) => ({ id: m.id, label: m.displayName }));
   }, [currentAcpCachedModelInfo?.availableModels, curated]);
 
   const acpSelectedLabel = React.useMemo(() => {

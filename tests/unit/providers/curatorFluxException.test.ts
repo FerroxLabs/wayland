@@ -43,7 +43,13 @@ describe('Curator flux hero-exception', () => {
     // lands enabled:false and disappears from the WCore picker entirely.
     const ollama: CatalogModel[] = [
       { ...fluxAuto, id: 'qwen3:32b', providerId: 'ollama-local', family: 'qwen3', displayName: 'qwen3:32b' },
-      { ...fluxAuto, id: 'hf.co/Jackrong/Qwen3.5-27B', providerId: 'ollama-local', family: 'hf.co/Jackrong/Qwen3.5-27B', displayName: 'Qwen3.5 27B' },
+      {
+        ...fluxAuto,
+        id: 'hf.co/Jackrong/Qwen3.5-27B',
+        providerId: 'ollama-local',
+        family: 'hf.co/Jackrong/Qwen3.5-27B',
+        displayName: 'Qwen3.5 27B',
+      },
     ];
     const out = curator.curate(ollama);
     expect(out.filter((m) => m.enabled)).toHaveLength(2);
@@ -57,17 +63,26 @@ describe('Curator flux hero-exception', () => {
     // hiding the whole provider from the picker. Same class as Ollama/flux.
     const sakana: CatalogModel[] = [
       { ...fluxAuto, id: 'fugu', providerId: 'sakana', family: 'fugu', displayName: 'fugu', enriched: false },
-      { ...fluxAuto, id: 'fugu-ultra', providerId: 'sakana', family: 'fugu-ultra', displayName: 'fugu-ultra', enriched: false },
+      {
+        ...fluxAuto,
+        id: 'fugu-ultra',
+        providerId: 'sakana',
+        family: 'fugu-ultra',
+        displayName: 'fugu-ultra',
+        enriched: false,
+      },
     ];
     const out = curator.curate(sakana);
     expect(out.filter((m) => m.enabled)).toHaveLength(2);
     expect(out.every((m) => m.recommended === false)).toBe(true);
   });
 
-  it('does NOT force-enable a non-tier flux-router model (only the tier aliases are hero)', () => {
-    // The real flux-router catalog returns 40+ branded route models; only the
-    // four tier aliases should get the hero exception, the rest follow normal
-    // curation (an unenriched non-tier route stays disabled).
+  it('force-enables non-tier flux-router route models too (Flux Router → all models on)', () => {
+    // The real flux-router catalog returns 40+ branded route models. Flux Router
+    // users expect every routed model available out of the box, so the whole
+    // provider is force-enabled — not just the four tier aliases. (Previously an
+    // unenriched non-tier route fell through to normal curation and stayed
+    // disabled, hiding it from the picker.)
     const route: CatalogModel = {
       ...fluxAuto,
       id: 'anthropic/claude-opus-4-6',
@@ -76,6 +91,9 @@ describe('Curator flux hero-exception', () => {
       enriched: false,
     };
     const out = curator.curate([route]);
-    expect(out.find((m) => m.id === 'anthropic/claude-opus-4-6')?.enabled).toBe(false);
+    const curated = out.find((m) => m.id === 'anthropic/claude-opus-4-6');
+    expect(curated?.enabled).toBe(true);
+    // Routed models stay out of the Recommended zone (recommended: false).
+    expect(curated?.recommended).toBe(false);
   });
 });

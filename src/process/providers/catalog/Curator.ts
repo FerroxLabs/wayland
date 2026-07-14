@@ -63,7 +63,7 @@
  */
 
 import type { CatalogModel, CuratedModel } from '../types';
-import { isFluxModelId } from '@/common/config/flux';
+import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from './chatgptSubscriptionModels';
 
 /**
@@ -327,6 +327,16 @@ function curateOne(model: CatalogModel, rank: number, familyEligible: boolean): 
   // the rest of the flux-router catalog follows normal curation.
   if (isFluxModelId(model.id)) {
     return { ...model, recommended: false, enabled: true, role: 'flagship' };
+  }
+  // The rest of the Flux-router catalog (every model Flux can route to) is a
+  // curated, keyless virtual set like the tiers above. Flux Router users expect
+  // every routed model available out of the box, so force the whole provider
+  // `enabled` rather than letting normal rank-based curation leave most of it
+  // `enabled: false`. `recommended: false` keeps them in "More models" so they
+  // don't crowd the Recommended zone. Same class as the ollama / subscription
+  // unenriched-but-real sets below.
+  if (model.providerId === FLUX_PROVIDER_ID) {
+    return { ...model, recommended: false, enabled: true };
   }
   // The ChatGPT-subscription static catalog (GPT-5.x / Codex) is a curated,
   // unenriched virtual set just like the Flux tiers - there is no `/v1/models`
