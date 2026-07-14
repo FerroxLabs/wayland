@@ -64,6 +64,7 @@
 
 import type { CatalogModel, CuratedModel } from '../types';
 import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
+import { isNonTextModelName } from '@/common/config/imageModels';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from './chatgptSubscriptionModels';
 
 /**
@@ -170,7 +171,14 @@ export class Curator {
    * models together, newest-first; family order itself is not significant.
    */
   curate(catalog: CatalogModel[]): CuratedModel[] {
-    const textModels = catalog.filter((model) => model.kind === 'text');
+    // Chat pickers are text-only. `kind === 'text'` is not sufficient on its own:
+    // an image/audio model too new for models.dev lands UNENRICHED with the
+    // default `kind: 'text'` (e.g. Flux Router's "GPT Image *" / "Nano Banana" /
+    // "Flux Voice *" arms), so it would slip into the chat dropdown. Drop those
+    // by id/name too — image + audio models belong to their own tools, not chat.
+    const textModels = catalog.filter(
+      (model) => model.kind === 'text' && !isNonTextModelName(model.id) && !isNonTextModelName(model.displayName)
+    );
     const families = groupByFamily(textModels);
 
     // The reference date for the recency window - the catalog's newest

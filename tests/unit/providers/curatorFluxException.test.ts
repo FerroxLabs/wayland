@@ -96,4 +96,20 @@ describe('Curator flux hero-exception', () => {
     // Routed models stay out of the Recommended zone (recommended: false).
     expect(curated?.recommended).toBe(false);
   });
+
+  it('drops unenriched image/audio flux-router arms from the chat picker (kind:text but not chattable)', () => {
+    // These land kind:'text' because models.dev has not enriched them, and the
+    // Flux all-on rule would otherwise force-enable them straight into the chat
+    // dropdown. Image + audio arms must never reach the chat picker.
+    const arms: CatalogModel[] = [
+      { ...fluxAuto, id: 'gpt-image-high', family: 'gpt-image-high', displayName: 'GPT Image High' },
+      { ...fluxAuto, id: 'nano-banana', family: 'nano-banana', displayName: 'Nano Banana' },
+      { ...fluxAuto, id: 'flux-voice', family: 'flux-voice', displayName: 'Flux Voice' },
+      { ...fluxAuto, id: 'flux-voice-fast', family: 'flux-voice-fast', displayName: 'Flux Voice Fast' },
+      // A real chat arm must survive alongside them.
+      { ...fluxAuto, id: 'perplexity/sonar-reasoning-pro', family: 'sonar', displayName: 'Flux Pinned Sonar Reasoning Pro' },
+    ];
+    const out = curator.curate(arms);
+    expect(out.map((m) => m.id)).toEqual(['perplexity/sonar-reasoning-pro']);
+  });
 });
