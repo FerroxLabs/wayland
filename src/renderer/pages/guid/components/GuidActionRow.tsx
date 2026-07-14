@@ -11,7 +11,6 @@ import ComposerAddMenu, {
 } from '@/renderer/pages/conversation/components/composerMenu/ComposerAddMenu';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import AcpConfigSelector from '@/renderer/components/agent/AcpConfigSelector';
-import CoworkToggle from '@/renderer/components/agent/CoworkToggle';
 import { supportsModeSwitch, type AgentModeOption } from '@/renderer/utils/model/agentModes';
 import type { AcpSessionConfigOption } from '@/common/types/acpTypes';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
@@ -30,8 +29,6 @@ type GuidActionRowProps = {
   files: string[];
   onFilesUploaded: (paths: string[]) => void;
   onSelectWorkspace: (dir: string) => void;
-  /** Currently selected workspace cwd (drives the Chat<->Cowork trust toggle, #671). */
-  workspace?: string;
 
   // Model selector node (rendered by parent)
   modelSelectorNode: React.ReactNode;
@@ -83,7 +80,6 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
   files,
   onFilesUploaded,
   onSelectWorkspace,
-  workspace,
   modelSelectorNode,
   selectedAgent,
   effectiveModeAgent,
@@ -248,7 +244,6 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
               hideCompactLabelPrefixOnMobile
             />
           )}
-          <CoworkToggle workspace={workspace} size='mini' />
           <AcpConfigSelector
             backend={configOptionsBackend}
             buttonClassName='guid-config-btn'

@@ -5,7 +5,6 @@ import type { AcpBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
 import AcpConfigSelector from '@/renderer/components/agent/AcpConfigSelector';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
-import CoworkToggle from '@/renderer/components/agent/CoworkToggle';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
 import SendBox from '@/renderer/components/chat/sendbox';
@@ -430,7 +429,6 @@ Please check your local CLI tool authentication status`,
                 onModeChanged={isLeaderInTeam ? teamPermission?.propagateMode : undefined}
               />
             )}
-            <CoworkToggle workspace={workspacePath} size='mini' />
             <AcpConfigSelector
               conversationId={conversation_id}
               backend={backend}

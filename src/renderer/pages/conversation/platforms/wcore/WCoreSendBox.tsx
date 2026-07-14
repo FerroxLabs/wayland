@@ -8,7 +8,6 @@ import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { uuid } from '@/common/utils';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
-import CoworkToggle from '@/renderer/components/agent/CoworkToggle';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
 import SendBox from '@/renderer/components/chat/sendbox';
@@ -582,7 +581,6 @@ const WCoreSendBox: React.FC<{
               compactLabelPrefix={t('agentMode.permission')}
               hideCompactLabelPrefixOnMobile
             />
-            <CoworkToggle workspace={workspacePath} size='mini' />
           </div>
         }
         sendButtonPrefix={
